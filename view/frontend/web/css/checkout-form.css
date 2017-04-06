@@ -1,0 +1,7 @@
+#checkout_com_expirationMonth, #checkout_com_expirationYear, #checkout_com_cc_cid{
+    width: 6rem;
+}
+
+#payment_form_checkout_com {
+    padding-top:20px;
+}

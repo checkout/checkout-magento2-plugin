@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <checkout_com>
+                <model>CheckoutComFacade</model>
+                <title>Credit Card (Checkout.com)</title>
+                <active>1</active>
+                <debug>1</debug>
+                <is_gateway>1</is_gateway>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
+                <can_use_internal>0</can_use_internal>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_capture_vault>1</can_capture_vault>
+                <can_charge_details>1</can_charge_details>
+                <order_status>processing</order_status>
+                <environment>sandbox</environment>
+                <integration>hosted</integration>
+                <payment_action>authorize</payment_action>
+                <auto_capture>0</auto_capture>
+                <auto_capture_time>0</auto_capture_time>
+
+                <public_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <private_shared_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+
+                <sandbox_sdk_url><![CDATA[https://sandbox.checkout.com/js/checkoutkit.js]]></sandbox_sdk_url>
+                <live_sdk_url><![CDATA[https://cdn.checkout.com/js/checkoutkit.js]]></live_sdk_url>
+
+                <sandbox_api_url><![CDATA[https://sandbox.checkout.com/api2/v2/]]></sandbox_api_url>
+                <live_api_url><![CDATA[https://sandbox.checkout.com/api2/v2/]]></live_api_url>
+
+                <sandbox_hosted_url><![CDATA[https://secure1.checkout.com/sandbox/payment/]]></sandbox_hosted_url>
+                <live_hosted_url><![CDATA[https://secure1.checkout.com/payment]]></live_hosted_url>
+
+                <currency>USD</currency>
+
+                <sort_order>1</sort_order>
+                <debugReplaceKeys>public_key,secret_key</debugReplaceKeys>
+                <masked_fields>cvv,number</masked_fields>
+                <paymentInfoKeys>cc_type,cc_number,card_expiry_month,card_expiry_year,card_last_4,status,responseMessage,responseAdvancedInfo,responseCode,authCode,three_d_secure</paymentInfoKeys>
+
+                <cctypes>AE,VI,MC,DI,JCB,SM,DN</cctypes>
+                <useccv>1</useccv>
+            </checkout_com>
+            <checkout_com_cc_vault>
+                <model>CheckoutComCreditCardVaultFacade</model>
+                <title>Stored Cards (Checkout.com)</title>
+            </checkout_com_cc_vault>
+        </payment>
+    </default>
+</config>
