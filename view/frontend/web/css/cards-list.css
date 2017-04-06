@@ -1,0 +1,41 @@
+#cc-form-errors{
+    display: none;
+    padding: 15px;
+    background-color: #f44336;
+    color: white;
+    margin-bottom: 20px;
+    opacity: 0.8;
+    border-radius: 10px;
+    clear:both;
+}
+
+#closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#payment_form_checkout_com {
+    padding-top:20px;
+}
+
+#card-number, #card-holder {
+    width: 220px;
+}
+
+#expiry-month{
+    width: 140px;
+}
+
+#expiry-year{
+    width: 80px;
+}
+
+.ccv{
+    width: 100px;
+}

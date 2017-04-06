@@ -1,0 +1,102 @@
+<?php
+
+/* @var $block \CheckoutCom\Magento2\Block\Cards\Form */
+
+?>
+
+<button id="show-add-cc-form" class="action submit primary"><!-- ko i18n: 'Add Credit Card (checkout.com)'--><!-- /ko --></button>
+ 
+<form id="add-cc-form" method="POST" action="<?php echo $block->getFormActionUrl() ?>" style="display: none;">
+    <fieldset class="fieldset">
+        <legend class="legend"><span><!-- ko i18n: 'Add a new credit card'--><!-- /ko --></span></legend>
+
+        <input type="hidden" id="customer-email" name="customer_email" value="<?php echo $block->getCustomer()->getEmail() ?>">
+        <input type="hidden" name="customer_id" value="<?php echo $block->getCustomer()->getId() ?>">
+        <input type="hidden" name="customer_name" value="<?php echo $block->getCustomer()->getName() ?>">
+
+        <input type="hidden" id="checkout-public-key" value="<?php echo $block->getGatewayConfig()->getPublicKey() ?>">
+        
+        <input type="hidden" id="checkout-is-debug-mode" value="<?php echo $block->getGatewayConfig()->isDebugMode() ?>">
+        <input type="hidden" id="checkout-sdk-url" value="<?php echo $block->getGatewayConfig()->getSdkUrl() ?>">
+
+        <input type="hidden" id="checkout-card-expiryMonth" name="cko-card[expiryMonth]" />
+        <input type="hidden" id="checkout-card-expiryYear" name="cko-card[expiryYear]" />
+        <input type="hidden" id="checkout-card-last4" name="cko-card[last4]" />
+        <input type="hidden" id="checkout-card-paymentMethod" name="cko-card[paymentMethod]" />
+        <input type="hidden" id="cko-card-token" name="cko-card-token" />
+
+        <div id="cc-form-errors">
+           
+        </div>
+
+        <div class="field required">
+            <label for="card-holder" class="label">
+                <span><!-- ko i18n: 'Credit Card Holder'--><!-- /ko --></span>
+            </label>
+
+            <div class="control">
+                <input id="card-holder" type="text" required>
+            </div>
+        </div>
+
+        <div class="field required">
+            <label for="card-number" class="label">
+                <span><!-- ko i18n: 'Credit Card Cumber'--><!-- /ko --></span>
+            </label>
+            
+            <div class="control">
+                <input id="card-number" type="number" required>
+            </div>
+        </div>
+        
+        <div class="field inline required">
+            <label for="expiry-date" class="label">
+                <span><!-- ko i18n: 'Expiration Date'--><!-- /ko --></span>
+            </label>
+            
+            <div class="control">
+                <select id="expiry-month" required>
+                    <option><!-- ko i18n: 'Month'--><!-- /ko --></option>
+                    <?php echo $block->getMonthsForSelect(); ?>
+                </select>
+                
+                <select id="expiry-year" required>
+                    <option><!-- ko i18n: 'Year'--><!-- /ko --></option>
+                    <?php echo $block->getYearsForSelect(); ?>
+                </select>
+            </div>
+        </div>
+        
+        <?php if($block->getGatewayConfig()->isCvvEnabled()): ?>
+        
+        <div class="field inline required">
+            <label for="cvv" class="label">
+                <span><!-- ko i18n: 'Card Verification Number'--><!-- /ko --></span>
+            </label>
+            
+            <div class="control _with-tooltip ccv">
+                <input id="cvv" type="text" required>
+            
+                <div class="field-tooltip toggle">
+                    <span class="field-tooltip-action action-cvv"
+                        tabindex="0"
+                        data-toggle="dropdown"
+                        data-bind="attr: {title: 'What is this?'}, mageInit: {'dropdown':{'activeClass': '_active'}}">
+                        <span><!-- ko i18n: 'What is this?'--><!-- /ko --></span>
+                    </span>
+                    
+                    <div class="field-tooltip-content" data-target="dropdown">
+                        <?php echo $block->getCvvImgHtml(); ?>
+                    </div>
+                </div>
+            </div>
+        </div> 
+        <?php endif ?>
+    </fieldset>
+    <div class="actions-toolbar">
+        <div class="primary">
+            <button type="submit" class="action submit primary" id="add-new-cc-card">Add Card</button>
+        </div>
+    </div>
+</form>
+

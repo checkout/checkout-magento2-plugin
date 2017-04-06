@@ -1,0 +1,186 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="checkout_com" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Checkout.com</label>
+
+                <group id="checkout_com_logo" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="1">
+                    <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Fieldset\Logo</frontend_model>
+                </group>
+
+                <attribute type="activity_path">payment/checkout_com/active</attribute>
+
+                <field id="title" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Title</label>
+                    <config_path>payment/checkout_com/title</config_path>
+                </field>
+               
+                <field id="environment" translate="label" sortOrder="20" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Environment</label>
+                    <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\Environment</source_model>
+                    <config_path>payment/checkout_com/environment</config_path>
+                </field>
+
+                <field id="integration" translate="label" sortOrder="30" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Integration</label>
+                    <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\Integration</source_model>
+                    <config_path>payment/checkout_com/integration</config_path>
+                </field>
+
+                <field id="public_key" translate="label" sortOrder="40" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Public Key</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <config_path>payment/checkout_com/public_key</config_path>
+                </field>
+
+                <field id="secret_key" translate="label" sortOrder="50" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Secret Key</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <config_path>payment/checkout_com/secret_key</config_path>
+                </field>
+
+                <field id="private_shared_key" translate="label" sortOrder="60" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Private Shared Key</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <config_path>payment/checkout_com/private_shared_key</config_path>
+                    <comment>Used as an authorization key to the functionality called Webhook.</comment>
+                </field>
+
+                <field id="active" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enable this Solution</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>payment/checkout_com/active</config_path>
+                    <requires>
+                        <field id="public_key"/>
+                        <field id="secret_key"/>
+                        <field id="private_shared_key"/>
+                    </requires>
+                </field>
+
+                <field id="checkout_com_cc_vault_active" translate="label" sortOrder="80" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Vault Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>payment/checkout_com_cc_vault/active</config_path>
+                    <requires>
+                        <field id="active"/>
+                    </requires>
+                </field>
+
+                <group id="checkout_com_callback_urls" translate="label" showInDefault="1" showInWebsite="1" sortOrder="90">
+                    <label>Callbacks URLs</label>
+
+                    <field id="webhook_url" translate="label" sortOrder="10" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Webhook Url</label>
+                        <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\WebhookUrl</frontend_model>
+                    </field>
+
+                    <field id="redirection_url" translate="label" sortOrder="20" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Redirection Url</label>
+                        <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\RedirectionUrl</frontend_model>
+                    </field>
+
+                    <field id="redirection_fail_url" translate="label" sortOrder="30" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Redirection Fail Url</label>
+                        <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\RedirectionFailUrl</frontend_model>
+                    </field>
+                </group>
+
+                <group id="checkout_com_advanced_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="100">
+                    <label>Advanced Settings</label>
+
+                    <field id="checkout_com_cc_vault_title" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Vault Title</label>
+                        <config_path>payment/checkout_com_cc_vault/title</config_path>
+                    </field>
+
+                    <field id="debug" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Debug</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com/debug</config_path>
+                    </field>
+
+                    <field id="useccv" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>CVV Verification</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com/useccv</config_path>
+                    </field>
+
+                    <field id="verify_3dsecure" translate="label" sortOrder="40" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>3D Secure Verification</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com/verify_3dsecure</config_path>
+                    </field>
+
+                    <field id="auto_capture" translate="label" sortOrder="50" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Auto Capture</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com/auto_capture</config_path>
+                    </field>
+
+                    <field id="auto_capture_time" translate="label" sortOrder="60" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Auto Capture Time</label>
+                        <config_path>payment/checkout_com/auto_capture_time</config_path>
+                        <validate>validate-required validate-digits validate-zero-or-greater</validate>
+                        <depends>
+                            <field id="auto_capture">1</field>
+                        </depends>
+                        <comment>
+                            If Payment Action is "Authorize and Capture", Auto Capture Time will define the number of hours (0-168) between the charge authorisation and automatic capture. Set value to 0 to authorise and capture a charge at the same time.
+                        </comment>
+                    </field>
+
+                    <field id="allowspecific" translate="label" sortOrder="70" type="allowspecific" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment from Applicable Countries</label>
+                        <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                    </field>
+
+                    <field id="specificcountry" translate="label" sortOrder="80" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment from Specific Countries</label>
+                        <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    </field>
+
+                    <field id="sort_order" translate="label" sortOrder="90" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkout_com/sort_order</config_path>
+                    </field>
+                    
+                    <field id="cctypes" translate="label" type="multiselect" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Credit Card Types</label>
+                            <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\CcType</source_model>
+                            <config_path>payment/checkout_com/cctypes</config_path>
+                    </field>
+                </group>
+
+                <group id="checkout_com_descriptor" translate="label" showInDefault="1" showInWebsite="1" sortOrder="110">
+                    <label>Dynamic Descriptor</label>
+
+                    <field id="descriptor_enable" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable Dynamic Descriptor</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com/descriptor_enable</config_path>
+                        <comment>To enable this feature, contact your Checkout.com account manager or send an email to support@checkout.com</comment>
+                    </field>
+                    
+                    <field id="descriptor_name" translate="label" sortOrder="20" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Name</label>
+                        <config_path>payment/checkout_com/descriptor_name</config_path>
+                        <depends>
+                            <field id="descriptor_enable" >1</field>
+                        </depends>
+                    </field>
+
+                    <field id="descriptor_city" translate="label" sortOrder="30" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>City</label>
+                        <config_path>payment/checkout_com/descriptor_city</config_path>
+                        <depends>
+                            <field id="descriptor_enable" >1</field>
+                        </depends>
+                    </field>
+                </group>
+            </group>
+        </section>
+    </system>
+</config>
