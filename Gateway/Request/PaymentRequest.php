@@ -4,6 +4,7 @@ namespace CheckoutCom\Magento2\Gateway\Request;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Gateway\Helper\SubjectReader;
+use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 
@@ -48,7 +49,7 @@ class PaymentRequest extends AbstractRequest {
             'autoCapTime'   => $this->config->getAutoCaptureTimeInHours(),
             'autoCapture'   => $this->config->isAutoCapture() ? 'Y' : 'N',
             'email'         => $order->getBillingAddress()->getEmail(),
-            'currency'      => $order->getCurrencyCode(),
+            'currency'      => ChargeAmountAdapter::getPaymentFinalCurrencyCode($order->getCurrencyCode()),
             'customerIp'    => $this->remoteAddress->getRemoteAddress(),
         ];
 
