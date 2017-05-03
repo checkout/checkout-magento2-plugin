@@ -21,7 +21,6 @@
                                                         <item name="renders" xsi:type="array">
                                                             <!-- merge payment method renders here -->
                                                             <item name="children" xsi:type="array">
-
                                                                 <item name="checkout_com" xsi:type="array">
                                                                     <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/checkout_com</item>
                                                                     <item name="methods" xsi:type="array">
@@ -30,7 +29,13 @@
                                                                         </item>
                                                                     </item>
                                                                 </item>
-
+                                                            </item>
+                                                        </item>
+                                                        <item name="additional-payment-validators" xsi:type="array">
+                                                            <item name="children" xsi:type="array">
+                                                                <item name="agreement-validator" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/agreement-validation</item>
+                                                                </item>
                                                             </item>
                                                         </item>
                                                     </item>
