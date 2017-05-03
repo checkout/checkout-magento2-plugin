@@ -22,14 +22,16 @@
         <form id="checkout_com-hosted-form" class="form" data-bind="attr: {action: getHostedUrl()}" method="post" novalidate="novalidate" style="display:none">
             <input name="publicKey" data-bind="attr: {value: getPublicKey()}">
             <input name="cardFormMode" value="cardTokenisation">
-            <input name="paymentMode" value="cards">
+            <input name="paymentMode" data-bind="attr: {value: getPaymentMode()}">
             <input name="value" data-bind="attr: {value: getQuoteValue()}">
             <input name="currency" data-bind="attr: {value: getQuoteCurrency()}">
             <input name="customerEmail" data-bind="attr: {value: getEmailAddress()}">
             <input name="redirectUrl" data-bind="attr: {value: getRedirectUrl()}">
             <input name="cancelUrl" data-bind="attr: {value: getCancelUrl()}">
             <input name="contextId" data-bind="attr: {value: getEmailAddress()}">
-        </form>
+            <input name="themeColor" data-bind="attr: {value: getDesignSettings()['hosted']['theme_color']}">
+            <input name="buttonLabel" data-bind="attr: {value: getDesignSettings()['hosted']['button_label']}">
+      </form>
 
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
