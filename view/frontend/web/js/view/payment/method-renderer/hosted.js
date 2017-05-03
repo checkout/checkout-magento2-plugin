@@ -7,9 +7,10 @@ define(
         'CheckoutCom_Magento2/js/view/payment/method-renderer/cc-form',
         'CheckoutCom_Magento2/js/view/payment/adapter',
         'Magento_Checkout/js/model/quote',
-        'mage/url'
+        'mage/url',
+        'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function ($, Component, CheckoutCom, quote, url) {
+    function ($, Component, CheckoutCom, quote, url, additionalValidators) {
         'use strict';
 
         return Component.extend({
@@ -30,6 +31,13 @@ define(
              */
             getPublicKey: function() {
                 return CheckoutCom.getPaymentConfig()['public_key'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getPaymentMode: function() {
+                return CheckoutCom.getPaymentConfig()['payment_mode'];
             },
 
             /**
@@ -67,8 +75,17 @@ define(
             /**
              * @returns {string}
              */
+            getDesignSettings: function() {
+                return CheckoutCom.getPaymentConfig()['design_settings'];
+            },
+
+            /**
+             * @returns {string}
+             */
             beforePlaceOrder: function() {
-                $('#checkout_com-hosted-form').submit();
+                if (additionalValidators.validate()) {
+                    $('#checkout_com-hosted-form').submit();
+                }
             }
 
         });
