@@ -3,6 +3,7 @@
 namespace CheckoutCom\Magento2\Model\Adapter;
 
 use InvalidArgumentException;
+use CheckoutCom\Magento2\Gateway\Config\Config;
 
 class ChargeAmountAdapter {
 
@@ -25,7 +26,15 @@ class ChargeAmountAdapter {
     const DIV_100 = 100;
 
     /**
-     * Returns transformed amount by the given currency code which can be handles by the gateway API.
+     * ChargeAmountAdaoter constructor.
+     * @param Config $config
+     */
+    public function __construct(Config $config) {
+        $this->config = $config;
+    }
+
+    /**
+     * Returns transformed amount by the given currency code which can be handled by the gateway API.
      *
      * @param float $amount Value from the store.
      * @param string $currencyCode
@@ -57,7 +66,7 @@ class ChargeAmountAdapter {
     }
 
     /**
-     * Returns transformed amount by the given currency code which can be handles by the store.
+     * Returns transformed amount by the given currency code which can be handled by the store.
      *
      * @param string|int $amount Value from the gateway.
      * @param $currencyCode
@@ -99,4 +108,76 @@ class ChargeAmountAdapter {
         return $data;
     }
 
+    public static function getPaymentFinalCurrencyCode($orderCurrencyCode) {
+        
+        // Get the object manager
+        $manager = \Magento\Framework\App\ObjectManager::getInstance(); 
+        
+        // Load the gateway config and get the gateway payment currency
+        $gatewayConfig = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config'); 
+        $gatewayPaymentCurrency = $gatewayConfig->getPaymentCurrency();
+
+        // Get the user currency display
+        $userCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
+
+        // Load the store currency
+        $storeBaseCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getBaseCurrency()->getCode(); 
+
+        // Test the store and gateway config conditions
+        if ($gatewayPaymentCurrency == 'base_currency' && $userCurrencyCode != $storeBaseCurrencyCode) {
+
+            // Use the store base currency code
+            $finalCurrencyCode = $storeBaseCurrencyCode;
+        }
+        elseif ($gatewayPaymentCurrency == 'order_currency' || $userCurrencyCode == $storeBaseCurrencyCode) {
+
+            // Use the order currency code
+            $finalCurrencyCode = $userCurrencyCode;
+        }
+        else {
+
+            // We have a specific currency code to use for the payment
+            $finalCurrencyCode = $gatewayPaymentCurrency;
+        }
+
+        return $finalCurrencyCode;
+    }
+
+    public static function getPaymentFinalCurrencyValue($orderAmount) {
+ 
+        // Get the object manager
+        $manager = \Magento\Framework\App\ObjectManager::getInstance(); 
+        
+        // Load the gateway config and get the gateway payment currency
+        $gatewayConfig = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config'); 
+        $gatewayPaymentCurrency = $gatewayConfig->getPaymentCurrency();
+
+        // Get the user currency display
+        $userCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
+
+        // Load the store currency
+        $storeBaseCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getBaseCurrency()->getCode(); 
+
+        // Create a currency factory
+        $currencyFactory = $manager->create('Magento\Directory\Model\CurrencyFactory');
+ 
+        // Test the store and gateway config conditions
+        if ($gatewayPaymentCurrency == 'base_currency' && $userCurrencyCode != $storeBaseCurrencyCode) {
+
+            // Convert the user currency amount to base currency amount
+            $finalAmount = $orderAmount * $currencyFactory->create()->load($userCurrencyCode)->getAnyRate($storeBaseCurrencyCode);
+        }
+        elseif ($gatewayPaymentCurrency == 'order_currency' || $userCurrencyCode == $storeBaseCurrencyCode) {
+
+            // do nothing, just use the order currency
+            $finalAmount = $orderAmount;
+        }
+        else {
+
+            // We have a specific currency to use for the payment
+            $finalAmount = $orderAmount * $currencyFactory->create()->load($userCurrencyCode)->getAnyRate($gatewayPaymentCurrency);
+        }
+
+        return $finalAmount;
+    }
 }
