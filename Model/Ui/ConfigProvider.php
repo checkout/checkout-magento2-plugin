@@ -47,13 +47,18 @@ class ConfigProvider implements ConfigProviderInterface {
                     Config::CODE_3DSECURE       => [
                         'enabled' => $this->config->isVerify3DSecure(),
                     ],
+                    'attemptN3D' => $this->config->isAttemptN3D(),
                     'integration'               => [
                         'type'          => $this->config->getIntegration(),
                         'isHosted'      => $this->config->isHostedIntegration(),
-                        'isWidget'      => $this->config->isWidgetIntegration(),
+                        'isForm'      => $this->config->isFormIntegration(),
                     ],
                     'priceAdapter' => ChargeAmountAdapter::getConfigArray(),
-                ],
+                    'design_settings' => $this->config->getDesignSettings(),
+                    'accepted_currencies' => $this->config->getAcceptedCurrencies(),
+                    'payment_currency' => $this->config->getPaymentCurrency(),
+                    'payment_mode' => $this->config->getPaymentMode(),
+               ],
             ],
         ];
     }
