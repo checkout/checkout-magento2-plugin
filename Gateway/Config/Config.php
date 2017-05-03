@@ -3,6 +3,7 @@
 namespace CheckoutCom\Magento2\Gateway\Config;
 
 use Magento\Payment\Gateway\Config\Config as BaseConfig;
+use Magento\Store\Model\StoreManagerInterface;
 use CheckoutCom\Magento2\Model\Adminhtml\Source\Environment;
 use CheckoutCom\Magento2\Model\Adminhtml\Source\Integration;
 
@@ -22,6 +23,7 @@ class Config extends BaseConfig {
     const KEY_AUTO_CAPTURE = 'auto_capture';
     const KEY_AUTO_CAPTURE_TIME = 'auto_capture_time';
     const KEY_VERIFY_3DSECURE = 'verify_3dsecure';
+    const KEY_ATTEMPT_N3D = 'attemptN3D';
 
     const KEY_SANDBOX_SDK_URL = 'sandbox_sdk_url';
     const KEY_LIVE_SDK_URL = 'live_sdk_url';
@@ -40,6 +42,15 @@ class Config extends BaseConfig {
     const KEY_DESCRIPTOR_CITY = 'descriptor_city';
 
     const CODE_3DSECURE = 'three_d_secure';
+
+    const KEY_THEME_COLOR = 'theme_color';
+    const KEY_BUTTON_LABEL = 'button_label';
+
+    const KEY_NEW_ORDER_STATUS = 'new_order_status';
+    const KEY_ACCEPTED_CURRENCIES = 'accepted_currencies';
+    const KEY_PAYMENT_CURRENCY = 'payment_currency';
+    const KEY_PAYMENT_MODE = 'payment_mode';
+    const KEY_AUTO_GENERATE_INVOICE = 'auto_generate_invoice';
 
     /**
      * @var array
@@ -62,6 +73,47 @@ class Config extends BaseConfig {
     public function getEnvironment() {
         return (string) $this->getValue(self::KEY_ENVIRONMENT);
     }
+
+    /**
+     * Returns the payment mode.
+     *
+     * @return string
+     */
+    public function getPaymentMode() {
+        return (string) $this->getValue(self::KEY_PAYMENT_MODE);
+    }
+
+    /**
+     * Returns the automatic invoice generation state.
+     *
+     * @return bool
+     */
+    public function getAutoGenerateInvoice() {
+        return (bool) $this->getValue(self::KEY_AUTO_GENERATE_INVOICE);
+    }
+
+    /**
+     * Returns the new order status.
+     *
+     * @return string
+     */
+    public function getNewOrderStatus() {
+        return (string) $this->getValue(self::KEY_NEW_ORDER_STATUS);
+    }
+
+    /**
+     * Returns the design settings.
+     *
+     * @return array
+     */
+    public function getDesignSettings() {
+        return (array) array (
+            'hosted' => array (
+                'theme_color' => $this->getValue(self::KEY_THEME_COLOR),
+                'button_label' => $this->getValue(self::KEY_BUTTON_LABEL)
+            )
+        );
+   }
 
     /**
      * Determines if the environment is set as sandbox mode.
@@ -91,12 +143,12 @@ class Config extends BaseConfig {
     }
 
     /**
-     * Determines if the gateway is configured to use widget integration.
+     * Determines if the gateway is configured to use credit card form integration.
      *
      * @return bool
      */
-    public function isWidgetIntegration() {
-        return $this->getIntegration() === Integration::INTEGRATION_WIDGET;
+    public function isFormIntegration() {
+        return $this->getIntegration() === Integration::INTEGRATION_CCFORM;
     }
 
     /**
@@ -114,7 +166,15 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isActive() {
-        return (bool) $this->getValue(self::KEY_ACTIVE);
+
+       // Get an object manager instance
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+        // Load the quote
+        $quote = $objectManager->create('Magento\Checkout\Model\Session')->getQuote();     
+
+        // Return the status
+        return (bool) in_array($quote->getQuoteCurrencyCode(), $this->getAcceptedCurrencies());
     }
 
     /**
@@ -160,6 +220,33 @@ class Config extends BaseConfig {
      */
     public function isVerify3DSecure() {
         return (bool) $this->getValue(self::KEY_VERIFY_3DSECURE);
+    }
+
+    /**
+     * Determines if attempt Non 3D Secure option is enabled.
+     *
+     * @return bool
+     */
+    public function isAttemptN3D() {
+        return (bool) $this->getValue(self::KEY_ATTEMPT_N3D);
+    }
+
+    /**
+     * Returns the currencies allowed for payment.
+     *
+     * @return array
+     */
+    public function getAcceptedCurrencies() {
+        return (array) explode(',', $this->getValue(self::KEY_ACCEPTED_CURRENCIES));
+    }
+
+    /**
+     * Returns the payment currency.
+     *
+     * @return string
+     */
+    public function getPaymentCurrency() {
+        return (string) $this->getValue(self::KEY_PAYMENT_CURRENCY);
     }
 
     /**
