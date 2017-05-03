@@ -21,6 +21,16 @@
                 <can_capture_vault>1</can_capture_vault>
                 <can_charge_details>1</can_charge_details>
                 <order_status>processing</order_status>
+                <new_order_status>complete</new_order_status>
+                <payment_currency>base_currency</payment_currency>
+                <accepted_currencies>USD</accepted_currencies>
+                <attemptN3D>0</attemptN3D>
+                <auto_generate_invoice>1</auto_generate_invoice>
+
+                <theme_color>#00b660</theme_color>
+                <button_label>Pay Now</button_label>
+                <payment_mode>cards</payment_mode>
+             
                 <environment>sandbox</environment>
                 <integration>hosted</integration>
                 <payment_action>authorize</payment_action>
@@ -39,8 +49,6 @@
 
                 <sandbox_hosted_url><![CDATA[https://secure1.checkout.com/sandbox/payment/]]></sandbox_hosted_url>
                 <live_hosted_url><![CDATA[https://secure1.checkout.com/payment]]></live_hosted_url>
-
-                <currency>USD</currency>
 
                 <sort_order>1</sort_order>
                 <debugReplaceKeys>public_key,secret_key</debugReplaceKeys>
