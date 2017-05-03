@@ -16,6 +16,7 @@ class ThreeDSecureRequest extends AbstractRequest {
         if($this->config->isVerify3DSecure()){
             return [
                 'chargeMode' => 2,
+                'attemptN3D' => filter_var($this->config->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN),
                 'options' => [
                     Config::CODE_3DSECURE => [
                         'required' => true,
