@@ -11,9 +11,16 @@ use CheckoutCom\Magento2\Model\Service\OrderService;
 use CheckoutCom\Magento2\Model\Service\VerifyPaymentService;
 use CheckoutCom\Magento2\Model\Service\StoreCardService;
 use CheckoutCom\Magento2\Model\Factory\VaultTokenFactory;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 
+use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
+use Magento\Sales\Model\Service\InvoiceService;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+
 class Verify extends AbstractAction {
+
 
     /**
      * @var Session
@@ -49,7 +56,17 @@ class Verify extends AbstractAction {
      * @var PaymentTokenRepository 
      */
     protected $paymentTokenRepository;
-    
+ 
+    /**
+     * @var InvoiceService
+     */
+    protected $invoiceService;
+
+    /**
+     * @var InvoiceRepositoryInterface
+     */
+    protected $invoiceRepository;
+
     /**
      * Verify constructor.
      * @param Context $context
@@ -71,8 +88,10 @@ class Verify extends AbstractAction {
             StoreCardService $storeCardService, 
             CustomerSession $customerSession, 
             VaultTokenFactory $vaultTokenFactory, 
-            PaymentTokenRepositoryInterface $paymentTokenRepository
-        ) 
+            PaymentTokenRepositoryInterface $paymentTokenRepository,
+            InvoiceService $invoiceService, 
+            InvoiceRepositoryInterface $invoiceRepository
+          ) 
         {
         parent::__construct($context, $gatewayConfig);
 
@@ -84,7 +103,10 @@ class Verify extends AbstractAction {
         $this->customerSession      = $customerSession;
         $this->vaultTokenFactory    = $vaultTokenFactory;
         $this->paymentTokenRepository   = $paymentTokenRepository;
-    }
+       $this->invoiceService       = $invoiceService;
+        $this->invoiceRepository    = $invoiceRepository;
+
+   }
 
     /**
      * Handles the controller method.
@@ -99,6 +121,8 @@ class Verify extends AbstractAction {
         $quote          = $this->session->getQuote();
         
         try {
+
+            // Process the response
             $response   = $this->verifyPaymentService->verifyPayment($paymentToken);
             $cardToken  = $response['card']['id'];
             
@@ -106,6 +130,7 @@ class Verify extends AbstractAction {
                 return $this->vaultCardAfterThreeDSecure( $response );
             }
             
+            // Process the quote
             $this->validateQuote($quote);
             $this->assignGuestEmail($quote, $response['email']);
 
@@ -113,9 +138,55 @@ class Verify extends AbstractAction {
                 throw new LocalizedException(__('The transaction has been declined.'));
             }
 
+            // Place the order
             $this->orderService->execute($quote, $cardToken, []);
 
+            // Load some classes for extra order processing
+            $manager = \Magento\Framework\App\ObjectManager::getInstance(); 
+            $session = $manager->create('Magento\Checkout\Model\Session');
+            $orderInterface = $manager->create('Magento\Sales\Api\Data\OrderInterface'); 
+
+            // Load the order
+            $order = $orderInterface->loadByIncrementId($session->getLastRealOrderId());
+
+            // Update order status
+            $order->setState('new');
+            $order->setStatus($this->gatewayConfig->getNewOrderStatus());
+            $order->save(); 
+
+            // Delete comments history
+            foreach ($order->getAllStatusHistory() as $orderComment) {
+                $orderComment->delete();
+            }
+            
+            // Add new comment
+            $priceHelper = $manager->create('Magento\Framework\Pricing\Helper\Data'); 
+            $price =  $order->getGrandTotal(); 
+            $formattedPrice = $priceHelper->currency($price, true, false);
+            $newComment = 'Authorized amout of ' . $formattedPrice . '. Transaction ID: ' . $response['id'];
+            $order->addStatusToHistory($order->getStatus(), $newComment, false);
+
+            // Save the order
+            $order->save();
+
+            // Generate invoice if needed
+            if($this->gatewayConfig->getAutoGenerateInvoice() && $order->canInvoice()) {
+
+                $amount = ChargeAmountAdapter::getStoreAmountOfCurrency($response['value'], $response['currency']);
+
+                $invoice = $this->invoiceService->prepareInvoice($order);
+                $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+                $invoice->setBaseGrandTotal($amount);
+                $invoice->register();
+
+                $this->invoiceRepository->save($invoice);
+
+            }
+
+
+            // Redirect to the success page
             return $resultRedirect->setPath('checkout/onepage/success', ['_secure' => true]);
+
         } catch (\Exception $e) {
             $this->messageManager->addExceptionMessage($e, $e->getMessage());
         }
