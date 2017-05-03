@@ -29,6 +29,12 @@
                     <config_path>payment/checkout_com/integration</config_path>
                 </field>
 
+                <field id="payment_mode" translate="label" sortOrder="30" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Payment mode</label>
+                    <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\PaymentMode</source_model>
+                    <config_path>payment/checkout_com/payment_mode</config_path>
+                </field>
+
                 <field id="public_key" translate="label" sortOrder="40" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Public Key</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
@@ -46,6 +52,22 @@
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <config_path>payment/checkout_com/private_shared_key</config_path>
                     <comment>Used as an authorization key to the functionality called Webhook.</comment>
+                </field>
+
+                <field id="new_order_status" translate="label" type="select" sortOrder="65" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>New order status</label>
+                    <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
+                    <config_path>payment/checkout_com/new_order_status</config_path>
+                    <comment>Select the status that should be used for new orders.</comment>
+                </field>
+
+                <field id="auto_generate_invoice" translate="label" sortOrder="69" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Automatically generate invoice</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>payment/checkout_com/autoGenerateInvoice</config_path>
+                    <comment>
+                        When set to "Yes", an invoice will be generated automatically for the new order status selected above.
+                    </comment>
                 </field>
 
                 <field id="active" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -113,6 +135,18 @@
                         <config_path>payment/checkout_com/verify_3dsecure</config_path>
                     </field>
 
+                    <field id="attemptN3D" translate="label" sortOrder="45" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Attempt Non 3D Secure</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com/attemptN3D</config_path>
+                        <depends>
+                            <field id="verify_3dsecure">1</field>
+                        </depends>
+                        <comment>
+                            When set to "Yes", a Non 3D Secure payment will be attempted automatically if the initial 3D Secure charge cannot be completed.
+                        </comment>
+                    </field>
+
                     <field id="auto_capture" translate="label" sortOrder="50" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Auto Capture</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -130,6 +164,20 @@
                             If Payment Action is "Authorize and Capture", Auto Capture Time will define the number of hours (0-168) between the charge authorisation and automatic capture. Set value to 0 to authorise and capture a charge at the same time.
                         </comment>
                     </field>
+
+                    <field id="payment_currency" translate="label" sortOrder="65" type="select" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                        <label>Payment Currency</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\PaymentCurrency</source_model>
+                        <config_path>payment/checkout_com/payment_currency</config_path>
+                        <comment>If you select a single specific currency, please make sure the selected currency is available and activated in your merchant account. Contact your Checkout.com account manager or send an email to support@checkout.com for more information.</comment>
+                    </field>
+
+                    <field id="accepted_currencies" translate="label" sortOrder="65" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                        <label>Accepted Currencies</label>
+                        <source_model>Magento\Config\Model\Config\Source\Locale\Currency</source_model>
+                        <config_path>payment/checkout_com/accepted_currencies</config_path>
+                        <comment>The payment option will not be displayed if the shopper's order currency is not part of the currencies selected here.</comment>
+                   </field>
 
                     <field id="allowspecific" translate="label" sortOrder="70" type="allowspecific" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Payment from Applicable Countries</label>
@@ -178,6 +226,19 @@
                         <depends>
                             <field id="descriptor_enable" >1</field>
                         </depends>
+                    </field>
+                </group>
+
+                <group id="checkout_com_design_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="120">
+                    <label>Design settings</label>
+                    <field id="theme_color" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Theme color</label>
+                        <config_path>payment/checkout_com/theme_color</config_path>
+                    <comment>Provide a color code in hexadecimal format. Ex: #00b660</comment>
+                    </field>                    
+                 	<field id="button_label" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Button label</label>
+                        <config_path>payment/checkout_com/button_label</config_path>
                     </field>
                 </group>
             </group>
