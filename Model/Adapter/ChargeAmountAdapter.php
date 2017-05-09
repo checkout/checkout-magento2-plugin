@@ -124,12 +124,12 @@ class ChargeAmountAdapter {
         $storeBaseCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getBaseCurrency()->getCode(); 
 
         // Test the store and gateway config conditions
-        if ($gatewayPaymentCurrency == 'base_currency' && $userCurrencyCode != $storeBaseCurrencyCode) {
+        if ($gatewayPaymentCurrency == 'base_currency') {
 
             // Use the store base currency code
             $finalCurrencyCode = $storeBaseCurrencyCode;
         }
-        elseif ($gatewayPaymentCurrency == 'order_currency' || $userCurrencyCode == $storeBaseCurrencyCode) {
+        elseif ($gatewayPaymentCurrency == 'order_currency') {
 
             // Use the order currency code
             $finalCurrencyCode = $userCurrencyCode;
@@ -162,20 +162,21 @@ class ChargeAmountAdapter {
         $currencyFactory = $manager->create('Magento\Directory\Model\CurrencyFactory');
  
         // Test the store and gateway config conditions
-        if ($gatewayPaymentCurrency == 'base_currency' && $userCurrencyCode != $storeBaseCurrencyCode) {
+        if ($gatewayPaymentCurrency == 'base_currency') {
 
             // Convert the user currency amount to base currency amount
-            $finalAmount = $orderAmount * $currencyFactory->create()->load($userCurrencyCode)->getAnyRate($storeBaseCurrencyCode);
+            $finalAmount = $orderAmount * $currencyFactory->create()->load($userCurrencyCode)->getAnyRate($storeBaseCurrencyCode);            
         }
-        elseif ($gatewayPaymentCurrency == 'order_currency' || $userCurrencyCode == $storeBaseCurrencyCode) {
+        elseif ($gatewayPaymentCurrency == 'order_currency') {
 
-            // do nothing, just use the order currency
+            // Do nothing, just use the order currency
             $finalAmount = $orderAmount;
         }
         else {
 
             // We have a specific currency to use for the payment
             $finalAmount = $orderAmount * $currencyFactory->create()->load($userCurrencyCode)->getAnyRate($gatewayPaymentCurrency);
+
         }
 
         return $finalAmount;
