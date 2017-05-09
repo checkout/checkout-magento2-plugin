@@ -24,24 +24,6 @@ define([
 
         /**
          *
-         * @param currencyCode
-         * @param amount
-         * @returns {number}
-         */
-        getAmountForGateway: function(currencyCode, amount) {
-            var priceAdapter = this.getPaymentConfig()['priceAdapter'];
-
-            amount = parseFloat(amount);
-
-            if(priceAdapter[currencyCode] === undefined) {
-                return amount * priceAdapter['others'];
-            }
-
-            return amount * priceAdapter[currencyCode];
-        },
-
-        /**
-         *
          * @returns {*|{then, catch, finally}}
          */
         getClient: function() {
