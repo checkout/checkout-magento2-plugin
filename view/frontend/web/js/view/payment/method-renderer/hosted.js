@@ -43,19 +43,22 @@ define(
             /**
              * @returns {string}
              */
-            getQuoteValue: function() {
-                var
-                    currencyCode = this.getQuoteCurrency(),
-                    amount = parseFloat(window.checkoutConfig.quoteData.base_grand_total);
+            getPaymentToken: function() {
+                return CheckoutCom.getPaymentConfig()['payment_token'];
+            },
 
-                return CheckoutCom.getAmountForGateway(currencyCode, amount);
+            /**
+             * @returns {string}
+             */
+            getQuoteValue: function() {
+                return CheckoutCom.getPaymentConfig()['quote_value'];
             },
 
             /**
              * @returns {string}
              */
             getQuoteCurrency: function() {
-                return window.checkoutConfig.quoteData.quote_currency_code;
+                return CheckoutCom.getPaymentConfig()['quote_currency'];
             },
 
             /**
