@@ -3,8 +3,10 @@
 namespace CheckoutCom\Magento2\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Checkout\Model\Session;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
+use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
 
 class ConfigProvider implements ConfigProviderInterface {
 
@@ -18,12 +20,26 @@ class ConfigProvider implements ConfigProviderInterface {
     protected $config;
 
     /**
+     * @var Session
+     */
+    protected $checkoutSession;
+
+    /**
+     * @var PaymentTokenService
+     */
+    protected $paymentTokenService;
+
+    /**
      * ConfigProvider constructor.
      * @param Config $config
+     * @param PaymentTokenService $paymentTokenService
+     * @param Session $checkoutSession
      */
-    public function __construct(Config $config) {
+    public function __construct(Config $config, PaymentTokenService $paymentTokenService, Session $checkoutSession) {
         $this->config = $config;
-    }
+        $this->paymentTokenService  = $paymentTokenService;
+        $this->checkoutSession = $checkoutSession;
+   }
 
     /**
      * Retrieve assoc array of checkout configuration
@@ -58,9 +74,46 @@ class ConfigProvider implements ConfigProviderInterface {
                     'accepted_currencies' => $this->config->getAcceptedCurrencies(),
                     'payment_currency' => $this->config->getPaymentCurrency(),
                     'payment_mode' => $this->config->getPaymentMode(),
-               ],
+                    'payment_token' => $this->getPaymentToken(),
+                    'quote_value' => $this->getQuoteValue(),
+                    'quote_currency' => $this->getQuoteCurrency(),
+             ],
             ],
         ];
     }
+
+    public function getPaymentToken() {
+        return $this->paymentTokenService->getToken();
+    }
+
+    public function getQuoteValue() {
+
+        // Get the object manager
+        $manager = \Magento\Framework\App\ObjectManager::getInstance();
+
+        // Get the quote amount
+        $amount =  ChargeAmountAdapter::getPaymentFinalCurrencyValue($this->checkoutSession->getQuote()->getGrandTotal());
+
+        // Get the quote currency
+        $currencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
+
+        // Prepare the amount 
+        $value = ChargeAmountAdapter::getGatewayAmountOfCurrency($amount, $currencyCode);
+
+        return $value;
+    }
+   
+    public function getQuoteCurrency() {
+
+        // Get the object manager
+        $manager = \Magento\Framework\App\ObjectManager::getInstance();
+
+        // Get the quote currency
+        $currencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
+
+        // Return the quote currency
+        return ChargeAmountAdapter::getPaymentFinalCurrencyCode($currencyCode);
+    }
+
 
 }
