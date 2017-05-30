@@ -2,6 +2,7 @@
 
 namespace CheckoutCom\Magento2\Gateway\Response;
 
+use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Sales\Model\Order\Payment;
@@ -37,7 +38,7 @@ class TransactionHandler implements HandlerInterface {
         if( ! $payment instanceof Payment) {
             return;
         }
-       
+     
         $this->setTransactionId($payment, $response['id']);
         $payment->setTransactionAdditionalInfo('Status', $response['status']);
         $payment->setIsTransactionClosed( $this->shouldCloseTransaction() );
@@ -60,7 +61,6 @@ class TransactionHandler implements HandlerInterface {
         }
         elseif($responseCode >= 20000 AND $responseCode <= 40000) {
             $payment->setIsTransactionClosed(true);
-            //$payment->cancel();
         }
     }
 
@@ -96,5 +96,4 @@ class TransactionHandler implements HandlerInterface {
     protected function shouldCloseParentTransaction(Payment $payment) {
         return false;
     }
-
 }

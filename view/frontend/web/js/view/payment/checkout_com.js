@@ -12,12 +12,10 @@ define(
         var paymentMethod = window.checkoutConfig.payment['checkout_com'];
 
         if (paymentMethod.isActive) {
-            var methodIntegration = paymentMethod.integration.isHosted ? 'hosted' : 'cc-form';
-
             rendererList.push(
                 {
                     type: 'checkout_com',
-                    component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/' + methodIntegration
+                    component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/' + paymentMethod.integration.type
                 }
             );
         }

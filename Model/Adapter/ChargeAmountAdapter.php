@@ -3,9 +3,17 @@
 namespace CheckoutCom\Magento2\Model\Adapter;
 
 use InvalidArgumentException;
-use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Directory\Model\CurrencyFactory;
+use Magento\Store\Model\StoreManagerInterface;
+use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 
 class ChargeAmountAdapter {
+
+    /**
+     * Currency types available in the module configuration.
+     */
+    const BASE_CURRENCY = 'base_currency';
+    const ORDER_CURRENCY = 'order_currency';
 
     /**
      * Currencies where charge amount is full.
@@ -26,11 +34,28 @@ class ChargeAmountAdapter {
     const DIV_100 = 100;
 
     /**
-     * ChargeAmountAdaoter constructor.
-     * @param Config $config
+     * @var GatewayConfig
      */
-    public function __construct(Config $config) {
-        $this->config = $config;
+    protected $gatewayConfig;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
+     * @var CurrencyFactory
+     */
+    protected $currencyFactory;
+
+    /**
+     * ChargeAmountAdaoter constructor.
+     * @param GatewayConfig $gatewayConfig
+     */
+    public function __construct(GatewayConfig $gatewayConfig, StoreManagerInterface $storeManager, CurrencyFactory $currencyFactory) {
+        $this->gatewayConfig = $gatewayConfig;
+        $this->storeManager = $storeManager;
+        $this->currencyFactory = $currencyFactory;
     }
 
     /**
@@ -88,7 +113,7 @@ class ChargeAmountAdapter {
     }
 
     /**
-     * Returns config array for the JS implementation.
+     * Returns a config array for the JS implementation.
      *
      * @return array
      */
@@ -108,14 +133,18 @@ class ChargeAmountAdapter {
         return $data;
     }
 
+    /**
+     * Returns a converted currency code.
+     * @param string $orderCurrencyCode
+     * @return string
+     */
     public static function getPaymentFinalCurrencyCode($orderCurrencyCode) {
-        
+                
         // Get the object manager
-        $manager = \Magento\Framework\App\ObjectManager::getInstance(); 
-        
+        $manager = \Magento\Framework\App\ObjectManager::getInstance();
+
         // Load the gateway config and get the gateway payment currency
-        $gatewayConfig = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config'); 
-        $gatewayPaymentCurrency = $gatewayConfig->getPaymentCurrency();
+        $gatewayPaymentCurrency = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config')->getPaymentCurrency();
 
         // Get the user currency display
         $userCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
@@ -124,12 +153,12 @@ class ChargeAmountAdapter {
         $storeBaseCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getBaseCurrency()->getCode(); 
 
         // Test the store and gateway config conditions
-        if ($gatewayPaymentCurrency == 'base_currency') {
+        if ($gatewayPaymentCurrency == self::BASE_CURRENCY) {
 
             // Use the store base currency code
             $finalCurrencyCode = $storeBaseCurrencyCode;
         }
-        elseif ($gatewayPaymentCurrency == 'order_currency') {
+        elseif ($gatewayPaymentCurrency == self::ORDER_CURRENCY) {
 
             // Use the order currency code
             $finalCurrencyCode = $userCurrencyCode;
@@ -143,31 +172,32 @@ class ChargeAmountAdapter {
         return $finalCurrencyCode;
     }
 
+    /**
+     * Returns a converted currency value.
+     * @param float $orderAmount
+     * @return float
+     */
     public static function getPaymentFinalCurrencyValue($orderAmount) {
- 
+
         // Get the object manager
-        $manager = \Magento\Framework\App\ObjectManager::getInstance(); 
-        
+        $manager = \Magento\Framework\App\ObjectManager::getInstance();
+         
         // Load the gateway config and get the gateway payment currency
-        $gatewayConfig = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config'); 
-        $gatewayPaymentCurrency = $gatewayConfig->getPaymentCurrency();
+        $gatewayPaymentCurrency = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config')->getPaymentCurrency();
 
         // Get the user currency display
         $userCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
 
         // Load the store currency
         $storeBaseCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getBaseCurrency()->getCode(); 
-
-        // Create a currency factory
-        $currencyFactory = $manager->create('Magento\Directory\Model\CurrencyFactory');
  
         // Test the store and gateway config conditions
-        if ($gatewayPaymentCurrency == 'base_currency') {
+        if ($gatewayPaymentCurrency == self::BASE_CURRENCY) {
 
             // Convert the user currency amount to base currency amount
-            $finalAmount = $orderAmount * $currencyFactory->create()->load($userCurrencyCode)->getAnyRate($storeBaseCurrencyCode);            
+            $finalAmount = $orderAmount * $manager->create('Magento\Directory\Model\CurrencyFactory')->create()->load($userCurrencyCode)->getAnyRate($storeBaseCurrencyCode);            
         }
-        elseif ($gatewayPaymentCurrency == 'order_currency') {
+        elseif ($gatewayPaymentCurrency == self::ORDER_CURRENCY) {
 
             // Do nothing, just use the order currency
             $finalAmount = $orderAmount;
@@ -175,8 +205,7 @@ class ChargeAmountAdapter {
         else {
 
             // We have a specific currency to use for the payment
-            $finalAmount = $orderAmount * $currencyFactory->create()->load($userCurrencyCode)->getAnyRate($gatewayPaymentCurrency);
-
+            $finalAmount = $orderAmount * $manager->create('Magento\Directory\Model\CurrencyFactory')->create()->load($userCurrencyCode)->getAnyRate($gatewayPaymentCurrency);
         }
 
         return $finalAmount;

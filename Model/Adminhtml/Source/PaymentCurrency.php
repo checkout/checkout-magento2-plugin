@@ -3,12 +3,25 @@
 namespace CheckoutCom\Magento2\Model\Adminhtml\Source;
 
 use Magento\Framework\Option\ArrayInterface;
+use Magento\Config\Model\Config\Source\Locale\Currency;
 
 class PaymentCurrency implements ArrayInterface {
 
     const ORDER_CURRENCY = 'order_currency';
     const BASE_CURRENCY = 'base_currency';
 
+    /**
+     * @var Currency
+     */
+    protected $currencyManager;
+
+    /**
+     * PaymentCurrency constructor.
+     * @param Currency $currency
+     */
+    public function __construct(Currency $currencyManager){
+        $this->currencyManager = $currencyManager;
+    }
 
     /**
      * Options provider function
@@ -38,13 +51,7 @@ class PaymentCurrency implements ArrayInterface {
             ]
         ];
 
-        // Load the object manager 
-        $manager = \Magento\Framework\App\ObjectManager::getInstance(); 
-
-        // Create the options list
-        $currencies = $manager->create('Magento\Config\Model\Config\Source\Locale\Currency'); 
-
         // Return the options as array
-        return array_merge($options, $currencies->toOptionArray());
+        return array_merge($options, $this->currencyManager->toOptionArray());
     }   
 }

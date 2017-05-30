@@ -18,8 +18,8 @@ class AmountRequest extends AbstractRequest {
         $order          = $paymentDO->getOrder();
 
         $currencyCode   = $order->getCurrencyCode();
-        $amount         = ChargeAmountAdapter::getPaymentFinalCurrencyValue($this->subjectReader->readAmount($buildSubject));
-        $value          = ChargeAmountAdapter::getGatewayAmountOfCurrency($amount, $currencyCode);
+        $amount         = ChargeAmountAdapter::getGatewayAmountOfCurrency($this->subjectReader->readAmount($buildSubject), $currencyCode);
+        $value          = $amount;
 
         return compact('value');
     }

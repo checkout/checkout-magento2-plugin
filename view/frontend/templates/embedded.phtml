@@ -1,0 +1,37 @@
+<?php
+
+/* @var $block \CheckoutCom\Magento2\Block\Embedded */
+
+?>
+ 
+<script src="https://cdn.checkout.com/v2/sandbox/js/checkout.js"></script>
+
+<?php
+// Load default CSS only if there is no custom file in config
+if (!$block->hasCustomCss()) {
+?>
+	<style>
+		@import url(<?php echo $block->getDefaultCss(); ?>);
+	</style>
+<?php
+}
+?>
+
+<style>
+	html {
+	    overflow: -moz-scrollbars-vertical !important; 
+	    overflow-y: scroll !important;
+	}
+
+	body {
+	    overflow: visible !important;
+	}
+
+	#embeddedForm, #embeddedForm iframe {
+	    position: relative !important;
+	}
+
+	#cko-form-holder {
+	    max-width: 50%;
+	}
+</style>

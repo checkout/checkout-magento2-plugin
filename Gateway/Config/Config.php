@@ -25,11 +25,14 @@ class Config extends BaseConfig {
     const KEY_VERIFY_3DSECURE = 'verify_3dsecure';
     const KEY_ATTEMPT_N3D = 'attemptN3D';
 
-    const KEY_SANDBOX_SDK_URL = 'sandbox_sdk_url';
-    const KEY_LIVE_SDK_URL = 'live_sdk_url';
+    const KEY_SANDBOX_HOSTED_SDK_URL = 'sandbox_hosted_sdk_url';
+    const KEY_LIVE_HOSTED_SDK_URL = 'live_hosted_sdk_url';
 
-    const KEY_SANDBOX_API_URL = 'sandbox_api_url';
-    const KEY_LIVE_API_URL = 'live_api_url';
+    const KEY_SANDBOX_EMBEDDED_SDK_URL = 'sandbox_embedded_sdk_url';
+    const KEY_LIVE_EMBEDDED_SDK_URL = 'live_embedded_sdk_url';
+
+    const KEY_SANDBOX_HOSTED_API_URL = 'sandbox_hosted_api_url';
+    const KEY_LIVE_HOSTED_API_URL = 'live_hosted_api_url';
 
     const KEY_SANDBOX_HOSTED_URL = 'sandbox_hosted_url';
     const KEY_LIVE_HOSTED_URL = 'live_hosted_url';
@@ -51,6 +54,9 @@ class Config extends BaseConfig {
     const KEY_PAYMENT_CURRENCY = 'payment_currency';
     const KEY_PAYMENT_MODE = 'payment_mode';
     const KEY_AUTO_GENERATE_INVOICE = 'auto_generate_invoice';
+
+    const KEY_EMBEDDED_THEME = 'embedded_theme';
+    const KEY_EMBEDDED_CSS = 'embedded_css';
 
     /**
      * @var array
@@ -140,15 +146,6 @@ class Config extends BaseConfig {
      */
     public function getIntegration() {
         return (string) $this->getValue(self::KEY_INTEGRATION);
-    }
-
-    /**
-     * Determines if the gateway is configured to use credit card form integration.
-     *
-     * @return bool
-     */
-    public function isFormIntegration() {
-        return $this->getIntegration() === Integration::INTEGRATION_CCFORM;
     }
 
     /**
@@ -255,7 +252,7 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getSandboxSdkUrl() {
-        return (string) $this->getValue(self::KEY_SANDBOX_SDK_URL);
+        return (string) $this->getValue(self::KEY_INTEGRATION) == 'hosted' ? $this->getValue(self::KEY_SANDBOX_HOSTED_SDK_URL) : $this->getValue(self::KEY_SANDBOX_EMBEDDED_SDK_URL);
     }
 
     /**
@@ -264,7 +261,7 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getLiveSdkUrl() {
-        return (string) $this->getValue(self::KEY_LIVE_SDK_URL);
+        return (string) $this->getValue(self::KEY_INTEGRATION) == 'hosted' ? $this->getValue(self::KEY_LIVE_HOSTED_SDK_URL) : $this->getValue(self::KEY_LIVE_EMBEDDED_SDK_URL);
     }
 
     /**
@@ -282,7 +279,7 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getSandboxApiUrl() {
-        return (string) $this->getValue(self::KEY_SANDBOX_API_URL);
+        return (string) $this->getValue(self::KEY_SANDBOX_HOSTED_API_URL);
     }
 
     /**
@@ -291,7 +288,7 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getLiveApiUrl() {
-        return (string) $this->getValue(self::KEY_LIVE_API_URL);
+        return (string) $this->getValue(self::KEY_LIVE_HOSTED_API_URL);
     }
 
     /**
@@ -328,6 +325,15 @@ class Config extends BaseConfig {
      */
     public function getHostedUrl() {
         return $this->isLive() ? $this->getLiveHostedUrl() : $this->getSandboxHostedUrl();
+    }
+
+    /**
+     * Returns the URL for embedded integration based on environment settings.
+     *
+     * @return string
+     */
+    public function getEmbeddedUrl() {
+        return "";
     }
 
     /**
@@ -426,4 +432,21 @@ class Config extends BaseConfig {
         return (string) $this->getValue(self::KEY_DESCRIPTOR_CITY);
     }
 
+    /**
+     * Returns the embedded theme.
+     *
+     * @return string
+     */
+    public function getEmbeddedTheme() {
+        return (string) $this->getValue(self::KEY_EMBEDDED_THEME);
+    }
+
+    /**
+     * Returns the embedded custom CSS file.
+     *
+     * @return string
+     */
+    public function getEmbeddedCss() {
+        return (string) $this->getValue(self::KEY_EMBEDDED_CSS);
+    }   
 }

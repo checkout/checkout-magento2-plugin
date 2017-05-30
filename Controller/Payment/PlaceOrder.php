@@ -54,6 +54,7 @@ class PlaceOrder extends AbstractAction {
             $this->orderService->execute($quote, $cardToken, $agreement);
 
             return $resultRedirect->setPath('checkout/onepage/success', ['_secure' => true]);
+            
         } catch (\Exception $e) {
             $this->messageManager->addExceptionMessage($e, $e->getMessage());
         }

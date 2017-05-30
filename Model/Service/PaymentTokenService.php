@@ -2,18 +2,18 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Zend_Http_Client_Exception;
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\HTTP\ZendClient;
+use Magento\Payment\Gateway\Http\TransferInterface;
+use Magento\Payment\Gateway\Http\ClientException;
+use Magento\Checkout\Model\Session;
+use Magento\Store\Model\StoreManagerInterface;
 use CheckoutCom\Magento2\Gateway\Http\TransferFactory;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use CheckoutCom\Magento2\Gateway\Exception\ApiClientException;
 use CheckoutCom\Magento2\Model\GatewayResponseHolder;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
-use Magento\Framework\HTTP\ZendClient;
-use Magento\Payment\Gateway\Http\TransferInterface;
-use Magento\Payment\Gateway\Http\ClientException;
-use Magento\Checkout\Model\Session;
-
-use Zend_Http_Client_Exception;
 
 class PaymentTokenService {
 
@@ -33,15 +33,22 @@ class PaymentTokenService {
     protected $checkoutSession;
 
     /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * PaymentTokenService constructor.
      * @param GatewayConfig $gatewayConfig
      * @param TransferFactory $transferFactory
      * @param Session $checkoutSession
+     * @param StoreManagerInterface $storeManager
     */
-    public function __construct(GatewayConfig $gatewayConfig, TransferFactory $transferFactory, Session $checkoutSession) {
+    public function __construct(GatewayConfig $gatewayConfig, TransferFactory $transferFactory, Session $checkoutSession, StoreManagerInterface $storeManager) {
         $this->gatewayConfig    = $gatewayConfig;
         $this->transferFactory  = $transferFactory;
         $this->checkoutSession = $checkoutSession;
+        $this->storeManager  = $storeManager;
     }
 
     /**
@@ -53,12 +60,8 @@ class PaymentTokenService {
      * @throws \Exception
      */
     public function getToken() {
-
-        // Get the object manager
-        $manager = \Magento\Framework\App\ObjectManager::getInstance();
-
         // Get the quote currency
-        $currencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
+        $currencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
 
         // Get the quote amount
         $amount       =  ChargeAmountAdapter::getPaymentFinalCurrencyValue($this->checkoutSession->getQuote()->getGrandTotal());

@@ -11,7 +11,7 @@ class PaymentMode implements ArrayInterface {
     const MODE_LOCAL = 'localpayments';
 
     /**
-     * Possible environment types
+     * Possible payment modes
      *
      * @return array
      */
@@ -31,5 +31,4 @@ class PaymentMode implements ArrayInterface {
             ] 
         ];
     }         
-
 }

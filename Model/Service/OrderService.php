@@ -12,6 +12,8 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Checkout\Api\AgreementsValidatorInterface;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Observer\DataAssignObserver;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
 class OrderService {
 
@@ -36,22 +38,38 @@ class OrderService {
     private $checkoutHelper;
 
     /**
+     * @var Order
+     */
+    private $orderManager;
+
+    /**
+     * @var OrderSender
+     */
+    private $orderSender;
+
+    /**
      * OrderService constructor.
      * @param CartManagementInterface $cartManagement
      * @param AgreementsValidatorInterface $agreementsValidator
      * @param Session $customerSession
      * @param Data $checkoutHelper
-     */
+     * @param Order $orderManager
+     * @param OrderSender $orderSender
+    */
     public function __construct(
         CartManagementInterface $cartManagement,
         AgreementsValidatorInterface $agreementsValidator,
         Session $customerSession,
-        Data $checkoutHelper
+        Data $checkoutHelper,
+        Order $orderManager,
+        OrderSender $orderSender
     ) {
         $this->cartManagement       = $cartManagement;
         $this->agreementsValidator  = $agreementsValidator;
         $this->customerSession      = $customerSession;
         $this->checkoutHelper       = $checkoutHelper;
+        $this->orderManager         = $orderManager;
+        $this->orderSender          = $orderSender;
     }
 
     /**
@@ -71,14 +89,21 @@ class OrderService {
             $this->prepareGuestQuote($quote);
         }
 
+        // Set up the payment information
         $payment = $quote->getPayment();
         $payment->setMethod(ConfigProvider::CODE);
         $payment->setAdditionalInformation(DataAssignObserver::CARD_TOKEN_ID, $cardToken);
 
+        // Configure the quote
         $this->disabledQuoteAddressValidation($quote);
         $quote->collectTotals();
 
-        $this->cartManagement->placeOrder($quote->getId());
+        // Place the order
+        $orderId = $this->cartManagement->placeOrder($quote->getId());
+
+        // Send email
+        $order = $this->orderManager->load($orderId);
+        $this->orderSender->send($order);
     }
 
     /**
@@ -134,5 +159,4 @@ class OrderService {
             }
         }
     }
-
 }

@@ -14,13 +14,8 @@ use CheckoutCom\Magento2\Model\Factory\VaultTokenFactory;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 
-use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
-use Magento\Sales\Model\Service\InvoiceService;
-use Magento\Sales\Model\Order\Invoice;
-use Magento\Sales\Api\InvoiceRepositoryInterface;
 
 class Verify extends AbstractAction {
-
 
     /**
      * @var Session
@@ -56,16 +51,6 @@ class Verify extends AbstractAction {
      * @var PaymentTokenRepository 
      */
     protected $paymentTokenRepository;
- 
-    /**
-     * @var InvoiceService
-     */
-    protected $invoiceService;
-
-    /**
-     * @var InvoiceRepositoryInterface
-     */
-    protected $invoiceRepository;
 
     /**
      * Verify constructor.
@@ -88,9 +73,7 @@ class Verify extends AbstractAction {
             StoreCardService $storeCardService, 
             CustomerSession $customerSession, 
             VaultTokenFactory $vaultTokenFactory, 
-            PaymentTokenRepositoryInterface $paymentTokenRepository,
-            InvoiceService $invoiceService, 
-            InvoiceRepositoryInterface $invoiceRepository
+            PaymentTokenRepositoryInterface $paymentTokenRepository
           ) 
         {
         parent::__construct($context, $gatewayConfig);
@@ -103,9 +86,6 @@ class Verify extends AbstractAction {
         $this->customerSession      = $customerSession;
         $this->vaultTokenFactory    = $vaultTokenFactory;
         $this->paymentTokenRepository   = $paymentTokenRepository;
-       $this->invoiceService       = $invoiceService;
-        $this->invoiceRepository    = $invoiceRepository;
-
    }
 
     /**
@@ -119,7 +99,7 @@ class Verify extends AbstractAction {
         $resultRedirect = $this->getResultRedirect();
         $paymentToken   = $this->getRequest()->getParam('cko-payment-token');
         $quote          = $this->session->getQuote();
-        
+       
         try {
 
             // Process the response
@@ -141,48 +121,8 @@ class Verify extends AbstractAction {
             // Place the order
             $this->orderService->execute($quote, $cardToken, []);
 
-            // Load some classes for extra order processing
-            $manager = \Magento\Framework\App\ObjectManager::getInstance(); 
-            $session = $manager->create('Magento\Checkout\Model\Session');
-            $orderInterface = $manager->create('Magento\Sales\Api\Data\OrderInterface'); 
-
-            // Load the order
-            $order = $orderInterface->loadByIncrementId($session->getLastRealOrderId());
-
-            // Update order status
-            $order->setState('new');
-            $order->setStatus($this->gatewayConfig->getNewOrderStatus());
-            $order->save(); 
-
-            // Delete comments history
-            foreach ($order->getAllStatusHistory() as $orderComment) {
-                $orderComment->delete();
-            }
-            
-            // Add new comment
-            $priceHelper = $manager->create('Magento\Framework\Pricing\Helper\Data'); 
-            $price =  $order->getGrandTotal(); 
-            $formattedPrice = $priceHelper->currency($price, true, false);
-            $newComment = 'Authorized amout of ' . $formattedPrice . '. Transaction ID: ' . $response['id'];
-            $order->addStatusToHistory($order->getStatus(), $newComment, false);
-
-            // Save the order
-            $order->save();
-
-            // Generate invoice if needed
-            if($this->gatewayConfig->getAutoGenerateInvoice() && $order->canInvoice()) {
-
-                $amount = ChargeAmountAdapter::getStoreAmountOfCurrency($response['value'], $response['currency']);
-
-                $invoice = $this->invoiceService->prepareInvoice($order);
-                $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
-                $invoice->setBaseGrandTotal($amount);
-                $invoice->register();
-
-                $this->invoiceRepository->save($invoice);
-
-            }
-
+            // Store the response in session for order update in observer
+            $this->customerSession->setResponseData($response);
 
             // Redirect to the success page
             return $resultRedirect->setPath('checkout/onepage/success', ['_secure' => true]);

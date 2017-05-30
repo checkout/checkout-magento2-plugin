@@ -6,8 +6,8 @@ use Magento\Framework\Option\ArrayInterface;
 
 class Integration implements ArrayInterface {
 
-    const INTEGRATION_WIDGET = 'widget';
     const INTEGRATION_HOSTED = 'hosted';
+    const INTEGRATION_EMBEDDED = 'embedded';
 
     /**
      * Possible environment types
@@ -17,13 +17,13 @@ class Integration implements ArrayInterface {
     public function toOptionArray() {
         return [
             [
-                'value' => self::INTEGRATION_WIDGET,
-                'label' => 'Widget',
-            ],
-            [
                 'value' => self::INTEGRATION_HOSTED,
                 'label' => 'Hosted'
-            ]
+            ],
+            [
+                'value' => self::INTEGRATION_EMBEDDED,
+                'label' => 'Embedded'
+            ]        
         ];
     }
 

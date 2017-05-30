@@ -4,6 +4,7 @@ namespace CheckoutCom\Magento2\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
+use Magento\Store\Model\StoreManagerInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
@@ -30,16 +31,23 @@ class ConfigProvider implements ConfigProviderInterface {
     protected $paymentTokenService;
 
     /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * ConfigProvider constructor.
      * @param Config $config
      * @param PaymentTokenService $paymentTokenService
      * @param Session $checkoutSession
+     * @param StoreManagerInterface $storeManager
      */
-    public function __construct(Config $config, PaymentTokenService $paymentTokenService, Session $checkoutSession) {
+    public function __construct(Config $config, PaymentTokenService $paymentTokenService, Session $checkoutSession, StoreManagerInterface $storeManager) {
         $this->config = $config;
         $this->paymentTokenService  = $paymentTokenService;
         $this->checkoutSession = $checkoutSession;
-   }
+        $this->storeManager = $storeManager;
+    }
 
     /**
      * Retrieve assoc array of checkout configuration
@@ -55,6 +63,7 @@ class ConfigProvider implements ConfigProviderInterface {
                     'public_key'                => $this->config->getPublicKey(),
                     'sdk_url'                   => $this->config->getSdkUrl(),
                     'hosted_url'                => $this->config->getHostedUrl(),
+                    'embedded_url'              => $this->config->getEmbeddedUrl(),
                     'countrySpecificCardTypes'  => $this->config->getCountrySpecificCardTypeConfig(),
                     'availableCardTypes'        => $this->config->getAvailableCardTypes(),
                     'useCvv'                    => $this->config->isCvvEnabled(),
@@ -67,7 +76,6 @@ class ConfigProvider implements ConfigProviderInterface {
                     'integration'               => [
                         'type'          => $this->config->getIntegration(),
                         'isHosted'      => $this->config->isHostedIntegration(),
-                        'isForm'      => $this->config->isFormIntegration(),
                     ],
                     'priceAdapter' => ChargeAmountAdapter::getConfigArray(),
                     'design_settings' => $this->config->getDesignSettings(),
@@ -77,25 +85,35 @@ class ConfigProvider implements ConfigProviderInterface {
                     'payment_token' => $this->getPaymentToken(),
                     'quote_value' => $this->getQuoteValue(),
                     'quote_currency' => $this->getQuoteCurrency(),
-             ],
+                    'quote_currency' => $this->getQuoteCurrency(),
+                    'embedded_theme' => $this->config->getEmbeddedTheme(),
+                    'embedded_css' => $this->config->getEmbeddedCss(),
+                ],
             ],
         ];
     }
 
+    /**
+     * Get a payment token.
+     *
+     * @return string
+     */
     public function getPaymentToken() {
         return $this->paymentTokenService->getToken();
     }
 
+    /**
+     * Get a quote value.
+     *
+     * @return float
+     */
     public function getQuoteValue() {
-
-        // Get the object manager
-        $manager = \Magento\Framework\App\ObjectManager::getInstance();
 
         // Get the quote amount
         $amount =  ChargeAmountAdapter::getPaymentFinalCurrencyValue($this->checkoutSession->getQuote()->getGrandTotal());
 
         // Get the quote currency
-        $currencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
+        $currencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
 
         // Prepare the amount 
         $value = ChargeAmountAdapter::getGatewayAmountOfCurrency($amount, $currencyCode);
@@ -103,17 +121,17 @@ class ConfigProvider implements ConfigProviderInterface {
         return $value;
     }
    
+    /**
+     * Get a quote currency code.
+     *
+     * @return string
+     */
     public function getQuoteCurrency() {
 
-        // Get the object manager
-        $manager = \Magento\Framework\App\ObjectManager::getInstance();
-
         // Get the quote currency
-        $currencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
+        $currencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
 
         // Return the quote currency
         return ChargeAmountAdapter::getPaymentFinalCurrencyCode($currencyCode);
     }
-
-
 }

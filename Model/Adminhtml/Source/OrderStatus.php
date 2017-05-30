@@ -3,11 +3,25 @@
 namespace CheckoutCom\Magento2\Model\Adminhtml\Source;
 
 use Magento\Framework\Option\ArrayInterface;
+use Magento\Sales\Model\ResourceModel\Order\Status\Collection;
 
 class OrderStatus implements ArrayInterface {
 
     /**
-     * Possible environment types
+     * @var Collection 
+     */
+    protected $orderStatusCollection;
+
+    /**
+     * OrderStatus constructor.
+     * @param Collection $statusCollection
+     */
+    public function __construct(Collection $orderStatusCollection){
+        $this->orderStatusCollection = $orderStatusCollection;
+    }
+
+    /**
+     * Return the order status options
      *
      * @return array
      */
@@ -22,13 +36,7 @@ class OrderStatus implements ArrayInterface {
      */
     public function getStatusOptions()
     {   
-        // Load the object manager 
-        $manager = \Magento\Framework\App\ObjectManager::getInstance(); 
-
-        // Create the options list
-        $options = $manager->create('Magento\Sales\Model\ResourceModel\Order\Status\Collection'); 
-
         // Return the options as array
-        return $options->toOptionArray();
+        return $this->orderStatusCollection->toOptionArray();
     }   
 }
