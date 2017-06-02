@@ -197,12 +197,6 @@
                         <validate>validate-number</validate>
                         <config_path>payment/checkout_com/sort_order</config_path>
                     </field>
-                    
-                    <field id="cctypes" translate="label" type="multiselect" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
-                            <label>Credit Card Types</label>
-                            <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\CcType</source_model>
-                            <config_path>payment/checkout_com/cctypes</config_path>
-                    </field>
                 </group>
 
                 <group id="checkout_com_descriptor" translate="label" showInDefault="1" showInWebsite="1" sortOrder="110">

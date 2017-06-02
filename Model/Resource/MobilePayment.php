@@ -1,6 +1,6 @@
 <?php
 
-namespace CheckoutCom\Magento2\Model;
+namespace CheckoutCom\Magento2\Model\Resource;
 
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Payment\Gateway\Http\TransferInterface;
@@ -15,6 +15,10 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use CheckoutCom\Magento2\Model\Service\OrderService;
 use Magento\Quote\Model\Quote;
+use Magento\Customer\Model\Address;
+use Magento\Checkout\Model\Type\Onepage;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
+use CheckoutCom\Magento2\Observer\DataAssignObserver;
 
 /**
  * Defines the implementaton class of the charge through API.
@@ -40,6 +44,7 @@ class MobilePayment implements MobilePaymentInterface
     protected $quoteFactory;
     protected $storeManager;
     protected $orderService;
+    protected $addressManager;
 
 
 
@@ -48,7 +53,7 @@ class MobilePayment implements MobilePaymentInterface
      * @param GatewayConfig $gatewayConfig
      * @param TransferFactory $transferFactory
     */
-    public function __construct(GatewayConfig $gatewayConfig, TransferFactory $transferFactory, CustomerRepositoryInterface $customerRepository, Product $productManager, QuoteFactory $quoteFactory, StoreManagerInterface $storeManager, OrderService $orderService) {
+    public function __construct(GatewayConfig $gatewayConfig, TransferFactory $transferFactory, CustomerRepositoryInterface $customerRepository, Product $productManager, QuoteFactory $quoteFactory, StoreManagerInterface $storeManager, OrderService $orderService, Address $addressManager) {
         $this->gatewayConfig    = $gatewayConfig;
         $this->transferFactory  = $transferFactory;
         $this->customerRepository  = $customerRepository;
@@ -56,6 +61,7 @@ class MobilePayment implements MobilePaymentInterface
         $this->quoteFactory = $quoteFactory;
         $this->storeManager = $storeManager;
         $this->orderService     = $orderService;
+        $this->addressManager = $addressManager;
     }
 
     /**
@@ -66,41 +72,6 @@ class MobilePayment implements MobilePaymentInterface
      * @return array.
      */
     public function charge($data) {
-
-
-        /*
-        PHP
-        array (
-
-            'cardToken' => 'card_tok_CB9C10E3-24CC-4A82-B50A-4DEFDCB15580',
-            'email' => 'david.fiaty@checkout.com',
-            'value' => 110,
-            'currency' => 'EUR',
-            'products' => array (
-                array(
-                    'id' => 1,
-                    'quantity' => 3,
-                    'options' => array(3, 6)
-                ),
-
-                array(
-                    'id' => 2,
-                    'quantity' => 10,
-                    'options' => array(3, 6)
-                ),   
-
-                array(
-                    'id' => 4,
-                    'quantity' => 10,
-                    'options' => array(3, 6)
-                ),               
-            )
-        );
-
-        JSON
-       {"cardToken":"card_tok_CB9C10E3-24CC-4A82-B50A-4DEFDCB15580","email":"david.fiaty@checkout.com","value":110,"currency":"EUR","products":[{"id":1,"quantity":3,"options":[3,6]},{"id":2,"quantity":10,"options":[3,6]},{"id":4,"quantity":10,"options":[3,6]}]}
-
-        */
 
         // JSON post data to object
         $this->data = json_decode($data);
@@ -136,9 +107,39 @@ class MobilePayment implements MobilePaymentInterface
         // Prepare the products for shop order submission
         $quote = $this->prepareProductsForShop($quote);
 
+        // Set billing address
+        $billingID = $this->customer->getDefaultBilling();
+        $billingAddress = $this->addressManager->load($billingID);
+        $quote->getBillingAddress()->addData($billingAddress->getData());
+
+        // Set shipping address
+        $shippingID = $this->customer->getDefaultShipping();
+        $shippingAddress = $this->addressManager->load($shippingID);
+        $shippingAddress->setCollectShippingRates(true);
+        $shippingAddress->setShippingMethod('flatrate_flatrate');
+        $quote->getShippingAddress()->addData($shippingAddress->getData());
+        $quote->setTotalsCollectedFlag(false)->collectTotals();
+
+        // Inventory
+        $quote->setInventoryProcessed(false);
+
+        // Set payment
+        $payment = $quote->getPayment();
+        $payment->setMethod(ConfigProvider::CODE);
+        $payment->setAdditionalInformation(DataAssignObserver::CARD_TOKEN_ID, $this->data->cardToken);
+        $quote->save();
+
+        // Only registered users can order
+        $quote->setCheckoutMethod(Onepage::METHOD_REGISTER);
+
+        // Set sales order payment
+        $quote->getPayment()->importData(['method' => ConfigProvider::CODE]);
+
+        // Save the quote
+        //$quote->collectTotals()->save();
+
         // Place the order
-        $agreement = [];
-        $this->orderService->execute($quote, $this->data->cardToken, $agreement);
+        $this->orderService->execute($quote, $this->data->cardToken, $agreement = []);
     }
 
     private function submitRequestToGateway () {
@@ -146,15 +147,25 @@ class MobilePayment implements MobilePaymentInterface
         // Prepare the products for gateway submission
         $products = $this->prepareProductsForGateway();
 
+        // Prepare some extra parameters
+        $amount = filter_var($this->data->value, FILTER_SANITIZE_NUMBER_FLOAT) * 100;
+        $email = filter_var($this->data->email, FILTER_SANITIZE_EMAIL);
+        $cardToken = filter_var($this->data->cardToken, FILTER_SANITIZE_STRING);
+
+        $currency = filter_var($this->data->currency, FILTER_SANITIZE_STRING);
+        $autoCapture = $this->gatewayConfig->isAutoCapture() ? 'Y' : 'N';
+        $autoCapTime = $this->gatewayConfig->getAutoCaptureTimeInHours();
+        $chargeMode = 1;
+
         // Prepare the transfer data
         $transfer = $this->transferFactory->create([
-            'cardToken'   => filter_var($this->data->cardToken, FILTER_SANITIZE_STRING),
-            'email' => filter_var($this->data->email, FILTER_SANITIZE_EMAIL),
-            'value' => filter_var($this->data->value, FILTER_SANITIZE_NUMBER_FLOAT),
-            'currency' => filter_var($this->data->currency, FILTER_SANITIZE_STRING),
-            'chargeMode' => 1,
-            'autoCapture' => $this->gatewayConfig->isAutoCapture() ? 'Y' : 'N',
-            'autoCapTime' => $this->gatewayConfig->getAutoCaptureTimeInHours(),
+            'cardToken'   => $cardToken,
+            'email' => $email,
+            'value' => $amount,
+            'currency' => $currency,
+            'chargeMode' => $chargeMode,
+            'autoCapture' => $autoCapture,
+            'autoCapTime' => $autoCapTime,
             'products' => $products
         ]); 
 
@@ -233,10 +244,7 @@ class MobilePayment implements MobilePaymentInterface
     private function getHttpClient($endpoint, TransferInterface $transfer) {
         $client = new ZendClient($this->gatewayConfig->getApiUrl() . $endpoint);
         $client->setMethod('POST');
-        $client->setRawData( json_encode( $transfer->getBody()) ) ;
         $client->setHeaders($transfer->getHeaders());
-        $client->setConfig($transfer->getClientConfig());
-        $client->setUrlEncodeBody($transfer->shouldEncode());
 
         return $client;
     }

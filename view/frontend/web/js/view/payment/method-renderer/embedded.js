@@ -134,6 +134,7 @@ define(
                 // Get self
                 var self = this;
 
+                // Prepare parameters
                 var ckoTheme = CheckoutCom.getPaymentConfig()['embedded_theme'];
                 var embedded_css = CheckoutCom.getPaymentConfig()['embedded_css'];
                 var ckoThemeOverride = ((embedded_css) && embedded_css !== '') ? embedded_css : undefined;

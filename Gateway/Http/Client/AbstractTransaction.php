@@ -103,13 +103,10 @@ abstract class AbstractTransaction implements ClientInterface {
             return $response;
         }
 
-       // Prepare the transfert data
+        // Prepare the transfert data
         $this->prepareTransfer($transferObject);
 
-        // Place a pending order
-        // TODO : see notes for this function below in the same file
-        // $this->placeOrder();
-
+        // Prepare some log data
         $log = [
             'request'           => $this->body,
             'request_uri'       => $this->fullUri,
@@ -139,7 +136,6 @@ abstract class AbstractTransaction implements ClientInterface {
         $client->setUrlEncodeBody($transferObject->shouldEncode());
            
         $client->setUri($this->fullUri);
-        
         
         try {
             $response           = $client->request();
@@ -183,38 +179,6 @@ abstract class AbstractTransaction implements ClientInterface {
         $this->fullUri  = $transferObject->getUri() . $uri;
         $this->body     = $body;
     }
-
-    /**
-     * Places a pending order from the credit card form method.
-     * 
-     * This function is part of the "new order status" feature.
-     * It creates a new order and will break the existing payment process
-     * since the code in the response will try to create the order again.
-     * If this function is activated, the response code will need modifications,
-     * so that an order reated here is not recreated again but just updated.
-     *
-     * @param String $trackId
-     */
-    protected function placeOrder() {
-       
-        // Configure the quote
-        $quote = $this->cart->getQuote();
-        $quote->setInventoryProcessed(false);
-        $quote->setPaymentMethod('free');
-        $quote->save();
-
-        // Set the payment method - See order service for improvement on payment option
-        //$payment = $quote->getPayment();
-        //$payment->importData(['method' => 'free']);
-        //$payment->importData(['method' => ConfigProvider::CODE]);
-
-        // Update the quote
-        $quote->collectTotals()->save();
-   
-        // Submit the quote and create the order
-        //$this->cartManagement->placeOrder($quote->getId()); 
-        $order = $this->quoteManagement->submit($quote); 
-    }    
 
     /**
      * Returns the HTTP method.

@@ -423,7 +423,7 @@
     <!-- END Card Service -->
 
     <!-- Mobile Payments API -->
-    <preference for="CheckoutCom\Magento2\Api\MobilePaymentInterface" type="CheckoutCom\Magento2\Model\MobilePayment" />
+    <preference for="CheckoutCom\Magento2\Api\MobilePaymentInterface" type="CheckoutCom\Magento2\Model\Resource\MobilePayment" />
     <!-- END Mobile Payments API -->
 
 </config>

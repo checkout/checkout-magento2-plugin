@@ -91,7 +91,6 @@ class PlacedOrderObserver implements ObserverInterface {
             $newComment = 'Authorized amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($response['value'], $response['currency']) . ' ' . $response['currency'] .' Transaction ID: ' . $response['id'];
             $order->addStatusToHistory($order->getStatus(), $newComment, false);
 
-
             // Save the order
             $order->save();
 

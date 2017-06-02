@@ -16,7 +16,7 @@
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
                 <can_cancel>1</can_cancel>
-                <can_use_internal>0</can_use_internal>
+                <can_use_internal>1</can_use_internal>
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_capture_vault>1</can_capture_vault>
                 <can_charge_details>1</can_charge_details>
@@ -60,7 +60,6 @@
                 <masked_fields>cvv,number</masked_fields>
                 <paymentInfoKeys>cc_type,cc_number,card_expiry_month,card_expiry_year,card_last_4,status,responseMessage,responseAdvancedInfo,responseCode,authCode,three_d_secure</paymentInfoKeys>
 
-                <cctypes>AE,VI,MC,DI,JCB,SM,DN</cctypes>
                 <useccv>1</useccv>
             </checkout_com>
             <checkout_com_cc_vault>
