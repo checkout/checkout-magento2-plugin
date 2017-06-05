@@ -67,7 +67,7 @@
                 <field id="auto_generate_invoice" translate="label" sortOrder="69" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Automatically generate invoice</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>payment/checkout_com/autoGenerateInvoice</config_path>
+                    <config_path>payment/checkout_com/auto_generate_invoice</config_path>
                     <comment>
                         When set to "Yes", an invoice will be generated automatically for the new order status selected above.
                     </comment>
