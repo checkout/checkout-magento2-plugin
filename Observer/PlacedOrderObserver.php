@@ -78,7 +78,7 @@ class PlacedOrderObserver implements ObserverInterface {
         // Save the order
         $order->save(); 
 
-        // Get the response data (3D Secure)
+        // Get the response data set in TransactionHandler
         $response = $this->customerSession->getResponseData();
         if (isset($response) && is_array($response)) {
 
@@ -89,7 +89,7 @@ class PlacedOrderObserver implements ObserverInterface {
 
             // Add new comment
             $newComment = 'Authorized amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($response['value'], $response['currency']) . ' ' . $response['currency'] .' Transaction ID: ' . $response['id'];
-            $order->addStatusToHistory($order->getStatus(), $newComment, false);
+            $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
 
             // Save the order
             $order->save();

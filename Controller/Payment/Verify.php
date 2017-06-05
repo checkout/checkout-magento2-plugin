@@ -121,9 +121,6 @@ class Verify extends AbstractAction {
             // Place the order
             $this->orderService->execute($quote, $cardToken, []);
 
-            // Store the response in session for order update in observer
-            $this->customerSession->setResponseData($response);
-
             // Redirect to the success page
             return $resultRedirect->setPath('checkout/onepage/success', ['_secure' => true]);
 
