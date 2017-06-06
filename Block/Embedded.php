@@ -22,7 +22,7 @@ class Embedded extends Template {
 
 
     public function getDefaultCss() {
-        return DEFAULT_EMBEDDED_CSS;
+        return self::DEFAULT_EMBEDDED_CSS;
     }
 
     public function hasCustomCss() {
