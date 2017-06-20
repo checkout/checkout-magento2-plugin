@@ -50,10 +50,10 @@
                 <live_embedded_sdk_url><![CDATA[https://cdn.checkout.com/v2/js/checkout.js]]></live_embedded_sdk_url>
 
                 <sandbox_hosted_api_url><![CDATA[https://sandbox.checkout.com/api2/v2/]]></sandbox_hosted_api_url>
-                <live_hosted_api_url><![CDATA[https://sandbox.checkout.com/api2/v2/]]></live_hosted_api_url>
+                <live_hosted_api_url><![CDATA[https://api2.checkout.com/v2/]]></live_hosted_api_url>
 
                 <sandbox_hosted_url><![CDATA[https://secure1.checkout.com/sandbox/payment/]]></sandbox_hosted_url>
-                <live_hosted_url><![CDATA[https://secure1.checkout.com/payment]]></live_hosted_url>
+                <live_hosted_url><![CDATA[https://secure1.checkout.com/payment/]]></live_hosted_url>
 
                 <sort_order>1</sort_order>
                 <debugReplaceKeys>public_key,secret_key</debugReplaceKeys>

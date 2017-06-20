@@ -12,6 +12,8 @@ class OrderDataRequest extends AbstractRequest {
      * @throws \InvalidArgumentException
      */
     public function build(array $buildSubject) {
+
+
         $paymentDO      = $this->subjectReader->readPayment($buildSubject);
         $order          = $paymentDO->getOrder();
 

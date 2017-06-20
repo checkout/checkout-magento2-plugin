@@ -40,13 +40,10 @@ class MobilePayment implements MobilePaymentInterface
     protected $productManager;
     protected $data;
     protected $customer;
-
     protected $quoteFactory;
     protected $storeManager;
     protected $orderService;
     protected $addressManager;
-
-
 
     /**
      * MobilePayment Model constructor.
@@ -78,23 +75,21 @@ class MobilePayment implements MobilePaymentInterface
 
         // Load the customer from email
         $this->customer = $this->customerRepository->get(filter_var($this->data->email, FILTER_SANITIZE_EMAIL));    
-
         // If customer exists and amount is valid
         if ( (int) $this->customer->getId() > 0 && (float) $this->data->value > 0)  {
 
             // Prepare the product list
             if ( isset($this->data->products) && is_array($this->data->products) && count($this->data->products) > 0 )  {
 
-                // Submit to gateway
-                $this->submitRequestToShop();
-
-                // Submit to gateway
-                $this->submitRequestToGateway();
+                // Submit request
+                return $this->submitRequest();
             }
         }
+
+        return false;
     }
 
-    private function submitRequestToShop () {
+    private function submitRequest() {
 
         //init the quote
         $quote = $this->quoteFactory->create();
@@ -105,14 +100,14 @@ class MobilePayment implements MobilePaymentInterface
         $quote->assignCustomer($this->customer);
  
         // Prepare the products for shop order submission
-        $quote = $this->prepareProductsForShop($quote);
+        $quote = $this->prepareProducts($quote);
 
-        // Set billing address
+        // Set the billing address
         $billingID = $this->customer->getDefaultBilling();
         $billingAddress = $this->addressManager->load($billingID);
         $quote->getBillingAddress()->addData($billingAddress->getData());
 
-        // Set shipping address
+        // Set the shipping address
         $shippingID = $this->customer->getDefaultShipping();
         $shippingAddress = $this->addressManager->load($shippingID);
         $shippingAddress->setCollectShippingRates(true);
@@ -136,56 +131,13 @@ class MobilePayment implements MobilePaymentInterface
         $quote->getPayment()->importData(['method' => ConfigProvider::CODE]);
 
         // Save the quote
-        //$quote->collectTotals()->save();
+        $quote->collectTotals()->save();
 
         // Place the order
-        $this->orderService->execute($quote, $this->data->cardToken, $agreement = []);
+        return $this->orderService->execute($quote, $this->data->cardToken, $agreement = []);
     }
 
-    private function submitRequestToGateway () {
-
-        // Prepare the products for gateway submission
-        $products = $this->prepareProductsForGateway();
-
-        // Prepare some extra parameters
-        $amount = filter_var($this->data->value, FILTER_SANITIZE_NUMBER_FLOAT) * 100;
-        $email = filter_var($this->data->email, FILTER_SANITIZE_EMAIL);
-        $cardToken = filter_var($this->data->cardToken, FILTER_SANITIZE_STRING);
-
-        $currency = filter_var($this->data->currency, FILTER_SANITIZE_STRING);
-        $autoCapture = $this->gatewayConfig->isAutoCapture() ? 'Y' : 'N';
-        $autoCapTime = $this->gatewayConfig->getAutoCaptureTimeInHours();
-        $chargeMode = 1;
-
-        // Prepare the transfer data
-        $transfer = $this->transferFactory->create([
-            'cardToken'   => $cardToken,
-            'email' => $email,
-            'value' => $amount,
-            'currency' => $currency,
-            'chargeMode' => $chargeMode,
-            'autoCapture' => $autoCapture,
-            'autoCapTime' => $autoCapTime,
-            'products' => $products
-        ]); 
-
-        // Try a charge
-        try {
-            // Query the gateway
-            $response = $this->getHttpClient('charges/token', $transfer)->request();
-                
-            // Return the response
-            echo $response->getBody();
-
-            // Exit for JSON output
-            exit(0);
-        }
-        catch (Zend_Http_Client_Exception $e) {
-            throw new ClientException(__($e->getMessage()));
-        }
-    }
-
-    private function prepareProductsForShop(Quote $quote) {
+    private function prepareProducts(Quote $quote) {
 
         // Loop through the products array
         foreach ($this->data->products as $product) {
@@ -212,7 +164,7 @@ class MobilePayment implements MobilePaymentInterface
         // Loop through the products array
         foreach ($this->data->products as $product) {
 
-            // If the product id > 0
+            // If the product id is valid
             if ((int) $product->id > 0) {
 
                 // Load the product object
@@ -231,21 +183,5 @@ class MobilePayment implements MobilePaymentInterface
 
         // Return the array
         return $output;
-    }
-
-    /**
-     * Returns prepared HTTP client.
-     *
-     * @param string $endpoint
-     * @param TransferInterface $transfer
-     * @return ZendClient
-     * @throws \Exception
-     */
-    private function getHttpClient($endpoint, TransferInterface $transfer) {
-        $client = new ZendClient($this->gatewayConfig->getApiUrl() . $endpoint);
-        $client->setMethod('POST');
-        $client->setHeaders($transfer->getHeaders());
-
-        return $client;
     }
 }

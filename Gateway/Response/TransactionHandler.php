@@ -6,7 +6,6 @@ use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Sales\Model\Order\Payment;
-use Magento\Customer\Model\Session as CustomerSession;
 
 class TransactionHandler implements HandlerInterface {
 
@@ -21,19 +20,6 @@ class TransactionHandler implements HandlerInterface {
         'responseCode',
         'authCode',
     ];
-
-    /**
-     * @var Session 
-     */
-    protected $customerSession;
-
-    /**
-     * TransactionHandler constructor.
-     * @param CustomerSession $customerSession
-     */
-    public function __construct( CustomerSession $customerSession) {
-        $this->customerSession      = $customerSession;
-    }
 
     /**
      * Handles response
@@ -54,7 +40,7 @@ class TransactionHandler implements HandlerInterface {
         }
      
         $this->setTransactionId($payment, $response['id']);
-        $payment->setTransactionAdditionalInfo('Status', $response['status']);
+        //$payment->setTransactionAdditionalInfo('Status', $response['status']);
         $payment->setIsTransactionClosed( $this->shouldCloseTransaction() );
         $payment->setShouldCloseParentTransaction( $this->shouldCloseParentTransaction($payment) );
 
@@ -76,10 +62,6 @@ class TransactionHandler implements HandlerInterface {
         elseif($responseCode >= 20000 AND $responseCode <= 40000) {
             $payment->setIsTransactionClosed(true);
         }
-
-        // Store the response in session for order update in observer
-        $this->customerSession->setResponseData($response);
-
     }
 
     /**

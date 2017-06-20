@@ -95,31 +95,32 @@ class Verify extends AbstractAction {
      * @throws LocalizedException
      */
     public function execute() {
-        
+
+        // Prepare for redirections
         $resultRedirect = $this->getResultRedirect();
-        $paymentToken   = $this->getRequest()->getParam('cko-payment-token');
-        $quote          = $this->session->getQuote();
-       
+
+        // Get the gateway response from session
+        $gatewayResponse = $this->session->getGatewayResponse();
+
+        // Get the payment token from response
+        $paymentToken = $gatewayResponse['id'];
+
+        // Process the gateway response
+        $response   = $this->verifyPaymentService->verifyPayment($paymentToken);
+        $cardToken  = $response['card']['id'];
+
+        // Check for saving card
+        if (isset($response['description']) && $response['description'] == 'Saving new card') {
+            return $this->vaultCardAfterThreeDSecure( $response );
+        }
+
+        // Check for declined transactions
+        if ($response['status'] === 'Declined') {
+            throw new LocalizedException(__('The transaction has been declined.'));
+        }
+
+        // Update the order information
         try {
-
-            // Process the response
-            $response   = $this->verifyPaymentService->verifyPayment($paymentToken);
-            $cardToken  = $response['card']['id'];
-            
-            if(isset($response['description']) && $response['description'] == 'Saving new card'){
-                return $this->vaultCardAfterThreeDSecure( $response );
-            }
-            
-            // Process the quote
-            $this->validateQuote($quote);
-            $this->assignGuestEmail($quote, $response['email']);
-
-            if($response['status'] === 'Declined') {
-                throw new LocalizedException(__('The transaction has been declined.'));
-            }
-
-            // Place the order
-            $this->orderService->execute($quote, $cardToken, []);
 
             // Redirect to the success page
             return $resultRedirect->setPath('checkout/onepage/success', ['_secure' => true]);
@@ -127,7 +128,8 @@ class Verify extends AbstractAction {
         } catch (\Exception $e) {
             $this->messageManager->addExceptionMessage($e, $e->getMessage());
         }
-        
+
+        // Redirect to cart by default if the order validation fails
         return $resultRedirect->setPath('checkout/cart', ['_secure' => true]);
     }
 
@@ -146,7 +148,7 @@ class Verify extends AbstractAction {
         $cardData['last4']         = $response['card']['last4'];
         $cardData['paymentMethod'] = $response['card']['paymentMethod'];
         
-        try{
+        try {
             $paymentToken = $this->vaultTokenFactory->create($cardData, $this->customerSession->getCustomer()->getId());
             $paymentToken->setGatewayToken($cardToken);
             $paymentToken->setIsVisible(true);

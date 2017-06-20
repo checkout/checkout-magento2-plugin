@@ -98,22 +98,15 @@ define(
             /**
              * @returns {string}
              */
-            getRedirectUrl: function() {
-                return url.build('checkout_com/payment/placeOrder');
-            },
-
-            /**
-             * @returns {string}
-             */
-            getCancelUrl: function() {
-                return window.location.href;
-            },
-
-            /**
-             * @returns {string}
-             */
             getEmailAddress: function() {
                 return window.checkoutConfig.customerData.email || quote.guestEmail;
+            },
+
+            /**
+             * @returns {string}
+             */
+            getRedirectUrl: function() {
+                return url.build('checkout_com/payment/placeOrder');
             },
 
             /**
@@ -138,6 +131,8 @@ define(
                 var ckoTheme = CheckoutCom.getPaymentConfig()['embedded_theme'];
                 var embedded_css = CheckoutCom.getPaymentConfig()['embedded_css'];
                 var ckoThemeOverride = ((embedded_css) && embedded_css !== '') ? embedded_css : undefined;
+                var redirectUrl = self.getRedirectUrl();
+                var threeds_enabled = CheckoutCom.getPaymentConfig()['three_d_secure']['enabled'];
 
                 // Initialise the embedded form
                 Checkout.init({
@@ -145,15 +140,21 @@ define(
                     customerEmail: self.getEmailAddress(),
                     value: self.getQuoteValue(),
                     currency: self.getQuoteCurrency(),
-                    redirectUrl: self.getRedirectUrl(),
-                    cancelUrl: self.getCancelUrl(),
                     appMode: 'embedded',
                     appContainerSelector: '#embeddedForm',
                     theme: ckoTheme,
                     themeOverride: ckoThemeOverride,
                     cardTokenised: function(event) {
-                            self.setCardTokenId(event.data.cardToken);
+
+                        // Set the card token
+                        self.setCardTokenId(event.data.cardToken);
+
+                        if (threeds_enabled) {
+                            window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=david.fiaty@checkout.com');
+                        }
+                        else {
                             self.placeOrder();
+                        }
                     }
                 });
             },

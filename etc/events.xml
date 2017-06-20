@@ -4,7 +4,4 @@
     <event name="payment_method_assign_data_checkout_com">
         <observer name="checkout_com_gateway_data_assign" instance="CheckoutCom\Magento2\Observer\DataAssignObserver" />
     </event>
-    <event name="checkout_onepage_controller_success_action">
-       <observer name="placed_order_processor" instance="CheckoutCom\Magento2\Observer\PlacedOrderObserver"/>
-    </event>
-</config>
+ </config>

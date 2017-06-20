@@ -14,6 +14,11 @@ use CheckoutCom\Magento2\Model\GatewayResponseTrait;
 use CheckoutCom\Magento2\Model\Method\CallbackMethod;
 use DomainException;
 
+use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
+use Magento\Sales\Model\Service\InvoiceService;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+
 class CallbackService {
 
     use GatewayResponseTrait;
@@ -39,17 +44,35 @@ class CallbackService {
     protected $orderRepository;
 
     /**
+     * @var GatewayConfig
+     */
+    protected $gatewayConfig;
+
+    /**
+     * @var InvoiceService
+     */
+    protected $invoiceService;
+
+    /**
+     * @var InvoiceRepositoryInterface
+     */
+    protected $invoiceRepository;
+
+    /**
      * CallbackService constructor.
      * @param CallbackMethod $callbackMethod
      * @param CallbackEventAdapter $eventAdapter
      * @param OrderFactory $orderFactory
      * @param OrderRepositoryInterface $orderRepository
      */
-    public function __construct(CallbackMethod $callbackMethod, CallbackEventAdapter $eventAdapter, OrderFactory $orderFactory, OrderRepositoryInterface $orderRepository) {
+    public function __construct(CallbackMethod $callbackMethod, CallbackEventAdapter $eventAdapter, OrderFactory $orderFactory, OrderRepositoryInterface $orderRepository, GatewayConfig $gatewayConfig, InvoiceService $invoiceService, InvoiceRepositoryInterface $invoiceRepository) {
         $this->callbackMethod   = $callbackMethod;
         $this->eventAdapter     = $eventAdapter;
         $this->orderFactory     = $orderFactory;
         $this->orderRepository  = $orderRepository;
+        $this->gatewayConfig    = $gatewayConfig;
+        $this->invoiceService       = $invoiceService;
+        $this->invoiceRepository    = $invoiceRepository;
     }
 
     /**
@@ -90,6 +113,56 @@ class CallbackService {
                     $this->callbackMethod->void($payment);
                     break;
             }
+
+            if ($commandName == 'authorize') {
+
+                // Update order status
+                $order->setState('new');
+                $order->setStatus('pending');
+
+                // Delete comments history
+                foreach ($order->getAllStatusHistory() as $orderComment) {
+                    $orderComment->delete();
+                } 
+
+                // Set email sent
+                $order->setEmailSent(1);
+
+                // Create new comment
+                $newComment = 'Authorized amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];
+
+                // Add the new comment
+                $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+
+            }
+
+            if ($commandName == 'capture') {
+
+                // Update order status
+                $order->setState('new');
+                $order->setStatus($this->gatewayConfig->getNewOrderStatus());
+
+                // Create new comment
+                /*
+                $newComment = 'Captured amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];
+                
+                // Add the new comment
+                $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+                */
+                
+                // Generate invoice if needed
+                if($this->gatewayConfig->getAutoGenerateInvoice() && $order->canInvoice()) {
+
+                    // Prepare the invoice
+                    $invoice = $this->invoiceService->prepareInvoice($order);
+                    $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
+                    $invoice->register();
+
+                    // Save the invoice
+                    $this->invoiceRepository->save($invoice);
+                }    
+            }
+            /****** END TEST CODE *******/
 
             $this->orderRepository->save($order);
         }
