@@ -104,6 +104,8 @@ class OrderService {
         // Send email
         $order = $this->orderManager->load($orderId);
         $this->orderSender->send($order);
+
+        return $orderId;
     }
 
     /**

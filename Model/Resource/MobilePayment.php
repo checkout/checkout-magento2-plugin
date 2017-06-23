@@ -66,7 +66,7 @@ class MobilePayment implements MobilePaymentInterface
      *
      * @api
      * @param mixed $data.
-     * @return array.
+     * @return int.
      */
     public function charge($data) {
 
@@ -82,7 +82,7 @@ class MobilePayment implements MobilePaymentInterface
             if ( isset($this->data->products) && is_array($this->data->products) && count($this->data->products) > 0 )  {
 
                 // Submit request
-                return $this->submitRequest();
+                return (int) $this->submitRequest();
             }
         }
 

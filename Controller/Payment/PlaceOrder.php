@@ -49,7 +49,7 @@ class PlaceOrder extends AbstractAction {
 
         // Assing a gest email if needed
         if( is_string($email) ) {
-            $this->assignGuestEmail($quote, $email);
+            //$this->assignGuestEmail($quote, $email);
         }
 
         try {

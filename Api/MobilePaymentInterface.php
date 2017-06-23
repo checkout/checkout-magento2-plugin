@@ -9,7 +9,7 @@ interface MobilePaymentInterface
      *
      * @api
      * @param mixed $data.
-     * @return array.
+     * @return int.
      */
     public function charge($data);
 }

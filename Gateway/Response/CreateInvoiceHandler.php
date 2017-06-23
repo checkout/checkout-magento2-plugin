@@ -9,6 +9,7 @@ use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Model\Order\Payment;
+use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 
 class CreateInvoiceHandler implements HandlerInterface {
 
@@ -23,13 +24,20 @@ class CreateInvoiceHandler implements HandlerInterface {
     protected $invoiceRepository;
 
     /**
+     * @var GatewayConfig
+     */
+    protected $gatewayConfig;
+
+    /**
      * CreateInvoiceHandler constructor.
      * @param InvoiceService $invoiceService
      * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param GatewayConfig $gatewayConfig
      */
-    public function __construct(InvoiceService $invoiceService, InvoiceRepositoryInterface $invoiceRepository) {
+    public function __construct(InvoiceService $invoiceService, InvoiceRepositoryInterface $invoiceRepository, GatewayConfig $gatewayConfig) {
         $this->invoiceService       = $invoiceService;
         $this->invoiceRepository    = $invoiceRepository;
+        $this->gatewayConfig        = $gatewayConfig;
     }
 
     /**
@@ -47,7 +55,7 @@ class CreateInvoiceHandler implements HandlerInterface {
         $payment    = $paymentDO->getPayment();
         $order      = $payment->getOrder();
 
-        if($order->canInvoice()) {
+        if($order->canInvoice() && ($this->gatewayConfig->getAutoGenerateInvoice())) {
             $amount = ChargeAmountAdapter::getStoreAmountOfCurrency($response['value'], $response['currency']);
 
             $invoice = $this->invoiceService->prepareInvoice($order);

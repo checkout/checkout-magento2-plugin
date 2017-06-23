@@ -61,7 +61,6 @@ class ConfigProvider implements ConfigProviderInterface {
                     'isActive'                  => $this->config->isActive(),
                     'debug_mode'                => $this->config->isDebugMode(),
                     'public_key'                => $this->config->getPublicKey(),
-                    'sdk_url'                   => $this->config->getSdkUrl(),
                     'hosted_url'                => $this->config->getHostedUrl(),
                     'embedded_url'              => $this->config->getEmbeddedUrl(),
                     'countrySpecificCardTypes'  => $this->config->getCountrySpecificCardTypeConfig(),

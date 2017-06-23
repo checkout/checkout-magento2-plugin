@@ -102,6 +102,7 @@ class CallbackService {
 
             $this->putGatewayResponseToHolder();
 
+            // Perform the required action on transaction
             switch($commandName) {
                 case 'capture':
                     $this->callbackMethod->capture($payment, $amount);
@@ -114,8 +115,8 @@ class CallbackService {
                     break;
             }
 
+            // Perform authorize complementary actions
             if ($commandName == 'authorize') {
-
                 // Update order status
                 $order->setState('new');
                 $order->setStatus('pending');
@@ -133,40 +134,26 @@ class CallbackService {
 
                 // Add the new comment
                 $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
-
             }
 
+            // Perform capture complementary actions
             if ($commandName == 'capture') {
-
                 // Update order status
                 $order->setState('new');
                 $order->setStatus($this->gatewayConfig->getNewOrderStatus());
 
+
                 // Create new comment
-                /*
                 $newComment = 'Captured amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];
-                
+
                 // Add the new comment
                 $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
-                */
-                
-                // Generate invoice if needed
-                if($this->gatewayConfig->getAutoGenerateInvoice() && $order->canInvoice()) {
 
-                    // Prepare the invoice
-                    $invoice = $this->invoiceService->prepareInvoice($order);
-                    $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
-                    $invoice->register();
 
-                    // Save the invoice
-                    $this->invoiceRepository->save($invoice);
-                }    
             }
-            /****** END TEST CODE *******/
 
             $this->orderRepository->save($order);
         }
-
     }
 
     /**

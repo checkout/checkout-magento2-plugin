@@ -4,14 +4,14 @@
 
 ?>
  
-<script src="https://cdn.checkout.com/v2/sandbox/js/checkout.js"></script>
+<script src="<?php echo $block->getEmbeddedUrl(); ?>"></script>
 
 <?php
 // Load default CSS only if there is no custom file in config
 if (!$block->hasCustomCss()) {
 ?>
 	<style>
-		@import url(<?php echo $block->getDefaultCss(); ?>);
+		@import url(<?php echo $block->getEmbeddedCss(); ?>);
 	</style>
 <?php
 }

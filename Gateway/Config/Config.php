@@ -25,16 +25,12 @@ class Config extends BaseConfig {
     const KEY_VERIFY_3DSECURE = 'verify_3dsecure';
     const KEY_ATTEMPT_N3D = 'attemptN3D';
 
-    const KEY_SANDBOX_HOSTED_SDK_URL = 'sandbox_hosted_sdk_url';
-    const KEY_LIVE_HOSTED_SDK_URL = 'live_hosted_sdk_url';
+    const KEY_SANDBOX_API_URL = 'sandbox_api_url';
+    const KEY_LIVE_API_URL = 'live_api_url';
 
-    const KEY_SANDBOX_EMBEDDED_SDK_URL = 'sandbox_embedded_sdk_url';
-    const KEY_LIVE_EMBEDDED_SDK_URL = 'live_embedded_sdk_url';
-
-    const KEY_SANDBOX_HOSTED_API_URL = 'sandbox_hosted_api_url';
-    const KEY_LIVE_HOSTED_API_URL = 'live_hosted_api_url';
-
+    const KEY_SANDBOX_EMBEDDED_URL = 'sandbox_embedded_url';
     const KEY_SANDBOX_HOSTED_URL = 'sandbox_hosted_url';
+    const KEY_LIVE_EMBEDDED_URL = 'live_embedded_url';
     const KEY_LIVE_HOSTED_URL = 'live_hosted_url';
 
     const MIN_AUTO_CAPTURE_TIME = 0;
@@ -57,6 +53,7 @@ class Config extends BaseConfig {
 
     const KEY_EMBEDDED_THEME = 'embedded_theme';
     const KEY_EMBEDDED_CSS = 'embedded_css';
+    const KEY_CUSTOM_CSS = 'custom_css';
 
     /**
      * @var array
@@ -248,39 +245,12 @@ class Config extends BaseConfig {
     }
 
     /**
-     * Returns the SDK URL for sandbox environment.
-     *
-     * @return string
-     */
-    public function getSandboxSdkUrl() {
-        return (string) $this->getValue(self::KEY_INTEGRATION) == 'hosted' ? $this->getValue(self::KEY_SANDBOX_HOSTED_SDK_URL) : $this->getValue(self::KEY_SANDBOX_EMBEDDED_SDK_URL);
-    }
-
-    /**
-     * Returns the SDK URL for live environment.
-     *
-     * @return string
-     */
-    public function getLiveSdkUrl() {
-        return (string) $this->getValue(self::KEY_INTEGRATION) == 'hosted' ? $this->getValue(self::KEY_LIVE_HOSTED_SDK_URL) : $this->getValue(self::KEY_LIVE_EMBEDDED_SDK_URL);
-    }
-
-    /**
-     * Returns the SDK URL based on environment settings.
-     *
-     * @return string
-     */
-    public function getSdkUrl() {
-        return $this->isLive() ? $this->getLiveSdkUrl() : $this->getSandboxSdkUrl();
-    }
-
-    /**
      * Returns the API URL for sandbox environment.
      *
      * @return string
      */
     public function getSandboxApiUrl() {
-        return (string) $this->getValue(self::KEY_SANDBOX_HOSTED_API_URL);
+        return (string) $this->getValue(self::KEY_SANDBOX_API_URL);
     }
 
     /**
@@ -289,7 +259,7 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getLiveApiUrl() {
-        return (string) $this->getValue(self::KEY_LIVE_HOSTED_API_URL);
+        return (string) $this->getValue(self::KEY_LIVE_API_URL);
     }
 
     /**
@@ -328,13 +298,41 @@ class Config extends BaseConfig {
         return $this->isLive() ? $this->getLiveHostedUrl() : $this->getSandboxHostedUrl();
     }
 
+
+    /**
+     * Returns the URL for embedded integration for sandbox environment.
+     *
+     * @return string
+     */
+    public function getSandboxEmbeddedUrl() {
+        return (string) $this->getValue(self::KEY_SANDBOX_EMBEDDED_URL);
+    }
+
+    /**
+     * Returns the URL for embedded integration for live environment.
+     *
+     * @return string
+     */
+    public function getLiveEmbeddedUrl() {
+        return (string) $this->getValue(self::KEY_LIVE_EMBEDDED_URL);
+    }
+
     /**
      * Returns the URL for embedded integration based on environment settings.
      *
      * @return string
      */
     public function getEmbeddedUrl() {
-        return "";
+        return $this->isLive() ? $this->getLiveEmbeddedUrl() : $this->getSandboxEmbeddedUrl();
+    }
+
+    /**
+     * Returns the CSS URL for embedded integration.
+     *
+     * @return string
+     */
+    public function getEmbeddedCss() {
+        return (string) $this->getValue(self::KEY_EMBEDDED_CSS);
     }
 
     /**
@@ -441,13 +439,4 @@ class Config extends BaseConfig {
     public function getEmbeddedTheme() {
         return (string) $this->getValue(self::KEY_EMBEDDED_THEME);
     }
-
-    /**
-     * Returns the embedded custom CSS file.
-     *
-     * @return string
-     */
-    public function getEmbeddedCss() {
-        return (string) $this->getValue(self::KEY_EMBEDDED_CSS);
-    }   
 }

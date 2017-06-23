@@ -246,7 +246,7 @@
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\EmbeddedTheme</source_model>
                         <config_path>payment/checkout_com/embedded_theme</config_path>
                     </field>
-                    <field id="embedded_css" translate="label comment" type="file" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="custom_css" translate="label comment" type="file" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Custom Css File</label>
                         <backend_model>CheckoutCom\Magento2\Model\Config\Backend\CustomCss</backend_model>
                         <base_url type="media" scope_info="1">checkout_com</base_url>

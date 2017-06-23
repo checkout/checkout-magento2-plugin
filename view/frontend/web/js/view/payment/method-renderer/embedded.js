@@ -129,8 +129,8 @@ define(
 
                 // Prepare parameters
                 var ckoTheme = CheckoutCom.getPaymentConfig()['embedded_theme'];
-                var embedded_css = CheckoutCom.getPaymentConfig()['embedded_css'];
-                var ckoThemeOverride = ((embedded_css) && embedded_css !== '') ? embedded_css : undefined;
+                var custom_css = CheckoutCom.getPaymentConfig()['custom_css'];
+                var ckoThemeOverride = ((custom_css) && custom_css !== '') ? custom_css : undefined;
                 var redirectUrl = self.getRedirectUrl();
                 var threeds_enabled = CheckoutCom.getPaymentConfig()['three_d_secure']['enabled'];
 
