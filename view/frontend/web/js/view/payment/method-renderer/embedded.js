@@ -11,7 +11,7 @@ define(
         'mage/url',
         'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function ($, Component, VaultEnabler, CheckoutCom, quote, url, additionalValidators) {
+    function ($, Component, VaultEnabler, CheckoutCom, quote, url, additionalValidators, customer) {
         'use strict';
 
         return Component.extend({
@@ -150,7 +150,7 @@ define(
                         self.setCardTokenId(event.data.cardToken);
 
                         if (threeds_enabled) {
-                            window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=david.fiaty@checkout.com');
+                            window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + quote.guestEmail);
                         }
                         else {
                             self.placeOrder();

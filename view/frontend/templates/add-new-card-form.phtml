@@ -17,7 +17,7 @@
         <input type="hidden" id="checkout-public-key" value="<?php echo $block->getGatewayConfig()->getPublicKey() ?>">
         
         <input type="hidden" id="checkout-is-debug-mode" value="<?php echo $block->getGatewayConfig()->isDebugMode() ?>">
-        <input type="hidden" id="checkout-sdk-url" value="<?php echo $block->getGatewayConfig()->getSdkUrl() ?>">
+        <input type="hidden" id="checkout-sdk-url" value="<?php /*echo $block->getGatewayConfig()->getSdkUrl()*/ ?>">
 
         <input type="hidden" id="checkout-card-expiryMonth" name="cko-card[expiryMonth]" />
         <input type="hidden" id="checkout-card-expiryYear" name="cko-card[expiryYear]" />
