@@ -47,11 +47,7 @@ class PlaceOrder extends AbstractAction {
         $agreement      = array_keys($this->getRequest()->getPostValue('agreement', []));
         $quote          = $this->session->getQuote();
 
-        // Assing a gest email if needed
-        if( is_string($email) ) {
-            $this->assignGuestEmail($quote, $email);
-        }
-
+        // Perform quote and order validation
         try {
 
             // Create an order from the quote

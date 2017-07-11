@@ -92,7 +92,11 @@ class OrderService {
         // Set up the payment information
         $payment = $quote->getPayment();
         $payment->setMethod(ConfigProvider::CODE);
-        $payment->setAdditionalInformation(DataAssignObserver::CARD_TOKEN_ID, $cardToken);
+
+        // Card token always pressent, except for alternative payments
+        if ($cardToken) {
+            $payment->setAdditionalInformation(DataAssignObserver::CARD_TOKEN_ID, $cardToken);
+        }
 
         // Configure the quote
         $this->disabledQuoteAddressValidation($quote);

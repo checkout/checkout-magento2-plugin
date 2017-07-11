@@ -87,6 +87,7 @@ class ConfigProvider implements ConfigProviderInterface {
                     'quote_currency' => $this->getQuoteCurrency(),
                     'embedded_theme' => $this->config->getEmbeddedTheme(),
                     'embedded_css' => $this->config->getEmbeddedCss(),
+                    'custom_css' => $this->config->getCustomCss(),
                 ],
             ],
         ];

@@ -150,15 +150,56 @@ class StoreCardService {
     }
 
     /**
-     * Sets the card token and the data.
+     * Sets the card token.
      *
      * @param string $cardToken
-     * @param array $cardData
      * @return StoreCardService
      */
-    public function setCardTokenAndData($cardToken, array $cardData) {
+    public function setCardToken($cardToken) {
         $this->cardToken    = $cardToken;
-        $this->cardData     = $cardData;
+
+        return $this;
+    }
+
+
+    /**
+     * Sets the card data.
+     *
+     * @return StoreCardService
+     */
+    public function setCardData() {
+
+        // Prepare the card data to save
+        $cardData = $this->authorizedResponse['card'];
+        unset($cardData['customerId']);
+        unset($cardData['billingDetails']);
+        unset($cardData['bin']);
+        unset($cardData['fingerprint']);
+        unset($cardData['cvvCheck']);
+        unset($cardData['name']);
+        unset($cardData['avsCheck']);
+
+        // Assign the card data
+        $this->cardData = $cardData;
+
+        return $this;
+    }
+
+    /**
+     * Tests the card through gateway.
+     *
+     * @return StoreCardService
+     */
+    public function test() {
+
+        // Perform the authorization
+        $this->authorizeTransaction();
+
+        // Validate the authorization
+        $this->validateAuthorization();
+
+        // Perform the void
+        $this->voidTransaction();
 
         return $this;
     }
@@ -172,9 +213,12 @@ class StoreCardService {
      * @throws \Exception
      */
     public function save() {
-        $paymentToken       = $this->vaultTokenFactory->create($this->cardData, $this->customerId);
+
+        // Create the payment token from response
+        $paymentToken = $this->vaultTokenFactory->create($this->cardData, $this->customerId);
         $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
-        
+
+        // Check if card exists
         if($foundPaymentToken) {
             if($foundPaymentToken->getIsActive()) {
                 throw new LocalizedException(__('The credit card has been stored already.') );
@@ -184,17 +228,9 @@ class StoreCardService {
                 $this->paymentTokenRepository->save($foundPaymentToken);
             }
         }
-        else {
-            $this->authorizeTransaction();
-            $this->validateAuthorization();
-            
-            if(isset($this->authorizedResponse['redirectUrl'])){
-                $this->responseFactory->create()->setRedirect( $this->authorizedResponse['redirectUrl'] )->sendResponse();
-                exit;
-            }
-            
-            $this->voidTransaction();
 
+        // Otherwise save the card
+        else {
             $paymentToken->setGatewayToken($this->authorizedResponse['card']['id']);
             $paymentToken->setIsVisible(true);
 
@@ -267,7 +303,9 @@ class StoreCardService {
      */
     private function voidTransaction() {
         $transactionId  = $this->authorizedResponse['id'];
-        $transfer       = $this->transferFactory->create([]);
+        $transfer       = $this->transferFactory->create([
+            'trackId'   => ''
+        ]);
 
         $log = [
             'request'           => $transfer->getBody(),

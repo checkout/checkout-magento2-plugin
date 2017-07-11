@@ -336,6 +336,22 @@ class Config extends BaseConfig {
     }
 
     /**
+     * Returns the custom CSS URL for embedded integration.
+     *
+     * @return string
+     */
+    public function getCustomCss() {
+
+        // Get an object manager instance
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+        // Load the quote
+        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');     
+
+        return $scopeConfig->getValue('payment/checkout_com/checkout_com_embedded_design_settings/custom_css');
+    }
+
+    /**
      * Determines if auto capture option is enabled.
      *
      * @return bool

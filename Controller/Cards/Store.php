@@ -31,19 +31,20 @@ class Store extends Action {
      * @return \Magento\Framework\App\ResponseInterface
      */
     public function execute() {
-        $cardToken      = $this->getRequest()->getParam('cko-card-token');
-        $cardData       = $this->getRequest()->getParam('cko-card');
-        $customerEmail  = $this->getRequest()->getParam('customer_email');
-        $customerId     = $this->getRequest()->getParam('customer_id');
-        $customerName   = $this->getRequest()->getParam('customer_name');
-       
+          
+
+        $params = array_keys($this->getRequest()->getParams());
+        $params = json_decode($params[0]);
+
         try {
             $this->storeCardService
-                ->setCardTokenAndData($cardToken, $cardData)
-                ->setCustomerEmail($customerEmail)
-                ->setCustomerId($customerId)
-                ->setCustomerName($customerName)
-                ->save();
+                 ->setCardToken($params->ckoCardToken)
+                 ->setCustomerEmail($params->customerEmail)
+                 ->setCustomerId($params->customerId)
+                 ->setCustomerName($params->customerName)
+                 ->test()
+                 ->setCardData()
+                 ->save();
 
             $this->messageManager->addSuccessMessage( __('Credit Card has been stored successfully') );
         }

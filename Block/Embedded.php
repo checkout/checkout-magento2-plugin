@@ -13,8 +13,8 @@ class Embedded extends Template {
     /**
      * Block constructor.
      */
-    public function __construct(Context $context, array $data = [], GatewayConfig $gatewayConfig) {
-        parent::__construct($context, $data);
+    public function __construct(Context $context, GatewayConfig $gatewayConfig) {
+        parent::__construct($context);
         $this->gatewayConfig = $gatewayConfig;
     }
               

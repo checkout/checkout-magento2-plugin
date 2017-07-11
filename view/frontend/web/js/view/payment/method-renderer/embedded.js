@@ -151,7 +151,7 @@ define(
                         self.setCardTokenId(event.data.cardToken);
 
                         if (threeds_enabled) {
-                            window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + quote.guestEmail);
+                            window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
                         }
                         else {
                             self.placeOrder();

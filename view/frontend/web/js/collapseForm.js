@@ -1,85 +1,76 @@
 require([
     'jquery',
-    'underscore'
-    ], function($, _) {
+    'mage/url'
+    ], function($, url) {
     'use strict';
 
-    $(document).ready(function() {
-        var
-            $form = $('#add-cc-form'),
-            $formErrors = $('#cc-form-errors'),
-            $addFormButton = $('#show-add-cc-form'),
-            $closeErrorsButton = $('#closebtn'),
-            $submitForm = $('#add-new-cc-card'),
-            cardDetailsAttributes = ['expiryMonth', 'expiryYear', 'last4', 'paymentMethod'];
+    // Prepare the required variables
+    var $form = $('#cko-form-holder form');
+    var $formHolder = $('#cko-form-holder');
+    var $addFormButton = $('#show-add-cc-form');
+    var $submitFormButton = $('#add-new-cc-card');
+    var ckoPublicKey = $('#cko-public-key').val();
+    var ckoUserId = $('#customer-id').val();
+    var ckoUserName = $('#customer-name').val();
+    var ckoUserEmail = $('#customer-email').val();
+    var ckoTheme = $('#cko-theme').val();
 
+    $(document).ready(function() {
+
+        // Add card controls
         $addFormButton.click(function () {
-            $form.show();
+            $formHolder.show();
             $addFormButton.hide();
         });
 
-        $submitForm.click(function(e) {
-            $formErrors.empty().hide();
-
+        // Submit card form controls
+        $submitFormButton.click(function (e) {
             e.preventDefault();
+            Checkout.submitCardForm();
         });
 
-        function getCardTokenData() {
-            var data = {};
-
-            data = {
-                expiryMonth: $('#expiry-month').val(),
-                expiryYear: $('#expiry-year').val(),
-                number: $('#card-number').val(),
-                'email-address': $('#customer-email').val(),
-                name:  $('#card-holder').val()
-            };
-
-            var $cvv = $('#cvv');
-
-            if($cvv.length) {
-                data.cvv = $cvv.val();
+        // Initialise the embedded form
+        Checkout.init({
+            publicKey: ckoPublicKey,
+            customerEmail: ckoUserEmail,
+            value: 1,
+            currency: "USD",
+            appMode: 'embedded',
+            appContainerSelector: '#embeddedForm',
+            theme: ckoTheme,
+            cardTokenised: function(event) {
+                // Perform the charge via ajax
+                chargeWithCardToken(event.data);
             }
+        });
 
-            return data;
+        // Card storage function
+        function chargeWithCardToken(ckoResponse) {
+
+            // Set the storage controller URL
+            var storageUrl = url.build('checkout_com/cards/store');
+
+            // Prepare the request data
+            var requestObject = {
+                                    "ckoCardToken": ckoResponse.cardToken,
+                                    "customerEmail": ckoUserEmail,
+                                    "customerId": ckoUserId,
+                                    "customerName": ckoUserName
+                                };
+
+            // Perform the storage request
+            $.ajax({
+                type: "POST",
+                url: storageUrl,
+                data: JSON.stringify(requestObject),
+                success: function(res) {
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }   
+            }).done(function (data) {
+                window.location.reload();
+            });
         }
-
-        var sdkUrl = $('#checkout-sdk-url').val();
-
-        window.CKOConfig = {
-            debugMode: $('#checkout-is-debug-mode').val() === '1',
-            publicKey: $('#checkout-public-key').val(),
-            ready: function () {
-
-                $submitForm.click(function() {
-                    CheckoutKit.createCardToken(getCardTokenData(), {includeBinData: false}, function(response) {
-                        if ('error' !== response.type) {
-                            var card = response.card;
-
-                            _.each(cardDetailsAttributes, function(attribute) {
-                                $('#checkout-card-' + attribute).val( card[attribute] );
-                            });
-
-                            $('#cko-card-token').val(response.id);
-
-                            $form.submit();
-                        }
-                    });
-                });
-
-            },
-            apiError: function (event) {
-                var msg = '<span id="closebtn" >&times;</span><strong>' + event.data.message + ':</strong><br>' + event.data.errors.join('<br>');
-
-                $formErrors.append(msg).show();
-
-                $closeErrorsButton.click(function () {
-                    $formErrors.fadeOut('slow');
-                });
-            }
-        };
-
-        require([sdkUrl], function () {});
     });
-
 });
