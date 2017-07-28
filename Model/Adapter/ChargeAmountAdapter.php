@@ -69,13 +69,13 @@ class ChargeAmountAdapter {
     public static function getGatewayAmountOfCurrency($amount, $currencyCode) {
         $currencyCode = strtoupper($currencyCode);
 
-        if( ! is_numeric($amount) ) {
+        if ( ! is_numeric($amount) ) {
             throw new InvalidArgumentException('The amount value is not numeric. The [' . $amount . '] value has been given.');
         }
 
         $amount = (float) $amount;
 
-        if($amount <= 0) {
+        if ($amount <= 0) {
             throw new InvalidArgumentException('The amount value must be positive. The [' . $amount . '] value has been given.');
         }
 
@@ -194,18 +194,35 @@ class ChargeAmountAdapter {
         // Test the store and gateway config conditions
         if ($gatewayPaymentCurrency == self::BASE_CURRENCY) {
 
-            // Convert the user currency amount to base currency amount
-            $finalAmount = $orderAmount * $manager->create('Magento\Directory\Model\CurrencyFactory')->create()->load($userCurrencyCode)->getAnyRate($storeBaseCurrencyCode);            
+            if ($userCurrencyCode == $storeBaseCurrencyCode) {
+
+                // Convert the user currency amount to base currency amount
+                $finalAmount = $orderAmount / $manager->create('Magento\Directory\Model\CurrencyFactory')->create()->load($storeBaseCurrencyCode)->getAnyRate($userCurrencyCode);      
+            }
+            else {
+                $finalAmount = $orderAmount;        
+            }
+
         }
         elseif ($gatewayPaymentCurrency == self::ORDER_CURRENCY) {
 
-            // Do nothing, just use the order currency
-            $finalAmount = $orderAmount;
+            if ($userCurrencyCode != $storeBaseCurrencyCode) {
+
+                $finalAmount = $orderAmount * $manager->create('Magento\Directory\Model\CurrencyFactory')->create()->load($storeBaseCurrencyCode)->getAnyRate($userCurrencyCode);            
+            } else {
+                // Convert the base amount to user currency amount
+                $finalAmount = $orderAmount;        
+            }
         }
         else {
 
-            // We have a specific currency to use for the payment
-            $finalAmount = $orderAmount * $manager->create('Magento\Directory\Model\CurrencyFactory')->create()->load($userCurrencyCode)->getAnyRate($gatewayPaymentCurrency);
+            if ($userCurrencyCode != $gatewayPaymentCurrency) {
+                // We have a specific currency to use for the payment
+                $finalAmount = $orderAmount * $manager->create('Magento\Directory\Model\CurrencyFactory')->create()->load($userCurrencyCode)->getAnyRate($gatewayPaymentCurrency);
+            } else {
+               
+               $finalAmount = $orderAmount * $manager->create('Magento\Directory\Model\CurrencyFactory')->create()->load($storeBaseCurrencyCode)->getAnyRate($gatewayPaymentCurrency);
+            }
         }
 
         return $finalAmount;

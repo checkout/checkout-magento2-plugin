@@ -5,7 +5,7 @@
     <head>
         <script src="CheckoutCom_Magento2/js/collapseForm.js" />
         <css src="CheckoutCom_Magento2::css/cards-list.css" />
-    </head>
+   </head>
     <body>
         <referenceContainer name="content">
             <block 

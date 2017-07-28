@@ -10,7 +10,7 @@ class RedirectionFailUrl extends AbstractCallbackUrl {
      * @return string
      */
     public function getControllerUrl() {
-        return 'payment/verify';
+        return 'payment/fail';
     }
 
 }

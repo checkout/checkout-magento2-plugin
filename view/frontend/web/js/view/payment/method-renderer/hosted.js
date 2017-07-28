@@ -5,12 +5,13 @@ define(
     [
         'jquery',
         'CheckoutCom_Magento2/js/view/payment/method-renderer/cc-form',
+        'Magento_Vault/js/view/payment/vault-enabler',
         'CheckoutCom_Magento2/js/view/payment/adapter',
         'Magento_Checkout/js/model/quote',
         'mage/url',
         'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function ($, Component, CheckoutCom, quote, url, additionalValidators) {
+    function ($, Component, VaultEnabler, CheckoutCom, quote, url, additionalValidators) {
         'use strict';
 
         return Component.extend({
@@ -51,7 +52,8 @@ define(
              * @returns {string}
              */
             getQuoteValue: function() {
-                return CheckoutCom.getPaymentConfig()['quote_value'];
+               //return CheckoutCom.getPaymentConfig()['quote_value'];
+               return (quote.getTotals()().grand_total*100).toFixed(2);
             },
 
             /**

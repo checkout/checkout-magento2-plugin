@@ -32,16 +32,13 @@ class Store extends Action {
      */
     public function execute() {
           
-
-        $params = array_keys($this->getRequest()->getParams());
-        $params = json_decode($params[0]);
+        $ckoCardToken = $this->getCardToken();
 
         try {
             $this->storeCardService
-                 ->setCardToken($params->ckoCardToken)
-                 ->setCustomerEmail($params->customerEmail)
-                 ->setCustomerId($params->customerId)
-                 ->setCustomerName($params->customerName)
+                 ->setCardToken($ckoCardToken)
+                 ->setCustomerId()
+                 ->setCustomerEmail()
                  ->test()
                  ->setCardData()
                  ->save();
@@ -54,5 +51,13 @@ class Store extends Action {
         
         return $this->_redirect('vault/cards/listAction');
     }    
+
+    public function getCardToken() {
+
+        $params = array_keys($this->getRequest()->getParams());
+        $params = json_decode($params[0]);
+
+        return $params->ckoCardToken;
+    }
 
 }

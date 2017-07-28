@@ -123,5 +123,4 @@ class PaymentTokenService {
         $gatewayResponseHolder = ObjectManager::getInstance()->get(GatewayResponseHolder::class);
         $gatewayResponseHolder->setGatewayResponse($response);
     }
-
 }

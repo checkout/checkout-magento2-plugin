@@ -30,7 +30,7 @@ define(
 
                 this.vaultEnabler = new VaultEnabler();
                 this.vaultEnabler.setPaymentCode(this.getVaultCode());
-            },
+            },  
 
             /**
              * @returns {bool}
@@ -99,13 +99,6 @@ define(
             /**
              * @returns {string}
              */
-            getEmailAddress: function() {
-                return window.checkoutConfig.customerData.email || quote.guestEmail;
-            },
-
-            /**
-             * @returns {string}
-             */
             getRedirectUrl: function() {
                 return url.build('checkout_com/payment/placeOrder');
             },
@@ -138,7 +131,6 @@ define(
                 // Initialise the embedded form
                 Checkout.init({
                     publicKey: self.getPublicKey(),
-                    customerEmail: self.getEmailAddress(),
                     value: self.getQuoteValue(),
                     currency: self.getQuoteCurrency(),
                     appMode: 'embedded',

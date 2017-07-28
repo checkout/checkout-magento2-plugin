@@ -6,9 +6,21 @@ use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Sales\Model\Order\Payment;
+use Magento\Checkout\Model\Session;
 
 class TransactionHandler implements HandlerInterface {
 
+    const REDIRECT_URL = 'redirectUrl';
+
+    /**
+     * @var Session
+     */
+    protected $session;
+
+    public function __construct(Session $session) {
+        $this->session = $session;
+    }
+       
     /**
      * List of additional details
      * @var array
@@ -62,6 +74,25 @@ class TransactionHandler implements HandlerInterface {
         elseif($responseCode >= 20000 AND $responseCode <= 40000) {
             $payment->setIsTransactionClosed(true);
         }
+
+        // Prepare 3D Secure redirection with session variable
+        if (array_key_exists(self::REDIRECT_URL, $response)) {
+            
+            // Get the 3DS redirection URL
+            $redirectUrl = $response[self::REDIRECT_URL];
+            
+            // Set 3DS redirection in session for the PlaceOrder controller
+            $this->session->set3DSRedirect($redirectUrl);
+
+            // Put the response in session for the PlaceOrder controller
+            $this->session->setGatewayResponseId($response['id']);
+        }
+
+        // Set a flag for card id charge
+        if (isset($response['udf1']) && $response['udf1'] == 'cardIdCharge') {
+            $this->session->setCardIdChargeFlag('cardIdCharge');
+        }
+
     }
 
     /**

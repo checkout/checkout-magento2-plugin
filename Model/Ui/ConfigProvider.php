@@ -84,7 +84,6 @@ class ConfigProvider implements ConfigProviderInterface {
                     'payment_token' => $this->getPaymentToken(),
                     'quote_value' => $this->getQuoteValue(),
                     'quote_currency' => $this->getQuoteCurrency(),
-                    'quote_currency' => $this->getQuoteCurrency(),
                     'embedded_theme' => $this->config->getEmbeddedTheme(),
                     'embedded_css' => $this->config->getEmbeddedCss(),
                     'custom_css' => $this->config->getCustomCss(),
@@ -108,17 +107,8 @@ class ConfigProvider implements ConfigProviderInterface {
      * @return float
      */
     public function getQuoteValue() {
-
-        // Get the quote amount
-        $amount =  ChargeAmountAdapter::getPaymentFinalCurrencyValue($this->checkoutSession->getQuote()->getGrandTotal());
-
-        // Get the quote currency
-        $currencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
-
-        // Prepare the amount 
-        $value = ChargeAmountAdapter::getGatewayAmountOfCurrency($amount, $currencyCode);
-
-        return $value;
+        // Return the quote amount
+        return $this->checkoutSession->getQuote()->getGrandTotal()*100;
     }
    
     /**
@@ -127,11 +117,7 @@ class ConfigProvider implements ConfigProviderInterface {
      * @return string
      */
     public function getQuoteCurrency() {
-
-        // Get the quote currency
-        $currencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
-
         // Return the quote currency
-        return ChargeAmountAdapter::getPaymentFinalCurrencyCode($currencyCode);
+        return $this->storeManager->getStore()->getCurrentCurrencyCode();
     }
 }

@@ -2,8 +2,8 @@ define([
     'jquery',
     'Magento_Vault/js/view/payment/method-renderer/vault',
     'Magento_Checkout/js/action/place-order',
-    'CheckoutCom_Magento2/js/view/payment/response-strategy'
-], function ($, VaultComponent, placeOrderAction, responseStrategy) {
+    'Magento_Checkout/js/model/payment/additional-validators'
+], function ($, VaultComponent, placeOrderAction, additionalValidators) {
     'use strict';
 
     return VaultComponent.extend({
@@ -47,11 +47,19 @@ define([
             return this.publicHash;
         },
 
-        getPlaceOrderDeferredObject: function () {
-            return $.when(
-                placeOrderAction(this.getData(), this.messageContainer)
-            ).then(responseStrategy);
-        }
+        /**
+         * @returns {string}
+         */
+        beforePlaceOrder: function() {
+
+            // Get self
+            var self = this;
+
+            // Place the order
+            if (additionalValidators.validate()) {
+                self.placeOrder();
+            }
+        },
     });
 
 });

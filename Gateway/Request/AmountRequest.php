@@ -16,10 +16,10 @@ class AmountRequest extends AbstractRequest {
     public function build(array $buildSubject) {
         $paymentDO      = $this->subjectReader->readPayment($buildSubject);
         $order          = $paymentDO->getOrder();
+        $amount         = ChargeAmountAdapter::getPaymentFinalCurrencyValue($this->subjectReader->readAmount($buildSubject));
 
-        $currencyCode   = $order->getCurrencyCode();
-        $amount         = ChargeAmountAdapter::getGatewayAmountOfCurrency($this->subjectReader->readAmount($buildSubject), $currencyCode);
-        $value          = $amount;
+        $currencyCode   = ChargeAmountAdapter::getPaymentFinalCurrencyCode($order->getCurrencyCode());
+        $value          = ChargeAmountAdapter::getGatewayAmountOfCurrency($amount, $currencyCode);
 
         return compact('value');
     }

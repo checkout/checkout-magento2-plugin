@@ -16,6 +16,8 @@ use Zend_Http_Client_Exception;
 use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Framework\App\ResponseFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Customer\Model\Session;
 
 class StoreCardService {
 
@@ -55,11 +57,6 @@ class StoreCardService {
     protected $customerEmail;
 
     /**
-     * @var string
-     */
-    protected $customerName;
-
-    /**
      * @var int
      */
     protected $customerId;
@@ -83,7 +80,10 @@ class StoreCardService {
      * @var ResponseFactory 
      */
     protected $responseFactory;
+
+    protected $scopeConfig;
     
+    protected $customerSession;
     
     /**
      * StoreCardService constructor.
@@ -102,7 +102,10 @@ class StoreCardService {
         TransferFactory $transferFactory,
         PaymentTokenRepositoryInterface $paymentTokenRepository,
         PaymentTokenManagementInterface $paymentTokenManagement,
-        ResponseFactory $responseFactory
+        ResponseFactory $responseFactory,
+        ScopeConfigInterface $scopeConfig,
+        Session $customerSession
+
     ) {
         $this->logger                   = $logger;
         $this->vaultTokenFactory        = $vaultTokenFactory;
@@ -110,7 +113,9 @@ class StoreCardService {
         $this->transferFactory          = $transferFactory;
         $this->paymentTokenRepository   = $paymentTokenRepository;
         $this->paymentTokenManagement   = $paymentTokenManagement;
-        $this->responseFactory = $responseFactory;
+        $this->scopeConfig              = $scopeConfig;
+        $this->responseFactory          = $responseFactory;
+        $this->customerSession          = $customerSession;
     }
 
     /**
@@ -119,8 +124,8 @@ class StoreCardService {
      * @param int $customerId
      * @return StoreCardService
      */
-    public function setCustomerId($customerId) {
-        $this->customerId = (int) $customerId;
+    public function setCustomerId() {
+        $this->customerId = (int) $this->customerSession->getCustomer()->getId();
 
         return $this;
     }
@@ -131,20 +136,9 @@ class StoreCardService {
      * @param string $customerEmail
      * @return StoreCardService
      */
-    public function setCustomerEmail($customerEmail) {
-        $this->customerEmail = $customerEmail;
+    public function setCustomerEmail() {
 
-        return $this;
-    }
-
-    /**
-     * Sets the customer name.
-     *
-     * @param string $customerName
-     * @return StoreCardService
-     */
-    public function setCustomerName($customerName) {
-        $this->customerName = substr($customerName, 0, 100);
+        $this->customerEmail = $this->customerSession->getCustomer()->getEmail();
 
         return $this;
     }
@@ -249,11 +243,10 @@ class StoreCardService {
         $transfer = $this->transferFactory->create([
             'autoCapture'   => 'N',
             'description'   => 'Saving new card',
-            'value'         => 1,
-            'currency'      => 'USD',
+            'value'         => (float) $this->scopeConfig->getValue('payment/checkout_com/save_card_check_amount') * 100,
+            'currency'      => $this->scopeConfig->getValue('payment/checkout_com/save_card_check_currency'),
             'cardToken'     => $this->cardToken,
             'email'         => $this->customerEmail,
-            'customerName'  => $this->customerName,
         ]);
         
         $log = [

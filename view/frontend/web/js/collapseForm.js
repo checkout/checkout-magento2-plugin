@@ -10,9 +10,6 @@ require([
     var $addFormButton = $('#show-add-cc-form');
     var $submitFormButton = $('#add-new-cc-card');
     var ckoPublicKey = $('#cko-public-key').val();
-    var ckoUserId = $('#customer-id').val();
-    var ckoUserName = $('#customer-name').val();
-    var ckoUserEmail = $('#customer-email').val();
     var ckoTheme = $('#cko-theme').val();
 
     $(document).ready(function() {
@@ -32,7 +29,6 @@ require([
         // Initialise the embedded form
         Checkout.init({
             publicKey: ckoPublicKey,
-            customerEmail: ckoUserEmail,
             value: 1,
             currency: "USD",
             appMode: 'embedded',
@@ -51,12 +47,7 @@ require([
             var storageUrl = url.build('checkout_com/cards/store');
 
             // Prepare the request data
-            var requestObject = {
-                                    "ckoCardToken": ckoResponse.cardToken,
-                                    "customerEmail": ckoUserEmail,
-                                    "customerId": ckoUserId,
-                                    "customerName": ckoUserName
-                                };
+            var requestObject = {"ckoCardToken": ckoResponse.cardToken};
 
             // Perform the storage request
             $.ajax({

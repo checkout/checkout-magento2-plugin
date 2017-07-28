@@ -10,20 +10,24 @@
 <br>
 <div id="cko-form-holder" style="display: none;">
     <form class="widget-container" id="embeddedForm" method="POST">
-        <?php echo $this->getLayout()->createBlock('CheckoutCom\Magento2\Block\Embedded')->setTemplate('CheckoutCom_Magento2::embedded.phtml')->toHtml(); ?>
+        <?php echo $this->getLayout()->createBlock('CheckoutCom\Magento2\Block\Embedded')->setTemplate('Checkoutcom_Magento2::embedded.phtml')->toHtml(); ?>
 	</form>
 	<br>
     <div class="actions-toolbar">
         <div class="primary">
             <button type="submit" class="action submit primary" id="add-new-cc-card">Add Card</button>
+            <div id="info-icon">
+                <?php echo file_get_contents($this->getViewFileUrl('CheckoutCom_Magento2::images/icon-info.svg')); ?>
+            </div>
+            <div id="info-text">
+                Please note that when saving this card, it will be charged <?php echo $block->getSaveCardCheckAmount(); ?> <?php echo $block->getSaveCardCheckCurrency(); ?> for authentication purposes.
+                The transaction will be automatically cancelled after verification and will not generate any debit on the card.
+            </div>
+            <div class="clr"></div>
         </div>
 	</div>
 </div>
 
-<input type="hidden" id="customer-id" name="customer_id" value="<?php echo $block->getCustomer()->getId() ?>">
-<input type="hidden" id="customer-name" name="customer_name" value="<?php echo $block->getCustomer()->getName() ?>">
-<input type="hidden" id="customer-email" name="customer_email" value="<?php echo $block->getCustomer()->getEmail() ?>">
 <input type="hidden" id="customer-currency" name="customer_currency" value="<?php echo $block->getCustomerCurrency(); ?>">
 <input type="hidden" id="cko-public-key" value="<?php echo $block->getGatewayConfig()->getPublicKey() ?>">
 <input type="hidden" id="cko-theme" value="<?php echo $block->getGatewayConfig()->getEmbeddedTheme() ?>">
-

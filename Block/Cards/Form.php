@@ -47,7 +47,23 @@ class Form extends Template {
         $this->storeManager     = $context->getStoreManager();
   
         parent::__construct($context, $data);
-  }
+    }
+
+    public function getSaveCardCheckAmount() {
+
+        // Get the configured amount
+        $amount = $this->_scopeConfig->getValue('payment/checkout_com/save_card_check_amount');
+
+        return $amount;
+    }
+
+    public function getSaveCardCheckCurrency() {
+
+        // Get the configured currency
+        $currency = $this->_scopeConfig->getValue('payment/checkout_com/save_card_check_currency');
+
+        return $currency;
+    }
 
     /**
      * Returns the customer instance from the session.

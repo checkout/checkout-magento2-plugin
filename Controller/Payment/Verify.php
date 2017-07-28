@@ -131,13 +131,27 @@ class Verify extends AbstractAction {
 
         // If it's an alternative payment
         if ((int) $response['chargeMode'] == 3) {
-            if ((int) $response['responseCode'] == 10000) {
+            if ((int) $response['responseCode'] == 10000 || (int) $response['responseCode'] == 10100) {
+
                 // Place a local payment order
                 $this->placeLocalPaymentOrder();
             }
             else {
                 $this->messageManager->addErrorMessage($response['responseMessage']);                
             }
+        }
+
+       // If it's a vault card id charge response
+        else if (isset($response['trackId']) && $response['udf1'] == 'cardIdCharge') {
+
+            if ((int) $response['responseCode'] == 10000) {
+                $this->messageManager->addSuccessMessage( __('Order successfully processed.') );
+            }
+            else {
+                $this->messageManager->addErrorMessage($response['responseMessage']);                
+            }
+
+            return $this->redirect->setPath('checkout/onepage/success', ['_secure' => true]);
         }
 
         // Else proceed normally for 3D Secure
@@ -195,24 +209,24 @@ class Verify extends AbstractAction {
             
             // Prepare the order in session (required for success page redirection)
             if ($order) {
-                    $this->session->setLastOrderId($order->getId())
+                $this->session->setLastOrderId($order->getId())
                                        ->setLastRealOrderId($order->getIncrementId())
                                        ->setLastOrderStatus($order->getStatus());
+            
+                // Update order status
+                $order->setState('new');
+                $order->setStatus($this->gatewayConfig->getNewOrderStatus());
+
+                // Set email sent
+                $order->setEmailSent(1);
+
+                // Save the order
+                $order->save();
+
+                // Send email
+                $this->orderSender->send($order);
             }
-
-            // Update order status
-            $order->setState('new');
-            $order->setStatus($this->gatewayConfig->getNewOrderStatus());
-
-            // Set email sent
-            $order->setEmailSent(1);
-
-            // Save the order
-            $order->save();
-
-            // Send email
-            $this->orderSender->send($order);
-
+            
             // Redirect to the success page
             return $this->redirect->setPath('checkout/onepage/success', ['_secure' => true]);
 
@@ -225,13 +239,16 @@ class Verify extends AbstractAction {
     public function extractPaymentToken() {
 
         // Get the gateway response from session if exists
-        $gatewayResponse = $this->session->getGatewayResponse();
+        $gatewayResponseId = $this->session->getGatewayResponseId();
+
+        // Destroy the session variable
+        $this->session->unsGatewayResponseId();
 
         // Check if there is a payment token sent in url
         $ckoPaymentToken = $this->getRequest()->getParam('cko-payment-token');
 
         // return the found payment token
-        return $ckoPaymentToken ? $ckoPaymentToken : $gatewayResponse['id'];
+        return $ckoPaymentToken ? $ckoPaymentToken : $gatewayResponseId;
     }
 
     /**

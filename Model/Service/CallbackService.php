@@ -148,8 +148,6 @@ class CallbackService {
 
                 // Add the new comment
                 $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
-
-
             }
 
             $this->orderRepository->save($order);

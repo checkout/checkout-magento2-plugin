@@ -59,6 +59,8 @@
                 <paymentInfoKeys>cc_type,cc_number,card_expiry_month,card_expiry_year,card_last_4,status,responseMessage,responseAdvancedInfo,responseCode,authCode,three_d_secure</paymentInfoKeys>
 
                 <useccv>1</useccv>
+                <save_card_check_amount>1.00</save_card_check_amount>
+                <save_card_check_currency>USD</save_card_check_currency>
             </checkout_com>
             <checkout_com_cc_vault>
                 <model>CheckoutComCreditCardVaultFacade</model>
