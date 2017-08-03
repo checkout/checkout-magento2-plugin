@@ -1,5 +1,5 @@
 # Checkout.com Magento 2 Extension
-![Checkout.com](https://docs.checkout.com/img/Logo-black.png)
+<img src="https://docs.checkout.com/img/Logo-black.png" alt="Checkout.com" width="350"/>
 
 ## Introduction
 [Checkout.com](https://www.checkout.com "Checkout.com") is a software platform that has integrated 100% of the value chain to create payment infrastructures that truly make a difference. Checkout.com is authorised and regulated as a Payment institution by the UK Financial Conduct Authority.
