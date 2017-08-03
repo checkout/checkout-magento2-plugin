@@ -10,6 +10,7 @@ Checkout.js v2 is the latest version of our popular [Checkout.js](https://docs.c
 
 ## Supported payment methods
 VISA, Mastercard, American Express, Discover, Diners Club, JCB, in addition to the Alternative Payment options described above.
+<img src="https://docs.checkout.com/img/supported-payment-methods-v2.png" alt="Checkout.com" width="200"/>
 
 ## Compatibility
 The Checkout.com extension for Magento 2 is compatible with Magento 2.1 and above.
