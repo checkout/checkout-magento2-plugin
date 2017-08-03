@@ -1,4 +1,5 @@
 <img src="https://docs.checkout.com/img/Logo-black.png" alt="Checkout.com" width="380"/>
+
 ## Magento 2 Extension
 
 ## Introduction
