@@ -125,7 +125,7 @@ class StoreCardService {
      * @return StoreCardService
      */
     public function setCustomerId() {
-        $this->customerId = (int) $this->customerSession->getCustomer()->getId();
+        $this->customerId = $this->customerSession->getCustomer()->getId();
 
         return $this;
     }
@@ -213,7 +213,7 @@ class StoreCardService {
         $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
 
         // Check if card exists
-        if($foundPaymentToken) {
+        if ($foundPaymentToken) {
             if($foundPaymentToken->getIsActive()) {
                 throw new LocalizedException(__('The credit card has been stored already.') );
             }
@@ -225,7 +225,9 @@ class StoreCardService {
 
         // Otherwise save the card
         else {
-            $paymentToken->setGatewayToken($this->authorizedResponse['card']['id']);
+            $gatewayToken = $this->authorizedResponse['card']['id'];
+
+            $paymentToken->setGatewayToken($gatewayToken);
             $paymentToken->setIsVisible(true);
 
             $this->paymentTokenRepository->save($paymentToken);
@@ -240,6 +242,9 @@ class StoreCardService {
      * @throws \Exception
      */
     private function authorizeTransaction() {
+
+        $requestUri = 'charges/token'; // todo - get this url from http client class
+
         $transfer = $this->transferFactory->create([
             'autoCapture'   => 'N',
             'description'   => 'Saving new card',
@@ -251,13 +256,13 @@ class StoreCardService {
         
         $log = [
             'request'           => $transfer->getBody(),
-            'request_uri'       => 'charges/token',
+            'request_uri'       => $requestUri,
             'request_headers'   => $transfer->getHeaders(),
             'request_method'    => 'POST',
         ];
 
         try {
-            $response           = $this->getHttpClient('charges/token', $transfer)->request();
+            $response           = $this->getHttpClient($requestUri, $transfer)->request();
             
             $result             = json_decode($response->getBody(), true);
             $log['response']    = $result;
@@ -300,15 +305,17 @@ class StoreCardService {
             'trackId'   => ''
         ]);
 
+        $chargeUrl = 'charges/' . $transactionId . '/void';
+
         $log = [
             'request'           => $transfer->getBody(),
-            'request_uri'       => 'charges/' . $transactionId . '/void',
+            'request_uri'       => $chargeUrl,
             'request_headers'   => $transfer->getHeaders(),
             'request_method'    => 'POST',
         ];
 
         try {
-            $response           = $this->getHttpClient('charges/' . $transactionId . '/void', $transfer)->request();
+            $response           = $this->getHttpClient($chargeUrl, $transfer)->request();
            
             $result             = json_decode($response->getBody(), true);
             $log['response']    = $result;

@@ -85,10 +85,35 @@ define(
             },
 
             /**
+             * @returns {void}
+             */
+            saveSessionData: function() {
+                // Prepare the session data
+                var sessionData = {saveShopperCard: $('#checkout_com_enable_vault').is(":checked")};
+
+                // Send the session data to be saved
+                $.ajax({
+                    url : url.build('checkout_com/shopper/sessionData'),
+                    type: "POST",
+                    data : sessionData,
+                    success: function(data, textStatus, xhr) { },
+                    error: function (xhr, textStatus, error) { } // todo - improve error handling
+                });
+            },
+
+            /**
              * @returns {string}
              */
             beforePlaceOrder: function() {
+                // Get self
+                var self = this;
+
+                // Validate before submission
                 if (additionalValidators.validate()) {
+                    // Set the save card option in session
+                    self.saveSessionData();
+
+                    // Submit the form
                     $('#checkout_com-hosted-form').submit();
                 }
             }

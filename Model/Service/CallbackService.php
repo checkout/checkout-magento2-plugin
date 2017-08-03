@@ -18,6 +18,9 @@ use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
+use CheckoutCom\Magento2\Model\Service\StoreCardService;
+use Magento\Customer\Model\CustomerFactory;
+use Magento\Store\Model\StoreManagerInterface;
 
 class CallbackService {
 
@@ -58,6 +61,10 @@ class CallbackService {
      */
     protected $invoiceRepository;
 
+    protected $storeCardService;
+    protected $customerFactory;
+    protected $storeManager;
+
     /**
      * CallbackService constructor.
      * @param CallbackMethod $callbackMethod
@@ -65,7 +72,7 @@ class CallbackService {
      * @param OrderFactory $orderFactory
      * @param OrderRepositoryInterface $orderRepository
      */
-    public function __construct(CallbackMethod $callbackMethod, CallbackEventAdapter $eventAdapter, OrderFactory $orderFactory, OrderRepositoryInterface $orderRepository, GatewayConfig $gatewayConfig, InvoiceService $invoiceService, InvoiceRepositoryInterface $invoiceRepository) {
+    public function __construct(CallbackMethod $callbackMethod, CallbackEventAdapter $eventAdapter, OrderFactory $orderFactory, OrderRepositoryInterface $orderRepository, GatewayConfig $gatewayConfig, InvoiceService $invoiceService, InvoiceRepositoryInterface $invoiceRepository, StoreCardService $storeCardService, CustomerFactory $customerFactory, StoreManagerInterface $storeManager) {
         $this->callbackMethod   = $callbackMethod;
         $this->eventAdapter     = $eventAdapter;
         $this->orderFactory     = $orderFactory;
@@ -73,6 +80,9 @@ class CallbackService {
         $this->gatewayConfig    = $gatewayConfig;
         $this->invoiceService       = $invoiceService;
         $this->invoiceRepository    = $invoiceRepository;
+        $this->storeCardService    = $storeCardService;
+        $this->customerFactory = $customerFactory;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -134,6 +144,7 @@ class CallbackService {
 
                 // Add the new comment
                 $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+
             }
 
             // Perform capture complementary actions
@@ -141,7 +152,6 @@ class CallbackService {
                 // Update order status
                 $order->setState('new');
                 $order->setStatus($this->gatewayConfig->getNewOrderStatus());
-
 
                 // Create new comment
                 $newComment = 'Captured amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];

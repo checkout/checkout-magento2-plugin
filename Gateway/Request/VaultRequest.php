@@ -37,10 +37,20 @@ class VaultRequest implements BuilderInterface {
     public function build(array $buildSubject)
     {
         return [
-            self::OPTIONS => [
-                self::STORE_IN_VAULT_ON_SUCCESS => $this->customerSession->isLoggedIn(),
-            ]
+            'udf2' => ($this->getVaultSaveInfo()) ? self::STORE_IN_VAULT_ON_SUCCESS : ''
         ];
     }
 
+    public function getVaultSaveInfo() {
+
+        // Get the checkout session data
+        $checkoutSessionData = $this->customerSession->getData('checkoutSessionData');
+
+        // Check if save card is requested
+        if (isset($checkoutSessionData['saveShopperCard'])) {
+            return filter_var($checkoutSessionData['saveShopperCard'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return false;
+    }
 }

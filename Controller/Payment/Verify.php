@@ -157,9 +157,8 @@ class Verify extends AbstractAction {
         // Else proceed normally for 3D Secure
         else {
 
-            // Check for saving card
-            if (isset($response['description']) && $response['description'] == 'Saving new card') {
-                return $this->vaultCardAfterThreeDSecure( $response );
+            if ($response['udf2'] == 'storeInVaultOnSuccess') {
+                $this->vaultCardAfterThreeDSecure( $response );
             }
 
             // Check for declined transactions
@@ -279,6 +278,6 @@ class Verify extends AbstractAction {
         
         $this->messageManager->addSuccessMessage( __('Credit Card has been stored successfully') );
         
-        return $this->_redirect('vault/cards/listaction/');
+        //return $this->_redirect('vault/cards/listaction/');
     }
 }

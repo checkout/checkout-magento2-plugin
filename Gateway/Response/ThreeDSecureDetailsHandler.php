@@ -4,7 +4,6 @@ namespace CheckoutCom\Magento2\Gateway\Response;
 
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
-use Magento\Checkout\Model\Session;
 use Magento\Framework\App\ResponseFactory;
 
 class ThreeDSecureDetailsHandler implements HandlerInterface {
@@ -19,17 +18,11 @@ class ThreeDSecureDetailsHandler implements HandlerInterface {
     protected $responseFactory;
 
     /**
-     * @var Session
-     */
-    protected $session;
-
-    /**
      * ThreeDSecureDetailsHandler constructor.
      * @param ResponseFactory $responseFactory
      */
-    public function __construct(ResponseFactory $responseFactory, Session $session) {
+    public function __construct(ResponseFactory $responseFactory) {
         $this->responseFactory = $responseFactory;
-        $this->session = $session;
     }
 
     /**

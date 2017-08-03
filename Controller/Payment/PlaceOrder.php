@@ -84,5 +84,4 @@ class PlaceOrder extends AbstractAction {
         echo 'waitForElement();';
         echo '</script>';
     }
-
 }

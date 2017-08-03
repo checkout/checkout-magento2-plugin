@@ -8,17 +8,52 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Checkout\Model\Session;
 
+use CheckoutCom\Magento2\Model\Service\VerifyPaymentService;
+use CheckoutCom\Magento2\Model\Factory\VaultTokenFactory;
+use Magento\Vault\Api\PaymentTokenRepositoryInterface;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Customer\Model\Session as CustomerSession;
+
 class TransactionHandler implements HandlerInterface {
 
     const REDIRECT_URL = 'redirectUrl';
+
+    /**
+     * @var Session 
+     */
+    protected $customerSession;
+
+    /**
+     * @var VerifyPaymentService
+     */
+    protected $verifyPaymentService;
+
+    /**
+     * @var VaultTokenFactory 
+     */
+    protected $vaultTokenFactory;
+    
+    /**
+     * @var PaymentTokenRepository 
+     */
+    protected $paymentTokenRepository;
 
     /**
      * @var Session
      */
     protected $session;
 
-    public function __construct(Session $session) {
+    protected $messageManager;
+
+    public function __construct(Session $session, VaultTokenFactory $vaultTokenFactory, 
+            PaymentTokenRepositoryInterface $paymentTokenRepository, CustomerSession $customerSession, 
+ManagerInterface $messageManager, VerifyPaymentService $verifyPaymentService) {
         $this->session = $session;
+        $this->vaultTokenFactory    = $vaultTokenFactory;
+        $this->paymentTokenRepository   = $paymentTokenRepository;
+        $this->verifyPaymentService = $verifyPaymentService;
+        $this->messageManager    = $messageManager;
+        $this->customerSession      = $customerSession;
     }
        
     /**
@@ -93,6 +128,39 @@ class TransactionHandler implements HandlerInterface {
             $this->session->setCardIdChargeFlag('cardIdCharge');
         }
 
+        // Save card if needed
+        if (isset($response['udf2']) && $response['udf2'] == 'storeInVaultOnSuccess') {
+            $this->vaultCard( $response );
+        }
+    }
+
+    /**
+     * Adds a new card.
+     *
+     * @param array $response
+     * @return void
+     */
+    public function vaultCard( array $response ){
+        $cardToken = $response['card']['id'];
+        
+        $cardData = [];
+        $cardData['expiryMonth']   = $response['card']['expiryMonth'];
+        $cardData['expiryYear']    = $response['card']['expiryYear'];
+        $cardData['last4']         = $response['card']['last4'];
+        $cardData['paymentMethod'] = $response['card']['paymentMethod'];
+        
+        try {
+            $paymentToken = $this->vaultTokenFactory->create($cardData, $this->customerSession->getCustomer()->getId());
+            $paymentToken->setGatewayToken($cardToken);
+            $paymentToken->setIsVisible(true);
+
+            $this->paymentTokenRepository->save($paymentToken);
+        } 
+        catch (\Exception $ex) {
+            $this->messageManager->addErrorMessage( $ex->getMessage() );
+        }
+        
+        $this->messageManager->addSuccessMessage( __('Credit Card has been stored successfully') );
     }
 
     /**
