@@ -51,12 +51,12 @@ Once the Checkout.com extension for Magento 2 installed, go to **Stores > Config
 | :------------------- | :------------------- | :-------------|
 | Integration   | Embedded\|Hosted | Display an emedded form for the payment or redirect to the payment gateway |
 | Environment   | Sandbox\|Live    | Use the payment processor in test or production mode |
-| New order status | Magento order statuses | Which status should be given to newly created orders | 
+| New order status | M2 order statuses | Which status should be given to newly created orders | 
 | Automatically generate invoice | Yes\|No  | Which status should be given to newly created orders | 
 | Vault enabled | Yes / No  | Allow shoppers to save a payment card for reuse | 
 | 3D Secure Verification | Yes\|No  | Should payments follow a 3D Secure verification process | 
 | Auto Capture Time | Yes\|No  | Should payments be captured immediately or with a delay |
-| Payment Currency | Magento currencies | Which currency should be used for the payment |
+| Payment Currency | M2 currencies | Which currency should be used for the payment |
 | Button label | Pay now | Text to display on the payment button (Hosted)|
 | Theme color | #00b660 | Hexadecimal color code to use for the theme (Hosted) |
 | Theme | Standard\|Simple | Theme to use for the embedded payment form (Embedded)|
