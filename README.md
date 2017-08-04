@@ -16,6 +16,23 @@ The Checkout.com extension for Magento 2 supports VISA, Mastercard, American Exp
 ## Compatibility
 The Checkout.com extension for Magento 2 is compatible with Magento 2.1 and above.
 
+## Features
+The Checkout.com extension for Magento 2 offers useful and unique features, allowing Magento 2 shop owners to process online payments in the best conditions. These features have been designed to offer an optimal shopping and payment experience to Magento 2 merchants and shoppers.
+
+Amongst many others the major features are: 
+
+* Hosted payment gateway
+* Embedded payment form
+* New order status management
+* Invoice generation management
+* 3D Secure handling
+* Non 3D Secure payment fallback
+* Alternative payments
+* Payment currency flexibility
+* Dynamic descriptors
+* REST API for mobile payments
+* Payment form customization
+
 ## Installation
 The easiest and recommended way to install the Checkout.com Magento 2 extension is to run the following commands in a terminal, from your Magento 2 root directory:
 
@@ -30,42 +47,5 @@ For more information on the Magento 2 module installation process, please have a
 ## Configuration
 Once the Checkout.com extension for Magento 2 installed, go to Stores > Configuration > Sales > Payment Methods > Checkout.com to see the configuration an customization options available. 
 
-## Features
-The Checkout.com extension for Magento 2 offers useful and unique features, allowing Magento 2 shop owners to process online payments in the best conditions. These features have been designed to offer an optimal shopping and payment experience to Magento 2 merchants and shoppers.
-
-Amongst many others the major features are: 
-
-### Hosted payment gateway
-At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque nanti, quos dolores et quas molestias excepturi sint, obcaecati cupiditate non provident, similique sunt.
-
-### Embedded payment form
-At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque nanti, quos dolores et quas molestias excepturi sint, obcaecati cupiditate non provident, similique sunt.
-
-### New order status management
-At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque nanti, quos dolores et quas molestias excepturi sint, obcaecati cupiditate non provident, similique sunt.
-
-### Invoice generation management
-At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque nanti, quos dolores et quas molestias excepturi sint, obcaecati cupiditate non provident, similique sunt.
-
-### 3D Secure handling
-At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque nanti, quos dolores et quas molestias excepturi sint, obcaecati cupiditate non provident, similique sunt.
-
-### Non 3D Secure payment fallback
-At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque nanti, quos dolores et quas molestias excepturi sint, obcaecati cupiditate non provident, similique sunt.
-
-### Alternative payments
-At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque nanti, quos dolores et quas molestias excepturi sint, obcaecati cupiditate non provident, similique sunt.
-
-### Payment currency flexibility
-At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque nanti, quos dolores et quas molestias excepturi sint, obcaecati cupiditate non provident, similique sunt.
-
-### Dynamic descriptors
-At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque nanti, quos dolores et quas molestias excepturi sint, obcaecati cupiditate non provident, similique sunt.
-
-### REST API for mobile payments
-At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque nanti, quos dolores et quas molestias excepturi sint, obcaecati cupiditate non provident, similique sunt.
-
-### Payment form customization
-At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque nanti, quos dolores et quas molestias excepturi sint, obcaecati cupiditate non provident, similique sunt.
-
-More information on [Checkout.com](https://www.checkout.com "Checkout.com")
+In order to effectively process payments through the Checkout.com Payment Gateway, you will need to open an account.
+Contact your [Checkout.com](https://www.checkout.com "Checkout.com") account manager or send an email to support@checkout.com for more information.
