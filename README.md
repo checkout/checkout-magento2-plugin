@@ -45,7 +45,7 @@ bin/magento setup:di:compile && php bin/magento cache:clean
 For more information on the Magento 2 module installation process, please have a look at the [Magento 2 official documentation](http://devdocs.magento.com/guides/v2.0/install-gde/install/cli/install-cli-subcommands-enable.html "Magento 2 official documentation")
 
 ## Configuration
-Once the Checkout.com extension for Magento 2 installed, go to Stores > Configuration > Sales > Payment Methods > Checkout.com to see the configuration an customization options available. Here is a short selection of some useful parameters available:
+Once the Checkout.com extension for Magento 2 installed, go to *Stores > Configuration > Sales > Payment Methods > Checkout.com* to see the configuration an customization options available. Here is a short selection of some useful parameters available:
 
 | Option               | Values               | Description  |
 | :------------------- | :------------------- | :-------------|
