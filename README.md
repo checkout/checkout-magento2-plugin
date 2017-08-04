@@ -46,17 +46,17 @@ Once the Checkout.com extension for Magento 2 installed, go to **Stores > Config
 
 | Option               | Values               | Description  |
 | :------------------- | :------------------- | :-------------|
-| Integration   | Embedded\|Hosted | Display an emedded form for the payment or redirect to the payment gateway |
-| Environment   | Sandbox\|Live    | Use the payment processor in test or production mode |
+| Integration   | Embedded/Hosted | Display an emedded form for the payment or redirect to the payment gateway |
+| Environment   | Sandbox/Live    | Use the payment processor in test or production mode |
 | New order status | M2 order statuses | Which status should be given to newly created orders | 
-| Invoice generation | Yes\|No  | Should invoices be generated manually or automatically | 
-| Vault enabled | Yes / No  | Allow shoppers to save a payment card for reuse | 
-| 3D Secure check | Yes\|No  | Should payments follow a 3D Secure verification process | 
-| Auto Capture | Yes\|No  | Should payments be captured immediately or with a specified delay |
+| Invoice generation | Yes/No  | Should invoices be generated manually or automatically | 
+| Vault enabled | Yes/No  | Allow shoppers to save a payment card for reuse | 
+| 3D Secure check | Yes/No  | Should payments follow a 3D Secure verification process | 
+| Auto Capture | Yes/No  | Should payments be captured immediately or with a specified delay |
 | Payment Currency | M2 currencies | Which currency should be used for the payment |
 | Button label | Pay now | Text to display on the payment button (Hosted)|
 | Theme color | #00b660 | Hexadecimal color code to use for the theme (Hosted) |
-| Theme | Standard\|Simple | Theme to use for the embedded payment form (Embedded)|
+| Theme | Standard/Simple | Theme to use for the embedded payment form (Embedded)|
 | Custom CSS file | ------- | Upload a CSS file to customize the display parameters (Embedded)|
 
 In order to effectively process payments through the Checkout.com Payment Gateway, you will need to open an account.
