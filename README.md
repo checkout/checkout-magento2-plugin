@@ -53,7 +53,6 @@ Once the Checkout.com extension for Magento 2 installed, go to Stores > Configur
 | Environment   | Sandbox / Live    | Use the payment processor in test or production mode |
 | New order status | Magento order statuses | Which status should be given to newly created orders | 
 | Automatically generate invoice | Yes / No  | Which status should be given to newly created orders | 
-| Automatically generate invoice | Yes / No  | Which status should be given to newly created orders | 
 | Vault enabled | Yes / No  | Allow shoppers to save a payment card for reuse | 
 | 3D Secure Verification | Yes / No  | Should payments follow a 3D Secure verification process | 
 | Auto Capture Time | Yes / No  | Should payments be captured immediately or with a delay |
