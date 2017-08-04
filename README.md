@@ -47,8 +47,8 @@ For more information on the Magento 2 module installation process, please have a
 ## Configuration
 Once the Checkout.com extension for Magento 2 installed, go to Stores > Configuration > Sales > Payment Methods > Checkout.com to see the configuration an customization options available. Here is a short selection of some useful parameters available:
 
-| Option        | Values            | Description  |
-| ------------- | -------------     | -------------|
+| Option              | Values              | Description  |
+| ------------------- | ------------------- | -------------|
 | Integration   | Embedded / Hosted | Display an emedded form for the payment or redirect to the payment gateway |
 | Environment   | Sandbox / Live    | Use the payment processor in test or production mode |
 | New order status | Magento order statuses | Which status should be given to newly created orders | 
