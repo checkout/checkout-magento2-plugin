@@ -54,7 +54,7 @@ Once the Checkout.com extension for Magento 2 installed, go to **Stores > Config
 | New order status | M2 order statuses | Which status should be given to newly created orders | 
 | Invoice generation | Yes\|No  | Should invoices be generated manually or automatically | 
 | Vault enabled | Yes / No  | Allow shoppers to save a payment card for reuse | 
-| 3D Secure Verification | Yes\|No  | Should payments follow a 3D Secure verification process | 
+| 3D Secure check | Yes\|No  | Should payments follow a 3D Secure verification process | 
 | Auto Capture Time | Yes\|No  | Should payments be captured immediately or with a delay |
 | Payment Currency | M2 currencies | Which currency should be used for the payment |
 | Button label | Pay now | Text to display on the payment button (Hosted)|
