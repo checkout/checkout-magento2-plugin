@@ -7,10 +7,10 @@ use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Checkout\Model\Session;
-
 use CheckoutCom\Magento2\Model\Service\VerifyPaymentService;
 use CheckoutCom\Magento2\Model\Factory\VaultTokenFactory;
 use Magento\Vault\Api\PaymentTokenRepositoryInterface;
+use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 
@@ -43,14 +43,20 @@ class TransactionHandler implements HandlerInterface {
      */
     protected $session;
 
+    /**
+     * @var PaymentTokenManagementInterface
+     */
+    protected $paymentTokenManagement;
+
     protected $messageManager;
 
     public function __construct(Session $session, VaultTokenFactory $vaultTokenFactory, 
-            PaymentTokenRepositoryInterface $paymentTokenRepository, CustomerSession $customerSession, 
+            PaymentTokenRepositoryInterface $paymentTokenRepository, PaymentTokenManagementInterface $paymentTokenManagement, CustomerSession $customerSession, 
 ManagerInterface $messageManager, VerifyPaymentService $verifyPaymentService) {
         $this->session = $session;
         $this->vaultTokenFactory    = $vaultTokenFactory;
         $this->paymentTokenRepository   = $paymentTokenRepository;
+        $this->paymentTokenManagement   = $paymentTokenManagement;
         $this->verifyPaymentService = $verifyPaymentService;
         $this->messageManager    = $messageManager;
         $this->customerSession      = $customerSession;
@@ -148,19 +154,30 @@ ManagerInterface $messageManager, VerifyPaymentService $verifyPaymentService) {
         $cardData['expiryYear']    = $response['card']['expiryYear'];
         $cardData['last4']         = $response['card']['last4'];
         $cardData['paymentMethod'] = $response['card']['paymentMethod'];
+
+        $paymentToken = $this->vaultTokenFactory->create($cardData, $this->customerSession->getCustomer()->getId());
         
         try {
-            $paymentToken = $this->vaultTokenFactory->create($cardData, $this->customerSession->getCustomer()->getId());
-            $paymentToken->setGatewayToken($cardToken);
-            $paymentToken->setIsVisible(true);
+            // Check if the payment token exists
+            $foundPaymentToken = $this->paymentTokenManagement->getByPublicHash( $paymentToken->getPublicHash(), $paymentToken->getCustomerId());
 
-            $this->paymentTokenRepository->save($paymentToken);
-        } 
+            // If the token exists activate it, otherwise create it
+            if ($foundPaymentToken) {
+                $foundPaymentToken->setIsVisible(true);
+                $foundPaymentToken->setIsActive(true);
+                $this->paymentTokenRepository->save($foundPaymentToken);
+            }
+            else {
+                $paymentToken->setGatewayToken($cardToken);
+                $paymentToken->setIsVisible(true);
+                $this->paymentTokenRepository->save($paymentToken);
+            } 
+
+            $this->messageManager->addSuccessMessage( __('The payment card has been stored successfully') );
+        }    
         catch (\Exception $ex) {
             $this->messageManager->addErrorMessage( $ex->getMessage() );
         }
-        
-        $this->messageManager->addSuccessMessage( __('Credit Card has been stored successfully') );
     }
 
     /**

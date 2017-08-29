@@ -23,6 +23,7 @@
                 <order_status>processing</order_status>
                 <new_order_status>complete</new_order_status>
                 <payment_currency>base_currency</payment_currency>
+                <custom_currency>USD</custom_currency>
                 <accepted_currencies>USD</accepted_currencies>
                 <attemptN3D>0</attemptN3D>
                 <auto_generate_invoice>1</auto_generate_invoice>
@@ -31,6 +32,7 @@
                 <button_label>Pay Now</button_label>
                 <payment_mode>cards</payment_mode>
                 <embedded_theme>standard</embedded_theme>
+                <css_file>default</css_file>
                 <custom_css></custom_css>
           
                 <environment>sandbox</environment>

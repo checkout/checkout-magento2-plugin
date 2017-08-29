@@ -25,10 +25,11 @@ class Embedded extends Template {
     public function hasCustomCss() {
 
     	// Get the custom CSS file
-		$custom_css_file = $this->_scopeConfig->getValue('payment/checkout_com/checkout_com_embedded_design_settings/custom_css');
+        $css_file = $this->_scopeConfig->getValue('payment/checkout_com/checkout_com_base_settings/css_file');
+		$custom_css_file = $this->_scopeConfig->getValue('payment/checkout_com/checkout_com_base_settings/custom_css');
 
 		// Determine if there is a custom CSS file
-		return (bool) (isset($custom_css_file) && !empty($custom_css_file));
+		return (bool) (isset($custom_css_file) && !empty($custom_css_file) && $css_file == 'custom');
     }
 
     public function getEmbeddedUrl() {

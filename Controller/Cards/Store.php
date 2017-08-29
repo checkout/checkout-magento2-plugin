@@ -43,7 +43,7 @@ class Store extends Action {
                  ->setCardData()
                  ->save();
 
-            $this->messageManager->addSuccessMessage( __('Credit Card has been stored successfully') );
+            $this->messageManager->addSuccessMessage( __('The payment card has been stored successfully.') );
         }
         catch(\Exception $e) {
             $this->messageManager->addErrorMessage($e->getMessage());

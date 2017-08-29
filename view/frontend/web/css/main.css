@@ -1,0 +1,7 @@
+.checkout-agreement label {
+    background-image: url(../images/icon-link.png);
+    background-repeat: no-repeat;
+    background-position: top right;
+    padding-right: 20px;
+    background-size: 13px 13px;
+}

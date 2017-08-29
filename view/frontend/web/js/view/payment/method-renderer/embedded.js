@@ -11,7 +11,7 @@ define(
         'mage/url',
         'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function ($, Component, VaultEnabler, CheckoutCom, quote, url, additionalValidators, customer) {
+    function($, Component, VaultEnabler, CheckoutCom, quote, url, additionalValidators, customer) {
         'use strict';
 
         return Component.extend({
@@ -25,24 +25,24 @@ define(
             /**
              * @returns {exports}
              */
-            initialize: function () {
+            initialize: function() {
                 this._super();
 
                 this.vaultEnabler = new VaultEnabler();
                 this.vaultEnabler.setPaymentCode(this.getVaultCode());
-            },  
+            },
 
             /**
              * @returns {bool}
              */
-            isVaultEnabled: function () {
+            isVaultEnabled: function() {
                 return this.vaultEnabler.isVaultEnabled();
             },
 
             /**
              * @returns {string}
              */
-            getVaultCode: function () {
+            getVaultCode: function() {
                 return window.checkoutConfig.payment[this.getCode()].ccVaultCode;
             },
 
@@ -88,7 +88,7 @@ define(
             setCardTokenId: function(card_token_id) {
                 this.card_token_id = card_token_id;
             },
-            
+
             /**
              * @returns {string}
              */
@@ -108,15 +108,15 @@ define(
              */
             saveSessionData: function() {
                 // Prepare the session data
-                var sessionData = {saveShopperCard: $('#checkout_com_enable_vault').is(":checked")};
+                var sessionData = { saveShopperCard: $('#checkout_com_enable_vault').is(":checked") };
 
                 // Send the session data to be saved
                 $.ajax({
-                    url : url.build('checkout_com/shopper/sessionData'),
+                    url: url.build('checkout_com/shopper/sessionData'),
                     type: "POST",
-                    data : sessionData,
-                    success: function(data, textStatus, xhr) { },
-                    error: function (xhr, textStatus, error) { } // todo - improve error handling
+                    data: sessionData,
+                    success: function(data, textStatus, xhr) {},
+                    error: function(xhr, textStatus, error) {} // todo - improve error handling
                 });
             },
 
@@ -148,8 +148,9 @@ define(
 
                 // Prepare parameters
                 var ckoTheme = CheckoutCom.getPaymentConfig()['embedded_theme'];
+                var css_file = CheckoutCom.getPaymentConfig()['css_file'];
                 var custom_css = CheckoutCom.getPaymentConfig()['custom_css'];
-                var ckoThemeOverride = ((custom_css) && custom_css !== '') ? custom_css : undefined;
+                var ckoThemeOverride = ((custom_css) && custom_css !== '' && css_file == 'custom') ? custom_css : undefined;
                 var redirectUrl = self.getRedirectUrl();
                 var threeds_enabled = CheckoutCom.getPaymentConfig()['three_d_secure']['enabled'];
 
@@ -169,8 +170,7 @@ define(
 
                         if (threeds_enabled) {
                             window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
-                        }
-                        else {
+                        } else {
                             self.placeOrder();
                         }
                     }

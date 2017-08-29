@@ -48,12 +48,14 @@ class Config extends BaseConfig {
     const KEY_NEW_ORDER_STATUS = 'new_order_status';
     const KEY_ACCEPTED_CURRENCIES = 'accepted_currencies';
     const KEY_PAYMENT_CURRENCY = 'payment_currency';
+    const KEY_CUSTOM_CURRENCY = 'custom_currency';
     const KEY_PAYMENT_MODE = 'payment_mode';
     const KEY_AUTO_GENERATE_INVOICE = 'auto_generate_invoice';
 
     const KEY_EMBEDDED_THEME = 'embedded_theme';
     const KEY_EMBEDDED_CSS = 'embedded_css';
     const KEY_CUSTOM_CSS = 'custom_css';
+    const KEY_CSS_FILE = 'css_file';
 
     /**
      * @var array
@@ -245,6 +247,15 @@ class Config extends BaseConfig {
     }
 
     /**
+     * Returns the custom payment currency.
+     *
+     * @return string
+     */
+    public function getCustomCurrency() {
+        return (string) $this->getValue(self::KEY_CUSTOM_CURRENCY);
+    }
+
+    /**
      * Returns the API URL for sandbox environment.
      *
      * @return string
@@ -336,6 +347,15 @@ class Config extends BaseConfig {
     }
 
     /**
+     * Returns the CSS preference setting.
+     *
+     * @return string
+     */
+    public function getCssFile() {
+        return (string) $this->getValue(self::KEY_CSS_FILE);
+    }
+
+    /**
      * Returns the custom CSS URL for embedded integration.
      *
      * @return string
@@ -348,7 +368,7 @@ class Config extends BaseConfig {
         // Load the quote
         $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');     
 
-        return $scopeConfig->getValue('payment/checkout_com/checkout_com_embedded_design_settings/custom_css');
+        return $scopeConfig->getValue('payment/checkout_com/checkout_com_base_settings/custom_css');
     }
 
     /**

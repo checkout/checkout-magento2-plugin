@@ -14,6 +14,7 @@ class ChargeAmountAdapter {
      */
     const BASE_CURRENCY = 'base_currency';
     const ORDER_CURRENCY = 'order_currency';
+    const CUSTOM_CURRENCY = 'custom_currency';
 
     /**
      * Currencies where charge amount is full.
@@ -166,7 +167,7 @@ class ChargeAmountAdapter {
         else {
 
             // We have a specific currency code to use for the payment
-            $finalCurrencyCode = $gatewayPaymentCurrency;
+            $finalCurrencyCode = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config')->getCustomCurrency();
         }
 
         return $finalCurrencyCode;
