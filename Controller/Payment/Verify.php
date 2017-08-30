@@ -12,6 +12,7 @@ use CheckoutCom\Magento2\Model\Service\VerifyPaymentService;
 use CheckoutCom\Magento2\Model\Service\StoreCardService;
 use CheckoutCom\Magento2\Model\Factory\VaultTokenFactory;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
+use CheckoutCom\Magento2\Helper\Watchdog;
 use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -76,6 +77,11 @@ class Verify extends AbstractAction {
     protected $quoteManagement;
 
     /**
+     * @var Watchdog
+     */
+    protected $watchdog;
+
+    /**
      * Verify constructor.
      * @param Context $context
      * @param Session $session
@@ -88,6 +94,7 @@ class Verify extends AbstractAction {
      * @param PaymentTokenRepositoryInterface $paymentTokenRepository
      * @param PaymentTokenManagementInterface $paymentTokenManagement
      * @param OrderSender $orderSender
+     * @param Watchdog $watchdog
      */
     public function __construct(
             Context $context, 
@@ -101,7 +108,8 @@ class Verify extends AbstractAction {
             PaymentTokenRepositoryInterface $paymentTokenRepository,
             PaymentTokenManagementInterface $paymentTokenManagement,
             QuoteManagement $quoteManagement,
-            OrderSender $orderSender
+            OrderSender $orderSender,
+            Watchdog $watchdog
           ) 
         {
             parent::__construct($context, $gatewayConfig);
@@ -117,6 +125,7 @@ class Verify extends AbstractAction {
             $this->paymentTokenRepository   = $paymentTokenRepository;
             $this->paymentTokenManagement   = $paymentTokenManagement;
             $this->orderSender              = $orderSender;
+            $this->watchdog                 = $watchdog;
             $this->redirect                 = $this->getResultRedirect();
         }
 
@@ -140,6 +149,9 @@ class Verify extends AbstractAction {
 
         // Process the gateway response
         $response = $this->verifyPaymentService->verifyPayment($paymentToken);
+
+        // Debug info
+        $this->watchdog->bark($response);
 
         // If it's an alternative payment
         if ((int) $response['chargeMode'] == 3) {
@@ -180,14 +192,12 @@ class Verify extends AbstractAction {
 
             // Update the order information
             try {
-
                 // Redirect to the success page
                 return $this->redirect->setPath('checkout/onepage/success', ['_secure' => true]);
 
             } catch (\Exception $e) {
                 $this->messageManager->addExceptionMessage($e, $e->getMessage());
             }
-
         }
 
         // Redirect to cart by default if the order validation fails
@@ -301,8 +311,8 @@ class Verify extends AbstractAction {
             
             $this->messageManager->addSuccessMessage( __('The payment card has been stored successfully') );
         }    
-        catch (\Exception $ex) {
-            $this->messageManager->addErrorMessage( $ex->getMessage() );
+        catch (\Exception $e) {
+            $this->messageManager->addErrorMessage( $e->getMessage() );
         }
     }
 }

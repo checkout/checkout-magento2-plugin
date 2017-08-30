@@ -13,6 +13,7 @@ use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Customer\Model\Session as CustomerSession;
+use CheckoutCom\Magento2\Helper\Watchdog;
 
 class TransactionHandler implements HandlerInterface {
 
@@ -48,11 +49,16 @@ class TransactionHandler implements HandlerInterface {
      */
     protected $paymentTokenManagement;
 
+    /**
+     * @var Watchdog
+     */
+    protected $watchdog;
+
     protected $messageManager;
 
     public function __construct(Session $session, VaultTokenFactory $vaultTokenFactory, 
             PaymentTokenRepositoryInterface $paymentTokenRepository, PaymentTokenManagementInterface $paymentTokenManagement, CustomerSession $customerSession, 
-ManagerInterface $messageManager, VerifyPaymentService $verifyPaymentService) {
+ManagerInterface $messageManager, VerifyPaymentService $verifyPaymentService, Watchdog $watchdog) {
         $this->session = $session;
         $this->vaultTokenFactory    = $vaultTokenFactory;
         $this->paymentTokenRepository   = $paymentTokenRepository;
@@ -60,6 +66,7 @@ ManagerInterface $messageManager, VerifyPaymentService $verifyPaymentService) {
         $this->verifyPaymentService = $verifyPaymentService;
         $this->messageManager    = $messageManager;
         $this->customerSession      = $customerSession;
+        $this->watchdog = $watchdog;
     }
        
     /**
@@ -91,9 +98,12 @@ ManagerInterface $messageManager, VerifyPaymentService $verifyPaymentService) {
         if( ! $payment instanceof Payment) {
             return;
         }
-     
+
+        // Debug info
+        $this->watchdog->bark($response);
+        
+        // Set transaction info
         $this->setTransactionId($payment, $response['id']);
-        //$payment->setTransactionAdditionalInfo('Status', $response['status']);
         $payment->setIsTransactionClosed( $this->shouldCloseTransaction() );
         $payment->setShouldCloseParentTransaction( $this->shouldCloseParentTransaction($payment) );
 

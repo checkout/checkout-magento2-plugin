@@ -8,13 +8,13 @@ use Magento\Customer\Model\Session as CustomerSession;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use CheckoutCom\Magento2\Model\Service\OrderService;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
-
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use CheckoutCom\Magento2\Model\Service\VerifyPaymentService;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Checkout\Model\Cart;
+use CheckoutCom\Magento2\Helper\Watchdog;
 
 class Fail extends AbstractAction {
 
@@ -41,6 +41,12 @@ class Fail extends AbstractAction {
     /**
      * @var VerifyPaymentService
      */
+
+    /**
+     * @var Watchdog
+     */
+    protected $watchdog;
+
     protected $verifyPaymentService;
 
     protected $paymentTokenManagement;
@@ -59,9 +65,9 @@ class Fail extends AbstractAction {
      * @param Session $session
      * @param VerifyPaymentService $verifyPaymentService
      * @param GatewayConfig $gatewayConfig
+     * @param Watchdog $watchdog
      */
-    public function __construct(Context $context, Session $session, GatewayConfig $gatewayConfig, QuoteManagement $quoteManagement, OrderSender $orderSender, PaymentTokenManagementInterface $paymentTokenManagement, CustomerSession $customerSession, VerifyPaymentService $verifyPaymentService, OrderInterface $orderInterface, Cart $cart) {
-
+    public function __construct(Context $context, Session $session, GatewayConfig $gatewayConfig, QuoteManagement $quoteManagement, OrderSender $orderSender, PaymentTokenManagementInterface $paymentTokenManagement, CustomerSession $customerSession, VerifyPaymentService $verifyPaymentService, OrderInterface $orderInterface, Cart $cart, Watchdog $watchdog) {
         parent::__construct($context, $gatewayConfig);
         $this->quoteManagement      = $quoteManagement;
         $this->orderSender          = $orderSender;
@@ -72,6 +78,7 @@ class Fail extends AbstractAction {
         $this->verifyPaymentService = $verifyPaymentService;
         $this->orderInterface = $orderInterface;
         $this->cart = $cart;
+        $this->watchdog = $watchdog;
     }
 
     /**
@@ -86,6 +93,9 @@ class Fail extends AbstractAction {
 
         // Process the gateway response
         $this->response = $this->verifyPaymentService->verifyPayment($paymentToken);
+
+        // Debug info
+        $this->watchdog->bark($this->response);
 
         // If this is a 3D Secure fail
         if ($this->is3DSFailure()) {
@@ -125,11 +135,9 @@ class Fail extends AbstractAction {
 
         // Cancel the previous order
         $order->cancel()->save();
-
     }
 
     public function is3DSFailure() {
-
         return isset($this->response['trackId']) 
         && isset($this->response['chargeMode']) 
         && isset($this->response['value']) 
@@ -137,7 +145,6 @@ class Fail extends AbstractAction {
         && (int) $this->response['value'] > 0 
         && (int) $this->response['responseCode'] != 10000 
         && (int) $this->response['responseCode'] != 10100;
-
     }
 
     public function extractPaymentToken() {
