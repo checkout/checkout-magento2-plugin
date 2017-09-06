@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="CheckoutCom_Magento2::payment_plans_manager"
+             title="Payment plans"
+             module="CheckoutCom_Magento2"
+             sortOrder="20"
+             resource="CheckoutCom_Magento2::payment_plans_manager" />
+
+        <add id="CheckoutCom_Magento2::payment_plans_list"
+            title="List payment plans"
+            module="CheckoutCom_Magento2"
+            sortOrder="0"
+            action="checkout_com/plan/index"
+            parent="CheckoutCom_Magento2::payment_plans_manager"
+            resource="CheckoutCom_Magento2::payment_plans_list" />
+
+        <add id="CheckoutCom_Magento2::user_subscriptions_list"
+            title="List customer subscriptions"
+            module="CheckoutCom_Magento2"
+            sortOrder="1"
+            action="checkout_com/subscription/index"
+            parent="CheckoutCom_Magento2::payment_plans_manager"
+            resource="CheckoutCom_Magento2::user_subscriptions_list" />
+
+         <add id="CheckoutCom_Magento2::payment_plans_settings"
+            title="Settings"
+            module="CheckoutCom_Magento2"
+            sortOrder="2"
+            action="menuitem/index/index"
+            parent="CheckoutCom_Magento2::payment_plans_manager"
+            resource="CheckoutCom_Magento2::payment_plans_settings" />
+    </menu>
+</config>

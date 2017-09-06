@@ -13,4 +13,34 @@
             </argument>
         </arguments>
     </type>
+
+    <!-- Plans grid listing -->
+	<virtualType name="CheckoutCom\Magento2\Model\ResourceModel\Plan\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">cko_m2_plans</argument>
+            <argument name="resourceModel" xsi:type="string">CheckoutCom\Magento2\Model\ResourceModel\Plan</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="plans_grid_list_data_source" xsi:type="string">CheckoutCom\Magento2\Model\ResourceModel\Plan\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Subscriptions grid listing -->
+	<virtualType name="CheckoutCom\Magento2\Model\ResourceModel\Subscription\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">cko_m2_subscriptions</argument>
+            <argument name="resourceModel" xsi:type="string">CheckoutCom\Magento2\Model\ResourceModel\Subscription</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="subscriptions_grid_list_data_source" xsi:type="string">CheckoutCom\Magento2\Model\ResourceModel\Subscription\Collection</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
