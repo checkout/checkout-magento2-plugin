@@ -1,4 +1,13 @@
 <?php
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+ 
 namespace CheckoutCom\Magento2\Block\Adminhtml\Plan\Edit;
 
 use Magento\Backend\Block\Widget\Form\Generic;
@@ -27,6 +36,40 @@ class Form extends Generic
         $this->_wysiwygConfig = $wysiwygConfig;
         parent::__construct($context, $registry, $formFactory, $data);
     }
+
+    protected function _prepareLayout()
+    {
+        // Delete button
+        $this->getToolbar()->addChild(
+            'delete',
+            'Magento\Backend\Block\Widget\Button',
+            [
+                'label' => __('Delete'),
+                'title' => __('Delete'),
+                'onclick' => 'deleteConfirm(' . json_encode(__('Are you sure you want to delete this subscription?'))
+            . ','
+            . json_encode($this->getDeleteUrl()
+            )
+            . ')',
+                'class' => 'action-default primary'
+            ]
+        );
+
+        // Split button
+        $this->getToolbar()->addChild(
+            'save-split-button',
+            'Magento\Backend\Block\Widget\Button\SplitButton',
+            [
+                'id' => 'save-split-button',
+                'label' => __('Save'),
+                'class_name' => 'Magento\Backend\Block\Widget\Button\SplitButton',
+                'button_class' => 'widget-button-save',
+                'options' => $this->_getSaveSplitButtonOptions()
+            ]
+        );        
+
+        return parent::_prepareLayout();
+    }
  
     /**
      * Prepare form.
@@ -37,6 +80,8 @@ class Form extends Generic
     {
         $dateFormat = $this->_localeDate->getDateFormat(\IntlDateFormatter::SHORT);
         $model = $this->_coreRegistry->registry('row_data');
+
+        // Form settings
         $form = $this->_formFactory->create(
             ['data' => [
                             'id' => 'edit_form', 
@@ -48,24 +93,37 @@ class Form extends Generic
         );
  
         // Prepare CSS
-        $fieldsCss = 'width:400px;';
+        $fieldsCss = 'width:100%;';
         $readOnlyCss = 'color:#777777;background-color:#dddddd;';
 
         // HTML prefix
         $form->setHtmlIdPrefix('ckom2_grid_');
 
-        // Build the form
+        // Freeze in edit mode state
+        $freezeInEditMode = false;
+        $freezeInNewMode = false;
+
+        // If editing data
         if ($model->getEntityId()) {
             $fieldset = $form->addFieldset(
                 'base_fieldset',
-                ['legend' => __('Editing %1', $model->getName()), 'class' => 'fieldset-wide']
+                ['legend' => __('Editing payment plan : %1', $model->getName()), 'class' => 'fieldset-wide']
             );
+
+            // Add id field
             $fieldset->addField('id', 'hidden', ['name' => 'id']);
+
+            // Set the frozen field state
+            $freezeInEditMode = true;
+
         } else {
             $fieldset = $form->addFieldset(
                 'base_fieldset',
                 ['legend' => __('Adding Payment Plan'), 'class' => 'fieldset-wide']
             );
+
+            // Set the frozen field state
+            $freezeInNewMode = true;
         }
  
         $fieldset->addField(
@@ -81,7 +139,23 @@ class Form extends Generic
                 'style' => $fieldsCss,
             ]
         );
-  
+ 
+        $fieldset->addField(
+            'plan_status',
+            'select',
+            [
+                'name' => 'plan_status',
+                'label' => __('Status'),
+                'id' => 'plan_status',
+                'title' => __('Status'),
+                'values' => $this->_statusOptions->getOptionArray(),
+                'class' => 'required-entry',
+                'required' => true,
+                'disabled' => $freezeInNewMode,
+                'style' => $fieldsCss . (($freezeInNewMode) ? $readOnlyCss : ''),
+            ]
+        );
+ 
         $fieldset->addField(
             'track_id',
             'text',
@@ -90,11 +164,11 @@ class Form extends Generic
                 'label' => __('Track ID'),
                 'id' => 'track_id',
                 'title' => __('Track ID'),
-                'class' => 'required-entry',
                 'placeholder' => __('Generated automatically'),
                 'readonly' => true,
-                'required' => true,
                 'style' => $fieldsCss . $readOnlyCss,
+                //'onclick' => "alert('on click');",
+                //'onchange' => "alert('on change');",
             ]
         );
 
@@ -109,6 +183,7 @@ class Form extends Generic
                 'class' => 'required-entry',
                 'required' => true,
                 'style' => $fieldsCss,
+                'after_element_html' => $this->_renderTooltip('Delayed capture time in hours (0 - 168 inclusive) that corresponds to 7 days (24 hrs x 7), for the transactions generated by the recurring engine (e.g. 0.5 is interpreted as 30 mins). Default 0 (captures immediately).'),
             ]
         );
 
@@ -135,9 +210,10 @@ class Form extends Generic
                 'id' => 'currency',
                 'title' => __('Currency'),
                 'values' => $this->_currencyOptions->getOptionArray(),
-                'class' => 'status',
+                'class' => 'required-entry',
                 'required' => true,
-                'style' => $fieldsCss,
+                'disabled' => $freezeInEditMode,
+                'style' => $fieldsCss . (($freezeInEditMode) ? $readOnlyCss : ''),
             ]
         );
 
@@ -151,7 +227,9 @@ class Form extends Generic
                 'title' => __('Cycle'),
                 'class' => 'required-entry',
                 'required' => true,
-                'style' => $fieldsCss,
+                'readonly' => $freezeInEditMode,
+                'style' => $fieldsCss . (($freezeInEditMode) ? $readOnlyCss : ''),
+                'after_element_html' => $this->_renderTooltip('Elapsed time between the charge and the first transaction of the recurring plan. Max. 4 chars. Ex: 7d, 2w, 1m, 1y'),
             ]
         );
 
@@ -165,22 +243,9 @@ class Form extends Generic
                 'title' => __('Recurring count'),
                 'class' => 'required-entry',
                 'required' => true,
-                'style' => $fieldsCss,
-            ]
-        );
-
-        $fieldset->addField(
-            'plan_status',
-            'select',
-            [
-                'name' => 'plan_status',
-                'label' => __('Status'),
-                'id' => 'plan_status',
-                'title' => __('Status'),
-                'values' => $this->_statusOptions->getOptionArray(),
-                'class' => 'status',
-                'required' => true,
-                'style' => $fieldsCss,
+                'readonly' => $freezeInEditMode,
+                'style' => $fieldsCss . (($freezeInEditMode) ? $readOnlyCss : ''),
+                'after_element_html' => $this->_renderTooltip('Number of recurring transactions included in the Payment Plan. This does not include the initial payment.'),
             ]
         );
 
@@ -192,10 +257,8 @@ class Form extends Generic
                 'label' => __('Created'),
                 'id' => 'recurring_count',
                 'title' => __('Created'),
-                'class' => 'required-entry',
                 'placeholder' => __('Generated automatically'),
                 'readonly' => true,
-                'required' => true,
                 'style' => $fieldsCss . $readOnlyCss,
             ]
         );
@@ -208,10 +271,8 @@ class Form extends Generic
                 'label' => __('Updated'),
                 'id' => 'updated_at',
                 'title' => __('Updated'),
-                'class' => 'required-entry',
                 'placeholder' => __('Generated automatically'),
                 'readonly' => true,
-                'required' => true,
                 'style' => $fieldsCss . $readOnlyCss,
             ]
         );
@@ -222,4 +283,70 @@ class Form extends Generic
  
         return parent::_prepareForm();
     }
+
+    /**
+     * Render a tooltip
+     *
+     * @return array
+     */
+    protected function _renderTooltip($text)
+    {
+        $output  = '';
+        $output .= '<div class="tooltip"><span class="help"><span></span></span><div class="tooltip-content">';
+        $output .= __($text);
+        $output .= '</div></div>';
+        
+        return $output;
+    }
+        
+    /**
+     * Get dropdown options for save split button
+     *
+     * @return array
+     */
+    protected function _getSaveSplitButtonOptions()
+    {
+        $options = [];
+        $options[] = [
+            'id' => 'edit-button',
+            'label' => __('Save & Edit'),
+            'data_attribute' => [
+                'mage-init' => [
+                    'button' => ['event' => 'saveAndContinueEdit', 'target' => '[data-form=edit-product]'],
+                ],
+            ],
+            'default' => true,
+            //'onclick'=>'setLocation("ACTION CONTROLLER")',
+        ];
+
+        $options[] = [
+            'id' => 'new-button',
+            'label' => __('Save & New'),
+            'data_attribute' => [
+                'mage-init' => [
+                    'button' => ['event' => 'saveAndNew', 'target' => '[data-form=edit-product]'],
+                ],
+            ],
+        ];
+    
+        $options[] = [
+            'id' => 'duplicate-button',
+            'label' => __('Save & Duplicate'),
+            'data_attribute' => [
+                'mage-init' => [
+                    'button' => ['event' => 'saveAndDuplicate', 'target' => '[data-form=edit-product]'],
+                ],
+            ],
+        ];
+    
+        $options[] = [
+            'id' => 'close-button',
+            'label' => __('Save & Close'),
+            'data_attribute' => [
+                'mage-init' => ['button' => ['event' => 'save', 'target' => '[data-form=edit-product]']],
+            ],
+        ];
+        
+        return $options;
+    }        
 }

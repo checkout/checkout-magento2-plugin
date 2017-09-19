@@ -5,8 +5,8 @@
 
 The Checkout.com extension for Magento 2 allows shop owners to process online payments through the [Checkout.com Payment Gateway](https://docs.checkout.com/getting-started/introduction "Checkout.com Payment Gateway").
 
-This extension is an integration of [Checkout.js v2](https://docs.checkout.com/getting-started/checkout-js-v2 "Checkout.js v2").
-Checkout.js v2 is the latest version of our popular [Checkout.js](https://docs.checkout.com/getting-started/checkout-js "Checkout.js") payment solution. It is cross-browser and cross-device compatible, and can accept online payments from all major credit cards, in addition to many of the most popular [Alternative Payment methods](https://docs.checkout.com/reference/checkout-js-reference/alternative-payments "Alternative Payment methods") used around the world.
+This extension is an integration of [Checkout.js Embedded](https://docs.checkout.com/getting-started/checkout-js-v2 "Checkout.js Embedded").
+Checkout.js Embedded is the latest version of our popular [Checkout.js](https://docs.checkout.com/getting-started/checkout-js "Checkout.js") payment solution. It is cross-browser and cross-device compatible, and can accept online payments from all major credit cards, in addition to many of the most popular [Alternative Payment methods](https://docs.checkout.com/reference/checkout-js-reference/alternative-payments "Alternative Payment methods") used around the world.
 
 ## Supported payment methods
 The Checkout.com extension for Magento 2 supports VISA, Mastercard, American Express, Discover, Diners Club, JCB, in addition to the Alternative Payment options described above.

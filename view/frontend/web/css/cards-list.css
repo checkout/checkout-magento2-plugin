@@ -1,3 +1,12 @@
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+
 #closebtn {
     margin-left: 15px;
     color: white;
@@ -10,10 +19,11 @@
 }
 
 #payment_form_checkout_com {
-    padding-top:20px;
+    padding-top: 20px;
 }
 
-#card-number, #card-holder {
+#card-number,
+#card-holder {
     width: 220px;
 }
 
@@ -29,13 +39,15 @@
     width: 100px;
 }
 
-#info-icon, #info-icon svg {
+#info-icon,
+#info-icon svg {
     width: 30px;
     height: 30px;
 }
 
-#info-icon, #info-text {
-   float:left;
+#info-icon,
+#info-text {
+    float: left;
 }
 
 #info-text {

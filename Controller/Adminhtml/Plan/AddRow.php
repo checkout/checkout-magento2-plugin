@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+ 
 namespace CheckoutCom\Magento2\Controller\Adminhtml\Plan;
  
 use Magento\Backend\App\Action;
@@ -31,7 +39,7 @@ class AddRow extends Action
             $rowData = $rowData->load($rowId);
             $rowTitle = $rowData->getTitle();
             if (!$rowData->getEntityId()) {
-                $this->messageManager->addError(__('row data no longer exist.'));
+                $this->messageManager->addError(__('This item no longer exists.'));
                 $this->_redirect('checkout_com/plan/rowdata');
                 return;
             }

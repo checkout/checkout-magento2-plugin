@@ -1,4 +1,12 @@
 <?php
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
 
 namespace CheckoutCom\Magento2\Model\Service;
 
@@ -124,8 +132,9 @@ class StoreCardService {
      * @param int $customerId
      * @return StoreCardService
      */
-    public function setCustomerId() {
-        $this->customerId = $this->customerSession->getCustomer()->getId();
+    public function setCustomerId($id = null) {
+        
+        $this->customerId = (int) $id > 0 ? $id : $this->customerSession->getCustomer()->getId();
 
         return $this;
     }

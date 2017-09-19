@@ -1,4 +1,13 @@
 <?php
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+ 
 namespace CheckoutCom\Magento2\Controller\Adminhtml\Plan;
  
 use Magento\Framework\Controller\ResultFactory;
@@ -7,6 +16,7 @@ use Magento\Ui\Component\MassAction\Filter;
 use Magento\Backend\App\Action;
 use CheckoutCom\Magento2\Model\ResourceModel\Plan\CollectionFactory;
 use CheckoutCom\Magento2\Model\Plan;
+use CheckoutCom\Magento2\Model\Service\PaymentPlanService;
 
 class MassDelete extends Action
 {
@@ -26,6 +36,12 @@ class MassDelete extends Action
      * @var Plan
      */
     protected $model;
+
+    /**
+     * @var PaymentPlanService
+     */
+    protected $objectService;
+
  
     /**
      * @param Context           $context
@@ -36,13 +52,15 @@ class MassDelete extends Action
         Context $context,
         Filter $filter,
         CollectionFactory $collectionFactory,
-        Plan $model
+        Plan $model,
+        PaymentPlanService $objectService
     ) 
     {
         parent::__construct($context);
         $this->_filter = $filter;
         $this->_collectionFactory = $collectionFactory;
         $this->model = $model;
+        $this->objectService = $objectService;
     }
  
     /**
@@ -56,8 +74,12 @@ class MassDelete extends Action
 
         // Loop through the items
         foreach ($collection->getItems() as $item) {  
+            // Delete in database
             $this->model->load($item->getId())->delete();
             $recordDeleted++;
+
+            // Delete in the Hub
+            $this->objectService->cancel($data);
         }
 
         // Add meessage
