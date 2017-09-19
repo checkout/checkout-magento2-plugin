@@ -1,3 +1,12 @@
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+
 /*browser:true*/
 /*global define*/
 
@@ -9,9 +18,10 @@ define(
         'CheckoutCom_Magento2/js/view/payment/adapter',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/action/place-order',
-        'CheckoutCom_Magento2/js/view/payment/response-strategy'
+        'CheckoutCom_Magento2/js/view/payment/response-strategy',
+        'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function ($, Component, VaultEnabler, CheckoutCom, quote, placeOrderAction, responseStrategy) {
+    function ($, Component, VaultEnabler, CheckoutCom, quote, placeOrderAction, responseStrategy, additionalValidators) {
         'use strict';
 
         return Component.extend({
@@ -131,19 +141,20 @@ define(
             },
             
             beforePlaceOrder: function() {
-                var self = this;
-
-                CheckoutCom.getClient().done(function() {
-                    CheckoutKit.createCardToken(self.getCardTokenData(), {includeBinData: false}, function(response) {
-                        if ('error' === response.type) {
-                            CheckoutCom.showError('It looks like you have entered incorrect bank card data.');
-                        }
-                        else {
-                            self.setCardTokenId(response.id);
-                            self.placeOrder();
-                        }
+                if (additionalValidators.validate()) {               
+                    var self = this;
+                    CheckoutCom.getClient().done(function() {
+                        CheckoutKit.createCardToken(self.getCardTokenData(), {includeBinData: false}, function(response) {
+                            if ('error' === response.type) {
+                                CheckoutCom.showError('It looks like you have entered incorrect bank card data.');
+                            }
+                            else {
+                                self.setCardTokenId(response.id);
+                                self.placeOrder();
+                            }
+                        });
                     });
-                });
+                }
             },
 
             getPlaceOrderDeferredObject: function () {

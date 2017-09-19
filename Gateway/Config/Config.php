@@ -1,8 +1,17 @@
 <?php
-
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+ 
 namespace CheckoutCom\Magento2\Gateway\Config;
 
 use Magento\Payment\Gateway\Config\Config as BaseConfig;
+use Magento\Store\Model\StoreManagerInterface;
 use CheckoutCom\Magento2\Model\Adminhtml\Source\Environment;
 use CheckoutCom\Magento2\Model\Adminhtml\Source\Integration;
 
@@ -22,14 +31,14 @@ class Config extends BaseConfig {
     const KEY_AUTO_CAPTURE = 'auto_capture';
     const KEY_AUTO_CAPTURE_TIME = 'auto_capture_time';
     const KEY_VERIFY_3DSECURE = 'verify_3dsecure';
-
-    const KEY_SANDBOX_SDK_URL = 'sandbox_sdk_url';
-    const KEY_LIVE_SDK_URL = 'live_sdk_url';
+    const KEY_ATTEMPT_N3D = 'attemptN3D';
 
     const KEY_SANDBOX_API_URL = 'sandbox_api_url';
     const KEY_LIVE_API_URL = 'live_api_url';
 
+    const KEY_SANDBOX_EMBEDDED_URL = 'sandbox_embedded_url';
     const KEY_SANDBOX_HOSTED_URL = 'sandbox_hosted_url';
+    const KEY_LIVE_EMBEDDED_URL = 'live_embedded_url';
     const KEY_LIVE_HOSTED_URL = 'live_hosted_url';
 
     const MIN_AUTO_CAPTURE_TIME = 0;
@@ -40,6 +49,21 @@ class Config extends BaseConfig {
     const KEY_DESCRIPTOR_CITY = 'descriptor_city';
 
     const CODE_3DSECURE = 'three_d_secure';
+
+    const KEY_THEME_COLOR = 'theme_color';
+    const KEY_BUTTON_LABEL = 'button_label';
+
+    const KEY_NEW_ORDER_STATUS = 'new_order_status';
+    const KEY_ACCEPTED_CURRENCIES = 'accepted_currencies';
+    const KEY_PAYMENT_CURRENCY = 'payment_currency';
+    const KEY_CUSTOM_CURRENCY = 'custom_currency';
+    const KEY_PAYMENT_MODE = 'payment_mode';
+    const KEY_AUTO_GENERATE_INVOICE = 'auto_generate_invoice';
+
+    const KEY_EMBEDDED_THEME = 'embedded_theme';
+    const KEY_EMBEDDED_CSS = 'embedded_css';
+    const KEY_CUSTOM_CSS = 'custom_css';
+    const KEY_CSS_FILE = 'css_file';
 
     /**
      * @var array
@@ -54,6 +78,7 @@ class Config extends BaseConfig {
         'dinersclub'    => 'DN',
     ];
 
+
     /**
      * Returns the environment type.
      *
@@ -62,6 +87,47 @@ class Config extends BaseConfig {
     public function getEnvironment() {
         return (string) $this->getValue(self::KEY_ENVIRONMENT);
     }
+
+    /**
+     * Returns the payment mode.
+     *
+     * @return string
+     */
+    public function getPaymentMode() {
+        return (string) $this->getValue(self::KEY_PAYMENT_MODE);
+    }
+
+    /**
+     * Returns the automatic invoice generation state.
+     *
+     * @return bool
+     */
+    public function getAutoGenerateInvoice() {
+        return (bool) $this->getValue(self::KEY_AUTO_GENERATE_INVOICE);
+    }
+
+    /**
+     * Returns the new order status.
+     *
+     * @return string
+     */
+    public function getNewOrderStatus() {
+        return (string) $this->getValue(self::KEY_NEW_ORDER_STATUS);
+    }
+
+    /**
+     * Returns the design settings.
+     *
+     * @return array
+     */
+    public function getDesignSettings() {
+        return (array) array (
+            'hosted' => array (
+                'theme_color' => $this->getValue(self::KEY_THEME_COLOR),
+                'button_label' => $this->getValue(self::KEY_BUTTON_LABEL)
+            )
+        );
+   }
 
     /**
      * Determines if the environment is set as sandbox mode.
@@ -91,15 +157,6 @@ class Config extends BaseConfig {
     }
 
     /**
-     * Determines if the gateway is configured to use widget integration.
-     *
-     * @return bool
-     */
-    public function isWidgetIntegration() {
-        return $this->getIntegration() === Integration::INTEGRATION_WIDGET;
-    }
-
-    /**
      * Determines if the gateway is configured to use hosted integration.
      *
      * @return bool
@@ -114,7 +171,15 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isActive() {
-        return (bool) $this->getValue(self::KEY_ACTIVE);
+
+       // Get an object manager instance
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+        // Load the quote
+        $quote = $objectManager->create('Magento\Checkout\Model\Session')->getQuote();     
+
+        // Return the status
+        return (bool) in_array($quote->getQuoteCurrencyCode(), $this->getAcceptedCurrencies());
     }
 
     /**
@@ -163,30 +228,39 @@ class Config extends BaseConfig {
     }
 
     /**
-     * Returns the SDK URL for sandbox environment.
+     * Determines if attempt Non 3D Secure option is enabled.
      *
-     * @return string
+     * @return bool
      */
-    public function getSandboxSdkUrl() {
-        return (string) $this->getValue(self::KEY_SANDBOX_SDK_URL);
+    public function isAttemptN3D() {
+        return (bool) $this->getValue(self::KEY_ATTEMPT_N3D);
     }
 
     /**
-     * Returns the SDK URL for live environment.
+     * Returns the currencies allowed for payment.
      *
-     * @return string
+     * @return array
      */
-    public function getLiveSdkUrl() {
-        return (string) $this->getValue(self::KEY_LIVE_SDK_URL);
+    public function getAcceptedCurrencies() {
+        return (array) explode(',', $this->getValue(self::KEY_ACCEPTED_CURRENCIES));
     }
 
     /**
-     * Returns the SDK URL based on environment settings.
+     * Returns the payment currency.
      *
      * @return string
      */
-    public function getSdkUrl() {
-        return $this->isLive() ? $this->getLiveSdkUrl() : $this->getSandboxSdkUrl();
+    public function getPaymentCurrency() {
+        return (string) $this->getValue(self::KEY_PAYMENT_CURRENCY);
+    }
+
+    /**
+     * Returns the custom payment currency.
+     *
+     * @return string
+     */
+    public function getCustomCurrency() {
+        return (string) $this->getValue(self::KEY_CUSTOM_CURRENCY);
     }
 
     /**
@@ -241,6 +315,68 @@ class Config extends BaseConfig {
      */
     public function getHostedUrl() {
         return $this->isLive() ? $this->getLiveHostedUrl() : $this->getSandboxHostedUrl();
+    }
+
+
+    /**
+     * Returns the URL for embedded integration for sandbox environment.
+     *
+     * @return string
+     */
+    public function getSandboxEmbeddedUrl() {
+        return (string) $this->getValue(self::KEY_SANDBOX_EMBEDDED_URL);
+    }
+
+    /**
+     * Returns the URL for embedded integration for live environment.
+     *
+     * @return string
+     */
+    public function getLiveEmbeddedUrl() {
+        return (string) $this->getValue(self::KEY_LIVE_EMBEDDED_URL);
+    }
+
+    /**
+     * Returns the URL for embedded integration based on environment settings.
+     *
+     * @return string
+     */
+    public function getEmbeddedUrl() {
+        return $this->isLive() ? $this->getLiveEmbeddedUrl() : $this->getSandboxEmbeddedUrl();
+    }
+
+    /**
+     * Returns the CSS URL for embedded integration.
+     *
+     * @return string
+     */
+    public function getEmbeddedCss() {
+        return (string) $this->getValue(self::KEY_EMBEDDED_CSS);
+    }
+
+    /**
+     * Returns the CSS preference setting.
+     *
+     * @return string
+     */
+    public function getCssFile() {
+        return (string) $this->getValue(self::KEY_CSS_FILE);
+    }
+
+    /**
+     * Returns the custom CSS URL for embedded integration.
+     *
+     * @return string
+     */
+    public function getCustomCss() {
+
+        // Get an object manager instance
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+        // Load the quote
+        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');     
+
+        return $scopeConfig->getValue('payment/checkout_com/checkout_com_base_settings/custom_css');
     }
 
     /**
@@ -339,4 +475,12 @@ class Config extends BaseConfig {
         return (string) $this->getValue(self::KEY_DESCRIPTOR_CITY);
     }
 
+    /**
+     * Returns the embedded theme.
+     *
+     * @return string
+     */
+    public function getEmbeddedTheme() {
+        return (string) $this->getValue(self::KEY_EMBEDDED_THEME);
+    }
 }

@@ -1,13 +1,11 @@
-#cc-form-errors{
-    display: none;
-    padding: 15px;
-    background-color: #f44336;
-    color: white;
-    margin-bottom: 20px;
-    opacity: 0.8;
-    border-radius: 10px;
-    clear:both;
-}
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
 
 #closebtn {
     margin-left: 15px;
@@ -21,21 +19,46 @@
 }
 
 #payment_form_checkout_com {
-    padding-top:20px;
+    padding-top: 20px;
 }
 
-#card-number, #card-holder {
+#card-number,
+#card-holder {
     width: 220px;
 }
 
-#expiry-month{
+#expiry-month {
     width: 140px;
 }
 
-#expiry-year{
+#expiry-year {
     width: 80px;
 }
 
-.ccv{
+.ccv {
     width: 100px;
+}
+
+#info-icon,
+#info-icon svg {
+    width: 30px;
+    height: 30px;
+}
+
+#info-icon,
+#info-text {
+    float: left;
+}
+
+#info-text {
+    margin-top: 10px;
+    text-align: left;
+    margin-bottom: 10px;
+    width: 90%;
+}
+
+.clr {
+    clear: both;
+    visibility: hidden;
+    height: 0px;
 }

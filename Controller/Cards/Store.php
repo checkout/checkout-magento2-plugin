@@ -1,4 +1,12 @@
 <?php
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
 
 namespace CheckoutCom\Magento2\Controller\Cards;
 
@@ -31,21 +39,19 @@ class Store extends Action {
      * @return \Magento\Framework\App\ResponseInterface
      */
     public function execute() {
-        $cardToken      = $this->getRequest()->getParam('cko-card-token');
-        $cardData       = $this->getRequest()->getParam('cko-card');
-        $customerEmail  = $this->getRequest()->getParam('customer_email');
-        $customerId     = $this->getRequest()->getParam('customer_id');
-        $customerName   = $this->getRequest()->getParam('customer_name');
-       
+          
+        $ckoCardToken = $this->getCardToken();
+
         try {
             $this->storeCardService
-                ->setCardTokenAndData($cardToken, $cardData)
-                ->setCustomerEmail($customerEmail)
-                ->setCustomerId($customerId)
-                ->setCustomerName($customerName)
-                ->save();
+                 ->setCardToken($ckoCardToken)
+                 ->setCustomerId()
+                 ->setCustomerEmail()
+                 ->test()
+                 ->setCardData()
+                 ->save();
 
-            $this->messageManager->addSuccessMessage( __('Credit Card has been stored successfully') );
+            $this->messageManager->addSuccessMessage( __('The payment card has been stored successfully.') );
         }
         catch(\Exception $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
@@ -53,5 +59,13 @@ class Store extends Action {
         
         return $this->_redirect('vault/cards/listAction');
     }    
+
+    public function getCardToken() {
+
+        $params = array_keys($this->getRequest()->getParams());
+        $params = json_decode($params[0]);
+
+        return $params->ckoCardToken;
+    }
 
 }

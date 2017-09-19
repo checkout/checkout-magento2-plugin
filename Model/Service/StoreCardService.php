@@ -1,4 +1,12 @@
 <?php
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
 
 namespace CheckoutCom\Magento2\Model\Service;
 
@@ -16,6 +24,8 @@ use Zend_Http_Client_Exception;
 use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Framework\App\ResponseFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Customer\Model\Session;
 
 class StoreCardService {
 
@@ -55,11 +65,6 @@ class StoreCardService {
     protected $customerEmail;
 
     /**
-     * @var string
-     */
-    protected $customerName;
-
-    /**
      * @var int
      */
     protected $customerId;
@@ -83,7 +88,10 @@ class StoreCardService {
      * @var ResponseFactory 
      */
     protected $responseFactory;
+
+    protected $scopeConfig;
     
+    protected $customerSession;
     
     /**
      * StoreCardService constructor.
@@ -102,7 +110,10 @@ class StoreCardService {
         TransferFactory $transferFactory,
         PaymentTokenRepositoryInterface $paymentTokenRepository,
         PaymentTokenManagementInterface $paymentTokenManagement,
-        ResponseFactory $responseFactory
+        ResponseFactory $responseFactory,
+        ScopeConfigInterface $scopeConfig,
+        Session $customerSession
+
     ) {
         $this->logger                   = $logger;
         $this->vaultTokenFactory        = $vaultTokenFactory;
@@ -110,7 +121,9 @@ class StoreCardService {
         $this->transferFactory          = $transferFactory;
         $this->paymentTokenRepository   = $paymentTokenRepository;
         $this->paymentTokenManagement   = $paymentTokenManagement;
-        $this->responseFactory = $responseFactory;
+        $this->scopeConfig              = $scopeConfig;
+        $this->responseFactory          = $responseFactory;
+        $this->customerSession          = $customerSession;
     }
 
     /**
@@ -119,8 +132,9 @@ class StoreCardService {
      * @param int $customerId
      * @return StoreCardService
      */
-    public function setCustomerId($customerId) {
-        $this->customerId = (int) $customerId;
+    public function setCustomerId($id = null) {
+        
+        $this->customerId = (int) $id > 0 ? $id : $this->customerSession->getCustomer()->getId();
 
         return $this;
     }
@@ -131,34 +145,64 @@ class StoreCardService {
      * @param string $customerEmail
      * @return StoreCardService
      */
-    public function setCustomerEmail($customerEmail) {
-        $this->customerEmail = $customerEmail;
+    public function setCustomerEmail() {
+
+        $this->customerEmail = $this->customerSession->getCustomer()->getEmail();
 
         return $this;
     }
 
     /**
-     * Sets the customer name.
-     *
-     * @param string $customerName
-     * @return StoreCardService
-     */
-    public function setCustomerName($customerName) {
-        $this->customerName = substr($customerName, 0, 100);
-
-        return $this;
-    }
-
-    /**
-     * Sets the card token and the data.
+     * Sets the card token.
      *
      * @param string $cardToken
-     * @param array $cardData
      * @return StoreCardService
      */
-    public function setCardTokenAndData($cardToken, array $cardData) {
+    public function setCardToken($cardToken) {
         $this->cardToken    = $cardToken;
-        $this->cardData     = $cardData;
+
+        return $this;
+    }
+
+
+    /**
+     * Sets the card data.
+     *
+     * @return StoreCardService
+     */
+    public function setCardData() {
+
+        // Prepare the card data to save
+        $cardData = $this->authorizedResponse['card'];
+        unset($cardData['customerId']);
+        unset($cardData['billingDetails']);
+        unset($cardData['bin']);
+        unset($cardData['fingerprint']);
+        unset($cardData['cvvCheck']);
+        unset($cardData['name']);
+        unset($cardData['avsCheck']);
+
+        // Assign the card data
+        $this->cardData = $cardData;
+
+        return $this;
+    }
+
+    /**
+     * Tests the card through gateway.
+     *
+     * @return StoreCardService
+     */
+    public function test() {
+
+        // Perform the authorization
+        $this->authorizeTransaction();
+
+        // Validate the authorization
+        $this->validateAuthorization();
+
+        // Perform the void
+        $this->voidTransaction();
 
         return $this;
     }
@@ -172,10 +216,13 @@ class StoreCardService {
      * @throws \Exception
      */
     public function save() {
-        $paymentToken       = $this->vaultTokenFactory->create($this->cardData, $this->customerId);
+
+        // Create the payment token from response
+        $paymentToken = $this->vaultTokenFactory->create($this->cardData, $this->customerId);
         $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
-        
-        if($foundPaymentToken) {
+
+        // Check if card exists
+        if ($foundPaymentToken) {
             if($foundPaymentToken->getIsActive()) {
                 throw new LocalizedException(__('The credit card has been stored already.') );
             }
@@ -184,18 +231,12 @@ class StoreCardService {
                 $this->paymentTokenRepository->save($foundPaymentToken);
             }
         }
-        else {
-            $this->authorizeTransaction();
-            $this->validateAuthorization();
-            
-            if(isset($this->authorizedResponse['redirectUrl'])){
-                $this->responseFactory->create()->setRedirect( $this->authorizedResponse['redirectUrl'] )->sendResponse();
-                exit;
-            }
-            
-            $this->voidTransaction();
 
-            $paymentToken->setGatewayToken($this->authorizedResponse['card']['id']);
+        // Otherwise save the card
+        else {
+            $gatewayToken = $this->authorizedResponse['card']['id'];
+
+            $paymentToken->setGatewayToken($gatewayToken);
             $paymentToken->setIsVisible(true);
 
             $this->paymentTokenRepository->save($paymentToken);
@@ -210,25 +251,27 @@ class StoreCardService {
      * @throws \Exception
      */
     private function authorizeTransaction() {
+
+        $requestUri = 'charges/token'; // todo - get this url from http client class
+
         $transfer = $this->transferFactory->create([
             'autoCapture'   => 'N',
             'description'   => 'Saving new card',
-            'value'         => 1,
-            'currency'      => 'USD',
+            'value'         => (float) $this->scopeConfig->getValue('payment/checkout_com/save_card_check_amount') * 100,
+            'currency'      => $this->scopeConfig->getValue('payment/checkout_com/save_card_check_currency'),
             'cardToken'     => $this->cardToken,
             'email'         => $this->customerEmail,
-            'customerName'  => $this->customerName,
         ]);
         
         $log = [
             'request'           => $transfer->getBody(),
-            'request_uri'       => 'charges/token',
+            'request_uri'       => $requestUri,
             'request_headers'   => $transfer->getHeaders(),
             'request_method'    => 'POST',
         ];
 
         try {
-            $response           = $this->getHttpClient('charges/token', $transfer)->request();
+            $response           = $this->getHttpClient($requestUri, $transfer)->request();
             
             $result             = json_decode($response->getBody(), true);
             $log['response']    = $result;
@@ -267,17 +310,21 @@ class StoreCardService {
      */
     private function voidTransaction() {
         $transactionId  = $this->authorizedResponse['id'];
-        $transfer       = $this->transferFactory->create([]);
+        $transfer       = $this->transferFactory->create([
+            'trackId'   => ''
+        ]);
+
+        $chargeUrl = 'charges/' . $transactionId . '/void';
 
         $log = [
             'request'           => $transfer->getBody(),
-            'request_uri'       => 'charges/' . $transactionId . '/void',
+            'request_uri'       => $chargeUrl,
             'request_headers'   => $transfer->getHeaders(),
             'request_method'    => 'POST',
         ];
 
         try {
-            $response           = $this->getHttpClient('charges/' . $transactionId . '/void', $transfer)->request();
+            $response           = $this->getHttpClient($chargeUrl, $transfer)->request();
            
             $result             = json_decode($response->getBody(), true);
             $log['response']    = $result;

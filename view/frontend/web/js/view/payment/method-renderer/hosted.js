@@ -1,3 +1,12 @@
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+ 
 /*browser:true*/
 /*global define*/
 
@@ -5,11 +14,13 @@ define(
     [
         'jquery',
         'CheckoutCom_Magento2/js/view/payment/method-renderer/cc-form',
+        'Magento_Vault/js/view/payment/vault-enabler',
         'CheckoutCom_Magento2/js/view/payment/adapter',
         'Magento_Checkout/js/model/quote',
-        'mage/url'
+        'mage/url',
+        'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function ($, Component, CheckoutCom, quote, url) {
+    function ($, Component, VaultEnabler, CheckoutCom, quote, url, additionalValidators) {
         'use strict';
 
         return Component.extend({
@@ -35,19 +46,30 @@ define(
             /**
              * @returns {string}
              */
-            getQuoteValue: function() {
-                var
-                    currencyCode = this.getQuoteCurrency(),
-                    amount = parseFloat(window.checkoutConfig.quoteData.base_grand_total);
+            getPaymentMode: function() {
+                return CheckoutCom.getPaymentConfig()['payment_mode'];
+            },
 
-                return CheckoutCom.getAmountForGateway(currencyCode, amount);
+            /**
+             * @returns {string}
+             */
+            getPaymentToken: function() {
+                return CheckoutCom.getPaymentConfig()['payment_token'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getQuoteValue: function() {
+               //return CheckoutCom.getPaymentConfig()['quote_value'];
+               return (quote.getTotals()().grand_total*100).toFixed(2);
             },
 
             /**
              * @returns {string}
              */
             getQuoteCurrency: function() {
-                return window.checkoutConfig.quoteData.quote_currency_code;
+                return CheckoutCom.getPaymentConfig()['quote_currency'];
             },
 
             /**
@@ -67,8 +89,42 @@ define(
             /**
              * @returns {string}
              */
+            getDesignSettings: function() {
+                return CheckoutCom.getPaymentConfig()['design_settings'];
+            },
+
+            /**
+             * @returns {void}
+             */
+            saveSessionData: function() {
+                // Prepare the session data
+                var sessionData = {saveShopperCard: $('#checkout_com_enable_vault').is(":checked")};
+
+                // Send the session data to be saved
+                $.ajax({
+                    url : url.build('checkout_com/shopper/sessionData'),
+                    type: "POST",
+                    data : sessionData,
+                    success: function(data, textStatus, xhr) { },
+                    error: function (xhr, textStatus, error) { } // todo - improve error handling
+                });
+            },
+
+            /**
+             * @returns {string}
+             */
             beforePlaceOrder: function() {
-                $('#checkout_com-hosted-form').submit();
+                // Get self
+                var self = this;
+
+                // Validate before submission
+                if (additionalValidators.validate()) {
+                    // Set the save card option in session
+                    self.saveSessionData();
+
+                    // Submit the form
+                    $('#checkout_com-hosted-form').submit();
+                }
             }
 
         });

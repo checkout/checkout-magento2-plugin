@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+ 
 namespace CheckoutCom\Magento2\Gateway\Request;
 
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -37,10 +45,20 @@ class VaultRequest implements BuilderInterface {
     public function build(array $buildSubject)
     {
         return [
-            self::OPTIONS => [
-                self::STORE_IN_VAULT_ON_SUCCESS => $this->customerSession->isLoggedIn(),
-            ]
+            'udf2' => ($this->getVaultSaveInfo()) ? self::STORE_IN_VAULT_ON_SUCCESS : ''
         ];
     }
 
+    public function getVaultSaveInfo() {
+
+        // Get the checkout session data
+        $checkoutSessionData = $this->customerSession->getData('checkoutSessionData');
+
+        // Check if save card is requested
+        if (isset($checkoutSessionData['saveShopperCard'])) {
+            return filter_var($checkoutSessionData['saveShopperCard'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return false;
+    }
 }

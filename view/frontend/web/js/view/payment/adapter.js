@@ -1,4 +1,13 @@
-define([
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+
+ define([
     'jquery',
     'Magento_Ui/js/model/messageList'
 ], function ($, globalMessageList) {
@@ -20,24 +29,6 @@ define([
          */
         getPaymentConfig: function() {
             return window.checkoutConfig.payment[this.getCode()];
-        },
-
-        /**
-         *
-         * @param currencyCode
-         * @param amount
-         * @returns {number}
-         */
-        getAmountForGateway: function(currencyCode, amount) {
-            var priceAdapter = this.getPaymentConfig()['priceAdapter'];
-
-            amount = parseFloat(amount);
-
-            if(priceAdapter[currencyCode] === undefined) {
-                return amount * priceAdapter['others'];
-            }
-
-            return amount * priceAdapter[currencyCode];
         },
 
         /**

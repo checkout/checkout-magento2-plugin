@@ -1,8 +1,17 @@
+<!--
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+-->
 <?xml version="1.0"?>
-
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="CheckoutCom_Magento2::css/checkout-form.css"/>
+        <css src="CheckoutCom_Magento2::css/main.css" />
     </head>
     <body>
         <referenceBlock name="checkout.root">
@@ -21,7 +30,6 @@
                                                         <item name="renders" xsi:type="array">
                                                             <!-- merge payment method renders here -->
                                                             <item name="children" xsi:type="array">
-
                                                                 <item name="checkout_com" xsi:type="array">
                                                                     <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/checkout_com</item>
                                                                     <item name="methods" xsi:type="array">
@@ -30,7 +38,13 @@
                                                                         </item>
                                                                     </item>
                                                                 </item>
-
+                                                            </item>
+                                                        </item>
+                                                        <item name="additional-payment-validators" xsi:type="array">
+                                                            <item name="children" xsi:type="array">
+                                                                <item name="agreement-validator" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/agreement-validation</item>
+                                                                </item>
                                                             </item>
                                                         </item>
                                                     </item>

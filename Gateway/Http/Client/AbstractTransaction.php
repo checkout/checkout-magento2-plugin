@@ -1,16 +1,28 @@
 <?php
-
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+ 
 namespace CheckoutCom\Magento2\Gateway\Http\Client;
 
+use Zend_Http_Client_Exception;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Payment\Model\Method\Logger;
-use CheckoutCom\Magento2\Gateway\Exception\ApiClientException;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Checkout\Model\Cart;
+use Magento\Quote\Api\CartManagementInterface;
+use Magento\Quote\Model\QuoteManagement;
 use CheckoutCom\Magento2\Model\GatewayResponseHolder;
-use Zend_Http_Client_Exception;
+use CheckoutCom\Magento2\Gateway\Exception\ApiClientException;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 
 abstract class AbstractTransaction implements ClientInterface {
 
@@ -45,17 +57,35 @@ abstract class AbstractTransaction implements ClientInterface {
     protected $gatewayResponseHolder;
 
     /**
+     * @var Cart
+     */
+    protected $cart;
+
+    /**
+     * @var CartManagementInterface
+     */
+    protected $cartManagement;
+
+    /**
+     * @var QuoteManagement
+     */
+    protected $quoteManagement;
+
+    /**
      * AbstractTransaction constructor.
      * @param Logger $logger
      * @param ZendClient $clientFactory
      * @param ManagerInterface $messageManager
      * @param GatewayResponseHolder $gatewayResponseHolder
      */
-    public function __construct(Logger $logger, ZendClient $clientFactory, ManagerInterface $messageManager, GatewayResponseHolder $gatewayResponseHolder) {
+    public function __construct(Logger $logger, ZendClient $clientFactory, ManagerInterface $messageManager, GatewayResponseHolder $gatewayResponseHolder, Cart $cart, CartManagementInterface $cartManagement, QuoteManagement $quoteManagement) {
         $this->logger                   = $logger;
         $this->clientFactory            = $clientFactory;
         $this->messageManager           = $messageManager;
         $this->gatewayResponseHolder    = $gatewayResponseHolder;
+        $this->cart                     = $cart;
+        $this->cartManagement           = $cartManagement;
+        $this->quoteManagement          = $quoteManagement;
     }
 
     /**
@@ -81,8 +111,10 @@ abstract class AbstractTransaction implements ClientInterface {
             return $response;
         }
 
+        // Prepare the transfert data
         $this->prepareTransfer($transferObject);
 
+        // Prepare some log data
         $log = [
             'request'           => $this->body,
             'request_uri'       => $this->fullUri,
@@ -112,7 +144,6 @@ abstract class AbstractTransaction implements ClientInterface {
         $client->setUrlEncodeBody($transferObject->shouldEncode());
            
         $client->setUri($this->fullUri);
-        
         
         try {
             $response           = $client->request();

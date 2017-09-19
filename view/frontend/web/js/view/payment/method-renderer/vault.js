@@ -1,9 +1,18 @@
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+ 
 define([
     'jquery',
     'Magento_Vault/js/view/payment/method-renderer/vault',
     'Magento_Checkout/js/action/place-order',
-    'CheckoutCom_Magento2/js/view/payment/response-strategy'
-], function ($, VaultComponent, placeOrderAction, responseStrategy) {
+    'Magento_Checkout/js/model/payment/additional-validators'
+], function ($, VaultComponent, placeOrderAction, additionalValidators) {
     'use strict';
 
     return VaultComponent.extend({
@@ -47,11 +56,19 @@ define([
             return this.publicHash;
         },
 
-        getPlaceOrderDeferredObject: function () {
-            return $.when(
-                placeOrderAction(this.getData(), this.messageContainer)
-            ).then(responseStrategy);
-        }
+        /**
+         * @returns {string}
+         */
+        beforePlaceOrder: function() {
+
+            // Get self
+            var self = this;
+
+            // Place the order
+            if (additionalValidators.validate()) {
+                self.placeOrder();
+            }
+        },
     });
 
 });

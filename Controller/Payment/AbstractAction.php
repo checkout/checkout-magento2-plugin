@@ -1,4 +1,12 @@
 <?php
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
@@ -39,14 +47,14 @@ abstract class AbstractAction extends Action {
      * @throws NotFoundException
      */
     public function dispatch(RequestInterface $request) {
-        if( ! $this->gatewayConfig->isActive() ) {
-            $this->_actionFlag->set('', self::FLAG_NO_DISPATCH, true);
+        //if( ! $this->gatewayConfig->isActive() ) {
+        //    $this->_actionFlag->set('', self::FLAG_NO_DISPATCH, true);
             /** @var Redirect $resultRedirect */
-            $resultRedirect = $this->resultRedirectFactory->create();
-            $resultRedirect->setPath('noRoute');
+        //    $resultRedirect = $this->resultRedirectFactory->create();
+        //    $resultRedirect->setPath('noRoute');
 
-            return $resultRedirect;
-        }
+        //    return $resultRedirect;
+        // }
 
         return parent::dispatch($request);
     }
