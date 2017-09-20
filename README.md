@@ -7,10 +7,10 @@ The Checkout.com extension for Magento 2 allows shop owners to process online pa
 
 This extension is an integration of [Checkout.js](https://docs.checkout.com "Checkout.js") and offers 2 payment modes:
 
-* Checkout.js Hosted
+* Checkout.js Hosted<br>
 Shoppers are redirected from your website to Checkout.com servers to complete payments.
 
-* Checkout.js Embedded
+* Checkout.js Embedded<br>
 The payment form is embedded and shoppers complete payments without leaving your website.
 
 Checkout.js Hosted and Checkout.js Embedded are cross-browser and cross-device compatible, and can accept online payments from all major credit cards. Checkout.js Hosted offers in addition many of the most popular [Alternative Payment methods](https://docs.checkout.com/reference/checkout-js-reference/alternative-payments "Alternative Payment methods") used around the world.
