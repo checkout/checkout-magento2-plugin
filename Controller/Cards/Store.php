@@ -67,7 +67,9 @@ class Store extends Action {
         if (isset($params[0])) {
             $params = json_decode($params[0]);
 
-            return $params->ckoCardToken;
+            if (is_object($params)) {
+                return $params->ckoCardToken;
+            }
         }
 
         return false;
