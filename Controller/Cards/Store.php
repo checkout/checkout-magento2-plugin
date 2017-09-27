@@ -63,9 +63,14 @@ class Store extends Action {
     public function getCardToken() {
 
         $params = array_keys($this->getRequest()->getParams());
-        $params = json_decode($params[0]);
 
-        return $params->ckoCardToken;
+        if (isset($params[0])) {
+            $params = json_decode($params[0]);
+
+            return $params->ckoCardToken;
+        }
+
+        return false;
     }
 
 }
