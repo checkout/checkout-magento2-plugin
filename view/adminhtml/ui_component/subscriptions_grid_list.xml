@@ -1,13 +1,3 @@
-<!--
-/**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
- *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
- *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
- */
--->
 <?xml version="1.0" encoding="UTF-8"?>
 <listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <argument name="context" xsi:type="configurableObject">
