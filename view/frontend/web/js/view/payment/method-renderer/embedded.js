@@ -6,7 +6,7 @@
  *
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
- 
+
 /*browser:true*/
 /*global define*/
 
@@ -18,9 +18,12 @@ define(
         'CheckoutCom_Magento2/js/view/payment/adapter',
         'Magento_Checkout/js/model/quote',
         'mage/url',
-        'Magento_Checkout/js/model/payment/additional-validators'
+        'Magento_Checkout/js/action/set-payment-information',
+        'Magento_Checkout/js/model/full-screen-loader',
+        'Magento_Checkout/js/model/payment/additional-validators',
+        'Magento_Checkout/js/action/redirect-on-success'
     ],
-    function($, Component, VaultEnabler, CheckoutCom, quote, url, additionalValidators, customer) {
+    function($, Component, VaultEnabler, CheckoutCom, quote, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, redirectOnSuccessAction, customer) {
         'use strict';
 
         return Component.extend({
@@ -28,7 +31,8 @@ define(
                 active: true,
                 template: 'CheckoutCom_Magento2/payment/embedded',
                 code: 'checkout_com',
-                card_token_id: null
+                card_token_id: null,
+                redirectAfterPlaceOrder: true
             },
 
             /**
@@ -39,6 +43,8 @@ define(
 
                 this.vaultEnabler = new VaultEnabler();
                 this.vaultEnabler.setPaymentCode(this.getVaultCode());
+
+                return this;
             },
 
             /**
@@ -149,6 +155,30 @@ define(
             },
 
             /**
+             * @override
+             */
+            placeOrder: function() {
+                var self = this;
+
+                this.isPlaceOrderActionAllowed(false);
+                this.getPlaceOrderDeferredObject()
+                    .fail(
+                        function() {
+                            self.isPlaceOrderActionAllowed(true);
+                            self.reloadEmbeddedForm();
+                        }
+                    ).done(
+                        function() {
+                            self.afterPlaceOrder();
+
+                            if (self.redirectAfterPlaceOrder) {
+                                redirectOnSuccessAction.execute();
+                            }
+                        }
+                    );
+            },
+
+            /**
              * @returns {void}
              */
             getEmbeddedForm: function() {
@@ -180,10 +210,23 @@ define(
                         if (threeds_enabled) {
                             window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
                         } else {
+                            // Place order
                             self.placeOrder();
                         }
-                    }
+                    },
                 });
+            },
+
+            /**
+             * @returns {void}
+             */
+            reloadEmbeddedForm: function() {
+                // Get self
+                var self = this;
+
+                // Reload the iframe
+                $('#cko-form-holder form iframe').remove();
+                self.getEmbeddedForm();
             },
         });
     }

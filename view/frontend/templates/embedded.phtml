@@ -33,11 +33,15 @@ if (!$block->hasCustomCss()) {
 	}
 
 	#embeddedForm {
-		height: 110px;
+		z-index: 0 !important;
 	}
 	
 	#embeddedForm, #embeddedForm iframe {
 	    position: relative !important;
+	}
+
+	#embeddedForm iframe {
+		min-height: 153px;
 	}
 
 	#cko-form-holder {
