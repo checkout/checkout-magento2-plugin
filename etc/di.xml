@@ -419,12 +419,20 @@
             <argument name="logger" xsi:type="object">CheckoutComLogger</argument>
         </arguments>
     </type>
-    <!-- END Card Service -->
+    <!-- END Store Card Service -->
 
     <!-- Mobile Payments API -->
     <preference for="CheckoutCom\Magento2\Api\MobilePaymentInterface" type="CheckoutCom\Magento2\Model\Resource\MobilePayment" />
     <!-- END Mobile Payments API -->
 
+    <!-- Around Payments Plugin -->
+    <type name="Magento\Checkout\Model\GuestPaymentInformationManagement">
+        <plugin name="CkoGuestPaymentInformationManagement" type="CheckoutCom\Magento2\Plugin\GuestPaymentInformationManagement" />
+        </type>
+        <type name="Magento\Checkout\Model\PaymentInformationManagement">
+        <plugin name="CkoPaymentInformationManagement" type="CheckoutCom\Magento2\Plugin\PaymentInformationManagement" />
+    </type>
+    <!-- END Around Payments Plugin -->
 
     <!-- Plans grid listing -->
     <virtualType name="CheckoutCom\Magento2\Model\ResourceModel\Plan\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
