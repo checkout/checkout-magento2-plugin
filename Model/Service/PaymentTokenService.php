@@ -22,6 +22,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use CheckoutCom\Magento2\Gateway\Exception\ApiClientException;
 use CheckoutCom\Magento2\Model\GatewayResponseHolder;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
+use CheckoutCom\Magento2\Helper\Watchdog;
 
 class PaymentTokenService {
 
@@ -46,17 +47,24 @@ class PaymentTokenService {
     protected $storeManager;
 
     /**
+     * @var Watchdog
+     */
+    protected $watchdog;
+
+    /**
      * PaymentTokenService constructor.
      * @param GatewayConfig $gatewayConfig
      * @param TransferFactory $transferFactory
      * @param Session $checkoutSession
      * @param StoreManagerInterface $storeManager
+     * @param Watchdog $watchdog
     */
-    public function __construct(GatewayConfig $gatewayConfig, TransferFactory $transferFactory, Session $checkoutSession, StoreManagerInterface $storeManager) {
+    public function __construct(GatewayConfig $gatewayConfig, TransferFactory $transferFactory, Session $checkoutSession, StoreManagerInterface $storeManager, Watchdog $watchdog) {
         $this->gatewayConfig    = $gatewayConfig;
         $this->transferFactory  = $transferFactory;
         $this->checkoutSession = $checkoutSession;
         $this->storeManager  = $storeManager;
+        $this->watchdog = $watchdog;
     }
 
     /**
@@ -89,11 +97,10 @@ class PaymentTokenService {
             
             $result   = (array) json_decode($response->getBody(), true);
 
-            if( array_key_exists('errorCode', $result) ) {
-                throw new ApiClientException($result['message'], $result['errorCode'], $result['eventId']);
-            }
+            // Debug info
+            $this->watchdog->bark($result);
 
-            return $result['id'];
+            return isset($result['id']) ? $result['id'] : null;
 
         }
         catch (Zend_Http_Client_Exception $e) {

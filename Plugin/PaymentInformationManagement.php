@@ -76,7 +76,7 @@ class PaymentInformationManagement
         try {
             $orderId = $this->cartManagement->placeOrder($cartId);
         } catch (LocalizedException $exception) {
-            throw new CouldNotSaveException(__($exception->getMessage()));
+            throw new CouldNotSaveException(__($exception->getMessage()));         
         } catch (\Exception $exception) {
             $this->logger->critical($exception);
             throw new CouldNotSaveException(

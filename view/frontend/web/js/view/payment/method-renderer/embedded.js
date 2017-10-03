@@ -160,6 +160,8 @@ define(
             placeOrder: function() {
                 var self = this;
 
+                $.migrateMute = true;
+
                 this.isPlaceOrderActionAllowed(false);
                 this.getPlaceOrderDeferredObject()
                     .fail(
