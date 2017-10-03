@@ -43,7 +43,11 @@ class Watchdog {
             // Add the error code
             if (isset($data['status'])) {
                 $this->messageManager->addNoticeMessage(__('Status') . ' : ' .  $data['status']);    
-            }                    
-        }
+            }   
+
+            // Add the message
+            if (isset($data['message'])) {
+                $this->messageManager->addNoticeMessage(__('Message') . ' : ' .  $data['message']);    
+            }                     }
     }
 }
