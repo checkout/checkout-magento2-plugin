@@ -28,20 +28,33 @@ if (!$block->hasCustomCss()) {
 	    overflow-y: scroll !important;
 	}
 
-	body {
-	    overflow: visible !important;
-	}
-
 	#embeddedForm {
-		height: 110px;
+		z-index: 0 !important;
 	}
-
+	
 	#embeddedForm, #embeddedForm iframe {
-		position: relative !important;
-		height: 110px;
+	    position: relative !important;
 	}
 
-	#cko-form-holder {
-	    max-width: 50%;
+	#embeddedForm iframe {
+		min-height: 153px;
 	}
+
+	@media all and (min-width: 520px) {
+		#cko-form-holder {
+			max-width: 60%;
+		}
+	}	
+
+	@media all and and (min-width: 301px) and (max-width: 519px) {
+		#cko-form-holder {
+			max-width: 80%;
+		}
+	}	
+
+	@media all and (max-width: 300px) {
+		#cko-form-holder {
+			max-width: 100%;
+		}
+	}	
 </style>
