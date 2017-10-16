@@ -95,6 +95,7 @@ class ConfigProvider implements ConfigProviderInterface {
                     'embedded_css' => $this->config->getEmbeddedCss(),
                     'css_file' => $this->config->getCssFile(),
                     'custom_css' => $this->config->getCustomCss(),
+                    'vault_title' => $this->config->getVaultTitle(),
                 ],
             ],
         ];

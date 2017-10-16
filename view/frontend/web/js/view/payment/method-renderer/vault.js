@@ -11,13 +11,18 @@ define([
     'jquery',
     'Magento_Vault/js/view/payment/method-renderer/vault',
     'Magento_Checkout/js/action/place-order',
+    'CheckoutCom_Magento2/js/view/payment/adapter',
     'Magento_Checkout/js/model/payment/additional-validators'
-], function ($, VaultComponent, placeOrderAction, additionalValidators) {
+], function ($, VaultComponent, placeOrderAction, CheckoutCom, additionalValidators) {
     'use strict';
 
     return VaultComponent.extend({
         defaults: {
             template: 'CheckoutCom_Magento2/payment/vault'
+        },
+
+        getVaultTitle: function () {
+            return CheckoutCom.getPaymentConfig()['vault_title'];
         },
 
         /**
