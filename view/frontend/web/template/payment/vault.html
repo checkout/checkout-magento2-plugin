@@ -21,7 +21,7 @@
                     checked: isChecked,
                     visible: isRadioButtonVisible()"/>
         <label class="label" data-bind="attr: {'for': getId()}">
-            Checkout.com
+            <span data-bind="text: getVaultTitle()"></span>
             <img data-bind="attr: {
             'src': getIcons(getCardType()).url,
             'width': getIcons(getCardType()).width,

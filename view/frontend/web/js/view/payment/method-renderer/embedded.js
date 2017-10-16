@@ -93,7 +93,6 @@ define(
              * @returns {string}
              */
             getQuoteValue: function() {
-                //return CheckoutCom.getPaymentConfig()['quote_value'];
                 return quote.getTotals();
             },
 

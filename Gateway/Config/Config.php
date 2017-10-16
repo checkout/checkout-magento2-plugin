@@ -65,6 +65,8 @@ class Config extends BaseConfig {
     const KEY_CUSTOM_CSS = 'custom_css';
     const KEY_CSS_FILE = 'css_file';
 
+    const KEY_VAULT_TITLE = 'checkout_com_cc_vault/title';
+
     /**
      * @var array
      */
@@ -86,6 +88,17 @@ class Config extends BaseConfig {
      */
     public function getEnvironment() {
         return (string) $this->getValue(self::KEY_ENVIRONMENT);
+    }
+
+    /**
+     * Returns the vault option title.
+     *
+     * @return string
+     */
+    public function getVaultTitle() {
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');     
+        return (string) $scopeConfig->getValue('payment/checkout_com_cc_vault/title');
     }
 
     /**
@@ -127,7 +140,7 @@ class Config extends BaseConfig {
                 'button_label' => $this->getValue(self::KEY_BUTTON_LABEL)
             )
         );
-   }
+    }
 
     /**
      * Determines if the environment is set as sandbox mode.
@@ -171,14 +184,8 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isActive() {
-
-       // Get an object manager instance
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        // Load the quote
         $quote = $objectManager->create('Magento\Checkout\Model\Session')->getQuote();     
-
-        // Return the status
         return (bool) in_array($quote->getQuoteCurrencyCode(), $this->getAcceptedCurrencies());
     }
 
@@ -369,13 +376,8 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getCustomCss() {
-
-        // Get an object manager instance
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        // Load the quote
         $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');     
-
         return $scopeConfig->getValue('payment/checkout_com/checkout_com_base_settings/custom_css');
     }
 
@@ -395,7 +397,6 @@ class Config extends BaseConfig {
      */
     public function getAutoCaptureTimeInHours() {
         $autoCaptureTime = (int) $this->getValue(self::KEY_AUTO_CAPTURE_TIME);
-
         return (int) max(min($autoCaptureTime, self::MAX_AUTO_CAPTURE_TIME), self::MIN_AUTO_CAPTURE_TIME);
     }
 
@@ -417,7 +418,6 @@ class Config extends BaseConfig {
      */
     public function getCountryAvailableCardTypes($country) {
         $types = $this->getCountrySpecificCardTypeConfig();
-
         return (!empty($types[$country])) ? $types[$country] : [];
     }
 

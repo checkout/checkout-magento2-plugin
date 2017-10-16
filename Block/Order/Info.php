@@ -76,11 +76,11 @@ class Info extends \Magento\Framework\View\Element\Template
      */
     public function getPaymentInfoHtml()
     {
-        //return $this->getChildHtml('payment_info');
-    $order = $this->coreRegistry->registry('current_order');
-    $payment = $order->getPayment();
-    $method = $payment->getMethodInstance();
-    return $method->getTitle();
+        $order = $this->coreRegistry->registry('current_order');
+        $payment = $order->getPayment();
+        $method = $payment->getMethodInstance();
+        
+        return $method->getTitle();
 
     }
 
