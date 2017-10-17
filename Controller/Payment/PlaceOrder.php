@@ -12,6 +12,7 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session;
+use Magento\Customer\Model\Session as CustomerSession;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use CheckoutCom\Magento2\Model\Service\OrderService;
 
@@ -28,16 +29,29 @@ class PlaceOrder extends AbstractAction {
     protected $orderService;
 
     /**
+     * @var CustomerSession
+     */
+    private $customerSession;
+
+    /**
      * PlaceOrder constructor.
      * @param Context $context
      * @param Session $session
+     * @param CustomerSession $customerSession
      * @param GatewayConfig $gatewayConfig
      * @param OrderService $orderService
      */
-    public function __construct(Context $context, Session $session, GatewayConfig $gatewayConfig, OrderService $orderService) {
+    public function __construct(
+        Context $context,
+        Session $session,
+        CustomerSession $customerSession,
+        GatewayConfig $gatewayConfig,
+        OrderService $orderService
+    ) {
         parent::__construct($context, $gatewayConfig);
 
         $this->session          = $session;
+        $this->customerSession  = $customerSession;
         $this->orderService     = $orderService;
     }
 
@@ -54,6 +68,14 @@ class PlaceOrder extends AbstractAction {
         $email          = $this->getRequest()->getParam('cko-context-id');
         $agreement      = array_keys($this->getRequest()->getPostValue('agreement', []));
         $quote          = $this->session->getQuote();
+
+        if ($quote->getCustomerEmail() === null
+            && $this->customerSession->isLoggedIn() === false
+            && isset($this->customerSession->getData('checkoutSessionData')['customerEmail'])
+            && $this->customerSession->getData('checkoutSessionData')['customerEmail'] === $email
+        ) {
+            $quote->setCustomerEmail($email);
+        }
 
         // Perform quote and order validation
         try {
