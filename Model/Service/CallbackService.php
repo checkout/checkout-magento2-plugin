@@ -10,6 +10,7 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Model\Adminhtml\Source\PaymentAction;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\App\ObjectManager;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -20,6 +21,7 @@ use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Model\GatewayResponseHolder;
 use CheckoutCom\Magento2\Model\GatewayResponseTrait;
 use CheckoutCom\Magento2\Model\Method\CallbackMethod;
+use CheckoutCom\Magento2\Helper\Watchdog;
 use DomainException;
 
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
@@ -74,13 +76,18 @@ class CallbackService {
     protected $storeManager;
 
     /**
+     * @var Watchdog
+     */
+    private $watchdog;
+
+    /**
      * CallbackService constructor.
      * @param CallbackMethod $callbackMethod
      * @param CallbackEventAdapter $eventAdapter
      * @param OrderFactory $orderFactory
      * @param OrderRepositoryInterface $orderRepository
      */
-    public function __construct(CallbackMethod $callbackMethod, CallbackEventAdapter $eventAdapter, OrderFactory $orderFactory, OrderRepositoryInterface $orderRepository, GatewayConfig $gatewayConfig, InvoiceService $invoiceService, InvoiceRepositoryInterface $invoiceRepository, StoreCardService $storeCardService, CustomerFactory $customerFactory, StoreManagerInterface $storeManager) {
+    public function __construct(CallbackMethod $callbackMethod, CallbackEventAdapter $eventAdapter, OrderFactory $orderFactory, OrderRepositoryInterface $orderRepository, GatewayConfig $gatewayConfig, InvoiceService $invoiceService, InvoiceRepositoryInterface $invoiceRepository, StoreCardService $storeCardService, CustomerFactory $customerFactory, StoreManagerInterface $storeManager, Watchdog $watchdog) {
         $this->callbackMethod   = $callbackMethod;
         $this->eventAdapter     = $eventAdapter;
         $this->orderFactory     = $orderFactory;
@@ -91,6 +98,7 @@ class CallbackService {
         $this->storeCardService    = $storeCardService;
         $this->customerFactory = $customerFactory;
         $this->storeManager = $storeManager;
+        $this->watchdog = $watchdog;
     }
 
     /**
@@ -133,39 +141,25 @@ class CallbackService {
                     break;
             }
 
-            // Perform authorize complementary actions
-            if ($commandName == 'authorize') {
-                // Update order status
-                $order->setState('new');
-                $order->setStatus('pending');
+            // Perform authorize and capture complementary actions
+            if ($commandName == PaymentAction::ACTION_AUTHORIZE || $commandName == PaymentAction::ACTION_CAPTURE) {
+                // Perform authorize-specific complementary actions
+                if ($commandName == PaymentAction::ACTION_AUTHORIZE) {
+                    // Delete comments history
+                    foreach ($order->getAllStatusHistory() as $orderComment) {
+                        $orderComment->delete();
+                    } 
 
-                // Delete comments history
-                foreach ($order->getAllStatusHistory() as $orderComment) {
-                    $orderComment->delete();
-                } 
+                    // Set email sent
+                    $order->setEmailSent(1);
+                }
 
-                // Set email sent
-                $order->setEmailSent(1);
-
-                // Create new comment
-                $newComment = 'Authorized amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];
-
-                // Add the new comment
-                $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
-
-            }
-
-            // Perform capture complementary actions
-            if ($commandName == 'capture') {
-                // Update order status
-                $order->setState('new');
-                $order->setStatus($this->gatewayConfig->getNewOrderStatus());
-
-                // Create new comment
-                $newComment = 'Captured amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];
-
-                // Add the new comment
-                $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+                // Update order status and add new comment with notify flag set to true
+                $this->watchdog->updateOrderStatus(
+                    $order,
+                    $commandName == PaymentAction::ACTION_CAPTURE ? $this->gatewayConfig->getNewOrderStatus() : $this->gatewayConfig->getOrderStatus(),
+                    ucfirst($commandName) . 'd amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id']
+                );
             }
 
             $this->orderRepository->save($order);
