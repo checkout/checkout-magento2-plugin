@@ -16,6 +16,7 @@ class PaymentAction implements ArrayInterface
 {
 
     const ACTION_AUTHORIZE = 'authorize';
+    const ACTION_CAPTURE = 'capture';
     const ACTION_AUTHORIZE_CAPTURE = 'authorize_capture';
 
     /**

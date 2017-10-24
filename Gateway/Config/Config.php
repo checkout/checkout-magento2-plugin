@@ -53,6 +53,7 @@ class Config extends BaseConfig {
     const KEY_THEME_COLOR = 'theme_color';
     const KEY_BUTTON_LABEL = 'button_label';
 
+    const KEY_ORDER_STATUS = 'order_status';
     const KEY_NEW_ORDER_STATUS = 'new_order_status';
     const KEY_ACCEPTED_CURRENCIES = 'accepted_currencies';
     const KEY_PAYMENT_CURRENCY = 'payment_currency';
@@ -117,6 +118,15 @@ class Config extends BaseConfig {
      */
     public function getAutoGenerateInvoice() {
         return (bool) $this->getValue(self::KEY_AUTO_GENERATE_INVOICE);
+    }
+
+    /**
+     * Returns order status.
+     *
+     * @return string
+     */
+    public function getOrderStatus() {
+        return (string) $this->getValue(self::KEY_ORDER_STATUS);
     }
 
     /**

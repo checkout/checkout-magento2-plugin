@@ -234,6 +234,7 @@ class Verify extends AbstractAction {
         try {
 
             // Create order from quote
+            /** @var \Magento\Sales\Model\Order $order */
             $order = $this->quoteManagement->submit($quote);
             
             // Prepare the order in session (required for success page redirection)
@@ -243,8 +244,7 @@ class Verify extends AbstractAction {
                                        ->setLastOrderStatus($order->getStatus());
             
                 // Update order status
-                $order->setState('new');
-                $order->setStatus($this->gatewayConfig->getNewOrderStatus());
+                $this->watchdog->updateOrderStatus($order, $this->gatewayConfig->getNewOrderStatus());
 
                 // Set email sent
                 $order->setEmailSent(1);

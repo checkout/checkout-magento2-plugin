@@ -12,15 +12,25 @@ namespace CheckoutCom\Magento2\Helper;
 
 use Magento\Framework\Message\ManagerInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Sales\Model\Order;
+use Magento\Paypal\Model\Info;
+use Magento\Sales\Model\Order\Status as OrderStatus;
+use Magento\Sales\Model\ResourceModel\Order\Status\CollectionFactory as StatusCollectionFactory;
 
 class Watchdog {
 
     protected $messageManager;
     protected $config;
 
-    public function __construct(ManagerInterface $messageManager, Config $config) {
+    /**
+     * @var \Magento\Sales\Model\ResourceModel\Order\Status\CollectionFactory
+     */
+    private $statusCollectionFactory;
+
+    public function __construct(ManagerInterface $messageManager, Config $config, StatusCollectionFactory $statusCollectionFactory) {
         $this->messageManager = $messageManager;
         $this->config = $config;
+        $this->statusCollectionFactory = $statusCollectionFactory;
     }
 
     public function bark($data) {
@@ -48,6 +58,42 @@ class Watchdog {
             // Add the message
             if (isset($data['message'])) {
                 $this->messageManager->addNoticeMessage(__('Message') . ' : ' .  $data['message']);    
-            }                     }
+            }
+        }
+    }
+
+    /**
+     * Sets Order's Status or loads from config set one, based on it loads appropriate State
+     * If comment and notification flag are passed then Status History is set to given values
+     *
+     * @param Order $order
+     * @param null|string $status
+     * @param null|string $historyComment
+     * @param bool $isCustomerNotified
+     *
+     * @return $this
+     */
+    public function updateOrderStatus(Order $order, $status = null, $historyComment = null, $isCustomerNotified = true)
+    {
+        if (empty($status)) {
+            $status = Info::PAYMENTSTATUS_PENDING;
+        }
+
+        /** @var \Magento\Sales\Model\ResourceModel\Order\Status\Collection $statusCollection */
+        $statusCollection = $this->statusCollectionFactory->create()->joinStates();
+
+        /** @var OrderStatus $statusItem */
+        foreach ($statusCollection as $statusItem) {
+            if ($statusItem->getStatus() == $status) {
+                $order->setState($statusItem->getState());
+                break;
+            }
+        }
+
+        if (empty($historyComment) === false) {
+            $order->addStatusToHistory($status, $historyComment, $isCustomerNotified);
+        }
+
+        return $this;
     }
 }

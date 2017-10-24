@@ -41,6 +41,13 @@
                         <config_path>payment/checkout_com/sort_order</config_path>
                     </field>
 
+                    <field id="order_status" translate="label comment" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Order status</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
+                        <config_path>payment/checkout_com/order_status</config_path>
+                        <comment>Select the status that should be used for new orders with authorized payment confirmation.</comment>
+                    </field>
+
                     <field id="new_order_status" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>New order status</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
