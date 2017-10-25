@@ -23,6 +23,8 @@ define(
     function ($, Component, VaultEnabler, CheckoutCom, quote, url, additionalValidators) {
         'use strict';
 
+        window.checkoutConfig.reloadOnBillingAddress = true;
+
         return Component.extend({
             defaults: {
                 active: true,
