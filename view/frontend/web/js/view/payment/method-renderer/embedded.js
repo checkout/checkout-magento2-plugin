@@ -21,9 +21,10 @@ define(
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
+        'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/redirect-on-success'
     ],
-    function($, Component, VaultEnabler, CheckoutCom, quote, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, redirectOnSuccessAction, customer) {
+    function($, Component, VaultEnabler, CheckoutCom, quote, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, redirectOnSuccessAction, checkoutData, customer) {
         'use strict';
 
         return Component.extend({
@@ -122,7 +123,10 @@ define(
              */
             saveSessionData: function() {
                 // Prepare the session data
-                var sessionData = { saveShopperCard: $('#checkout_com_enable_vault').is(":checked") };
+                var sessionData = {
+                    saveShopperCard: $('#checkout_com_enable_vault').is(":checked"),
+                    customerEmail: checkoutData.getValidatedEmailValue()
+                };
 
                 // Send the session data to be saved
                 $.ajax({

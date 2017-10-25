@@ -18,10 +18,13 @@ define(
         'CheckoutCom_Magento2/js/view/payment/adapter',
         'Magento_Checkout/js/model/quote',
         'mage/url',
+        'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function ($, Component, VaultEnabler, CheckoutCom, quote, url, additionalValidators) {
+    function ($, Component, VaultEnabler, CheckoutCom, quote, url, checkoutData, additionalValidators) {
         'use strict';
+
+        window.checkoutConfig.reloadOnBillingAddress = true;
 
         return Component.extend({
             defaults: {
@@ -96,9 +99,12 @@ define(
             /**
              * @returns {void}
              */
-            saveSessionData: function() {
+            saveSessionData: function() {                
                 // Prepare the session data
-                var sessionData = {saveShopperCard: $('#checkout_com_enable_vault').is(":checked")};
+                var sessionData = {
+                    saveShopperCard: $('#checkout_com_enable_vault').is(":checked"),
+                    customerEmail: checkoutData.getValidatedEmailValue()
+                };
 
                 // Send the session data to be saved
                 $.ajax({
