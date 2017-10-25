@@ -136,8 +136,8 @@ class CallbackService {
             // Perform authorize complementary actions
             if ($commandName == 'authorize') {
                 // Update order status
-                $order->setState('new');
-                $order->setStatus('pending');
+                $order->setState(\Magento\Sales\Model\Order::STATE_NEW);
+                $order->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
 
                 // Delete comments history
                 foreach ($order->getAllStatusHistory() as $orderComment) {
@@ -158,7 +158,7 @@ class CallbackService {
             // Perform capture complementary actions
             if ($commandName == 'capture') {
                 // Update order status
-                $order->setState('new');
+                $order->setState(\Magento\Sales\Model\Order::STATE_NEW);
                 $order->setStatus($this->gatewayConfig->getNewOrderStatus());
 
                 // Create new comment
