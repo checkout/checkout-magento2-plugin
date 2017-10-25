@@ -27,6 +27,8 @@ define(
     function($, Component, VaultEnabler, CheckoutCom, quote, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, checkoutData, redirectOnSuccessAction, customer) {
         'use strict';
 
+        window.checkoutConfig.reloadOnBillingAddress = true;
+
         return Component.extend({
             defaults: {
                 active: true,
