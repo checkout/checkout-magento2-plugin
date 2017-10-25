@@ -24,7 +24,7 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/redirect-on-success'
     ],
-    function($, Component, VaultEnabler, CheckoutCom, quote, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, redirectOnSuccessAction, checkoutData, customer) {
+    function($, Component, VaultEnabler, CheckoutCom, quote, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, checkoutData, redirectOnSuccessAction, customer) {
         'use strict';
 
         return Component.extend({

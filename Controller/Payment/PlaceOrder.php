@@ -15,6 +15,7 @@ use Magento\Checkout\Model\Session;
 use Magento\Customer\Model\Session as CustomerSession;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use CheckoutCom\Magento2\Model\Service\OrderService;
+use Magento\Customer\Api\Data\GroupInterface;
 
 class PlaceOrder extends AbstractAction {
 
@@ -67,7 +68,10 @@ class PlaceOrder extends AbstractAction {
             && isset($this->customerSession->getData('checkoutSessionData')['customerEmail'])
             && $this->customerSession->getData('checkoutSessionData')['customerEmail'] === $email) 
         {
-            $quote->setCustomerEmail($email);
+            $quote->setCustomerId(null)
+            ->setCustomerEmail($email)
+            ->setCustomerIsGuest(true)
+            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
         }
 
         // Perform quote and order validation

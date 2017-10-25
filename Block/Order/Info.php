@@ -84,7 +84,6 @@ class Info extends \Magento\Framework\View\Element\Template
         $method = $payment->getMethodInstance();
         
         return $method->getTitle();
-
     }
 
     /**

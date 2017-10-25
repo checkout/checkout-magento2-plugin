@@ -132,7 +132,6 @@ define(
                     $('#checkout_com-hosted-form').submit();
                 }
             }
-
         });
     }
 
