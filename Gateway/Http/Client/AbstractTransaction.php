@@ -20,6 +20,7 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Checkout\Model\Cart;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Model\QuoteManagement;
+use Magento\Customer\Model\Session as CustomerSession;
 use CheckoutCom\Magento2\Model\GatewayResponseHolder;
 use CheckoutCom\Magento2\Gateway\Exception\ApiClientException;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
@@ -72,13 +73,18 @@ abstract class AbstractTransaction implements ClientInterface {
     protected $quoteManagement;
 
     /**
+     * @var CustomerSession
+     */
+    protected $customerSession;
+
+    /**
      * AbstractTransaction constructor.
      * @param Logger $logger
      * @param ZendClient $clientFactory
      * @param ManagerInterface $messageManager
      * @param GatewayResponseHolder $gatewayResponseHolder
      */
-    public function __construct(Logger $logger, ZendClient $clientFactory, ManagerInterface $messageManager, GatewayResponseHolder $gatewayResponseHolder, Cart $cart, CartManagementInterface $cartManagement, QuoteManagement $quoteManagement) {
+    public function __construct(Logger $logger, ZendClient $clientFactory, ManagerInterface $messageManager, GatewayResponseHolder $gatewayResponseHolder, Cart $cart, CartManagementInterface $cartManagement, QuoteManagement $quoteManagement, CustomerSession $customerSession) {
         $this->logger                   = $logger;
         $this->clientFactory            = $clientFactory;
         $this->messageManager           = $messageManager;
@@ -86,6 +92,7 @@ abstract class AbstractTransaction implements ClientInterface {
         $this->cart                     = $cart;
         $this->cartManagement           = $cartManagement;
         $this->quoteManagement          = $quoteManagement;
+        $this->customerSession          = $customerSession;
     }
 
     /**
@@ -113,6 +120,9 @@ abstract class AbstractTransaction implements ClientInterface {
 
         // Prepare the transfert data
         $this->prepareTransfer($transferObject);
+
+        // Update the email field for guest users
+        $this->updateGuestEmail($this->body);
 
         // Prepare some log data
         $log = [
@@ -167,6 +177,21 @@ abstract class AbstractTransaction implements ClientInterface {
         }
 
         return $result;
+    }
+
+    /**
+     * Adds the shopper email if not available in the request.
+     * The shopper email will be missing (null) in case of guest checkout.
+     *
+     * @param TransferInterface $transferObject
+     */
+    protected function updateGuestEmail($requestBody) {
+
+        if (isset($requestBody['email']) && (empty($requestBody['email']) || !$requestBody['email'])) {
+            $requestBody['email'] = $this->customerSession->getData('checkoutSessionData')['customerEmail'];
+        }
+
+        return $requestBody;
     }
 
     /**

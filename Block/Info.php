@@ -24,5 +24,4 @@ class Info extends ConfigurableInfo {
     protected function getLabel($field) {
         return __($field);
     }
-
 }

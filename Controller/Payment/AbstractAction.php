@@ -47,14 +47,6 @@ abstract class AbstractAction extends Action {
      * @throws NotFoundException
      */
     public function dispatch(RequestInterface $request) {
-        //if( ! $this->gatewayConfig->isActive() ) {
-        //    $this->_actionFlag->set('', self::FLAG_NO_DISPATCH, true);
-            /** @var Redirect $resultRedirect */
-        //    $resultRedirect = $this->resultRedirectFactory->create();
-        //    $resultRedirect->setPath('noRoute');
-
-        //    return $resultRedirect;
-        // }
 
         return parent::dispatch($request);
     }

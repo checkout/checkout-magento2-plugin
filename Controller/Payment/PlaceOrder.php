@@ -12,8 +12,10 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session;
+use Magento\Customer\Model\Session as CustomerSession;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use CheckoutCom\Magento2\Model\Service\OrderService;
+use Magento\Customer\Api\Data\GroupInterface;
 
 class PlaceOrder extends AbstractAction {
 
@@ -28,16 +30,22 @@ class PlaceOrder extends AbstractAction {
     protected $orderService;
 
     /**
+     * @var CustomerSession
+     */
+    protected $customerSession;
+
+    /**
      * PlaceOrder constructor.
      * @param Context $context
      * @param Session $session
      * @param GatewayConfig $gatewayConfig
      * @param OrderService $orderService
      */
-    public function __construct(Context $context, Session $session, GatewayConfig $gatewayConfig, OrderService $orderService) {
+    public function __construct(Context $context, Session $session, GatewayConfig $gatewayConfig, OrderService $orderService, CustomerSession $customerSession) {
         parent::__construct($context, $gatewayConfig);
 
         $this->session          = $session;
+        $this->customerSession  = $customerSession;
         $this->orderService     = $orderService;
     }
 
@@ -47,13 +55,24 @@ class PlaceOrder extends AbstractAction {
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function execute() {
-
         // Retrieve the request parameters
         $resultRedirect = $this->getResultRedirect();
         $cardToken      = $this->getRequest()->getParam('cko-card-token');
         $email          = $this->getRequest()->getParam('cko-context-id');
         $agreement      = array_keys($this->getRequest()->getPostValue('agreement', []));
         $quote          = $this->session->getQuote();
+
+        // Check for guest email
+        if ($quote->getCustomerEmail() === null
+            && $this->customerSession->isLoggedIn() === false
+            && isset($this->customerSession->getData('checkoutSessionData')['customerEmail'])
+            && $this->customerSession->getData('checkoutSessionData')['customerEmail'] === $email) 
+        {
+            $quote->setCustomerId(null)
+            ->setCustomerEmail($email)
+            ->setCustomerIsGuest(true)
+            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
+        }
 
         // Perform quote and order validation
         try {
