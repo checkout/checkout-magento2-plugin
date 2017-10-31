@@ -19,46 +19,41 @@
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_capture_vault>1</can_capture_vault>
                 <can_charge_details>1</can_charge_details>
-                <order_status>processing</order_status>
-                <new_order_status>complete</new_order_status>
+                <new_order_status>pending</new_order_status>
+                <order_status_authorized>pending_payment</order_status_authorized>
+                <order_status_captured>processing</order_status_captured>
+                <order_status_refunded>canceled</order_status_refunded>
+                <order_status_flagged>fraud</order_status_flagged>
                 <payment_currency>base_currency</payment_currency>
                 <custom_currency>USD</custom_currency>
                 <accepted_currencies>USD</accepted_currencies>
                 <attemptN3D>0</attemptN3D>
                 <auto_generate_invoice>1</auto_generate_invoice>
-
                 <theme_color>#00b660</theme_color>
                 <button_label>Pay Now</button_label>
                 <payment_mode>cards</payment_mode>
                 <embedded_theme>standard</embedded_theme>
                 <css_file>default</css_file>
                 <custom_css></custom_css>
-          
                 <environment>sandbox</environment>
                 <integration>hosted</integration>
                 <payment_action>authorize</payment_action>
                 <auto_capture>0</auto_capture>
                 <auto_capture_time>0</auto_capture_time>
-
                 <public_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <private_shared_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
- 
                 <sandbox_api_url><![CDATA[https://sandbox.checkout.com/api2/v2/]]></sandbox_api_url>
                 <live_api_url><![CDATA[https://api2.checkout.com/v2/]]></live_api_url>
-
                 <sandbox_embedded_url><![CDATA[https://cdn.checkout.com/v2/sandbox/js/checkout.js]]></sandbox_embedded_url>
                 <live_embedded_url><![CDATA[https://cdn.checkout.com/v2/js/checkout.js]]></live_embedded_url>
                 <embedded_css><![CDATA[https://cdn.checkout.com/v2/js/css/checkout.js.css]]></embedded_css>
-
                 <sandbox_hosted_url><![CDATA[https://secure1.checkout.com/sandbox/payment/]]></sandbox_hosted_url>
                 <live_hosted_url><![CDATA[https://secure1.checkout.com/payment/]]></live_hosted_url>
-
                 <sort_order>1</sort_order>
                 <debugReplaceKeys>public_key,secret_key</debugReplaceKeys>
                 <masked_fields>cvv,number</masked_fields>
                 <paymentInfoKeys>cc_type,cc_number,card_expiry_month,card_expiry_year,card_last_4,status,responseMessage,responseAdvancedInfo,responseCode,authCode,three_d_secure</paymentInfoKeys>
-
                 <useccv>1</useccv>
                 <save_card_check_amount>1.00</save_card_check_amount>
                 <save_card_check_currency>USD</save_card_check_currency>

@@ -136,8 +136,7 @@ class CallbackService {
             // Perform authorize complementary actions
             if ($commandName == 'authorize') {
                 // Update order status
-                $order->setState(\Magento\Sales\Model\Order::STATE_NEW);
-                $order->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
+                $order->setStatus($this->gatewayConfig->getOrderStatusAuthorized());
 
                 // Delete comments history
                 foreach ($order->getAllStatusHistory() as $orderComment) {
@@ -158,8 +157,7 @@ class CallbackService {
             // Perform capture complementary actions
             if ($commandName == 'capture') {
                 // Update order status
-                $order->setState(\Magento\Sales\Model\Order::STATE_NEW);
-                $order->setStatus($this->gatewayConfig->getNewOrderStatus());
+                $order->setStatus($this->gatewayConfig->getOrderStatusCaptured());
 
                 // Create new comment
                 $newComment = 'Captured amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];

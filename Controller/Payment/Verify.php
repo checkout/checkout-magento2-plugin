@@ -243,8 +243,7 @@ class Verify extends AbstractAction {
                                        ->setLastOrderStatus($order->getStatus());
             
                 // Update order status
-                $order->setState(\Magento\Sales\Model\Order::STATE_NEW);
-                $order->setStatus($this->gatewayConfig->getNewOrderStatus());
+                $order->setStatus($this->gatewayConfig->getOrderStatusCaptured());
 
                 // Set email sent
                 $order->setEmailSent(1);

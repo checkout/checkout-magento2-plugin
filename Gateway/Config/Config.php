@@ -23,7 +23,6 @@ class Config extends BaseConfig {
     const KEY_CC_TYPES = 'cctypes';
     const KEY_USE_CVV = 'useccv';
     const KEY_COUNTRY_CREDIT_CARD = 'countrycreditcard';
-
     const KEY_INTEGRATION = 'integration';
     const KEY_PUBLIC_KEY = 'public_key';
     const KEY_SECRET_KEY = 'secret_key';
@@ -32,39 +31,34 @@ class Config extends BaseConfig {
     const KEY_AUTO_CAPTURE_TIME = 'auto_capture_time';
     const KEY_VERIFY_3DSECURE = 'verify_3dsecure';
     const KEY_ATTEMPT_N3D = 'attemptN3D';
-
     const KEY_SANDBOX_API_URL = 'sandbox_api_url';
     const KEY_LIVE_API_URL = 'live_api_url';
-
     const KEY_SANDBOX_EMBEDDED_URL = 'sandbox_embedded_url';
     const KEY_SANDBOX_HOSTED_URL = 'sandbox_hosted_url';
     const KEY_LIVE_EMBEDDED_URL = 'live_embedded_url';
     const KEY_LIVE_HOSTED_URL = 'live_hosted_url';
-
     const MIN_AUTO_CAPTURE_TIME = 0;
     const MAX_AUTO_CAPTURE_TIME = 168;
-
-    CONST KEY_USE_DESCRIPTOR = 'descriptor_enable';
+    const KEY_USE_DESCRIPTOR = 'descriptor_enable';
     const KEY_DESCRIPTOR_NAME = 'descriptor_name';
     const KEY_DESCRIPTOR_CITY = 'descriptor_city';
-
     const CODE_3DSECURE = 'three_d_secure';
-
     const KEY_THEME_COLOR = 'theme_color';
     const KEY_BUTTON_LABEL = 'button_label';
-
     const KEY_NEW_ORDER_STATUS = 'new_order_status';
+    const KEY_ORDER_STATUS_AUTHORIZED = 'order_status_authorized';
+    const KEY_ORDER_STATUS_CAPTURED = 'order_status_captured';
+    const KEY_ORDER_STATUS_REFUNDED = 'order_status_refunded';
+    const KEY_ORDER_STATUS_FLAGGED = 'order_status_flagged';
     const KEY_ACCEPTED_CURRENCIES = 'accepted_currencies';
     const KEY_PAYMENT_CURRENCY = 'payment_currency';
     const KEY_CUSTOM_CURRENCY = 'custom_currency';
     const KEY_PAYMENT_MODE = 'payment_mode';
     const KEY_AUTO_GENERATE_INVOICE = 'auto_generate_invoice';
-
     const KEY_EMBEDDED_THEME = 'embedded_theme';
     const KEY_EMBEDDED_CSS = 'embedded_css';
     const KEY_CUSTOM_CSS = 'custom_css';
     const KEY_CSS_FILE = 'css_file';
-
     const KEY_VAULT_TITLE = 'checkout_com_cc_vault/title';
 
     /**
@@ -126,6 +120,42 @@ class Config extends BaseConfig {
      */
     public function getNewOrderStatus() {
         return (string) $this->getValue(self::KEY_NEW_ORDER_STATUS);
+    }
+
+    /**
+     * Returns the authorized order status.
+     *
+     * @return string
+     */
+    public function getOrderStatusAuthorized() {
+        return (string) $this->getValue(self::KEY_ORDER_STATUS_AUTHORIZED);
+    }
+
+    /**
+     * Returns the captured order status.
+     *
+     * @return string
+     */
+    public function getOrderStatusCaptured() {
+        return (string) $this->getValue(self::KEY_ORDER_STATUS_CAPTURED);
+    }
+
+    /**
+     * Returns the refunded order status.
+     *
+     * @return string
+     */
+    public function getOrderStatusRefunded() {
+        return (string) $this->getValue(self::KEY_ORDER_STATUS_REFUNDED);
+    }
+
+    /**
+     * Returns the flagged order status.
+     *
+     * @return string
+     */
+    public function getOrderStatusFlagged() {
+        return (string) $this->getValue(self::KEY_ORDER_STATUS_FLAGGED);
     }
 
     /**
