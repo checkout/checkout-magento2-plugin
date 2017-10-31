@@ -172,7 +172,7 @@
                 </group>
 
                 <group id="checkout_com_order_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="4">
-                    <label>New order Settings</label>
+                    <label>Order Settings</label>
 
                     <field id="new_order_status" translate="label comment" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>New order status</label>
@@ -217,6 +217,16 @@
                             When set to "Yes", an invoice will be generated automatically for the new order status selected above.
                         </comment>
                     </field>
+
+                    <field id="order_comments_override" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Override order comments</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com/order_comments_override</config_path>
+                        <comment>
+                            Set to "Yes" when using multiple currencies to avoid orders being flagged as fraud by Magento core.
+                        </comment>
+                    </field>
+
                 </group>
 
                 <group id="checkout_com_currency_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="5">

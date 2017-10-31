@@ -24,6 +24,7 @@
                 <order_status_captured>processing</order_status_captured>
                 <order_status_refunded>canceled</order_status_refunded>
                 <order_status_flagged>fraud</order_status_flagged>
+                <order_comments_override>1</order_comments_override>
                 <payment_currency>base_currency</payment_currency>
                 <custom_currency>USD</custom_currency>
                 <accepted_currencies>USD</accepted_currencies>

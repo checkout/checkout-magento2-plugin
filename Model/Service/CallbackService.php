@@ -114,6 +114,8 @@ class CallbackService {
         $order      = $this->getAssociatedOrder();
         $payment    = $order->getPayment();
 
+        $overrideComments = $this->gatewayConfig->overrideOrderComments();
+
         if($payment instanceof Payment) {
             $infoInstance = $payment->getMethodInstance()->getInfoInstance();
             $this->callbackMethod->setInfoInstance($infoInstance);
@@ -138,20 +140,21 @@ class CallbackService {
                 // Update order status
                 $order->setStatus($this->gatewayConfig->getOrderStatusAuthorized());
 
-                // Delete comments history
-                foreach ($order->getAllStatusHistory() as $orderComment) {
-                    $orderComment->delete();
-                } 
-
                 // Set email sent
                 $order->setEmailSent(1);
 
-                // Create new comment
-                $newComment = 'Authorized amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];
+                if ($overrideComments) {
+                    // Delete comments history
+                    foreach ($order->getAllStatusHistory() as $orderComment) {
+                        $orderComment->delete();
+                    } 
 
-                // Add the new comment
-                $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+                    // Create new comment
+                    $newComment = 'Authorized amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];
 
+                    // Add the new comment
+                    $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+                }
             }
 
             // Perform capture complementary actions
@@ -159,13 +162,16 @@ class CallbackService {
                 // Update order status
                 $order->setStatus($this->gatewayConfig->getOrderStatusCaptured());
 
-                // Create new comment
-                $newComment = 'Captured amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];
+                if ($overrideComments) {
+                    // Create new comment
+                    $newComment = 'Captured amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];
 
-                // Add the new comment
-                $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+                    // Add the new comment
+                    $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+                }
             }
 
+            // Save the order
             $this->orderRepository->save($order);
         }
     }

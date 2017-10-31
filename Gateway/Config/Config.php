@@ -60,7 +60,7 @@ class Config extends BaseConfig {
     const KEY_CUSTOM_CSS = 'custom_css';
     const KEY_CSS_FILE = 'css_file';
     const KEY_VAULT_TITLE = 'checkout_com_cc_vault/title';
-
+    const KEY_ORDER_COMMENTS_OVERRIDE = 'order_comments_override';
     /**
      * @var array
      */
@@ -217,6 +217,15 @@ class Config extends BaseConfig {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $quote = $objectManager->create('Magento\Checkout\Model\Session')->getQuote();     
         return (bool) in_array($quote->getQuoteCurrencyCode(), $this->getAcceptedCurrencies());
+    }
+
+    /**
+     * Determines if the core order comments need override.
+     *
+     * @return bool
+     */
+    public function overrideOrderComments() {
+        return (bool) $this->getValue(self::KEY_ORDER_COMMENTS_OVERRIDE);
     }
 
     /**
