@@ -64,9 +64,16 @@ class TransactionHandler implements HandlerInterface {
 
     protected $messageManager;
 
-    public function __construct(Session $session, VaultTokenFactory $vaultTokenFactory, 
-            PaymentTokenRepositoryInterface $paymentTokenRepository, PaymentTokenManagementInterface $paymentTokenManagement, CustomerSession $customerSession, 
-ManagerInterface $messageManager, VerifyPaymentService $verifyPaymentService, Watchdog $watchdog) {
+    public function __construct(
+        Session $session,
+        VaultTokenFactory $vaultTokenFactory,
+        PaymentTokenRepositoryInterface $paymentTokenRepository,
+        PaymentTokenManagementInterface $paymentTokenManagement,
+        CustomerSession $customerSession, 
+        ManagerInterface $messageManager,
+        VerifyPaymentService $verifyPaymentService,
+        Watchdog $watchdog
+    ) {
         $this->session = $session;
         $this->vaultTokenFactory    = $vaultTokenFactory;
         $this->paymentTokenRepository   = $paymentTokenRepository;
@@ -134,7 +141,7 @@ ManagerInterface $messageManager, VerifyPaymentService $verifyPaymentService, Wa
             $payment->setIsTransactionClosed(true);
         }
 
-        // Prepare 3D Secure redirection with session variable
+        // Prepare 3D Secure redirection with session variable for post auth order
         if (array_key_exists(self::REDIRECT_URL, $response)) {
             
             // Get the 3DS redirection URL

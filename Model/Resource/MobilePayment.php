@@ -174,7 +174,6 @@ class MobilePayment implements MobilePaymentInterface
 
             // If the product id is valid
             if ((int) $product->id > 0) {
-
                 // Load the product object
                 $p = $this->productManager->load($product->id);
 
@@ -183,8 +182,6 @@ class MobilePayment implements MobilePaymentInterface
                     'name' => $p->getName(),
                     'price' => number_format($p->getPrice(), 2),
                     'quantity' => (int) $product->quantity,
-                    //'description' => $p->getData('description'),
-                    //'image' => null,
                 );
             }
         }

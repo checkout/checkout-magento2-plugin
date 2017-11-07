@@ -19,9 +19,10 @@ define(
         'Magento_Checkout/js/model/quote',
         'mage/url',
         'Magento_Checkout/js/checkout-data',
+        'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function ($, Component, VaultEnabler, CheckoutCom, quote, url, checkoutData, additionalValidators) {
+    function ($, Component, VaultEnabler, CheckoutCom, quote, url, checkoutData, fullScreenLoader, additionalValidators) {
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true;
@@ -56,7 +57,7 @@ define(
             /**
              * @returns {string}
              */
-            getPaymentToken: function() {
+            getPaymentToken: function() {                
                 return CheckoutCom.getPaymentConfig()['payment_token'];
             },
 
@@ -64,7 +65,6 @@ define(
              * @returns {string}
              */
             getQuoteValue: function() {
-               //return CheckoutCom.getPaymentConfig()['quote_value'];
                return (quote.getTotals()().grand_total*100).toFixed(2);
             },
 
@@ -99,21 +99,23 @@ define(
             /**
              * @returns {void}
              */
-            saveSessionData: function() {                
-                // Prepare the session data
-                var sessionData = {
-                    saveShopperCard: $('#checkout_com_enable_vault').is(":checked"),
-                    customerEmail: checkoutData.getValidatedEmailValue()
-                };
-
+            saveSessionData: function(dataToSave) {                
                 // Send the session data to be saved
                 $.ajax({
                     url : url.build('checkout_com/shopper/sessionData'),
                     type: "POST",
-                    data : sessionData,
+                    data : dataToSave,
                     success: function(data, textStatus, xhr) { },
                     error: function (xhr, textStatus, error) { } // todo - improve error handling
                 });
+            },
+
+            /**
+             * @returns {string}
+             */
+            proceedWithSubmission: function() {
+                // Submit the form
+                $('#checkout_com-hosted-form').submit();
             },
 
             /**
@@ -125,11 +127,68 @@ define(
 
                 // Validate before submission
                 if (additionalValidators.validate()) {
-                    // Set the save card option in session
-                    self.saveSessionData();
+                    // Payment action
+                    if (CheckoutCom.getPaymentConfig()['order_creation'] == 'before_auth') {
 
-                    // Submit the form
-                    $('#checkout_com-hosted-form').submit();
+                        // Start the loader
+                        fullScreenLoader.startLoader();
+
+                        // Prepare the vars
+                        var ajaxRequest;
+                        var orderData = {
+                            "cko-card-token": null, 
+                            "cko-context-id": self.getEmailAddress(),
+                            "agreement": [true]
+                        };
+                        
+                        // Avoid duplicate requests
+                        if (ajaxRequest) {
+                            ajaxRequest.abort();
+                        }
+
+                        // Send the request
+                        ajaxRequest = $.ajax({
+                            url: url.build('checkout_com/payment/placeOrderAjax'),
+                            type: "post",
+                            data: orderData
+                        });
+
+                        // Callback handler on success
+                        ajaxRequest.done(function (response, textStatus, jqXHR){
+
+                            // Save order track id response object in session
+                            self.saveSessionData({
+                                saveShopperCard: $('#checkout_com_enable_vault').is(":checked"),
+                                customerEmail: self.getEmailAddress(),
+                                orderTrackId: response.trackId
+                            });
+
+                            // Proceed with submission
+                            fullScreenLoader.stopLoader();
+                            self.proceedWithSubmission();
+                        });
+
+                        // Callback handler on failure
+                        ajaxRequest.fail(function (jqXHR, textStatus, errorThrown){
+                            // Todo - improve error handling
+                        });
+
+                        // Callback handler always
+                        ajaxRequest.always(function () {
+                            // Stop the loader
+                            fullScreenLoader.stopLoader();
+                        });
+                    }
+                    else if (CheckoutCom.getPaymentConfig()['order_creation'] == 'after_auth') {
+                        // Save the session data
+                        self.saveSessionData({
+                            saveShopperCard: $('#checkout_com_enable_vault').is(":checked"),
+                            customerEmail: self.getEmailAddress()
+                        });
+
+                        // Proceed with submission
+                        self.proceedWithSubmission();
+                    }
                 }
             }
         });

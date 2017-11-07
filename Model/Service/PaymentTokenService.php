@@ -59,7 +59,13 @@ class PaymentTokenService {
      * @param StoreManagerInterface $storeManager
      * @param Watchdog $watchdog
     */
-    public function __construct(GatewayConfig $gatewayConfig, TransferFactory $transferFactory, Session $checkoutSession, StoreManagerInterface $storeManager, Watchdog $watchdog) {
+    public function __construct(
+        GatewayConfig $gatewayConfig,
+        TransferFactory $transferFactory,
+        Session $checkoutSession,
+        StoreManagerInterface $storeManager,
+        Watchdog $watchdog
+    ) {
         $this->gatewayConfig    = $gatewayConfig;
         $this->transferFactory  = $transferFactory;
         $this->checkoutSession = $checkoutSession;

@@ -61,6 +61,8 @@ class Config extends BaseConfig {
     const KEY_CSS_FILE = 'css_file';
     const KEY_VAULT_TITLE = 'checkout_com_cc_vault/title';
     const KEY_ORDER_COMMENTS_OVERRIDE = 'order_comments_override';
+    const KEY_ORDER_CREATION = 'order_creation';
+
     /**
      * @var array
      */
@@ -407,6 +409,15 @@ class Config extends BaseConfig {
      */
     public function getCssFile() {
         return (string) $this->getValue(self::KEY_CSS_FILE);
+    }
+
+    /**
+     * Returns the new order creation setting.
+     *
+     * @return string
+     */
+    public function getOrderCreation() {
+        return (string) $this->getValue(self::KEY_ORDER_CREATION);
     }
 
     /**

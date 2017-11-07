@@ -10,25 +10,24 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use DomainException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\App\ObjectManager;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\OrderFactory;
+use Magento\Sales\Model\Service\InvoiceService;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Customer\Model\CustomerFactory;
+use Magento\Store\Model\StoreManagerInterface;
 use CheckoutCom\Magento2\Model\Adapter\CallbackEventAdapter;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Model\GatewayResponseHolder;
 use CheckoutCom\Magento2\Model\GatewayResponseTrait;
 use CheckoutCom\Magento2\Model\Method\CallbackMethod;
-use DomainException;
-
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
-use Magento\Sales\Model\Service\InvoiceService;
-use Magento\Sales\Model\Order\Invoice;
-use Magento\Sales\Api\InvoiceRepositoryInterface;
 use CheckoutCom\Magento2\Model\Service\StoreCardService;
-use Magento\Customer\Model\CustomerFactory;
-use Magento\Store\Model\StoreManagerInterface;
 
 class CallbackService {
 
@@ -69,8 +68,19 @@ class CallbackService {
      */
     protected $invoiceRepository;
 
+    /**
+     * @var StoreCardService
+     */
     protected $storeCardService;
+
+    /**
+     * @var CustomerFactory
+     */
     protected $customerFactory;
+
+    /**
+     * @var StoreManagerInterface
+     */
     protected $storeManager;
 
     /**
@@ -80,7 +90,18 @@ class CallbackService {
      * @param OrderFactory $orderFactory
      * @param OrderRepositoryInterface $orderRepository
      */
-    public function __construct(CallbackMethod $callbackMethod, CallbackEventAdapter $eventAdapter, OrderFactory $orderFactory, OrderRepositoryInterface $orderRepository, GatewayConfig $gatewayConfig, InvoiceService $invoiceService, InvoiceRepositoryInterface $invoiceRepository, StoreCardService $storeCardService, CustomerFactory $customerFactory, StoreManagerInterface $storeManager) {
+    public function __construct(
+        CallbackMethod $callbackMethod,
+        CallbackEventAdapter $eventAdapter,
+        OrderFactory $orderFactory,
+        OrderRepositoryInterface $orderRepository,
+        GatewayConfig $gatewayConfig,
+        InvoiceService $invoiceService,
+        InvoiceRepositoryInterface $invoiceRepository,
+        StoreCardService $storeCardService,
+        CustomerFactory $customerFactory,
+        StoreManagerInterface $storeManager
+    ) {
         $this->callbackMethod   = $callbackMethod;
         $this->eventAdapter     = $eventAdapter;
         $this->orderFactory     = $orderFactory;
@@ -100,49 +121,45 @@ class CallbackService {
      * @throws LocalizedException
      */
     public function run() {
-        if( ! $this->gatewayResponse) {
+        if(!$this->gatewayResponse) {
             throw new DomainException('The response is empty.');
         }
 
+        // Set the gateway response
         $this->callbackMethod->setGatewayResponse($this->gatewayResponse);
 
+        // Perform tasks and prepare data
         $commandName    = $this->getCommandName();
         $amount         = $this->getAmount();
-
-        $this->callbackMethod->validate();
-
         $order      = $this->getAssociatedOrder();
         $payment    = $order->getPayment();
 
+        // Get override comments setting from config
         $overrideComments = $this->gatewayConfig->overrideOrderComments();
 
-        if($payment instanceof Payment) {
+        // Process the payment
+        if ($payment instanceof Payment) {
+            // Prepare payment info
             $infoInstance = $payment->getMethodInstance()->getInfoInstance();
             $this->callbackMethod->setInfoInstance($infoInstance);
-
             $this->putGatewayResponseToHolder();
 
-            // Perform the required action on transaction
-            switch($commandName) {
-                case 'capture':
-                    $this->callbackMethod->capture($payment, $amount);
-                    break;
-                case 'refund':
-                    $this->callbackMethod->refund($payment, $amount);
-                    break;
-                case 'void':
-                    $this->callbackMethod->void($payment);
-                    break;
+            // Test the command name
+            if ($commandName == 'refund') {
+                $this->callbackMethod->refund($payment, $amount);
             }
-
+            else if ($commandName == 'void') {
+                $this->callbackMethod->void($payment);
+            }
             // Perform authorize complementary actions
-            if ($commandName == 'authorize') {
+            else if ($commandName == 'authorize') {
                 // Update order status
                 $order->setStatus($this->gatewayConfig->getOrderStatusAuthorized());
 
                 // Set email sent
                 $order->setEmailSent(1);
 
+                // Comments override
                 if ($overrideComments) {
                     // Delete comments history
                     foreach ($order->getAllStatusHistory() as $orderComment) {
@@ -158,10 +175,11 @@ class CallbackService {
             }
 
             // Perform capture complementary actions
-            if ($commandName == 'capture') {
+            else if ($commandName == 'capture') {
                 // Update order status
                 $order->setStatus($this->gatewayConfig->getOrderStatusCaptured());
 
+                // Comments override
                 if ($overrideComments) {
                     // Create new comment
                     $newComment = 'Captured amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];

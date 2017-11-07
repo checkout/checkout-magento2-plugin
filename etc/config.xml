@@ -19,6 +19,7 @@
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_capture_vault>1</can_capture_vault>
                 <can_charge_details>1</can_charge_details>
+                <order_creation>after_auth</order_creation>
                 <new_order_status>pending</new_order_status>
                 <order_status_authorized>pending_payment</order_status_authorized>
                 <order_status_captured>processing</order_status_captured>
@@ -28,6 +29,7 @@
                 <payment_currency>base_currency</payment_currency>
                 <custom_currency>USD</custom_currency>
                 <accepted_currencies>USD</accepted_currencies>
+                <verify_3dsecure>0</verify_3dsecure>
                 <attemptN3D>0</attemptN3D>
                 <auto_generate_invoice>1</auto_generate_invoice>
                 <theme_color>#00b660</theme_color>

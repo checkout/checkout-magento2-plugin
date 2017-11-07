@@ -124,10 +124,13 @@ define(
              * @returns {void}
              */
             saveSessionData: function() {
+                // Get self
+                var self = this;
+
                 // Prepare the session data
                 var sessionData = {
                     saveShopperCard: $('#checkout_com_enable_vault').is(":checked"),
-                    customerEmail: checkoutData.getValidatedEmailValue()
+                    customerEmail: self.getEmailAddress()
                 };
 
                 // Send the session data to be saved
@@ -210,14 +213,13 @@ define(
                     theme: ckoTheme,
                     themeOverride: ckoThemeOverride,
                     cardTokenised: function(event) {
-
                         // Set the card token
                         self.setCardTokenId(event.data.cardToken);
 
+                        // Place order
                         if (threeds_enabled) {
                             window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
                         } else {
-                            // Place order
                             self.placeOrder();
                         }
                     },

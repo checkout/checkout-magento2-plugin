@@ -174,51 +174,16 @@
                 <group id="checkout_com_order_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="4">
                     <label>Order Settings</label>
 
-                    <field id="new_order_status" translate="label comment" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>New order status</label>
-                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
-                        <config_path>payment/checkout_com/new_order_status</config_path>
-                        <comment>Select the status that should be used for new orders.</comment>
-                    </field>
-
-                    <field id="order_status_authorized" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Authorization order status</label>
-                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
-                        <config_path>payment/checkout_com/order_status_authorized</config_path>
-                        <comment>Select the status that should be used for orders with successful payment authorisation.</comment>
-                    </field>
-
-                    <field id="order_status_captured" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Capture order status</label>
-                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
-                        <config_path>payment/checkout_com/order_status_captured</config_path>
-                        <comment>Select the status that should be used for orders with successful payment capture.</comment>
-                    </field>
-
-                    <field id="order_status_refunded" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Refund order status</label>
-                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
-                        <config_path>payment/checkout_com/order_status_refunded</config_path>
-                        <comment>Select the status that should be used for new orders with successful payment refund.</comment>
-                    </field>
-
-                    <field id="order_status_flagged" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Flagged order status</label>
-                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
-                        <config_path>payment/checkout_com/order_status_flagged</config_path>
-                        <comment>Select the status that should be used for flagged orders.</comment>
-                    </field>
-
-                    <field id="auto_generate_invoice" translate="label comment" sortOrder="50" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Automatically generate invoice</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com/auto_generate_invoice</config_path>
+                    <field id="order_creation" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Order creation</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderCreation</source_model>
+                        <config_path>payment/checkout_com/order_creation</config_path>
                         <comment>
-                            When set to "Yes", an invoice will be generated automatically for the captured order status selected above.
+                            Define if new orders should be created before or after payment authorization. Works with the Hosted integration only.
                         </comment>
                     </field>
 
-                    <field id="order_comments_override" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="order_comments_override" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Override order comments</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkout_com/order_comments_override</config_path>
@@ -227,6 +192,49 @@
                         </comment>
                     </field>
 
+                    <field id="new_order_status" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>New order status</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
+                        <config_path>payment/checkout_com/new_order_status</config_path>
+                        <comment>Select the status that should be used for new orders.</comment>
+                    </field>
+
+                    <field id="order_status_authorized" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Authorization order status</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
+                        <config_path>payment/checkout_com/order_status_authorized</config_path>
+                        <comment>Select the status that should be used for orders with successful payment authorisation.</comment>
+                    </field>
+
+                    <field id="order_status_captured" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Capture order status</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
+                        <config_path>payment/checkout_com/order_status_captured</config_path>
+                        <comment>Select the status that should be used for orders with successful payment capture.</comment>
+                    </field>
+
+                    <field id="order_status_refunded" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Refund order status</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
+                        <config_path>payment/checkout_com/order_status_refunded</config_path>
+                        <comment>Select the status that should be used for new orders with successful payment refund.</comment>
+                    </field>
+
+                    <field id="order_status_flagged" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Flagged order status</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
+                        <config_path>payment/checkout_com/order_status_flagged</config_path>
+                        <comment>Select the status that should be used for flagged orders.</comment>
+                    </field>
+
+                    <field id="auto_generate_invoice" translate="label comment" sortOrder="70" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Automatically generate invoice</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com/auto_generate_invoice</config_path>
+                        <comment>
+                            When set to "Yes", an invoice will be generated automatically for the captured order status selected above.
+                        </comment>
+                    </field>
                 </group>
 
                 <group id="checkout_com_currency_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="5">
