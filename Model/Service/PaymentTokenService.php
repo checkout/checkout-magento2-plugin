@@ -82,19 +82,26 @@ class PaymentTokenService {
      * @throws \Exception
      */
     public function getToken() {
+        // Get the quote object
+        $quote = $this->checkoutSession->getQuote();
+
+        // Get the reserved track id
+        $trackId = $quote->reserveOrderId()->save()->getReservedOrderId();
+
         // Get the quote currency
         $currencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
 
         // Get the quote amount
-        $amount       =  ChargeAmountAdapter::getPaymentFinalCurrencyValue($this->checkoutSession->getQuote()->getGrandTotal());
+        $amount =  ChargeAmountAdapter::getPaymentFinalCurrencyValue($quote->getGrandTotal());
 
         // Prepare the amount 
-        $value        = ChargeAmountAdapter::getGatewayAmountOfCurrency($amount, $currencyCode);
+        $value = ChargeAmountAdapter::getGatewayAmountOfCurrency($amount, $currencyCode);
 
         // Prepare the transfer data
         $transfer = $this->transferFactory->create([
             'value'   => $value,
-            'currency'   => $currencyCode
+            'currency'   => $currencyCode,
+            'trackId' => $trackId
         ]);
 
         // Get the token
