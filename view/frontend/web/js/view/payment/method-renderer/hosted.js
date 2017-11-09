@@ -76,6 +76,13 @@ define(
             },
 
             /**
+             * @returns {bool}
+             */
+            isCardAutosave: function() {
+                return CheckoutCom.getPaymentConfig()['card_autosave'];
+            },
+
+            /**
              * @returns {string}
              */
             getRedirectUrl: function() {

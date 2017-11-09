@@ -128,19 +128,31 @@
                         </depends>
                     </field>
 
-                    <field id="useccv" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                   <field id="checkout_com_cc_vault_autosave" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Save cards automatically</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com_cc_vault/autosave</config_path>
+                        <depends>
+                            <field id="checkout_com_cc_vault_active">1</field>
+                        </depends>
+                        <comment>
+                            If set to "No", customers will be asked during checkout if the card used for payment should be stored. If set to "Yes", the card will be saved automatically without requesting agreement.
+                        </comment>
+                    </field>
+
+                    <field id="useccv" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>CVV Verification</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkout_com/useccv</config_path>
                     </field>
 
-                    <field id="verify_3dsecure" translate="label" sortOrder="40" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="verify_3dsecure" translate="label" sortOrder="50" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>3D Secure Verification</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkout_com/verify_3dsecure</config_path>
                     </field>
 
-                    <field id="attemptN3D" translate="label comment" sortOrder="50" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="attemptN3D" translate="label comment" sortOrder="60" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Attempt Non 3D Secure</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkout_com/attemptN3D</config_path>
@@ -152,13 +164,13 @@
                         </comment>
                     </field>
 
-                    <field id="auto_capture" translate="label" sortOrder="60" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="auto_capture" translate="label" sortOrder="70" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Auto Capture</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkout_com/auto_capture</config_path>
                     </field>
 
-                    <field id="auto_capture_time" translate="label comment" sortOrder="70" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="auto_capture_time" translate="label comment" sortOrder="80" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Auto Capture Time</label>
                         <config_path>payment/checkout_com/auto_capture_time</config_path>
                         <validate>validate-required validate-digits validate-zero-or-greater</validate>

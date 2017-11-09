@@ -64,6 +64,7 @@
             <checkout_com_cc_vault>
                 <model>CheckoutComCreditCardVaultFacade</model>
                 <title>Stored Cards (Checkout.com)</title>
+                <autosave>1</autosave>
             </checkout_com_cc_vault>
         </payment>
     </default>

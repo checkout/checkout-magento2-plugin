@@ -59,7 +59,6 @@ class Config extends BaseConfig {
     const KEY_EMBEDDED_CSS = 'embedded_css';
     const KEY_CUSTOM_CSS = 'custom_css';
     const KEY_CSS_FILE = 'css_file';
-    const KEY_VAULT_TITLE = 'checkout_com_cc_vault/title';
     const KEY_ORDER_COMMENTS_OVERRIDE = 'order_comments_override';
     const KEY_ORDER_CREATION = 'order_creation';
 
@@ -95,6 +94,17 @@ class Config extends BaseConfig {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');     
         return (string) $scopeConfig->getValue('payment/checkout_com_cc_vault/title');
+    }
+
+    /**
+     * Returns the vault card autosave state.
+     *
+     * @return bool
+     */
+    public function isCardAutosave() {
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');     
+        return (bool) $scopeConfig->getValue('payment/checkout_com_cc_vault/autosave');
     }
 
     /**
