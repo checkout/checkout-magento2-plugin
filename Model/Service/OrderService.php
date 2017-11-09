@@ -21,7 +21,6 @@ use Magento\Checkout\Api\AgreementsValidatorInterface;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Observer\DataAssignObserver;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
 class OrderService {
 
@@ -51,11 +50,6 @@ class OrderService {
     private $orderManager;
 
     /**
-     * @var OrderSender
-     */
-    private $orderSender;
-
-    /**
      * OrderService constructor.
      * @param CartManagementInterface $cartManagement
      * @param AgreementsValidatorInterface $agreementsValidator
@@ -69,15 +63,13 @@ class OrderService {
         AgreementsValidatorInterface $agreementsValidator,
         Session $customerSession,
         Data $checkoutHelper,
-        Order $orderManager,
-        OrderSender $orderSender
+        Order $orderManager
     ) {
         $this->cartManagement       = $cartManagement;
         $this->agreementsValidator  = $agreementsValidator;
         $this->customerSession      = $customerSession;
         $this->checkoutHelper       = $checkoutHelper;
         $this->orderManager         = $orderManager;
-        $this->orderSender          = $orderSender;
     }
 
     /**
@@ -112,10 +104,6 @@ class OrderService {
 
         // Place the order
         $orderId = $this->cartManagement->placeOrder($quote->getId());
-
-        // Send email
-        $order = $this->orderManager->load($orderId);
-        $this->orderSender->send($order);
 
         return $orderId;
     }

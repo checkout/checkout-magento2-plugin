@@ -11,18 +11,33 @@
 namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Magento\Framework\App\Action\Context;
-use Magento\Checkout\Model\Session;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use CheckoutCom\Magento2\Model\Service\OrderService;
 use Magento\Customer\Api\Data\GroupInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
+use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
+use CheckoutCom\Magento2\Model\Service\TokenChargeService;
 
 class PlaceOrder extends AbstractAction {
 
     /**
-     * @var Session
+     * @var TokenChargeService
      */
-    protected $session;
+    protected $tokenChargeService;
+
+    /**
+     * @var CheckoutSession
+     */
+    protected $checkoutSession;
+
+    /**
+     * @var OrderInterface
+     */
+    protected $orderInterface;
 
     /**
      * @var OrderService
@@ -37,16 +52,29 @@ class PlaceOrder extends AbstractAction {
     /**
      * PlaceOrder constructor.
      * @param Context $context
-     * @param Session $session
+     * @param CheckoutSession $checkoutSession
      * @param GatewayConfig $gatewayConfig
+     * @param OrderInterface $orderInterface
      * @param OrderService $orderService
+     * @param Order $orderManager
+     * @param OrderSender $orderSender
      */
-    public function __construct(Context $context, Session $session, GatewayConfig $gatewayConfig, OrderService $orderService, CustomerSession $customerSession) {
+    public function __construct(
+        Context $context,
+        CheckoutSession $checkoutSession,
+        GatewayConfig $gatewayConfig,
+        OrderService $orderService,
+        OrderInterface $orderInterface,
+        CustomerSession $customerSession,
+        TokenChargeService $tokenChargeService
+    ) {
         parent::__construct($context, $gatewayConfig);
 
-        $this->session          = $session;
-        $this->customerSession  = $customerSession;
-        $this->orderService     = $orderService;
+        $this->checkoutSession        = $checkoutSession;
+        $this->customerSession        = $customerSession;
+        $this->orderService           = $orderService;
+        $this->orderInterface         = $orderInterface;
+        $this->tokenChargeService     = $tokenChargeService;
     }
 
     /**
@@ -55,31 +83,64 @@ class PlaceOrder extends AbstractAction {
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function execute() {
+
         // Retrieve the request parameters
-        $resultRedirect = $this->getResultRedirect();
-        $cardToken      = $this->getRequest()->getParam('cko-card-token');
-        $email          = $this->getRequest()->getParam('cko-context-id');
-        $agreement      = array_keys($this->getRequest()->getPostValue('agreement', []));
-        $quote          = $this->session->getQuote();
+        $params = array(
+            'cardToken' => $this->getRequest()->getParam('cko-card-token'),
+            'email' => $this->getRequest()->getParam('cko-context-id'),
+            'agreement' => array_keys($this->getRequest()->getPostValue('agreement', [])),
+            'quote' => $this->checkoutSession->getQuote()
+        );
+
+        $order = null;
+        if (isset($this->customerSession->getData('checkoutSessionData')['orderTrackId'])) {
+            $order = $this->orderInterface->loadByIncrementId($this->customerSession->getData('checkoutSessionData')['orderTrackId']);
+        }
+
+        if ($order) {
+            $this->updateOrder($params, $order);
+        }
+        else {
+            $this->createOrder($params);
+        }
+    }
+
+    public function updateOrder($params, $order) {
+
+        // Create the charge for order already placed
+        $updateSuccess = $this->tokenChargeService->sendChargeRequest($params['cardToken'], $order);
+
+        // Update payment data
+        $order = $this->updatePaymentData($order);
+        
+        // 3D Secure redirection if needed
+        if($this->gatewayConfig->isVerify3DSecure()) {
+            $this->place3DSecureRedirectUrl();
+            exit();
+        }
+
+        return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+    }
+
+    public function createOrder($params) {
 
         // Check for guest email
-        if ($quote->getCustomerEmail() === null
+        if ($params['quote']->getCustomerEmail() === null
             && $this->customerSession->isLoggedIn() === false
             && isset($this->customerSession->getData('checkoutSessionData')['customerEmail'])
-            && $this->customerSession->getData('checkoutSessionData')['customerEmail'] === $email) 
+            && $this->customerSession->getData('checkoutSessionData')['customerEmail'] === $params['email']) 
         {
-            $quote->setCustomerId(null)
-            ->setCustomerEmail($email)
+            $params['quote']->setCustomerId(null)
+            ->setCustomerEmail($params['email'])
             ->setCustomerIsGuest(true)
             ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
         }
 
         // Perform quote and order validation
         try {
-
             // Create an order from the quote
-            $this->validateQuote($quote);
-            $this->orderService->execute($quote, $cardToken, $agreement);
+            $this->validateQuote($params['quote']);
+            $this->orderService->execute($params['quote'], $params['cardToken'], $params['agreement']);
 
             // 3D Secure redirection if needed
             if($this->gatewayConfig->isVerify3DSecure()) {
@@ -87,13 +148,25 @@ class PlaceOrder extends AbstractAction {
                 exit();
             }
 
-            return $resultRedirect->setPath('checkout/onepage/success', ['_secure' => true]);
+            return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
 
         } catch (\Exception $e) {
             $this->messageManager->addExceptionMessage($e, $e->getMessage());
         }
 
-        return $resultRedirect->setPath('checkout/cart', ['_secure' => true]);
+        return $this->_redirect('checkout/cart', ['_secure' => true]);
+    }
+
+    public function updatePaymentData($order) {
+        // Load payment object
+        $payment = $order->getPayment();
+
+        // Set the payment method, previously "substitution" for pre auth order creation
+        $payment->setMethod(ConfigProvider::CODE); 
+        $payment->save();
+        $order->save();
+
+        return $order;
     }
 
     /**
@@ -104,7 +177,7 @@ class PlaceOrder extends AbstractAction {
     public function place3DSecureRedirectUrl() {
         echo '<script type="text/javascript">';
         echo 'function waitForElement() {';
-        echo 'var redirectUrl = "' . $this->session->get3DSRedirect() . '";';
+        echo 'var redirectUrl = "' . $this->checkoutSession->get3DSRedirect() . '";';
         echo 'if (redirectUrl.length != 0){ window.location.replace(redirectUrl); }';
         echo 'else { setTimeout(waitForElement, 250); }';
         echo '} ';

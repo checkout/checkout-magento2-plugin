@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-
     <!-- Payment Method Facade configuration -->
     <virtualType name="CheckoutComFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -433,6 +432,12 @@
         <plugin name="CkoPaymentInformationManagement" type="CheckoutCom\Magento2\Plugin\PaymentInformationManagement" />
     </type>
     <!-- END Around Payments Plugin -->
+
+    <!-- Accound dashboard plugin -->
+    <type name="Magento\Framework\View\Element\Html\Links">
+        <plugin sortOrder="1" name="CkoCustomerDashboardLinksManagement" type="CheckoutCom\Magento2\Plugin\CustomerDashboardLinksManagement"/>
+    </type>
+    <!-- END account dashboard plugin -->
 
     <!-- Plans grid listing -->
     <virtualType name="CheckoutCom\Magento2\Model\ResourceModel\Plan\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">

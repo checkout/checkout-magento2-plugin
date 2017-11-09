@@ -144,17 +144,14 @@ class Verify extends AbstractAction {
      * @throws LocalizedException
      */
     public function execute() {
-
         // Get the payment token from response
         $paymentToken = $this->extractPaymentToken();
 
         // Finalize the process
         return $this->finalizeProcess($paymentToken);
-
     }
 
     public function finalizeProcess($paymentToken) {
-
         // Process the gateway response
         $response = $this->verifyPaymentService->verifyPayment($paymentToken);
 
@@ -162,8 +159,8 @@ class Verify extends AbstractAction {
         $this->watchdog->bark($response);
 
         // If it's an alternative payment
-        if ((int) $response['chargeMode'] == 3) {
-            if ((int) $response['responseCode'] == 10000 || (int) $response['responseCode'] == 10100) {
+        if (isset($response['chargeMode']) && (int) $response['chargeMode'] == 3) {
+            if (isset($response['responseCode']) && (int) $response['responseCode'] == 10000 || (int) $response['responseCode'] == 10100) {
 
                 // Place a local payment order
                 $this->placeLocalPaymentOrder();
@@ -173,10 +170,9 @@ class Verify extends AbstractAction {
             }
         }
 
-       // If it's a vault card id charge response
-        else if (isset($response['trackId']) && $response['udf1'] == 'cardIdCharge') {
-
-            if ((int) $response['responseCode'] == 10000) {
+        // If it's a vault card id charge response
+        else if (isset($response['udf1']) && $response['udf1'] == 'cardIdCharge') {
+            if (isset($response['responseCode']) && (int) $response['responseCode'] == 10000) {
                 $this->messageManager->addSuccessMessage( __('Order successfully processed.') );
             }
             else {
@@ -188,13 +184,12 @@ class Verify extends AbstractAction {
 
         // Else proceed normally for 3D Secure
         else {
-
-            if ($response['udf2'] == 'storeInVaultOnSuccess') {
+            if (isset($response['udf2']) && $response['udf2'] == 'storeInVaultOnSuccess') {
                 $this->vaultCardAfterThreeDSecure( $response );
             }
 
             // Check for declined transactions
-            if ($response['status'] === 'Declined') {
+            if (isset($response['status']) && $response['status'] === 'Declined') {
                 throw new LocalizedException(__('The transaction has been declined.'));
             }
 
@@ -225,7 +220,7 @@ class Verify extends AbstractAction {
 
         // Set payment
         $payment = $quote->getPayment();
-        $payment->setMethod(ConfigProvider::CODE);
+        $payment->setMethod('checkmo');
         $quote->save();
 
         // Save the quote
@@ -243,17 +238,10 @@ class Verify extends AbstractAction {
                                        ->setLastOrderStatus($order->getStatus());
             
                 // Update order status
-                $order->setState(\Magento\Sales\Model\Order::STATE_NEW);
-                $order->setStatus($this->gatewayConfig->getNewOrderStatus());
-
-                // Set email sent
-                $order->setEmailSent(1);
+                $order->setStatus($this->gatewayConfig->getOrderStatusCaptured());
 
                 // Save the order
                 $order->save();
-
-                // Send email
-                $this->orderSender->send($order);
             }
             
             // Redirect to the success page

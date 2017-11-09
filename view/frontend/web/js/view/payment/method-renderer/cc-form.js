@@ -19,9 +19,10 @@ define(
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/action/place-order',
         'CheckoutCom_Magento2/js/view/payment/response-strategy',
+        'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function ($, Component, VaultEnabler, CheckoutCom, quote, placeOrderAction, responseStrategy, additionalValidators) {
+    function ($, Component, VaultEnabler, CheckoutCom, quote, placeOrderAction, responseStrategy, checkoutData, additionalValidators) {
         'use strict';
 
         return Component.extend({
@@ -112,7 +113,7 @@ define(
              * @returns {string}
              */
             getEmailAddress: function() {
-                return window.checkoutConfig.customerData.email || quote.guestEmail;
+                return window.checkoutConfig.customerData.email || quote.guestEmail || checkoutData.getValidatedEmailValue();
             },
 
             /**

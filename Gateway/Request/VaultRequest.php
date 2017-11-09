@@ -12,6 +12,7 @@ namespace CheckoutCom\Magento2\Gateway\Request;
 
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class VaultRequest implements BuilderInterface {
 
@@ -32,11 +33,17 @@ class VaultRequest implements BuilderInterface {
     protected $customerSession;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
      * VaultRequest constructor.
      * @param CustomerSession $customerSession
      */
-    public function __construct(CustomerSession $customerSession) {
+    public function __construct(CustomerSession $customerSession, ScopeConfigInterface $scopeConfig) {
         $this->customerSession = $customerSession;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -54,9 +61,15 @@ class VaultRequest implements BuilderInterface {
         // Get the checkout session data
         $checkoutSessionData = $this->customerSession->getData('checkoutSessionData');
 
+        // Get the auto save card config
+        $isAutoSave = $this->scopeConfig->getValue('payment/checkout_com_cc_vault/autosave');
+
         // Check if save card is requested
         if (isset($checkoutSessionData['saveShopperCard'])) {
             return filter_var($checkoutSessionData['saveShopperCard'], FILTER_VALIDATE_BOOLEAN);
+        }
+        else if ($isAutoSave) {
+            return true;
         }
 
         return false;
