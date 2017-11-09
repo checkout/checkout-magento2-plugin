@@ -433,6 +433,12 @@
     </type>
     <!-- END Around Payments Plugin -->
 
+    <!-- Accound dashboard plugin -->
+    <type name="Magento\Framework\View\Element\Html\Links">
+        <plugin sortOrder="1" name="CkoCustomerDashboardLinksManagement" type="CheckoutCom\Magento2\Plugin\CustomerDashboardLinksManagement"/>
+    </type>
+    <!-- END account dashboard plugin -->
+
     <!-- Plans grid listing -->
     <virtualType name="CheckoutCom\Magento2\Model\ResourceModel\Plan\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>

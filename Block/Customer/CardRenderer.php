@@ -11,10 +11,10 @@
 namespace CheckoutCom\Magento2\Block\Customer;
 
 use Magento\Payment\Model\CcConfigProvider;
-use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use Magento\Framework\View\Element\Template;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Vault\Block\AbstractCardRenderer;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 
 class CardRenderer extends AbstractCardRenderer {
@@ -31,7 +31,12 @@ class CardRenderer extends AbstractCardRenderer {
      * @param GatewayConfig $gatewayConfig
      * @param array $data
      */
-    public function __construct(Template\Context $context, CcConfigProvider $iconsProvider, GatewayConfig $gatewayConfig, array $data) {
+    public function __construct(
+        Template\Context $context,
+        CcConfigProvider $iconsProvider,
+        GatewayConfig $gatewayConfig,
+        array $data
+    ) {
         parent::__construct($context, $iconsProvider, $data);
 
         $this->gatewayConfig = $gatewayConfig;

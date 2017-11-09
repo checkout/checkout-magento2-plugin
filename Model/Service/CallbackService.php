@@ -87,7 +87,7 @@ class CallbackService {
     /**
      * @var OrderSender
      */
-    private $orderSender;
+    protected $orderSender;
 
     /**
      * CallbackService constructor.
