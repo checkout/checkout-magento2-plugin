@@ -21,6 +21,7 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Customer\Model\CustomerFactory;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use CheckoutCom\Magento2\Model\Adapter\CallbackEventAdapter;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Model\GatewayResponseHolder;
@@ -84,6 +85,11 @@ class CallbackService {
     protected $storeManager;
 
     /**
+     * @var OrderSender
+     */
+    private $orderSender;
+
+    /**
      * CallbackService constructor.
      * @param CallbackMethod $callbackMethod
      * @param CallbackEventAdapter $eventAdapter
@@ -100,7 +106,8 @@ class CallbackService {
         InvoiceRepositoryInterface $invoiceRepository,
         StoreCardService $storeCardService,
         CustomerFactory $customerFactory,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        OrderSender $orderSender
     ) {
         $this->callbackMethod   = $callbackMethod;
         $this->eventAdapter     = $eventAdapter;
@@ -112,6 +119,7 @@ class CallbackService {
         $this->storeCardService    = $storeCardService;
         $this->customerFactory = $customerFactory;
         $this->storeManager = $storeManager;
+        $this->orderSender          = $orderSender;
     }
 
     /**
@@ -155,6 +163,9 @@ class CallbackService {
             else if ($commandName == 'authorize') {
                 // Update order status
                 $order->setStatus($this->gatewayConfig->getOrderStatusAuthorized());
+
+                // Send the email
+                $this->orderSender->send($order);
 
                 // Set email sent
                 $order->setEmailSent(1);

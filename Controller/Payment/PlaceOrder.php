@@ -21,7 +21,6 @@ use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use CheckoutCom\Magento2\Model\Service\TokenChargeService;
-use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
 class PlaceOrder extends AbstractAction {
 
@@ -51,11 +50,6 @@ class PlaceOrder extends AbstractAction {
     protected $customerSession;
 
     /**
-     * @var OrderSender
-     */
-    private $orderSender;
-
-    /**
      * PlaceOrder constructor.
      * @param Context $context
      * @param CheckoutSession $checkoutSession
@@ -72,8 +66,7 @@ class PlaceOrder extends AbstractAction {
         OrderService $orderService,
         OrderInterface $orderInterface,
         CustomerSession $customerSession,
-        TokenChargeService $tokenChargeService,
-        OrderSender $orderSender
+        TokenChargeService $tokenChargeService
     ) {
         parent::__construct($context, $gatewayConfig);
 
@@ -82,7 +75,6 @@ class PlaceOrder extends AbstractAction {
         $this->orderService           = $orderService;
         $this->orderInterface         = $orderInterface;
         $this->tokenChargeService     = $tokenChargeService;
-        $this->orderSender            = $orderSender;
     }
 
     /**
@@ -120,12 +112,6 @@ class PlaceOrder extends AbstractAction {
 
         // Update payment data
         $order = $this->updatePaymentData($order);
-
-        // Send email
-        if ($updateSuccess) {
-            $order->setEmailSent(1)->save();
-            $this->orderSender->send($order);
-        }
         
         // 3D Secure redirection if needed
         if($this->gatewayConfig->isVerify3DSecure()) {
@@ -172,7 +158,10 @@ class PlaceOrder extends AbstractAction {
     }
 
     public function updatePaymentData($order) {
+        // Load payment object
         $payment = $order->getPayment();
+
+        // Set the payment method, previously "substitution" for pre auth order creation
         $payment->setMethod(ConfigProvider::CODE); 
         $payment->save();
         $order->save();

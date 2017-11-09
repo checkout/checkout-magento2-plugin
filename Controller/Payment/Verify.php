@@ -240,14 +240,8 @@ class Verify extends AbstractAction {
                 // Update order status
                 $order->setStatus($this->gatewayConfig->getOrderStatusCaptured());
 
-                // Set email sent
-                $order->setEmailSent(1);
-
                 // Save the order
                 $order->save();
-
-                // Send email
-                $this->orderSender->send($order);
             }
             
             // Redirect to the success page
