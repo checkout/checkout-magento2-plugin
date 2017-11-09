@@ -62,7 +62,7 @@ class VaultRequest implements BuilderInterface {
         $checkoutSessionData = $this->customerSession->getData('checkoutSessionData');
 
         // Get the auto save card config
-        $isAutoSave = $scopeConfig->getValue('payment/checkout_com_cc_vault/autosave');
+        $isAutoSave = $this->scopeConfig->getValue('payment/checkout_com_cc_vault/autosave');
 
         // Check if save card is requested
         if (isset($checkoutSessionData['saveShopperCard'])) {
