@@ -385,15 +385,6 @@
     <!-- END Commands -->
 
     <!-- Handlers -->
-    <virtualType name="CheckoutComWebHookCaptureHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
-        <arguments>
-            <argument name="handlers" xsi:type="array">
-                <item name="create_invoice" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\CreateInvoiceHandler</item>
-                <item name="transaction" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\TransactionHandler</item>
-            </argument>
-        </arguments>
-    </virtualType>
-
     <virtualType name="CheckoutComWebHookRefundHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
             <argument name="handlers" xsi:type="array">

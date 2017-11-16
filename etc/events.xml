@@ -6,4 +6,8 @@
     <event name="email_order_set_template_vars_before">
         <observer name="add_extra_data_to_transport" instance="CheckoutCom\Magento2\Observer\AddExtraDataToTransport" />
     </event>
+	<event name="order_cancel_after">
+        <observer name="update_hub_order_cancel" instance="CheckoutCom\Magento2\Observer\OrderCancelObserver" />
+    </event>    
+
 </config>

@@ -29,6 +29,7 @@ use CheckoutCom\Magento2\Model\GatewayResponseTrait;
 use CheckoutCom\Magento2\Model\Method\CallbackMethod;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use CheckoutCom\Magento2\Model\Service\StoreCardService;
+use CheckoutCom\Magento2\Model\Service\OrderService;
 
 class CallbackService {
 
@@ -90,6 +91,11 @@ class CallbackService {
     protected $orderSender;
 
     /**
+     * @var OrderService
+     */
+    protected $orderService;
+
+    /**
      * CallbackService constructor.
      * @param CallbackMethod $callbackMethod
      * @param CallbackEventAdapter $eventAdapter
@@ -107,7 +113,8 @@ class CallbackService {
         StoreCardService $storeCardService,
         CustomerFactory $customerFactory,
         StoreManagerInterface $storeManager,
-        OrderSender $orderSender
+        OrderSender $orderSender,
+        OrderService $orderService
     ) {
         $this->callbackMethod   = $callbackMethod;
         $this->eventAdapter     = $eventAdapter;
@@ -120,6 +127,7 @@ class CallbackService {
         $this->customerFactory = $customerFactory;
         $this->storeManager = $storeManager;
         $this->orderSender          = $orderSender;
+        $this->orderService          = $orderService;
     }
 
     /**
@@ -153,12 +161,10 @@ class CallbackService {
             $this->putGatewayResponseToHolder();
 
             // Test the command name
-            if ($commandName == 'refund') {
-                $this->callbackMethod->refund($payment, $amount);
+            if ($commandName == 'refund' || $commandName == 'void') {
+                $this->orderService->cancelTransactionFromRemote($order);
             }
-            else if ($commandName == 'void') {
-                $this->callbackMethod->void($payment);
-            }
+            
             // Perform authorize complementary actions
             else if ($commandName == 'authorize') {
                 // Update order status
@@ -189,6 +195,20 @@ class CallbackService {
             else if ($commandName == 'capture') {
                 // Update order status
                 $order->setStatus($this->gatewayConfig->getOrderStatusCaptured());
+
+                // Create the invoice
+                if ($order->canInvoice() && ($this->gatewayConfig->getAutoGenerateInvoice())) {
+                    $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
+                        $this->gatewayResponse['response']['message']['value'],
+                        $this->gatewayResponse['response']['message']['currency']
+                    );
+                    $invoice = $this->invoiceService->prepareInvoice($order);
+                    $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+                    $invoice->setBaseGrandTotal($amount);
+                    $invoice->register();
+
+                    $this->invoiceRepository->save($invoice);
+                }
 
                 // Comments override
                 if ($overrideComments) {

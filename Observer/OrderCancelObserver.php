@@ -12,18 +12,17 @@ namespace CheckoutCom\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\App\Request\DataPersistorInterface;
-use Magento\Sales\Api\Data\OrderInterface;
+use CheckoutCom\Magento2\Model\Service\OrderService;
 
 class OrderCancelObserver implements ObserverInterface {
 
     /**
-     * @var OrderInterface
+     * @var OrderService
      */
-    protected $orderInterface;
+    protected $orderService;
 
-    public function __construct(OrderInterface $order) {
-         $this->orderInterface = $orderInterface;    
+    public function __construct(OrderService $orderService) {
+        $this->orderService = $orderService;    
     }
 
     /**
@@ -33,14 +32,13 @@ class OrderCancelObserver implements ObserverInterface {
      * @return void
      */
     public function execute(Observer $observer) {
-   
-        $orderids = $observer->getEvent()->getOrderIds();     
+        // Load the order id
+        $order = $observer->getData('order');
 
-        echo "<pre>";
-        var_dump($orderids); 
-        echo "</pre>";
+        // Update the hub API for cancelled order
+        $this->orderService->cancelTransactionToRemote($order);    
 
-        exit();
+        return $this;
     }
 
 }
