@@ -116,7 +116,7 @@ abstract class AbstractTransaction implements ClientInterface {
      */
     public function placeRequest(TransferInterface $transferObject) {
         
-        if($this->gatewayResponseHolder->hasCallbackResponse()) {
+        if ($this->gatewayResponseHolder->hasCallbackResponse()) {
             $response = $this->gatewayResponseHolder->getGatewayResponse();
 
             $this->logger->debug([

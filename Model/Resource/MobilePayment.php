@@ -13,27 +13,25 @@ namespace CheckoutCom\Magento2\Model\Resource;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Payment\Gateway\Http\ClientException;
-use CheckoutCom\Magento2\Api\MobilePaymentInterface;
-use CheckoutCom\Magento2\Gateway\Http\TransferFactory;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Catalog\Model\Product;
-use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
-
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Store\Model\StoreManagerInterface;
-use CheckoutCom\Magento2\Model\Service\OrderService;
 use Magento\Quote\Model\Quote;
 use Magento\Customer\Model\Address;
 use Magento\Checkout\Model\Type\Onepage;
+use CheckoutCom\Magento2\Model\Service\OrderService;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Observer\DataAssignObserver;
+use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
+use CheckoutCom\Magento2\Gateway\Http\TransferFactory;
+use CheckoutCom\Magento2\Api\MobilePaymentInterface;
 
 /**
  * Defines the implementaton class of the charge through API.
  */
 class MobilePayment implements MobilePaymentInterface
 {
- 
     /**
      * @var GatewayConfig
      */
@@ -44,13 +42,44 @@ class MobilePayment implements MobilePaymentInterface
      */
     protected $transferFactory;
 
+    /**
+     * @var CustomerRepositoryInterface
+     */        
     protected $customerRepository;
+
+    /**
+     * @var Product
+     */
     protected $productManager;
+
+    /**
+     * @var Array
+     */    
     protected $data;
+
+    /**
+     * @var String
+     */    
     protected $customer;
+
+    /**
+     * @var QuoteFactory
+     */
     protected $quoteFactory;
+
+    /**
+     * @var StoreManagerInterface
+     */
     protected $storeManager;
+
+    /**
+     * @var OrderService
+     */
     protected $orderService;
+
+    /**
+     * @var Address
+     */
     protected $addressManager;
 
     /**

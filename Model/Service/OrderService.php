@@ -10,6 +10,7 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Sales\Model\Order;
 use Magento\Quote\Model\Quote;
 use Magento\Checkout\Helper\Data;
 use Magento\Customer\Model\Group;
@@ -18,11 +19,23 @@ use Magento\Checkout\Model\Type\Onepage;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Checkout\Api\AgreementsValidatorInterface;
+use Magento\Sales\Model\Order\Payment\Transaction\Repository;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\FilterBuilder;
+use Magento\Payment\Gateway\Http\TransferInterface;
+use Magento\Framework\HTTP\ZendClient;
+use CheckoutCom\Magento2\Gateway\Http\TransferFactory;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Observer\DataAssignObserver;
-use Magento\Sales\Model\Order;
+use CheckoutCom\Magento2\Helper\Watchdog;
+use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 
 class OrderService {
+
+    /**
+     * @var GatewayConfig
+     */
+    protected $gatewayConfig;
 
     /**
      * @var CartManagementInterface
@@ -50,26 +63,62 @@ class OrderService {
     private $orderManager;
 
     /**
+     * @var Repository
+     */
+    private $transactionRepository;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
+
+    /**
+     * @var FilterBuilder
+     */
+    private $filterBuilder;
+
+    /**
+     * @var TransferFactory
+     */
+    protected $transferFactory;
+
+    /**
+     * @var Watchdog
+     */
+    protected $watchdog;
+
+    /**
      * OrderService constructor.
      * @param CartManagementInterface $cartManagement
      * @param AgreementsValidatorInterface $agreementsValidator
      * @param Session $customerSession
      * @param Data $checkoutHelper
      * @param Order $orderManager
-     * @param OrderSender $orderSender
-    */
+     */
     public function __construct(
         CartManagementInterface $cartManagement,
         AgreementsValidatorInterface $agreementsValidator,
         Session $customerSession,
         Data $checkoutHelper,
-        Order $orderManager
+        Order $orderManager,
+        Repository $transactionRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        FilterBuilder $filterBuilder,
+        TransferFactory $transferFactory,
+        GatewayConfig $gatewayConfig,
+        Watchdog $watchdog
     ) {
-        $this->cartManagement       = $cartManagement;
-        $this->agreementsValidator  = $agreementsValidator;
-        $this->customerSession      = $customerSession;
-        $this->checkoutHelper       = $checkoutHelper;
-        $this->orderManager         = $orderManager;
+        $this->cartManagement        = $cartManagement;
+        $this->agreementsValidator   = $agreementsValidator;
+        $this->customerSession       = $customerSession;
+        $this->checkoutHelper        = $checkoutHelper;
+        $this->orderManager          = $orderManager;
+        $this->transactionRepository = $transactionRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->filterBuilder         = $filterBuilder;
+        $this->transferFactory       = $transferFactory;
+        $this->gatewayConfig         = $gatewayConfig;
+        $this->watchdog              = $watchdog;
     }
 
     /**
@@ -106,6 +155,123 @@ class OrderService {
         $orderId = $this->cartManagement->placeOrder($quote->getId());
 
         return $orderId;
+    }
+
+    public function cancelTransactionToRemote(Order $order) {
+        // Get the transaction data
+        $transactionData = $this->_getTransactionsData($order);
+
+        // Prepare url prefix
+        $url = 'charges/';
+
+        //  Process the request
+        if ($transactionData) {
+            // Check if transaction is capture or authorisation
+            if ($transactionData['txnType'] == 'capture') {
+                $url .= $transactionData['txnId'] . '/refund';
+            }
+            else if ($transactionData['txnType'] == 'authorization') {
+                $url .= $transactionData['txnId'] . '/void';
+            }
+
+            // Launch the query
+            $method = 'POST';
+            $transfer = $this->transferFactory->create([
+                'trackId'   => $order->getIncrementId()
+            ]);
+
+            // Handle the request
+            $this->_handleRequest($url, $method, $transfer);
+        }
+    }
+
+    public function cancelTransactionFromRemote(Order $order) {
+        if ($order->canCancel()) {
+            try {
+                // Cancel the order
+                $order->cancel()->save();
+                
+                // Add a comment to history
+                $order->addStatusToHistory($order->getStatus(), __('Order and transaction cancelled'), $notify = true);
+                $order->save();
+            }
+            catch (Zend_Http_Client_Exception $e) {
+                throw new ClientException(__($e->getMessage()));
+            }
+        }
+    }
+
+    protected function _getTransactionsData(Order $order) {
+        // Get transactions for the order
+        $transactions = $this->_getOrderTransactions($order);
+
+        // Count the transactions in the order
+        $tnxCount = count($transactions);
+
+        // Prepare the result
+        $result = false;
+
+        if ($tnxCount == 1) {
+            // For each transaction
+            foreach ($transactions as $transaction) {
+                if ($transaction->getTxnType() == 'authorization') {
+                    $result = array(
+                        'txnType' => $transaction->getTxnType(),
+                        'txnId' => $transaction->getTxnId()
+                    ); 
+                }
+            }
+        }
+        else {
+            // For each transaction
+            foreach ($transactions as $transaction) {
+                if ($transaction->getTxnType() == 'capture') {
+                    $result = array(
+                        'txnType' => $transaction->getTxnType(),
+                        'txnId' => $transaction->getTxnId()
+                    ); 
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    protected function _handleRequest($url, $method, $transfer) {        
+        try {
+            // Send the request
+            $response           = $this->getHttpClient($url, $transfer)->request();
+            $result             = json_decode($response->getBody(), true);
+
+            // Handle the response
+            $this->_handleResponse($result);
+        }
+        catch (Zend_Http_Client_Exception $e) {
+            throw new ClientException(__($e->getMessage()));
+        }
+    }
+
+    protected function _handleResponse($response) {
+        // Debug info
+        $this->watchdog->bark($response);
+    }
+
+    protected function _getOrderTransactions(Order $order) {
+        // Payment filter
+        $filters[] = $this->filterBuilder->setField('payment_id')
+        ->setValue($order->getPayment()->getId())
+        ->create();
+
+        // Order filter
+        $filters[] = $this->filterBuilder->setField('order_id')
+        ->setValue($order->getId())
+        ->create();
+
+        // Build the search criteria
+        $searchCriteria = $this->searchCriteriaBuilder->addFilters($filters)
+        ->create();
+        
+        return $this->transactionRepository->getList($searchCriteria)->getItems();
     }
 
     /**
@@ -160,5 +326,23 @@ class OrderService {
                 $billingAddress->setSameAsBilling(1);
             }
         }
+    }
+
+    /**
+     * Returns prepared HTTP client.
+     *
+     * @param string $endpoint
+     * @param TransferInterface $transfer
+     * @return ZendClient
+     * @throws \Exception
+     */
+    private function getHttpClient($endpoint, TransferInterface $transfer) {
+        $client = new ZendClient($this->gatewayConfig->getApiUrl() . $endpoint);
+        $client->setMethod('POST');
+        $client->setRawData( json_encode( $transfer->getBody()) ) ;
+        $client->setHeaders($transfer->getHeaders());
+        $client->setUrlEncodeBody($transfer->shouldEncode());
+        
+        return $client;
     }
 }
