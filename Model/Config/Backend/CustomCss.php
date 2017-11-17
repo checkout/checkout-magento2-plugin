@@ -42,14 +42,15 @@ class CustomCss extends File
      *
      * @return boolean
      */
-    protected function _addWhetherScopeInfo()
-    {
+    protected function _addWhetherScopeInfo() {
         return true;
     }
 
     protected function getTmpFileName() {
         $tmpName = null;
-        $tmpName = is_array($this->getValue()) ? $this->getValue()['tmp_name'] : null;
+        $value = $this->getValue();
+
+        $tmpName = (is_array($value) && isset($value['tmp_name'])) ? $value['tmp_name'] : null;
 
         return $tmpName;
     }

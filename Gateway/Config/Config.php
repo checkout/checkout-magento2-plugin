@@ -436,9 +436,16 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getCustomCss() {
+        // Prepare the objects
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');     
-        return $scopeConfig->getValue('payment/checkout_com/checkout_com_base_settings/custom_css');
+        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');    
+        $storeManager = $objectManager->create('Magento\Store\Model\StoreManagerInterface');  
+
+        // Prepare the paths
+        $base_url = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+        $file_path = $scopeConfig->getValue('payment/checkout_com/checkout_com_base_settings/custom_css');
+
+        return $base_url . 'checkout_com/' . $file_path;
     }
 
     /**
