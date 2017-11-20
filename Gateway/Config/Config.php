@@ -7,11 +7,14 @@
  *
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
- 
+
 namespace CheckoutCom\Magento2\Gateway\Config;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Gateway\Config\Config as BaseConfig;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Store\Model\ScopeInterface;
+
 use CheckoutCom\Magento2\Model\Adminhtml\Source\Environment;
 use CheckoutCom\Magento2\Model\Adminhtml\Source\Integration;
 
@@ -62,6 +65,8 @@ class Config extends BaseConfig {
     const KEY_ORDER_COMMENTS_OVERRIDE = 'order_comments_override';
     const KEY_ORDER_CREATION = 'order_creation';
 
+    const METHOD_CODE_CC_VAULT = 'checkout_com_cc_vault';
+
     /**
      * @var array
      */
@@ -74,6 +79,34 @@ class Config extends BaseConfig {
         'diners'        => 'DN',
         'dinersclub'    => 'DN',
     ];
+
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param string|null $methodCode
+     * @param string $pathPattern
+     */
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        StoreManagerInterface $storeManager,
+
+        $methodCode = null,
+        $pathPattern = self::DEFAULT_PATH_PATTERN
+    ) {
+        parent::__construct($scopeConfig, $methodCode, $pathPattern);
+
+        $this->scopeConfig  = $scopeConfig;
+        $this->storeManager = $storeManager;
+    }
 
 
     /**
@@ -91,9 +124,7 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getVaultTitle() {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');     
-        return (string) $scopeConfig->getValue('payment/checkout_com_cc_vault/title');
+        return $this->getCcVaultValue('title');
     }
 
     /**
@@ -102,9 +133,7 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isCardAutosave() {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');     
-        return (bool) $scopeConfig->getValue('payment/checkout_com_cc_vault/autosave');
+        return $this->getCcVaultValue('autosave');
     }
 
     /**
@@ -227,7 +256,7 @@ class Config extends BaseConfig {
      */
     public function isActive() {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $quote = $objectManager->create('Magento\Checkout\Model\Session')->getQuote();     
+        $quote = $objectManager->create('Magento\Checkout\Model\Session')->getQuote();
         return (bool) in_array($quote->getQuoteCurrencyCode(), $this->getAcceptedCurrencies());
     }
 
@@ -436,16 +465,11 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getCustomCss() {
-        // Prepare the objects
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');    
-        $storeManager = $objectManager->create('Magento\Store\Model\StoreManagerInterface');  
-
         // Prepare the paths
-        $base_url = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
-        $file_path = $scopeConfig->getValue('payment/checkout_com/checkout_com_base_settings/custom_css');
+        $baseUrl  = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+        $filePath = $this->scopeConfig->getValue('payment/checkout_com/checkout_com_base_settings/custom_css');
 
-        return $base_url . 'checkout_com/' . $file_path;
+        return $filePath ? $baseUrl . 'checkout_com/' . $filePath : '';
     }
 
     /**
@@ -549,5 +573,19 @@ class Config extends BaseConfig {
      */
     public function getEmbeddedTheme() {
         return (string) $this->getValue(self::KEY_EMBEDDED_THEME);
+    }
+
+    /**
+     * Return CC Vault setting value
+     *
+     * @param $field
+     *
+     * @return string
+     */
+    private function getCcVaultValue($field) {
+        return (string) $this->scopeConfig->getValue(
+            sprintf(self::DEFAULT_PATH_PATTERN, self::METHOD_CODE_CC_VAULT, $field),
+            ScopeInterface::SCOPE_STORE
+        );
     }
 }
