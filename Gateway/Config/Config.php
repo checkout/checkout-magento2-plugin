@@ -12,6 +12,8 @@ namespace CheckoutCom\Magento2\Gateway\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Gateway\Config\Config as BaseConfig;
+use Magento\Checkout\Model\Session as CheckoutSession;
+
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
 
@@ -91,6 +93,11 @@ class Config extends BaseConfig {
     private $storeManager;
 
     /**
+     * @var CheckoutSession
+     */
+    private $checkoutSession;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param string|null $methodCode
      * @param string $pathPattern
@@ -98,6 +105,7 @@ class Config extends BaseConfig {
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
+        CheckoutSession $checkoutSession,
 
         $methodCode = null,
         $pathPattern = self::DEFAULT_PATH_PATTERN
@@ -106,6 +114,7 @@ class Config extends BaseConfig {
 
         $this->scopeConfig  = $scopeConfig;
         $this->storeManager = $storeManager;
+        $this->checkoutSession = $checkoutSession;
     }
 
 
@@ -255,8 +264,7 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isActive() {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $quote = $objectManager->create('Magento\Checkout\Model\Session')->getQuote();
+        $quote = $this->checkoutSession->getQuote();
         return (bool) in_array($quote->getQuoteCurrencyCode(), $this->getAcceptedCurrencies());
     }
 
