@@ -13,7 +13,6 @@ namespace CheckoutCom\Magento2\Gateway\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Gateway\Config\Config as BaseConfig;
 use Magento\Checkout\Model\Session as CheckoutSession;
-
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
 
