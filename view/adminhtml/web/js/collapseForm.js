@@ -14,7 +14,7 @@ require([
     'use strict';
 
     // Prepare the required variables
-    var $form = $('#cko-form-holder form');
+    var $form = document.getElementById('embeddedForm');
     var $formHolder = $('#cko-form-holder');
     var $addFormButton = $('#show-add-cc-form');
     var $submitFormButton = $('#add-new-cc-card');
@@ -22,7 +22,6 @@ require([
     var ckoTheme = $('#cko-theme').val();
 
     $(document).ready(function() {
-
         // Add card controls
         $addFormButton.click(function() {
             $formHolder.show();
@@ -32,28 +31,26 @@ require([
         // Submit card form controls
         $submitFormButton.click(function(e) {
             e.preventDefault();
-            Checkout.submitCardForm();
+            Frames.submitCard().then(function(data) {
+                Frames.addCardToken($form, data.cardToken);
+                chargeWithCardToken(data);
+            })
         });
 
         // Initialise the embedded form
-        Checkout.init({
+        Frames.init({
             publicKey: ckoPublicKey,
-            value: 1,
-            currency: "USD",
-            appMode: 'embedded',
-            appContainerSelector: '#embeddedForm',
-            theme: ckoTheme,
-            cardTokenised: function(event) {
-                // Perform the charge via ajax
-                chargeWithCardToken(event.data);
+            containerSelector: '#embeddedForm',
+            cardValidationChanged: function() {
+                //$submitFormButton.prop("disabled", !Frames.isCardValid());
             }
-        });
+        });              
 
         // Card storage function
         function chargeWithCardToken(ckoResponse) {
 
             // Set the storage controller URL
-            var storageUrl = url.build('checkout_com/cards/store/cid/2');
+            var storageUrl = url.build('checkout_com/cards/store');
 
             // Prepare the request data
             var requestObject = { "ckoCardToken": ckoResponse.cardToken };

@@ -36,3 +36,5 @@
 <input type="hidden" id="customer-currency" name="customer_currency" value="<?php echo $block->getCustomerCurrency(); ?>">
 <input type="hidden" id="cko-public-key" value="<?php echo $block->getGatewayConfig()->getPublicKey() ?>">
 <input type="hidden" id="cko-theme" value="<?php echo $block->getGatewayConfig()->getEmbeddedTheme() ?>">
+<input type="hidden" id="cko-css-file" value="<?php echo $block->getGatewayConfig()->getCssFile() ?>">
+<input type="hidden" id="cko-custom-css" value="<?php echo $block->getGatewayConfig()->getCustomCss() ?>"> 

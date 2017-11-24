@@ -30,7 +30,7 @@ class Integration implements ArrayInterface {
             ],
             [
                 'value' => self::INTEGRATION_EMBEDDED,
-                'label' => 'Embedded'
+                'label' => 'Frames'
             ]        
         ];
     }
