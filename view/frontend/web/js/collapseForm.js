@@ -19,8 +19,11 @@ require([
     var $formHolder = $('#cko-form-holder');
     var $addFormButton = $('#show-add-cc-form');
     var $submitFormButton = $('#add-new-cc-card');
+    var css_file = $('#cko-css-file').val();
+    var custom_css = $('#cko-custom-css').val();
     var ckoPublicKey = $('#cko-public-key').val();
     var ckoTheme = $('#cko-theme').val();
+    var ckoThemeOverride = ((custom_css) && custom_css !== '' && css_file == 'custom') ? custom_css : undefined;
 
     $(document).ready(function() {
         // Add card controls
@@ -40,6 +43,8 @@ require([
         Frames.init({
             publicKey: ckoPublicKey,
             containerSelector: '#cko-form-holder',
+            theme: ckoTheme,
+            themeOverride: ckoThemeOverride,
             cardValidationChanged: function() {
                 $submitFormButton.prop("disabled", !Frames.isCardValid());
             },

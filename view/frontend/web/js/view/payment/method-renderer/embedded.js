@@ -223,6 +223,8 @@ define(
                 Frames.init({
                     publicKey: self.getPublicKey(),
                     containerSelector: '#cko-form-holder',
+                    theme: ckoTheme,
+                    themeOverride: ckoThemeOverride,
                     cardValidationChanged: function() {
                         self.isPlaceOrderActionAllowed(Frames.isCardValid());
                     },
