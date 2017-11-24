@@ -157,14 +157,20 @@ define(
                 // Get self
                 var self = this;
 
+                // Get the form
+                var paymentForm = document.getElementById('embeddedForm');
+
                 // Validate before submission
                 if (additionalValidators.validate()) {
-                    if (Checkout.isCardFormValid()) {
+                    if (Frames.isCardValid()) {
                         // Set the save card option in session
                         self.saveSessionData();
 
                         // Submit the form
-                        Checkout.submitCardForm();
+                        Frames.submitCard().then(function(data) {
+                            Frames.addCardToken(paymentForm, data.cardToken);
+                            paymentForm.submit();
+                        })
                     }
                 }
             },
@@ -210,15 +216,16 @@ define(
                 var redirectUrl = self.getRedirectUrl();
                 var threeds_enabled = CheckoutCom.getPaymentConfig()['three_d_secure']['enabled'];
 
+                // Freeze the place order button on initialisation
+                self.isPlaceOrderActionAllowed(false);
+
                 // Initialise the embedded form
-                Checkout.init({
+                Frames.init({
                     publicKey: self.getPublicKey(),
-                    value: self.getQuoteValue(),
-                    currency: self.getQuoteCurrency(),
-                    appMode: 'embedded',
-                    appContainerSelector: '#embeddedForm',
-                    theme: ckoTheme,
-                    themeOverride: ckoThemeOverride,
+                    containerSelector: '#cko-form-holder',
+                    cardValidationChanged: function() {
+                        self.isPlaceOrderActionAllowed(Frames.isCardValid());
+                    },
                     cardTokenised: function(event) {
                         // Set the card token
                         self.setCardTokenId(event.data.cardToken);
@@ -230,7 +237,7 @@ define(
                             self.placeOrder();
                         }
                     },
-                });
+                });              
             },
 
             /**
