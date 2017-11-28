@@ -26,6 +26,7 @@ use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Framework\App\ResponseFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Customer\Model\Session;
+use CheckoutCom\Magento2\Helper\Watchdog;
 
 class StoreCardService {
 
@@ -89,6 +90,11 @@ class StoreCardService {
      */
     protected $responseFactory;
 
+    /**
+     * @var Watchdog
+     */
+    protected $watchdog;
+
     protected $scopeConfig;
     
     protected $customerSession;
@@ -102,6 +108,7 @@ class StoreCardService {
      * @param PaymentTokenRepositoryInterface $paymentTokenRepository
      * @param PaymentTokenManagementInterface $paymentTokenManagement
      * @param ResponseFactory $responseFactory
+     * @param Watchdog $watchdog
      */
     public function __construct(
         Logger $logger,
@@ -112,8 +119,8 @@ class StoreCardService {
         PaymentTokenManagementInterface $paymentTokenManagement,
         ResponseFactory $responseFactory,
         ScopeConfigInterface $scopeConfig,
-        Session $customerSession
-
+        Session $customerSession,
+        Watchdog $watchdog
     ) {
         $this->logger                   = $logger;
         $this->vaultTokenFactory        = $vaultTokenFactory;
@@ -124,6 +131,7 @@ class StoreCardService {
         $this->scopeConfig              = $scopeConfig;
         $this->responseFactory          = $responseFactory;
         $this->customerSession          = $customerSession;
+        $this->watchdog = $watchdog;
     }
 
     /**
@@ -133,7 +141,6 @@ class StoreCardService {
      * @return StoreCardService
      */
     public function setCustomerId($id = null) {
-        
         $this->customerId = (int) $id > 0 ? $id : $this->customerSession->getCustomer()->getId();
 
         return $this;
@@ -146,7 +153,6 @@ class StoreCardService {
      * @return StoreCardService
      */
     public function setCustomerEmail() {
-
         $this->customerEmail = $this->customerSession->getCustomer()->getEmail();
 
         return $this;
@@ -275,6 +281,10 @@ class StoreCardService {
             
             $result             = json_decode($response->getBody(), true);
             $log['response']    = $result;
+
+            // Outpout the response in debug mode
+            $this->watchdog->bark($result);
+
 
             if( array_key_exists('errorCode', $result) ) {
                 throw new ApiClientException($result['message'], $result['errorCode'], $result['eventId']);

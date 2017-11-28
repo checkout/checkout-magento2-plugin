@@ -48,9 +48,9 @@
                 <private_shared_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <sandbox_api_url><![CDATA[https://sandbox.checkout.com/api2/v2/]]></sandbox_api_url>
                 <live_api_url><![CDATA[https://api2.checkout.com/v2/]]></live_api_url>
-                <sandbox_embedded_url><![CDATA[https://cdn.checkout.com/v2/sandbox/js/checkout.js]]></sandbox_embedded_url>
-                <live_embedded_url><![CDATA[https://cdn.checkout.com/v2/js/checkout.js]]></live_embedded_url>
-                <embedded_css><![CDATA[https://cdn.checkout.com/v2/js/css/checkout.js.css]]></embedded_css>
+                <sandbox_embedded_url><![CDATA[https://cdn.checkout.com/js/frames.js]]></sandbox_embedded_url>
+                <live_embedded_url><![CDATA[https://cdn.checkout.com/js/frames.js]]></live_embedded_url>
+                <embedded_css><![CDATA[https://cdn.checkout.com/v2/js/css/theme-template.css]]></embedded_css>
                 <sandbox_hosted_url><![CDATA[https://secure1.checkout.com/sandbox/payment/]]></sandbox_hosted_url>
                 <live_hosted_url><![CDATA[https://secure1.checkout.com/payment/]]></live_hosted_url>
                 <sort_order>1</sort_order>
