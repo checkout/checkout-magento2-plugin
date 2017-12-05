@@ -45,10 +45,10 @@ dependencies:
     - sudo php /var/www/html/magento2/bin/magento sampledata:deploy
     - sudo php /var/www/html/magento2/bin/magento setup:upgrade
     - sudo php /var/www/html/magento2/bin/magento setup:di:compile
-    - sudo php /var/www/html/magento2/bin/magento cache:checkout-magento2-plugin
+    - sudo php /var/www/html/magento2/bin/magento cache:clean
     - sudo a2enmod rewrite
     - mysql -u ubuntu -e "use magento; insert core_config_data (config_id, scope, scope_id, path, value) values (null, 'default', 0, 'dev/static/sign', 0);"
-    - sudo php /var/www/html/magento2/bin/magento cache:checkout-magento2-plugin
+    - sudo php /var/www/html/magento2/bin/magento cache:clean
     - sudo chmod -R 777 /var/www/html/magento2
     - sudo service apache2 restart
 
@@ -56,4 +56,4 @@ test:
   override:
     - npm test --prefix tests/
 
-    
+
