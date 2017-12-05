@@ -1,0 +1,57 @@
+general:
+  artifacts:
+    - "/home/ubuntu/checkout-magento2-plugin/tests/reports/screenshots"
+machine:
+  node:
+    version: 6
+  timezone:
+    Europe/London
+
+dependencies:
+  override:
+    - echo "Ignore CircleCI defaults"
+  pre:
+    - mysql -u ubuntu -e "create database magento"
+    - sudo add-apt-repository ppa:ondrej/php -y
+    - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    - sudo dpkg -i google-chrome*.deb
+    - npm install -g npm
+    - cd ~/checkout-magento2-plugin/tests && npm install
+  post:
+    - sudo rm /etc/apache2/mods-enabled/php5.load && sudo rm /etc/apache2/mods-enabled/php5.conf
+    - sudo cp ~/checkout-magento2-plugin/tests/config/000-default.conf /etc/apache2/sites-available
+    - sudo service apache2 restart
+    - sudo apt-get purge php5-common
+    - sudo apt-get update
+    - sudo apt-get install php7.0 php7.0-gd php7.0-curl php7.0-intl php7.0-zip php7.0-mbstring php7.0-mcrypt php7.0-mysql php7.0-xml -y
+    - sudo a2ensite 000-default.conf
+    - sudo service apache2 restart
+    - sudo rm -rf /usr/local/bin/composer
+    - sudo curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+    - sudo php /usr/local/bin/composer init --no-interaction && sudo php /usr/local/bin/composer config -a http-basic.repo.magento.com ${MG2_USERNAME} ${MG2_PASSWORD}
+    - sudo mkdir /var/www/html/magento2
+    - sudo php /usr/local/bin/composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.1.7 /var/www/html/magento2
+    - sudo chmod -R 777 /var/www/html/magento2
+    - sudo php /var/www/html/magento2/bin/magento setup:install --admin-email "checkout@plugin.com" --admin-firstname "checkout" --admin-lastname "plugin" --admin-password "Checkout17" --admin-user "admin" --backend-frontname admin --base-url "http://127.0.0.1/magento2" --db-host 127.0.0.1 --db-name magento --db-user ubuntu --session-save files --use-rewrites 1 --use-secure 0 -vvv
+    - sudo php /var/www/html/magento2/bin/magento setup:upgrade
+    - sudo php /var/www/html/magento2/bin/magento setup:di:compile
+    - cd /var/www/html/magento2/app && sudo mkdir code && cd code && sudo mkdir CheckoutCom && cd CheckoutCom && sudo mkdir Magento2 && sudo cp -R ~/checkout-magento2-plugin/* Magento2/
+    - sudo cp ~/checkout-magento2-plugin/tests/config/embedded.js /var/www/html/magento2/app/code/CheckoutCom/Magento2/view/frontend/web/js/view/payment/method-renderer/
+    - sudo chmod -R 777 /var/www/html/magento2
+    - sudo php /var/www/html/magento2/bin/magento setup:upgrade
+    - sudo php /var/www/html/magento2/bin/magento setup:static-content:deploy
+    - sudo php /var/www/html/magento2/bin/magento indexer:reindex
+    - cd /var/www/html/magento2 && sudo php /usr/local/bin/composer config -a http-basic.repo.magento.com ${MG2_USERNAME} ${MG2_PASSWORD}
+    - sudo php /var/www/html/magento2/bin/magento sampledata:deploy
+    - sudo php /var/www/html/magento2/bin/magento setup:upgrade
+    - sudo php /var/www/html/magento2/bin/magento setup:di:compile
+    - sudo php /var/www/html/magento2/bin/magento cache:checkout-magento2-plugin
+    - sudo a2enmod rewrite
+    - mysql -u ubuntu -e "use magento; insert core_config_data (config_id, scope, scope_id, path, value) values (null, 'default', 0, 'dev/static/sign', 0);"
+    - sudo php /var/www/html/magento2/bin/magento cache:checkout-magento2-plugin
+    - sudo chmod -R 777 /var/www/html/magento2
+    - sudo service apache2 restart
+
+test:
+  override:
+    - npm test --prefix tests/
