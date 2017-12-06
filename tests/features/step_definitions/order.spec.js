@@ -210,16 +210,24 @@ export default function () {
   });
 
   this.Given(/^I login the registered customer account$/, () => {
+    browser.waitUntil(function () {
+      return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
+    }, VAL.timeout_out, 'page should be loaded');
+    browser.pause(2000); // avoid magetno error
     browser.url(URL.magento_base + URL.sign_in_path);
     browser.waitUntil(function () {
       return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
     }, VAL.timeout_out, 'page should be loaded');
+    browser.pause(2000); // avoid magetno error
     if (browser.isVisible(FRONTEND.sign_in_email)) { // Only sign in if you are not signed in yet
       browser.setValue(FRONTEND.sign_in_email, VAL.customer.email);
       browser.setValue(FRONTEND.sign_in_password, VAL.customer.password);
       browser.waitUntil(function () {
         return browser.isEnabled(FRONTEND.sign_in_button);
       }, VAL.timeout_out, 'sign in button should be enabled');
+      browser.waitUntil(function () {
+        return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
+      }, VAL.timeout_out, 'page should be loaded');
       browser.click(FRONTEND.sign_in_button);
       browser.waitUntil(function () {
         return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
