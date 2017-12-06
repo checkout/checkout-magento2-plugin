@@ -4,6 +4,7 @@ import Globals from '../../globals/globals';
 const URL = Globals.value.url;
 const VAL = Globals.value;
 const BACKEND = Globals.selector.backend;
+const FRONTEND = Globals.selector.frontend;
 
 export default function () {
   this.Given(/^I set the viewport$/, () => {
@@ -181,5 +182,35 @@ export default function () {
         browser.selectByValue(BACKEND.plugin.advanced_category.autocapture, '0');
         break;
     }
+  });
+
+  this.Given(/^I update the stock for my test item$/, () => {
+    browser.url(URL.magento_base + URL.test_product_path);
+    if (browser.isVisible(BACKEND.admin_username)) {
+      browser.setValue(BACKEND.admin_username, VAL.admin.username);
+      browser.setValue(BACKEND.admin_password, VAL.admin.password);
+      browser.click(BACKEND.admin_sign_in);
+      browser.url(URL.magento_base + URL.test_product_path); // avoid magento cache popup
+    }
+    browser.waitUntil(function () {
+      return browser.isVisible(BACKEND.test_product_quantity);
+    }, VAL.timeout_out, 'stores button should be visible');
+    browser.setValue(BACKEND.test_product_quantity, 999);
+    browser.selectByValue(BACKEND.test_product_stock, '1');
+    browser.click(BACKEND.test_product_save);
+    browser.waitUntil(function () {
+      return !browser.isVisible(FRONTEND.order.loader);
+    }, VAL.timeout_out, 'Product should be updated');
+    browser.waitUntil(function () {
+      return !browser.isVisible(BACKEND.admin_loader);
+    }, VAL.timeout_out, 'Product should be updated');
+  });
+
+  this.Then(/^I clear magento's cache$/, () => {
+    browser.url(URL.magento_base + URL.cache_path);
+    browser.click(BACKEND.flash_catch);
+    browser.waitUntil(function () {
+      return !browser.isVisible(FRONTEND.order.loader);
+    }, VAL.timeout_out, 'Cache should be cleared');
   });
 }
