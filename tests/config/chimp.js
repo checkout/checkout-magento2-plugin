@@ -5,7 +5,7 @@ module.exports = {
   screenshotsOnError: true,
   saveScreenshotsToDisk: true,
   saveScreenshotsToReport: true,
-  timeout: 60000,
+  timeout: 99000,
   webdriverio: {
     logLevel: 'silent',
     screenshotPath: './reports/screenshots',
