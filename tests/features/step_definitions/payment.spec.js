@@ -210,6 +210,10 @@ export default function () {
 
   this.Then(/^I should see the success page$/, () => {
     browser.waitUntil(function () {
+      if (browser.isVisible(FRONTEND.order.three_d_password)) {
+        browser.setValue(FRONTEND.order.three_d_password, VAL.admin.three_d_password);
+        browser.click(FRONTEND.order.three_d_submit);
+      }
       return browser.isVisible(FRONTEND.order.checkout_success_message);
     }, VAL.timeout_out, 'success message should be visible');
   });
