@@ -13,20 +13,34 @@ namespace CheckoutCom\Magento2\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Checkout\Model\Session;
+use Magento\Sales\Api\Data\OrderInterface;
 
 class AddExtraDataToTransport implements ObserverInterface {
 
-    public function __construct(ScopeConfigInterface $scopeConfig)
+    protected $scopeConfig;
+    protected $checkoutSession;
+    protected $orderInterface;
+
+    public function __construct(ScopeConfigInterface $scopeConfig, Session $checkoutSession, OrderInterface $orderInterface)
     {
         $this->scopeConfig = $scopeConfig;
+        $this->checkoutSession = $checkoutSession;
+        $this->orderInterface = $orderInterface;
     }
 
     public function execute(Observer $observer)
     {
-        // Get the email content
-        $transport = $observer->getEvent()->getTransport();
+        // Get the current payment method used
+        $paymentMethod = $this->checkoutSession->getQuote()->getPayment()->getMethod();
 
-        // Override the payment information block
-        $transport['payment_html'] = $this->scopeConfig->getValue('payment/checkout_com/title');
+        if ($paymentMethod == 'checkout_com') {
+ 
+            // Get the email content
+            $transport = $observer->getEvent()->getTransport();
+
+            // Override the payment information block
+            $transport['payment_html'] = $this->scopeConfig->getValue('payment/checkout_com/title');
+        }
     }
 }
