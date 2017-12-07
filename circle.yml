@@ -36,7 +36,6 @@ dependencies:
     - sudo php /var/www/html/magento2/bin/magento setup:upgrade
     - sudo php /var/www/html/magento2/bin/magento setup:di:compile
     - cd /var/www/html/magento2/app && sudo mkdir code && cd code && sudo mkdir CheckoutCom && cd CheckoutCom && sudo mkdir Magento2 && sudo cp -R ~/checkout-magento2-plugin/* Magento2/
-    - sudo cp ~/checkout-magento2-plugin/tests/config/embedded.js /var/www/html/magento2/app/code/CheckoutCom/Magento2/view/frontend/web/js/view/payment/method-renderer/
     - sudo chmod -R 777 /var/www/html/magento2
     - sudo php /var/www/html/magento2/bin/magento setup:upgrade
     - sudo php /var/www/html/magento2/bin/magento setup:static-content:deploy
