@@ -87,10 +87,8 @@ export default function () {
           try {
             browser.setValue(FRONTEND.order.customer_firstname, VAL.guest.name);
           } catch (er) {
-            browser.pause(10000); // avoid magetno errors
-            browser.setValue(FRONTEND.order.customer_firstname, VAL.guest.name);
+            // avoid magetno errors
           }
-          browser.setValue(FRONTEND.order.customer_firstname, VAL.guest.name);
           browser.waitUntil(function () {
             return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
           }, VAL.timeout_out, 'wait for ajax');
@@ -113,10 +111,7 @@ export default function () {
           try {
             browser.setValue(FRONTEND.order.customer_city, VAL.guest.city);
           } catch (er) {
-            browser.pause(10000); // avoid magento error
-            if (!(browser.getValue(FRONTEND.order.customer_city === VAL.guest.city))) {
-              browser.setValue(FRONTEND.order.customer_city, VAL.guest.city);
-            }
+            // avoid magento error
           }
           browser.waitUntil(function () {
             return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
