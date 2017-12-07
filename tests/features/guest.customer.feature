@@ -9,7 +9,7 @@ Scenario: I should be able to complete a 3D transaction using Frames integration
       Then I clear magento's cache
       Then I complete the order flow as a unregistered customer until the payment stage
       Then I choose Checkout as a payment option
-      Then I complete Checkout Frames with a visa card
+      Then I complete Checkout Frames with a mastercard card
       Then I submit the order for the frames integration
       Then I complete the THREE D details
       Then I should see the success page
@@ -22,7 +22,7 @@ Scenario: I should be able to complete a non-3D transaction using Frames integra
       Then I clear magento's cache
       Then I complete the order flow as a unregistered customer until the payment stage
       Then I choose Checkout as a payment option
-      Then I complete Checkout Frames with a visa card
+      Then I complete Checkout Frames with a mastercard card
       Then I submit the order for the frames integration
       Then I should see the success page
 
@@ -35,7 +35,7 @@ Scenario: I should be able to complete a 3D transaction using Hosted integration
       Then I complete the order flow as a unregistered customer until the payment stage
       Then I choose Checkout as a payment option
       Then I submit the order for the hosted integration
-      Then I complete Checkout Hosted with a visa card
+      Then I complete Checkout Hosted with a mastercard card
       Then I complete the THREE D details
       Then I should see the success page
 
@@ -48,5 +48,5 @@ Scenario: I should be able to complete a non-3D transaction using Hosted integra
       Then I complete the order flow as a unregistered customer until the payment stage
       Then I choose Checkout as a payment option
       Then I submit the order for the hosted integration
-      Then I complete Checkout Hosted with a visa card
+      Then I complete Checkout Hosted with a mastercard card
       Then I should see the success page

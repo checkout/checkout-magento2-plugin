@@ -44,6 +44,9 @@ export default function () {
         browser.waitUntil(function () {
           return browser.isVisible(FRONTEND.order.customer_email);
         }, VAL.timeout_out, 'the customer email field should be visible');
+        browser.waitUntil(function () {
+          return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
+        }, VAL.timeout_out, 'the shopping basket should be updated with the product');
         if (browser.getValue(FRONTEND.order.customer_firstname) === VAL.guest.name && browser.getValue(FRONTEND.order.customer_phone) === VAL.guest.phone) {
           browser.waitUntil(function () {
             return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
@@ -111,7 +114,9 @@ export default function () {
             browser.setValue(FRONTEND.order.customer_city, VAL.guest.city);
           } catch (er) {
             browser.pause(10000); // avoid magento error
-            browser.setValue(FRONTEND.order.customer_city, VAL.guest.city);
+            if (!(browser.getValue(FRONTEND.order.customer_city === VAL.guest.city))) {
+              browser.setValue(FRONTEND.order.customer_city, VAL.guest.city);
+            }
           }
           browser.waitUntil(function () {
             return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
