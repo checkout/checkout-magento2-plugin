@@ -44,17 +44,6 @@ export default function () {
         browser.waitUntil(function () {
           return browser.isVisible(FRONTEND.order.customer_email);
         }, VAL.timeout_out, 'the customer email field should be visible');
-        browser.setValue(FRONTEND.order.customer_email, VAL.guest.email);
-        browser.waitUntil(function () {
-          return !browser.isVisible(FRONTEND.order.loader);
-        }, VAL.timeout_out, 'loader should not be visible');
-        browser.waitUntil(function () {
-          return !browser.isVisible(FRONTEND.order.checkout_page_loader);
-        }, VAL.timeout_out, 'the customer data page should be loaded');
-        browser.waitUntil(function () {
-          return !browser.getAttribute(FRONTEND.order.email_fieldset, 'class').includes(VAL.fieldset_block);
-        }, VAL.timeout_out, 'the email check should be completed');
-        browser.pause(2000); // avoid magento problems
         if (browser.getValue(FRONTEND.order.customer_firstname) === VAL.guest.name && browser.getValue(FRONTEND.order.customer_phone) === VAL.guest.phone) {
           browser.waitUntil(function () {
             return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
@@ -71,6 +60,19 @@ export default function () {
           browser.waitUntil(function () {
             return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
           }, VAL.timeout_out, 'wait for ajax');
+
+          browser.setValue(FRONTEND.order.customer_email, VAL.guest.email);
+          browser.waitUntil(function () {
+            return !browser.isVisible(FRONTEND.order.loader);
+          }, VAL.timeout_out, 'loader should not be visible');
+          browser.waitUntil(function () {
+            return !browser.isVisible(FRONTEND.order.checkout_page_loader);
+          }, VAL.timeout_out, 'the customer data page should be loaded');
+          browser.waitUntil(function () {
+            return !browser.getAttribute(FRONTEND.order.email_fieldset, 'class').includes(VAL.fieldset_block);
+          }, VAL.timeout_out, 'the email check should be completed');
+          browser.pause(2000); // avoid magento problems
+
           browser.click(FRONTEND.order.go_to_payment);
           browser.waitUntil(function () {
             return !browser.isVisible(FRONTEND.order.loader);
@@ -79,6 +81,12 @@ export default function () {
             return !browser.isVisible(FRONTEND.order.checkout_page_loader);
           }, VAL.timeout_out, 'the payment page should be loaded');
         } else {
+          try {
+            browser.setValue(FRONTEND.order.customer_firstname, VAL.guest.name);
+          } catch (er) {
+            browser.pause(10000); // avoid magetno errors
+            browser.setValue(FRONTEND.order.customer_firstname, VAL.guest.name);
+          }
           browser.setValue(FRONTEND.order.customer_firstname, VAL.guest.name);
           browser.waitUntil(function () {
             return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
@@ -128,6 +136,19 @@ export default function () {
           browser.waitUntil(function () {
             return !browser.getAttribute('body', 'class').includes(FRONTEND.order.ajax_loader);
           }, VAL.timeout_out, 'wait for ajax');
+
+          browser.setValue(FRONTEND.order.customer_email, VAL.guest.email);
+          browser.waitUntil(function () {
+            return !browser.isVisible(FRONTEND.order.loader);
+          }, VAL.timeout_out, 'loader should not be visible');
+          browser.waitUntil(function () {
+            return !browser.isVisible(FRONTEND.order.checkout_page_loader);
+          }, VAL.timeout_out, 'the customer data page should be loaded');
+          browser.waitUntil(function () {
+            return !browser.getAttribute(FRONTEND.order.email_fieldset, 'class').includes(VAL.fieldset_block);
+          }, VAL.timeout_out, 'the email check should be completed');
+          browser.pause(2000); // avoid magento problems
+
           browser.click(FRONTEND.order.go_to_payment);
           browser.waitUntil(function () {
             return !browser.isVisible(FRONTEND.order.loader);

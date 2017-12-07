@@ -82,7 +82,7 @@ export default {
         cvv: '100',
       },
     },
-    timeout_out: 80000,
+    timeout_out: 120000,
     resolution_w: 1920,
     resolution_h: 3000,
     title: 'Test',
