@@ -166,11 +166,8 @@ define(
                         // Set the save card option in session
                         self.saveSessionData();
 
-                        // Submit the form
-                        Frames.submitCard().then(function(data) {
-                            Frames.addCardToken(paymentForm, data.cardToken);
-                            paymentForm.submit();
-                        })
+                        // Submit frames form
+                        Frames.submitCard();
                     }
                 }
             },
@@ -185,20 +182,20 @@ define(
 
                 this.isPlaceOrderActionAllowed(false);
                 this.getPlaceOrderDeferredObject()
-                    .fail(
-                        function() {
-                            self.isPlaceOrderActionAllowed(true);
-                            self.reloadEmbeddedForm();
-                        }
-                    ).done(
-                        function() {
-                            self.afterPlaceOrder();
+                .fail(
+                    function() {
+                        self.isPlaceOrderActionAllowed(true);
+                        self.reloadEmbeddedForm();
+                    }
+                ).done(
+                    function() {
+                        self.afterPlaceOrder();
 
-                            if (self.redirectAfterPlaceOrder) {
-                                redirectOnSuccessAction.execute();
-                            }
+                        if (self.redirectAfterPlaceOrder) {
+                            redirectOnSuccessAction.execute();
                         }
-                    );
+                    }
+                );
             },
 
             /**
@@ -215,6 +212,7 @@ define(
                 var ckoThemeOverride = ((custom_css) && custom_css !== '' && css_file == 'custom') ? custom_css : undefined;
                 var redirectUrl = self.getRedirectUrl();
                 var threeds_enabled = CheckoutCom.getPaymentConfig()['three_d_secure']['enabled'];
+                var paymentForm = document.getElementById('embeddedForm');
 
                 // Freeze the place order button on initialisation
                 self.isPlaceOrderActionAllowed(false);
@@ -231,6 +229,9 @@ define(
                     cardTokenised: function(event) {
                         // Set the card token
                         self.setCardTokenId(event.data.cardToken);
+
+                        // Add the card token to the form
+                        Frames.addCardToken(paymentForm, event.data.cardToken);
 
                         // Place order
                         if (threeds_enabled) {
