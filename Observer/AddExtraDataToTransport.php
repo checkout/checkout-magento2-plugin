@@ -34,7 +34,7 @@ class AddExtraDataToTransport implements ObserverInterface {
         // Get the current payment method used
         $paymentMethod = $this->checkoutSession->getQuote()->getPayment()->getMethod();
 
-        if ($paymentMethod == 'checkout_com') {
+        if ($paymentMethod == 'checkout_com' || $paymentMethod == 'checkout_com_cc_vault') {
  
             // Get the email content
             $transport = $observer->getEvent()->getTransport();
