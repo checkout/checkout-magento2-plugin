@@ -22,23 +22,25 @@ class OrderCancelObserver implements ObserverInterface {
     protected $orderService;
 
     public function __construct(OrderService $orderService) {
-        $this->orderService = $orderService;    
+        $this->orderService = $orderService;
     }
 
     /**
      * Handles the observer for order cancellation.
      *
      * @param Observer $observer
-     * @return void
+     *
+     * @return $this
      */
     public function execute(Observer $observer) {
-        // Load the order id
+        // Get the order object
         $order = $observer->getData('order');
 
-        // Update the hub API for cancelled order
-        $this->orderService->cancelTransactionToRemote($order);    
+        if ($order && in_array($order->getPayment()->getMethod(), ['checkout_com', 'checkout_com_cc_vault'])) {
+            // Update the hub API for cancelled order
+            $this->orderService->cancelTransactionToRemote($order);
+        }
 
         return $this;
     }
-
 }
