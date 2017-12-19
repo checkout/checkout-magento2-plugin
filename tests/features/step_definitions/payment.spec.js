@@ -1,5 +1,5 @@
 /* eslint-disable func-names, prefer-arrow-callback */
-import Globals from '../../globals/globals';
+import Globals from '../../config/globals';
 
 const VAL = Globals.value;
 const FRONTEND = Globals.selector.frontend;
@@ -14,7 +14,7 @@ export default function () {
 
   this.Then(/^I complete Checkout Frames with a (.*) card$/, (option) => {
     let card;
-    let mounth;
+    let month;
     let year;
     let cvv;
     browser.waitUntil(function () {
@@ -26,8 +26,8 @@ export default function () {
       case 'visa':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.visa.card_number);
-        mounth = browser.element(FRONTEND.order.embedded_fields.mounth);
-        mounth.setValue(VAL.card.visa.mounth);
+        month = browser.element(FRONTEND.order.embedded_fields.month);
+        month.setValue(VAL.card.visa.month);
         year = browser.element(FRONTEND.order.embedded_fields.year);
         year.setValue(VAL.card.visa.year);
         cvv = browser.element(FRONTEND.order.embedded_fields.cvv);
@@ -36,8 +36,8 @@ export default function () {
       case 'mastercard':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.mastercard.card_number);
-        mounth = browser.element(FRONTEND.order.embedded_fields.mounth);
-        mounth.setValue(VAL.card.mastercard.mounth);
+        month = browser.element(FRONTEND.order.embedded_fields.month);
+        month.setValue(VAL.card.mastercard.month);
         year = browser.element(FRONTEND.order.embedded_fields.year);
         year.setValue(VAL.card.mastercard.year);
         cvv = browser.element(FRONTEND.order.embedded_fields.cvv);
@@ -46,8 +46,8 @@ export default function () {
       case 'amex':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.amex.card_number);
-        mounth = browser.element(FRONTEND.order.embedded_fields.card.mounth);
-        mounth.setValue(VAL.card.amex.mounth);
+        month = browser.element(FRONTEND.order.embedded_fields.card.month);
+        month.setValue(VAL.card.amex.month);
         year = browser.element(FRONTEND.order.embedded_fields.card.year);
         year.setValue(VAL.card.amex.year);
         cvv = browser.element(FRONTEND.order.embedded_fields.card.cvv);
@@ -56,8 +56,8 @@ export default function () {
       case 'diners':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.diners.card_number);
-        mounth = browser.element(FRONTEND.order.embedded_fields.mounth);
-        mounth.setValue(VAL.card.diners.mounth);
+        month = browser.element(FRONTEND.order.embedded_fields.month);
+        month.setValue(VAL.card.diners.month);
         year = browser.element(FRONTEND.order.embedded_fields.year);
         year.setValue(VAL.card.diners.year);
         cvv = browser.element(FRONTEND.order.embedded_fields.cvv);
@@ -66,8 +66,8 @@ export default function () {
       case 'jcb':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.jcb.card_number);
-        mounth = browser.element(FRONTEND.order.embedded_fields.mounth);
-        mounth.setValue(VAL.card.jcb.mounth);
+        month = browser.element(FRONTEND.order.embedded_fields.month);
+        month.setValue(VAL.card.jcb.month);
         year = browser.element(FRONTEND.order.embedded_fields.year);
         year.setValue(VAL.card.jcb.year);
         cvv = browser.element(FRONTEND.order.embedded_fields.cvv);
@@ -76,8 +76,8 @@ export default function () {
       case 'discover':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.discover.card_number);
-        mounth = browser.element(FRONTEND.order.embedded_fields.mounth);
-        mounth.setValue(VAL.card.discover.mounth);
+        month = browser.element(FRONTEND.order.embedded_fields.month);
+        month.setValue(VAL.card.discover.month);
         year = browser.element(FRONTEND.order.embedded_fields.year);
         year.setValue(VAL.card.discover.year);
         cvv = browser.element(FRONTEND.order.embedded_fields.cvv);
@@ -86,8 +86,8 @@ export default function () {
       default:
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.visa.card_number);
-        mounth = browser.element(FRONTEND.order.embedded_fields.mounth);
-        mounth.setValue(VAL.card.visa.mounth);
+        month = browser.element(FRONTEND.order.embedded_fields.month);
+        month.setValue(VAL.card.visa.month);
         year = browser.element(FRONTEND.order.embedded_fields.year);
         year.setValue(VAL.card.visa.year);
         cvv = browser.element(FRONTEND.order.embedded_fields.cvv);
@@ -99,7 +99,7 @@ export default function () {
 
   this.Then(/^I complete Checkout Hosted with a (.*) card$/, (option) => {
     let card;
-    let mounth;
+    let month;
     let year;
     let cvv;
     browser.waitUntil(function () {
@@ -109,8 +109,8 @@ export default function () {
       case 'visa':
         card = browser.element(FRONTEND.hosted.card_number);
         card.setValue(VAL.card.visa.card_number);
-        mounth = browser.element(FRONTEND.hosted.mounth);
-        mounth.setValue(VAL.card.visa.mounth);
+        month = browser.element(FRONTEND.hosted.month);
+        month.setValue(VAL.card.visa.month);
         year = browser.element(FRONTEND.hosted.year);
         year.setValue(VAL.card.visa.year);
         cvv = browser.element(FRONTEND.hosted.cvv);
@@ -119,8 +119,8 @@ export default function () {
       case 'mastercard':
         card = browser.element(FRONTEND.hosted.card_number);
         card.setValue(VAL.card.mastercard.card_number);
-        mounth = browser.element(FRONTEND.hosted.mounth);
-        mounth.setValue(VAL.card.mastercard.mounth);
+        month = browser.element(FRONTEND.hosted.month);
+        month.setValue(VAL.card.mastercard.month);
         year = browser.element(FRONTEND.hosted.year);
         year.setValue(VAL.card.mastercard.year);
         cvv = browser.element(FRONTEND.hosted.cvv);
@@ -129,8 +129,8 @@ export default function () {
       case 'amex':
         card = browser.element(FRONTEND.hosted.card_number);
         card.setValue(VAL.card.amex.card_number);
-        mounth = browser.element(FRONTEND.hosted.mounth);
-        mounth.setValue(VAL.card.amex.mounth);
+        month = browser.element(FRONTEND.hosted.month);
+        month.setValue(VAL.card.amex.month);
         year = browser.element(FRONTEND.hosted.year);
         year.setValue(VAL.card.amex.year);
         cvv = browser.element(FRONTEND.hosted.cvv);
@@ -139,8 +139,8 @@ export default function () {
       case 'diners':
         card = browser.element(FRONTEND.hosted.card_number);
         card.setValue(VAL.card.diners.card_number);
-        mounth = browser.element(FRONTEND.hosted.mounth);
-        mounth.setValue(VAL.card.diners.mounth);
+        month = browser.element(FRONTEND.hosted.month);
+        month.setValue(VAL.card.diners.month);
         year = browser.element(FRONTEND.hosted.year);
         year.setValue(VAL.card.diners.year);
         cvv = browser.element(FRONTEND.hosted.cvv);
@@ -149,8 +149,8 @@ export default function () {
       case 'jcb':
         card = browser.element(FRONTEND.hosted.card_number);
         card.setValue(VAL.card.jcb.card_number);
-        mounth = browser.element(FRONTEND.hosted.mounth);
-        mounth.setValue(VAL.card.jcb.mounth);
+        month = browser.element(FRONTEND.hosted.month);
+        month.setValue(VAL.card.jcb.month);
         year = browser.element(FRONTEND.hosted.year);
         year.setValue(VAL.card.jcb.year);
         cvv = browser.element(FRONTEND.hosted.cvv);
@@ -159,8 +159,8 @@ export default function () {
       case 'discover':
         card = browser.element(FRONTEND.hosted.card_number);
         card.setValue(VAL.card.discover.card_number);
-        mounth = browser.element(FRONTEND.hosted.mounth);
-        mounth.setValue(VAL.card.discover.mounth);
+        month = browser.element(FRONTEND.hosted.month);
+        month.setValue(VAL.card.discover.month);
         year = browser.element(FRONTEND.hosted.year);
         year.setValue(VAL.card.discover.year);
         cvv = browser.element(FRONTEND.hosted.cvv);
@@ -169,8 +169,8 @@ export default function () {
       default:
         card = browser.element(FRONTEND.hosted.card_number);
         card.setValue(VAL.card.visa.card_number);
-        mounth = browser.element(FRONTEND.hosted.mounth);
-        mounth.setValue(VAL.card.visa.mounth);
+        month = browser.element(FRONTEND.hosted.month);
+        month.setValue(VAL.card.visa.month);
         year = browser.element(FRONTEND.hosted.year);
         year.setValue(VAL.card.visa.year);
         cvv = browser.element(FRONTEND.hosted.cvv);

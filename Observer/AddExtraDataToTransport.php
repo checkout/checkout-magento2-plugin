@@ -13,32 +13,31 @@ namespace CheckoutCom\Magento2\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Checkout\Model\Session;
-use Magento\Sales\Api\Data\OrderInterface;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 
 class AddExtraDataToTransport implements ObserverInterface {
 
+    /**
+     * @var ScopeConfigInterface
+     */
     protected $scopeConfig;
-    protected $checkoutSession;
-    protected $orderInterface;
 
-    public function __construct(ScopeConfigInterface $scopeConfig, Session $checkoutSession, OrderInterface $orderInterface)
+    public function __construct(ScopeConfigInterface $scopeConfig)
     {
         $this->scopeConfig = $scopeConfig;
-        $this->checkoutSession = $checkoutSession;
-        $this->orderInterface = $orderInterface;
     }
 
     public function execute(Observer $observer)
     {
         // Get the current payment method used
-        $paymentMethod = $this->checkoutSession->getQuote()->getPayment()->getMethod();
+        $transport = $observer->getEvent()->getTransport();
 
-        if ($paymentMethod == 'checkout_com' || $paymentMethod == 'checkout_com_cc_vault') {
+        // Get the payment method
+        $paymentMethod = $transport->getOrder()->getPayment()->getMethod();
+
+        // Test the current method used
+        if ($paymentMethod == ConfigProvider::CODE || $paymentMethod == ConfigProvider::CC_VAULT_CODE || $paymentMethod == ConfigProvider::THREE_DS_CODE) {
  
-            // Get the email content
-            $transport = $observer->getEvent()->getTransport();
-
             // Override the payment information block
             $transport['payment_html'] = $this->scopeConfig->getValue('payment/checkout_com/title');
         }
