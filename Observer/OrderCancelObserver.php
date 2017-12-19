@@ -13,6 +13,7 @@ namespace CheckoutCom\Magento2\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use CheckoutCom\Magento2\Model\Service\OrderService;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 
 class OrderCancelObserver implements ObserverInterface {
 
@@ -32,13 +33,20 @@ class OrderCancelObserver implements ObserverInterface {
      * @return void
      */
     public function execute(Observer $observer) {
-        // Load the order id
+
+        // Get the order
         $order = $observer->getData('order');
 
-        // Update the hub API for cancelled order
-        $this->orderService->cancelTransactionToRemote($order);    
+        // Get the payment method
+        $paymentMethod = $order->getPayment()->getMethod();
+
+        // Test the current method used
+        if ($paymentMethod == ConfigProvider::CODE || $paymentMethod == ConfigProvider::CC_VAULT_CODE || $paymentMethod == ConfigProvider::THREE_DS_CODE) {
+
+            // Update the hub API for cancelled order
+            $this->orderService->cancelTransactionToRemote($order);    
+        }
 
         return $this;
     }
-
 }

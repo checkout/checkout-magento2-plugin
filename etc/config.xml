@@ -67,6 +67,9 @@
                 <autosave>1</autosave>
                 <hide_card_storage>0</hide_card_storage>
             </checkout_com_cc_vault>
+            <checkout_com_3ds>
+                <model>CheckoutComFacade</model>
+            </checkout_com_3ds>
         </payment>
     </default>
 </config>

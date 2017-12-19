@@ -23,6 +23,8 @@ class ConfigProvider implements ConfigProviderInterface {
 
     const CC_VAULT_CODE = 'checkout_com_cc_vault';
 
+    const THREE_DS_CODE = 'checkout_com_3ds';
+
     /**
      * @var Config
      */
