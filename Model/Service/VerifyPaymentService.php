@@ -75,7 +75,6 @@ class VerifyPaymentService {
         $client = new ZendClient($this->gatewayConfig->getApiUrl() . $endpoint);
         $client->setMethod('GET');
         $client->setHeaders($transfer->getHeaders());
-        $client->setUrlEncodeBody($transfer->shouldEncode());
 
         return $client;
     }
