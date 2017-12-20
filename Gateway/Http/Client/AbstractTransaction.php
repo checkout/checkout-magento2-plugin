@@ -160,8 +160,6 @@ abstract class AbstractTransaction implements ClientInterface {
         }
 
         $client->setHeaders($transferObject->getHeaders());
-        $client->setUrlEncodeBody($transferObject->shouldEncode());
-           
         $client->setUri($this->fullUri);
         
         try {

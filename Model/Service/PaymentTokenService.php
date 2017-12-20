@@ -135,7 +135,6 @@ class PaymentTokenService {
         $client->setRawData( json_encode( $transfer->getBody()) ) ;
         $client->setHeaders($transfer->getHeaders());
         $client->setConfig($transfer->getClientConfig());
-        $client->setUrlEncodeBody($transfer->shouldEncode());
 
         return $client;
     }

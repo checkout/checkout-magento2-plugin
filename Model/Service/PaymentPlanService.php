@@ -167,7 +167,6 @@ class PaymentPlanService {
         $client->setMethod('POST');
         $client->setRawData( json_encode( $transfer->getBody()) ) ;
         $client->setHeaders($transfer->getHeaders());
-        $client->setUrlEncodeBody($transfer->shouldEncode());
         
         return $client;
     }
