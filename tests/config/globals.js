@@ -2,7 +2,7 @@
 export default {
   value: {
     url: {
-      magento_base: 'http://127.0.0.1/magento2',
+      magento_base: 'http://127.0.0.1/magento22',
       admin_path: '/admin',
       catalog_path: '/admin/div._required:nth-child(1) > div:nth-child(2) > input:nth-child(1)/product/',
       payments_path: '/admin/admin/system_config/edit/section/payment/',
@@ -15,6 +15,7 @@ export default {
       test_product_path: '/admin/catalog/product/edit/id/6/',
       cache_path: '/admin/admin/cache/',
       create_product_path: '/admin/catalog/product/new/set/4/type/simple/',
+      captcha_path: '/admin/admin/system_config/edit/section/customer/'
     },
     admin: {
       username: 'admin',
@@ -103,7 +104,7 @@ export default {
         loader: '.loading-mask',
         ajax_loader: 'ajax-loading',
         add_product: '#product-addtocart-button',
-        product_counter: 'span.counter:nth-child(2)',
+        product_counter: '.counter-number',
         cart: '.showcart',
         go_to_checkout: '#top-cart-btn-checkout',
         go_to_payment: '.button',
@@ -249,6 +250,9 @@ export default {
       new_product_stock: 'div.admin__field:nth-child(8) > div:nth-child(2) > select:nth-child(1)',
       new_product_load_mask: '.admin__form-loading-mask',
       save_success_message: 'div.message:nth-child(1)',
+      captcha_option: '#customer_captcha_enable',
+      captcha_category: '#customer_captcha-head',
+      captcha_default: '#customer_captcha_enable_inherit',
     },
   },
 };

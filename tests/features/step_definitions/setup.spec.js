@@ -15,6 +15,18 @@ export default function () {
       height: VAL.resolution_h,
     }, true);
   });
+
+  this.Given(/^I disable captcha$/, () => {
+    browser.url(URL.magento_base + URL.captcha_path);
+    if (!browser.isVisible(BACKEND.captcha_option)) {
+      browser.click(BACKEND.captcha_category);
+    }
+    if(browser.isSelected(BACKEND.captcha_default)) {
+      browser.click(BACKEND.captcha_default);
+    }
+    browser.selectByValue(BACKEND.captcha_option, 0);
+    browser.click(BACKEND.plugin.save);
+  });
   this.Given(/^I disable the url secret key encryption$/, () => {
     browser.url(URL.magento_base + URL.admin_path);
     if (browser.isVisible(BACKEND.admin_username)) {
@@ -39,10 +51,8 @@ export default function () {
       return browser.isVisible(BACKEND.admin);
     }, VAL.timeout_out, 'admin button should be visible');
     browser.click(BACKEND.admin);
-    browser.waitUntil(function () {
-      return browser.isVisible(BACKEND.admin_security);
-    }, VAL.timeout_out, 'admin security button should be visible');
-    browser.click(BACKEND.admin_security);
+    let security = browser.element('a*=Security');
+    security.click();
     browser.waitUntil(function () {
       return browser.isVisible(BACKEND.admin_security_key);
     }, VAL.timeout_out, 'admin security key option button should be visible');
@@ -84,22 +94,34 @@ export default function () {
       browser.click(BACKEND.admin_sign_in);
       browser.url(URL.magento_base + URL.payments_path); // avoid magento cache popup
     }
+    browser.waitUntil(function () {
+      return browser.isVisibleWithinViewport(BACKEND.other_payments);
+    }, VAL.timeout_out, 'wait for plugin to be loaded');
     if (!browser.isVisible(BACKEND.plugin.selector)) {
       browser.click(BACKEND.other_payments);
     }
+    browser.waitUntil(function () {
+      return browser.isVisibleWithinViewport(BACKEND.plugin.selector);
+    }, VAL.timeout_out, 'wait for plugin to be loaded');
+    browser.pause(1000); // animation delay 
     if (!browser.isVisible(BACKEND.plugin.basic_category.selector)) {
+      browser.pause(1000); // animation delay 
       browser.click(BACKEND.plugin.selector);
     }
     if (!browser.isVisible(BACKEND.plugin.basic_category.title)) {
+      browser.pause(1000); // animation delay 
       browser.click(BACKEND.plugin.basic_category.selector);
     }
     if (!browser.isVisible(BACKEND.plugin.advanced_category.cvv_vetification)) {
+      browser.pause(1000); // animation delay 
       browser.click(BACKEND.plugin.advanced_category.selector);
     }
     if (!browser.isVisible(BACKEND.plugin.order_category.order_creation)) {
+      browser.pause(1000); // animation delay 
       browser.click(BACKEND.plugin.order_category.selector);
     }
     if (!browser.isVisible(BACKEND.plugin.keys_category.public)) {
+      browser.pause(1000); // animation delay 
       browser.click(BACKEND.plugin.keys_category.selector);
     }
   });
@@ -122,22 +144,28 @@ export default function () {
       browser.click(BACKEND.admin_sign_in);
       browser.url(URL.magento_base + URL.payments_path); // avoid magento cache popup
     }
+    browser.pause(1000); // animation delay 
     if (!browser.isVisible(BACKEND.plugin.selector)) {
       browser.click(BACKEND.other_payments);
     }
     if (!browser.isVisible(BACKEND.plugin.basic_category.selector)) {
+      browser.pause(1000); // animation delay 
       browser.click(BACKEND.plugin.selector);
     }
     if (!browser.isVisible(BACKEND.plugin.basic_category.title)) {
+      browser.pause(1000); // animation delay 
       browser.click(BACKEND.plugin.basic_category.selector);
     }
     if (!browser.isVisible(BACKEND.plugin.advanced_category.cvv_vetification)) {
+      browser.pause(1000); // animation delay 
       browser.click(BACKEND.plugin.advanced_category.selector);
     }
     if (!browser.isVisible(BACKEND.plugin.order_category.order_creation)) {
+      browser.pause(1000); // animation delay 
       browser.click(BACKEND.plugin.order_category.selector);
     }
     if (!browser.isVisible(BACKEND.plugin.keys_category.public)) {
+      browser.pause(1000); // animation delay 
       browser.click(BACKEND.plugin.keys_category.selector);
     }
     if (integration === 'frames' && browser.getValue(BACKEND.plugin.basic_category.integration) !== 'embedded') {
@@ -174,7 +202,8 @@ export default function () {
     browser.waitUntil(function () {
       return browser.isVisible(FRONTEND.registration.success);
     }, VAL.timeout_out, 'loadershould not be visible');
-    browser.click(FRONTEND.registration.address_tab);
+    let Address = browser.element("=Address Book");
+    Address.click();
     browser.waitUntil(function () {
       return browser.isVisible(FRONTEND.registration.street);
     }, VAL.timeout_out, 'street input be visible');
@@ -197,21 +226,27 @@ export default function () {
       browser.url(URL.magento_base + URL.payments_path); // avoid magento cache popup
     }
     if (!browser.isVisible(BACKEND.plugin.selector)) {
+      browser.pause(1000);
       browser.click(BACKEND.other_payments);
     }
     if (!browser.isVisible(BACKEND.plugin.basic_category.selector)) {
+      browser.pause(1000);
       browser.click(BACKEND.plugin.selector);
     }
     if (!browser.isVisible(BACKEND.plugin.basic_category.title)) {
+      browser.pause(1000);
       browser.click(BACKEND.plugin.basic_category.selector);
     }
     if (!browser.isVisible(BACKEND.plugin.advanced_category.cvv_vetification)) {
+      browser.pause(1000);
       browser.click(BACKEND.plugin.advanced_category.selector);
     }
     if (!browser.isVisible(BACKEND.plugin.order_category.order_creation)) {
+      browser.pause(1000);
       browser.click(BACKEND.plugin.order_category.selector);
     }
     if (!browser.isVisible(BACKEND.plugin.keys_category.public)) {
+      browser.pause(1000);
       browser.click(BACKEND.plugin.keys_category.selector);
     }
     browser.setValue(BACKEND.plugin.keys_category.public, VAL.admin.public_key);
