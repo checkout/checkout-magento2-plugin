@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: integrationcheckout/ecommerce:magento2.1
+      - image: integrationcheckout/ecommerce:magento2.2
     working_directory: ~/cko_magento2
     steps:
       - checkout
@@ -11,8 +11,8 @@ jobs:
           name: Refresh Magetno and Install Checkout
           command: |
             sudo a2enmod rewrite && sudo service apache2 restart && sudo service mysql restart
-            cd /var/www/html/magento2/app && sudo mkdir code && cd code && sudo mkdir CheckoutCom && cd CheckoutCom && sudo mkdir Magento2 && sudo cp -R ~/cko_magento2/* Magento2/
-            cd /var/www/html/magento2 && sudo php bin/magento setup:upgrade && sudo php bin/magento setup:di:compile && sudo chmod -R 777 .
+            cd /var/www/html/magento22/app && sudo mkdir code && cd code && sudo mkdir CheckoutCom && cd CheckoutCom && sudo mkdir Magento2 && sudo cp -R ~/cko_magento2/* Magento2/
+            cd /var/www/html/magento22 && sudo php bin/magento setup:upgrade && sudo php bin/magento setup:di:compile && sudo chmod -R 777 .
       - run:
           name: Install dependencies
           command: |
@@ -20,7 +20,7 @@ jobs:
       - run:
           name: Run Tests
           command: |
-            cd ~/cko_magento2/tests && ./node_modules/.bin/chimp config/chimp.js
+            cd ~/cko_magento2/tests && ./node_modules/.bin/chimp config/chimp.js --fail-fast
       - store_artifacts:
           path: ~/cko_magento2/tests/screenshots
           destination: Failed-Tests

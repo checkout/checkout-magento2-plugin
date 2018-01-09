@@ -9,6 +9,9 @@ const FRONTEND = Globals.selector.frontend;
 
 export default function () {
   this.Given(/^I set the integration type to (.*)$/, (integration) => {
+    if (!browser.isVisible(BACKEND.plugin.basic_category.title)) {
+      browser.click(BACKEND.plugin.basic_category.selector);
+    }
     switch (integration) {
       case 'frames':
         browser.selectByValue(BACKEND.plugin.basic_category.integration, 'embedded');
