@@ -1,6 +1,7 @@
 <img src="https://docs.checkout.com/img/Logo-black.png" alt="Checkout.com" width="380"/>
 
-## Magento 2 Extension
+## Magento 2 Extension &nbsp; ![N|Solid](https://circleci.com/gh/checkout/checkout-magento2-plugin.svg?style=shield&circle-token=c246af998b0859be11b269afd0b0162303f1ac5f)
+
 [Checkout.com](https://www.checkout.com "Checkout.com") is a software platform that has integrated 100% of the value chain to create payment infrastructures that truly make a difference. Checkout.com is authorised and regulated as a Payment institution by the UK Financial Conduct Authority.
 
 The Checkout.com extension for Magento 2 allows shop owners to process online payments through the [Checkout.com Payment Gateway](https://docs.checkout.com/getting-started/introduction "Checkout.com Payment Gateway").
