@@ -1,0 +1,463 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Payment Method Facade configuration -->
+    <virtualType name="CheckoutComFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">CheckoutCom\Magento2\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">CheckoutCom\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">CheckoutComValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">CheckoutComCommandPool</argument>
+            <!--<argument name="validatorPool" xsi:type="object">CheckoutComValidatorPool</argument>-->
+        </arguments>
+    </virtualType>
+    <!-- END Payment Method Facade configuration -->
+
+    <!-- Configuration for Vault payments -->
+    <virtualType name="CheckoutComVaultPaymentConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CC_VAULT_CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComVaultPaymentValueHandler" type="VaultPaymentDefaultValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">CheckoutComVaultPaymentConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComVaultPaymentValueHandlerPool" type="VaultPaymentValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">CheckoutComVaultPaymentValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComCreditCardVaultFacade" type="Magento\Vault\Model\Method\Vault">
+        <arguments>
+            <argument name="config" xsi:type="object">CheckoutComVaultPaymentConfig</argument>
+            <argument name="code" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CC_VAULT_CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">CheckoutComVaultPaymentValueHandlerPool</argument>
+            <argument name="vaultProvider" xsi:type="object">CheckoutComFacade</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Configuration for Vault payments -->
+
+    <!-- Configuration reader -->
+    <type name="CheckoutCom\Magento2\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="CheckoutComConfig" type="CheckoutCom\Magento2\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Configuration reader -->
+
+    <!-- Transfer Factory -->
+    <virtualType name="CheckoutComTransferFactory" type="CheckoutCom\Magento2\Gateway\Http\TransferFactory">
+        <arguments>
+            <argument name="config" xsi:type="object">CheckoutComConfig</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Transfer Factory -->
+
+    <!-- Logger -->
+    <virtualType name="CheckoutComLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">CheckoutComConfig</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Logger -->
+
+    <!-- Client -->
+    <type name="CheckoutCom\Magento2\Gateway\Http\Client\AbstractTransaction">
+        <arguments>
+            <argument name="logger" xsi:type="object">CheckoutComLogger</argument>
+        </arguments>
+    </type>
+    <!-- END Client -->
+
+    <!-- Commands infrastructure -->
+    <virtualType name="CheckoutComCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">CheckoutComAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">CheckoutComCaptureCommand</item>
+                <item name="vault_authorize" xsi:type="string">CheckoutComVaultAuthorizeCommand</item>
+                <item name="vault_capture" xsi:type="string">CheckoutComVaultCaptureCommand</item>
+                <item name="refund" xsi:type="string">CheckoutComRefundCommand</item>
+                <item name="void" xsi:type="string">CheckoutComVoidCommand</item>
+                <item name="cancel" xsi:type="string">CheckoutComVoidCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Commands infrastructure -->
+
+    <!-- Command managers section for Vault -->
+    <virtualType name="CheckoutComCommandManager" type="Magento\Payment\Gateway\Command\CommandManager">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">CheckoutComCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Payment\Gateway\Command\CommandManagerPool">
+        <arguments>
+            <argument name="executors" xsi:type="array">
+                <item name="checkout_com" xsi:type="string">CheckoutComCommandManager</item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- Checkout.com Commands -->
+
+    <virtualType name="CheckoutComAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CheckoutComAuthorizeRequest</argument>
+            <argument name="transferFactory" xsi:type="object">CheckoutComTransferFactory</argument>
+            <argument name="client" xsi:type="object">CheckoutCom\Magento2\Gateway\Http\Client\TokenAuthorizeTransaction</argument>
+            <argument name="handler" xsi:type="object">CheckoutComAuthorizeHandler</argument>
+            <argument name="validator" xsi:type="object">CheckoutCom\Magento2\Gateway\Validator\ResponseCodeStatusValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CheckoutComCaptureRequest</argument>
+            <argument name="transferFactory" xsi:type="object">CheckoutComTransferFactory</argument>
+            <argument name="client" xsi:type="object">CheckoutCom\Magento2\Gateway\Http\Client\CaptureTransaction</argument>
+            <argument name="handler" xsi:type="object">CheckoutComCaptureHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CheckoutComRefundRequest</argument>
+            <argument name="transferFactory" xsi:type="object">CheckoutComTransferFactory</argument>
+            <argument name="client" xsi:type="object">CheckoutCom\Magento2\Gateway\Http\Client\RefundTransaction</argument>
+            <argument name="handler" xsi:type="object">CheckoutComRefundHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComVoidCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CheckoutComVoidRequest</argument>
+            <argument name="transferFactory" xsi:type="object">CheckoutComTransferFactory</argument>
+            <argument name="client" xsi:type="object">CheckoutCom\Magento2\Gateway\Http\Client\VoidTransaction</argument>
+            <argument name="handler" xsi:type="object">CheckoutComVoidHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- END Checkout.com Commands -->
+
+    <!-- Vault Payment Commands -->
+    <virtualType name="CheckoutComVaultAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CheckoutComVaultAuthorizeRequest</argument>
+            <argument name="transferFactory" xsi:type="object">CheckoutComTransferFactory</argument>
+            <argument name="client" xsi:type="object">CheckoutCom\Magento2\Gateway\Http\Client\CardAuthorizeTransaction</argument>
+            <argument name="handler" xsi:type="object">CheckoutComVaultAuthorizeHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComVaultCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CheckoutComCaptureRequest</argument>
+            <argument name="transferFactory" xsi:type="object">CheckoutComTransferFactory</argument>
+            <argument name="client" xsi:type="object">CheckoutCom\Magento2\Gateway\Http\Client\CaptureTransaction</argument>
+            <argument name="handler" xsi:type="object">CheckoutComCaptureHandler</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Vault Payment Commands -->
+
+    <!-- Request Builders -->
+    <virtualType name="CheckoutComAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="card_token" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\CardTokenRequest</item>
+                <item name="payment" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\PaymentRequest</item>
+                <item name="amount" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\AmountRequest</item>
+                <item name="order_data" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\OrderDataRequest</item>
+                <item name="shipping_details" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\ShippingDetailsRequest</item>
+                <item name="meta_data" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\MetaDataRequest</item>
+                <item name="descriptor" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\DescriptorDataRequest</item>
+                <item name="3d_secure" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\ThreeDSecureRequest</item>
+                <item name="vault" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\VaultRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="parent_charge_id" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\ParentChargeIdRequest</item>
+                <item name="amount" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\AmountRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="parent_charge_id" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\ParentChargeIdRequest</item>
+                <item name="amount" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\AmountRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComVoidRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="parent_charge_id" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\ParentChargeIdRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Request Builders -->
+
+    <!-- Vault Request Builders -->
+    <virtualType name="CheckoutComVaultAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="card_vault" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\CardVaultRequest</item>
+                <item name="payment" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\PaymentRequest</item>
+                <item name="amount" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\AmountRequest</item>
+                <item name="order_data" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\OrderDataRequest</item>
+                <item name="shipping_details" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\ShippingDetailsRequest</item>
+                <item name="meta_data" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\MetaDataRequest</item>
+                <item name="descriptor" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\DescriptorDataRequest</item>
+                <item name="3d_secure" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\ThreeDSecureRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Vault Request Builders -->
+
+    <!-- Value handlers infrastructure -->
+
+    <virtualType name="CheckoutComValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">CheckoutComConfigValueHandler</item>
+                <item name="can_void" xsi:type="string">CheckoutCom\Magento2\Gateway\Config\CanVoidHandler</item>
+                <item name="can_cancel" xsi:type="string">CheckoutCom\Magento2\Gateway\Config\CanVoidHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">CheckoutComConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComAuthorizeHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="3d_secure" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\ThreeDSecureDetailsHandler</item>
+                <item name="transaction" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\TransactionHandler</item>
+                <item name="vault_details" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\VaultDetailsHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComCaptureHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="transaction" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\TransactionHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComRefundHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="refund" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\RefundHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComVoidHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="void" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\VoidHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComVaultAuthorizeHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="3d_secure" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\ThreeDSecureDetailsHandler</item>
+                <item name="transaction" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\TransactionHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Value handlers infrastructure -->
+
+    <!-- Validators -->
+    <virtualType name="CheckoutComValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array"></argument>
+        </arguments>
+    </virtualType>
+    <!-- END Validators -->
+
+    <!-- Block configuration -->
+    <type name="CheckoutCom\Magento2\Block\Info">
+        <arguments>
+            <argument name="config" xsi:type="object">CheckoutComConfig</argument>
+        </arguments>
+    </type>
+
+    <type name="CheckoutCom\Magento2\Block\Form">
+        <arguments>
+            <argument name="gatewayConfig" xsi:type="object">CheckoutCom\Magento2\Gateway\Config\Config</argument>
+        </arguments>
+    </type>
+    <!-- END Block configuration -->
+
+
+
+
+    <!-- ##### Web Hook Section ##### -->
+
+    <type name="CheckoutCom\Magento2\Model\Method\CallbackMethod">
+        <arguments>
+            <argument name="valueHandlerPool" xsi:type="object">CheckoutComValueHandlerPool</argument>
+            <argument name="validator" xsi:type="object">CheckoutComWebHookValidatorComposite</argument>
+            <argument name="commandPool" xsi:type="object">CheckoutComWebHookCommandPool</argument>
+            <argument name="gatewayProvider" xsi:type="object">CheckoutComFacade</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="CheckoutComWebHookFacade" type="CheckoutCom\Magento2\Model\Method\CallbackMethod" />
+
+    <!-- Validators -->
+    <virtualType name="CheckoutComWebHookValidatorComposite" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="authorization_key" xsi:type="string">CheckoutCom\Magento2\Gateway\Validator\AuthorizationKeyValidator</item>
+                <item name="event_type" xsi:type="string">CheckoutCom\Magento2\Gateway\Validator\EventTypeValidator</item>
+                <item name="code_status" xsi:type="string">CheckoutCom\Magento2\Gateway\Validator\CodeStatusValidator</item>
+                <item name="order_id" xsi:type="string">CheckoutCom\Magento2\Gateway\Validator\OrderIdValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Validators -->
+
+    <!-- Commands -->
+    <virtualType name="CheckoutComWebHookCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">CheckoutComWebHookAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">CheckoutComWebHookCaptureCommand</item>
+                <item name="refund" xsi:type="string">CheckoutComWebHookRefundCommand</item>
+                <item name="void" xsi:type="string">CheckoutComWebHookVoidCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComWebHookAuthorizeCommand" type="CheckoutCom\Magento2\Gateway\Command\WebHookCommand">
+        <arguments>
+            <argument name="handler" xsi:type="object">CheckoutComAuthorizeHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComWebHookCaptureCommand" type="CheckoutCom\Magento2\Gateway\Command\WebHookCommand">
+        <arguments>
+            <argument name="handler" xsi:type="object">CheckoutComWebHookCaptureHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComWebHookRefundCommand" type="CheckoutCom\Magento2\Gateway\Command\WebHookCommand">
+        <arguments>
+            <argument name="handler" xsi:type="object">CheckoutComWebHookRefundHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComWebHookVoidCommand" type="CheckoutCom\Magento2\Gateway\Command\WebHookCommand">
+        <arguments>
+            <argument name="handler" xsi:type="object">CheckoutComWebHookVoidHandler</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Commands -->
+
+    <!-- Handlers -->
+    <virtualType name="CheckoutComWebHookRefundHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="refund_invoice" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\RefundInvoiceHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CheckoutComWebHookVoidHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="cancel_order" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\CancelOrderHandler</item>
+                <item name="void" xsi:type="string">CheckoutCom\Magento2\Gateway\Response\VoidHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Handlers -->
+
+    <!-- Store Card Service -->
+    <type name="CheckoutCom\Magento2\Model\Service\StoreCardService">
+        <arguments>
+            <argument name="logger" xsi:type="object">CheckoutComLogger</argument>
+        </arguments>
+    </type>
+    <!-- END Store Card Service -->
+
+    <!-- Mobile Payments API -->
+    <preference for="CheckoutCom\Magento2\Api\MobilePaymentInterface" type="CheckoutCom\Magento2\Model\Resource\MobilePayment" />
+    <!-- END Mobile Payments API -->
+
+    <!-- Around Payments Plugin -->
+    <type name="Magento\Checkout\Model\GuestPaymentInformationManagement">
+        <plugin name="CkoGuestPaymentInformationManagement" type="CheckoutCom\Magento2\Plugin\GuestPaymentInformationManagement" />
+        </type>
+        <type name="Magento\Checkout\Model\PaymentInformationManagement">
+        <plugin name="CkoPaymentInformationManagement" type="CheckoutCom\Magento2\Plugin\PaymentInformationManagement" />
+    </type>
+    <!-- END Around Payments Plugin -->
+
+    <!-- Accound dashboard plugin -->
+    <type name="Magento\Framework\View\Element\Html\Links">
+        <plugin sortOrder="1" name="CkoCustomerDashboardLinksManagement" type="CheckoutCom\Magento2\Plugin\CustomerDashboardLinksManagement"/>
+    </type>
+    <!-- END account dashboard plugin -->
+
+    <!-- Plans grid listing -->
+    <virtualType name="CheckoutCom\Magento2\Model\ResourceModel\Plan\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">cko_m2_plans</argument>
+            <argument name="resourceModel" xsi:type="string">CheckoutCom\Magento2\Model\ResourceModel\Plan</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="plans_grid_list_data_source" xsi:type="string">CheckoutCom\Magento2\Model\ResourceModel\Plan\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Subscriptions grid listing -->
+    <virtualType name="CheckoutCom\Magento2\Model\ResourceModel\Subscription\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">cko_m2_subscriptions</argument>
+            <argument name="resourceModel" xsi:type="string">CheckoutCom\Magento2\Model\ResourceModel\Subscription</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="subscriptions_grid_list_data_source" xsi:type="string">CheckoutCom\Magento2\Model\ResourceModel\Subscription\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>

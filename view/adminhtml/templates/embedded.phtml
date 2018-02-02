@@ -1,0 +1,23 @@
+<?php
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+?>
+ 
+<script src="<?php echo $block->getEmbeddedUrl(); ?>"></script>
+
+<?php
+// Load default CSS only if there is no custom file in config
+if (!$block->hasCustomCss()) {
+?>
+	<style>
+		@import url(<?php echo $block->getEmbeddedCss(); ?>);
+	</style>
+<?php
+}
+?>

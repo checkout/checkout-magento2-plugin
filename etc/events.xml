@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="payment_method_assign_data_checkout_com">
+        <observer name="checkout_com_gateway_data_assign" instance="CheckoutCom\Magento2\Observer\DataAssignObserver" />
+    </event>
+    <event name="email_order_set_template_vars_before">
+        <observer name="add_extra_data_to_transport" instance="CheckoutCom\Magento2\Observer\AddExtraDataToTransport" />
+    </event>
+	<event name="order_cancel_after">
+        <observer name="update_hub_order_cancel" instance="CheckoutCom\Magento2\Observer\OrderCancelObserver" />
+    </event>    
+
+</config>

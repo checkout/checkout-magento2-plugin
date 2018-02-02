@@ -1,0 +1,64 @@
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+
+#closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#payment_form_checkout_com {
+    padding-top: 20px;
+}
+
+#card-number,
+#card-holder {
+    width: 220px;
+}
+
+#expiry-month {
+    width: 140px;
+}
+
+#expiry-year {
+    width: 80px;
+}
+
+.ccv {
+    width: 100px;
+}
+
+#info-icon,
+#info-icon svg {
+    width: 30px;
+    height: 30px;
+}
+
+#info-icon,
+#info-text {
+    float: left;
+}
+
+#info-text {
+    margin-top: 10px;
+    text-align: left;
+    margin-bottom: 10px;
+    width: 90%;
+}
+
+.clr {
+    clear: both;
+    visibility: hidden;
+    height: 0px;
+}

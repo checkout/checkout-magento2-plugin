@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="customer_account"/>
+    <head>
+        <script src="CheckoutCom_Magento2/js/collapseForm.js" />
+        <css src="CheckoutCom_Magento2::css/cards-list.css" />
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block 
+                template="add-new-card-form.phtml" 
+                class="CheckoutCom\Magento2\Block\Cards\Form"
+                name="checkout_com_magento2.add_new_card_form"
+            />
+        </referenceContainer>
+        <referenceContainer name="content">
+            <referenceBlock name="vault.cards.list">
+                <block class="CheckoutCom\Magento2\Block\Customer\CardRenderer" name="checkout_com.card.renderer" template="CheckoutCom_Magento2::customer_account/credit_card.phtml"/>
+            </referenceBlock>
+        </referenceContainer>
+    </body>
+</page>
