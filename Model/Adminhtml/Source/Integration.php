@@ -26,11 +26,11 @@ class Integration implements ArrayInterface {
         return [
             [
                 'value' => self::INTEGRATION_HOSTED,
-                'label' => 'Hosted'
+                'label' => __('Hosted')
             ],
             [
                 'value' => self::INTEGRATION_EMBEDDED,
-                'label' => 'Frames'
+                'label' => __('Frames')
             ]        
         ];
     }

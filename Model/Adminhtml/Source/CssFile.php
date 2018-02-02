@@ -26,11 +26,11 @@ class CssFile implements ArrayInterface {
         return [
             [
                 'value' => self::CSS_FILE_DEFAULT,
-                'label' => 'Default'
+                'label' => __('Default')
             ],
             [
                 'value' => self::CSS_FILE_CUSTOM,
-                'label' => 'Custom'
+                'label' => __('Custom')
             ]        
         ];
     }

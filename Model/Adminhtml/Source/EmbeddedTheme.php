@@ -26,11 +26,11 @@ class EmbeddedTheme implements ArrayInterface {
         return [
             [
                 'value' => self::THEME_STANDARD,
-                'label' => 'Standard',
+                'label' => __('Standard'),
             ],
             [
                 'value' => self::THEME_SIMPLE,
-                'label' => 'Simple'
+                'label' => __('Simple')
             ]
         ];
     }
