@@ -100,6 +100,8 @@ class ConfigProvider implements ConfigProviderInterface {
                     'vault_title' => $this->config->getVaultTitle(),
                     'order_creation' => $this->config->getOrderCreation(),
                     'card_autosave' => $this->config->isCardAutosave(),
+                    'frames_integration' => $this->config->getFramesIntegration(),
+                    'api_url' => $this->config->getApiUrl(),
                 ],
             ],
         ];

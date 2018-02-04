@@ -95,6 +95,13 @@ define(
             /**
              * @returns {string}
              */
+            getPaymentToken: function() {                
+                return CheckoutCom.getPaymentConfig()['payment_token'];
+            },
+
+            /**
+             * @returns {string}
+             */
             getQuoteValue: function() {
                 return quote.getTotals();
             },
@@ -213,34 +220,103 @@ define(
                 var redirectUrl = self.getRedirectUrl();
                 var threeds_enabled = CheckoutCom.getPaymentConfig()['three_d_secure']['enabled'];
                 var paymentForm = document.getElementById('embeddedForm');
+                var framesIntegration = CheckoutCom.getPaymentConfig()['frames_integration'];
 
                 // Freeze the place order button on initialisation
                 self.isPlaceOrderActionAllowed(false);
 
                 // Initialise the embedded form
-                Frames.init({
-                    publicKey: self.getPublicKey(),
-                    containerSelector: '#cko-form-holder',
-                    theme: ckoTheme,
-                    themeOverride: ckoThemeOverride,
-                    cardValidationChanged: function() {
-                        self.isPlaceOrderActionAllowed(Frames.isCardValid());
-                    },
-                    cardTokenised: function(event) {
-                        // Set the card token
-                        self.setCardTokenId(event.data.cardToken);
+                console.log('----------------------------------');
+                console.log(CheckoutCom.getPaymentConfig()['frames_integration']);
 
-                        // Add the card token to the form
-                        Frames.addCardToken(paymentForm, event.data.cardToken);
+                if ( framesIntegration == 'form' || framesIntegration == 'both') {
+                    Frames.init({
+                        publicKey: self.getPublicKey(),
+                        containerSelector: '#cko-form-holder',
+                        theme: ckoTheme,
+                        themeOverride: ckoThemeOverride,
+                        cardValidationChanged: function() {
+                            self.isPlaceOrderActionAllowed(Frames.isCardValid());
+                        },
+                        cardTokenised: function(event) {
+                            // Set the card token
+                            self.setCardTokenId(event.data.cardToken);
 
-                        // Place order
-                        if (threeds_enabled) {
-                            window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
-                        } else {
-                            self.placeOrder();
-                        }
-                    },
-                });              
+                            // Add the card token to the form
+                            Frames.addCardToken(paymentForm, event.data.cardToken);
+
+                            // Place order
+                            if (threeds_enabled) {
+                                window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
+                            } else {
+                                self.placeOrder();
+                            }
+                        },
+                    });   
+                }   
+                            
+                // Handle alternative payments
+                if ( framesIntegration == 'ap' || framesIntegration == 'both') {
+                    // Prepare the variables
+                    var paymentToken = this.getPaymentToken();
+                    var apiUrl = CheckoutCom.getPaymentConfig()['api_url'] + 'providers/localpayments/?paymentToken=' + paymentToken;
+
+                    // Send the Alternative Payments request
+                    $.ajax({
+                        url: apiUrl,
+                        type: "GET",
+                        beforeSend: function(xhr){
+                            xhr.setRequestHeader('Authorization', self.getPublicKey());
+                        },
+                        success: function(res, textStatus, xhr) {
+                            if (parseInt(res.count) > 0) {
+                                $.each(res.data, function(i, item) {
+
+                                    // Add the element
+                                    var imageUrl = 'https://cdn.checkout.com/sandbox/img/lp_logos/' + item.name.toLowerCase() + '.png';
+                                    $.get(imageUrl).done(function() { 
+                                        $('#cko-ap-holder').append( $('<img>', {
+                                            id: item.name.toLowerCase(),
+                                            src: imageUrl
+                                        }));
+
+                                        // Create the event
+                                        var itemData = {
+                                            email : self.getEmailAddress(),
+                                            localPayment : {
+                                                lppId : item.id,
+                                                userData : {}
+                                            },
+                                            paymentToken : paymentToken
+                                        };
+
+                                        $('#' + item.name.toLowerCase()).click(function() {
+                                            $.ajax({
+                                                url: 'https://sandbox.checkout.com/api2/v2/charges/localpayment',
+                                                type: "POST",
+                                                data: JSON.stringify(itemData),
+                                                beforeSend: function(xhr){
+                                                    xhr.setRequestHeader('Authorization', 'sk_test_ae8b4fe8-f140-4fe4-8e4c-946db8b179da');
+                                                    xhr.setRequestHeader('Content-Type', 'application/json');
+                                                },
+                                                success: function(data, textStatus, xhr) {
+                                                    window.location.replace(data.localPayment.paymentUrl);
+                                                },
+                                                error: function(xhr, textStatus, error) {
+                                                    console.log(error)
+                                                }
+                                            });
+                                        });
+
+                                    });
+                                });
+                            }
+                        },
+                        error: function(xhr, textStatus, error) {
+                            console.log(error);
+                        } 
+                    });
+                }
             },
 
             /**
@@ -254,6 +330,7 @@ define(
                 $('#cko-form-holder form iframe').remove();
                 self.getEmbeddedForm();
             },
+
         });
     }
 );

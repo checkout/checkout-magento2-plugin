@@ -40,6 +40,7 @@
                 <custom_css></custom_css>
                 <environment>sandbox</environment>
                 <integration>hosted</integration>
+                <frames_integration>form</frames_integration>
                 <payment_action>authorize</payment_action>
                 <auto_capture>0</auto_capture>
                 <auto_capture_time>0</auto_capture_time>

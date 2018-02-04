@@ -14,3 +14,12 @@
     padding-right: 20px;
     background-size: 13px 13px;
 }
+
+#cko-ap-holder img {
+    border: solid 1px #f1f1f1 !important;
+    margin-top: 20px;
+    margin-right: 20px;
+    max-width: 100px;
+    cursor: pointer;
+    display: inline-block;
+}

@@ -61,6 +61,7 @@ class Config extends BaseConfig {
     const KEY_CSS_FILE = 'css_file';
     const KEY_ORDER_COMMENTS_OVERRIDE = 'order_comments_override';
     const KEY_ORDER_CREATION = 'order_creation';
+    const KEY_FRAMES_INTEGRATION = 'frames_integration';
 
     /**
      * @var array
@@ -211,6 +212,15 @@ class Config extends BaseConfig {
         return (string) $this->getValue(self::KEY_INTEGRATION);
     }
 
+    /**
+     * Returns the type of frames integration.
+     *
+     * @return string
+     */
+    public function getFramesIntegration() {
+        return $this->getValue(self::KEY_FRAMES_INTEGRATION);
+    }
+    
     /**
      * Determines if the gateway is configured to use hosted integration.
      *
