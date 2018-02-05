@@ -102,6 +102,7 @@ class ConfigProvider implements ConfigProviderInterface {
                     'card_autosave' => $this->config->isCardAutosave(),
                     'frames_integration' => $this->config->getFramesIntegration(),
                     'api_url' => $this->config->getApiUrl(),
+                    'cdn_url' => $this->config->getCdnUrl()
                 ],
             ],
         ];

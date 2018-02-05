@@ -15,11 +15,23 @@
     background-size: 13px 13px;
 }
 
+#cko-ap-holder {
+    margin-top: 40px;
+}
+
+#cko-ap-holder h3, #cko-form-holder h3 {
+    font-weight: normal;
+    margin-top: 10px;
+    font-size: 1.05em;
+}
+
 #cko-ap-holder img {
-    border: solid 1px #f1f1f1 !important;
-    margin-top: 20px;
+    border: solid 1px #cccccc;
+    margin-top: 0px;
     margin-right: 20px;
     max-width: 100px;
     cursor: pointer;
     display: inline-block;
+    opacity: 0.7;
 }
+

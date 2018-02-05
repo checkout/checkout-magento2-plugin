@@ -31,11 +31,14 @@
         </div>
 
         <div id="cko-form-holder" data-bind="click: reloadEmbeddedForm">
+            <h3><!-- ko i18n: 'Payment form'--><!-- /ko --></h3>
             <form class="widget-container" id="embeddedForm" method="POST"></form>
             <div data-bind="visible: getEmbeddedForm()"></div>
         </div>
 
-        <div id="cko-ap-holder"></div>
+        <div id="cko-ap-holder">
+            <h3><!-- ko i18n: 'Alternative payments'--><!-- /ko --></h3>
+        </div>
 
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
