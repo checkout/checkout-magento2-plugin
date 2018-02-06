@@ -26,11 +26,11 @@ class OrderCreation implements ArrayInterface {
         return [
             [
                 'value' => self::BEFORE_AUTH,
-                'label' => 'Before authorization'
+                'label' => __('Before authorization')
             ],
             [
                 'value' => self::AFTER_AUTH,
-                'label' => 'After authorization'
+                'label' => __('After authorization')
             ]        
         ];
     }

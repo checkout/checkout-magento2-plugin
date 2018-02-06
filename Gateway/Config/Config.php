@@ -61,6 +61,9 @@ class Config extends BaseConfig {
     const KEY_CSS_FILE = 'css_file';
     const KEY_ORDER_COMMENTS_OVERRIDE = 'order_comments_override';
     const KEY_ORDER_CREATION = 'order_creation';
+    const KEY_FRAMES_INTEGRATION = 'frames_integration';
+    const KEY_LIVE_CDN_URL = 'live_cdn_url';
+    const KEY_SANDBOX_CDN_URL = 'sandbox_cdn_url';
 
     /**
      * @var array
@@ -74,7 +77,6 @@ class Config extends BaseConfig {
         'diners'        => 'DN',
         'dinersclub'    => 'DN',
     ];
-
 
     /**
      * Returns the environment type.
@@ -212,6 +214,15 @@ class Config extends BaseConfig {
     }
 
     /**
+     * Returns the type of frames integration.
+     *
+     * @return string
+     */
+    public function getFramesIntegration() {
+        return $this->getValue(self::KEY_FRAMES_INTEGRATION);
+    }
+    
+    /**
      * Determines if the gateway is configured to use hosted integration.
      *
      * @return bool
@@ -331,7 +342,7 @@ class Config extends BaseConfig {
     }
 
     /**
-     * Returns the API URL for sandbox environment.
+     * Returns the API URL for live environment.
      *
      * @return string
      */
@@ -346,6 +357,33 @@ class Config extends BaseConfig {
      */
     public function getApiUrl() {
         return $this->isLive() ? $this->getLiveApiUrl() : $this->getSandboxApiUrl();
+    }
+
+    /**
+     * Returns the CDN URL for sandbox environment.
+     *
+     * @return string
+     */
+    public function getSandboxCdnUrl() {
+        return (string) $this->getValue(self::KEY_SANDBOX_CDN_URL);
+    }
+
+    /**
+     * Returns the CDN URL for live environment.
+     *
+     * @return string
+     */
+    public function getLiveCdnUrl() {
+        return (string) $this->getValue(self::KEY_LIVE_CDN_URL);
+    }
+
+    /**
+     * Returns the CDN URL.
+     *
+     * @return string
+     */
+    public function getCdnUrl() {
+        return $this->isLive() ? $this->getLiveCdnUrl() : $this->getSandboxCdnUrl();
     }
 
     /**
@@ -374,7 +412,6 @@ class Config extends BaseConfig {
     public function getHostedUrl() {
         return $this->isLive() ? $this->getLiveHostedUrl() : $this->getSandboxHostedUrl();
     }
-
 
     /**
      * Returns the URL for embedded integration for sandbox environment.

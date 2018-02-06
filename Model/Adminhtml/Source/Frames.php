@@ -12,10 +12,11 @@ namespace CheckoutCom\Magento2\Model\Adminhtml\Source;
 
 use Magento\Framework\Option\ArrayInterface;
 
-class Environment implements ArrayInterface {
+class Frames implements ArrayInterface {
 
-    const ENVIRONMENT_LIVE = 'live';
-    const ENVIRONMENT_SANDBOX = 'sandbox';
+    const FRAMES_FORM = 'form';
+    const FRAMES_AP = 'ap';
+    const FRAMES_BOTH = 'both';
 
     /**
      * Possible environment types
@@ -25,12 +26,16 @@ class Environment implements ArrayInterface {
     public function toOptionArray() {
         return [
             [
-                'value' => self::ENVIRONMENT_SANDBOX,
-                'label' => __('Sandbox'),
+                'value' => self::FRAMES_FORM,
+                'label' => __('Payment form')
             ],
             [
-                'value' => self::ENVIRONMENT_LIVE,
-                'label' => __('Live')
+                'value' => self::FRAMES_AP,
+                'label' => __('Alternative Payments')
+            ],     
+            [
+                'value' => self::FRAMES_BOTH,
+                'label' => __('Payment form and Alternative Payments')
             ]
         ];
     }

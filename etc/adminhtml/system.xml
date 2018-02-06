@@ -47,6 +47,15 @@
                         <config_path>payment/checkout_com/integration</config_path>
                     </field>
 
+                    <field id="frames_integration" translate="label" sortOrder="50" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Frames</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\Frames</source_model>
+                        <config_path>payment/checkout_com/frames_integration</config_path>
+                        <depends>
+                            <field id="integration">embedded</field>
+                        </depends>
+                    </field>
+
                     <field id="payment_mode" translate="label" sortOrder="50" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Payment mode</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\PaymentMode</source_model>
@@ -82,6 +91,7 @@
                         </depends>
                     </field>
 
+                    <!--
                     <field id="css_file" translate="label" sortOrder="90" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>CSS file</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\CssFile</source_model>
@@ -90,7 +100,7 @@
                             <field id="integration">embedded</field>
                         </depends>
                     </field>
-
+                    
                     <field id="custom_css" translate="label comment" type="file" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Custom Css File</label>
                         <backend_model>CheckoutCom\Magento2\Model\Config\Backend\CustomCss</backend_model>
@@ -99,9 +109,10 @@
                         <depends>
                             <field id="css_file">custom</field>
                         </depends>
-                   </field>
+                    </field>
+                    -->
                 </group>
-
+                 
                 <group id="checkout_com_advanced_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="3">
                     <label>Advanced Settings</label>
 

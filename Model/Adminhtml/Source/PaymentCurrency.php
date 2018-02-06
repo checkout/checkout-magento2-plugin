@@ -38,15 +38,15 @@ class PaymentCurrency implements ArrayInterface {
         $options = [
             [
                 'value' => self::BASE_CURRENCY,
-                'label' => 'Use Magento default'
+                'label' => __('Use Magento default')
             ],
             [
                 'value' => self::ORDER_CURRENCY,
-                'label' => 'Order currency'
+                'label' => __('Order currency')
             ],
             [
                 'value' => self::CUSTOM_CURRENCY,
-                'label' => 'Custom currency'
+                'label' => __('Custom currency')
             ],
         ];
 
