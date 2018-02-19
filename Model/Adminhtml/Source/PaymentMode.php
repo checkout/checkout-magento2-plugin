@@ -27,15 +27,15 @@ class PaymentMode implements ArrayInterface {
         return [
             [
                 'value' => self::MODE_CARDS,
-                'label' => 'Cards',
+                'label' => __('Cards')
             ],
             [
                 'value' => self::MODE_MIXED,
-                'label' => 'Mixed'
+                'label' => __('Mixed')
             ],
             [
                 'value' => self::MODE_LOCAL,
-                'label' => 'Local payments'
+                'label' => __('Local payments')
             ] 
         ];
     }         
