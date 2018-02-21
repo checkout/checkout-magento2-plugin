@@ -82,6 +82,7 @@
                         </depends>
                     </field>
 
+                    <!--
                     <field id="css_file" translate="label" sortOrder="90" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>CSS file</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\CssFile</source_model>
@@ -100,6 +101,8 @@
                             <field id="css_file">custom</field>
                         </depends>
                    </field>
+                    -->
+
                 </group>
 
                 <group id="checkout_com_advanced_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="3">
