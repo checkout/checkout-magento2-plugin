@@ -41,6 +41,12 @@
             <input name="contextId" data-bind="attr: {value: getEmailAddress()}">
             <input name="themeColor" data-bind="attr: {value: getDesignSettings()['hosted']['theme_color']}">
             <input name="buttonLabel" data-bind="attr: {value: getDesignSettings()['hosted']['button_label']}">
+            <input name="title" data-bind="attr: {value: getDesignSettings()['hosted']['box_title']}">
+            <input name="subtitle" data-bind="attr: {value: getDesignSettings()['hosted']['box_subtitle']}">
+            <input name="theme" data-bind="attr: {value: getDesignSettings()['hosted']['hosted_theme']}">
+            <!-- ko if: (getDesignSettings()['hosted']['logo_url'] !== "none") -->
+            <input name="logoUrl" data-bind="attr: {value: getDesignSettings()['hosted']['logo_url']}">
+            <!-- /ko -->
             <!-- ko if: (getPaymentMode() === "localpayments" || getPaymentMode() === "mixed") -->
             <input name="paymentToken" data-bind="attr: {value: getPaymentToken()}">
             <!-- /ko -->

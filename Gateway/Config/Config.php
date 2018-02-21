@@ -45,6 +45,10 @@ class Config extends BaseConfig {
     const CODE_3DSECURE = 'three_d_secure';
     const KEY_THEME_COLOR = 'theme_color';
     const KEY_BUTTON_LABEL = 'button_label';
+    const KEY_BOX_TITLE = 'box_title';
+    const KEY_BOX_SUBTITLE = 'box_subtitle';
+    const KEY_LOGO_URL = 'logo_url';
+    const KEY_HOSTED_THEME = 'hosted_theme';
     const KEY_NEW_ORDER_STATUS = 'new_order_status';
     const KEY_ORDER_STATUS_AUTHORIZED = 'order_status_authorized';
     const KEY_ORDER_STATUS_CAPTURED = 'order_status_captured';
@@ -179,9 +183,22 @@ class Config extends BaseConfig {
         return (array) array (
             'hosted' => array (
                 'theme_color' => $this->getValue(self::KEY_THEME_COLOR),
-                'button_label' => $this->getValue(self::KEY_BUTTON_LABEL)
+                'button_label' => $this->getValue(self::KEY_BUTTON_LABEL),
+                'box_title' => $this->getValue(self::KEY_BOX_TITLE),
+                'box_subtitle' => $this->getValue(self::KEY_BOX_SUBTITLE),
+                'logo_url' => $this->getLogoUrl()
             )
         );
+    }
+
+    /**
+     * Returns the hosted logo URL.
+     *
+     * @return string
+     */
+    public function getLogoUrl() {
+        $logoUrl = $this->getValue(self::KEY_LOGO_URL);
+        return (string) (isset($logoUrl) && !empty($logoUrl)) ? $logoUrl : 'none';
     }
 
     /**
