@@ -84,10 +84,6 @@ class ChargeAmountAdapter {
 
         $amount = (float) $amount;
 
-        if ($amount <= 0) {
-            throw new InvalidArgumentException('The amount value must be positive. The [' . $amount . '] value has been given.');
-        }
-
         if( in_array($currencyCode, self::FULL_VALUE_CURRENCIES, true) ) {
             return (int) $amount;
         }

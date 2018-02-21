@@ -73,7 +73,31 @@
                         </depends>
                     </field>
 
-                    <field id="embedded_theme" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                 	<field id="box_title" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment window title</label>
+                        <config_path>payment/checkout_com/box_title</config_path>
+                        <depends>
+                            <field id="integration">hosted</field>
+                        </depends>
+                    </field>
+
+                 	<field id="box_subtitle" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment window subtitle</label>
+                        <config_path>payment/checkout_com/box_subtitle</config_path>
+                        <depends>
+                            <field id="integration">hosted</field>
+                        </depends>
+                    </field>
+
+                 	<field id="logo_url" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Logo URL</label>
+                        <config_path>payment/checkout_com/logo_url</config_path>
+                        <depends>
+                            <field id="integration">hosted</field>
+                        </depends>
+                    </field>
+
+                    <field id="embedded_theme" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Theme</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\EmbeddedTheme</source_model>
                         <config_path>payment/checkout_com/embedded_theme</config_path>
@@ -82,6 +106,7 @@
                         </depends>
                     </field>
 
+                    <!--
                     <field id="css_file" translate="label" sortOrder="90" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>CSS file</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\CssFile</source_model>
@@ -100,6 +125,8 @@
                             <field id="css_file">custom</field>
                         </depends>
                    </field>
+                    -->
+
                 </group>
 
                 <group id="checkout_com_advanced_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="3">
