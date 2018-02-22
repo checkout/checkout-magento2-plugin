@@ -181,7 +181,7 @@ export default {
       other_payments: '#payment_us_other_payment_methods-head',
       plugin: {
         selector: '#payment_us_checkout_com-head',
-        save: '#save',
+        save: 'button.action-default',
         basic_category: {
           selector: '#payment_us_checkout_com_checkout_com_base_settings-head',
           environment: '#payment_us_checkout_com_checkout_com_base_settings_environment',
