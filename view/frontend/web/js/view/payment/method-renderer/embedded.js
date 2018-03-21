@@ -100,13 +100,6 @@ define(
             },
 
             /**
-             * @param {string} card_token_id
-             */
-            setCardTokenId: function(card_token_id) {
-                this.card_token_id = card_token_id;
-            },
-
-            /**
              * @returns {string}
              */
             getQuoteCurrency: function() {
