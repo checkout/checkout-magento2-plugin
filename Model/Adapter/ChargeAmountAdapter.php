@@ -84,6 +84,10 @@ class ChargeAmountAdapter {
 
         $amount = (float) $amount;
 
+        if ($amount <= 0) {
+            throw new InvalidArgumentException('The amount value must be positive. The [' . $amount . '] value has been given.');
+        }
+
         if( in_array($currencyCode, self::FULL_VALUE_CURRENCIES, true) ) {
             return (int) $amount;
         }
@@ -149,7 +153,7 @@ class ChargeAmountAdapter {
         $manager = \Magento\Framework\App\ObjectManager::getInstance();
 
         // Load the gateway config and get the gateway payment currency
-        $gatewayPaymentCurrency = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config')->getPaymentCurrency();
+        $gatewayPaymentCurrency = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)->getPaymentCurrency();
 
         // Get the user currency display
         $userCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
@@ -171,7 +175,7 @@ class ChargeAmountAdapter {
         else {
 
             // We have a specific currency code to use for the payment
-            $finalCurrencyCode = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config')->getCustomCurrency();
+            $finalCurrencyCode = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)->getCustomCurrency();
         }
 
         return $finalCurrencyCode;
@@ -188,7 +192,7 @@ class ChargeAmountAdapter {
         $manager = \Magento\Framework\App\ObjectManager::getInstance();
          
         // Load the gateway config and get the gateway payment currency
-        $gatewayPaymentCurrency = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config')->getPaymentCurrency();
+        $gatewayPaymentCurrency = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)->getPaymentCurrency();
 
         // Get the user currency display
         $userCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
