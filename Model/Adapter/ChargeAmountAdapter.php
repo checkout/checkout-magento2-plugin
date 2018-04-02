@@ -155,11 +155,24 @@ class ChargeAmountAdapter {
         // Load the gateway config and get the gateway payment currency
         $gatewayPaymentCurrency = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config')->getPaymentCurrency();
 
+        // Get the storoe id
+        $storeId = $manager->create('Magento\Checkout\Model\Session')->getQuote()->getStoreId();
+
         // Get the user currency display
-        $userCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
+        $quote = $manager->create('Magento\Checkout\Model\Session')->getQuote();
+        $order = $manager->create('Magento\Checkout\Model\Session')->getLastRealOrder();
+        if ($quote) {
+            $userCurrencyCode = $quote->getQuoteCurrencyCode();
+        }
+        else if ($order) {
+            $userCurrencyCode = $quote->getOrderCurrencyCode();
+        }
+        else {
+            $userCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore($storeId)->getCurrentCurrencyCode();
+        }
 
         // Load the store currency
-        $storeBaseCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getBaseCurrency()->getCode(); 
+        $storeBaseCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore($storeId)->getBaseCurrency()->getCode(); 
 
         // Test the store and gateway config conditions
         if ($gatewayPaymentCurrency == self::BASE_CURRENCY) {
@@ -194,11 +207,24 @@ class ChargeAmountAdapter {
         // Load the gateway config and get the gateway payment currency
         $gatewayPaymentCurrency = $manager->create('CheckoutCom\Magento2\Gateway\Config\Config')->getPaymentCurrency();
 
+        // Get the storoe id
+        $storeId = $manager->create('Magento\Checkout\Model\Session')->getQuote()->getStoreId();
+
         // Get the user currency display
-        $userCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getCurrentCurrencyCode();
+        $quote = $manager->create('Magento\Checkout\Model\Session')->getQuote();
+        $order = $manager->create('Magento\Checkout\Model\Session')->getLastRealOrder();
+        if ($quote) {
+            $userCurrencyCode = $quote->getQuoteCurrencyCode();
+        }
+        else if ($order) {
+            $userCurrencyCode = $quote->getOrderCurrencyCode();
+        }
+        else {
+            $userCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore($storeId)->getCurrentCurrencyCode();
+        }
 
         // Load the store currency
-        $storeBaseCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore()->getBaseCurrency()->getCode(); 
+        $storeBaseCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore($storeId)->getBaseCurrency()->getCode(); 
  
         // Test the store and gateway config conditions
         if ($gatewayPaymentCurrency == self::BASE_CURRENCY) {
