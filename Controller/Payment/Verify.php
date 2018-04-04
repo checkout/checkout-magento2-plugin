@@ -28,7 +28,6 @@ use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
 class Verify extends AbstractAction {
-
     /**
      * @var Session
      */
@@ -105,37 +104,36 @@ class Verify extends AbstractAction {
      * @param Watchdog $watchdog
      */
     public function __construct(
-            Context $context, 
-            Session $session, 
-            GatewayConfig $gatewayConfig, 
-            VerifyPaymentService $verifyPaymentService, 
-            OrderService $orderService, 
-            StoreCardService $storeCardService, 
-            CustomerSession $customerSession, 
-            VaultTokenFactory $vaultTokenFactory, 
-            PaymentTokenRepositoryInterface $paymentTokenRepository,
-            PaymentTokenManagementInterface $paymentTokenManagement,
-            QuoteManagement $quoteManagement,
-            OrderSender $orderSender,
-            Watchdog $watchdog
-          ) 
-        {
-            parent::__construct($context, $gatewayConfig);
-
-            $this->quoteManagement          = $quoteManagement;
-            $this->session                  = $session;
-            $this->gatewayConfig            = $gatewayConfig;
-            $this->verifyPaymentService     = $verifyPaymentService;
-            $this->orderService             = $orderService;
-            $this->storeCardService         = $storeCardService;
-            $this->customerSession          = $customerSession;
-            $this->vaultTokenFactory        = $vaultTokenFactory;
-            $this->paymentTokenRepository   = $paymentTokenRepository;
-            $this->paymentTokenManagement   = $paymentTokenManagement;
-            $this->orderSender              = $orderSender;
-            $this->watchdog                 = $watchdog;
-            $this->redirect                 = $this->getResultRedirect();
-        }
+        Context $context, 
+        Session $session, 
+        GatewayConfig $gatewayConfig, 
+        VerifyPaymentService $verifyPaymentService, 
+        OrderService $orderService, 
+        StoreCardService $storeCardService, 
+        CustomerSession $customerSession, 
+        VaultTokenFactory $vaultTokenFactory, 
+        PaymentTokenRepositoryInterface $paymentTokenRepository,
+        PaymentTokenManagementInterface $paymentTokenManagement,
+        QuoteManagement $quoteManagement,
+        OrderSender $orderSender,
+        Watchdog $watchdog
+    ) 
+    {
+        parent::__construct($context, $gatewayConfig);
+        $this->quoteManagement          = $quoteManagement;
+        $this->session                  = $session;
+        $this->gatewayConfig            = $gatewayConfig;
+        $this->verifyPaymentService     = $verifyPaymentService;
+        $this->orderService             = $orderService;
+        $this->storeCardService         = $storeCardService;
+        $this->customerSession          = $customerSession;
+        $this->vaultTokenFactory        = $vaultTokenFactory;
+        $this->paymentTokenRepository   = $paymentTokenRepository;
+        $this->paymentTokenManagement   = $paymentTokenManagement;
+        $this->orderSender              = $orderSender;
+        $this->watchdog                 = $watchdog;
+        $this->redirect                 = $this->getResultRedirect();
+    }
 
     /**
      * Handles the controller method.
@@ -212,7 +210,6 @@ class Verify extends AbstractAction {
     }
 
     public function placeLocalPaymentOrder() {
-
         // Get the quote from session
         $quote = $this->session->getQuote();
 
@@ -238,8 +235,8 @@ class Verify extends AbstractAction {
             // Prepare the order in session (required for success page redirection)
             if ($order) {
                 $this->session->setLastOrderId($order->getId())
-                                       ->setLastRealOrderId($order->getIncrementId())
-                                       ->setLastOrderStatus($order->getStatus());
+                ->setLastRealOrderId($order->getIncrementId())
+                ->setLastOrderStatus($order->getStatus());
             
                 // Update order status
                 $order->setStatus($this->gatewayConfig->getOrderStatusCaptured());
@@ -254,11 +251,9 @@ class Verify extends AbstractAction {
         } catch (\Exception $e) {
             $this->messageManager->addExceptionMessage($e, $e->getMessage());
         }
-
     }
 
     public function extractPaymentToken() {
-
         // Get the gateway response from session if exists
         $gatewayResponseId = $this->session->getGatewayResponseId();
 
@@ -279,7 +274,6 @@ class Verify extends AbstractAction {
      * @return void
      */
     public function vaultCardAfterThreeDSecure( array $response ){
-
         // Get the card token from response
         $cardToken = $response['card']['id'];
         
