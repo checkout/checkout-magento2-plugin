@@ -21,7 +21,9 @@ export default function () {
       return browser.isVisible(FRONTEND.order.checkout_iframe_selector);
     }, VAL.timeout_out, 'the embedded form should be visible');
     const iframe = browser.element(FRONTEND.order.checkout_iframe_selector);
+    browser.pause(2000); // avoid context switch delay
     browser.frame(iframe.value);
+    browser.pause(2000); // avoid context switch delay
     switch (option) {
       case 'visa':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
