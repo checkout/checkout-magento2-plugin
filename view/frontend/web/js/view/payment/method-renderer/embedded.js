@@ -216,6 +216,9 @@ define(
                     containerSelector: '#cko-form-holder',
                     theme: ckoTheme,
                     themeOverride: ckoThemeOverride,
+                    frameActivated: function () {
+                        self.isPlaceOrderActionAllowed(false);
+                    },
                     cardValidationChanged: function() {
                         self.isPlaceOrderActionAllowed(Frames.isCardValid());
                     },
