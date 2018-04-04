@@ -25,7 +25,6 @@ use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Quote\Model\QuoteManagement;
-use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
 class Verify extends AbstractAction {
     /**
@@ -69,11 +68,6 @@ class Verify extends AbstractAction {
     protected $redirect;
 
     /**
-     * @var OrderSender
-     */
-    private $orderSender;
-
-    /**
      * @var PaymentTokenManagementInterface
      */
     protected $paymentTokenManagement;
@@ -100,7 +94,6 @@ class Verify extends AbstractAction {
      * @param VaultTokenFactory $vaultTokenFactory
      * @param PaymentTokenRepositoryInterface $paymentTokenRepository
      * @param PaymentTokenManagementInterface $paymentTokenManagement
-     * @param OrderSender $orderSender
      * @param Watchdog $watchdog
      */
     public function __construct(
@@ -115,7 +108,6 @@ class Verify extends AbstractAction {
         PaymentTokenRepositoryInterface $paymentTokenRepository,
         PaymentTokenManagementInterface $paymentTokenManagement,
         QuoteManagement $quoteManagement,
-        OrderSender $orderSender,
         Watchdog $watchdog
     ) 
     {
@@ -130,7 +122,6 @@ class Verify extends AbstractAction {
         $this->vaultTokenFactory        = $vaultTokenFactory;
         $this->paymentTokenRepository   = $paymentTokenRepository;
         $this->paymentTokenManagement   = $paymentTokenManagement;
-        $this->orderSender              = $orderSender;
         $this->watchdog                 = $watchdog;
         $this->redirect                 = $this->getResultRedirect();
     }
