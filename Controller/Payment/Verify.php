@@ -224,7 +224,7 @@ class Verify extends AbstractAction {
 
         // Set payment
         $payment = $quote->getPayment();
-        $payment->setMethod('checkmo');
+        $payment->setMethod(ConfigProvider::CODE);
         $quote->save();
 
         // Save the quote
