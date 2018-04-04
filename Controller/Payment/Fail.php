@@ -17,7 +17,6 @@ use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use CheckoutCom\Magento2\Model\Service\OrderService;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use Magento\Quote\Model\QuoteManagement;
-use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use CheckoutCom\Magento2\Model\Service\VerifyPaymentService;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -35,11 +34,6 @@ class Fail extends AbstractAction {
      * @var Session
      */
     protected $session;
-
-    /**
-     * @var OrderSender
-     */
-    private $orderSender;
 
     /**
      * @var QuoteManagement
@@ -75,10 +69,9 @@ class Fail extends AbstractAction {
      * @param GatewayConfig $gatewayConfig
      * @param Watchdog $watchdog
      */
-    public function __construct(Context $context, Session $session, GatewayConfig $gatewayConfig, QuoteManagement $quoteManagement, OrderSender $orderSender, PaymentTokenManagementInterface $paymentTokenManagement, CustomerSession $customerSession, VerifyPaymentService $verifyPaymentService, OrderInterface $orderInterface, Cart $cart, Watchdog $watchdog) {
+    public function __construct(Context $context, Session $session, GatewayConfig $gatewayConfig, QuoteManagement $quoteManagement, PaymentTokenManagementInterface $paymentTokenManagement, CustomerSession $customerSession, VerifyPaymentService $verifyPaymentService, OrderInterface $orderInterface, Cart $cart, Watchdog $watchdog) {
         parent::__construct($context, $gatewayConfig);
         $this->quoteManagement      = $quoteManagement;
-        $this->orderSender          = $orderSender;
         $this->session          = $session;
         $this->redirect = $this->getResultRedirect();
         $this->paymentTokenManagement = $paymentTokenManagement;
