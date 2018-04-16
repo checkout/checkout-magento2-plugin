@@ -10,23 +10,24 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Zend_Http_Client_Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
-use CheckoutCom\Magento2\Model\Factory\VaultTokenFactory;
-use CheckoutCom\Magento2\Gateway\Http\TransferFactory;
-use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
-use CheckoutCom\Magento2\Gateway\Exception\ApiClientException;
+use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Model\Method\Logger;
-use Zend_Http_Client_Exception;
 use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Framework\App\ResponseFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Customer\Model\Session;
 use CheckoutCom\Magento2\Helper\Watchdog;
+use CheckoutCom\Magento2\Model\Factory\VaultTokenFactory;
+use CheckoutCom\Magento2\Gateway\Http\TransferFactory;
+use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
+use CheckoutCom\Magento2\Gateway\Exception\ApiClientException;
 
 class StoreCardService {
 
@@ -95,8 +96,19 @@ class StoreCardService {
      */
     protected $watchdog;
 
+    /**
+     * @var ManagerInterface
+     */
+    protected $messageManager;
+
+    /**
+     * @var ScopeConfigInterface
+     */
     protected $scopeConfig;
     
+    /**
+     * @var Session
+     */
     protected $customerSession;
     
     /**
@@ -109,6 +121,9 @@ class StoreCardService {
      * @param PaymentTokenManagementInterface $paymentTokenManagement
      * @param ResponseFactory $responseFactory
      * @param Watchdog $watchdog
+     * @param ManagerInterface $messageManager
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Session $customerSession
      */
     public function __construct(
         Logger $logger,
@@ -118,9 +133,10 @@ class StoreCardService {
         PaymentTokenRepositoryInterface $paymentTokenRepository,
         PaymentTokenManagementInterface $paymentTokenManagement,
         ResponseFactory $responseFactory,
+        Watchdog $watchdog,
+        ManagerInterface $messageManager,
         ScopeConfigInterface $scopeConfig,
-        Session $customerSession,
-        Watchdog $watchdog
+        Session $customerSession
     ) {
         $this->logger                   = $logger;
         $this->vaultTokenFactory        = $vaultTokenFactory;
@@ -131,7 +147,8 @@ class StoreCardService {
         $this->scopeConfig              = $scopeConfig;
         $this->responseFactory          = $responseFactory;
         $this->customerSession          = $customerSession;
-        $this->watchdog = $watchdog;
+        $this->watchdog                 = $watchdog;
+        $this->messageManager           = $messageManager;
     }
 
     /**
@@ -222,29 +239,27 @@ class StoreCardService {
      * @throws \Exception
      */
     public function save() {
-
         // Create the payment token from response
         $paymentToken = $this->vaultTokenFactory->create($this->cardData, $this->customerId);
         $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
 
         // Check if card exists
         if ($foundPaymentToken) {
-            if($foundPaymentToken->getIsActive()) {
-                throw new LocalizedException(__('The credit card has been stored already.') );
+            if ($foundPaymentToken->getIsActive()) {
+                $this->messageManager->addNoticeMessage(__('The credit card has been stored already.'));
             }
-            else {
-                $foundPaymentToken->setIsActive(true);
-                $this->paymentTokenRepository->save($foundPaymentToken);
-            }
+
+            // Activate or reactivate the card
+            $foundPaymentToken->setIsActive(true);
+            $foundPaymentToken->setIsVisible(true);
+            $this->paymentTokenRepository->save($foundPaymentToken);
         }
 
         // Otherwise save the card
         else {
             $gatewayToken = $this->authorizedResponse['card']['id'];
-
             $paymentToken->setGatewayToken($gatewayToken);
             $paymentToken->setIsVisible(true);
-
             $this->paymentTokenRepository->save($paymentToken);
         }
     }

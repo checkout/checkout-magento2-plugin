@@ -50,7 +50,8 @@ export default function () {
     browser.waitUntil(function () {
       return browser.isVisible(BACKEND.admin);
     }, VAL.timeout_out, 'admin button should be visible');
-    browser.click(BACKEND.admin);
+    let admin = browser.element('a*=Admin');
+    admin.click();
     let security = browser.element('a*=Security');
     security.click();
     browser.waitUntil(function () {

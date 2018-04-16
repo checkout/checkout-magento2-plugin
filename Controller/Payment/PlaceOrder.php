@@ -57,7 +57,6 @@ class PlaceOrder extends AbstractAction {
      * @param OrderInterface $orderInterface
      * @param OrderService $orderService
      * @param Order $orderManager
-     * @param OrderSender $orderSender
      */
     public function __construct(
         Context $context,

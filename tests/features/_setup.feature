@@ -3,8 +3,6 @@ Feature: Prepare Magento for Tests
 
 Scenario: I setup Magento for tests
       Given I set the viewport and timeout
-      Given I disable the url secret key encryption
-      Given I disable captcha
       Given I create a product
       Given I go to the backend of Checkout's plugin
       Given I set the sandbox keys

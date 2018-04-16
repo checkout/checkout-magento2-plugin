@@ -26,7 +26,7 @@ class Environment implements ArrayInterface {
         return [
             [
                 'value' => self::ENVIRONMENT_SANDBOX,
-                'label' => __('Sandbox'),
+                'label' => __('Sandbox')
             ],
             [
                 'value' => self::ENVIRONMENT_LIVE,
