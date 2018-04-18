@@ -41,7 +41,7 @@ class Form extends Cc {
      * @param GatewayConfig $gatewayConfig
      * @param array $data
      */
-    public function __construct(Context $context, Config $paymentConfig, GatewayConfig $gatewayConfig, array $data) {
+    public function __construct(Context $context, Config $paymentConfig, GatewayConfig $gatewayConfig, array $data = []) {
         parent::__construct($context, $paymentConfig, $data);
 
         $this->gatewayConfig = $gatewayConfig;
