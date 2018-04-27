@@ -415,15 +415,6 @@
     <preference for="CheckoutCom\Magento2\Api\MobilePaymentInterface" type="CheckoutCom\Magento2\Model\Resource\MobilePayment" />
     <!-- END Mobile Payments API -->
 
-    <!-- Around Payments Plugin -->
-    <type name="Magento\Checkout\Model\GuestPaymentInformationManagement">
-        <plugin name="CkoGuestPaymentInformationManagement" type="CheckoutCom\Magento2\Plugin\GuestPaymentInformationManagement" />
-        </type>
-        <type name="Magento\Checkout\Model\PaymentInformationManagement">
-        <plugin name="CkoPaymentInformationManagement" type="CheckoutCom\Magento2\Plugin\PaymentInformationManagement" />
-    </type>
-    <!-- END Around Payments Plugin -->
-
     <!-- Accound dashboard plugin -->
     <type name="Magento\Framework\View\Element\Html\Links">
         <plugin sortOrder="1" name="CkoCustomerDashboardLinksManagement" type="CheckoutCom\Magento2\Plugin\CustomerDashboardLinksManagement"/>

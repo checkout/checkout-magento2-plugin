@@ -7,7 +7,7 @@
  *
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
- 
+
 namespace CheckoutCom\Magento2\Gateway\Config;
 
 use Magento\Payment\Gateway\Config\Config as BaseConfig;
@@ -96,7 +96,7 @@ class Config extends BaseConfig {
      */
     public function getVaultTitle() {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');     
+        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
         return (string) $scopeConfig->getValue('payment/checkout_com_cc_vault/title');
     }
 
@@ -107,7 +107,7 @@ class Config extends BaseConfig {
      */
     public function isCardAutosave() {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');     
+        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
         return (bool) $scopeConfig->getValue('payment/checkout_com_cc_vault/autosave');
     }
 
@@ -243,8 +243,12 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isActive() {
+        if (!$this->getValue(self::KEY_ACTIVE)) {
+            return false;
+        }
+
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $quote = $objectManager->create('Magento\Checkout\Model\Session')->getQuote();     
+        $quote = $objectManager->create('Magento\Checkout\Model\Session')->getQuote();
         return (bool) in_array($quote->getQuoteCurrencyCode(), $this->getAcceptedCurrencies());
     }
 
@@ -455,8 +459,8 @@ class Config extends BaseConfig {
     public function getCustomCss() {
         // Prepare the objects
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');    
-        $storeManager = $objectManager->create('Magento\Store\Model\StoreManagerInterface');  
+        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
+        $storeManager = $objectManager->create('Magento\Store\Model\StoreManagerInterface');
 
         // Prepare the paths
         $base_url = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);

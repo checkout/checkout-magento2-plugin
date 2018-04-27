@@ -15,13 +15,19 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 
-class AddExtraDataToTransport implements ObserverInterface {
+class AddExtraDataToTransport implements ObserverInterface
+{
 
     /**
      * @var ScopeConfigInterface
      */
-    protected $scopeConfig;
+    private $scopeConfig;
 
+    /**
+     * AddExtraDataToTransport constructor.
+     *
+     * @param ScopeConfigInterface $scopeConfig
+     */
     public function __construct(ScopeConfigInterface $scopeConfig)
     {
         $this->scopeConfig = $scopeConfig;
@@ -36,10 +42,17 @@ class AddExtraDataToTransport implements ObserverInterface {
         $paymentMethod = $transport->getOrder()->getPayment()->getMethod();
 
         // Test the current method used
-        if ($paymentMethod == ConfigProvider::CODE || $paymentMethod == ConfigProvider::CC_VAULT_CODE || $paymentMethod == ConfigProvider::THREE_DS_CODE) {
- 
+        if (false
+            || $paymentMethod == ConfigProvider::CODE
+            || $paymentMethod == ConfigProvider::CC_VAULT_CODE
+            || $paymentMethod == ConfigProvider::THREE_DS_CODE
+        ) {
             // Override the payment information block
-            $transport['payment_html'] = $this->scopeConfig->getValue('payment/checkout_com/title');
+            $transport['payment_html'] = $this->scopeConfig->getValue(
+                'payment/checkout_com/title',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                $transport->getStore()
+            );
         }
     }
 }
