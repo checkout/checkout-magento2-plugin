@@ -209,15 +209,6 @@ class CallbackService {
 
                     $this->invoiceRepository->save($invoice);
                 }
-
-                // Comments override
-                if ($overrideComments) {
-                    // Create new comment
-                    $newComment = 'Captured amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];
-
-                    // Add the new comment
-                    $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
-                }
             }
 
             // Save the order
