@@ -22,7 +22,7 @@ The Checkout.com extension for Magento 2 supports VISA, Mastercard, American Exp
 <img src="https://docs.checkout.com/img/supported-payment-methods-v2.png" alt="Checkout.com" width="400"/>
 
 ## Compatibility
-The Checkout.com extension for Magento 2 is compatible with Magento 2.1.0 to 2.1.3.
+The Checkout.com extension for Magento 2 is compatible with Magento 2.1.0 to 2.2.3.
 
 ## Features
 The Checkout.com extension for Magento 2 offers useful and unique features, allowing Magento 2 shop owners to process online payments in the best conditions. These features have been designed to offer an optimal shopping and payment experience to Magento 2 merchants and shoppers.
