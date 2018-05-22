@@ -1,4 +1,4 @@
-<img src="https://docs.checkout.com/img/Logo-black.png" alt="Checkout.com" width="380"/>
+<img src="https://cdn.checkout.com/img/checkout-logo-online-payments.jpg" alt="Checkout.com" width="380"/>
 
 ## Magento 2 Extension &nbsp; ![N|Solid](https://circleci.com/gh/checkout/checkout-magento2-plugin.svg?style=shield&circle-token=c246af998b0859be11b269afd0b0162303f1ac5f)
 
