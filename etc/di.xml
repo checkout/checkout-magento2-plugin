@@ -43,15 +43,6 @@
         </arguments>
     </virtualType>
     <!-- END Configuration for Vault payments -->
-
-    <!-- Around Payments Plugin -->
-    <type name="Magento\Checkout\Model\GuestPaymentInformationManagement">
-        <plugin name="CkoGuestPaymentInformationManagement" type="CheckoutCom\Magento2\Plugin\GuestPaymentInformationManagement" />
-        </type>
-        <type name="Magento\Checkout\Model\PaymentInformationManagement">
-        <plugin name="CkoPaymentInformationManagement" type="CheckoutCom\Magento2\Plugin\PaymentInformationManagement" />
-    </type>
-    <!-- END Around Payments Plugin -->
     
     <!-- Configuration reader -->
     <type name="CheckoutCom\Magento2\Gateway\Config\Config">
