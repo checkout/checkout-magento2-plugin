@@ -17,6 +17,7 @@ define(
                     window.location.replace(url.build('customer/account/login/'));
                 } else {
                     var error = JSON.parse(response.responseText);
+                    alert(error.message);
                     messageContainer.addErrorMessage(error);
                 }
             }

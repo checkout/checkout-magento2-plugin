@@ -22,6 +22,7 @@ use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use CheckoutCom\Magento2\Helper\Watchdog;
+use Magento\Framework\Exception\LocalizedException;
 
 class TransactionHandler implements HandlerInterface {
 
@@ -116,7 +117,7 @@ class TransactionHandler implements HandlerInterface {
 
         // Debug info
         $this->watchdog->bark($response);
-        
+
         // Set transaction info
         $this->setTransactionId($payment, $response['id']);
         $payment->setIsTransactionClosed( $this->shouldCloseTransaction() );
@@ -132,13 +133,18 @@ class TransactionHandler implements HandlerInterface {
             }
         }
 
-        $responseCode = (int) $response['responseCode'];
+        $responseCode = isset($response['responseCode']) ? (int) $response['responseCode'] : null;
 
-        if($responseCode === 10100) {
-            $payment->setIsFraudDetected(true);
+        // Process failure response codes
+        if ( $responseCode && $responseCode != 10000 && $responseCode != 10100 ) {
+            throw new LocalizedException(
+                __('The transaction was declined. Please check you card details or contact your card provider.')
+            );
         }
-        elseif($responseCode >= 20000 AND $responseCode <= 40000) {
-            $payment->setIsTransactionClosed(true);
+
+        // Process success response codes
+        if ($responseCode === 10100) {
+            $payment->setIsFraudDetected(true);
         }
 
         // Prepare 3D Secure redirection with session variable for post auth order

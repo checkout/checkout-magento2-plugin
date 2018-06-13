@@ -17,6 +17,7 @@ define(
         'Magento_Vault/js/view/payment/vault-enabler',
         'CheckoutCom_Magento2/js/view/payment/adapter',
         'Magento_Checkout/js/model/quote',
+        'CheckoutCom_Magento2/js/action/place-order',
         'mage/url',
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/model/full-screen-loader',
@@ -24,7 +25,7 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/redirect-on-success'
     ],
-    function($, Component, VaultEnabler, CheckoutCom, quote, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, checkoutData, redirectOnSuccessAction, customer) {
+    function($, Component, VaultEnabler, CheckoutCom, quote, placeOrderAction, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, checkoutData, redirectOnSuccessAction, customer) {
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true;
@@ -191,6 +192,12 @@ define(
                 );
             },
 
+            getPlaceOrderDeferredObject: function () {
+                return $.when(
+                    placeOrderAction(this.getData(), this.messageContainer)
+                );
+            },
+                        
             /**
              * @returns {void}
              */
