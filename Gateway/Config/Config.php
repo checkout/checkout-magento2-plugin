@@ -484,8 +484,7 @@ class Config extends BaseConfig {
      * @return int
      */
     public function getAutoCaptureTimeInHours() {
-        $autoCaptureTime = (int) $this->getValue(self::KEY_AUTO_CAPTURE_TIME);
-        return (int) max(min($autoCaptureTime, self::MAX_AUTO_CAPTURE_TIME), self::MIN_AUTO_CAPTURE_TIME);
+        return $this->getValue(self::KEY_AUTO_CAPTURE_TIME);
     }
 
     /**
