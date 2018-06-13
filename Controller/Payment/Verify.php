@@ -147,7 +147,7 @@ class Verify extends AbstractAction {
         // Debug info
         $this->watchdog->bark($response);
 
-        if (isset($response['responseCode']) && (int) $response['responseCode'] >= 40000) {
+        if (isset($response['responseCode']) && (int) $response['responseCode'] != 10000 && (int) $response['responseCode'] != 10100 ) {
             throw new LocalizedException(__('There has been an error processing your transaction.'));
         }
 

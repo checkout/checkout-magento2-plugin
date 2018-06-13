@@ -128,7 +128,7 @@ class TokenChargeService {
         $this->watchdog->bark($response);
 
         // Handle response code
-        if (isset($response['responseCode']) && ((int) $response['responseCode'] == 10000 || (int) $response['responseCode'] == 10100)) {
+        if (isset($response['responseCode']) && (int) $response['responseCode'] == 10000 && (int) $response['responseCode'] == 10100) {
             // Prepare 3D Secure redirection with session variable for pre auth order
             if (array_key_exists(self::REDIRECT_URL, $response)) {
                 
