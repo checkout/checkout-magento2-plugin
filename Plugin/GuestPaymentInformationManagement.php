@@ -84,22 +84,11 @@ class GuestPaymentInformationManagement
         }
         $subject->savePaymentInformation($cartId, $email, $paymentMethod, $billingAddress);
         try {
-            $orderId = $this->cartManagement->placeOrder($cartId);
-            return $orderId;
+            return $this->cartManagement->placeOrder($cartId);
 
         } catch (LocalizedException $exception) {
-            //throw new CouldNotSaveException(__($exception->getMessage()));
-            $this->messageManager->addNoticeMessage(__($exception->getMessage()));
-
-        } catch (\Exception $exception) {
             $this->logger->critical($exception);
-            /*
-            throw new CouldNotSaveException(
-                __('An error occurred on the server. Please try to place the order again.'),
-                $exception
-            );
-            */
-            $this->messageManager->addNoticeMessage('An error occurred on the server. Please try to place the order again.');
-        }
+            throw new CouldNotSaveException(__($exception->getMessage()));
+        } 
     }
 }
