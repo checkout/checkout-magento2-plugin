@@ -71,7 +71,7 @@ Once the Checkout.com extension for Magento 2 installed, go to **Stores > Config
 In order to effectively process payments through the Checkout.com Payment Gateway, you will need to open an account.
 Contact your [Checkout.com](https://www.checkout.com "Checkout.com") account manager or send an email to support@checkout.com for more information.
 
-Dedicated technical support is available to all Checkout.com Merchants via the public GitHub repositories or directly by email at integration@checkout.com.
+Dedicated technical support is available to all Merchants using Checkout.com via the public GitHub repositories or directly by email at integration@checkout.com.
 
 **DISCLAIMER**
 
