@@ -170,11 +170,12 @@ class CallbackService {
                 // Update order status
                 $order->setStatus($this->gatewayConfig->getOrderStatusAuthorized());
 
-                // Send the email
-                $this->orderSender->send($order);
-
-                // Set email sent
-                $order->setEmailSent(1);
+                // Send the email only for Hosted integration
+                // Frames is using the core placeOrder email sender and doesn't need manual action
+                if ($this->gatewayConfig->isHostedIntegration()) {
+                    $this->orderSender->send($order);
+                    $order->setEmailSent(1);
+                }
 
                 // Comments override
                 if ($overrideComments) {
