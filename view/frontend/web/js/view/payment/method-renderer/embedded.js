@@ -43,9 +43,9 @@ define(
              * @returns {exports}
              */
             initialize: function(config, messageContainer) {
-            this._super();
-            this.initObservable();
-                                this.messageContainer = messageContainer || config.messageContainer || globalMessages;
+                this._super();
+                this.initObservable();
+                this.messageContainer = messageContainer || config.messageContainer || globalMessages;
 
                 this.vaultEnabler = new VaultEnabler();
                 this.vaultEnabler.setPaymentCode(this.getVaultCode());
@@ -53,6 +53,9 @@ define(
                 return this;
             },
 
+            /**
+             * @returns {exports}
+             */
             initObservable: function () {
                 this._super()
                     .observe('isHidden');
@@ -60,14 +63,23 @@ define(
                 return this;
             },
 
+            /**
+             * @returns {bool}
+             */
             isVisible: function () {
                 return this.isHidden(this.messageContainer.hasMessages());
             },
 
+            /**
+             * @returns {bool}
+             */
             removeAll: function () {
                 this.messageContainer.clear();
             },
 
+            /**
+             * @returns {void}
+             */
             onHiddenChange: function (isHidden) {
                 var self = this;
                 // Hide message block if needed
