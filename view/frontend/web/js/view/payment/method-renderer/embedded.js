@@ -261,7 +261,7 @@ define(
                         self.isPlaceOrderActionAllowed(false);
                     },
                     cardValidationChanged: function() {
-                        self.isPlaceOrderActionAllowed(Frames.isCardValid());
+                        self.isPlaceOrderActionAllowed(Frames.isCardValid() && quote.billingAddress() != null);
                     },
                     cardTokenised: function(event) {
                         // Set the card token
