@@ -213,11 +213,11 @@ define(
 
                 $.migrateMute = true;
 
-                this.isPlaceOrderActionAllowed(false);
+                this.updateButtonState(false);
                 this.getPlaceOrderDeferredObject()
                 .fail(
                     function() {
-                        self.isPlaceOrderActionAllowed(true);
+                        self.updateButtonState(true);
                         $('html, body').animate({ scrollTop: 0 }, 'fast');
                         self.reloadEmbeddedForm();
                     }
@@ -249,7 +249,7 @@ define(
                 var paymentForm = document.getElementById('embeddedForm');
 
                 // Freeze the place order button on initialisation
-                self.isPlaceOrderActionAllowed(false);
+                $('#ckoPlaceOrder').attr("disabled",true);
 
                 // Initialise the embedded form
                 Frames.init({
@@ -258,10 +258,10 @@ define(
                     theme: ckoTheme,
                     themeOverride: ckoThemeOverride,
                     frameActivated: function () {
-                        self.isPlaceOrderActionAllowed(false);
+                        $('#ckoPlaceOrder').attr("disabled", true);
                     },
                     cardValidationChanged: function() {
-                        self.isPlaceOrderActionAllowed(Frames.isCardValid() && quote.billingAddress() != null);
+                        self.updateButtonState(!(Frames.isCardValid() && quote.billingAddress() != null));
                     },
                     cardTokenised: function(event) {
                         // Set the card token
@@ -278,6 +278,13 @@ define(
                         }
                     },
                 });  
+            },
+
+            /**
+             * @returns {void}
+             */
+            updateButtonState: function(status) {
+                $('#ckoPlaceOrder').attr("disabled", status);
             },
 
             /**
