@@ -131,7 +131,7 @@ export default {
           cvv: "input[data-checkout='cvv']",
         },
         last_order_number: 'tr.data-row:nth-child(1) > td:nth-child(4) > div:nth-child(1)',
-         place_order_button: '#placeOrder',
+        place_order_button: '#ckoPlaceOrder',
         checkout_success_message: '.checkout-success',
         order_number: '.checkout-success > p:nth-child(1) > span:nth-child(1)',
         three_d_password: '#txtPassword',

@@ -59,20 +59,6 @@ Scenario: I should be able to complete a non-3D transaction using Hosted integra
       Then I should see the success page
       Given I logout from the registered customer account
 
-Scenario: I should be able to customise Hosted integration
-      Given I go to the backend of Checkout's plugin
-      Given I disable THREE D
-      Given I set the integration type to hosted
-      Given I set the theme color
-      Given I set the button label
-      Given I save the backend settings
-      Given I have hosted and no THREE D and customisation
-      Given I login the registered customer account
-      Then I complete the order flow as a registered customer until the payment stage
-      Then I choose Checkout as a payment option
-      Then I submit the order for the hosted integration
-      Then I should see a customised hosted page
-
 Scenario: I should be able to set the Checkout plugin paymet option title as the first payment option
       Given I go to the backend of Checkout's plugin
       Given I disable THREE D

@@ -43,9 +43,9 @@ define(
              * @returns {exports}
              */
             initialize: function(config, messageContainer) {
-            this._super();
-            this.initObservable();
-                                this.messageContainer = messageContainer || config.messageContainer || globalMessages;
+                this._super();
+                this.initObservable();
+                this.messageContainer = messageContainer || config.messageContainer || globalMessages;
 
                 this.vaultEnabler = new VaultEnabler();
                 this.vaultEnabler.setPaymentCode(this.getVaultCode());
@@ -53,6 +53,9 @@ define(
                 return this;
             },
 
+            /**
+             * @returns {exports}
+             */
             initObservable: function () {
                 this._super()
                     .observe('isHidden');
@@ -60,14 +63,23 @@ define(
                 return this;
             },
 
+            /**
+             * @returns {bool}
+             */
             isVisible: function () {
                 return this.isHidden(this.messageContainer.hasMessages());
             },
 
+            /**
+             * @returns {bool}
+             */
             removeAll: function () {
                 this.messageContainer.clear();
             },
 
+            /**
+             * @returns {void}
+             */
             onHiddenChange: function (isHidden) {
                 var self = this;
                 // Hide message block if needed
@@ -201,11 +213,11 @@ define(
 
                 $.migrateMute = true;
 
-                this.isPlaceOrderActionAllowed(false);
+                this.updateButtonState(false);
                 this.getPlaceOrderDeferredObject()
                 .fail(
                     function() {
-                        self.isPlaceOrderActionAllowed(true);
+                        self.updateButtonState(true);
                         $('html, body').animate({ scrollTop: 0 }, 'fast');
                         self.reloadEmbeddedForm();
                     }
@@ -237,7 +249,7 @@ define(
                 var paymentForm = document.getElementById('embeddedForm');
 
                 // Freeze the place order button on initialisation
-                self.isPlaceOrderActionAllowed(false);
+                $('#ckoPlaceOrder').attr("disabled",true);
 
                 // Initialise the embedded form
                 Frames.init({
@@ -246,10 +258,10 @@ define(
                     theme: ckoTheme,
                     themeOverride: ckoThemeOverride,
                     frameActivated: function () {
-                        self.isPlaceOrderActionAllowed(false);
+                        $('#ckoPlaceOrder').attr("disabled", true);
                     },
                     cardValidationChanged: function() {
-                        self.isPlaceOrderActionAllowed(Frames.isCardValid());
+                        self.updateButtonState(!(Frames.isCardValid() && quote.billingAddress() != null));
                     },
                     cardTokenised: function(event) {
                         // Set the card token
@@ -266,6 +278,13 @@ define(
                         }
                     },
                 });  
+            },
+
+            /**
+             * @returns {void}
+             */
+            updateButtonState: function(status) {
+                $('#ckoPlaceOrder').attr("disabled", status);
             },
 
             /**
