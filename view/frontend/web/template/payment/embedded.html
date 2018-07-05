@@ -57,8 +57,7 @@
                 <button id="ckoPlaceOrder" class="action primary checkout" type="submit" data-bind="
                         click: beforePlaceOrder,
                         attr: {title: $t('Place Order')},
-                        css: {disabled: !isPlaceOrderActionAllowed()},
-                        enable: (getCode() == isChecked())
+                        css: {disabled: !isPlaceOrderActionAllowed()}
                         " disabled>
                     <span data-bind="i18n: 'Place Order'"></span>
                 </button>
