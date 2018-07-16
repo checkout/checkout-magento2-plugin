@@ -166,7 +166,7 @@ class TransactionHandler implements HandlerInterface {
         }
 
         // Save card if needed
-        if (isset($response['udf2']) && $response['udf2'] == 'storeInVaultOnSuccess') {
+        if (isset($response['udf2']) && $response['udf2'] == 'storeInVaultOnSuccess' && $response['status'] == 'Authorised') {
             $this->vaultCard( $response );
         }
     }
@@ -178,36 +178,41 @@ class TransactionHandler implements HandlerInterface {
      * @return void
      */
     public function vaultCard( array $response ){
-        $cardToken = $response['card']['id'];
-        
-        $cardData = [];
-        $cardData['expiryMonth']   = $response['card']['expiryMonth'];
-        $cardData['expiryYear']    = $response['card']['expiryYear'];
-        $cardData['last4']         = $response['card']['last4'];
-        $cardData['paymentMethod'] = $response['card']['paymentMethod'];
+        if (isset($response['card'])) {
+            $cardToken = $response['card']['id'];
+            
+            $cardData = [];
+            $cardData['expiryMonth']   = $response['card']['expiryMonth'];
+            $cardData['expiryYear']    = $response['card']['expiryYear'];
+            $cardData['last4']         = $response['card']['last4'];
+            $cardData['paymentMethod'] = $response['card']['paymentMethod'];
 
-        $paymentToken = $this->vaultTokenFactory->create($cardData, $this->customerSession->getCustomer()->getId());
-        
-        try {
-            // Check if the payment token exists
-            $foundPaymentToken = $this->paymentTokenManagement->getByPublicHash( $paymentToken->getPublicHash(), $paymentToken->getCustomerId());
+            $paymentToken = $this->vaultTokenFactory->create($cardData, $this->customerSession->getCustomer()->getId());
+            
+            try {
+                // Check if the payment token exists
+                $foundPaymentToken = $this->paymentTokenManagement->getByPublicHash( $paymentToken->getPublicHash(), $paymentToken->getCustomerId());
 
-            // If the token exists activate it, otherwise create it
-            if ($foundPaymentToken) {
-                $foundPaymentToken->setIsVisible(true);
-                $foundPaymentToken->setIsActive(true);
-                $this->paymentTokenRepository->save($foundPaymentToken);
+                // If the token exists activate it, otherwise create it
+                if ($foundPaymentToken) {
+                    $foundPaymentToken->setIsVisible(true);
+                    $foundPaymentToken->setIsActive(true);
+                    $this->paymentTokenRepository->save($foundPaymentToken);
+                }
+                else {
+                    $paymentToken->setGatewayToken($cardToken);
+                    $paymentToken->setIsVisible(true);
+                    $this->paymentTokenRepository->save($paymentToken);
+                } 
+
+                $this->messageManager->addSuccessMessage( __('The payment card has been stored successfully') );
+            }    
+            catch (\Exception $ex) {
+                $this->messageManager->addErrorMessage( $ex->getMessage() );
             }
-            else {
-                $paymentToken->setGatewayToken($cardToken);
-                $paymentToken->setIsVisible(true);
-                $this->paymentTokenRepository->save($paymentToken);
-            } 
-
-            $this->messageManager->addSuccessMessage( __('The payment card has been stored successfully') );
-        }    
-        catch (\Exception $ex) {
-            $this->messageManager->addErrorMessage( $ex->getMessage() );
+        }
+        else {
+            $this->messageManager->addSuccessMessage( __('Invalid gateway response. Please contact the site administrator.') );
         }
     }
 
