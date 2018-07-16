@@ -9,5 +9,7 @@
 	<event name="order_cancel_after">
         <observer name="update_hub_order_cancel" instance="CheckoutCom\Magento2\Observer\OrderCancelObserver" />
     </event>    
-
+   <event name="sales_order_place_after">
+       <observer name="actions_on_order_placed" instance="CheckoutCom\Magento2\Observer\AfterPlaceOrderObserver" />
+   </event>
 </config>

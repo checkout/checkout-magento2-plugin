@@ -179,14 +179,17 @@ class TransactionHandler implements HandlerInterface {
      */
     public function vaultCard( array $response ){
         if (isset($response['card'])) {
+            // Get the card token
             $cardToken = $response['card']['id'];
             
+            // Prepare the card data
             $cardData = [];
             $cardData['expiryMonth']   = $response['card']['expiryMonth'];
             $cardData['expiryYear']    = $response['card']['expiryYear'];
             $cardData['last4']         = $response['card']['last4'];
             $cardData['paymentMethod'] = $response['card']['paymentMethod'];
 
+            // Get the payment token
             $paymentToken = $this->vaultTokenFactory->create($cardData, $this->customerSession->getCustomer()->getId());
             
             try {
