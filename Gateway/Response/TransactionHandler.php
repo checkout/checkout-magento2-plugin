@@ -127,7 +127,7 @@ class TransactionHandler implements HandlerInterface {
             $payment->setParentTransactionId($response['originalId']);
         }
 
-        foreach(self::$additionalInformationMapping as $item) {
+        foreach (self::$additionalInformationMapping as $item) {
             if (array_key_exists($item, $response)) {
                 $payment->setAdditionalInformation($item, $response[$item]);
             }
