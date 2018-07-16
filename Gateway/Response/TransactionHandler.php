@@ -111,7 +111,7 @@ class TransactionHandler implements HandlerInterface {
         $paymentDO  = SubjectReader::readPayment($handlingSubject);
         $payment    = $paymentDO->getPayment();
 
-        if( ! $payment instanceof Payment) {
+        if ( ! $payment instanceof Payment) {
             return;
         }
 
@@ -123,7 +123,7 @@ class TransactionHandler implements HandlerInterface {
         $payment->setIsTransactionClosed( $this->shouldCloseTransaction() );
         $payment->setShouldCloseParentTransaction( $this->shouldCloseParentTransaction($payment) );
 
-        if(array_key_exists('originalId', $response)) {
+        if (array_key_exists('originalId', $response)) {
             $payment->setParentTransactionId($response['originalId']);
         }
 
