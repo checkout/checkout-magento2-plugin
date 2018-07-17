@@ -111,7 +111,7 @@ class TransactionHandler implements HandlerInterface {
         $paymentDO  = SubjectReader::readPayment($handlingSubject);
         $payment    = $paymentDO->getPayment();
 
-        if( ! $payment instanceof Payment) {
+        if ( ! $payment instanceof Payment) {
             return;
         }
 
@@ -123,11 +123,11 @@ class TransactionHandler implements HandlerInterface {
         $payment->setIsTransactionClosed( $this->shouldCloseTransaction() );
         $payment->setShouldCloseParentTransaction( $this->shouldCloseParentTransaction($payment) );
 
-        if(array_key_exists('originalId', $response)) {
+        if (array_key_exists('originalId', $response)) {
             $payment->setParentTransactionId($response['originalId']);
         }
 
-        foreach(self::$additionalInformationMapping as $item) {
+        foreach (self::$additionalInformationMapping as $item) {
             if (array_key_exists($item, $response)) {
                 $payment->setAdditionalInformation($item, $response[$item]);
             }
@@ -166,7 +166,7 @@ class TransactionHandler implements HandlerInterface {
         }
 
         // Save card if needed
-        if (isset($response['udf2']) && $response['udf2'] == 'storeInVaultOnSuccess') {
+        if (isset($response['udf2']) && $response['udf2'] == 'storeInVaultOnSuccess' && $response['status'] == 'Authorised') {
             $this->vaultCard( $response );
         }
     }
@@ -178,36 +178,44 @@ class TransactionHandler implements HandlerInterface {
      * @return void
      */
     public function vaultCard( array $response ){
-        $cardToken = $response['card']['id'];
-        
-        $cardData = [];
-        $cardData['expiryMonth']   = $response['card']['expiryMonth'];
-        $cardData['expiryYear']    = $response['card']['expiryYear'];
-        $cardData['last4']         = $response['card']['last4'];
-        $cardData['paymentMethod'] = $response['card']['paymentMethod'];
+        if (isset($response['card'])) {
+            // Get the card token
+            $cardToken = $response['card']['id'];
+            
+            // Prepare the card data
+            $cardData = [];
+            $cardData['expiryMonth']   = $response['card']['expiryMonth'];
+            $cardData['expiryYear']    = $response['card']['expiryYear'];
+            $cardData['last4']         = $response['card']['last4'];
+            $cardData['paymentMethod'] = $response['card']['paymentMethod'];
 
-        $paymentToken = $this->vaultTokenFactory->create($cardData, $this->customerSession->getCustomer()->getId());
-        
-        try {
-            // Check if the payment token exists
-            $foundPaymentToken = $this->paymentTokenManagement->getByPublicHash( $paymentToken->getPublicHash(), $paymentToken->getCustomerId());
+            // Get the payment token
+            $paymentToken = $this->vaultTokenFactory->create($cardData, $this->customerSession->getCustomer()->getId());
+            
+            try {
+                // Check if the payment token exists
+                $foundPaymentToken = $this->paymentTokenManagement->getByPublicHash( $paymentToken->getPublicHash(), $paymentToken->getCustomerId());
 
-            // If the token exists activate it, otherwise create it
-            if ($foundPaymentToken) {
-                $foundPaymentToken->setIsVisible(true);
-                $foundPaymentToken->setIsActive(true);
-                $this->paymentTokenRepository->save($foundPaymentToken);
+                // If the token exists activate it, otherwise create it
+                if ($foundPaymentToken) {
+                    $foundPaymentToken->setIsVisible(true);
+                    $foundPaymentToken->setIsActive(true);
+                    $this->paymentTokenRepository->save($foundPaymentToken);
+                }
+                else {
+                    $paymentToken->setGatewayToken($cardToken);
+                    $paymentToken->setIsVisible(true);
+                    $this->paymentTokenRepository->save($paymentToken);
+                } 
+
+                $this->messageManager->addSuccessMessage( __('The payment card has been stored successfully') );
+            }    
+            catch (\Exception $ex) {
+                $this->messageManager->addErrorMessage( $ex->getMessage() );
             }
-            else {
-                $paymentToken->setGatewayToken($cardToken);
-                $paymentToken->setIsVisible(true);
-                $this->paymentTokenRepository->save($paymentToken);
-            } 
-
-            $this->messageManager->addSuccessMessage( __('The payment card has been stored successfully') );
-        }    
-        catch (\Exception $ex) {
-            $this->messageManager->addErrorMessage( $ex->getMessage() );
+        }
+        else {
+            $this->messageManager->addSuccessMessage( __('Invalid gateway response. Please contact the site administrator.') );
         }
     }
 

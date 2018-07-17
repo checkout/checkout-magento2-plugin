@@ -35,7 +35,7 @@ class OrderCancelObserver implements ObserverInterface {
     public function execute(Observer $observer) {
 
         // Get the order
-        $order = $observer->getData('order');
+        $order = $observer->getEvent()->getOrder();
 
         // Get the payment method
         $paymentMethod = $order->getPayment()->getMethod();
