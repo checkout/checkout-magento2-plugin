@@ -48,6 +48,7 @@ class Watchdog {
             // Add the message
             if (isset($data['message'])) {
                 $this->messageManager->addNoticeMessage(__('Message') . ' : ' .  $data['message']);    
-            }                     }
+            }                     
+        }
     }
 }
