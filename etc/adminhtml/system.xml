@@ -2,21 +2,32 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="payment">
-            <group id="checkout_com" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="checkoutcom_magento2" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Checkout.com</label>
 
-                <group id="checkout_com_logo" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="1">
+                <group id="checkout_com_logo" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="0">
                     <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Fieldset\Logo</frontend_model>
                 </group>
 
-                <group id="checkout_com_base_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="2">
-                    <label>Basic Settings</label>
-                    <attribute type="activity_path">payment/checkout_com/active</attribute>
+                <group id="apple_pay_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="1">
+                    <attribute type="activity_path">payment/checkoutcom_magento2/active</attribute>
+                    <label>Apple Pay Settings</label>
+
+                    <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable Apple Pay</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_magento2_apple_pay/active</config_path>
+                    </field>
+                </group>
+
+                <group id="base_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="10">
+                    <label>Base Settings</label>
+                    <attribute type="activity_path">payment/checkoutcom_magento2/active</attribute>
 
                     <field id="active" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enable this Solution</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com/active</config_path>
+                        <config_path>payment/checkoutcom_magento2/active</config_path>
                         <requires>
                             <field id="public_key"/>
                             <field id="secret_key"/>
@@ -27,30 +38,30 @@
                     <field id="environment" translate="label" sortOrder="10" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Environment</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\Environment</source_model>
-                        <config_path>payment/checkout_com/environment</config_path>
+                        <config_path>payment/checkoutcom_magento2/environment</config_path>
                     </field>
 
                     <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
-                        <config_path>payment/checkout_com/title</config_path>
+                        <config_path>payment/checkoutcom_magento2/title</config_path>
                     </field>
 
                     <field id="sort_order" translate="label" sortOrder="30" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Sort Order</label>
                         <validate>validate-number</validate>
-                        <config_path>payment/checkout_com/sort_order</config_path>
+                        <config_path>payment/checkoutcom_magento2/sort_order</config_path>
                     </field>
 
                     <field id="integration" translate="label" sortOrder="40" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Integration</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\Integration</source_model>
-                        <config_path>payment/checkout_com/integration</config_path>
+                        <config_path>payment/checkoutcom_magento2/integration</config_path>
                     </field>
 
                     <field id="payment_mode" translate="label" sortOrder="50" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Payment mode</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\PaymentMode</source_model>
-                        <config_path>payment/checkout_com/payment_mode</config_path>
+                        <config_path>payment/checkoutcom_magento2/payment_mode</config_path>
                         <depends>
                             <field id="integration">hosted</field>
                         </depends>
@@ -58,24 +69,16 @@
 
                     <field id="theme_color" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Theme color</label>
-                        <config_path>payment/checkout_com/theme_color</config_path>
+                        <config_path>payment/checkoutcom_magento2/theme_color</config_path>
                         <comment>Provide a color code in hexadecimal format. Ex: #00b660.</comment>
                         <depends>
                             <field id="integration">hosted</field>
                         </depends>
-                    </field>     
-
-                 	<field id="button_label" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Button label</label>
-                        <config_path>payment/checkout_com/button_label</config_path>
-                        <depends>
-                            <field id="integration">hosted</field>
-                        </depends>
-                    </field>
+                    </field>   
 
                  	<field id="box_title" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Payment window title</label>
-                        <config_path>payment/checkout_com/box_title</config_path>
+                        <config_path>payment/checkoutcom_magento2/box_title</config_path>
                         <depends>
                             <field id="integration">hosted</field>
                         </depends>
@@ -83,7 +86,7 @@
 
                  	<field id="box_subtitle" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Payment window subtitle</label>
-                        <config_path>payment/checkout_com/box_subtitle</config_path>
+                        <config_path>payment/checkoutcom_magento2/box_subtitle</config_path>
                         <depends>
                             <field id="integration">hosted</field>
                         </depends>
@@ -91,7 +94,7 @@
 
                  	<field id="logo_url" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Logo URL</label>
-                        <config_path>payment/checkout_com/logo_url</config_path>
+                        <config_path>payment/checkoutcom_magento2/logo_url</config_path>
                         <depends>
                             <field id="integration">hosted</field>
                         </depends>
@@ -100,48 +103,26 @@
                     <field id="embedded_theme" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Theme</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\EmbeddedTheme</source_model>
-                        <config_path>payment/checkout_com/embedded_theme</config_path>
+                        <config_path>payment/checkoutcom_magento2/embedded_theme</config_path>
                         <depends>
                             <field id="integration">embedded</field>
                         </depends>
                     </field>
-
-                    <!--
-                    <field id="css_file" translate="label" sortOrder="90" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>CSS file</label>
-                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\CssFile</source_model>
-                        <config_path>payment/checkout_com/css_file</config_path>
-                         <depends>
-                            <field id="integration">embedded</field>
-                        </depends>
-                    </field>
-
-                    <field id="custom_css" translate="label comment" type="file" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Custom Css File</label>
-                        <backend_model>CheckoutCom\Magento2\Model\Config\Backend\CustomCss</backend_model>
-                        <base_url type="media" scope_info="1">checkout_com</base_url>
-                        <comment>Provide a custom CSS file to use for the embedded payment form.</comment>
-                        <depends>
-                            <field id="css_file">custom</field>
-                        </depends>
-                   </field>
-                    -->
-
                 </group>
 
-                <group id="checkout_com_advanced_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="3">
+                <group id="advanced_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="20">
                     <label>Advanced Settings</label>
 
                     <field id="debug" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Debug</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com/debug</config_path>
+                        <config_path>payment/checkoutcom_magento2/debug</config_path>
                     </field>
 
                     <field id="checkout_com_cc_vault_active" translate="label" sortOrder="10" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Vault Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com_cc_vault/active</config_path>
+                        <config_path>payment/checkoutcom_magento2_cc_vault/active</config_path>
                         <requires>
                             <field id="active"/>
                         </requires>
@@ -149,7 +130,7 @@
 
                     <field id="checkout_com_cc_vault_title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Vault Title</label>
-                        <config_path>payment/checkout_com_cc_vault/title</config_path>
+                        <config_path>payment/checkoutcom_magento2_cc_vault/title</config_path>
                         <depends>
                             <field id="checkout_com_cc_vault_active">1</field>
                         </depends>
@@ -158,7 +139,7 @@
                    <field id="checkout_com_cc_vault_autosave" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Save cards automatically</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com_cc_vault/autosave</config_path>
+                        <config_path>payment/checkoutcom_magento2_cc_vault/autosave</config_path>
                         <depends>
                             <field id="checkout_com_cc_vault_active">1</field>
                         </depends>
@@ -170,7 +151,7 @@
                     <field id="checkout_com_cc_vault_hide_storage" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Hide card storage</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com_cc_vault/hide_card_storage</config_path>
+                        <config_path>payment/checkoutcom_magento2_cc_vault/hide_card_storage</config_path>
                         <comment>
                             If set to "Yes", customers will not be able to access the stored payment methods links from the account.
                         </comment>
@@ -179,19 +160,19 @@
                     <field id="useccv" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>CVV Verification</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com/useccv</config_path>
+                        <config_path>payment/checkoutcom_magento2/useccv</config_path>
                     </field>
 
                     <field id="verify_3dsecure" translate="label" sortOrder="60" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>3D Secure Verification</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com/verify_3dsecure</config_path>
+                        <config_path>payment/checkoutcom_magento2/verify_3dsecure</config_path>
                     </field>
 
                     <field id="attemptN3D" translate="label comment" sortOrder="70" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Attempt Non 3D Secure</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com/attemptN3D</config_path>
+                        <config_path>payment/checkoutcom_magento2/attemptN3D</config_path>
                         <depends>
                             <field id="verify_3dsecure">1</field>
                         </depends>
@@ -203,12 +184,12 @@
                     <field id="auto_capture" translate="label" sortOrder="80" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Auto Capture</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com/auto_capture</config_path>
+                        <config_path>payment/checkoutcom_magento2/auto_capture</config_path>
                     </field>
 
                     <field id="auto_capture_time" translate="label comment" sortOrder="90" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Auto Capture Time</label>
-                        <config_path>payment/checkout_com/auto_capture_time</config_path>
+                        <config_path>payment/checkoutcom_magento2/auto_capture_time</config_path>
                         <validate>validate-required</validate>
                         <depends>
                             <field id="auto_capture">1</field>
@@ -216,16 +197,16 @@
                         <comment>
                             If Payment Action is "Authorize and Capture", Auto Capture Time will define the number of hours (0-168) between the charge authorisation and automatic capture. Set value to 0 to authorise and capture a charge at the same time.
                         </comment>
-                    </field>
+                    </field>          
                 </group>
 
-                <group id="checkout_com_order_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="4">
+                <group id="order_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="4">
                     <label>Order Settings</label>
 
                     <field id="order_creation" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Order creation</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderCreation</source_model>
-                        <config_path>payment/checkout_com/order_creation</config_path>
+                        <config_path>payment/checkoutcom_magento2/order_creation</config_path>
                         <comment>
                             Define if new orders should be created before or after payment authorization. Works with the Hosted integration only.
                         </comment>
@@ -234,7 +215,7 @@
                     <field id="order_comments_override" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Override order comments</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com/order_comments_override</config_path>
+                        <config_path>payment/checkoutcom_magento2/order_comments_override</config_path>
                         <comment>
                             Set to "Yes" when using multiple currencies to avoid orders being flagged as fraud by Magento core.
                         </comment>
@@ -243,60 +224,60 @@
                     <field id="new_order_status" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>New order status</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
-                        <config_path>payment/checkout_com/new_order_status</config_path>
+                        <config_path>payment/checkoutcom_magento2/new_order_status</config_path>
                         <comment>Select the status that should be used for new orders.</comment>
                     </field>
 
                     <field id="order_status_authorized" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Authorization order status</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
-                        <config_path>payment/checkout_com/order_status_authorized</config_path>
+                        <config_path>payment/checkoutcom_magento2/order_status_authorized</config_path>
                         <comment>Select the status that should be used for orders with successful payment authorisation.</comment>
                     </field>
 
                     <field id="order_status_captured" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Capture order status</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
-                        <config_path>payment/checkout_com/order_status_captured</config_path>
+                        <config_path>payment/checkoutcom_magento2/order_status_captured</config_path>
                         <comment>Select the status that should be used for orders with successful payment capture.</comment>
                     </field>
 
                     <field id="order_status_refunded" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Refund order status</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
-                        <config_path>payment/checkout_com/order_status_refunded</config_path>
+                        <config_path>payment/checkoutcom_magento2/order_status_refunded</config_path>
                         <comment>Select the status that should be used for new orders with successful payment refund.</comment>
                     </field>
 
                     <field id="order_status_flagged" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Flagged order status</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
-                        <config_path>payment/checkout_com/order_status_flagged</config_path>
+                        <config_path>payment/checkoutcom_magento2/order_status_flagged</config_path>
                         <comment>Select the status that should be used for flagged orders.</comment>
                     </field>
 
                     <field id="auto_generate_invoice" translate="label comment" sortOrder="70" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Automatically generate invoice</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com/auto_generate_invoice</config_path>
+                        <config_path>payment/checkoutcom_magento2/auto_generate_invoice</config_path>
                         <comment>
                             When set to "Yes", an invoice will be generated automatically for the captured order status selected above.
                         </comment>
                     </field>
                 </group>
-
-                <group id="checkout_com_currency_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="5">
+  
+                <group id="currency_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="5">
                     <label>Currency Settings</label>
                     <field id="payment_currency" translate="label" sortOrder="0" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Payment Currency</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\PaymentCurrency</source_model>
-                        <config_path>payment/checkout_com/payment_currency</config_path>
+                        <config_path>payment/checkoutcom_magento2/payment_currency</config_path>
                     </field>
 
                     <field id="custom_currency" translate="label comment" sortOrder="10" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Custom Currency</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\CustomCurrency</source_model>
-                        <config_path>payment/checkout_com/custom_currency</config_path>
+                        <config_path>payment/checkoutcom_magento2/custom_currency</config_path>
                         <depends>
                             <field id="payment_currency">custom_currency</field>
                         </depends>
@@ -306,12 +287,12 @@
                     <field id="accepted_currencies" translate="label comment" sortOrder="20" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
                         <label>Accepted Currencies</label>
                         <source_model>Magento\Config\Model\Config\Source\Locale\Currency</source_model>
-                        <config_path>payment/checkout_com/accepted_currencies</config_path>
+                        <config_path>payment/checkoutcom_magento2/accepted_currencies</config_path>
                         <comment>The payment option will not be displayed if the shopper's order currency is not part of the currencies selected here.</comment>
                    </field>
                 </group>
 
-                <group id="checkout_com_country_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="6">
+                <group id="country_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="6">
                     <label>Country Settings</label>
 
                     <field id="allowspecific" translate="label" sortOrder="0" type="allowspecific" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -325,29 +306,29 @@
                     </field>
                 </group>
 
-                <group id="checkout_com_account_keys" translate="label" showInDefault="1" showInWebsite="1" sortOrder="7">
+                <group id="account_keys" translate="label" showInDefault="1" showInWebsite="1" sortOrder="7">
                     <label>Account keys</label>
                     <field id="public_key" translate="label" sortOrder="0" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Public Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkout_com/public_key</config_path>
+                        <config_path>payment/checkoutcom_magento2/public_key</config_path>
                     </field>
 
                     <field id="secret_key" translate="label" sortOrder="10" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Secret Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkout_com/secret_key</config_path>
+                        <config_path>payment/checkoutcom_magento2/secret_key</config_path>
                     </field>
 
                     <field id="private_shared_key" translate="label" sortOrder="20" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Private Shared Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkout_com/private_shared_key</config_path>
+                        <config_path>payment/checkoutcom_magento2/private_shared_key</config_path>
                         <comment>Used as an authorization key to the functionality called Webhook.</comment>
                     </field>
                 </group>
 
-                <group id="checkout_com_callback_urls" translate="label" showInDefault="1" showInWebsite="1" sortOrder="8">
+                <group id="callback_urls" translate="label" showInDefault="1" showInWebsite="1" sortOrder="8">
                     <label>Callbacks URLs</label>
 
                     <field id="webhook_url" translate="label" sortOrder="0" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -366,19 +347,19 @@
                     </field>
                 </group>
 
-                <group id="checkout_com_descriptor" translate="label" showInDefault="1" showInWebsite="1" sortOrder="9">
+                <group id="descriptor_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="9">
                     <label>Dynamic Descriptor</label>
 
                     <field id="descriptor_enable" translate="label comment" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enable Dynamic Descriptor</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com/descriptor_enable</config_path>
+                        <config_path>payment/checkoutcom_magento2/descriptor_enable</config_path>
                         <comment>To enable this feature, contact your Checkout.com account manager or send an email to support@checkout.com</comment>
                     </field>
                     
                     <field id="descriptor_name" translate="label" sortOrder="10" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Name</label>
-                        <config_path>payment/checkout_com/descriptor_name</config_path>
+                        <config_path>payment/checkoutcom_magento2/descriptor_name</config_path>
                         <depends>
                             <field id="descriptor_enable" >1</field>
                         </depends>
@@ -386,12 +367,13 @@
 
                     <field id="descriptor_city" translate="label" sortOrder="20" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>City</label>
-                        <config_path>payment/checkout_com/descriptor_city</config_path>
+                        <config_path>payment/checkoutcom_magento2/descriptor_city</config_path>
                         <depends>
-                            <field id="descriptor_enable" >1</field>
+                            <field id="descriptor_enable">1</field>
                         </depends>
                     </field>
                 </group>
+
             </group>
         </section>
     </system>

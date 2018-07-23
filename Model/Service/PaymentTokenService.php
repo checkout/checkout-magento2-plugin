@@ -10,31 +10,13 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Zend_Http_Client_Exception;
-use Magento\Framework\App\ObjectManager;
-use Magento\Framework\HTTP\ZendClient;
-use Magento\Payment\Gateway\Http\TransferInterface;
-use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Checkout\Model\Session;
 use Magento\Store\Model\StoreManagerInterface;
-use CheckoutCom\Magento2\Gateway\Http\TransferFactory;
-use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
-use CheckoutCom\Magento2\Gateway\Exception\ApiClientException;
-use CheckoutCom\Magento2\Model\GatewayResponseHolder;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
-use CheckoutCom\Magento2\Helper\Watchdog;
+use CheckoutCom\Magento2\Gateway\Http\Client;
+use CheckoutCom\Magento2\Gateway\Config\Config;
 
 class PaymentTokenService {
-
-    /**
-     * @var GatewayConfig
-     */
-    protected $gatewayConfig;
-
-    /**
-     * @var TransferFactory
-     */
-    protected $transferFactory;
 
     /**
      * @var Session
@@ -47,107 +29,91 @@ class PaymentTokenService {
     protected $storeManager;
 
     /**
-     * @var Watchdog
+     * @var Client
      */
-    protected $watchdog;
+    protected $client;
+
+    /**
+     * @var Config
+     */
+    protected $config;
 
     /**
      * PaymentTokenService constructor.
-     * @param GatewayConfig $gatewayConfig
-     * @param TransferFactory $transferFactory
-     * @param Session $checkoutSession
-     * @param StoreManagerInterface $storeManager
-     * @param Watchdog $watchdog
-    */
+     */
     public function __construct(
-        GatewayConfig $gatewayConfig,
-        TransferFactory $transferFactory,
         Session $checkoutSession,
         StoreManagerInterface $storeManager,
-        Watchdog $watchdog
+        Client $client,
+        Config $config
     ) {
-        $this->gatewayConfig    = $gatewayConfig;
-        $this->transferFactory  = $transferFactory;
         $this->checkoutSession = $checkoutSession;
         $this->storeManager  = $storeManager;
-        $this->watchdog = $watchdog;
+        $this->client = $client;
+        $this->config = $config;
     }
 
     /**
-     * Runs the service.
-     *
-     * @return array
-     * @throws ApiClientException
-     * @throws ClientException
-     * @throws \Exception
+     * PaymentTokenService Constructor.
      */
     public function getToken() {
+        // Prepare the request URL
+        $url = $this->config->getApiUrl() . 'tokens/payment';
+
+        // Get the currency code
+        $currencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
+
         // Get the quote object
         $quote = $this->checkoutSession->getQuote();
 
-        // Get the reserved track id
-        $trackId = $quote->reserveOrderId()->save()->getReservedOrderId();
-
-        // Get the quote currency
-        $currencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
-
         // Get the quote amount
-        $amount =  ChargeAmountAdapter::getPaymentFinalCurrencyValue($quote->getGrandTotal());
+        $amount = ChargeAmountAdapter::getPaymentFinalCurrencyValue($quote->getGrandTotal());
 
-        // Prepare the amount 
-        $value = ChargeAmountAdapter::getGatewayAmountOfCurrency($amount, $currencyCode);
+        if ((float) $amount >= 0 && !empty($amount)) {
+            // Prepare the amount 
+            $value = ChargeAmountAdapter::getGatewayAmountOfCurrency($amount, $currencyCode);
 
-        // Prepare the transfer data
-        $transfer = $this->transferFactory->create([
-            'value'   => $value,
-            'currency'   => $currencyCode,
-            'trackId' => $trackId
-        ]);
+            // Prepare the transfer data
+            $params = [
+                'value' => $value,
+                'currency' => $currencyCode,
+                'trackId' => $quote->reserveOrderId()->save()->getReservedOrderId()
+            ];
 
-        // Get the token
-        try {
-            $response = $this->getHttpClient('tokens/payment', $transfer)->request();
-            
-            $result   = (array) json_decode($response->getBody(), true);
+            // Send the request
+            $response = $this->client->post($url, $params);
+            $response = isset($response) ? (array) json_decode($response) : null;
 
-            // Debug info
-            $this->watchdog->bark($result);
-
-            return isset($result['id']) ? $result['id'] : null;
-
+            // Extract the payment token
+            if (isset($response['id'])){
+                return $response['id'];
+            }
         }
-        catch (Zend_Http_Client_Exception $e) {
-            throw new ClientException(__($e->getMessage()));
-        }
+
+        return false;
     }
 
-    /**
-     * Returns prepared HTTP client.
-     *
-     * @param string $endpoint
-     * @param TransferInterface $transfer
-     * @return ZendClient
-     * @throws \Exception
-     */
-    private function getHttpClient($endpoint, TransferInterface $transfer) {
-        $client = new ZendClient($this->gatewayConfig->getApiUrl() . $endpoint);
-        $client->setMethod('POST');
-        $client->setRawData( json_encode( $transfer->getBody()) ) ;
-        $client->setHeaders($transfer->getHeaders());
-        $client->setConfig($transfer->getClientConfig());
+    public function sendChargeRequest($cardToken, $order) {
+        // Set the request parameters
+        $url = $this->config->getApiUrl() . 'charges/token';
+        $params = [
+            'autoCapTime'   => $this->config->getAutoCaptureTimeInHours(),
+            'autoCapture'   => $this->config->isAutoCapture() ? 'Y' : 'N',
+            'email'         => $order->getBillingAddress()->getEmail(),
+            'customerIp'    => $order->getRemoteIp(),
+            'chargeMode'    => $this->gatewayConfig->isVerify3DSecure() ? 2 : 1,
+            'attemptN3D'    => filter_var($this->config->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN),
+            'customerName'  => $order->getCustomerName(),
+            'currency'      => ChargeAmountAdapter::getPaymentFinalCurrencyCode($order->getCurrencyCode()),
+            'value'         => $order->getGrandTotal()*100,
+            'trackId'       => $order->getIncrementId(),
+            'cardToken'     => $cardToken
+        ];
 
-        return $client;
-    }
+        // Handle the request
+        $response = $this->client->post($url, $params);
 
-    /**
-     * Sets the gateway response to the holder.
-     *
-     * @param array $response
-     * @throws \RuntimeException
-     */
-    private function putGatewayResponseToHolder(array $response) {
-        /* @var $gatewayResponseHolder GatewayResponseHolder */
-        $gatewayResponseHolder = ObjectManager::getInstance()->get(GatewayResponseHolder::class);
-        $gatewayResponseHolder->setGatewayResponse($response);
+        // Return the response
+        return response;
     }
 }

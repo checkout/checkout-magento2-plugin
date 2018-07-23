@@ -1,78 +1,22 @@
-<img src="https://cdn.checkout.com/img/checkout-logo-online-payments.jpg" alt="Checkout.com" width="380"/>
-
-## Magento 2 Extension &nbsp; ![N|Solid](https://circleci.com/gh/checkout/checkout-magento2-plugin.svg?style=shield&circle-token=c246af998b0859be11b269afd0b0162303f1ac5f)
-
-[Checkout.com](https://www.checkout.com "Checkout.com") is a software platform that has integrated 100% of the value chain to create payment infrastructures that truly make a difference. Checkout.com is authorised and regulated as a Payment institution by the UK Financial Conduct Authority.
-
-The Checkout.com extension for Magento 2 allows shop owners to process online payments through the [Checkout.com Payment Gateway](https://docs.checkout.com/getting-started/introduction "Checkout.com Payment Gateway").
-
-This extension is an integration of [Checkout.js](https://docs.checkout.com "Checkout.js") and offers 2 payment modes:
-
-* Checkout.js Hosted<br>
-Shoppers are redirected from your website to Checkout.com servers to complete payments.
-
-* Frames.js<br>
-The payment form is embedded and shoppers complete payments without leaving your website.
-
-Checkout.js Hosted and Frames.js are cross-browser and cross-device compatible, and can accept online payments from all major credit cards. Checkout.js Hosted offers in addition many of the most popular [Alternative Payment methods](https://docs.checkout.com/reference/checkout-js-reference/alternative-payments "Alternative Payment methods") used around the world.
-
-## Supported payment methods
-The Checkout.com extension for Magento 2 supports VISA, Mastercard, American Express, Discover, Diners Club, JCB, in addition to the Alternative Payment options described above.
-
-## Compatibility
-The Checkout.com extension for Magento 2 is compatible with Magento 2.1.0 to 2.2.3.
-
-## Features
-The Checkout.com extension for Magento 2 offers useful and unique features, allowing Magento 2 shop owners to process online payments in the best conditions. These features have been designed to offer an optimal shopping and payment experience to Magento 2 merchants and shoppers.
-
-Amongst many others, the major features are: 
-
-* Hosted payment gateway
-* Embedded payment form
-* New order status management
-* Invoice generation management
-* 3D Secure handling
-* Non 3D Secure payment fallback
-* Alternative payments
-* Payment currency flexibility
-* Dynamic descriptors
-* REST API for mobile payments
-* Payment form customization
+## Synopsis
+An extension to add integration with Payment Gateway.
+This payment method can be restricted to work only with specific Shipping method.
 
 ## Installation
-The easiest and recommended way to install the Checkout.com Magento 2 extension is to run the following commands in a terminal, from your Magento 2 root directory:
+This module is intended to be installed using composer.  After including this component and enabling it, you can verify it is installed by going the backend at:
+STORES -> Configuration -> ADVANCED/Advanced ->  Disable Modules Output
+Once there check that the module name shows up in the list to confirm that it was installed correctly.
 
-```bash
-composer require checkoutcom/magento2:*
-bin/magento setup:upgrade
-rm -rf var/cache var/generation/ var/di
-bin/magento setup:di:compile && php bin/magento cache:clean
-```
-For more information on the Magento 2 module installation process, please have a look at the [Magento 2 official documentation](http://devdocs.magento.com/guides/v2.0/install-gde/install/cli/install-cli-subcommands-enable.html "Magento 2 official documentation")
+### Module configuration
+1. Package details [composer.json](composer.json).
+2. Module configuration details (sequence) in [module.xml](etc/module.xml).
+3. Module configuration available through Stores->Configuration [system.xml](etc/adminhtml/system.xml)
 
-## Configuration
-Once the Checkout.com extension for Magento 2 installed, go to **Stores > Configuration > Sales > Payment Methods > Checkout.com** to see the configuration and customization options available. Here is a short selection of some useful parameters available:
+Payment gateway module depends on `Sales`, `Payment` and `Checkout` Magento modules.
+For more module configuration details, please look through [module development docs](http://devdocs.magento.com/guides/v2.0/extension-dev-guide/module-load-order.html).
 
-| Option               | Values               | Description  |
-| :------------------- | :------------------- | :-------------|
-| Integration   | Embedded/Hosted | Display an emedded form for the payment or redirect to the payment gateway |
-| Environment   | Sandbox/Live    | Use the payment processor in test or production mode |
-| New order status | M2 order statuses | Which status should be given to newly created orders | 
-| Invoice generation | Yes/No  | Should invoices be generated manually or automatically | 
-| Vault enabled | Yes/No  | Allow shoppers to save a payment card for reuse | 
-| 3D Secure check | Yes/No  | Should payments follow a 3D Secure verification process | 
-| Auto Capture | Yes/No  | Should payments be captured immediately or with a specified delay |
-| Payment Currency | M2 currencies | Which currency should be used for the payment |
-| Button label | Pay now | Text to display on the payment button (Hosted)|
-| Theme color | #00b660 | Hexadecimal color code to use for the theme (Hosted) |
-| Theme | Standard/Simple | Theme to use for the embedded payment form (Embedded)|
-| Custom CSS file | ------- | Upload a CSS file to customize the display parameters (Embedded)|
+## Contributors
+Magento Core team
 
-In order to effectively process payments through the Checkout.com Payment Gateway, you will need to open an account.
-Contact your [Checkout.com](https://www.checkout.com "Checkout.com") account manager or send an email to support@checkout.com for more information.
-
-Dedicated technical support is available to all Merchants using Checkout.com via the public GitHub repositories or directly by email at integration@checkout.com. Checkout.com does not provide support for third party plugins or any alterations made to the official Checkout.com plugins.
-
-**DISCLAIMER**
-
-In no event shall Checkout.com be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from the information or code provided or the use of the information or code provided. This disclaimer of liability refers to any technical issue or damage caused by the use or non-use of the information or code provided or by the use of incorrect or incomplete information or code provided.
+## License
+[Open Source License](LICENSE.txt)

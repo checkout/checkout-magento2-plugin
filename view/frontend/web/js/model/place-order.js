@@ -5,7 +5,7 @@
 define(
     [
         'mage/storage',
-        'CheckoutCom_Magento2/js/model/error-processor',
+        'Magento_Checkout/js/model/error-processor',
         'Magento_Checkout/js/model/full-screen-loader'
     ],
     function(storage, errorProcessor, fullScreenLoader) {

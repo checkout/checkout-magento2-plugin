@@ -5,32 +5,49 @@
  * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * MIT License
  */
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Sales\Model\Order;
-use Magento\Quote\Model\Quote;
-use Magento\Checkout\Helper\Data;
-use Magento\Customer\Model\Group;
-use Magento\Customer\Model\Session;
-use Magento\Checkout\Model\Type\Onepage;
-use Magento\Quote\Api\CartManagementInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Customer\Api\Data\GroupInterface;
+use Magento\Quote\Model\QuoteManagement;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Checkout\Api\AgreementsValidatorInterface;
-use Magento\Sales\Model\Order\Payment\Transaction\Repository;
-use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\Api\FilterBuilder;
-use Magento\Payment\Gateway\Http\TransferInterface;
-use Magento\Framework\HTTP\ZendClient;
-use CheckoutCom\Magento2\Gateway\Http\TransferFactory;
-use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
-use CheckoutCom\Magento2\Observer\DataAssignObserver;
-use CheckoutCom\Magento2\Helper\Watchdog;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Quote\Model\QuoteFactory;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
+use CheckoutCom\Magento2\Helper\Tools;
+use CheckoutCom\Magento2\Helper\Watchdog;
+use CheckoutCom\Magento2\Model\Service\TransactionService;
+use CheckoutCom\Magento2\Model\Service\InvoiceHandlerService;
 
 class OrderService {
+
+    /**
+     * @var TransactionService
+     */
+    protected $transactionService;
+
+    /**
+     * @var InvoiceHandlerService
+     */
+    protected $invoiceHandlerService;
+
+    /**
+     * @var QuoteManagement
+     */
+    protected $quoteManagement;
+
+    /**
+     * @var CheckoutSession
+     */
+    protected $checkoutSession;
 
     /**
      * @var GatewayConfig
@@ -38,49 +55,24 @@ class OrderService {
     protected $gatewayConfig;
 
     /**
-     * @var CartManagementInterface
+     * @var CustomerSession
      */
-    private $cartManagement;
+    protected $customerSession;
 
     /**
-     * @var AgreementsValidatorInterface
+     * @var JsonFactory
      */
-    private $agreementsValidator;
+    protected $resultJsonFactory;
 
     /**
-     * @var Session
+     * @var OrderSender
      */
-    private $customerSession;
+    protected $orderSender;
 
     /**
-     * @var Data
+     * @var Tools
      */
-    private $checkoutHelper;
-
-    /**
-     * @var Order
-     */
-    private $orderManager;
-
-    /**
-     * @var Repository
-     */
-    private $transactionRepository;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
-    private $searchCriteriaBuilder;
-
-    /**
-     * @var FilterBuilder
-     */
-    private $filterBuilder;
-
-    /**
-     * @var TransferFactory
-     */
-    protected $transferFactory;
+    protected $tools;
 
     /**
      * @var Watchdog
@@ -88,260 +80,148 @@ class OrderService {
     protected $watchdog;
 
     /**
-     * OrderService constructor.
-     * @param CartManagementInterface $cartManagement
-     * @param AgreementsValidatorInterface $agreementsValidator
-     * @param Session $customerSession
-     * @param Data $checkoutHelper
-     * @param Order $orderManager
+     * @var OrderRepositoryInterface
+     */
+    protected $orderRepository;
+
+    /**
+     * @var CartRepositoryInterface
+     */
+    protected $cartRepository;
+
+    /**
+     * @var OrderInterface
+     */
+    protected $orderInterface;
+
+    /**
+     * @var QuoteFactory
+     */
+    protected $quoteFactory;
+
+    /**
+     * CallbackService constructor.
+     * @param TransactionService $transactionService
+     * @param InvoiceHandlerService $invoiceHandlerService
+     * @param CheckoutSession $checkoutSession
+     * @param GatewayConfig $gatewayConfig
+     * @param JsonFactory $resultJsonFactory
+     * @param OrderSender $orderSender
+     * @param Tools $tools
+     * @param Watchdog $watchdog
+     * @param OrderRepositoryInterface $orderRepository
+     * @param CartRepositoryInterface $cartRepository
+     * @param OrderInterface $orderInterface
+     * @param QuoteFactory $quoteFactory
      */
     public function __construct(
-        CartManagementInterface $cartManagement,
-        AgreementsValidatorInterface $agreementsValidator,
-        Session $customerSession,
-        Data $checkoutHelper,
-        Order $orderManager,
-        Repository $transactionRepository,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        FilterBuilder $filterBuilder,
-        TransferFactory $transferFactory,
+        TransactionService $transactionService,
+        InvoiceHandlerService $invoiceHandlerService,
+        CheckoutSession $checkoutSession,
         GatewayConfig $gatewayConfig,
-        Watchdog $watchdog
+        CustomerSession $customerSession,
+        QuoteManagement $quoteManagement, 
+        JsonFactory $resultJsonFactory,
+        OrderSender $orderSender,
+        Tools $tools,
+        Watchdog $watchdog,
+        OrderRepositoryInterface $orderRepository,
+        CartRepositoryInterface $cartRepository,                   
+        OrderInterface $orderInterface,
+        QuoteFactory $quoteFactory
     ) {
-        $this->cartManagement        = $cartManagement;
-        $this->agreementsValidator   = $agreementsValidator;
+        $this->transactionService = $transactionService;
+        $this->invoiceHandlerService = $invoiceHandlerService;
+        $this->checkoutSession       = $checkoutSession;
         $this->customerSession       = $customerSession;
-        $this->checkoutHelper        = $checkoutHelper;
-        $this->orderManager          = $orderManager;
-        $this->transactionRepository = $transactionRepository;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->filterBuilder         = $filterBuilder;
-        $this->transferFactory       = $transferFactory;
+        $this->quoteManagement       = $quoteManagement;
+        $this->resultJsonFactory     = $resultJsonFactory;
         $this->gatewayConfig         = $gatewayConfig;
+        $this->orderSender           = $orderSender;
+        $this->tools                 = $tools;
         $this->watchdog              = $watchdog;
+        $this->orderRepository       = $orderRepository;
+        $this->cartRepository        = $cartRepository;
+        $this->orderInterface        = $orderInterface;
+        $this->quoteFactory          = $quoteFactory;
     }
 
-    /**
-     * Runs the service.
-     *
-     * @param Quote $quote
-     * @param $cardToken
-     * @param array $agreement
-     * @throws LocalizedException
-     */
-    public function execute(Quote $quote, $cardToken, array $agreement) {
-        if (!$this->agreementsValidator->isValid($agreement)) {
-            throw new LocalizedException(__('Please agree to all the terms and conditions before placing the order.'));
-        }
+    public function placeOrder($data) {
+        // Get the fields
+        $fields = $this->tools->unpackData($data['Data'], '|', '=');
 
-        if ($this->getCheckoutMethod($quote) === Onepage::METHOD_GUEST) {
-            $this->prepareGuestQuote($quote);
-        }
+        // If a track id is available
+        if (isset($fields['orderId'])) {
+            // Check if the order exists
+            $order = $this->orderInterface->loadByIncrementId($fields['orderId']);
 
-        // Set up the payment information
-        $payment = $quote->getPayment();
-        $payment->setMethod(ConfigProvider::CODE);
-
-        // Card token always pressent, except for alternative payments
-        if ($cardToken) {
-            $payment->setAdditionalInformation(DataAssignObserver::CARD_TOKEN_ID, $cardToken);
-        }
-
-        // Configure the quote
-        $this->disabledQuoteAddressValidation($quote);
-        $quote->collectTotals();
-
-        // Place the order
-        $orderId = $this->cartManagement->placeOrder($quote->getId());
-
-        return $orderId;
-    }
-
-    public function cancelTransactionToRemote(Order $order) {
-        // Get the transaction data
-        $transactionData = $this->_getTransactionsData($order);
-
-        // Prepare url prefix
-        $url = 'charges/';
-
-        //  Process the request
-        if ($transactionData) {
-            // Check if transaction is capture or authorisation
-            if ($transactionData['txnType'] == 'capture') {
-                $url .= $transactionData['txnId'] . '/refund';
-            }
-            else if ($transactionData['txnType'] == 'authorization') {
-                $url .= $transactionData['txnId'] . '/void';
-            }
-
-            // Launch the query
-            $method = 'POST';
-            $transfer = $this->transferFactory->create([
-                'trackId'   => $order->getIncrementId()
-            ]);
-
-            // Handle the request
-            $this->_handleRequest($url, $method, $transfer);
-        }
-    }
-
-    public function cancelTransactionFromRemote(Order $order) {
-        if ($order->canCancel()) {
-            try {
-                // Cancel the order
-                $order->cancel()->save();
-                
-                // Add a comment to history
-                $order->addStatusToHistory($order->getStatus(), __('Order and transaction cancelled'), $notify = true);
-                $order->save();
-            }
-            catch (Zend_Http_Client_Exception $e) {
-                throw new ClientException(__($e->getMessage()));
-            }
-        }
-    }
-
-    protected function _getTransactionsData(Order $order) {
-        // Get transactions for the order
-        $transactions = $this->_getOrderTransactions($order);
-
-        // Count the transactions in the order
-        $tnxCount = count($transactions);
-
-        // Prepare the result
-        $result = false;
-
-        if ($tnxCount == 1) {
-            // For each transaction
-            foreach ($transactions as $transaction) {
-                if ($transaction->getTxnType() == 'authorization') {
-                    $result = array(
-                        'txnType' => $transaction->getTxnType(),
-                        'txnId' => $transaction->getTxnId()
-                    ); 
-                }
-            }
-        }
-        else {
-            // For each transaction
-            foreach ($transactions as $transaction) {
-                if ($transaction->getTxnType() == 'capture') {
-                    $result = array(
-                        'txnType' => $transaction->getTxnType(),
-                        'txnId' => $transaction->getTxnId()
-                    ); 
-                }
+            // Update the order
+            if (!$order->getId()) {
+                return $this->createOrder($data, $fields);
             }
         }
 
-        return $result;
+        return $order;
     }
 
-    protected function _handleRequest($url, $method, $transfer) {        
-        try {
-            // Send the request
-            $response           = $this->getHttpClient($url, $transfer)->request();
-            $result             = json_decode($response->getBody(), true);
+    public function createOrder($data, $fields) {
+        // Check if the quote exists
+        $quote = $this->quoteFactory
+            ->create()->getCollection()
+            ->addFieldToFilter('customer_id', $fields['customerId'])
+            ->getFirstItem();
 
-            // Handle the response
-            $this->_handleResponse($result);
-        }
-        catch (Zend_Http_Client_Exception $e) {
-            throw new ClientException(__($e->getMessage()));
-        }
-    }
+        // If there is a quote, create the order
+        if ($quote->getId()) {
+            // Set the payment information
+            $payment = $quote->getPayment();
+            $payment->setMethod($this->tools->modmeta['tag']);
 
-    protected function _handleResponse($response) {
-        // Debug info
-        $this->watchdog->bark($response);
-    }
+            // Create the order
+            $order = $this->quoteManagement->submit($quote);
 
-    protected function _getOrderTransactions(Order $order) {
-        // Payment filter
-        $filters[] = $this->filterBuilder->setField('payment_id')
-        ->setValue($order->getPayment()->getId())
-        ->create();
+            // Format the gateway amount
+            $amount = $this->tools->formatAmount($fields['amount']);
 
-        // Order filter
-        $filters[] = $this->filterBuilder->setField('order_id')
-        ->setValue($order->getId())
-        ->create();
+            // Prepare required variables
+            $newComment = '';
 
-        // Build the search criteria
-        $searchCriteria = $this->searchCriteriaBuilder->addFilters($filters)
-        ->create();
-        
-        return $this->transactionRepository->getList($searchCriteria)->getItems();
-    }
+            // Update order status
+            if ($this->gatewayConfig->isAutocapture()) {
+                // Update order status
+                $order->setStatus($this->gatewayConfig->getOrderStatusCaptured());
+                $this->orderRepository->save($order);
 
-    /**
-     * Get checkout method.
-     *
-     * @param Quote $quote
-     * @return string
-     */
-    private function getCheckoutMethod(Quote $quote) {
-        if ($this->customerSession->isLoggedIn()) {
-            return Onepage::METHOD_CUSTOMER;
-        }
-
-        if (!$quote->getCheckoutMethod()) {
-            if ($this->checkoutHelper->isAllowedGuestCheckout($quote)) {
-                $quote->setCheckoutMethod(Onepage::METHOD_GUEST);
-            } else {
-                $quote->setCheckoutMethod(Onepage::METHOD_REGISTER);
+                // Create the transaction
+                $transactionId = $this->transactionService->createTransaction($order, $fields, 'capture');
+                $newComment .= __('Captured') . ' '; 
             }
-        }
+            else {
+                // Update order status
+                $order->setStatus($this->gatewayConfig->getOrderStatusAuthorized());
 
-        return $quote->getCheckoutMethod();
-    }
-
-    /**
-     * Prepare quote for guest checkout order submit.
-     *
-     * @param Quote $quote
-     * @return void
-     */
-    private function prepareGuestQuote(Quote $quote) {
-        $quote->setCustomerId(null)
-            ->setCustomerEmail($quote->getBillingAddress()->getEmail())
-            ->setCustomerIsGuest(true)
-            ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
-    }
-
-    /**
-     * Disables the address validation for the given quote instance.
-     *
-     * @param Quote $quote
-     */
-    protected function disabledQuoteAddressValidation(Quote $quote) {
-        $billingAddress = $quote->getBillingAddress();
-        $billingAddress->setShouldIgnoreValidation(true);
-
-        if (!$quote->getIsVirtual()) {
-            $shippingAddress = $quote->getShippingAddress();
-            $shippingAddress->setShouldIgnoreValidation(true);
-
-            if (!$billingAddress->getEmail()) {
-                $billingAddress->setSameAsBilling(1);
+                // Create the transaction
+                $transactionId = $this->transactionService->createTransaction($order, $fields, 'authorization');
+                $newComment .= __('Authorized') . ' '; 
             }
-        }
-    }
 
-    /**
-     * Returns prepared HTTP client.
-     *
-     * @param string $endpoint
-     * @param TransferInterface $transfer
-     * @return ZendClient
-     * @throws \Exception
-     */
-    private function getHttpClient($endpoint, TransferInterface $transfer) {
-        $client = new ZendClient($this->gatewayConfig->getApiUrl() . $endpoint);
-        $client->setMethod('POST');
-        $client->setRawData( json_encode( $transfer->getBody()) ) ;
-        $client->setHeaders($transfer->getHeaders());
-        
-        return $client;
+            // Create the invoice
+            $this->invoiceHandlerService->processInvoice($order);   
+
+            // Create new comment
+            $newComment .= __('amount of') . ' ' . $amount . ' ' . $order->getOrderCurrencyCode(); 
+            $newComment .= ' ' . __('Transaction ID') . ': ' . $transactionId;
+            
+            $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+            $this->orderRepository->save($order);
+
+            // Send the email
+            $this->orderSender->send($order);
+            $order->setEmailSent(1);     
+
+            return $order; 
+        } 
+
+        return null; 
     }
 }

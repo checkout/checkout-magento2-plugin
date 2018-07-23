@@ -2,23 +2,25 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
-            <checkout_com>
-                <model>CheckoutComFacade</model>
+           <checkoutcom_magento2>
                 <title>Credit Card (Checkout.com)</title>
                 <active>1</active>
                 <debug>1</debug>
+                <order_creation>after_auth</order_creation>
+                <new_order_status>pending</new_order_status>
+                <model>CheckoutCom\Magento2\Model\Methods\DefaultMethod</model>
                 <is_gateway>1</is_gateway>
-                <can_use_checkout>1</can_use_checkout>
-                <can_authorize>1</can_authorize>
-                <can_capture>1</can_capture>
-                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
-                <can_refund>1</can_refund>
-                <can_void>1</can_void>
-                <can_cancel>1</can_cancel>
                 <can_use_internal>0</can_use_internal>
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_capture_vault>1</can_capture_vault>
                 <can_charge_details>1</can_charge_details>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <payment_action>authorize_capture</payment_action>   
                 <order_creation>after_auth</order_creation>
                 <new_order_status>pending</new_order_status>
                 <order_status_authorized>pending_payment</order_status_authorized>
@@ -43,7 +45,6 @@
                 <custom_css></custom_css>
                 <environment>sandbox</environment>
                 <integration>hosted</integration>
-                <payment_action>authorize</payment_action>
                 <auto_capture>0</auto_capture>
                 <auto_capture_time>0.02</auto_capture_time>
                 <public_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
@@ -63,16 +64,37 @@
                 <useccv>1</useccv>
                 <save_card_check_amount>1.00</save_card_check_amount>
                 <save_card_check_currency>USD</save_card_check_currency>
-            </checkout_com>
-            <checkout_com_cc_vault>
+            </checkoutcom_magento2>            
+            <checkoutcom_magento2_apple_pay>
+                <title>Credit Card (Checkout.com Apple Pay)</title>
+                <active>1</active>
+                <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>0</can_void>
+                <debug>1</debug>
+                <sort_order>1</sort_order>
+            </checkoutcom_magento2_apple_pay>
+            <!--
+            <checkoutcom_magento2_cc_vault>
                 <model>CheckoutComCreditCardVaultFacade</model>
                 <title>Stored Cards (Checkout.com)</title>
                 <autosave>1</autosave>
                 <hide_card_storage>0</hide_card_storage>
-            </checkout_com_cc_vault>
-            <checkout_com_3ds>
-                <model>CheckoutComFacade</model>
-            </checkout_com_3ds>
+            </checkoutcom_magento2_cc_vault>
+            -->     
         </payment>
+        <conf>
+            <param>
+                <modtag>checkoutcom_magento2</modtag>
+                <modtagapplepay>checkoutcom_magento2_apple_pay</modtagapplepay>
+                <modname>CheckoutCom_Magento2</modname>
+                <modlabel>Checkout.com</modlabel>
+                <modurl><![CDATA[https://www.checkout.com]]></modurl>
+           </param>
+        </conf>
     </default>
 </config>

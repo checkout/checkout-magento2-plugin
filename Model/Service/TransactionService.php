@@ -5,7 +5,7 @@
  * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * MIT License
  */
 
 namespace CheckoutCom\Magento2\Model\Service;
@@ -13,7 +13,9 @@ namespace CheckoutCom\Magento2\Model\Service;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
+use CheckoutCom\Magento2\Helper\Tools;
 
 class TransactionService {
 
@@ -28,21 +30,32 @@ class TransactionService {
     protected $messageManager;
 
     /**
+     * @var Tools
+     */
+    protected $tools;
+
+    /**
      * TransactionService constructor.
      * @param BuilderInterface $transactionBuilder
-     */
-    public function __construct(BuilderInterface $transactionBuilder, ManagerInterface $messageManager) {
+     * @param ManagerInterface $messageManager
+    */
+    public function __construct(BuilderInterface $transactionBuilder, ManagerInterface $messageManager, Tools $tools) {
         $this->transactionBuilder = $transactionBuilder;
         $this->messageManager     = $messageManager;
+        $this->tools     = $tools;
     }
 
-    public function execute($order = null, $paymentData = array()) {
+    public function createTransaction($order, $paymentData, $mode = null) {
+        // Prepare the transaction mode
+        $transactionMode = ($mode == 'authorization' || !$mode) ? Transaction::TYPE_AUTH : Transaction::TYPE_CAPTURE;
+
+        // Create the transaction
         try {
             // Prepare payment object
             $payment = $order->getPayment();
-            $payment->setMethod(ConfigProvider::CODE); 
-            $payment->setLastTransId($paymentData['id']);
-            $payment->setTransactionId($paymentData['id']);
+            $payment->setMethod($this->tools->modmeta['tag']); 
+            $payment->setLastTransId($paymentData['transactionReference']);
+            $payment->setTransactionId($paymentData['transactionReference']);
             $payment->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData]);
 
             // Formatted price
@@ -51,10 +64,10 @@ class TransactionService {
             // Prepare transaction
             $transaction = $this->transactionBuilder->setPayment($payment)
             ->setOrder($order)
-            ->setTransactionId($paymentData['id'])
+            ->setTransactionId($paymentData['transactionReference'])
             ->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData])
             ->setFailSafe(true)
-            ->build(Transaction::TYPE_CAPTURE);
+            ->build($transactionMode);
  
             // Add transaction to payment
             $payment->addTransactionCommentsToOrder($transaction, __('The authorized amount is %1.', $formatedPrice));
@@ -65,10 +78,11 @@ class TransactionService {
             $order->save();
             $transaction->save();
  
-            return  $transaction->getTransactionId();
+            return $transaction->getTransactionId();
 
         } catch (Exception $e) {
             $this->messageManager->addExceptionMessage($e, $e->getMessage());
+            return false;
         }
     }
 }

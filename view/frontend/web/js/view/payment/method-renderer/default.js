@@ -18,10 +18,9 @@ define(
         'Magento_Checkout/js/action/place-order',
         'mage/url',
         'Magento_Checkout/js/model/full-screen-loader',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Magento_Vault/js/view/payment/vault-enabler'
+        'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function($, Component, Adapter, PlaceOrderAction, Url, FullScreenLoader, AdditionalValidators, VaultEnabler) {
+    function($, Component, Adapter, placeOrderAction, url, fullScreenLoader, additionalValidators) {
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true;
@@ -29,9 +28,9 @@ define(
         return Component.extend({
             defaults: {
                 active: true,
-                template: Adapter.getName() + '/payment/hosted',
+                template: Adapter.getName() + '/payment/default',
                 code: Adapter.getCode(),
-                targetForm: '#cko-hosted-form'
+                targetForm: '#checkoutcom-magento2-form'
             },
 
             /**
@@ -39,9 +38,6 @@ define(
              */
             initialize: function() {
                 this._super();
-                this.initObservable();
-                this.vault = new VaultEnabler();
-                this.vault.setPaymentCode(Adapter.getVaultCode());
             },
 
             initObservable: function() {
@@ -51,70 +47,86 @@ define(
             },
 
             /**
+             * @returns {string}
+             */
+            getCode: function() {
+                return this.code;
+            },
+
+            /**
              * @returns {bool}
              */
-            isVaultEnabled: function () {
-                return this.vault.isVaultEnabled();
-            },
-
-            /**
-             * Executes a js function from the adapter.
-             */
-            js: function(functionName, params) {
-                params = params || [];
-                return (params.length > 0) ? Adapter[functionName].apply(params) : Adapter[functionName]();
+            isActive: function() {
+                return Adapter.getPaymentConfig()['isActive'];
             },
 
             /**
              * @returns {string}
              */
-            php: function(functionName) {
-                return Adapter.getPaymentConfig()[functionName];
+            getEmailAddress: function() {
+                return Adapter.getEmailAddress();
             },
-
-            getPaymentToken: function (targetElementId) {
-                $.ajax({
-                    url: Url.build('checkout_com/payment/paymentToken'),
-                    type: "POST",
-                    success: function(data, textStatus, xhr) {
-                        $('#' + targetElementId).val(data);
-                    },
-                    error: function(xhr, textStatus, error) {
-                        console.log(error);
-                    } // todo - improve error handling
-                });               
-            },      
 
             /**
              * @returns {string}
              */
-            submitForm: function(frm) {
-                // Submit the form
-                $(frm).submit();
+            getRedirectUrl: function() {
+                return Adapter.getPaymentConfig()['redirect_url'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getButtonLabel: function() {
+                return Adapter.getPaymentConfig()['button_label'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getInterfaceVersion: function() {
+                return Adapter.getPaymentConfig()['interface_version'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getRequestData: function() {
+                return Adapter.getPaymentConfig()['request_data'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getQuoteValue: function() {
+                return Adapter.getQuoteValue();
+            },
+
+            /**
+             * @returns {{method: (*|string|String), additional_data: {card_token_id: *}}}
+             */
+            getData: function() {
+                return Adapter.getData();
             },
 
             /**
              * @returns {void}
              */
             saveSessionData: function(dataToSave) {
-                // Get self
-                var self = this;
+                Adapter.saveSessionData(dataToSave);
+            },
 
-                // Send the session data to be saved
-                $.ajax({
-                    url: Url.build('checkout_com/shopper/sessionData'),
-                    type: "POST",
-                    data: dataToSave,
-                    success: function(data, textStatus, xhr) {
-                        console.log(data);
-                    },
-                    error: function(xhr, textStatus, error) {} // todo - improve error handling
-                });
+            /**
+             * @returns {string}
+             */
+            submitForm: function() {
+                // Submit the form
+                $(this.targetForm).submit();
             },
 
             getPlaceOrderDeferredObject: function() {
                 return $.when(
-                    PlaceOrderAction(this.js('getData'), this.messageContainer)
+                    placeOrderAction(this.getData(), this.messageContainer)
                 );
             },
 
@@ -126,11 +138,11 @@ define(
                 var self = this;
 
                 // Validate before submission
-                if (AdditionalValidators.validate()) {
+                if (additionalValidators.validate()) {
                     // Payment action
-                    if (this.php('getOrderCreation') == 'before_auth') {
+                    if (Adapter.getPaymentConfig()['order_creation'] == 'before_auth') {
                         // Start the loader
-                        FullScreenLoader.startLoader();
+                        fullScreenLoader.startLoader();
 
                         // Prepare the vars
                         var ajaxRequest;
@@ -145,7 +157,7 @@ define(
 
                         // Send the request
                         ajaxRequest = $.ajax({
-                            url: Url.build('checkout_com/payment/placeOrderAjax'),
+                            url: url.build(this.code + '/payment/placeOrderAjax'),
                             type: "post",
                             data: orderData
                         });
@@ -154,13 +166,13 @@ define(
                         ajaxRequest.done(function(response, textStatus, jqXHR) {
                             // Save order track id response object in session
                             self.saveSessionData({
-                                customerEmail: self.js('getEmailAddress'),
+                                customerEmail: self.getEmailAddress(),
                                 orderTrackId: response.trackId
                             });
 
                             // Proceed with submission
-                            FullScreenLoader.stopLoader();
-                            self.submitForm(self.targetForm);
+                            fullScreenLoader.stopLoader();
+                            self.submitForm();
                         });
 
                         // Callback handler on failure
@@ -171,19 +183,20 @@ define(
                         // Callback handler always
                         ajaxRequest.always(function() {
                             // Stop the loader
-                            FullScreenLoader.stopLoader();
+                            fullScreenLoader.stopLoader();
                         });
-                    } else if (this.php('getOrderCreation') == 'after_auth') {                        
+                    } else if (Adapter.getPaymentConfig()['order_creation'] == 'after_auth') {
                         // Save the session data
                         self.saveSessionData({
-                            customerEmail: self.js('getEmailAddress')
+                            customerEmail: self.getEmailAddress()
                         });
 
                         // Proceed with submission
-                        //self.submitForm(self.targetForm);
+                        self.submitForm();
                     }
                 }
             }
         });
     }
+
 );

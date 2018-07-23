@@ -5,25 +5,24 @@
  * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * MIT License
  */
-
+ 
 namespace CheckoutCom\Magento2\Gateway\Config;
 
-use Magento\Payment\Gateway\Config\Config as BaseConfig;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use CheckoutCom\Magento2\Helper\Tools;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Store\Model\StoreManagerInterface;
-use CheckoutCom\Magento2\Model\Adminhtml\Source\Environment;
-use CheckoutCom\Magento2\Model\Adminhtml\Source\Integration;
-
-class Config extends BaseConfig {
-
+class Config {
+    
+    const KEY_MODTAG = 'modtag';
     const KEY_ENVIRONMENT = 'environment';
+    const KEY_ENVIRONMENT_LIVE = 'live';
     const KEY_ACTIVE = 'active';
     const KEY_DEBUG = 'debug';
-    const KEY_CC_TYPES = 'cctypes';
-    const KEY_USE_CVV = 'useccv';
-    const KEY_COUNTRY_CREDIT_CARD = 'countrycreditcard';
     const KEY_INTEGRATION = 'integration';
+    const KEY_INTEGRATION_HOSTED = 'hosted';
     const KEY_PUBLIC_KEY = 'public_key';
     const KEY_SECRET_KEY = 'secret_key';
     const KEY_PRIVATE_SHARED_KEY = 'private_shared_key';
@@ -60,25 +59,44 @@ class Config extends BaseConfig {
     const KEY_PAYMENT_MODE = 'payment_mode';
     const KEY_AUTO_GENERATE_INVOICE = 'auto_generate_invoice';
     const KEY_EMBEDDED_THEME = 'embedded_theme';
-    const KEY_EMBEDDED_CSS = 'embedded_css';
-    const KEY_CUSTOM_CSS = 'custom_css';
-    const KEY_CSS_FILE = 'css_file';
     const KEY_ORDER_COMMENTS_OVERRIDE = 'order_comments_override';
     const KEY_ORDER_CREATION = 'order_creation';
+    const KEY_EMBEDDED_CSS = 'embedded_css';
 
     /**
-     * @var array
+     * @var ScopeConfigInterface
      */
-    protected static $ccTypesMap = [
-        'amex'          => 'AE',
-        'visa'          => 'VI',
-        'mastercard'    => 'MC',
-        'discover'      => 'DI',
-        'jcb'           => 'JCB',
-        'diners'        => 'DN',
-        'dinersclub'    => 'DN',
-    ];
+    protected $scopeConfig;
 
+    /**
+     * @var Tools
+     */
+    protected $tools;
+
+    /**
+     * @var CheckoutSession
+     */
+    protected $checkoutSession;
+
+    /**
+     * Config constructor.
+     */
+    public function __construct(ScopeConfigInterface $scopeConfig, Tools $tools, CheckoutSession $checkoutSession, StoreManagerInterface $storeManager) {
+        $this->scopeConfig = $scopeConfig;
+        $this->tools = $tools;
+        $this->checkoutSession = $checkoutSession;
+        $this->storeManager = $storeManager;
+    }
+
+    /**
+     * Get a payment token.
+     *
+     * @return string
+     */
+
+    private function getValue($path) {
+        return $this->scopeConfig->getValue('payment/' . $this->tools->modmeta['tag'] . '/' . $path);
+    }
 
     /**
      * Returns the environment type.
@@ -97,7 +115,7 @@ class Config extends BaseConfig {
     public function getVaultTitle() {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-        return (string) $scopeConfig->getValue('payment/checkout_com_cc_vault/title');
+        return (string) $scopeConfig->getValue('payment/checkoutcom_magento2_cc_vault/title');
     }
 
     /**
@@ -108,7 +126,7 @@ class Config extends BaseConfig {
     public function isCardAutosave() {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-        return (bool) $scopeConfig->getValue('payment/checkout_com_cc_vault/autosave');
+        return (bool) $scopeConfig->getValue('payment/checkoutcom_magento2_cc_vault/autosave');
     }
 
     /**
@@ -175,20 +193,48 @@ class Config extends BaseConfig {
     }
 
     /**
-     * Returns the design settings.
+     * Returns the Hosted integration theme color
      *
-     * @return array
+     * @return string
      */
-    public function getDesignSettings() {
-        return (array) array (
-            'hosted' => array (
-                'theme_color' => $this->getValue(self::KEY_THEME_COLOR),
-                'button_label' => $this->getValue(self::KEY_BUTTON_LABEL),
-                'box_title' => $this->getValue(self::KEY_BOX_TITLE),
-                'box_subtitle' => $this->getValue(self::KEY_BOX_SUBTITLE),
-                'logo_url' => $this->getLogoUrl()
-            )
-        );
+    public function getHostedThemeColor() {
+        return $this->getValue(self::KEY_THEME_COLOR);
+    }
+
+    /**
+     * Returns the Hosted integration button label
+     *
+     * @return string
+     */
+    public function getHostedButtonLabel() {
+        return $this->getValue(self::KEY_BUTTON_LABEL);
+    }
+
+    /**
+     * Returns the Hosted integration box title
+     *
+     * @return string
+     */
+    public function getHostedBoxTitle() {
+        return $this->getValue(self::KEY_BOX_TITLE);
+    }
+
+    /**
+     * Returns the Hosted integration box sub title
+     *
+     * @return string
+     */
+    public function getHostedBoxSubtitle() {
+        return $this->getValue(self::KEY_BOX_SUBTITLE);
+    }
+
+    /**
+     * Returns the Hosted integration logo URL
+     *
+     * @return string
+     */
+    public function getHostedLogoUrl() {
+        return $this->getLogoUrl();
     }
 
     /**
@@ -202,21 +248,12 @@ class Config extends BaseConfig {
     }
 
     /**
-     * Determines if the environment is set as sandbox mode.
-     *
-     * @return bool
-     */
-    public function isSandbox() {
-        return $this->getEnvironment() === Environment::ENVIRONMENT_SANDBOX;
-    }
-
-    /**
      * Determines if the environment is set as live (production) mode.
      *
      * @return bool
      */
     public function isLive() {
-        return $this->getEnvironment() === Environment::ENVIRONMENT_LIVE;
+        return $this->getEnvironment() == self::KEY_ENVIRONMENT_LIVE;
     }
 
     /**
@@ -226,15 +263,6 @@ class Config extends BaseConfig {
      */
     public function getIntegration() {
         return (string) $this->getValue(self::KEY_INTEGRATION);
-    }
-
-    /**
-     * Determines if the gateway is configured to use hosted integration.
-     *
-     * @return bool
-     */
-    public function isHostedIntegration() {
-        return $this->getIntegration() === Integration::INTEGRATION_HOSTED;
     }
 
     /**
@@ -259,6 +287,24 @@ class Config extends BaseConfig {
      */
     public function overrideOrderComments() {
         return (bool) $this->getValue(self::KEY_ORDER_COMMENTS_OVERRIDE);
+    }
+
+    /**
+     * Get the quote value.
+     *
+     * @return bool
+     */
+    public function getQuoteValue() {
+        return $this->checkoutSession->getQuote()->getGrandTotal()*100;
+    }
+
+    /**
+     * Get a quote currency code.
+     *
+     * @return string
+     */
+    public function getQuoteCurrency() {
+        return $this->storeManager->getStore()->getCurrentCurrencyCode();
     }
 
     /**
@@ -434,15 +480,6 @@ class Config extends BaseConfig {
     }
 
     /**
-     * Returns the CSS preference setting.
-     *
-     * @return string
-     */
-    public function getCssFile() {
-        return (string) $this->getValue(self::KEY_CSS_FILE);
-    }
-
-    /**
      * Returns the new order creation setting.
      *
      * @return string
@@ -464,7 +501,7 @@ class Config extends BaseConfig {
 
         // Prepare the paths
         $base_url = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
-        $file_path = $scopeConfig->getValue('payment/checkout_com/checkout_com_base_settings/custom_css');
+        $file_path = $scopeConfig->getValue('payment/checkoutcom_magento2/checkout_com_base_settings/custom_css');
 
         return $base_url . 'checkout_com/' . $file_path;
     }
@@ -488,55 +525,6 @@ class Config extends BaseConfig {
     }
 
     /**
-     * Return the country specific card type config.
-     *
-     * @return array
-     */
-    public function getCountrySpecificCardTypeConfig() {
-        $countriesCardTypes = unserialize($this->getValue(self::KEY_COUNTRY_CREDIT_CARD));
-        return is_array($countriesCardTypes) ? $countriesCardTypes : [];
-    }
-
-    /**
-     * Get list of card types available for country.
-     *
-     * @param string $country
-     * @return array
-     */
-    public function getCountryAvailableCardTypes($country) {
-        $types = $this->getCountrySpecificCardTypeConfig();
-        return (!empty($types[$country])) ? $types[$country] : [];
-    }
-
-    /**
-     * Retrieve available credit card types.
-     *
-     * @return array
-     */
-    public function getAvailableCardTypes() {
-        $ccTypes = $this->getValue(self::KEY_CC_TYPES);
-        return ! empty($ccTypes) ? explode(',', $ccTypes) : [];
-    }
-
-    /**
-     * Retrieve mapper between Magento and Checkout.com card types.
-     *
-     * @return array
-     */
-    public function getCcTypesMapper() {
-        return self::$ccTypesMap;
-    }
-
-    /**
-     * Check if CVV field is enabled.
-     *
-     * @return bool
-     */
-    public function isCvvEnabled() {
-        return (bool) $this->getValue(self::KEY_USE_CVV);
-    }
-
-    /**
      * Check if the descriptor is enabled.
      *
      * @return bool
@@ -544,6 +532,7 @@ class Config extends BaseConfig {
     public function isDescriptorEnabled() {
         return (bool) $this->getValue(self::KEY_USE_DESCRIPTOR);
     }
+    
     /**
      * Returns the descriptor name.
      *

@@ -4,7 +4,7 @@
  * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * MIT License
  */
 
 require([

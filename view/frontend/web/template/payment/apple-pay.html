@@ -5,7 +5,7 @@
  * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * MIT License
  */
 -->
 
@@ -22,17 +22,11 @@
         <!-- ko template: getTemplate() -->
         <!-- /ko -->
         <!--/ko-->
-
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() -->
             <!-- /ko -->
             <!--/ko-->
-        </div>
-
-        <div id="cko-form-holder" data-bind="click: reloadEmbeddedForm">
-            <form class="widget-container" id="embeddedForm" method="POST"></form>
-            <div data-bind="visible: php('getEmbeddedForm')"></div>
         </div>
 
         <div class="checkout-agreements-block">
@@ -42,24 +36,15 @@
             <!--/ko-->
         </div>
 
-        <!-- ko if: ((isVaultEnabled()) && !php('isCardAutosave')) -->
-        <div class="field choice">
-            <input type="checkbox" name="vault[is_enabled]" class="checkbox" data-bind="attr: {'id': getCode() + '_enable_vault'}, checked: vaultEnabler.isActivePaymentTokenEnabler" />
-            <label class="label" data-bind="attr: {'for': getCode() + '_enable_vault'}">
-                <span><!-- ko i18n: 'Save this card for later use.'--><!-- /ko --></span>
-            </label>
-        </div>
-        <br>
-        <!-- /ko -->
-
         <div class="actions-toolbar">
             <div class="primary">
-                <button id="ckoPlaceOrder" class="action primary checkout" type="submit" data-bind="
+                <button class="action primary checkout" type="submit" data-bind="
                         click: beforePlaceOrder,
                         attr: {title: $t('Place Order')},
-                        css: {disabled: !isPlaceOrderActionAllowed()}
+                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        enable: (getCode() == isChecked())
                         " disabled>
-                    <span data-bind="i18n: 'Place Order'"></span>
+                    <span data-bind="i18n: getButtonLabel()"></span>
                 </button>
             </div>
         </div>

@@ -15,13 +15,14 @@ define(
         'jquery',
         'Magento_Payment/js/view/payment/cc-form',
         'CheckoutCom_Magento2/js/view/payment/adapter',
+        'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/action/place-order',
         'mage/url',
+        'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/full-screen-loader',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Magento_Vault/js/view/payment/vault-enabler'
+        'Magento_Checkout/js/model/payment/additional-validators'
     ],
-    function($, Component, Adapter, PlaceOrderAction, Url, FullScreenLoader, AdditionalValidators, VaultEnabler) {
+    function($, Component, Adapter, quote, placeOrderAction, url, checkoutData, fullScreenLoader, additionalValidators) {
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true;
@@ -29,9 +30,8 @@ define(
         return Component.extend({
             defaults: {
                 active: true,
-                template: Adapter.getName() + '/payment/hosted',
-                code: Adapter.getCode(),
-                targetForm: '#cko-hosted-form'
+                template: Adapter.getName() + '/payment/apple-pay',
+                code: Adapter.getCodeApplePay()
             },
 
             /**
@@ -39,9 +39,6 @@ define(
              */
             initialize: function() {
                 this._super();
-                this.initObservable();
-                this.vault = new VaultEnabler();
-                this.vault.setPaymentCode(Adapter.getVaultCode());
             },
 
             initObservable: function() {
@@ -51,70 +48,99 @@ define(
             },
 
             /**
+             * @returns {string}
+             */
+            getCode: function() {
+                return Adapter.getCodeApplePay();
+            },
+
+            /**
              * @returns {bool}
              */
-            isVaultEnabled: function () {
-                return this.vault.isVaultEnabled();
-            },
-
-            /**
-             * Executes a js function from the adapter.
-             */
-            js: function(functionName, params) {
-                params = params || [];
-                return (params.length > 0) ? Adapter[functionName].apply(params) : Adapter[functionName]();
+            isActive: function() {
+                return Adapter.getPaymentConfig()['isActiveApplePay'];
             },
 
             /**
              * @returns {string}
              */
-            php: function(functionName) {
-                return Adapter.getPaymentConfig()[functionName];
+            getEmailAddress: function() {
+                return window.checkoutConfig.customerData.email || quote.guestEmail || checkoutData.getValidatedEmailValue();
             },
-
-            getPaymentToken: function (targetElementId) {
-                $.ajax({
-                    url: Url.build('checkout_com/payment/paymentToken'),
-                    type: "POST",
-                    success: function(data, textStatus, xhr) {
-                        $('#' + targetElementId).val(data);
-                    },
-                    error: function(xhr, textStatus, error) {
-                        console.log(error);
-                    } // todo - improve error handling
-                });               
-            },      
 
             /**
              * @returns {string}
              */
-            submitForm: function(frm) {
-                // Submit the form
-                $(frm).submit();
+            getRedirectUrl: function() {
+                return Adapter.getPaymentConfig()['redirect_url'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getButtonLabel: function() {
+                return Adapter.getPaymentConfig()['button_label'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getInterfaceVersion: function() {
+                return Adapter.getPaymentConfig()['interface_version'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getRequestData: function() {
+
+                console.dir(Adapter.getPaymentConfig()['request_data']);
+                return Adapter.getPaymentConfig()['request_data'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getQuoteValue: function() {
+                return (quote.getTotals()().grand_total * 100).toFixed(2);
+            },
+
+            /**
+             * @returns {{method: (*|string|String), additional_data: {card_token_id: *}}}
+             */
+            getData: function() {
+                var data = {
+                    'method': this.getCode()
+                };
+
+                return data;
             },
 
             /**
              * @returns {void}
              */
             saveSessionData: function(dataToSave) {
-                // Get self
-                var self = this;
-
                 // Send the session data to be saved
                 $.ajax({
-                    url: Url.build('checkout_com/shopper/sessionData'),
+                    url: url.build(Adapter.getCode() + '/shopper/sessionData'),
                     type: "POST",
                     data: dataToSave,
-                    success: function(data, textStatus, xhr) {
-                        console.log(data);
-                    },
+                    success: function(data, textStatus, xhr) {},
                     error: function(xhr, textStatus, error) {} // todo - improve error handling
                 });
             },
 
+            /**
+             * @returns {string}
+             */
+            proceedWithSubmission: function() {
+                // Submit the form
+                $('#checkoutcom-magento2-form').submit();
+            },
+
             getPlaceOrderDeferredObject: function() {
                 return $.when(
-                    PlaceOrderAction(this.js('getData'), this.messageContainer)
+                    placeOrderAction(this.getData(), this.messageContainer)
                 );
             },
 
@@ -126,11 +152,11 @@ define(
                 var self = this;
 
                 // Validate before submission
-                if (AdditionalValidators.validate()) {
+                if (additionalValidators.validate()) {
                     // Payment action
-                    if (this.php('getOrderCreation') == 'before_auth') {
+                    if (Adapter.getPaymentConfig()['order_creation'] == 'before_auth') {
                         // Start the loader
-                        FullScreenLoader.startLoader();
+                        fullScreenLoader.startLoader();
 
                         // Prepare the vars
                         var ajaxRequest;
@@ -145,7 +171,7 @@ define(
 
                         // Send the request
                         ajaxRequest = $.ajax({
-                            url: Url.build('checkout_com/payment/placeOrderAjax'),
+                            url: url.build(Adapter.getCode() + '/payment/placeOrderAjax'),
                             type: "post",
                             data: orderData
                         });
@@ -154,13 +180,13 @@ define(
                         ajaxRequest.done(function(response, textStatus, jqXHR) {
                             // Save order track id response object in session
                             self.saveSessionData({
-                                customerEmail: self.js('getEmailAddress'),
+                                customerEmail: self.getEmailAddress(),
                                 orderTrackId: response.trackId
                             });
 
                             // Proceed with submission
-                            FullScreenLoader.stopLoader();
-                            self.submitForm(self.targetForm);
+                            fullScreenLoader.stopLoader();
+                            self.proceedWithSubmission();
                         });
 
                         // Callback handler on failure
@@ -171,19 +197,20 @@ define(
                         // Callback handler always
                         ajaxRequest.always(function() {
                             // Stop the loader
-                            FullScreenLoader.stopLoader();
+                            fullScreenLoader.stopLoader();
                         });
-                    } else if (this.php('getOrderCreation') == 'after_auth') {                        
+                    } else if (Adapter.getPaymentConfig()['order_creation'] == 'after_auth') {
                         // Save the session data
                         self.saveSessionData({
-                            customerEmail: self.js('getEmailAddress')
+                            customerEmail: self.getEmailAddress()
                         });
 
                         // Proceed with submission
-                        //self.submitForm(self.targetForm);
+                        self.proceedWithSubmission();
                     }
                 }
             }
         });
     }
+
 );

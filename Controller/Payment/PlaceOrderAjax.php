@@ -5,7 +5,7 @@
  * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * MIT License
  */
 
 namespace CheckoutCom\Magento2\Controller\Payment;
@@ -14,7 +14,6 @@ use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
-use CheckoutCom\Magento2\Model\Service\OrderService;
 use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Quote\Model\QuoteManagement;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
@@ -33,11 +32,6 @@ class PlaceOrderAjax extends AbstractAction {
     protected $checkoutSession;
 
     /**
-     * @var OrderService
-     */
-    protected $orderService;
-
-    /**
      * @var CustomerSession
      */
     protected $customerSession;
@@ -52,14 +46,12 @@ class PlaceOrderAjax extends AbstractAction {
      * @param Context $context
      * @param CheckoutSession $checkoutSession
      * @param GatewayConfig $gatewayConfig
-     * @param OrderService $orderService
      * @param JsonFactory $resultJsonFactory
      */
     public function __construct(
         Context $context,
         CheckoutSession $checkoutSession,
         GatewayConfig $gatewayConfig,
-        OrderService $orderService,
         CustomerSession $customerSession,
         QuoteManagement $quoteManagement, 
         JsonFactory $resultJsonFactory
@@ -68,7 +60,6 @@ class PlaceOrderAjax extends AbstractAction {
 
         $this->checkoutSession   = $checkoutSession;
         $this->customerSession   = $customerSession;
-        $this->orderService      = $orderService;
         $this->quoteManagement   = $quoteManagement;
         $this->resultJsonFactory = $resultJsonFactory;
     }
@@ -86,8 +77,6 @@ class PlaceOrderAjax extends AbstractAction {
         $quote          = $this->checkoutSession->getQuote();
 
         // Retrieve the request parameters
-        $cardToken      = $this->getRequest()->getParam('cko-card-token');
-        $email          = $this->getRequest()->getParam('cko-context-id');
         $agreement      = array_keys($this->getRequest()->getPostValue('agreement', []));
 
         // Check for guest email
@@ -110,6 +99,7 @@ class PlaceOrderAjax extends AbstractAction {
         ->clearHelperData();
 
         // Set payment
+        // todo - use current mode payment tag
         $quote->getPayment()->setMethod('substitution');
         $quote->collectTotals()->save();
 

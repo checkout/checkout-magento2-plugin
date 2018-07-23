@@ -1,13 +1,18 @@
 <?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
-                <item name="checkout_com_config_provider" xsi:type="object">CheckoutCom\Magento2\Model\Ui\ConfigProvider</item>
+                <item name="payment_gateway_config_provider" xsi:type="object">CheckoutCom\Magento2\Model\Ui\ConfigProvider</item>
             </argument>
         </arguments>
     </type>
-
     <type name="CheckoutCom\Magento2\Block\Info">
         <arguments>
             <argument name="data" xsi:type="array">
@@ -15,20 +20,13 @@
             </argument>
         </arguments>
     </type>
-
     <type name="Magento\Payment\Model\CcGenericConfigProvider">
         <arguments>
             <argument name="methodCodes" xsi:type="array">
-                <item name="checkout_com" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE</item>
-            </argument>
+                <item name="checkoutcom_magento2" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE</item>
+                <item name="checkoutcom_magento2_apple_pay" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE_APPLE_PAY</item>
+           </argument>
         </arguments>
     </type>
 
-    <type name="Magento\Vault\Model\Ui\TokensConfigProvider">
-        <arguments>
-            <argument name="tokenUiComponentProviders" xsi:type="array">
-                <item name="checkout_com" xsi:type="object">CheckoutCom\Magento2\Model\Ui\TokenUiComponentProvider</item>
-            </argument>
-        </arguments>
-    </type>
 </config>

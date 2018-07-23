@@ -5,25 +5,22 @@
  * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * MIT License
  */
 
 namespace CheckoutCom\Magento2\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
+use Magento\Checkout\Model\Cart;
 use Magento\Store\Model\StoreManagerInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
-use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
-use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
+use CheckoutCom\Magento2\Helper\Tools;
 
 class ConfigProvider implements ConfigProviderInterface {
 
-    const CODE = 'checkout_com';
-
-    const CC_VAULT_CODE = 'checkout_com_cc_vault';
-
-    const THREE_DS_CODE = 'checkout_com_3ds';
+    const CODE = 'checkoutcom_magento2';
+    const CODE_APPLE_PAY = 'checkoutcom_magento2_apple_pay';
 
     /**
      * @var Config
@@ -36,9 +33,9 @@ class ConfigProvider implements ConfigProviderInterface {
     protected $checkoutSession;
 
     /**
-     * @var PaymentTokenService
+     * @var Cart
      */
-    protected $paymentTokenService;
+    protected $cart;
 
     /**
      * @var StoreManagerInterface
@@ -46,17 +43,24 @@ class ConfigProvider implements ConfigProviderInterface {
     protected $storeManager;
 
     /**
+     * @var Tools
+     */
+    protected $tools;
+
+    /**
      * ConfigProvider constructor.
      * @param Config $config
-     * @param PaymentTokenService $paymentTokenService
      * @param Session $checkoutSession
+     * @param Cart $cart
      * @param StoreManagerInterface $storeManager
+     * @param Tools $tools
      */
-    public function __construct(Config $config, PaymentTokenService $paymentTokenService, Session $checkoutSession, StoreManagerInterface $storeManager) {
+    public function __construct(Config $config, Session $checkoutSession, Cart $cart, StoreManagerInterface $storeManager, Tools $tools) {
         $this->config = $config;
-        $this->paymentTokenService  = $paymentTokenService;
         $this->checkoutSession = $checkoutSession;
+        $this->cart = $cart;
         $this->storeManager = $storeManager;
+        $this->tools = $tools;
     }
 
     /**
@@ -65,74 +69,43 @@ class ConfigProvider implements ConfigProviderInterface {
      * @return array
      */
     public function getConfig() {
-        $isActive = $this->config->isActive();
+        $quote    = $this->cart->getQuote()->collectTotals()->save();
+        $quoteCurrency = $this->storeManager->getStore()->getCurrentCurrencyCode();
 
         return [
             'payment' => [
-                self::CODE => [
-                    'isActive'                  => $isActive,
-                    'debug_mode'                => $this->config->isDebugMode(),
-                    'public_key'                => $this->config->getPublicKey(),
-                    'hosted_url'                => $this->config->getHostedUrl(),
-                    'embedded_url'              => $this->config->getEmbeddedUrl(),
-                    'countrySpecificCardTypes'  => $this->config->getCountrySpecificCardTypeConfig(),
-                    'availableCardTypes'        => $this->config->getAvailableCardTypes(),
-                    'useCvv'                    => $this->config->isCvvEnabled(),
-                    'ccTypesMapper'             => $this->config->getCcTypesMapper(),
-                    'ccVaultCode'               => self::CC_VAULT_CODE,
-                    Config::CODE_3DSECURE       => [
-                        'enabled' => $this->config->isVerify3DSecure(),
-                    ],
-                    'attemptN3D' => $this->config->isAttemptN3D(),
-                    'integration'               => [
-                        'type'          => $this->config->getIntegration(),
-                        'isHosted'      => $this->config->isHostedIntegration(),
-                    ],
-                    'priceAdapter' => ChargeAmountAdapter::getConfigArray(),
-                    'design_settings' => $this->config->getDesignSettings(),
-                    'accepted_currencies' => $this->config->getAcceptedCurrencies(),
-                    'payment_mode' => $this->config->getPaymentMode(),
-                    'payment_token' => $isActive ? $this->getPaymentToken() : '',
-                    'quote_value' => $this->getQuoteValue(),
-                    'quote_currency' => $this->getQuoteCurrency(),
-                    'embedded_theme' => $this->config->getEmbeddedTheme(),
-                    'embedded_css' => $this->config->getEmbeddedCss(),
-                    'css_file' => $this->config->getCssFile(),
-                    'custom_css' => $this->config->getCustomCss(),
-                    'vault_title' => $this->config->getVaultTitle(),
-                    'order_creation' => $this->config->getOrderCreation(),
-                    'card_autosave' => $this->config->isCardAutosave(),
-                ],
+                'modtag' => $this->tools->modmeta['tag'],
+                'modtagapplepay' => $this->tools->modmeta['tagapplepay'],
+                'modname' => $this->tools->modmeta['name'],
+                $this->tools->modmeta['tag'] => $this->buildConfigData(),
+                $this->tools->modmeta['tagapplepay'] => [
+                    //'isActive' => $this->config->isActiveApplePay(),
+                ],            
             ],
         ];
     }
 
-    /**
-     * Get a payment token.
-     *
-     * @return string
-     */
-    public function getPaymentToken() {
-        return $this->paymentTokenService->getToken();
-    }
+    private function buildConfigData() {
+        // Prepare the output array
+        $data = array();
 
-    /**
-     * Get a quote value.
-     *
-     * @return float
-     */
-    public function getQuoteValue() {
-        // Return the quote amount
-        return $this->checkoutSession->getQuote()->getGrandTotal()*100;
-    }
+        // Get the config class name
+        $className = get_class($this->config);
 
-    /**
-     * Get a quote currency code.
-     *
-     * @return string
-     */
-    public function getQuoteCurrency() {
-        // Return the quote currency
-        return $this->storeManager->getStore()->getCurrentCurrencyCode();
+        // Get the methods available in the class
+        $methods = get_class_methods($className);
+
+        // Execute all public methods
+        foreach ($methods as $method) {
+            // Get the reflection method
+            $ref = new \ReflectionMethod($className, $method);
+
+            // Run it if public
+            if ($ref->isPublic() && substr($method, 0, 2) !== '__' && $ref->getNumberOfParameters() == 0) {
+                $data[$method] =  $this->config->$method();
+            }
+        }
+
+        return $data;
     }
 }

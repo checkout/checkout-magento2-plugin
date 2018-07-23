@@ -5,7 +5,7 @@
  * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * MIT License
  */
 
 namespace CheckoutCom\Magento2\Controller\Shopper;
@@ -13,39 +13,45 @@ namespace CheckoutCom\Magento2\Controller\Shopper;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\Action;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Controller\Result\JsonFactory;
+use CheckoutCom\Magento2\Helper\Tools;
 
 class SessionData extends Action
 {
+    /**
+     * @var JsonFactory
+     */
+    protected $resultJsonFactory;
+
+    /**
+     * @var CustomerSession
+     */
     protected $customerSession;
- 
-    public function __construct(Context $context, CustomerSession $customerSession)
+
+    /**
+     * @var Tools
+     */
+    protected $tools;
+
+    public function __construct(Context $context, JsonFactory $resultJsonFactory, CustomerSession $customerSession, Tools $tools)
     {
         parent::__construct($context);
+        $this->resultJsonFactory = $resultJsonFactory;
         $this->customerSession = $customerSession;
+        $this->tools = $tools;
     }
  
     public function execute()
     {
+    
+    
         // Get the request data
-        $sessionData = $this->getInputData();
+        $sessionData = $this->tools->getInputData();
 
         // Save in session
-        $this->customerSession->setData('checkoutSessionData', $sessionData);
+        $result = $this->customerSession->setData('checkoutSessionData', $sessionData);
 
-        // End the script
-        exit();
-    }
-
-    public function getInputData() {
-
-        // Get all parameters from request
-        $params = $this->getRequest()->getParams();
-
-        // Sanitize the array
-        $params = array_map(function($val) {
-            return filter_var($val, FILTER_SANITIZE_STRING);
-        }, $params);
-
-        return $params;
+        // Return a JSON output with the result
+        return $this->resultJsonFactory->create()->setData($result);
     }
 }
