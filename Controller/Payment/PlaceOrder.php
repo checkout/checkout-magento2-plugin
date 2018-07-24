@@ -100,17 +100,15 @@ class PlaceOrder extends AbstractAction {
      * Handles the controller method.
      */
     public function execute() {
+        $order = null;
         if (isset($this->customerSession->getData('checkoutSessionData')['orderTrackId'])) {
-            // Get the order Id
-            $orderId = $this->customerSession->getData('checkoutSessionData')['orderTrackId'];
+            $order = $this->orderInterface->loadByIncrementId($this->customerSession->getData('checkoutSessionData')['orderTrackId']);
+        }
 
-            // If order exists, update it
-            if ($this->order = $this->orderInterface->loadByIncrementId($orderId)) {
-                $this->updateOrder();
-            }
+        if ($order) {
+            $this->updateOrder();
         }
         else {
-            // Else try to create a new order
             $this->createOrder();
         }
     }
@@ -120,7 +118,7 @@ class PlaceOrder extends AbstractAction {
      */
     private function createOrder() {
         // Get the quote
-        $quote = $this->checkoutSession->getQuote();
+        $quote = $this->checkoutSession->getQuote();      
 
         // Check for guest email
         if ($quote->getCustomerEmail() === null

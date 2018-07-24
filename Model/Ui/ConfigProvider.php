@@ -19,8 +19,8 @@ use CheckoutCom\Magento2\Helper\Tools;
 
 class ConfigProvider implements ConfigProviderInterface {
 
-    const CODE = 'checkoutcom_magento2';
-    const CODE_APPLE_PAY = 'checkoutcom_magento2_apple_pay';
+    const CODE = 'checkout_com';
+    const CODE_APPLE_PAY = 'checkout_com_applepay';
 
     /**
      * @var Config

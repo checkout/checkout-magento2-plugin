@@ -74,7 +74,7 @@ define(
 
             getPaymentToken: function (targetElementId) {
                 $.ajax({
-                    url: Url.build('checkout_com/payment/paymentToken'),
+                    url: Url.build(this.code + '/payment/paymentToken'),
                     type: "GET",
                     success: function(data, textStatus, xhr) {
                         $('#' + targetElementId).val(data);
@@ -102,7 +102,7 @@ define(
 
                 // Send the session data to be saved
                 $.ajax({
-                    url: Url.build('checkout_com/shopper/sessionData'),
+                    url: Url.build(this.code + '/shopper/sessionData'),
                     type: "POST",
                     data: dataToSave,
                     success: function(data, textStatus, xhr) {
@@ -145,7 +145,7 @@ define(
 
                         // Send the request
                         ajaxRequest = $.ajax({
-                            url: Url.build('checkout_com/payment/placeOrderAjax'),
+                            url: Url.build(this.code + '/payment/placeOrderAjax'),
                             type: "post",
                             data: orderData
                         });

@@ -115,7 +115,7 @@ class Config {
     public function getVaultTitle() {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-        return (string) $scopeConfig->getValue('payment/checkoutcom_magento2_cc_vault/title');
+        return (string) $scopeConfig->getValue('payment/checkout_com_cc_vault/title');
     }
 
     /**
@@ -126,7 +126,7 @@ class Config {
     public function isCardAutosave() {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-        return (bool) $scopeConfig->getValue('payment/checkoutcom_magento2_cc_vault/autosave');
+        return (bool) $scopeConfig->getValue('payment/checkout_com_cc_vault/autosave');
     }
 
     /**
@@ -486,24 +486,6 @@ class Config {
      */
     public function getOrderCreation() {
         return (string) $this->getValue(self::KEY_ORDER_CREATION);
-    }
-
-    /**
-     * Returns the custom CSS URL for embedded integration.
-     *
-     * @return string
-     */
-    public function getCustomCss() {
-        // Prepare the objects
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-        $storeManager = $objectManager->create('Magento\Store\Model\StoreManagerInterface');
-
-        // Prepare the paths
-        $base_url = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
-        $file_path = $scopeConfig->getValue('payment/checkoutcom_magento2/checkout_com_base_settings/custom_css');
-
-        return $base_url . 'checkout_com/' . $file_path;
     }
 
     /**

@@ -55,7 +55,7 @@ define([
          * @returns {string}
          */
         getRedirectUrl: function() {
-            return Url.build('checkout_com/payment/placeOrder');
+            return Url.build(this.getCode() + '/payment/placeorder');
         },
 
         /**
