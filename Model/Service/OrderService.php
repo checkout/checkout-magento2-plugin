@@ -21,7 +21,7 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Quote\Model\QuoteFactory;
-use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
+use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Tools;
 use CheckoutCom\Magento2\Helper\Watchdog;
 use CheckoutCom\Magento2\Model\Service\TransactionService;
@@ -50,9 +50,9 @@ class OrderService {
     protected $checkoutSession;
 
     /**
-     * @var GatewayConfig
+     * @var Config
      */
-    protected $gatewayConfig;
+    protected $Config;
 
     /**
      * @var CustomerSession
@@ -104,7 +104,7 @@ class OrderService {
      * @param TransactionService $transactionService
      * @param InvoiceHandlerService $invoiceHandlerService
      * @param CheckoutSession $checkoutSession
-     * @param GatewayConfig $gatewayConfig
+     * @param Config $config
      * @param JsonFactory $resultJsonFactory
      * @param OrderSender $orderSender
      * @param Tools $tools
@@ -118,7 +118,7 @@ class OrderService {
         TransactionService $transactionService,
         InvoiceHandlerService $invoiceHandlerService,
         CheckoutSession $checkoutSession,
-        GatewayConfig $gatewayConfig,
+        Config $config,
         CustomerSession $customerSession,
         QuoteManagement $quoteManagement, 
         JsonFactory $resultJsonFactory,
@@ -136,7 +136,7 @@ class OrderService {
         $this->customerSession       = $customerSession;
         $this->quoteManagement       = $quoteManagement;
         $this->resultJsonFactory     = $resultJsonFactory;
-        $this->gatewayConfig         = $gatewayConfig;
+        $this->config                = $config;
         $this->orderSender           = $orderSender;
         $this->tools                 = $tools;
         $this->watchdog              = $watchdog;
@@ -147,81 +147,63 @@ class OrderService {
     }
 
     public function placeOrder($data) {
-        // Get the fields
-        $fields = $this->tools->unpackData($data['Data'], '|', '=');
-
-        // If a track id is available
-        if (isset($fields['orderId'])) {
-            // Check if the order exists
-            $order = $this->orderInterface->loadByIncrementId($fields['orderId']);
-
-            // Update the order
-            if (!$order->getId()) {
-                return $this->createOrder($data, $fields);
-            }
+        // Get the quote
+        $quote = $this->checkoutSession->getQuote();
+        if ((int) $quote->getId() > 0) {
+            $this->createOrder($quote);
+        }
+        else
+        {
+            throw new LocalizedException(__('There was no quote found to create an order.'));            
         }
 
         return $order;
     }
 
-    public function createOrder($data, $fields) {
-        // Check if the quote exists
-        $quote = $this->quoteFactory
-            ->create()->getCollection()
-            ->addFieldToFilter('customer_id', $fields['customerId'])
-            ->getFirstItem();
+    private function createOrder($quote) {
+        // Create the order
+        $order = $this->quoteManagement->submit($quote);
 
-        // If there is a quote, create the order
-        if ($quote->getId()) {
-            // Set the payment information
-            $payment = $quote->getPayment();
-            $payment->setMethod($this->tools->modmeta['tag']);
+        // Prepare required variables
+        $newComment = '';
 
-            // Create the order
-            $order = $this->quoteManagement->submit($quote);
-
-            // Format the gateway amount
-            $amount = $this->tools->formatAmount($fields['amount']);
-
-            // Prepare required variables
-            $newComment = '';
-
+        // Update order status
+        if ($this->config->isAutocapture()) {
             // Update order status
-            if ($this->gatewayConfig->isAutocapture()) {
-                // Update order status
-                $order->setStatus($this->gatewayConfig->getOrderStatusCaptured());
-                $this->orderRepository->save($order);
-
-                // Create the transaction
-                $transactionId = $this->transactionService->createTransaction($order, $fields, 'capture');
-                $newComment .= __('Captured') . ' '; 
-            }
-            else {
-                // Update order status
-                $order->setStatus($this->gatewayConfig->getOrderStatusAuthorized());
-
-                // Create the transaction
-                $transactionId = $this->transactionService->createTransaction($order, $fields, 'authorization');
-                $newComment .= __('Authorized') . ' '; 
-            }
-
-            // Create the invoice
-            $this->invoiceHandlerService->processInvoice($order);   
-
-            // Create new comment
-            $newComment .= __('amount of') . ' ' . $amount . ' ' . $order->getOrderCurrencyCode(); 
-            $newComment .= ' ' . __('Transaction ID') . ': ' . $transactionId;
-            
-            $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+            $order->setStatus($this->config->getOrderStatusCaptured());
             $this->orderRepository->save($order);
 
-            // Send the email
-            $this->orderSender->send($order);
-            $order->setEmailSent(1);     
+            // Create the transaction
+            $transactionId = $this->transactionService->createTransaction($order, $fields, 'capture');
+            $newComment .= __('Captured') . ' '; 
+        }
+        else {
+            // Update order status
+            $order->setStatus($this->config->getOrderStatusAuthorized());
 
-            return $order; 
-        } 
+            // Create the transaction
+            $transactionId = $this->transactionService->createTransaction($order, $fields, 'authorization');
+            $newComment .= __('Authorized') . ' '; 
+        }
 
-        return null; 
+        // Create the invoice
+        $this->invoiceHandlerService->processInvoice($order);   
+
+        // Create new comment
+        $amount = $this->checkoutSession->getQuote()->getGrandTotal()*100;
+        $newComment .= __('amount of') . ' ' . $amount . ' ' . $order->getOrderCurrencyCode(); 
+        $newComment .= ' ' . __('Transaction ID') . ': ' . $transactionId;
+        
+        // Set the order status
+        $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+
+        // Save the order
+        $this->orderRepository->save($order);
+
+        // Send the email
+        $this->orderSender->send($order);
+        $order->setEmailSent(1);     
+
+        return $order; 
     }
 }

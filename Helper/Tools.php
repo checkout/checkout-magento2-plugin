@@ -29,10 +29,10 @@ class Tools {
     public function __construct(Http $request, ScopeConfigInterface $scopeConfig) {
         $this->request = $request;
         $this->scopeConfig = $scopeConfig;
-        $this->modmeta = $this->_modmeta();
+        $this->modmeta = $this->getModuleMetadata();
     }
 
-    private function _modmeta() {
+    private function getModuleMetadata() {
         return [
             'tag'          => $this->scopeConfig->getValue(self::KEY_PARAM_PATH . '/' . self::KEY_MODTAG),
             'tagapplepay'  => $this->scopeConfig->getValue(self::KEY_PARAM_PATH . '/' . self::KEY_MODTAG_APPLE_PAY),
@@ -53,35 +53,6 @@ class Tools {
 
         return $params;
     }
-
-    public function unpackData($params, $separator1, $separator2 = null) {
-        $output = [];
-        $input = explode($separator1, $params);
-
-        if (is_array($input) && count($input) > 0 && ($separator2)) {
-            foreach ($input as $row) {
-                $members = explode($separator2, $row);
-                $output[$members[0]] = $members[1];
-            }
-
-            return $output;
-        }
-
-        return null;
-    }
-
-    public function isValid($response, $secretKey) {
-        if (isset($response['Data'])) {
-            // Prepare the seal
-            $seal = hash('sha256', $response['Data'] . $secretKey);
-
-            // Test conditions
-            return isset($response['Data']) 
-            && isset($response['Seal']) && $response['Seal'] == $seal;
-        }
-        
-        return false;
-    } 
 
     public function formatAmount($amount) {
         return number_format($amount/100, 2);

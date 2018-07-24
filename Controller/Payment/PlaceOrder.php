@@ -51,6 +51,16 @@ class PlaceOrder extends AbstractAction {
     protected $customerSession;
 
     /**
+     * @var Array
+     */
+    protected $params = [];
+
+    /**
+     * @var Order
+     */
+    protected $order = null;
+
+    /**
      * PlaceOrder constructor.
      * @param Context $context
      * @param CheckoutSession $checkoutSession
@@ -78,16 +88,12 @@ class PlaceOrder extends AbstractAction {
         $this->paymentTokenService    = $paymentTokenService;
         $this->watchdog               = $watchdog; 
 
-        // Prepare the request parameters
-        $this->params = array(
-            'cardToken' => $this->getRequest()->getParam('cko-card-token'),
-            'email' => $this->getRequest()->getParam('cko-context-id'),
-            'agreement' => array_keys($this->getRequest()->getPostValue('agreement', [])),
-            'quote' => $this->checkoutSession->getQuote()
-        );
+        // Get cko-public-key, cko-card-token, cko-payment-token, cko-context-id
+        $this->params = $this->getRequest()->getParams();
 
-        // Set the current order property
-        $this->order = null;
+        // Add the agreement validation to the array of parameters
+        //$this->params['agreement'] = array_keys($this->getRequest()->getPostValue('agreement', []));
+        $this->params['agreement'] = array(true); // Temporary workaround for a M2 code T&C checkbox issue not sending data
     }
 
     /**
@@ -95,23 +101,61 @@ class PlaceOrder extends AbstractAction {
      */
     public function execute() {
         if (isset($this->customerSession->getData('checkoutSessionData')['orderTrackId'])) {
-            // Load the order
-            $this->order = $this->orderInterface->loadByIncrementId($this->customerSession->getData('checkoutSessionData')['orderTrackId']);
+            // Get the order Id
+            $orderId = $this->customerSession->getData('checkoutSessionData')['orderTrackId'];
 
-            if ($this->order) {
+            // If order exists, update it
+            if ($this->order = $this->orderInterface->loadByIncrementId($orderId)) {
                 $this->updateOrder();
-            }
-            else {
-                $this->createOrder();
             }
         }
         else {
-            // Add the response message
-            $this->messageManager->addErrorMessage( __("The order number is invalid."));                
-
-            // Redirect to cart
-            return $this->_redirect('checkout/cart', ['_secure' => true]);
+            // Else try to create a new order
+            $this->createOrder();
         }
+    }
+
+    /**
+     * Creates an order on payment return.
+     */
+    private function createOrder() {
+        // Get the quote
+        $quote = $this->checkoutSession->getQuote();
+
+        // Check for guest email
+        if ($quote->getCustomerEmail() === null
+            && $this->customerSession->isLoggedIn() === false
+            && isset($this->customerSession->getData('checkoutSessionData')['customerEmail'])
+            && $this->customerSession->getData('checkoutSessionData')['customerEmail'] === $this->params['cko-context-id']) 
+        {
+            $quote->setCustomerId(null)
+            ->setCustomerEmail($params['cko-context-id'])
+            ->setCustomerIsGuest(true)
+            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
+        }
+
+        // Perform quote and order validation
+        try {
+            // Create an order from the quote
+            $this->validateQuote($quote);
+            $this->order = $this->orderService->placeOrder($this->params);
+
+            // Send the charge
+            $response = $this->sendChargeRequest();
+
+            // 3D Secure redirection if needed
+            if($this->config->isVerify3DSecure()) {
+                $this->place3DSecureRedirectUrl();
+                exit();
+            }
+
+            return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+
+        } catch (\Exception $e) {
+            $this->messageManager->addExceptionMessage($e, $e->getMessage());
+        }
+
+        return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 
     /**
@@ -119,10 +163,7 @@ class PlaceOrder extends AbstractAction {
      */
     private function updateOrder() {
         // Create the charge for order already placed
-        $response = $this->paymentTokenService->sendChargeRequest(
-            $this->params['cardToken'],
-            $this->order
-        );
+        $response = $this->sendChargeRequest();
 
         // Handle the response
         $this->handleResponse($response);
@@ -138,6 +179,16 @@ class PlaceOrder extends AbstractAction {
 
         return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
     }
+
+    /**
+     * Sends a token charge request to the gateway.
+     */
+     private function sendChargeRequest() {
+        return $this->paymentTokenService->sendChargeRequest(
+            $this->params['cko-card-token'],
+            $this->order
+        );
+     }
 
     /**
      * Handle the charge response.
@@ -170,49 +221,6 @@ class PlaceOrder extends AbstractAction {
         }
 
         return false;
-    }
-
-    /**
-     * Creates an order on payment return.
-     */
-    private function createOrder() {
-        // Check for guest email
-        if ($this->params['quote']->getCustomerEmail() === null
-            && $this->customerSession->isLoggedIn() === false
-            && isset($this->customerSession->getData('checkoutSessionData')['customerEmail'])
-            && $this->customerSession->getData('checkoutSessionData')['customerEmail'] === $this->params['email']) 
-        {
-            $this->params['quote']->setCustomerId(null)
-            ->setCustomerEmail($params['email'])
-            ->setCustomerIsGuest(true)
-            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
-        }
-
-        // Perform quote and order validation
-        try {
-            // Create an order from the quote
-            $this->validateQuote($this->params['quote']);
-            //$this->orderService->execute($params['quote'], $params['cardToken'], $params['agreement']);
-            // Temporary workaround for a M2 code T&C checkbox issue not sending data
-            $this->orderService->execute(
-                $this->params['quote'],
-                $this->params['cardToken'],
-                array(true)
-            );
-
-            // 3D Secure redirection if needed
-            if($this->config->isVerify3DSecure()) {
-                $this->place3DSecureRedirectUrl();
-                exit();
-            }
-
-            return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
-
-        } catch (\Exception $e) {
-            $this->messageManager->addExceptionMessage($e, $e->getMessage());
-        }
-
-        return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 
     /**

@@ -47,7 +47,7 @@
                 <input name="logoUrl" data-bind="attr: {value: php('getHostedLogoUrl')}">
             <!-- /ko -->
             <!-- ko if: (php('getPaymentMode') === 'localpayments' || php('getPaymentMode') === 'mixed') -->
-                <input name="paymentToken" id="ckoPaymentToken" data-bind="visible: getPaymentToken($element.id)">
+                <input name="paymentToken" id="ckoPaymentToken" data-bind="attr: {value: getPaymentToken($element.id)}">            
             <!-- /ko -->
         </form>
 

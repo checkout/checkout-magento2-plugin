@@ -75,7 +75,7 @@ define(
             getPaymentToken: function (targetElementId) {
                 $.ajax({
                     url: Url.build('checkout_com/payment/paymentToken'),
-                    type: "POST",
+                    type: "GET",
                     success: function(data, textStatus, xhr) {
                         $('#' + targetElementId).val(data);
                     },
@@ -180,7 +180,7 @@ define(
                         });
 
                         // Proceed with submission
-                        //self.submitForm(self.targetForm);
+                        self.submitForm(self.targetForm);
                     }
                 }
             }
