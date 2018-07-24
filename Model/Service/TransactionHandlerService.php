@@ -17,7 +17,7 @@ use Magento\Framework\Exception\LocalizedException;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Helper\Tools;
 
-class TransactionService {
+class TransactionHandlerService {
 
     /**
      * @var BuilderInterface
@@ -35,7 +35,7 @@ class TransactionService {
     protected $tools;
 
     /**
-     * TransactionService constructor.
+     * TransactionHandlerService constructor.
      * @param BuilderInterface $transactionBuilder
      * @param ManagerInterface $messageManager
     */

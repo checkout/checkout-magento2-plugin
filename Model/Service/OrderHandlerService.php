@@ -24,13 +24,13 @@ use Magento\Quote\Model\QuoteFactory;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Tools;
 use CheckoutCom\Magento2\Helper\Watchdog;
-use CheckoutCom\Magento2\Model\Service\TransactionService;
+use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 use CheckoutCom\Magento2\Model\Service\InvoiceHandlerService;
 
-class OrderService {
+class OrderHandlerService {
 
     /**
-     * @var TransactionService
+     * @var TransactionHandlerService
      */
     protected $transactionService;
 
@@ -101,7 +101,7 @@ class OrderService {
 
     /**
      * CallbackService constructor.
-     * @param TransactionService $transactionService
+     * @param TransactionHandlerService $transactionService
      * @param InvoiceHandlerService $invoiceHandlerService
      * @param CheckoutSession $checkoutSession
      * @param Config $config
@@ -115,7 +115,7 @@ class OrderService {
      * @param QuoteFactory $quoteFactory
      */
     public function __construct(
-        TransactionService $transactionService,
+        TransactionHandlerService $transactionService,
         InvoiceHandlerService $invoiceHandlerService,
         CheckoutSession $checkoutSession,
         Config $config,
@@ -150,14 +150,15 @@ class OrderService {
         // Get the quote
         $quote = $this->checkoutSession->getQuote();
         if ((int) $quote->getId() > 0) {
-            $this->createOrder($quote);
+            $order = $this->createOrder($quote);
+            return $order;
         }
         else
         {
             throw new LocalizedException(__('There was no quote found to create an order.'));            
         }
 
-        return $order;
+        return false;
     }
 
     private function createOrder($quote) {
@@ -174,7 +175,7 @@ class OrderService {
             $this->orderRepository->save($order);
 
             // Create the transaction
-            $transactionId = $this->transactionService->createTransaction($order, $fields, 'capture');
+            //$transactionId = $this->transactionService->createTransaction($order, $fields, 'capture');
             $newComment .= __('Captured') . ' '; 
         }
         else {
@@ -182,17 +183,17 @@ class OrderService {
             $order->setStatus($this->config->getOrderStatusAuthorized());
 
             // Create the transaction
-            $transactionId = $this->transactionService->createTransaction($order, $fields, 'authorization');
+            //$transactionId = $this->transactionService->createTransaction($order, $fields, 'authorization');
             $newComment .= __('Authorized') . ' '; 
         }
 
         // Create the invoice
-        $this->invoiceHandlerService->processInvoice($order);   
+        //$this->invoiceHandlerService->processInvoice($order);   
 
         // Create new comment
         $amount = $this->checkoutSession->getQuote()->getGrandTotal()*100;
         $newComment .= __('amount of') . ' ' . $amount . ' ' . $order->getOrderCurrencyCode(); 
-        $newComment .= ' ' . __('Transaction ID') . ': ' . $transactionId;
+        //$newComment .= ' ' . __('Transaction ID') . ': ' . $transactionId;
         
         // Set the order status
         $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);

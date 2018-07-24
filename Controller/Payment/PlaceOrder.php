@@ -17,8 +17,8 @@ use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
-use CheckoutCom\Magento2\Gateway\Config\Config as Config;
-use CheckoutCom\Magento2\Model\Service\OrderService;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Helper\Watchdog;
@@ -41,7 +41,7 @@ class PlaceOrder extends AbstractAction {
     protected $orderInterface;
 
     /**
-     * @var OrderService
+     * @var OrderHandlerService
      */
     protected $orderService;
 
@@ -49,6 +49,11 @@ class PlaceOrder extends AbstractAction {
      * @var CustomerSession
      */
     protected $customerSession;
+
+    /**
+     * @var Config
+     */
+    protected $config;
 
     /**
      * @var Array
@@ -62,20 +67,14 @@ class PlaceOrder extends AbstractAction {
 
     /**
      * PlaceOrder constructor.
-     * @param Context $context
-     * @param CheckoutSession $checkoutSession
-     * @param Config $config
-     * @param OrderInterface $orderInterface
-     * @param OrderService $orderService
-     * @param Order $orderManager
      */
     public function __construct(
         Context $context,
         CheckoutSession $checkoutSession,
-        Config $config,
-        OrderService $orderService,
-        OrderInterface $orderInterface,
         CustomerSession $customerSession,
+        Config $config,
+        OrderHandlerService $orderService,
+        OrderInterface $orderInterface,
         PaymentTokenService $paymentTokenService,
         Watchdog $watchdog
     ) {
@@ -83,6 +82,7 @@ class PlaceOrder extends AbstractAction {
 
         $this->checkoutSession        = $checkoutSession;
         $this->customerSession        = $customerSession;
+        $this->config                 = $config;
         $this->orderService           = $orderService;
         $this->orderInterface         = $orderInterface;
         $this->paymentTokenService    = $paymentTokenService;
@@ -90,10 +90,6 @@ class PlaceOrder extends AbstractAction {
 
         // Get cko-public-key, cko-card-token, cko-payment-token, cko-context-id
         $this->params = $this->getRequest()->getParams();
-
-        // Add the agreement validation to the array of parameters
-        //$this->params['agreement'] = array_keys($this->getRequest()->getPostValue('agreement', []));
-        $this->params['agreement'] = array(true); // Temporary workaround for a M2 code T&C checkbox issue not sending data
     }
 
     /**
@@ -118,33 +114,26 @@ class PlaceOrder extends AbstractAction {
      */
     private function createOrder() {
         // Get the quote
-        $quote = $this->checkoutSession->getQuote();      
+        $quote = $this->checkoutSession->getQuote();     
 
-        // Check for guest email
-        if ($quote->getCustomerEmail() === null
-            && $this->customerSession->isLoggedIn() === false
-            && isset($this->customerSession->getData('checkoutSessionData')['customerEmail'])
-            && $this->customerSession->getData('checkoutSessionData')['customerEmail'] === $this->params['cko-context-id']) 
-        {
-            $quote->setCustomerId(null)
-            ->setCustomerEmail($params['cko-context-id'])
-            ->setCustomerIsGuest(true)
-            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
-        }
+        // Set payment method code
+        $quote->setPaymentMethod(ConfigProvider::CODE);
+        $quote->getPayment()->importData(['method' => ConfigProvider::CODE]);
+
+        // Prepare the quote
+        $quote->collectTotals();
+        $quote->save();
 
         // Perform quote and order validation
         try {
             // Create an order from the quote
-            $this->validateQuote($quote);
             $this->order = $this->orderService->placeOrder($this->params);
 
-            // Send the charge
-            $response = $this->sendChargeRequest();
+            // If the order created successfully, send the charge
+            if ($this->order->getId() > 0) {
 
-            // 3D Secure redirection if needed
-            if($this->config->isVerify3DSecure()) {
-                $this->place3DSecureRedirectUrl();
-                exit();
+                // Send the charge
+                $response = $this->sendChargeRequest();
             }
 
             return $this->_redirect('checkout/onepage/success', ['_secure' => true]);

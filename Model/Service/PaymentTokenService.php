@@ -101,7 +101,7 @@ class PaymentTokenService {
             'autoCapture'   => $this->config->isAutoCapture() ? 'Y' : 'N',
             'email'         => $order->getBillingAddress()->getEmail(),
             'customerIp'    => $order->getRemoteIp(),
-            'chargeMode'    => $this->gatewayConfig->isVerify3DSecure() ? 2 : 1,
+            'chargeMode'    => $this->config->isVerify3DSecure() ? 2 : 1,
             'attemptN3D'    => filter_var($this->config->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN),
             'customerName'  => $order->getCustomerName(),
             'currency'      => ChargeAmountAdapter::getPaymentFinalCurrencyCode($order->getCurrencyCode()),
@@ -114,6 +114,6 @@ class PaymentTokenService {
         $response = $this->client->post($url, $params);
 
         // Return the response
-        return response;
+        return $response;
     }
 }
