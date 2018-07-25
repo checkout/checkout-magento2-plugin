@@ -174,11 +174,6 @@ define(
                             FullScreenLoader.stopLoader();
                         });
                     } else if (this.php('getOrderCreation') == 'after_auth') {                        
-                        // Save the session data
-                        self.saveSessionData({
-                            customerEmail: self.js('getEmailAddress')
-                        });
-
                         // Proceed with submission
                         self.submitForm(self.targetForm);
                     }

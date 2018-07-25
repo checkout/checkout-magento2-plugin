@@ -147,64 +147,9 @@ class OrderHandlerService {
     }
 
     public function placeOrder($data) {
-        // Get the quote
-        $quote = $this->checkoutSession->getQuote();
-        if ((int) $quote->getId() > 0) {
-            $order = $this->createOrder($quote);
-            return $order;
-        }
-        else
-        {
-            throw new LocalizedException(__('There was no quote found to create an order.'));            
-        }
 
-        return false;
+
     }
 
-    private function createOrder($quote) {
-        // Create the order
-        $order = $this->quoteManagement->submit($quote);
-
-        // Prepare required variables
-        $newComment = '';
-
-        // Update order status
-        if ($this->config->isAutocapture()) {
-            // Update order status
-            $order->setStatus($this->config->getOrderStatusCaptured());
-            $this->orderRepository->save($order);
-
-            // Create the transaction
-            //$transactionId = $this->transactionService->createTransaction($order, $fields, 'capture');
-            $newComment .= __('Captured') . ' '; 
-        }
-        else {
-            // Update order status
-            $order->setStatus($this->config->getOrderStatusAuthorized());
-
-            // Create the transaction
-            //$transactionId = $this->transactionService->createTransaction($order, $fields, 'authorization');
-            $newComment .= __('Authorized') . ' '; 
-        }
-
-        // Create the invoice
-        //$this->invoiceHandlerService->processInvoice($order);   
-
-        // Create new comment
-        $amount = $this->checkoutSession->getQuote()->getGrandTotal()*100;
-        $newComment .= __('amount of') . ' ' . $amount . ' ' . $order->getOrderCurrencyCode(); 
-        //$newComment .= ' ' . __('Transaction ID') . ': ' . $transactionId;
-        
-        // Set the order status
-        $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
-
-        // Save the order
-        $this->orderRepository->save($order);
-
-        // Send the email
-        $this->orderSender->send($order);
-        $order->setEmailSent(1);     
-
-        return $order; 
-    }
+ 
 }
