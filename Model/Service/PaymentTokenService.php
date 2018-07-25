@@ -93,23 +93,27 @@ class PaymentTokenService {
         return false;
     }
 
-    public function sendChargeRequest($cardToken, $order) {
-        // Set the request parameters
+    public function sendChargeRequest($cardToken, $entity, $trackId = false) {
+        // Set the request url
         $url = $this->config->getApiUrl() . 'charges/token';
+
+        // Set the request parameters
         $params = [
             'autoCapTime'   => $this->config->getAutoCaptureTimeInHours(),
             'autoCapture'   => $this->config->isAutoCapture() ? 'Y' : 'N',
-            'email'         => $order->getBillingAddress()->getEmail(),
-            'customerIp'    => $order->getRemoteIp(),
+            'email'         => $entity->getBillingAddress()->getEmail(),
+            'customerIp'    => $entity->getRemoteIp(),
             'chargeMode'    => $this->config->isVerify3DSecure() ? 2 : 1,
             'attemptN3D'    => filter_var($this->config->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN),
-            'customerName'  => $order->getCustomerName(),
-            'currency'      => ChargeAmountAdapter::getPaymentFinalCurrencyCode($order->getCurrencyCode()),
-            'value'         => $order->getGrandTotal()*100,
-            'trackId'       => $order->getIncrementId(),
+            'customerName'  => $entity->getCustomerName(),
+            'currency'      => ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode()),
+            'value'         => $entity->getGrandTotal()*100,
             'cardToken'     => $cardToken
         ];
 
+        // Set the track id if available
+        if ($trackId) $params['trackId'] = $trackId;
+       
         // Handle the request
         $response = $this->client->post($url, $params);
 

@@ -22,6 +22,9 @@ class Tools {
     const KEY_MODLABEL = 'modlabel';
     const KEY_MODURL = 'modurl';
     const KEY_PARAM_PATH = 'conf/param';
+    const KEY_PUBLIC_KEY = 'public_key';
+    const KEY_PRIVATE_KEY = 'private_key';
+    const KEY_PRIVATE_SHARED_KEY = 'private_shared_key';
 
     protected $request;
     protected $scopeConfig;
@@ -42,19 +45,35 @@ class Tools {
         ];
     }
 
-    public function getInputData() {
-        // Get all parameters from request
-        $params = $this->request->getParams();
-
-        // Sanitize the array
-        $params = array_map(function($val) {
-            return filter_var($val, FILTER_SANITIZE_STRING);
-        }, $params);
-
-        return $params;
-    }
-
     public function formatAmount($amount) {
         return number_format($amount/100, 2);
     }
+
+    public function publicKeyIsValid(string $key) {
+        return $this->scopeConfig->getValue('payment/' . $this->modmeta['tag'] . '/' . self::KEY_PUBLIC_KEY) == $key;
+    }
+
+    public function privateKeyIsValid(string $key) {
+        return $this->scopeConfig->getValue('payment/' . $this->modmeta['tag'] . '/' . self::KEY_PRIVATE_KEY) == $key;
+    }
+
+    public function privateSharedKeyIsValid(string $key) {
+        return $this->scopeConfig->getValue('payment/' . $this->modmeta['tag'] . '/' . self::KEY_PRIVATE_SHARED_KEY) == $key;
+    }
+
+    public function tokenChargeIsSuccessful($response) {
+        /*if (isset($response['responseCode']) && ((int) $response['responseCode'] == 10000 || (int) $response['responseCode'] == 10100)) {
+            return true;
+        }*/
+
+        return true;
+    }
+
+    public function quoteIsValid($quote) {
+        if (!$quote || !$quote->getItemsCount()) {
+            return false;
+        }
+
+        return true;
+    }    
 }

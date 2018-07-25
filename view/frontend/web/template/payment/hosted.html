@@ -36,7 +36,7 @@
             <input name="value" data-bind="attr: {value: js('getQuoteValue')}">
             <input name="currency" data-bind="attr: {value: php('getQuoteCurrency')}">
             <input name="customerEmail" data-bind="attr: {value: js('getEmailAddress')}">
-            <input name="redirectUrl" data-bind="attr: {value: js('getRedirectUrl')}">
+            <input name="redirectUrl" data-bind="attr: {value: getRedirectUrl()}">
             <input name="cancelUrl" data-bind="attr: {value: js('getCancelUrl')}">
             <input name="contextId" data-bind="attr: {value: js('getEmailAddress')}">
             <input name="themeColor" data-bind="attr: {value: php('getHostedThemeColor')}">

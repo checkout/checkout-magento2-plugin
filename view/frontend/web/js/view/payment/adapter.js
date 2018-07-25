@@ -54,13 +54,6 @@ define([
         /**
          * @returns {string}
          */
-        getRedirectUrl: function() {
-            return Url.build(this.getCode() + '/payment/placeorder');
-        },
-
-        /**
-         * @returns {string}
-         */
         getEmailAddress: function() {
             return window.checkoutConfig.customerData.email || Quote.guestEmail || CheckoutData.getValidatedEmailValue();
         },

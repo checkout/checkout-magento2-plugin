@@ -74,16 +74,23 @@ define(
 
             getPaymentToken: function (targetElementId) {
                 $.ajax({
-                    url: Url.build(this.code + '/payment/paymentToken'),
+                    url: Url.build(this.code + '/payment/paymenttoken'),
                     type: "GET",
                     success: function(data, textStatus, xhr) {
                         $('#' + targetElementId).val(data);
                     },
                     error: function(xhr, textStatus, error) {
                         console.log(error);
-                    } // todo - improve error handling
+                    }
                 });               
             },      
+
+            /**
+             * @returns {string}
+             */
+            getRedirectUrl: function() {
+                return Url.build(this.code + '/payment/placeorderhosted');
+            },
 
             /**
              * @returns {string}
@@ -102,7 +109,7 @@ define(
 
                 // Send the session data to be saved
                 $.ajax({
-                    url: Url.build(this.code + '/shopper/sessionData'),
+                    url: Url.build(this.code + '/shopper/sessiondata'),
                     type: "POST",
                     data: dataToSave,
                     success: function(data, textStatus, xhr) {
@@ -145,7 +152,7 @@ define(
 
                         // Send the request
                         ajaxRequest = $.ajax({
-                            url: Url.build(this.code + '/payment/placeOrderAjax'),
+                            url: Url.build(this.code + '/payment/placeorderajax'),
                             type: "post",
                             data: orderData
                         });
