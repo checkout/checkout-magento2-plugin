@@ -34,7 +34,7 @@ class Callback extends Action {
      * @param Context $context
      * @param CallbackService $callbackService
      */
-    public function __construct(Context $context, WebhookCallbackService $callbackService) {
+    public function __construct(Context $context, CallbackService $callbackService) {
         parent::__construct($context);
         $this->callbackService = $callbackService;
     }
