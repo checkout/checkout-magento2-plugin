@@ -57,7 +57,7 @@ class PlaceOrderAjax extends Action {
         QuoteManagement $quoteManagement, 
         JsonFactory $resultJsonFactory
     ) {
-        parent::__construct($context, $gatewayConfig);
+        parent::__construct($context);
 
         $this->checkoutSession   = $checkoutSession;
         $this->customerSession   = $customerSession;

@@ -93,7 +93,7 @@ class PlaceOrderHosted extends Action {
         PaymentTokenService $paymentTokenService,
         Watchdog $watchdog
     ) {
-        parent::__construct($context, $config);
+        parent::__construct($context);
 
         $this->checkoutSession        = $checkoutSession;
         $this->customerSession        = $customerSession;

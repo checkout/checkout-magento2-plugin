@@ -44,7 +44,7 @@ class PaymentToken extends Action {
         PaymentTokenService $paymentTokenService,
         Config $config
     ) {
-        parent::__construct($context, $config);
+        parent::__construct($context);
         $this->resultJsonFactory = $resultJsonFactory;
         $this->paymentTokenService = $paymentTokenService;
     }

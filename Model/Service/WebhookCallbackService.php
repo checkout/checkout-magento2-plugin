@@ -26,7 +26,7 @@ use CheckoutCom\Magento2\Model\Adapter\CallbackEventAdapter;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\StoreCardService;
-use CheckoutCom\Magento2\Model\Service\OrderService;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 
 class WebhookCallbackService {
 
@@ -76,7 +76,7 @@ class WebhookCallbackService {
     protected $orderSender;
 
     /**
-     * @var OrderService
+     * @var OrderHandlerService
      */
     protected $orderService;
 
@@ -93,7 +93,7 @@ class WebhookCallbackService {
         CustomerFactory $customerFactory,
         StoreManagerInterface $storeManager,
         OrderSender $orderSender,
-        OrderService $orderService
+        OrderHandlerService $orderService
     ) {
         $this->orderFactory      = $orderFactory;
         $this->orderRepository   = $orderRepository;
@@ -132,7 +132,7 @@ class WebhookCallbackService {
         if ($payment instanceof Payment) {
             // Test the command name
             if ($commandName == 'refund' || $commandName == 'void') {
-                $this->orderService->cancelTransactionFromRemote($order);
+                //$this->orderService->cancelTransactionFromRemote($order);
             }
             
             // Perform authorize complementary actions
