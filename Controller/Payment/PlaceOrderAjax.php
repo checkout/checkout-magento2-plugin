@@ -19,7 +19,7 @@ use Magento\Quote\Model\QuoteManagement;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use Magento\Framework\Controller\Result\JsonFactory;
 
-class PlaceOrderAjax extends AbstractAction {
+class PlaceOrderAjax extends Action {
 
     /**
      * @var QuoteManagement

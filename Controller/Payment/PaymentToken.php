@@ -15,7 +15,7 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 
-class PaymentToken extends AbstractAction {
+class PaymentToken extends Action {
     /**
      * @var JsonFactory
      */
