@@ -121,7 +121,7 @@ class WebhookCallbackService {
         $commandName    = $this->getCommandName();
         $amount         = $this->getAmount();
 
-        // Get the order qnd pqyment information
+        // Get the order and pqyment information
         $order          = $this->getAssociatedOrder();
         $payment        = $order->getPayment();
 
@@ -152,7 +152,15 @@ class WebhookCallbackService {
                     } 
 
                     // Create new comment
-                    $newComment = 'Authorized amount of ' . ChargeAmountAdapter::getStoreAmountOfCurrency($this->gatewayResponse['response']['message']['value'], $this->gatewayResponse['response']['message']['currency']) . ' ' . $this->gatewayResponse['response']['message']['currency'] .' Transaction ID: ' . $this->gatewayResponse['response']['message']['id'];
+                    $newComment  = '';
+                    $newComment .= __('Authorized amount of') . ' ';
+                    $newComment .= ChargeAmountAdapter::getStoreAmountOfCurrency(
+                        $this->gatewayResponse['response']['message']['value'], 
+                        $this->gatewayResponse['response']['message']['currency']
+                    ) 
+                    $newComment .= ' ' . $this->gatewayResponse['response']['message']['currency'];
+                    $newComment .= ' ' . __('Transaction ID') . ':' . ' ';
+                    $newComment .= $this->gatewayResponse['response']['message']['id'];
 
                     // Add the new comment
                     $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
