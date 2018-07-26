@@ -157,7 +157,7 @@ class WebhookCallbackService {
                     $newComment .= ChargeAmountAdapter::getStoreAmountOfCurrency(
                         $this->gatewayResponse['response']['message']['value'], 
                         $this->gatewayResponse['response']['message']['currency']
-                    ) 
+                    );
                     $newComment .= ' ' . $this->gatewayResponse['response']['message']['currency'];
                     $newComment .= ' ' . __('Transaction ID') . ':' . ' ';
                     $newComment .= $this->gatewayResponse['response']['message']['id'];
@@ -202,7 +202,7 @@ class WebhookCallbackService {
         $orderId    = $this->gatewayResponse['response']['message']['trackId'];
         $order      = $this->orderFactory->create()->loadByIncrementId($orderId);
 
-        if (!$order->isEmpty()) return $order
+        if (!$order->isEmpty()) return $order;
 
         return null;
     }
