@@ -40,9 +40,6 @@ class AfterPlaceOrderObserver implements ObserverInterface {
         // Get the order
         $order = $observer->getEvent()->getOrder();
 
-        // Get the integration type
-        $integration = $this->gatewayConfig->getIntegration();
-
         // Get 3D Secure setting
         $is3ds = (int) $this->gatewayConfig->isVerify3DSecure();
 
