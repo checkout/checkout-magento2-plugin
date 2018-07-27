@@ -133,7 +133,7 @@ class StoreCardService {
     ) {
         $this->logger                   = $logger;
         $this->vaultTokenFactory        = $vaultTokenFactory;
-        $this->gatewayConfig            = $gatewayConfig;
+        $this->config                   = $config;
         $this->paymentTokenRepository   = $paymentTokenRepository;
         $this->paymentTokenManagement   = $paymentTokenManagement;
         $this->scopeConfig              = $scopeConfig;
