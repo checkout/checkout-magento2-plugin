@@ -14,6 +14,7 @@ use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use CheckoutCom\Magento2\Helper\Helper;
 
 class MetaDataRequest implements BuilderInterface {
 
@@ -21,6 +22,11 @@ class MetaDataRequest implements BuilderInterface {
      * @var ProductMetadataInterface
      */
     protected $metadata;
+
+    /**
+     * @var Helper
+     */
+    protected $helper;
 
     /**
      * @var ModuleListInterface
@@ -38,10 +44,11 @@ class MetaDataRequest implements BuilderInterface {
      * @param ModuleListInterface $moduleList
      * @param StoreManagerInterface $storeManager
      */
-    public function __construct(ProductMetadataInterface $metadata, ModuleListInterface $moduleList, StoreManagerInterface $storeManager) {
-        $this->metadata     = $metadata;
-        $this->moduleList   = $moduleList;
-        $this->storeManager = $storeManager;
+    public function __construct(ProductMetadataInterface $metadata, Helper $helper, ModuleListInterface $moduleList, StoreManagerInterface $storeManager) {
+        $this->metadata        = $metadata;
+        $this->helper          = $helper;
+        $this->moduleList      = $moduleList;
+        $this->storeManager    = $storeManager;
     }
 
     /**
@@ -56,10 +63,14 @@ class MetaDataRequest implements BuilderInterface {
                 'magento_name'      => $this->metadata->getName(),
                 'magento_edition'   => $this->metadata->getEdition(),
                 'magento_version'   => $this->metadata->getVersion(),
-                'plugin_version'    => $this->moduleList->getOne('CheckoutCom_Magento2')['setup_version'],
+                'setup_version'     => $this->moduleList->getOne('CheckoutCom_Magento2')['setup_version'],
+                'module_version'    => $this->helper->getModuleVersion(),
                 'store_id'          => $this->storeManager->getStore()->getId(),
             ],
         ];
     }
+
+
+    
 
 }
