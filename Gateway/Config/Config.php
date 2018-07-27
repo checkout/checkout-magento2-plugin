@@ -64,6 +64,19 @@ class Config {
     const KEY_EMBEDDED_CSS = 'embedded_css';
 
     /**
+     * @var array
+     */
+    protected static $cardTypeMap = [
+        'amex'          => 'AE',
+        'visa'          => 'VI',
+        'mastercard'    => 'MC',
+        'discover'      => 'DI',
+        'jcb'           => 'JCB',
+        'diners'        => 'DN',
+        'dinersclub'    => 'DN',
+    ];
+
+    /**
      * @var ScopeConfigInterface
      */
     protected $scopeConfig;
@@ -86,6 +99,15 @@ class Config {
         $this->tools = $tools;
         $this->checkoutSession = $checkoutSession;
         $this->storeManager = $storeManager;
+    }
+
+    /**
+     * Retrieve mapper between Magento and Checkout.com card types.
+     *
+     * @return array
+     */
+    public function getCardTypeMapper() {
+        return self::$cardTypeMap;
     }
 
     /**

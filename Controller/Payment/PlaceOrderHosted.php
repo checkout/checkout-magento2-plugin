@@ -14,6 +14,7 @@ use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
+use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
@@ -25,7 +26,7 @@ use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Helper\Watchdog;
 use CheckoutCom\Magento2\Helper\Tools;
 
-class PlaceOrderHosted extends AbstractAction {
+class PlaceOrderHosted extends Action {
 
     /**
      * @var PaymentTokenService
@@ -92,7 +93,7 @@ class PlaceOrderHosted extends AbstractAction {
         PaymentTokenService $paymentTokenService,
         Watchdog $watchdog
     ) {
-        parent::__construct($context, $config);
+        parent::__construct($context);
 
         $this->checkoutSession        = $checkoutSession;
         $this->customerSession        = $customerSession;

@@ -10,12 +10,13 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
+use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
 use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 
-class PaymentToken extends AbstractAction {
+class PaymentToken extends Action {
     /**
      * @var JsonFactory
      */
@@ -43,7 +44,7 @@ class PaymentToken extends AbstractAction {
         PaymentTokenService $paymentTokenService,
         Config $config
     ) {
-        parent::__construct($context, $config);
+        parent::__construct($context);
         $this->resultJsonFactory = $resultJsonFactory;
         $this->paymentTokenService = $paymentTokenService;
     }

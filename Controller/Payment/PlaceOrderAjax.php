@@ -10,6 +10,7 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
+use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
@@ -19,7 +20,7 @@ use Magento\Quote\Model\QuoteManagement;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use Magento\Framework\Controller\Result\JsonFactory;
 
-class PlaceOrderAjax extends AbstractAction {
+class PlaceOrderAjax extends Action {
 
     /**
      * @var QuoteManagement
@@ -56,7 +57,7 @@ class PlaceOrderAjax extends AbstractAction {
         QuoteManagement $quoteManagement, 
         JsonFactory $resultJsonFactory
     ) {
-        parent::__construct($context, $gatewayConfig);
+        parent::__construct($context);
 
         $this->checkoutSession   = $checkoutSession;
         $this->customerSession   = $customerSession;
