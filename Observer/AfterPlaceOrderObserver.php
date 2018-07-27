@@ -47,7 +47,7 @@ class AfterPlaceOrderObserver implements ObserverInterface {
         $is3ds = (int) $this->gatewayConfig->isVerify3DSecure();
 
         // Force the order status to what is in config for Frames only
-        if ($is3ds == 1 && $integration == 'embedded' && $order->getPayment()->getMethod() == 'checkout_com') {
+        if ($is3ds == 1 && $order->getPayment()->getMethod() == 'checkout_com') {
             // Update order status
             $order->setStatus($this->gatewayConfig->getNewOrderStatus());
         }
