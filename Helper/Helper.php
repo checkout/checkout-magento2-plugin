@@ -26,7 +26,7 @@ class Helper {
     /**
      * Get the module version from composer.json file
      */    
-    private function getModuleVersion() {
+    public function getModuleVersion() {
         // Get the module path
         $module_path = $this->directoryReader->getModuleDir('', 'CheckoutCom_Magento2');
 
