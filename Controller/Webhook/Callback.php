@@ -56,11 +56,11 @@ class Callback extends Action {
         // Prepare the request and response containers
         $request    = new Zend_Controller_Request_Http();
         $response   = $this->resultFactory->create(ResultFactory::TYPE_JSON);
-
-$writer = new \Zend\Log\Writer\Stream(BP . '/var/log/bbb.log');
+      
+$writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
 $logger = new \Zend\Log\Logger();
 $logger->addWriter($writer);
-$logger->info('before non post');
+$logger->info(print_r($response, 1));
 
         // Reject non POST requests
         if (!$request->isPost()) {
