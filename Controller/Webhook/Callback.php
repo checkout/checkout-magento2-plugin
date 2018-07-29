@@ -25,18 +25,25 @@ use CheckoutCom\Magento2\Helper\Tools;
 class Callback extends Action {
 
     /**
-     * @var CallbackService
+     * @var WebhookCallbackService
      */
     protected $callbackService;
 
     /**
+     * @var Tools
+     */
+    protected $tool;
+
+    /**
      * Callback constructor.
      * @param Context $context
-     * @param CallbackService $callbackService
+     * @param WebhookCallbackService $callbackService
+     * @param Tools $tools
      */
-    public function __construct(Context $context, WebhookCallbackService $callbackService) {
+    public function __construct(Context $context, WebhookCallbackService $callbackService, Tools $tools) {
         parent::__construct($context);
         $this->callbackService = $callbackService;
+	$this->tools = $tools;
     }
 
     /**
@@ -50,6 +57,11 @@ class Callback extends Action {
         $request    = new Zend_Controller_Request_Http();
         $response   = $this->resultFactory->create(ResultFactory::TYPE_JSON);
 
+$writer = new \Zend\Log\Writer\Stream(BP . '/var/log/bbb.log');
+$logger = new \Zend\Log\Logger();
+$logger->addWriter($writer);
+$logger->info('before non post');
+
         // Reject non POST requests
         if (!$request->isPost()) {
             $response->setHttpResponseCode(WebException::HTTP_METHOD_NOT_ALLOWED);
@@ -57,8 +69,16 @@ class Callback extends Action {
             return $response;
         }
 
+$logger->info('after non post');
+
+
         // Fetch teh response
         $data = json_decode(file_get_contents('php://input'), true);
+
+
+
+$logger->info('after decode');
+
 
         // Reject empty data
         if ($data === null || empty($data)) {
@@ -67,6 +87,9 @@ class Callback extends Action {
             return $response;
         }
 
+$logger->info('after empty');
+
+
         // Reject invalid authorization
         $auth = $request->getHeader('Authorization');
         if (!$this->requestIsValid($auth)) {
@@ -74,6 +97,8 @@ class Callback extends Action {
 
             return $response;
         }
+
+$logger->info('after auth');
 
         // Prepare the data
         try {

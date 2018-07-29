@@ -86,7 +86,7 @@ class WebhookCallbackService {
     public function __construct(
         OrderFactory $orderFactory,
         OrderRepositoryInterface $orderRepository,
-        Config $gatewayConfig,
+        Config $config,
         InvoiceService $invoiceService,
         InvoiceRepositoryInterface $invoiceRepository,
         StoreCardService $storeCardService,
