@@ -11,6 +11,8 @@
 namespace CheckoutCom\Magento2\Helper;
 
 use Magento\Framework\Module\Dir\Reader;
+use Magento\Framework\File\Csv;
+use CheckoutCom\Magento2\Gateway\Config\Config;
 
 class Helper {
 
@@ -19,8 +21,20 @@ class Helper {
      */
     protected $directoryReader;
 
-    public function __construct(Reader $directoryReader) {
+    /**
+     * @var Csv
+     */
+    protected $csvParser;
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    public function __construct(Reader $directoryReader, Csv $csvParser, Config $config) {
         $this->directoryReader = $directoryReader;
+        $this->csvParser = $csvParser;
+        $this->config = $config;
     }
 
     /**
@@ -37,5 +51,29 @@ class Helper {
         $data = json_decode($json);
 
         return $data->version;
+    }
+
+    /**
+     * Checks the MADA BIN
+     *
+     * @return bool
+     */
+    public function isMadaBin($bin) {
+        // Set the root path
+        $csvPath = $this->directoryReader->getModuleDir('', 'CheckoutCom_Magento2')  . '/' . $this->config->getMadaBinsPath();
+
+        // Get the data
+        $csvData = $this->csvParser->getData($csvPath);
+
+        // Remove the first row of csv columns
+        unset($csvData[0]);
+
+        // Build the MADA BIN array
+        $binArray = [];
+        foreach ($csvData as $row) {
+            $binArray[] = $row[1];
+        }
+
+        return in_array($bin, $binArray);
     }
 }

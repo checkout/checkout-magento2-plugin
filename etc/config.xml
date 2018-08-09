@@ -56,6 +56,9 @@
                 <embedded_css><![CDATA[https://cdn.checkout.com/v2/js/css/theme-template.css]]></embedded_css>
                 <sandbox_hosted_url><![CDATA[https://secure1.checkout.com/sandbox/payment/]]></sandbox_hosted_url>
                 <live_hosted_url><![CDATA[https://secure1.checkout.com/payment/]]></live_hosted_url>
+                <mada_enabled>0</mada_enabled>
+                <mada_bins_path>Model/Files/Mada/mada_bins.csv</mada_bins_path>
+                <mada_bins_path_test>Model/Files/Mada/mada_bins_test.csv</mada_bins_path_test>
                 <sort_order>1</sort_order>
                 <debugReplaceKeys>public_key,secret_key</debugReplaceKeys>
                 <masked_fields>cvv,number</masked_fields>

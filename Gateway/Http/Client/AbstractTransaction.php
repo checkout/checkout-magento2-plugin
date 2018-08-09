@@ -147,7 +147,7 @@ abstract class AbstractTransaction implements ClientInterface {
         $client->setConfig($transferObject->getClientConfig());
         
         $client->setMethod($this->getMethod());
-       
+
         switch($this->getMethod()) {
             case \Zend_Http_Client::GET:
                 $client->setRawData( json_encode($this->body) ) ;

@@ -13,15 +13,25 @@ namespace CheckoutCom\Magento2\Controller\Shopper;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\Action;
 use Magento\Customer\Model\Session as CustomerSession;
+use CheckoutCom\Magento2\Helper\Helper;
 
 class SessionData extends Action
 {
+    /**
+     * @var CustomerSession
+     */
     protected $customerSession;
  
-    public function __construct(Context $context, CustomerSession $customerSession)
+    /**
+     * @var Helper
+     */
+    protected $helper;
+
+    public function __construct(Context $context, Helper $helper, CustomerSession $customerSession)
     {
         parent::__construct($context);
         $this->customerSession = $customerSession;
+        $this->helper = $helper;
     }
  
     public function execute()
@@ -29,6 +39,9 @@ class SessionData extends Action
         // Get the request data
         $sessionData = $this->getInputData();
 
+        // Process MADA BIN
+        $sessionData = $this->checkMadaBin($sessionData);
+        
         // Save in session
         $this->customerSession->setData('checkoutSessionData', $sessionData);
 
@@ -36,7 +49,16 @@ class SessionData extends Action
         exit();
     }
 
-    public function getInputData() {
+    private function checkMadaBin($sessionData) {
+        // Test the card bin and set the MADA status
+        if ($this->helper->isMadaBin($sessionData['cardBin'])) {
+            $sessionData['isMadaBin'] = true;
+        }
+
+        return $sessionData;
+    }
+
+    private function getInputData() {
 
         // Get all parameters from request
         $params = $this->getRequest()->getParams();

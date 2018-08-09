@@ -200,13 +200,22 @@
                         </comment>
                     </field>
 
-                    <field id="auto_capture" translate="label" sortOrder="80" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="mada_enabled" translate="label" sortOrder="80" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable MADA BIN Check</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com/mada_enabled</config_path>
+                        <comment>
+                            Add a flag to the charge request if the payment card is MADA.
+                        </comment>
+                    </field>
+
+                    <field id="auto_capture" translate="label" sortOrder="90" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Auto Capture</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkout_com/auto_capture</config_path>
                     </field>
 
-                    <field id="auto_capture_time" translate="label comment" sortOrder="90" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="auto_capture_time" translate="label comment" sortOrder="100" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Auto Capture Time</label>
                         <config_path>payment/checkout_com/auto_capture_time</config_path>
                         <validate>validate-required</validate>

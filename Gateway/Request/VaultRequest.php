@@ -52,7 +52,7 @@ class VaultRequest implements BuilderInterface {
     public function build(array $buildSubject)
     {
         return [
-            'udf2' => ($this->getVaultSaveInfo()) ? self::STORE_IN_VAULT_ON_SUCCESS : ''
+            'udf3' => ($this->getVaultSaveInfo()) ? self::STORE_IN_VAULT_ON_SUCCESS : ''
         ];
     }
 

@@ -195,6 +195,7 @@
                 <item name="descriptor" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\DescriptorDataRequest</item>
                 <item name="3d_secure" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\ThreeDSecureRequest</item>
                 <item name="vault" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\VaultRequest</item>
+                <item name="mada" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\MadaRequest</item>
             </argument>
         </arguments>
     </virtualType>
@@ -238,6 +239,7 @@
                 <item name="meta_data" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\MetaDataRequest</item>
                 <item name="descriptor" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\DescriptorDataRequest</item>
                 <item name="3d_secure" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\ThreeDSecureRequest</item>
+                <item name="mada" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\MadaRequest</item>
             </argument>
         </arguments>
     </virtualType>

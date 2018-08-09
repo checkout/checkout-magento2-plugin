@@ -161,12 +161,12 @@ class TransactionHandler implements HandlerInterface {
         }
 
         // Set a flag for card id charge
-        if (isset($response['udf1']) && $response['udf1'] == 'cardIdCharge') {
+        if (isset($response['udf2']) && $response['udf2'] == 'cardIdCharge') {
             $this->session->setCardIdChargeFlag('cardIdCharge');
         }
 
         // Save card if needed
-        if (isset($response['udf2']) && $response['udf2'] == 'storeInVaultOnSuccess' && $response['status'] == 'Authorised') {
+        if (isset($response['udf3']) && $response['udf3'] == 'storeInVaultOnSuccess' && $response['status'] == 'Authorised') {
             $this->vaultCard( $response );
         }
     }
