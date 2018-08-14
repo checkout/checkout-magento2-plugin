@@ -48,7 +48,7 @@ class MadaRequest extends AbstractRequest {
         $arr = ['udf1' => ''];
 
         // Add a flag for the MADA charge
-        $isMadaBin = $this->customerSession->getData('checkoutSessionData')['isMadaBin'];
+        $isMadaBin = isset($this->customerSession->getData('checkoutSessionData')['isMadaBin']) ? $this->customerSession->getData('checkoutSessionData')['isMadaBin'] : null;
         if ($this->config->isMadaEnabled() && $isMadaBin) {
             $arr = ['udf1' => 'MADA'];
         }
