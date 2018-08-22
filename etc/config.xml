@@ -35,7 +35,7 @@
                 <theme_color>#00b660</theme_color>
                 <box_title>Checkout.com</box_title>
                 <box_subtitle>Hosted Payment</box_subtitle>
-                <logo_url><![CDATA[https://docs.checkout.com/img/Logo-black.png]]></logo_url>
+                <logo_url><![CDATA[https://cdn.checkout.com/img/checkout-logo-online-payments.jpg]]></logo_url>
                 <button_label>Pay Now</button_label>
                 <payment_mode>cards</payment_mode>
                 <embedded_theme>standard</embedded_theme>
