@@ -118,10 +118,16 @@ class TransactionHandler implements HandlerInterface {
         // Debug info
         $this->watchdog->bark($response);
 
-        // Set transaction info
-        $this->setTransactionId($payment, $response['id']);
-        $payment->setIsTransactionClosed( $this->shouldCloseTransaction() );
-        $payment->setShouldCloseParentTransaction( $this->shouldCloseParentTransaction($payment) );
+        /** 
+         * Set transaction info only for non 3DS flow
+         * For 3DS flow, this is handled in the webhook callback
+         * in order to avoid having a payment token as a transaction id
+         */
+        if (!isset($response['redirectUrl'])) {
+            $this->setTransactionId($payment, $response['id']);
+            $payment->setIsTransactionClosed($this->shouldCloseTransaction());
+            $payment->setShouldCloseParentTransaction($this->shouldCloseParentTransaction($payment));
+        }
 
         if (array_key_exists('originalId', $response)) {
             $payment->setParentTransactionId($response['originalId']);
