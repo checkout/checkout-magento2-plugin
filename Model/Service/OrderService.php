@@ -142,7 +142,7 @@ class OrderService {
         $payment = $quote->getPayment();
         $payment->setMethod(ConfigProvider::CODE);
 
-        // Card token always pressent, except for alternative payments
+        // Card token always present, except for alternative payments
         if ($cardToken) {
             $payment->setAdditionalInformation(DataAssignObserver::CARD_TOKEN_ID, $cardToken);
         }
