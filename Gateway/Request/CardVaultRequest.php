@@ -43,7 +43,7 @@ class CardVaultRequest extends AbstractRequest {
         // Return the parameters
         return [
             'cardId' => $payment->getExtensionAttributes()->getVaultPaymentToken()->getGatewayToken(),
-            'udf1' => 'cardIdCharge'
+            'udf2' => 'cardIdCharge'
         ];
     }
 

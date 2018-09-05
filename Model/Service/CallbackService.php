@@ -22,6 +22,8 @@ use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Customer\Model\CustomerFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
+use Magento\Sales\Model\Order\Payment\Transaction;
 use CheckoutCom\Magento2\Model\Adapter\CallbackEventAdapter;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Model\GatewayResponseHolder;
@@ -96,6 +98,11 @@ class CallbackService {
     protected $orderService;
 
     /**
+     * @var BuilderInterface
+     */
+    protected $transactionBuilder;
+
+    /**
      * CallbackService constructor.
      * @param CallbackMethod $callbackMethod
      * @param CallbackEventAdapter $eventAdapter
@@ -114,20 +121,22 @@ class CallbackService {
         CustomerFactory $customerFactory,
         StoreManagerInterface $storeManager,
         OrderSender $orderSender,
-        OrderService $orderService
+        OrderService $orderService,
+        BuilderInterface $transactionBuilder
     ) {
-        $this->callbackMethod   = $callbackMethod;
-        $this->eventAdapter     = $eventAdapter;
-        $this->orderFactory     = $orderFactory;
-        $this->orderRepository  = $orderRepository;
-        $this->gatewayConfig    = $gatewayConfig;
-        $this->invoiceService       = $invoiceService;
-        $this->invoiceRepository    = $invoiceRepository;
-        $this->storeCardService    = $storeCardService;
-        $this->customerFactory = $customerFactory;
-        $this->storeManager = $storeManager;
-        $this->orderSender          = $orderSender;
+        $this->callbackMethod        = $callbackMethod;
+        $this->eventAdapter          = $eventAdapter;
+        $this->orderFactory          = $orderFactory;
+        $this->orderRepository       = $orderRepository;
+        $this->gatewayConfig         = $gatewayConfig;
+        $this->invoiceService        = $invoiceService;
+        $this->invoiceRepository     = $invoiceRepository;
+        $this->storeCardService      = $storeCardService;
+        $this->customerFactory       = $customerFactory;
+        $this->storeManager          = $storeManager;
+        $this->orderSender           = $orderSender;
         $this->orderService          = $orderService;
+        $this->transactionBuilder    = $transactionBuilder;
     }
 
     /**
@@ -175,6 +184,27 @@ class CallbackService {
                 if ($this->gatewayConfig->isHostedIntegration()) {
                     $this->orderSender->send($order);
                     $order->setEmailSent(1);
+                }
+
+                /** 
+                 * Set transaction info only for 3DS flow
+                 * For non 3DS flow, this is handled in the TransactionHandler
+                 * through dependency injection
+                 */
+                if ($this->gatewayConfig->isVerify3DSecure()) {
+                    // Update the payment info
+                    $payment->setTransactionId($this->gatewayResponse['response']['message']['id']);
+                    $payment->setLastTransId($this->gatewayResponse['response']['message']['id']);
+                    $payment->setCcTransId($this->gatewayResponse['response']['message']['id']);
+                    $payment->setIsTransactionClosed(false);
+                    $payment->setShouldCloseParentTransaction(false);
+
+                    // Create the transaction
+                    $transaction = $this->transactionBuilder->setPayment($payment)
+                    ->setOrder($order)
+                    ->setTransactionId($this->gatewayResponse['response']['message']['id'])
+                    ->setFailSafe(true)
+                    ->build(Transaction::TYPE_AUTH);                    
                 }
 
                 // Comments override

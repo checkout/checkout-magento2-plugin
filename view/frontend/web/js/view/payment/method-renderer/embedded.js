@@ -36,7 +36,8 @@ define(
                 template: 'CheckoutCom_Magento2/payment/embedded',
                 code: 'checkout_com',
                 card_token_id: null,
-                redirectAfterPlaceOrder: true
+                redirectAfterPlaceOrder: true,
+                card_bin: null
             },
 
             /**
@@ -170,7 +171,8 @@ define(
                 // Prepare the session data
                 var sessionData = {
                     saveShopperCard: $('#checkout_com_enable_vault').is(":checked"),
-                    customerEmail: self.getEmailAddress()
+                    customerEmail: self.getEmailAddress(),
+                    cardBin: self.card_bin
                 };
 
                 // Send the session data to be saved
@@ -196,9 +198,6 @@ define(
                 // Validate before submission
                 if (additionalValidators.validate()) {
                     if (Frames.isCardValid()) {
-                        // Set the save card option in session
-                        self.saveSessionData();
-
                         // Submit frames form
                         Frames.submitCard();
                     }
@@ -256,6 +255,7 @@ define(
                     publicKey: self.getPublicKey(),
                     containerSelector: '#cko-form-holder',
                     theme: ckoTheme,
+                    debugMode: true,
                     themeOverride: ckoThemeOverride,
                     frameActivated: function () {
                         $('#ckoPlaceOrder').attr("disabled", true);
@@ -264,6 +264,12 @@ define(
                         self.updateButtonState(!(Frames.isCardValid() && quote.billingAddress() != null));
                     },
                     cardTokenised: function(event) {
+                        // Keep the card info
+                        self.card_bin = event.data.card.bin;
+
+                        // Save checkout info in PHP session
+                        self.saveSessionData();
+
                         // Set the card token
                         self.setCardTokenId(event.data.cardToken);
 

@@ -164,7 +164,7 @@ class Verify extends AbstractAction {
         }
 
         // If it's a vault card id charge response
-        else if (isset($response['udf1']) && $response['udf1'] == 'cardIdCharge') {
+        else if (isset($response['udf2']) && $response['udf2'] == 'cardIdCharge') {
             if (isset($response['responseCode']) && (int) $response['responseCode'] == 10000) {
                 $this->messageManager->addSuccessMessage( __('Order successfully processed.') );
             }
@@ -177,7 +177,7 @@ class Verify extends AbstractAction {
 
         // Else proceed normally for 3D Secure
         else {
-            if (isset($response['udf2']) && $response['udf2'] == 'storeInVaultOnSuccess') {
+            if (isset($response['udf3']) && $response['udf3'] == 'storeInVaultOnSuccess') {
                 $this->vaultCardAfterThreeDSecure( $response );
             }
 

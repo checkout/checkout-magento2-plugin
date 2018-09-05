@@ -65,6 +65,9 @@ class Config extends BaseConfig {
     const KEY_CSS_FILE = 'css_file';
     const KEY_ORDER_COMMENTS_OVERRIDE = 'order_comments_override';
     const KEY_ORDER_CREATION = 'order_creation';
+    const KEY_MADA_BINS_PATH = 'mada_bins_path';
+    const KEY_MADA_BINS_PATH_TEST = 'mada_bins_path_test';
+    const KEY_MADA_ENABLED = 'mada_enabled';
 
     /**
      * @var array
@@ -286,6 +289,26 @@ class Config extends BaseConfig {
      */
     public function getSecretKey() {
         return (string) $this->getValue(self::KEY_SECRET_KEY);
+    }
+
+    /**
+     * Is MADA BIN check enabled
+     *
+     * @return bool
+     */
+    public function isMadaEnabled() {
+        return (bool) $this->getValue(self::KEY_MADA_ENABLED);
+    }
+
+    /**
+     * Return the MADA BINS file path.
+     *
+     * @return string
+     */
+    public function getMadaBinsPath() {
+        return (string) (($this->isLive()) ?
+        $this->getValue(self::KEY_MADA_BINS_PATH) : 
+        $this->getValue(self::KEY_MADA_BINS_PATH_TEST));
     }
 
     /**
