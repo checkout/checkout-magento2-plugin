@@ -50,6 +50,7 @@ export default function () {
           browser.selectByValue(FRONTEND.order.customer_county, '1');
           browser.setValue(FRONTEND.order.customer_postcode, VAL.guest.postcode);
           browser.setValue(FRONTEND.order.customer_phone, VAL.guest.phone);
+          browser.pause(2000); // add wait
           browser.setValue(FRONTEND.order.customer_email, VAL.guest.email);
         }
         browser.pause(4000); // avoid errors with magento

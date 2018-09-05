@@ -9,6 +9,7 @@ export default function () {
     browser.waitUntil(function () {
       return browser.isVisible(FRONTEND.order.checkout_payment_option);
     }, VAL.timeout_out, 'checkout pyament option should exist');
+    browser.pause(2000); // add wait
     browser.click(FRONTEND.order.checkout_payment_option);
   });
 
@@ -97,6 +98,7 @@ export default function () {
         break;
     }
     browser.frameParent();
+    browser.pause(2000); // add wait
   });
 
   this.Then(/^I complete Checkout Hosted with a (.*) card$/, (option) => {
