@@ -15,7 +15,6 @@ use Magento\Checkout\Model\Session;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Exception\LocalizedException;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
-use CheckoutCom\Magento2\Model\Service\OrderService;
 use CheckoutCom\Magento2\Model\Service\VerifyPaymentService;
 use CheckoutCom\Magento2\Model\Service\StoreCardService;
 use CheckoutCom\Magento2\Model\Factory\VaultTokenFactory;
@@ -36,11 +35,6 @@ class Verify extends AbstractAction {
      * @var VerifyPaymentService
      */
     protected $verifyPaymentService;
-
-    /**
-     * @var OrderService
-     */
-    protected $orderService;
 
     /**
      * @var StoreCardService 
@@ -88,7 +82,6 @@ class Verify extends AbstractAction {
      * @param Session $session
      * @param GatewayConfig $gatewayConfig
      * @param VerifyPaymentService $verifyPaymentService
-     * @param OrderService $orderService
      * @param StoreCardService $storeCardService
      * @param CustomerSession $customerSession
      * @param VaultTokenFactory $vaultTokenFactory
@@ -101,7 +94,6 @@ class Verify extends AbstractAction {
         Session $session, 
         GatewayConfig $gatewayConfig, 
         VerifyPaymentService $verifyPaymentService, 
-        OrderService $orderService, 
         StoreCardService $storeCardService, 
         CustomerSession $customerSession, 
         VaultTokenFactory $vaultTokenFactory, 
@@ -116,7 +108,6 @@ class Verify extends AbstractAction {
         $this->session                  = $session;
         $this->gatewayConfig            = $gatewayConfig;
         $this->verifyPaymentService     = $verifyPaymentService;
-        $this->orderService             = $orderService;
         $this->storeCardService         = $storeCardService;
         $this->customerSession          = $customerSession;
         $this->vaultTokenFactory        = $vaultTokenFactory;
