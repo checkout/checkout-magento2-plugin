@@ -130,9 +130,13 @@ class OrderService {
      * @throws LocalizedException
      */
     public function execute(Quote $quote, $cardToken, array $agreement) {
-        if (!$this->agreementsValidator->isValid($agreement)) {
-            throw new LocalizedException(__('Please agree to all the terms and conditions before placing the order.'));
-        }
+        /**
+         *  Temporary workaround for a M2 code T&C checkbox issue not sending data.
+         *  The last parameter should be $params['agreement']
+         */
+        //if (!$this->agreementsValidator->isValid($agreement)) {
+            //throw new LocalizedException(__('Please agree to all the terms and conditions before placing the order.'));
+        //}
 
         if ($this->getCheckoutMethod($quote) === Onepage::METHOD_GUEST) {
             $this->prepareGuestQuote($quote);
