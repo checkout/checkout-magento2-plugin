@@ -48,7 +48,7 @@
             <input name="logoUrl" data-bind="attr: {value: getDesignSettings()['hosted']['logo_url']}">
             <!-- /ko -->
             <!-- ko if: (getPaymentMode() === "localpayments" || getPaymentMode() === "mixed") -->
-            <input name="paymentToken" data-bind="attr: {value: getPaymentToken()}">
+            <input id ="paymentToken" name="paymentToken" data-bind="attr: {value: getPaymentToken()}">
             <!-- /ko -->
         </form>
 

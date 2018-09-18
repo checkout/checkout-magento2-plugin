@@ -58,7 +58,17 @@ define(
              * @returns {string}
              */
             getPaymentToken: function() {                
-                return CheckoutCom.getPaymentConfig()['payment_token'];
+                // Send the request
+                var ajaxRequest = $.ajax({
+                    url: url.build('checkout_com/payment/paymentToken'),
+                    type: "post"
+                });
+
+                // Process the payment token response
+                ajaxRequest.done(function (response, textStatus, jqXHR){
+                    console.log(response);
+                    $('#paymentToken').val(response.payment_token);
+                });
             },
 
             /**
