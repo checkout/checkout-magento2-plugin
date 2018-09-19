@@ -65,8 +65,7 @@ define(
                 });
 
                 // Process the payment token response
-                ajaxRequest.done(function (response, textStatus, jqXHR){
-                    console.log(response);
+                ajaxRequest.done(function (response, textStatus, jqXHR) {
                     $('#paymentToken').val(response.payment_token);
                 });
             },
