@@ -15,7 +15,6 @@ use Magento\Checkout\Model\Session;
 use Magento\Store\Model\StoreManagerInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
-use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
 
 class ConfigProvider implements ConfigProviderInterface {
 
@@ -36,11 +35,6 @@ class ConfigProvider implements ConfigProviderInterface {
     protected $checkoutSession;
 
     /**
-     * @var PaymentTokenService
-     */
-    protected $paymentTokenService;
-
-    /**
      * @var StoreManagerInterface
      */
     protected $storeManager;
@@ -48,13 +42,11 @@ class ConfigProvider implements ConfigProviderInterface {
     /**
      * ConfigProvider constructor.
      * @param Config $config
-     * @param PaymentTokenService $paymentTokenService
      * @param Session $checkoutSession
      * @param StoreManagerInterface $storeManager
      */
-    public function __construct(Config $config, PaymentTokenService $paymentTokenService, Session $checkoutSession, StoreManagerInterface $storeManager) {
+    public function __construct(Config $config, Session $checkoutSession, StoreManagerInterface $storeManager) {
         $this->config = $config;
-        $this->paymentTokenService  = $paymentTokenService;
         $this->checkoutSession = $checkoutSession;
         $this->storeManager = $storeManager;
     }
@@ -92,7 +84,6 @@ class ConfigProvider implements ConfigProviderInterface {
                     'design_settings' => $this->config->getDesignSettings(),
                     'accepted_currencies' => $this->config->getAcceptedCurrencies(),
                     'payment_mode' => $this->config->getPaymentMode(),
-                    'payment_token' => $isActive ? $this->getPaymentToken() : '',
                     'quote_value' => $this->getQuoteValue(),
                     'quote_currency' => $this->getQuoteCurrency(),
                     'embedded_theme' => $this->config->getEmbeddedTheme(),
@@ -105,15 +96,6 @@ class ConfigProvider implements ConfigProviderInterface {
                 ],
             ],
         ];
-    }
-
-    /**
-     * Get a payment token.
-     *
-     * @return string
-     */
-    public function getPaymentToken() {
-        return $this->paymentTokenService->getToken();
     }
 
     /**
