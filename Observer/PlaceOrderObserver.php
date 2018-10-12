@@ -52,7 +52,7 @@ class PlaceOrderObserver implements ObserverInterface {
             $this->session->uns3DSRedirect();
 
             // Perform the redirection
-            $this->responseFactory->create()->setRedirect($redirectUrl)->sendResponse();
+            //$this->responseFactory->create()->setRedirect($redirectUrl)->sendResponse();
 
             // Exit to force redirection in case of card id charge
             if ($isCardIdCharge) {
