@@ -26,10 +26,10 @@ class ParentChargeIdRequest extends AbstractRequest {
         $paymentDO  = $this->subjectReader->readPayment($buildSubject);
         $payment    = $paymentDO->getPayment();
 
-        if($payment instanceof Payment) {
+        if ($payment instanceof Payment) {
             $chargeId = $payment->getParentTransactionId();
 
-            if($chargeId === null) {
+            if ($chargeId === null) {
                 throw new InvalidArgumentException('Parent transaction ID is empty.');
             }
 

@@ -155,7 +155,6 @@ class TransactionHandler implements HandlerInterface {
 
         // Prepare 3D Secure redirection with session variable for post auth order
         if (array_key_exists(self::REDIRECT_URL, $response)) {
-            
             // Get the 3DS redirection URL
             $redirectUrl = $response[self::REDIRECT_URL];
             
