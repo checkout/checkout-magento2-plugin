@@ -39,7 +39,6 @@ class PlaceOrderObserver implements ObserverInterface {
      * @return void
      */
     public function execute(Observer $observer) {
-        
         // Get a potential 3D Secure redirect url from session
         $redirectUrl = $this->session->get3DSRedirect();
 
@@ -49,7 +48,7 @@ class PlaceOrderObserver implements ObserverInterface {
         // Handle a 3D Secure redirection if needed
         if ($this->isUrl($redirectUrl)) {
             // Unset the session variable
-            $this->session->uns3DSRedirect();
+            //$this->session->uns3DSRedirect();
 
             // Perform the redirection
             //$this->responseFactory->create()->setRedirect($redirectUrl)->sendResponse();
