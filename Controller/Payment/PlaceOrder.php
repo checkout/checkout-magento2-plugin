@@ -147,7 +147,7 @@ class PlaceOrder extends AbstractAction {
             $this->orderService->execute($params['quote'], $params['cardToken'], array(true));
 
             // 3D Secure redirection if needed
-            if ($this->isUrl($this->checkoutSession->get3DSRedirect())) {
+            if ($this->gatewayConfig->isVerify3DSecure()) {
                 $this->place3DSecureRedirectUrl();
                 exit();
             }
@@ -187,9 +187,5 @@ class PlaceOrder extends AbstractAction {
         echo '} ';
         echo 'waitForElement();';
         echo '</script>';
-    }
-
-    public function isUrl($url) {
-        return filter_var($url, FILTER_VALIDATE_URL) === false ? false : true;
     }
 }

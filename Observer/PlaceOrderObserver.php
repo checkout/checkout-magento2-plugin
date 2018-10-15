@@ -48,6 +48,7 @@ class PlaceOrderObserver implements ObserverInterface {
 
         // Handle a 3D Secure redirection if needed
         if ($this->isUrl($redirectUrl)) {
+
             // Unset the session variable
             $this->session->uns3DSRedirect();
 
@@ -64,6 +65,6 @@ class PlaceOrderObserver implements ObserverInterface {
     }
 
     public function isUrl($url) {
-        return filter_var($url, FILTER_VALIDATE_URL) === false ? false : true;
+        return filter_var($url, FILTER_VALIDATE_URL);
     }
 }
