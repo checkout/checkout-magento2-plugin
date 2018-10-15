@@ -113,7 +113,7 @@ class PlaceOrder extends AbstractAction {
         $order = $this->updatePaymentData($order);
         
         // 3D Secure redirection if needed
-        if($this->gatewayConfig->isVerify3DSecure()) {
+        if ($this->isUrl($this->checkoutSession->get3DSRedirect())) {
             $this->place3DSecureRedirectUrl();
             exit();
         }
