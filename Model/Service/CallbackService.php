@@ -191,7 +191,7 @@ class CallbackService {
                  * For non 3DS flow, this is handled in the TransactionHandler
                  * through dependency injection
                  */
-                if ($this->gatewayConfig->isVerify3DSecure()) {
+                if ((int) $this->gatewayResponse['response']['message']['chargeMode'] == 2) {
                     // Update the payment info
                     $payment->setTransactionId($this->gatewayResponse['response']['message']['id']);
                     $payment->setLastTransId($this->gatewayResponse['response']['message']['id']);
