@@ -72,6 +72,8 @@ class ConfigProvider implements ConfigProviderInterface {
                     'useCvv'                    => $this->config->isCvvEnabled(),
                     'ccTypesMapper'             => $this->config->getCcTypesMapper(),
                     'ccVaultCode'               => self::CC_VAULT_CODE,
+                    'successUrl'                => $this->getSuccessUrl(),
+                    'failUrl'                   => $this->getFailUrl(),
                     Config::CODE_3DSECURE       => [
                         'enabled' => $this->config->isVerify3DSecure(),
                     ],
@@ -116,5 +118,23 @@ class ConfigProvider implements ConfigProviderInterface {
     public function getQuoteCurrency() {
         // Return the quote currency
         return $this->storeManager->getStore()->getCurrentCurrencyCode();
+    }
+
+    /**
+     * Returns the success URL override.
+     *
+     * @return string
+     */
+    public function getSuccessUrl() {
+        return $this->storeManager->getStore()->getUrl('routepath', ['_current' => true]);
+    }
+
+    /**
+     * Returns the fail URL override.
+     *
+     * @return string
+     */
+    public function getFailUrl() {
+        return $this->storeManager->getStore()->getUrl('routepath', ['_current' => true]);
     }
 }
