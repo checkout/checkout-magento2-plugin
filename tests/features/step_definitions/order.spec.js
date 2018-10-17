@@ -54,6 +54,8 @@ export default function () {
           browser.setValue(FRONTEND.order.customer_email, VAL.guest.email);
         }
         browser.pause(4000); // avoid errors with magento
+        browser.setValue(FRONTEND.order.customer_email, VAL.guest.email);
+        browser.pause(4000); // avoid errors with magento
         browser.click(FRONTEND.order.go_to_payment);
         browser.waitUntil(function () {
           return !browser.isVisible(FRONTEND.order.loader);

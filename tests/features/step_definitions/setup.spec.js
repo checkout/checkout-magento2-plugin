@@ -258,4 +258,14 @@ export default function () {
       return browser.isVisible(BACKEND.save_success_message);
     }, VAL.timeout_out, 'the changes should be saved');
   });
+  this.Then(/^I clear cache$/, () => {
+    browser.url(URL.magento_base + URL.cache_path);
+    browser.waitUntil(function () {
+      return browser.isVisible(BACKEND.flash_cache);
+    }, VAL.timeout_out, 'Flash cache button should be visible');
+    browser.click(BACKEND.flash_cache);
+    browser.waitUntil(function () {
+      return browser.isVisible(BACKEND.flash_cache_success);
+    }, VAL.timeout_out, 'Cache flash confirmation should be visible');
+  });
 }
