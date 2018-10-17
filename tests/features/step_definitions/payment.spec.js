@@ -8,7 +8,7 @@ export default function () {
   this.Then(/^I choose Checkout as a payment option$/, () => {
     browser.waitUntil(function () {
       return browser.isVisible(FRONTEND.order.checkout_payment_option);
-    }, VAL.timeout_out, 'checkout pyament option should exist');
+    }, VAL.timeout_out, 'checkout payment option should exist');
     browser.pause(2000); // add wait
     browser.click(FRONTEND.order.checkout_payment_option);
   });
@@ -29,72 +29,100 @@ export default function () {
       case 'visa':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.visa.card_number);
+        browser.pause(500);
         month = browser.element(FRONTEND.order.embedded_fields.month);
         month.setValue(VAL.card.visa.month);
+        browser.pause(500);
         year = browser.element(FRONTEND.order.embedded_fields.year);
         year.setValue(VAL.card.visa.year);
+        browser.pause(500);
         cvv = browser.element(FRONTEND.order.embedded_fields.cvv);
         cvv.setValue(VAL.card.visa.cvv);
+        browser.pause(500);
         break;
       case 'mastercard':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.mastercard.card_number);
+        browser.pause(500);
         month = browser.element(FRONTEND.order.embedded_fields.month);
         month.setValue(VAL.card.mastercard.month);
+        browser.pause(500);
         year = browser.element(FRONTEND.order.embedded_fields.year);
         year.setValue(VAL.card.mastercard.year);
+        browser.pause(500);
         cvv = browser.element(FRONTEND.order.embedded_fields.cvv);
         cvv.setValue(VAL.card.mastercard.cvv);
+        browser.pause(500);
         break;
       case 'amex':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.amex.card_number);
+        browser.pause(500);
         month = browser.element(FRONTEND.order.embedded_fields.card.month);
         month.setValue(VAL.card.amex.month);
+        browser.pause(500);
         year = browser.element(FRONTEND.order.embedded_fields.card.year);
         year.setValue(VAL.card.amex.year);
+        browser.pause(500);
         cvv = browser.element(FRONTEND.order.embedded_fields.card.cvv);
         cvv.setValue(VAL.card.amex.cvv);
+        browser.pause(500);
         break;
       case 'diners':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.diners.card_number);
+        browser.pause(500);
         month = browser.element(FRONTEND.order.embedded_fields.month);
         month.setValue(VAL.card.diners.month);
+        browser.pause(500);
         year = browser.element(FRONTEND.order.embedded_fields.year);
         year.setValue(VAL.card.diners.year);
+        browser.pause(500);
         cvv = browser.element(FRONTEND.order.embedded_fields.cvv);
         cvv.setValue(VAL.card.diners.cvv);
+        browser.pause(500);
         break;
       case 'jcb':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.jcb.card_number);
+        browser.pause(500);
         month = browser.element(FRONTEND.order.embedded_fields.month);
         month.setValue(VAL.card.jcb.month);
+        browser.pause(500);
         year = browser.element(FRONTEND.order.embedded_fields.year);
         year.setValue(VAL.card.jcb.year);
+        browser.pause(500);
         cvv = browser.element(FRONTEND.order.embedded_fields.cvv);
         cvv.setValue(VAL.card.jcb.cvv);
+        browser.pause(500);
         break;
       case 'discover':
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.discover.card_number);
+        browser.pause(500);
         month = browser.element(FRONTEND.order.embedded_fields.month);
         month.setValue(VAL.card.discover.month);
+        browser.pause(500);
         year = browser.element(FRONTEND.order.embedded_fields.year);
         year.setValue(VAL.card.discover.year);
+        browser.pause(500);
         cvv = browser.element(FRONTEND.order.embedded_fields.cvv);
         cvv.setValue(VAL.card.discover.cvv);
+        browser.pause(500);
         break;
       default:
         card = browser.element(FRONTEND.order.embedded_fields.card_number);
         card.setValue(VAL.card.visa.card_number);
+        browser.pause(500);
         month = browser.element(FRONTEND.order.embedded_fields.month);
         month.setValue(VAL.card.visa.month);
+        browser.pause(500);
         year = browser.element(FRONTEND.order.embedded_fields.year);
         year.setValue(VAL.card.visa.year);
+        browser.pause(500);
         cvv = browser.element(FRONTEND.order.embedded_fields.cvv);
         cvv.setValue(VAL.card.visa.cvv);
+        browser.pause(500);
         break;
     }
     browser.frameParent();

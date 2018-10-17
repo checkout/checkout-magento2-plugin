@@ -2,7 +2,7 @@
 export default {
   value: {
     url: {
-      magento_base: 'http://127.0.0.1/magento22',
+      magento_base: 'http://127.0.0.1/magento2',
       admin_path: '/admin',
       catalog_path: '/admin/div._required:nth-child(1) > div:nth-child(2) > input:nth-child(1)/product/',
       payments_path: '/admin/admin/system_config/edit/section/payment/',
@@ -11,6 +11,7 @@ export default {
       sign_out_path: '/customer/account/logout/',
       sign_up_path: '/customer/account/create/',
       orders_path: '/admin/sales/order/',
+      cache_path: 'admin/admin/cache/',
       invoices_path: '/admin/sales/invoice/',
       test_product_path: '/admin/catalog/product/edit/id/6/',
       cache_path: '/admin/admin/cache/',
@@ -21,8 +22,8 @@ export default {
       username: 'admin',
       password: 'Checkout17',
       three_d_password: 'Checkout1!',
-      secret_key: 'sk_test_404618d6-50b6-45d2-a151-51682378b266',
-      public_key: 'pk_test_ba03a6e6-d55c-43c9-8d7e-ee6a9c9bcdc3',
+      secret_key: 'sk_test_491d7802-1bff-4892-a2e7-a97e0769bcab',
+      public_key: 'pk_test_5ecdeca6-9f6b-4b5f-9a12-6c8734e20365',
       private_shared_key: '130941e0-7403-4738-bb5e-45362cd948bd',
     },
     guest: {
@@ -179,6 +180,8 @@ export default {
       admin_password: '#login',
       admin_sign_in: '.action-login',
       other_payments: '#payment_us_other_payment_methods-head',
+      flash_cache: '#flush_magento',
+      flash_cache_success: '#messages',
       plugin: {
         selector: '#payment_us_checkout_com-head',
         save: 'button.action-default',
