@@ -72,8 +72,6 @@ class ConfigProvider implements ConfigProviderInterface {
                     'useCvv'                    => $this->config->isCvvEnabled(),
                     'ccTypesMapper'             => $this->config->getCcTypesMapper(),
                     'ccVaultCode'               => self::CC_VAULT_CODE,
-                    'successUrl'                => $this->getSuccessUrl(),
-                    'failUrl'                   => $this->getFailUrl(),
                     Config::CODE_3DSECURE       => [
                         'enabled' => $this->config->isVerify3DSecure(),
                     ],
@@ -126,7 +124,8 @@ class ConfigProvider implements ConfigProviderInterface {
      * @return string
      */
     public function getSuccessUrl() {
-        return $this->storeManager->getStore()->getUrl('routepath', ['_current' => true]);
+        $url = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB) . 'checkout_com/payment/verify';
+        return $url;
     }
 
     /**
@@ -135,6 +134,7 @@ class ConfigProvider implements ConfigProviderInterface {
      * @return string
      */
     public function getFailUrl() {
-        return $this->storeManager->getStore()->getUrl('routepath', ['_current' => true]);
+        $url = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB) . 'checkout_com/payment/fail';
+        return $url;
     }
 }
