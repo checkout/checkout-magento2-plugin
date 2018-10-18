@@ -39,21 +39,32 @@ class PlaceOrderObserver implements ObserverInterface {
      * @return void
      */
     public function execute(Observer $observer) {
+        
         // Get a potential 3D Secure redirect url from session
         $redirectUrl = $this->session->get3DSRedirect();
 
         // Get the card id charge flag
         $isCardIdCharge = $this->session->getCardIdChargeFlag() == 'cardIdCharge';
 
-        // Exit to force redirection in case of card id charge
-        if ($isCardIdCharge && $this->isUrl($redirectUrl)) {
+        // Handle a 3D Secure redirection if needed
+        if ($this->isUrl($redirectUrl)) {
+
             // Unset the session variable
-            $this->session->unsCardIdChargeFlag();
-            exit();
+            $this->session->uns3DSRedirect();
+
+            // Perform the redirection
+            $this->responseFactory->create()->setRedirect($redirectUrl)->sendResponse();
+
+            // Exit to force redirection in case of card id charge
+            if ($isCardIdCharge) {
+                // Unset the session variable
+                $this->session->unsCardIdChargeFlag();
+                exit();
+            }
         }
     }
 
     public function isUrl($url) {
-        return filter_var($url, FILTER_VALIDATE_URL) === false ? false : true;
+        return filter_var($url, FILTER_VALIDATE_URL);
     }
 }

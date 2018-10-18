@@ -277,7 +277,11 @@ define(
                         Frames.addCardToken(paymentForm, event.data.cardToken);
 
                         // Place order
-                        window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
+                        if (threeds_enabled) {
+                            window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
+                        } else {
+                            self.placeOrder();
+                        }
                     },
                 });  
             },
