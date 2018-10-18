@@ -20,7 +20,6 @@ use CheckoutCom\Magento2\Model\Service\StoreCardService;
 use CheckoutCom\Magento2\Model\Factory\VaultTokenFactory;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Helper\Watchdog;
-use CheckoutCom\Magento2\Model\Service\OrderService;
 use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -78,11 +77,6 @@ class Verify extends AbstractAction {
     protected $watchdog;
 
     /**
-     * @var OrderService
-     */
-    protected $orderService;
-
-    /**
      * Verify constructor.
      * @param Context $context
      * @param Session $session
@@ -106,8 +100,7 @@ class Verify extends AbstractAction {
         PaymentTokenRepositoryInterface $paymentTokenRepository,
         PaymentTokenManagementInterface $paymentTokenManagement,
         QuoteManagement $quoteManagement,
-        Watchdog $watchdog,
-        OrderService $orderService
+        Watchdog $watchdog
     ) 
     {
         parent::__construct($context, $gatewayConfig);
@@ -121,7 +114,6 @@ class Verify extends AbstractAction {
         $this->paymentTokenRepository   = $paymentTokenRepository;
         $this->paymentTokenManagement   = $paymentTokenManagement;
         $this->watchdog                 = $watchdog;
-        $this->orderService             = $orderService;
         $this->redirect                 = $this->getResultRedirect();
     }
 
@@ -187,15 +179,6 @@ class Verify extends AbstractAction {
 
             // Update the order information
             try {
-                // Get the quote
-                $quote = $this->session->getQuote();
-
-                // Create an order from the quote
-                $this->validateQuote($quote);
-
-                // Place the order
-                $this->orderService->execute($quote, $response['card']['id'], array(true));
-                
                 // Redirect to the success page
                 return $this->redirect->setPath('checkout/onepage/success', ['_secure' => true]);
 
