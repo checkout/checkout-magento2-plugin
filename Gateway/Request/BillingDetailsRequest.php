@@ -10,7 +10,7 @@
  
 namespace CheckoutCom\Magento2\Gateway\Request;
 
-class ShippingDetailsRequest extends AbstractRequest {
+class BillingDetailsRequest extends AbstractRequest {
 
     /**
      * Builds ENV request
@@ -22,14 +22,14 @@ class ShippingDetailsRequest extends AbstractRequest {
     public function build(array $buildSubject) {
         $paymentDO      = $this->subjectReader->readPayment($buildSubject);
         $order          = $paymentDO->getOrder();
-        $address        = $order->getShippingAddress();
+        $address        = $order->getBillingAddress();
 
         if ($address === null) {
             return [];
         }
 
         return [
-            'shippingDetails' => [
+            'billingDetails' => [
                 'addressLine1'  => $address->getStreetLine1(),
                 'addressLine2'  => $address->getStreetLine2(),
                 'postcode'      => $address->getPostcode(),
