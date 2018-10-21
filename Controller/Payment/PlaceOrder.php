@@ -143,7 +143,7 @@ class PlaceOrder extends AbstractAction {
                 $this->place3DSecureRedirectUrl();
                 exit();
             }
-            
+
             // Create an order from the quote
             $this->validateQuote($params['quote']);
        
@@ -180,9 +180,12 @@ class PlaceOrder extends AbstractAction {
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function place3DSecureRedirectUrl() {
+        $url = $this->checkoutSession->get3DSRedirect();
+        $this->checkoutSession->uns3DSRedirect();
+
         echo '<script type="text/javascript">';
         echo 'function waitForElement() {';
-        echo 'var redirectUrl = "' . $this->checkoutSession->get3DSRedirect() . '";';
+        echo 'var redirectUrl = "' . $url . '";';
         echo 'if (redirectUrl.length != 0){ window.location.replace(redirectUrl); }';
         echo 'else { setTimeout(waitForElement, 250); }';
         echo '} ';
