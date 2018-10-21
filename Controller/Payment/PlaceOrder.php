@@ -137,20 +137,21 @@ class PlaceOrder extends AbstractAction {
 
         // Perform quote and order validation
         try {
-            // Create an order from the quote
-            $this->validateQuote($params['quote']);
-            
-            /**
-             *  Temporary workaround for a M2 code T&C checkbox issue not sending data.
-             *  The last parameter should be $params['agreement']
-             */
-            $this->orderService->execute($params['quote'], $params['cardToken'], array(true));
 
             // 3D Secure redirection if needed
             if ($this->gatewayConfig->isVerify3DSecure()) {
                 $this->place3DSecureRedirectUrl();
                 exit();
             }
+            
+            // Create an order from the quote
+            $this->validateQuote($params['quote']);
+       
+            /**
+             *  Temporary workaround for a M2 code T&C checkbox issue not sending data.
+             *  The last parameter should be $params['agreement']
+             */
+            $this->orderService->execute($params['quote'], $params['cardToken'], array(true));
 
             return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
 
