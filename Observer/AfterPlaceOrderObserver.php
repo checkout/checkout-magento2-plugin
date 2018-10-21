@@ -51,4 +51,8 @@ class AfterPlaceOrderObserver implements ObserverInterface {
 
         return $this;
     }
+
+    public function isUrl($url) {
+        return filter_var($url, FILTER_VALIDATE_URL) === false ? false : true;
+    }
 }
