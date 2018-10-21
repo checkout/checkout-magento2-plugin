@@ -36,11 +36,9 @@ class ShippingDetailsRequest extends AbstractRequest {
                 'country'       => $address->getCountryId(),
                 'state'         => $address->getRegionCode(),
                 'city'          => $address->getCity(),
-                /*
                 'phone'         => [
                     'number' => $address->getTelephone(),
                 ],
-                */
             ],
         ];
     }

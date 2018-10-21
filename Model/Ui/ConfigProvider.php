@@ -117,24 +117,4 @@ class ConfigProvider implements ConfigProviderInterface {
         // Return the quote currency
         return $this->storeManager->getStore()->getCurrentCurrencyCode();
     }
-
-    /**
-     * Returns the success URL override.
-     *
-     * @return string
-     */
-    public function getSuccessUrl() {
-        $url = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB) . 'checkout_com/payment/verify';
-        return $url;
-    }
-
-    /**
-     * Returns the fail URL override.
-     *
-     * @return string
-     */
-    public function getFailUrl() {
-        $url = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB) . 'checkout_com/payment/fail';
-        return $url;
-    }
 }

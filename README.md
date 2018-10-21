@@ -39,20 +39,11 @@ Amongst many others, the major features are:
 * REST API for mobile payments
 * Payment form customization
 
-## Module installation
+## Installation
 The easiest and recommended way to install the Checkout.com Magento 2 extension is to run the following commands in a terminal, from your Magento 2 root directory:
 
 ```bash
 composer require checkoutcom/magento2:*
-bin/magento setup:upgrade
-rm -rf var/cache var/generation/ var/di
-bin/magento setup:di:compile && php bin/magento cache:clean
-```
-## Module upgrade
-Run the following commands in a terminal, from your Magento 2 root directory:
-
-```bash
-composer update checkoutcom/magento2
 bin/magento setup:upgrade
 rm -rf var/cache var/generation/ var/di
 bin/magento setup:di:compile && php bin/magento cache:clean

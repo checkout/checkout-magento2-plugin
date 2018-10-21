@@ -137,21 +137,20 @@ class PlaceOrder extends AbstractAction {
 
         // Perform quote and order validation
         try {
+            // Create an order from the quote
+            $this->validateQuote($params['quote']);
+            
+            /**
+             *  Temporary workaround for a M2 code T&C checkbox issue not sending data.
+             *  The last parameter should be $params['agreement']
+             */
+            $this->orderService->execute($params['quote'], $params['cardToken'], array(true));
 
             // 3D Secure redirection if needed
             if ($this->gatewayConfig->isVerify3DSecure()) {
                 $this->place3DSecureRedirectUrl();
                 exit();
             }
-
-            // Create an order from the quote
-            $this->validateQuote($params['quote']);
-       
-            /**
-             *  Temporary workaround for a M2 code T&C checkbox issue not sending data.
-             *  The last parameter should be $params['agreement']
-             */
-            $this->orderService->execute($params['quote'], $params['cardToken'], array(true));
 
             return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
 
@@ -180,12 +179,9 @@ class PlaceOrder extends AbstractAction {
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function place3DSecureRedirectUrl() {
-        $url = $this->checkoutSession->get3DSRedirect();
-        $this->checkoutSession->uns3DSRedirect();
-
         echo '<script type="text/javascript">';
         echo 'function waitForElement() {';
-        echo 'var redirectUrl = "' . $url . '";';
+        echo 'var redirectUrl = "' . $this->checkoutSession->get3DSRedirect() . '";';
         echo 'if (redirectUrl.length != 0){ window.location.replace(redirectUrl); }';
         echo 'else { setTimeout(waitForElement, 250); }';
         echo '} ';
