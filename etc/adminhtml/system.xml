@@ -363,7 +363,7 @@
                         <label>Webhook Url</label>
                         <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\WebhookUrl</frontend_model>
                     </field>
-
+                    <!--
                     <field id="redirection_url" translate="label" sortOrder="10" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Redirection Url</label>
                         <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\RedirectionUrl</frontend_model>
@@ -373,6 +373,7 @@
                         <label>Redirection Fail Url</label>
                         <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\RedirectionFailUrl</frontend_model>
                     </field>
+                    -->
                 </group>
 
                 <group id="checkout_com_descriptor" translate="label" showInDefault="1" showInWebsite="1" sortOrder="9">
