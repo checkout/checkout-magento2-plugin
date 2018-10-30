@@ -113,7 +113,7 @@ class PlaceOrder extends AbstractAction {
         $order = $this->updatePaymentData($order);
         
         // 3D Secure redirection if needed
-        if($this->gatewayConfig->isVerify3DSecure()) {
+        if($this->isUrl($this->checkoutSession->get3DSRedirect())) {
             $this->place3DSecureRedirectUrl();
             exit();
         }
@@ -147,7 +147,7 @@ class PlaceOrder extends AbstractAction {
             $this->orderService->execute($params['quote'], $params['cardToken'], array(true));
 
             // 3D Secure redirection if needed
-            if ($this->gatewayConfig->isVerify3DSecure()) {
+            if ($this->isUrl($this->checkoutSession->get3DSRedirect())) {
                 $this->place3DSecureRedirectUrl();
                 exit();
             }
@@ -179,13 +179,20 @@ class PlaceOrder extends AbstractAction {
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function place3DSecureRedirectUrl() {
+        $url = $this->checkoutSession->get3DSRedirect();
+        $this->checkoutSession->uns3DSRedirect();
+
         echo '<script type="text/javascript">';
         echo 'function waitForElement() {';
-        echo 'var redirectUrl = "' . $this->checkoutSession->get3DSRedirect() . '";';
+        echo 'var redirectUrl = "' . $url . '";';
         echo 'if (redirectUrl.length != 0){ window.location.replace(redirectUrl); }';
         echo 'else { setTimeout(waitForElement, 250); }';
         echo '} ';
         echo 'waitForElement();';
         echo '</script>';
+    }
+
+    public function isUrl($url) {
+        return filter_var($url, FILTER_VALIDATE_URL) === false ? false : true;
     }
 }

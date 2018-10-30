@@ -12,6 +12,9 @@ namespace CheckoutCom\Magento2\Gateway\Config;
 
 use Magento\Payment\Gateway\Config\Config as BaseConfig;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use CheckoutCom\Magento2\Model\Adminhtml\Source\Environment;
 use CheckoutCom\Magento2\Model\Adminhtml\Source\Integration;
 
@@ -82,6 +85,37 @@ class Config extends BaseConfig {
         'dinersclub'    => 'DN',
     ];
 
+    /**
+     * ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
+     * CheckoutSession
+     */
+    protected $checkoutSession;
+
+    /**
+     * Config constructor
+     */
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        StoreManagerInterface $storeManager,
+        CheckoutSession $checkoutSession,
+        $methodCode = null,
+        $pathPattern = self::DEFAULT_PATH_PATTERN
+    ) {
+        parent::__construct($scopeConfig, $methodCode, $pathPattern);
+
+        $this->scopeConfig  = $scopeConfig;
+        $this->storeManager = $storeManager;
+        $this->checkoutSession = $checkoutSession;
+    }
 
     /**
      * Returns the environment type.
@@ -89,7 +123,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getEnvironment() {
-        return (string) $this->getValue(self::KEY_ENVIRONMENT);
+        return (string) $this->getValue(
+            self::KEY_ENVIRONMENT,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -98,9 +135,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getVaultTitle() {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-        return (string) $scopeConfig->getValue('payment/checkout_com_cc_vault/title');
+        return (string) $this->getValue(
+            'payment/checkout_com_cc_vault/title',
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -109,9 +147,10 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isCardAutosave() {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-        return (bool) $scopeConfig->getValue('payment/checkout_com_cc_vault/autosave');
+        return (bool) $this->getValue(
+            'payment/checkout_com_cc_vault/autosave',
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -120,7 +159,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getPaymentMode() {
-        return (string) $this->getValue(self::KEY_PAYMENT_MODE);
+        return (string) $this->getValue(
+            self::KEY_PAYMENT_MODE,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -129,7 +171,10 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function getAutoGenerateInvoice() {
-        return (bool) $this->getValue(self::KEY_AUTO_GENERATE_INVOICE);
+        return (bool) $this->getValue(
+            self::KEY_AUTO_GENERATE_INVOICE,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -138,7 +183,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getNewOrderStatus() {
-        return (string) $this->getValue(self::KEY_NEW_ORDER_STATUS);
+        return (string) $this->getValue(
+            self::KEY_NEW_ORDER_STATUS,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -147,7 +195,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getOrderStatusAuthorized() {
-        return (string) $this->getValue(self::KEY_ORDER_STATUS_AUTHORIZED);
+        return (string) $this->getValue(
+            self::KEY_ORDER_STATUS_AUTHORIZED,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -156,7 +207,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getOrderStatusCaptured() {
-        return (string) $this->getValue(self::KEY_ORDER_STATUS_CAPTURED);
+        return (string) $this->getValue(
+            self::KEY_ORDER_STATUS_CAPTURED,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -165,7 +219,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getOrderStatusRefunded() {
-        return (string) $this->getValue(self::KEY_ORDER_STATUS_REFUNDED);
+        return (string) $this->getValue(
+            self::KEY_ORDER_STATUS_REFUNDED,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -174,7 +231,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getOrderStatusFlagged() {
-        return (string) $this->getValue(self::KEY_ORDER_STATUS_FLAGGED);
+        return (string) $this->getValue(
+            self::KEY_ORDER_STATUS_FLAGGED,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -185,10 +245,22 @@ class Config extends BaseConfig {
     public function getDesignSettings() {
         return (array) array (
             'hosted' => array (
-                'theme_color' => $this->getValue(self::KEY_THEME_COLOR),
-                'button_label' => $this->getValue(self::KEY_BUTTON_LABEL),
-                'box_title' => $this->getValue(self::KEY_BOX_TITLE),
-                'box_subtitle' => $this->getValue(self::KEY_BOX_SUBTITLE),
+                'theme_color' => $this->getValue(
+                    self::KEY_THEME_COLOR,
+                    $this->storeManager->getStore()
+                ),
+                'button_label' => $this->getValue(
+                    self::KEY_BUTTON_LABEL,
+                    $this->storeManager->getStore()
+                ),
+                'box_title' => $this->getValue(
+                    self::KEY_BOX_TITLE,
+                    $this->storeManager->getStore()
+                ),
+                'box_subtitle' => $this->getValue(
+                    self::KEY_BOX_SUBTITLE,
+                    $this->storeManager->getStore()
+                ),
                 'logo_url' => $this->getLogoUrl()
             )
         );
@@ -200,7 +272,11 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getLogoUrl() {
-        $logoUrl = $this->getValue(self::KEY_LOGO_URL);
+        $logoUrl = $this->getValue(
+            self::KEY_LOGO_URL,
+            $this->storeManager->getStore()
+        );
+
         return (string) (isset($logoUrl) && !empty($logoUrl)) ? $logoUrl : 'none';
     }
 
@@ -228,7 +304,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getIntegration() {
-        return (string) $this->getValue(self::KEY_INTEGRATION);
+        return (string) $this->getValue(
+            self::KEY_INTEGRATION,
+            $this->storeManager->getStore()
+        ); 
     }
 
     /**
@@ -246,12 +325,15 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isActive() {
-        if (!$this->getValue(self::KEY_ACTIVE)) {
+        if (!$this->getValue(
+                self::KEY_ACTIVE,
+                $this->storeManager->getStore()
+            )) {
             return false;
         }
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $quote = $objectManager->create('Magento\Checkout\Model\Session')->getQuote();
+        $quote = $this->checkoutSession->getQuote();
+
         return (bool) in_array($quote->getQuoteCurrencyCode(), $this->getAcceptedCurrencies());
     }
 
@@ -261,7 +343,10 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function overrideOrderComments() {
-        return (bool) $this->getValue(self::KEY_ORDER_COMMENTS_OVERRIDE);
+        return (bool) $this->getValue(
+            self::KEY_ORDER_COMMENTS_OVERRIDE,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -270,7 +355,10 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isDebugMode() {
-        return (bool) $this->getValue(self::KEY_DEBUG);
+        return (bool) $this->getValue(
+            self::KEY_DEBUG,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -279,7 +367,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getPublicKey() {
-        return (string) $this->getValue(self::KEY_PUBLIC_KEY);
+        return (string) $this->getValue(
+            self::KEY_PUBLIC_KEY,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -288,7 +379,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getSecretKey() {
-        return (string) $this->getValue(self::KEY_SECRET_KEY);
+        return (string) $this->getValue(
+            self::KEY_SECRET_KEY,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -297,7 +391,10 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isMadaEnabled() {
-        return (bool) $this->getValue(self::KEY_MADA_ENABLED);
+        return (bool) $this->getValue(
+            self::KEY_MADA_ENABLED,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -307,8 +404,14 @@ class Config extends BaseConfig {
      */
     public function getMadaBinsPath() {
         return (string) (($this->isLive()) ?
-        $this->getValue(self::KEY_MADA_BINS_PATH) : 
-        $this->getValue(self::KEY_MADA_BINS_PATH_TEST));
+        $this->getValue(
+            self::KEY_MADA_BINS_PATH,
+            $this->storeManager->getStore()
+        ) : 
+        $this->getValue(
+            self::KEY_MADA_BINS_PATH_TEST,
+            $this->storeManager->getStore()
+        ));
     }
 
     /**
@@ -317,7 +420,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getPrivateSharedKey() {
-        return (string) $this->getValue(self::KEY_PRIVATE_SHARED_KEY);
+        return (string) $this->getValue(
+            self::KEY_PRIVATE_SHARED_KEY,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -326,7 +432,10 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isVerify3DSecure() {
-        return (bool) $this->getValue(self::KEY_VERIFY_3DSECURE);
+        return (bool) $this->getValue(
+            self::KEY_VERIFY_3DSECURE,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -335,7 +444,10 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isAttemptN3D() {
-        return (bool) $this->getValue(self::KEY_ATTEMPT_N3D);
+        return (bool) $this->getValue(
+            self::KEY_ATTEMPT_N3D,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -344,7 +456,10 @@ class Config extends BaseConfig {
      * @return array
      */
     public function getAcceptedCurrencies() {
-        return (array) explode(',', $this->getValue(self::KEY_ACCEPTED_CURRENCIES));
+        return (array) explode(',', $this->getValue(
+            self::KEY_ACCEPTED_CURRENCIES,
+            $this->storeManager->getStore()
+        ));
     }
 
     /**
@@ -353,7 +468,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getPaymentCurrency() {
-        return (string) $this->getValue(self::KEY_PAYMENT_CURRENCY);
+        return (string) $this->getValue(
+            self::KEY_PAYMENT_CURRENCY,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -362,7 +480,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getCustomCurrency() {
-        return (string) $this->getValue(self::KEY_CUSTOM_CURRENCY);
+        return (string) $this->getValue(
+            self::KEY_CUSTOM_CURRENCY,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -371,7 +492,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getSandboxApiUrl() {
-        return (string) $this->getValue(self::KEY_SANDBOX_API_URL);
+        return (string) $this->getValue(
+            self::KEY_SANDBOX_API_URL,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -380,7 +504,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getLiveApiUrl() {
-        return (string) $this->getValue(self::KEY_LIVE_API_URL);
+        return (string) $this->getValue(
+            self::KEY_LIVE_API_URL,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -398,7 +525,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getSandboxHostedUrl() {
-        return (string) $this->getValue(self::KEY_SANDBOX_HOSTED_URL);
+        return (string) $this->getValue(
+            self::KEY_SANDBOX_HOSTED_URL,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -407,7 +537,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getLiveHostedUrl() {
-        return (string) $this->getValue(self::KEY_LIVE_HOSTED_URL);
+        return (string) $this->getValue(
+            self::KEY_LIVE_HOSTED_URL,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -426,7 +559,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getSandboxEmbeddedUrl() {
-        return (string) $this->getValue(self::KEY_SANDBOX_EMBEDDED_URL);
+        return (string) $this->getValue(
+            self::KEY_SANDBOX_EMBEDDED_URL,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -435,7 +571,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getLiveEmbeddedUrl() {
-        return (string) $this->getValue(self::KEY_LIVE_EMBEDDED_URL);
+        return (string) $this->getValue(
+            self::KEY_LIVE_EMBEDDED_URL,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -453,7 +592,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getEmbeddedCss() {
-        return (string) $this->getValue(self::KEY_EMBEDDED_CSS);
+        return (string) $this->getValue(
+            self::KEY_EMBEDDED_CSS,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -462,7 +604,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getCssFile() {
-        return (string) $this->getValue(self::KEY_CSS_FILE);
+        return (string) $this->getValue(
+            self::KEY_CSS_FILE,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -471,7 +616,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getOrderCreation() {
-        return (string) $this->getValue(self::KEY_ORDER_CREATION);
+        return (string) $this->getValue(
+            self::KEY_ORDER_CREATION,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -480,14 +628,12 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getCustomCss() {
-        // Prepare the objects
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-        $storeManager = $objectManager->create('Magento\Store\Model\StoreManagerInterface');
-
         // Prepare the paths
-        $base_url = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
-        $file_path = $scopeConfig->getValue('payment/checkout_com/checkout_com_base_settings/custom_css');
+        $base_url = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+        $file_path = $this->getValue(
+            'payment/checkout_com/checkout_com_base_settings/custom_css',
+            $this->storeManager->getStore()
+        );
 
         return $base_url . 'checkout_com/' . $file_path;
     }
@@ -498,7 +644,10 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isAutoCapture() {
-        return (bool) $this->getValue(self::KEY_AUTO_CAPTURE);
+        return (bool) $this->getValue(
+            self::KEY_AUTO_CAPTURE,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -507,7 +656,10 @@ class Config extends BaseConfig {
      * @return int
      */
     public function getAutoCaptureTimeInHours() {
-        return $this->getValue(self::KEY_AUTO_CAPTURE_TIME);
+        return $this->getValue(
+            self::KEY_AUTO_CAPTURE_TIME,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -516,7 +668,11 @@ class Config extends BaseConfig {
      * @return array
      */
     public function getCountrySpecificCardTypeConfig() {
-        $countriesCardTypes = unserialize($this->getValue(self::KEY_COUNTRY_CREDIT_CARD));
+        $countriesCardTypes = unserialize($this->getValue(
+            self::KEY_COUNTRY_CREDIT_CARD,
+            $this->storeManager->getStore()
+        ));
+
         return is_array($countriesCardTypes) ? $countriesCardTypes : [];
     }
 
@@ -537,7 +693,11 @@ class Config extends BaseConfig {
      * @return array
      */
     public function getAvailableCardTypes() {
-        $ccTypes = $this->getValue(self::KEY_CC_TYPES);
+        $ccTypes = $this->getValue(
+            self::KEY_CC_TYPES,
+            $this->storeManager->getStore()
+        );
+
         return ! empty($ccTypes) ? explode(',', $ccTypes) : [];
     }
 
@@ -556,7 +716,10 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isCvvEnabled() {
-        return (bool) $this->getValue(self::KEY_USE_CVV);
+        return (bool) $this->getValue(
+            self::KEY_USE_CVV,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -565,7 +728,10 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isDescriptorEnabled() {
-        return (bool) $this->getValue(self::KEY_USE_DESCRIPTOR);
+        return (bool) $this->getValue(
+            self::KEY_USE_DESCRIPTOR,
+            $this->storeManager->getStore()
+        );
     }
     /**
      * Returns the descriptor name.
@@ -573,7 +739,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getDescriptorName() {
-        return (string) $this->getValue(self::KEY_DESCRIPTOR_NAME);
+        return (string) $this->getValue(
+            self::KEY_DESCRIPTOR_NAME,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -582,7 +751,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getDescriptorCity() {
-        return (string) $this->getValue(self::KEY_DESCRIPTOR_CITY);
+        return (string) $this->getValue(
+            self::KEY_DESCRIPTOR_CITY,
+            $this->storeManager->getStore()
+        );
     }
 
     /**
@@ -591,6 +763,9 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getEmbeddedTheme() {
-        return (string) $this->getValue(self::KEY_EMBEDDED_THEME);
+        return (string) $this->getValue(
+            self::KEY_EMBEDDED_THEME,
+            $this->storeManager->getStore()
+        );
     }
 }

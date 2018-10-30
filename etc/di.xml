@@ -190,6 +190,8 @@
                 <item name="payment" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\PaymentRequest</item>
                 <item name="amount" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\AmountRequest</item>
                 <item name="order_data" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\OrderDataRequest</item>
+                <item name="url_override" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\UrlOverrideRequest</item>
+                <item name="billing_details" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\BillingDetailsRequest</item>
                 <item name="shipping_details" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\ShippingDetailsRequest</item>
                 <item name="meta_data" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\MetaDataRequest</item>
                 <item name="descriptor" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\DescriptorDataRequest</item>
@@ -235,6 +237,8 @@
                 <item name="payment" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\PaymentRequest</item>
                 <item name="amount" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\AmountRequest</item>
                 <item name="order_data" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\OrderDataRequest</item>
+                <item name="url_override" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\UrlOverrideRequest</item>
+                <item name="billing_details" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\BillingDetailsRequest</item>
                 <item name="shipping_details" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\ShippingDetailsRequest</item>
                 <item name="meta_data" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\MetaDataRequest</item>
                 <item name="descriptor" xsi:type="string">CheckoutCom\Magento2\Gateway\Request\DescriptorDataRequest</item>

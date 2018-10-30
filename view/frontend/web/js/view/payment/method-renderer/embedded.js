@@ -198,6 +198,9 @@ define(
                 // Validate before submission
                 if (additionalValidators.validate()) {
                     if (Frames.isCardValid()) {
+                        // Start the loader
+                        fullScreenLoader.startLoader();
+
                         // Submit frames form
                         Frames.submitCard();
                     }
@@ -255,7 +258,7 @@ define(
                     publicKey: self.getPublicKey(),
                     containerSelector: '#cko-form-holder',
                     theme: ckoTheme,
-                    debugMode: true,
+                    debugMode: CheckoutCom.getPaymentConfig()['debug_mode'],
                     themeOverride: ckoThemeOverride,
                     frameActivated: function () {
                         $('#ckoPlaceOrder').attr("disabled", true);
@@ -277,11 +280,7 @@ define(
                         Frames.addCardToken(paymentForm, event.data.cardToken);
 
                         // Place order
-                        if (threeds_enabled) {
-                            window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
-                        } else {
-                            self.placeOrder();
-                        }
+                        window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
                     },
                 });  
             },
