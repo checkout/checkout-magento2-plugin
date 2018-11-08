@@ -402,6 +402,40 @@
                         </depends>
                     </field>
                 </group>
+
+                <group id="apple_pay_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="10">
+                    <attribute type="activity_path">payment/checkout_com_applepay/active</attribute>
+                    <label>Apple Pay Settings</label>
+
+                    <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable Apple Pay</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com_applepay/active</config_path>
+                    </field>
+
+                    <field id="apple_pay_api_mode" translate="label" sortOrder="2" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>API Mode</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayApiMode</source_model>
+                        <config_path>payment/checkout_com_applepay/api_mode</config_path>
+                    </field>
+
+                    <field id="apple_pay_processing_certificate" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment Processing Certificate</label>
+                        <comment>Abslolute path to the file on your server</comment>
+                    </field>
+
+                    <field id="apple_pay_merchant_identity_certificate" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Merchant Identity Certificate</label>
+                        <comment>Abslolute path to the file on your server</comment>
+                    </field>
+
+                    <field id="apple_pay_merchant_id" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Merchant ID</label>
+                        <comment>Provide your Merchant ID</comment>
+                    </field>
+
+                </group>
+
             </group>
         </section>
     </system>
