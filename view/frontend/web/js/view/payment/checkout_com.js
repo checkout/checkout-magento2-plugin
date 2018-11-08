@@ -19,12 +19,22 @@
         'use strict';
 
         var paymentMethod = window.checkoutConfig.payment['checkout_com'];
+        var paymentMethodApplePay = window.checkoutConfig.payment['checkout_com_applepay'];
 
         if (paymentMethod.isActive) {
             rendererList.push(
                 {
                     type: 'checkout_com',
                     component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/' + paymentMethod.integration.type
+                }
+            );
+        }
+
+        if (paymentMethodApplePay.isActive) {
+            rendererList.push(
+                {
+                    type: 'checkout_com_applepay',
+                    component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/applepay'
                 }
             );
         }

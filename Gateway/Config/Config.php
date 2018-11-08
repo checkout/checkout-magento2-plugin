@@ -338,6 +338,22 @@ class Config extends BaseConfig {
     }
 
     /**
+     * Determines if Apple Pay is active.
+     *
+     * @return bool
+     */
+    public function isActiveApplePay() {
+        if (!$this->getValue(
+            'payment/checkout_com_applepay/active',
+            $this->storeManager->getStore()
+            )) {
+            return false;
+        }
+
+        return true;  
+    }
+
+    /**
      * Determines if the core order comments need override.
      *
      * @return bool

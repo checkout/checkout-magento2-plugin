@@ -26,6 +26,9 @@
                                                                         <item name="checkout_com" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
+                                                                        <item name="checkout_com_applepay" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>   
                                                                     </item>
                                                                 </item>
                                                             </item>
