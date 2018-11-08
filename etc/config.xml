@@ -77,9 +77,13 @@
                 <can_cancel>1</can_cancel>
                 <can_refund>1</can_refund>
                 <can_void>0</can_void>
-                <debug>1</debug>
+                <debug>0</debug>
                 <sort_order>1</sort_order>
                 <api_mode>applepayjs</api_mode>
+                <processing_certificate>/path/to/cert</processing_certificate>
+                <processing_certificate_password></processing_certificate_password>
+                <merchant_id_certificate>/path/to/cert</merchant_id_certificate>
+                <merchant_id></merchant_id>
             </checkout_com_applepay>            
             <checkout_com_cc_vault>
                 <model>CheckoutComCreditCardVaultFacade</model>

@@ -354,6 +354,78 @@ class Config extends BaseConfig {
     }
 
     /**
+     * Gets the ApplePay processing certificate.
+     *
+     * @return string
+     */
+    public function getApplePayProcessingCertificate() {
+        return (string) $this->getValue(
+            'payment/checkout_com_applepay/processing_certificate',
+            $this->storeManager->getStore()
+        ); 
+    }
+
+    /**
+     * Gets the ApplePay processing certificate password.
+     *
+     * @return string
+     */
+    public function getApplePayProcessingCertificatePassword() {
+        return (string) $this->getValue(
+            'payment/checkout_com_applepay/processing_certificate_password',
+            $this->storeManager->getStore()
+        ); 
+    }
+
+    /**
+     * Gets the ApplePay merchant id certificate.
+     *
+     * @return string
+     */
+    public function getApplePayMerchantIdCertificate() {
+        return (string) $this->getValue(
+            'payment/checkout_com_applepay/merchant_id_certificate',
+            $this->storeManager->getStore()
+        ); 
+    }
+
+    /**
+     * Gets the ApplePay merchant id.
+     *
+     * @return string
+     */
+    public function getApplePayMerchantId() {
+        return (string) $this->getValue(
+            'payment/checkout_com_applepay/merchant_id',
+            $this->storeManager->getStore()
+        ); 
+    }
+
+    /**
+     * Gets the ApplePay debug mode.
+     *
+     * @return bool
+     */
+    public function getApplePayDebugMode() {
+        return (bool) $this->getValue(
+            'payment/checkout_com_applepay/debug',
+            $this->storeManager->getStore()
+        ); 
+    }
+
+    /**
+     * Gets the ApplePay API mode.
+     *
+     * @return bool
+     */
+    public function getApplePayApiMode() {
+        return (string) $this->getValue(
+            'payment/checkout_com_applepay/api_mode',
+            $this->storeManager->getStore()
+        ); 
+    }
+
+    /**
      * Determines if the core order comments need override.
      *
      * @return bool

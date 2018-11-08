@@ -97,6 +97,12 @@ class ConfigProvider implements ConfigProviderInterface {
 
                 self::CODE_APPLE_PAY => [
                     'isActive' => $this->config->isActiveApplePay(),
+                    'apiMode' => $this->config->getApplePayApiMode(),
+                    'debugMode' => $this->config->getApplePayDebugMode(),
+                    'processingCertificate' => $this->config->getApplePayProcessingCertificate(),
+                    'processingCertificatePassword' => $this->config->getApplePayProcessingCertificatePassword(),
+                    'merchantIdCertificate' => $this->config->getApplePayMerchantIdCertificate(),
+                    'merchantId' => $this->config->getApplePayMerchantId(),
                 ],
             ],
         ];
