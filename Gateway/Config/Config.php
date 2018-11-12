@@ -385,15 +385,6 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getApplePayMerchantIdCertificate() {
-
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/xxx.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info($this->getValue(
-            'payment/checkout_com_applepay/merchant_id_certificate',
-            $this->storeManager->getStore()
-        ));
-
         return (string) $this->getValue(
             'payment/checkout_com_applepay/merchant_id_certificate',
             $this->storeManager->getStore()

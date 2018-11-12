@@ -57,12 +57,6 @@ class ApplePayValidation extends AbstractAction {
             $params['processingCertificatePass'] = $this->gatewayConfig->getApplePayProcessingCertificatePassword();
             $params['merchantCertificate']       = $this->gatewayConfig->getApplePayMerchantIdCertificate();
             $params['url']                       = $url;
-  
-
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($params, 1));
 
             // create a new cURL resource
             $ch = curl_init();

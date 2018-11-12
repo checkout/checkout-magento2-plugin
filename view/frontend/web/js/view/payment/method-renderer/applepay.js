@@ -99,7 +99,8 @@ define(
                 // Check if the session is available
                 if (window.ApplePaySession) {
                     var merchantIdentifier = ap['merchantId'];
-                    alert(merchantIdentifier);
+                    var merchantIdentifier = 'merchant.com.checkout.sandbox.cms';
+
                     var promise = ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
                     promise.then(function (canMakePayments) {
                         if (canMakePayments) {
