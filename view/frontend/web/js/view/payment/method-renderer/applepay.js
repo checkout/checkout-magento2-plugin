@@ -99,6 +99,7 @@ define(
                 // Check if the session is available
                 if (window.ApplePaySession) {
                     var merchantIdentifier = ap['merchantId'];
+                    alert(merchantIdentifier);
                     var promise = ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
                     promise.then(function (canMakePayments) {
                         if (canMakePayments) {
@@ -184,15 +185,17 @@ define(
 
                     // Merchant validation function
                     function performValidation(valURL) {
+                        var controllerUrl = url.build('checkout_com/payment/applepayvalidation');
+                        var validationUrl = controllerUrl + '?u=' + valURL;
+                        
                         return new Promise(function(resolve, reject) {
                             var xhr = new XMLHttpRequest();
                             xhr.onload = function() {
                                 var data = JSON.parse(this.responseText);
-                                logit(data);
                                 resolve(data);
                             };
                             xhr.onerror = reject;
-                            xhr.open('GET', 'apple_pay_comm.php?u=' + valURL);
+                            xhr.open('GET', validationUrl);
                             xhr.send();
                         });
                     }
