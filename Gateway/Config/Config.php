@@ -343,14 +343,13 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isActiveApplePay() {
-        /*
-        if (!$this->getValue(
-            'payment/checkout_com_applepay/active',
-            $this->storeManager->getStore()
+        if (!$this->scopeConfig->getValue(
+                'payment/checkout_com_applepay/active',
+                ScopeInterface::SCOPE_STORE
             )) {
             return false;
         }
-        */
+    
 
         return true;  
     }
@@ -361,9 +360,9 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getApplePayProcessingCertificate() {
-        return (string) $this->getValue(
+        return (string) $this->scopeConfig->getValue(
             'payment/checkout_com_applepay/processing_certificate',
-            $this->storeManager->getStore()
+            ScopeInterface::SCOPE_STORE
         ); 
     }
 
@@ -373,10 +372,12 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getApplePayProcessingCertificatePassword() {
-        return (string) $this->getValue(
+        $pass = $this->scopeConfig->getValue(
             'payment/checkout_com_applepay/processing_certificate_password',
-            $this->storeManager->getStore()
-        ); 
+            ScopeInterface::SCOPE_STORE
+        );
+        trim($pass);
+        return ($pass) ? $pass : ''; 
     }
 
     /**
@@ -385,9 +386,9 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getApplePayMerchantIdCertificate() {
-        return (string) $this->getValue(
+        return (string) $this->scopeConfig->getValue(
             'payment/checkout_com_applepay/merchant_id_certificate',
-            $this->storeManager->getStore()
+            ScopeInterface::SCOPE_STORE
         ); 
     }
 
@@ -397,9 +398,9 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getApplePayMerchantId() {
-        return (string) $this->getValue(
+        return (string) $this->scopeConfig->getValue(
             'payment/checkout_com_applepay/merchant_id',
-            $this->storeManager->getStore()
+            ScopeInterface::SCOPE_STORE
         ); 
     }
 
@@ -409,9 +410,9 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function getApplePayDebugMode() {
-        return (bool) $this->getValue(
+        return (bool) $this->scopeConfig->getValue(
             'payment/checkout_com_applepay/debug',
-            $this->storeManager->getStore()
+            ScopeInterface::SCOPE_STORE
         ); 
     }
 
@@ -421,9 +422,9 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function getApplePayApiMode() {
-        return (string) $this->getValue(
+        return (string) $this->scopeConfig->getValue(
             'payment/checkout_com_applepay/api_mode',
-            $this->storeManager->getStore()
+            ScopeInterface::SCOPE_STORE
         ); 
     }
 

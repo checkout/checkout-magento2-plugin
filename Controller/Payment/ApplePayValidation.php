@@ -50,7 +50,7 @@ class ApplePayValidation extends AbstractAction {
         if ("https" == parse_url($url, PHP_URL_SCHEME) && substr( parse_url($url, PHP_URL_HOST), -10 )  == ".apple.com" ) {
             // Prepare the configuration parameters
             $params = [];
-            $params['merchantId']                = $this->gatewayConfig->getApplePayMerchantIdCertificate();
+            $params['merchantId']                = $this->gatewayConfig->getApplePayMerchantId();
             $params['domainName']                = $_SERVER["HTTP_HOST"];
             $params['displayName']               = 'My test shop';
             $params['processingCertificate']     = $this->gatewayConfig->getApplePayProcessingCertificate();
