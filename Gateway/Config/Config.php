@@ -343,12 +343,14 @@ class Config extends BaseConfig {
      * @return bool
      */
     public function isActiveApplePay() {
+        /*
         if (!$this->getValue(
             'payment/checkout_com_applepay/active',
             $this->storeManager->getStore()
             )) {
             return false;
         }
+        */
 
         return true;  
     }
@@ -383,6 +385,15 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getApplePayMerchantIdCertificate() {
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/xxx.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info($this->getValue(
+            'payment/checkout_com_applepay/merchant_id_certificate',
+            $this->storeManager->getStore()
+        ));
+
         return (string) $this->getValue(
             'payment/checkout_com_applepay/merchant_id_certificate',
             $this->storeManager->getStore()
