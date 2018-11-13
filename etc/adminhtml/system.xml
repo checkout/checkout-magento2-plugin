@@ -447,6 +447,12 @@
                         <comment>Provide your Merchant ID</comment>
                     </field>
 
+                    <field id="button_style" translate="label" type="select" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Button Style</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayButton</source_model>
+                        <config_path>payment/checkout_com_applepay/button_style</config_path>
+                        <comment>The Apple Pay button style</comment>
+                    </field>
                 </group>
 
             </group>

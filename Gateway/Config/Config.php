@@ -429,6 +429,18 @@ class Config extends BaseConfig {
     }
 
     /**
+     * Gets the ApplePay button style.
+     *
+     * @return bool
+     */
+    public function getApplePayButtonStyle() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/button_style',
+            ScopeInterface::SCOPE_STORE
+        ); 
+    }
+
+    /**
      * Determines if the core order comments need override.
      *
      * @return bool

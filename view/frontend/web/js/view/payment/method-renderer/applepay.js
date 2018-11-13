@@ -92,29 +92,31 @@ define(
              * @returns {bool}
              */
             launchApplePay: function() {
+                // Prepare the parameters
                 var ap = CheckoutCom.getPaymentConfigApplePay();
                 var debug = ap['debugMode'];
                 var self = this;
 
+                // Apply the button style
+                $('#cko-applepay-holder button').addClass('apple-pay-button-' + ap['buttonStyle']);
+
                 // Check if the session is available
                 if (window.ApplePaySession) {
                     var merchantIdentifier = ap['merchantId'];
-                    var merchantIdentifier = 'merchant.com.checkout.sandbox.cms';
-
                     var promise = ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
                     promise.then(function (canMakePayments) {
                         if (canMakePayments) {
-                            document.getElementById("applePay").style.display = "block";
+                            $('#cko-applepay-holder button').css('display', 'block');
                         } else {   
-                            document.getElementById("got_notactive").style.display = "block";
+                            $('#got_notactive').css('display', 'block');
                         }
                     });
                 } else {
-                    document.getElementById("notgot").style.display = "block";
+                    $('#notgot').css('display', 'block');
                 }
 
                 // Handle the events
-                document.getElementById("applePay").onclick = function(evt) {
+                $('#cko-applepay-holder button').click(function(evt) {
                     // Prepare the parameters
                     var runningAmount 	= 42; // todo - replace by dynamic value
                     var runningPP		= 0; // todo - replace by dynamic value
@@ -284,8 +286,8 @@ define(
                             var status;
                             if (success){
                                 status = ApplePaySession.STATUS_SUCCESS;
-                                document.getElementById("applePay").style.display = "none";
-                                document.getElementById("success").style.display = "block";
+                                $('#cko-applepay-holder button').css('display', 'none');
+                                $('#success').css('display', 'block');
                             } else {
                                 status = ApplePaySession.STATUS_FAILURE;
                             }
@@ -311,7 +313,7 @@ define(
 
                     // Begin session
                     session.begin();
-                };
+                });
             },
             
         });
