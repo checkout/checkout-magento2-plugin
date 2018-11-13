@@ -79,7 +79,7 @@ define(
              * @returns {string}
              */
             getQuoteValue: function() {
-                return quote.getTotals();
+                return (quote.getTotals()().grand_total).toFixed(2);
             },
 
             /**
@@ -97,6 +97,8 @@ define(
                 var ap = CheckoutCom.getPaymentConfigApplePay();
                 var debug = ap['debugMode'];
                 var self = this;
+
+                alert(self.getQuoteValue());
 
                 // Apply the button style
                 $(self.button_target).addClass('apple-pay-button-' + ap['buttonStyle']);
@@ -119,10 +121,8 @@ define(
                 // Handle the events
                 $(self.button_target).click(function(evt) {
                     // Prepare the parameters
-                    var runningAmount 	= self.getQuoteValue(); // todo - replace by dynamic value
-                    var runningPP		= 0; // todo - replace by dynamic value
                     getShippingCosts('domestic_std', true);
-                    var runningTotal	= function() { return runningAmount + runningPP; }
+                    var runningTotal	= self.getQuoteValue();
                     var shippingOption = "";
                     var subTotalDescr	= "Test Goodies"; // todo - replace by dynamic value
 
@@ -136,7 +136,7 @@ define(
                     }
 
                     // Shipping costs function
-                    function getShippingCosts(shippingIdentifier, updateRunningPP ){
+                    function getShippingCosts(shippingIdentifier){
                         var shippingCost = 0;
                         
                         switch(shippingIdentifier) {
@@ -152,25 +152,21 @@ define(
                             default:
                                 shippingCost = 11;
                         }
-                        
-                        if (updateRunningPP == true) {
-                            runningPP = shippingCost;
-                        }
                                                     
                         return shippingCost;
                     }
 
                     // Build the payment request
                     var paymentRequest = {
-                        currencyCode: 'GBP', // todo - replace by dynamic value
+                        currencyCode: CheckoutCom.getPaymentConfig()['quote_currency'],
                         countryCode: 'GB', // todo - replace by dynamic value
                         requiredShippingContactFields: ['postalAddress'],
                         //requiredShippingContactFields: ['postalAddress','email', 'name', 'phone'],
                         //requiredBillingContactFields: ['postalAddress','email', 'name', 'phone'],
-                        lineItems: [{label: subTotalDescr, amount: runningAmount }, {label: 'P&P', amount: runningPP }],
+                        //lineItems: [{label: subTotalDescr, amount: runningTotal }, {label: 'P&P', amount: runningTotal }],
                         total: {
                            label: ap['storeName'],
-                           amount: runningTotal()
+                           amount: runningTotal
                         },
                         supportedNetworks: ['amex', 'masterCard', 'visa' ], // todo - move to config
                         merchantCapabilities: [ 'supports3DS', 'supportsEMV', 'supportsCredit', 'supportsDebit' ] // todo - move to config
@@ -213,18 +209,18 @@ define(
                         var newTotal = {
                             type: 'final',
                             label: ap['storeName'],
-                            amount: runningTotal()
+                            amount: runningTotal
                         };
                         var newLineItems = [
                             {
                                 type: 'final',
                                 label: subTotalDescr,
-                                amount: runningAmount 
+                                amount: runningTotal
                             },
                             {
                                 type:'final',
                                 label: 'P&P',
-                                amount: runningPP
+                                amount: runningTotal
                             }
                         ];
                         
@@ -239,18 +235,18 @@ define(
                         var newTotal = {
                             type: 'final',
                             label: ap['storeName'],
-                            amount: runningTotal()
+                            amount: runningTotal
                         };
                         var newLineItems = [
                             {
                                 type: 'final',
                                 label: subTotalDescr,
-                                amount: runningAmount
+                                amount: runningTotal
                             },
                             {
                                 type: 'final',
                                 label: 'P&P',
-                                amount: runningPP 
+                                amount: runningTotal
                             }
                         ];
                         
@@ -262,18 +258,18 @@ define(
                         var newTotal = {
                             type: 'final',
                             label: ap['storeName'],
-                            amount: runningTotal()
+                            amount: runningTotal
                         };
                         var newLineItems = [
                             {
                                 type: 'final',
                                 label: subTotalDescr,
-                                amount: runningAmount
+                                amount: runningTotal
                             },
                             {
                                 type: 'final',
                                 label: 'P&P',
-                                amount: runningPP
+                                amount: runningTotal
                             }
                         ];
                         
