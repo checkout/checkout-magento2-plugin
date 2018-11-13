@@ -338,6 +338,18 @@ class Config extends BaseConfig {
     }
 
     /**
+     * Returns the store name.
+     *
+     * @return string
+     */
+    public function getStoreName() {
+        return (string) $this->scopeConfig->getValue(
+            'general/store_information/name',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
      * Determines if Apple Pay is active.
      *
      * @return bool
