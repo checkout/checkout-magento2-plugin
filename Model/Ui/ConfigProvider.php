@@ -104,6 +104,7 @@ class ConfigProvider implements ConfigProviderInterface {
                     'merchantIdCertificate' => $this->config->getApplePayMerchantIdCertificate(),
                     'merchantId' => $this->config->getApplePayMerchantId(),
                     'buttonStyle' => $this->config->getApplePayButtonStyle(),
+                    'storeName' => $this->config->getStoreName(),
                 ],
             ],
         ];

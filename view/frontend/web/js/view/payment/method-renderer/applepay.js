@@ -169,7 +169,7 @@ define(
                         //requiredBillingContactFields: ['postalAddress','email', 'name', 'phone'],
                         lineItems: [{label: subTotalDescr, amount: runningAmount }, {label: 'P&P', amount: runningPP }],
                         total: {
-                           label: 'My test shop', // todo - replace by dynamic value
+                           label: ap['storeName'],
                            amount: runningTotal()
                         },
                         supportedNetworks: ['amex', 'masterCard', 'visa' ], // todo - move to config
@@ -212,7 +212,7 @@ define(
                         var newShippingMethods = shippingOption;
                         var newTotal = {
                             type: 'final',
-                            label: 'My test shop', // todo - replace by dynamic value
+                            label: ap['storeName'],
                             amount: runningTotal()
                         };
                         var newLineItems = [
@@ -238,7 +238,7 @@ define(
                         var status = ApplePaySession.STATUS_SUCCESS;
                         var newTotal = {
                             type: 'final',
-                            label: 'My test shop', // todo - replace by dynamic value
+                            label: ap['storeName'],
                             amount: runningTotal()
                         };
                         var newLineItems = [
@@ -261,7 +261,7 @@ define(
                     session.onpaymentmethodselected = function(event) {
                         var newTotal = {
                             type: 'final',
-                            label: 'My test shop', // todo - replace by dynamic value
+                            label: ap['storeName'],
                             amount: runningTotal()
                         };
                         var newLineItems = [
