@@ -34,7 +34,8 @@ define(
                 template: 'CheckoutCom_Magento2/payment/applepay',
                 code: 'checkout_com_applepay',
                 card_token_id: null,
-                redirectAfterPlaceOrder: true
+                redirectAfterPlaceOrder: true, 
+                button_target: '#cko-applepay-holder button'
             },
 
             /**
@@ -98,7 +99,7 @@ define(
                 var self = this;
 
                 // Apply the button style
-                $('#cko-applepay-holder button').addClass('apple-pay-button-' + ap['buttonStyle']);
+                $(self.button_target).addClass('apple-pay-button-' + ap['buttonStyle']);
 
                 // Check if the session is available
                 if (window.ApplePaySession) {
@@ -106,7 +107,7 @@ define(
                     var promise = ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
                     promise.then(function (canMakePayments) {
                         if (canMakePayments) {
-                            $('#cko-applepay-holder button').css('display', 'block');
+                            $(self.button_target).css('display', 'block');
                         } else {   
                             $('#got_notactive').css('display', 'block');
                         }
@@ -116,7 +117,7 @@ define(
                 }
 
                 // Handle the events
-                $('#cko-applepay-holder button').click(function(evt) {
+                $(self.button_target).click(function(evt) {
                     // Prepare the parameters
                     var runningAmount 	= 42; // todo - replace by dynamic value
                     var runningPP		= 0; // todo - replace by dynamic value
@@ -286,7 +287,7 @@ define(
                             var status;
                             if (success){
                                 status = ApplePaySession.STATUS_SUCCESS;
-                                $('#cko-applepay-holder button').css('display', 'none');
+                                $(self.button_target).css('display', 'none');
                                 $('#success').css('display', 'block');
                             } else {
                                 status = ApplePaySession.STATUS_FAILURE;
