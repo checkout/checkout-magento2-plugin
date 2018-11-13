@@ -119,7 +119,7 @@ define(
                 // Handle the events
                 $(self.button_target).click(function(evt) {
                     // Prepare the parameters
-                    var runningAmount 	= 42; // todo - replace by dynamic value
+                    var runningAmount 	= self.getQuoteValue(); // todo - replace by dynamic value
                     var runningPP		= 0; // todo - replace by dynamic value
                     getShippingCosts('domestic_std', true);
                     var runningTotal	= function() { return runningAmount + runningPP; }
@@ -300,7 +300,7 @@ define(
                     // Send payment token
                     function sendPaymentToken(paymentToken) {
                         return new Promise(function(resolve, reject) {
-                            if ( debug == true )
+                            if (debug == true)
                             resolve(true);
                             else
                             reject;
