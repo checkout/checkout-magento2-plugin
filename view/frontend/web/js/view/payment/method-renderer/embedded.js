@@ -137,7 +137,7 @@ define(
              * @returns {string}
              */
             getQuoteValue: function() {
-                return quote.getTotals();
+                return (quote.getTotals()().grand_total*100).toFixed(2);
             },
 
             /**
