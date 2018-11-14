@@ -168,7 +168,6 @@ define(
                     // Prepare the parameters
                     var runningTotal	= self.getQuoteValue();
                     var shippingOption = "";
-                    var subTotalDescr	= "Test Goodies"; // todo - replace by dynamic value
 
                     // Build the payment request
                     var paymentRequest = {
@@ -177,7 +176,7 @@ define(
                         requiredShippingContactFields: ['postalAddress'],
                         //requiredShippingContactFields: ['postalAddress','email', 'name', 'phone'],
                         //requiredBillingContactFields: ['postalAddress','email', 'name', 'phone'],
-                        //lineItems: [{label: subTotalDescr, amount: runningTotal }, {label: 'P&P', amount: runningTotal }],
+                        lineItems: [],
                         total: {
                            label: ap['storeName'],
                            amount: runningTotal
