@@ -59,7 +59,7 @@ define(
             /**
              * @returns {string}
              */
-            getTitle: function() {
+            getApplePayTitle: function() {
                 return CheckoutCom.getPaymentConfigApplePay()['title'];
             },
 
