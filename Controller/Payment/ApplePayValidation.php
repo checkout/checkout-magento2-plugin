@@ -65,9 +65,6 @@ class ApplePayValidation extends AbstractAction {
             curl_setopt($ch, CURLOPT_SSLCERT, $params['merchantCertificate']);
             curl_setopt($ch, CURLOPT_SSLKEY, $params['processingCertificate']);
             curl_setopt($ch, CURLOPT_SSLKEYPASSWD, $params['processingCertificatePass']);
-            //curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
-            //curl_setopt($ch, CURLOPT_SSLVERSION, 'CURL_SSLVERSION_TLSv1_2');
-            //curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, 'rsa_aes_128_gcm_sha_256,ecdhe_rsa_aes_128_gcm_sha_256');
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
             if (curl_exec($ch) === false)
