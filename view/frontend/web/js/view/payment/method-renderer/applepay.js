@@ -189,8 +189,8 @@ define(
                     var paymentRequest = {
                         currencyCode: CheckoutCom.getPaymentConfig()['quote_currency'],
                         countryCode: billingAddress.countryId,
-                        requiredShippingContactFields: ['postalAddress','name'],
-                        requiredBillingContactFields: ['postalAddress','name'],
+                        requiredShippingContactFields: ['postalAddress'],
+                        requiredBillingContactFields: ['postalAddress'],
                         lineItems: self.getLineItems(),
                         shippingMethods: self.getShippingMethods(),
                         billingContact: {
