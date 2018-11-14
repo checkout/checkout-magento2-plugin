@@ -68,7 +68,7 @@
                 <save_card_check_currency>USD</save_card_check_currency>
             </checkout_com>
             <checkout_com_applepay>
-                <title>Apple Pay (Checkout.com)</title>
+                <applepay_title>Apple Pay (Checkout.com)</applepay_title>
                 <active>1</active>
                 <model>CheckoutCom\Magento2\Model\Method\ApplePayMethod</model>
                 <can_use_checkout>1</can_use_checkout>
