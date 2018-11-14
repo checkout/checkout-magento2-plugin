@@ -12,7 +12,7 @@ namespace CheckoutCom\Magento2\Model\Adminhtml\Source;
 
 use Magento\Framework\Option\ArrayInterface;
 
-class ApplePayNetworks implements ArrayInterface {
+class ApplePayCapabilities implements ArrayInterface {
 
     const CAP_3DS = 'supports3DS';
     const CAP_EMV = 'supportsEMV';

@@ -238,8 +238,8 @@ define(
                         merchantCapabilities: ['supports3DS', 'supportsEMV', 'supportsCredit', 'supportsDebit'] // todo - move to config
                     };
 
-                    alert(self.getSupportedNetworks());
-                    alert(self.getMerchantCapabilities());
+                    console.log(self.getSupportedNetworks());
+                    console.log(self.getMerchantCapabilities());
 
                     // Start the payment session
                     var session = new ApplePaySession(1, paymentRequest);
