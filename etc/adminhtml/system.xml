@@ -33,6 +33,7 @@
                     <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkout_com/title</config_path>
+                        <comment>Payment method title displayed to shooppers.</comment>
                     </field>
 
                     <field id="sort_order" translate="label" sortOrder="30" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -407,47 +408,53 @@
                     <attribute type="activity_path">payment/checkout_com_applepay/active</attribute>
                     <label>Apple Pay Settings</label>
 
-                    <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="active" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Apple Pay</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkout_com_applepay/active</config_path>
                     </field>
 
-                    <field id="debug" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="debug" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Debug</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkout_com_applepay/debug</config_path>
                     </field>
 
-                    <field id="api_mode" translate="label" sortOrder="2" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="title" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkout_com_applepay/title</config_path>
+                        <comment>Payment method title displayed to shooppers.</comment>
+                    </field>
+
+                    <field id="api_mode" translate="label" sortOrder="3" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>API Mode</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayApiMode</source_model>
                         <config_path>payment/checkout_com_applepay/api_mode</config_path>
                     </field>
 
-                    <field id="processing_certificate" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="processing_certificate" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Processing Certificate</label>
                         <config_path>payment/checkout_com_applepay/processing_certificate</config_path>
                         <comment>Abslolute path to the file on your server</comment>
                     </field>
-                    <field id="processing_certificate_password" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="processing_certificate_password" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Processing Certificate Password</label>
                         <config_path>payment/checkout_com_applepay/processing_certificate_password</config_path>
                         <comment>Password for the payment processing certificate</comment>
                     </field>
-                    <field id="merchant_id_certificate" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="merchant_id_certificate" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant Identity Certificate</label>
                         <config_path>payment/checkout_com_applepay/merchant_id_certificate</config_path>
                         <comment>Abslolute path to the file on your server</comment>
                     </field>
 
-                    <field id="merchant_id" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="merchant_id" translate="label" type="text" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant ID</label>
                         <config_path>payment/checkout_com_applepay/merchant_id</config_path>
                         <comment>Provide your Merchant ID</comment>
                     </field>
 
-                    <field id="button_style" translate="label" type="select" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="button_style" translate="label" type="select" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Button Style</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayButton</source_model>
                         <config_path>payment/checkout_com_applepay/button_style</config_path>

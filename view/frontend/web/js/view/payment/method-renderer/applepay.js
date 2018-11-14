@@ -57,6 +57,13 @@ define(
             },
 
             /**
+             * @returns {string}
+             */
+            getTitle: function() {
+                return CheckoutCom.getCodeApplePay()['title'];
+            },
+
+            /**
              * @param {string} card_token_id
              */
             setCardTokenId: function(card_token_id) {

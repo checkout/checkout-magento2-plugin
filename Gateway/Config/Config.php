@@ -362,8 +362,19 @@ class Config extends BaseConfig {
             return false;
         }
     
-
         return true;  
+    }
+
+    /**
+     * Returns the Apple Pay option title.
+     *
+     * @return string
+     */
+    public function getApplePayTitle() {
+        return (string) $this->getValue(
+            'payment/checkout_com_applepay/title',
+            $this->storeManager->getStore()
+        );
     }
 
     /**
