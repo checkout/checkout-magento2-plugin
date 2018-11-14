@@ -177,9 +177,6 @@ define(
                     var billingAddress  = self.getBillingAddress();
                     var shippingAddress = self.getShippingAddress();
 
-
-                    console.log(shippingAddress);
-
                     // Build the payment request
                     var paymentRequest = {
                         currencyCode: CheckoutCom.getPaymentConfig()['quote_currency'],
