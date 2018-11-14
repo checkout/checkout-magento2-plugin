@@ -177,6 +177,9 @@ define(
                     var billingAddress  = self.getBillingAddress();
                     var shippingAddress = self.getShippingAddress();
 
+
+                    console.log(shippingAddress);
+
                     // Build the payment request
                     var paymentRequest = {
                         currencyCode: CheckoutCom.getPaymentConfig()['quote_currency'],
@@ -190,7 +193,7 @@ define(
                             addressLines: billingAddress.street,
                             postalCode: billingAddress.postcode,
                             locality: billingAddress.city,
-                            countryCode: 'GB'
+                            countryCode: billingAddress.countryId
                         },
                         shippingContact: {
                             givenName: shippingAddress.firstname,
@@ -198,7 +201,7 @@ define(
                             addressLines: shippingAddress.street,
                             postalCode: shippingAddress.postcode,
                             locality: shippingAddress.city,
-                            countryCode: 'GB'
+                            countryCode: billingAddress.countryId
                         },
                         total: {
                            label: ap['storeName'],
