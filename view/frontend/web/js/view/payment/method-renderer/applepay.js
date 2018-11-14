@@ -95,7 +95,7 @@ define(
             /**
              * @returns {object}
              */
-            getShippingMethod: function() {
+            getSelectedShippingMethod: function() {
                 // Prepare the output object
                 var result = {};
 
@@ -130,17 +130,25 @@ define(
             },
 
             /**
-             * @returns {object}
+             * @returns {array}
              */
-            formatAddress: function(addressObject) {
-                var formattedAddress = '';
+            getLineItems: function() {
+                return [];
             },
 
             /**
              * @returns {array}
              */
-            getLineItems: function() {
-                return [];
+            getShippingMethods: function() {
+                var shippingData = self.getSelectedShippingMethod();
+                var shippingOptions = [{
+                    label: shippingData.base.method_title,
+                    amount: shippingData.selected.value,
+                    detail: shippingData.base.carrier_title,
+                    identifier: shippingData.base.method_code
+                }]; 
+
+                return shippingOptions;
             },
 
             /**
@@ -183,7 +191,8 @@ define(
                         countryCode: billingAddress.countryId,
                         requiredShippingContactFields: ['postalAddress','name'],
                         requiredBillingContactFields: ['postalAddress','name'],
-                        lineItems: [],
+                        lineItems: self.getLineItems(),
+                        shippingMethods: self.getShippingMethods(),
                         billingContact: {
                             givenName: billingAddress.firstname,
                             familyName: billingAddress.lastname,
@@ -242,13 +251,7 @@ define(
                         var status = ApplePaySession.STATUS_SUCCESS;
 
                         // Shipping info
-                        var shippingData = self.getShippingMethod();
-                        var shippingOptions = [{
-                            label: shippingData.base.method_title,
-                            amount: shippingData.selected.value,
-                            detail: shippingData.base.carrier_title,
-                            identifier: shippingData.base.method_code
-                        }];                   
+                        var shippingOptions = self.getShippingMethods();                   
                         
                         var newTotal = {
                             type: 'final',
