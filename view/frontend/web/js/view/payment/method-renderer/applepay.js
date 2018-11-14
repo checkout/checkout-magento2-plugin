@@ -146,6 +146,20 @@ define(
             /**
              * @returns {array}
              */
+            getSupportedNetworks: function() {
+                return CheckoutCom.getPaymentConfigApplePay()['supportedNetworks'];
+            },
+
+            /**
+             * @returns {array}
+             */
+            getMerchantCapabilities: function() {
+                return CheckoutCom.getPaymentConfigApplePay()['merchantCapabilities'];
+            },
+
+            /**
+             * @returns {array}
+             */
             getShippingMethods: function() {
                 var shippingData = this.getSelectedShippingMethod();
                 var shippingOptions = [{
@@ -221,10 +235,11 @@ define(
                            amount: runningTotal
                         },
                         supportedNetworks: ['amex', 'masterCard', 'visa'], // todo - move to config
-                        merchantCapabilities: [ 'supports3DS', 'supportsEMV', 'supportsCredit', 'supportsDebit' ] // todo - move to config
+                        merchantCapabilities: ['supports3DS', 'supportsEMV', 'supportsCredit', 'supportsDebit'] // todo - move to config
                     };
 
-                    alert(CheckoutCom.getPaymentConfig()['quote_currency']);
+                    alert(self.getSupportedNetworks());
+                    alert(self.getMerchantCapabilities());
 
                     // Start the payment session
                     var session = new ApplePaySession(1, paymentRequest);

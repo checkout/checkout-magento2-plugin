@@ -84,6 +84,8 @@
                 <processing_certificate_password></processing_certificate_password>
                 <merchant_id_certificate>/path/to/cert</merchant_id_certificate>
                 <merchant_id></merchant_id>
+                <supported_networks>amex,masterCard,visa</supported_networks>
+                <merchant_capabilities>supports3DS,supportsEMV,supportsCredit,supportsDebit</merchant_capabilities>
                 <button_style>black</button_style>
             </checkout_com_applepay>            
             <checkout_com_cc_vault>

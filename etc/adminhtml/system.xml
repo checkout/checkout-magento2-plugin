@@ -460,6 +460,20 @@
                         <config_path>payment/checkout_com_applepay/button_style</config_path>
                         <comment>The Apple Pay button style</comment>
                     </field>
+
+                    <field id="supported_networks" translate="label" type="select" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Supported Networks</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayNetworks</source_model>
+                        <config_path>payment/checkout_com_applepay/supported_networks</config_path>
+                        <comment>Select the Apple Pay supported cards</comment>
+                    </field>
+
+                    <field id="merchant_capabilities" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Merchant Capabilities</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayCapabilities</source_model>
+                        <config_path>payment/checkout_com_applepay/merchant_capabilities</config_path>
+                        <comment>Select the Apple Pay merchant capabilities</comment>
+                    </field>
                 </group>
 
             </group>

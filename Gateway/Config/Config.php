@@ -378,6 +378,30 @@ class Config extends BaseConfig {
     }
 
     /**
+     * Returns the Apple Pay supported cards.
+     *
+     * @return string
+     */
+    public function getApplePaySupportedNetworks() {
+        return (string) $this->getValue(
+            'payment/checkout_com_applepay/supported_networks',
+            $this->storeManager->getStore()
+        );
+    }
+
+    /**
+     * Returns the Apple Pay merchant capabilities.
+     *
+     * @return string
+     */
+    public function getApplePayMerchantCapabilities() {
+        return (string) $this->getValue(
+            'payment/checkout_com_applepay/merchant_capabilities',
+            $this->storeManager->getStore()
+        );
+    }
+
+    /**
      * Gets the ApplePay processing certificate.
      *
      * @return string
