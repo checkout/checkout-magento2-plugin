@@ -130,6 +130,13 @@ define(
             },
 
             /**
+             * @returns {object}
+             */
+            formatAddress: function(addressObject) {
+                var formattedAddress = '';
+            },
+
+            /**
              * @returns {array}
              */
             getLineItems: function() {
@@ -167,20 +174,38 @@ define(
                 $(self.button_target).click(function(evt) {
                     // Prepare the parameters
                     var runningTotal	= self.getQuoteValue();
-                    var shippingOption = "";
+                    var billingAddress = self.getBillingAddress();
+                    var shippingAddress = self.getShippingAddress();
 
                     // Build the payment request
                     var paymentRequest = {
                         currencyCode: CheckoutCom.getPaymentConfig()['quote_currency'],
-                        countryCode: self.getBillingAddress().countryId,
+                        countryCode: billingAddress.countryId,
                         requiredShippingContactFields: ['postalAddress'],
                         //requiredShippingContactFields: ['postalAddress','email', 'name', 'phone'],
-                        //requiredBillingContactFields: ['postalAddress','email', 'name', 'phone'],
+                        requiredBillingContactFields: ['postalAddress'],
                         lineItems: [],
+                        billingContact: {
+                            givenName: billingAddress.firstname,
+                            familyName: billingAddress.lastname,
+                            addressLines: billingAddress.street,
+                            postalCode: billingAddress.postcode,
+                            locality: billingAddress.city,
+                            countryCode: 'GB'
+                        },
+                        shippingContact: {
+                            givenName: shippingAddress.firstname,
+                            familyName: shippingAddress.lastname,                            
+                            addressLines: shippingAddress.street,
+                            postalCode: shippingAddress.postcode,
+                            locality: shippingAddress.city,
+                            countryCode: 'GB'
+                        },
                         total: {
                            label: ap['storeName'],
                            amount: runningTotal
                         },
+                        supportedCountries: [], // todo - move to config
                         supportedNetworks: ['amex', 'masterCard', 'visa' ], // todo - move to config
                         merchantCapabilities: [ 'supports3DS', 'supportsEMV', 'supportsCredit', 'supportsDebit' ] // todo - move to config
                     };
