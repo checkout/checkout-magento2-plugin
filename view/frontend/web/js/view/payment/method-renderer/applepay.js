@@ -174,16 +174,15 @@ define(
                 $(self.button_target).click(function(evt) {
                     // Prepare the parameters
                     var runningTotal	= self.getQuoteValue();
-                    var billingAddress = self.getBillingAddress();
+                    var billingAddress  = self.getBillingAddress();
                     var shippingAddress = self.getShippingAddress();
 
                     // Build the payment request
                     var paymentRequest = {
                         currencyCode: CheckoutCom.getPaymentConfig()['quote_currency'],
                         countryCode: billingAddress.countryId,
-                        requiredShippingContactFields: ['postalAddress'],
-                        //requiredShippingContactFields: ['postalAddress','email', 'name', 'phone'],
-                        requiredBillingContactFields: ['postalAddress'],
+                        requiredShippingContactFields: ['postalAddress','name'],
+                        requiredBillingContactFields: ['postalAddress','name'],
                         lineItems: [],
                         billingContact: {
                             givenName: billingAddress.firstname,
