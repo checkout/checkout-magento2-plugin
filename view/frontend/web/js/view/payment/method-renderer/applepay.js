@@ -21,9 +21,11 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/redirect-on-success'
+        'Magento_Checkout/js/model/address-converter',
+        'Magento_Checkout/js/action/redirect-on-success',
+        'mage/translate'
     ],
-    function($, Component, CheckoutCom, quote, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, checkoutData, redirectOnSuccessAction, customer) {
+    function($, Component, CheckoutCom, quote, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, checkoutData, addressConverter, redirectOnSuccessAction, t, customer) {
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true;
@@ -89,6 +91,51 @@ define(
                 return CheckoutCom.getPaymentConfig()['quote_currency'];
             },
 
+
+            /**
+             * @returns {object}
+             */
+            getShippingMethod: function() {
+                // Prepare the output object
+                var result = {};
+
+                // Get the selected shipping method data
+                var quoteData = quote.totals().total_segments;
+
+                for (var i = 0, len = quoteData.length; i < len; i++) {
+                    if (quoteData[i].code === 'shipping')
+                    {
+                        result.selected = quoteData[i]; 
+                    }
+                }
+
+                // Get the base shipping method data
+                result.base = quote.shippingMethod();
+
+                return result; 
+            },
+
+            /**
+             * @returns {object}
+             */
+            getShippingAddress: function() {
+                return quote.shippingAddress();
+            },
+
+            /**
+             * @returns {object}
+             */
+            getBillingAddress: function() {
+                return quote.billingAddress();
+            },
+
+            /**
+             * @returns {array}
+             */
+            getLineItems: function() {
+                return [];
+            },
+
             /**
              * @returns {bool}
              */
@@ -97,8 +144,6 @@ define(
                 var ap = CheckoutCom.getPaymentConfigApplePay();
                 var debug = ap['debugMode'];
                 var self = this;
-
-                alert(self.getQuoteValue());
 
                 // Apply the button style
                 $(self.button_target).addClass('apple-pay-button-' + ap['buttonStyle']);
@@ -121,45 +166,14 @@ define(
                 // Handle the events
                 $(self.button_target).click(function(evt) {
                     // Prepare the parameters
-                    getShippingCosts('domestic_std', true);
                     var runningTotal	= self.getQuoteValue();
                     var shippingOption = "";
                     var subTotalDescr	= "Test Goodies"; // todo - replace by dynamic value
 
-                    // Shipping options function
-                    function getShippingOptions(shippingCountry) {
-                        if ( shippingCountry.toUpperCase() == "GB" ) { // todo - replace by dynamic value
-                            shippingOption = [{label: 'Standard Shipping', amount: getShippingCosts('domestic_std', true), detail: '3-5 days', identifier: 'domestic_std'},{label: 'Expedited Shipping', amount: getShippingCosts('domestic_exp', false), detail: '1-3 days', identifier: 'domestic_exp'}];
-                        } else {
-                            shippingOption = [{label: 'International Shipping', amount: getShippingCosts('international', true), detail: '5-10 days', identifier: 'international'}];
-                        }
-                    }
-
-                    // Shipping costs function
-                    function getShippingCosts(shippingIdentifier){
-                        var shippingCost = 0;
-                        
-                        switch(shippingIdentifier) {
-                            case 'domestic_std':
-                                shippingCost = 3;
-                                break;
-                            case 'domestic_exp':
-                                shippingCost = 6;
-                                break;
-                            case 'international':
-                                shippingCost = 9;
-                                break;
-                            default:
-                                shippingCost = 11;
-                        }
-                                                    
-                        return shippingCost;
-                    }
-
                     // Build the payment request
                     var paymentRequest = {
                         currencyCode: CheckoutCom.getPaymentConfig()['quote_currency'],
-                        countryCode: 'GB', // todo - replace by dynamic value
+                        countryCode: self.getBillingAddress().countryId,
                         requiredShippingContactFields: ['postalAddress'],
                         //requiredShippingContactFields: ['postalAddress','email', 'name', 'phone'],
                         //requiredBillingContactFields: ['postalAddress','email', 'name', 'phone'],
@@ -201,56 +215,37 @@ define(
                     }
 
                     // Shipping contact
-                    session.onshippingcontactselected = function(event) {                        
-                        getShippingOptions( event.shippingContact.countryCode );
-                        
+                    session.onshippingcontactselected = function(event) {                                                
                         var status = ApplePaySession.STATUS_SUCCESS;
-                        var newShippingMethods = shippingOption;
+
+                        // Shipping info
+                        var shippingData = self.getShippingMethod();
+                        var shippingOptions = [{
+                            label: shippingData.base.method_title,
+                            amount: shippingData.selected.value,
+                            detail: shippingData.base.carrier_title,
+                            identifier: shippingData.base.method_code
+                        }];                   
+                        
                         var newTotal = {
                             type: 'final',
                             label: ap['storeName'],
                             amount: runningTotal
                         };
-                        var newLineItems = [
-                            {
-                                type: 'final',
-                                label: subTotalDescr,
-                                amount: runningTotal
-                            },
-                            {
-                                type:'final',
-                                label: 'P&P',
-                                amount: runningTotal
-                            }
-                        ];
                         
-                        session.completeShippingContactSelection(status, newShippingMethods, newTotal, newLineItems );
+                        session.completeShippingContactSelection(status, shippingOptions, newTotal, self.getLineItems());
                     }
 
                     // Shipping method selection
-                    session.onshippingmethodselected = function(event) {                        
-                        getShippingCosts( event.shippingMethod.identifier, true );
-                        
+                    session.onshippingmethodselected = function(event) {                                                
                         var status = ApplePaySession.STATUS_SUCCESS;
                         var newTotal = {
                             type: 'final',
                             label: ap['storeName'],
                             amount: runningTotal
                         };
-                        var newLineItems = [
-                            {
-                                type: 'final',
-                                label: subTotalDescr,
-                                amount: runningTotal
-                            },
-                            {
-                                type: 'final',
-                                label: 'P&P',
-                                amount: runningTotal
-                            }
-                        ];
-                        
-                        session.completeShippingMethodSelection(status, newTotal, newLineItems );
+
+                        session.completeShippingMethodSelection(status, newTotal, self.getLineItems());
                     }
 
                     // Payment method selection
@@ -260,20 +255,8 @@ define(
                             label: ap['storeName'],
                             amount: runningTotal
                         };
-                        var newLineItems = [
-                            {
-                                type: 'final',
-                                label: subTotalDescr,
-                                amount: runningTotal
-                            },
-                            {
-                                type: 'final',
-                                label: 'P&P',
-                                amount: runningTotal
-                            }
-                        ];
                         
-                        session.completePaymentMethodSelection( newTotal, newLineItems );
+                        session.completePaymentMethodSelection( newTotal, self.getLineItems());
                     }
 
                     // Payment method authorization
