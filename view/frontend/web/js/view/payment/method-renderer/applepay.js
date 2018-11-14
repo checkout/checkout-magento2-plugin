@@ -207,7 +207,7 @@ define(
                             addressLines: shippingAddress.street,
                             postalCode: shippingAddress.postcode,
                             locality: shippingAddress.city,
-                            countryCode: billingAddress.countryId
+                            countryCode: shippingAddress.countryId
                         },
                         total: {
                            label: ap['storeName'],
