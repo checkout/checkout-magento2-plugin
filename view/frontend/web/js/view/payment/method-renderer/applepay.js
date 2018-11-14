@@ -60,7 +60,7 @@ define(
              * @returns {string}
              */
             getTitle: function() {
-                return CheckoutCom.getCodeApplePay()['title'];
+                return CheckoutCom.getPaymentConfigApplePay()['title'];
             },
 
             /**
@@ -220,10 +220,11 @@ define(
                            label: ap['storeName'],
                            amount: runningTotal
                         },
-                        supportedCountries: [], // todo - move to config
-                        supportedNetworks: ['amex', 'masterCard', 'visa' ], // todo - move to config
+                        supportedNetworks: ['amex', 'masterCard', 'visa'], // todo - move to config
                         merchantCapabilities: [ 'supports3DS', 'supportsEMV', 'supportsCredit', 'supportsDebit' ] // todo - move to config
                     };
+
+                    alert(CheckoutCom.getPaymentConfig()['quote_currency']);
 
                     // Start the payment session
                     var session = new ApplePaySession(1, paymentRequest);
