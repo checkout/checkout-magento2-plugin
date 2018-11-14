@@ -140,7 +140,7 @@ define(
              * @returns {array}
              */
             getShippingMethods: function() {
-                var shippingData = self.getSelectedShippingMethod();
+                var shippingData = this.getSelectedShippingMethod();
                 var shippingOptions = [{
                     label: shippingData.base.method_title,
                     amount: shippingData.selected.value,
