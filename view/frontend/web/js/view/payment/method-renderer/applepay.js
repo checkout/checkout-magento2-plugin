@@ -127,21 +127,6 @@ define(
             },
 
             /**
-             * @returns {array}
-             */
-            getShippingMethods: function() {
-                var shippingData = this.getSelectedShippingMethod();
-                var shippingOptions = [{
-                    label: shippingData.base.method_title,
-                    amount: shippingData.selected.value,
-                    detail: shippingData.base.carrier_title,
-                    identifier: shippingData.base.method_code
-                }]; 
-
-                return shippingOptions;
-            },
-
-            /**
              * @returns {bool}
              */
             launchApplePay: function() {
@@ -171,9 +156,10 @@ define(
                 // Handle the events
                 $(self.button_target).click(function(evt) {
                     // Prepare the parameters
-                    var runningTotal	= self.getQuoteValue();
-                    var billingAddress  = self.getBillingAddress();
-                    var shippingAddress = self.getShippingAddress();
+                    var runningTotal	     = self.getQuoteValue();
+                    var billingAddress       = self.getBillingAddress();
+                    var supportedNetworks    = self.getSupportedNetworks().split(',');
+                    var merchantCapabilities = self.getMerchantCapabilities().split(',');
 
                     // Build the payment request
                     var paymentRequest = {
@@ -184,12 +170,9 @@ define(
                            label: ap['storeName'],
                            amount: runningTotal
                         },
-                        supportedNetworks: ['amex', 'masterCard', 'visa'], // todo - move to config
-                        merchantCapabilities: ['supportsCredit', 'supportsDebit'] // todo - move to config
+                        supportedNetworks: supportedNetworks,
+                        merchantCapabilities: merchantCapabilities
                     };
-
-                    console.log(self.getSupportedNetworks());
-                    console.log(self.getMerchantCapabilities());
 
                     // Start the payment session
                     var session = new ApplePaySession(1, paymentRequest);
@@ -224,7 +207,7 @@ define(
                         var status = ApplePaySession.STATUS_SUCCESS;
 
                         // Shipping info
-                        var shippingOptions = self.getShippingMethods();                   
+                        var shippingOptions = [];                   
                         
                         var newTotal = {
                             type: 'final',
