@@ -116,5 +116,4 @@ class Callback extends Action {
 
         return ($eventType === 'charge.failed' AND $id === 'charge_100003');
     }
-
 }
