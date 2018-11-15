@@ -98,37 +98,6 @@ define(
                 return CheckoutCom.getPaymentConfig()['quote_currency'];
             },
 
-
-            /**
-             * @returns {object}
-             */
-            getSelectedShippingMethod: function() {
-                // Prepare the output object
-                var result = {};
-
-                // Get the selected shipping method data
-                var quoteData = quote.totals().total_segments;
-
-                for (var i = 0, len = quoteData.length; i < len; i++) {
-                    if (quoteData[i].code === 'shipping')
-                    {
-                        result.selected = quoteData[i]; 
-                    }
-                }
-
-                // Get the base shipping method data
-                result.base = quote.shippingMethod();
-
-                return result; 
-            },
-
-            /**
-             * @returns {object}
-             */
-            getShippingAddress: function() {
-                return quote.shippingAddress();
-            },
-
             /**
              * @returns {object}
              */
@@ -210,26 +179,7 @@ define(
                     var paymentRequest = {
                         currencyCode: CheckoutCom.getPaymentConfig()['quote_currency'],
                         countryCode: billingAddress.countryId,
-                        requiredShippingContactFields: ['postalAddress'],
-                        requiredBillingContactFields: ['postalAddress'],
                         lineItems: self.getLineItems(),
-                        shippingMethods: self.getShippingMethods(),
-                        billingContact: {
-                            givenName: billingAddress.firstname,
-                            familyName: billingAddress.lastname,
-                            addressLines: billingAddress.street,
-                            postalCode: billingAddress.postcode,
-                            locality: billingAddress.city,
-                            countryCode: billingAddress.countryId
-                        },
-                        shippingContact: {
-                            givenName: shippingAddress.firstname,
-                            familyName: shippingAddress.lastname,                            
-                            addressLines: shippingAddress.street,
-                            postalCode: shippingAddress.postcode,
-                            locality: shippingAddress.city,
-                            countryCode: shippingAddress.countryId
-                        },
                         total: {
                            label: ap['storeName'],
                            amount: runningTotal
