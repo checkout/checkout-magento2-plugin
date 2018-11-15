@@ -185,7 +185,7 @@ define(
                            amount: runningTotal
                         },
                         supportedNetworks: ['amex', 'masterCard', 'visa'], // todo - move to config
-                        merchantCapabilities: ['supports3DS', 'supportsEMV', 'supportsCredit', 'supportsDebit'] // todo - move to config
+                        merchantCapabilities: ['supportsCredit', 'supportsDebit'] // todo - move to config
                     };
 
                     console.log(self.getSupportedNetworks());

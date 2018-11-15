@@ -14,8 +14,6 @@ use Magento\Framework\Option\ArrayInterface;
 
 class ApplePayCapabilities implements ArrayInterface {
 
-    const CAP_3DS = 'supports3DS';
-    const CAP_EMV = 'supportsEMV';
     const CAP_CRE = 'supportsCredit';
     const CAP_DEB = 'supportsDebit';
 
@@ -33,14 +31,6 @@ class ApplePayCapabilities implements ArrayInterface {
             [
                 'value' => self::CAP_DEB,
                 'label' => __('Debit cards')
-            ],
-            [
-                'value' => self::CAP_3DS,
-                'label' => __('3-D Secure')
-            ],
-            [
-                'value' => self::CAP_EMV,
-                'label' => __('China Union Pay')
             ],
         ];
     }
