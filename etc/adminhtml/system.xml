@@ -437,11 +437,13 @@
                         <config_path>payment/checkout_com_applepay/processing_certificate</config_path>
                         <comment>Abslolute path to the file on your server</comment>
                     </field>
+
                     <field id="processing_certificate_password" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Processing Certificate Password</label>
                         <config_path>payment/checkout_com_applepay/processing_certificate_password</config_path>
                         <comment>Password for the payment processing certificate</comment>
                     </field>
+                    
                     <field id="merchant_id_certificate" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant Identity Certificate</label>
                         <config_path>payment/checkout_com_applepay/merchant_id_certificate</config_path>
