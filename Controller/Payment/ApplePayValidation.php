@@ -52,7 +52,7 @@ class ApplePayValidation extends AbstractAction {
             $params = [];
             $params['merchantId']                = $this->gatewayConfig->getApplePayMerchantId();
             $params['domainName']                = $_SERVER["HTTP_HOST"];
-            $params['displayName']               = 'My test shop';
+            $params['displayName']               = $this->gatewayConfig->getStoreName();
             $params['processingCertificate']     = $this->gatewayConfig->getApplePayProcessingCertificate();
             $params['processingCertificatePass'] = $this->gatewayConfig->getApplePayProcessingCertificatePassword();
             $params['merchantCertificate']       = $this->gatewayConfig->getApplePayMerchantIdCertificate();
