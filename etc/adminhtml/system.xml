@@ -420,9 +420,9 @@
                         <config_path>payment/checkout_com_applepay/debug</config_path>
                     </field>
 
-                    <field id="applepay_title" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="title" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
-                        <config_path>payment/checkout_com_applepay/applepay_title</config_path>
+                        <config_path>payment/checkout_com_applepay/title</config_path>
                         <comment>Payment method title displayed to shoppers.</comment>
                     </field>
 

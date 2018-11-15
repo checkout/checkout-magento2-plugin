@@ -372,7 +372,7 @@ class Config extends BaseConfig {
      */
     public function getApplePayTitle() {
         return (string) $this->getValue(
-            'payment/checkout_com_applepay/applepay_title',
+            'payment/checkout_com_applepay/title',
             $this->storeManager->getStore()
         );
     }
