@@ -34,5 +34,4 @@ class ApplePayCapabilities implements ArrayInterface {
             ],
         ];
     }
-
 }
