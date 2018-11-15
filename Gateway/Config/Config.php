@@ -373,7 +373,7 @@ class Config extends BaseConfig {
     public function getApplePayTitle() {
         return (string) $this->scopeConfig->getValue(
             'payment/checkout_com_applepay/title',
-            $this->storeManager->getStore()
+            ScopeInterface::SCOPE_STORE
         );
     }
 
@@ -385,7 +385,7 @@ class Config extends BaseConfig {
     public function getApplePaySupportedNetworks() {
         return (string) $this->scopeConfig->getValue(
             'payment/checkout_com_applepay/supported_networks',
-            $this->storeManager->getStore()
+            ScopeInterface::SCOPE_STORE
         );
     }
 
@@ -397,7 +397,7 @@ class Config extends BaseConfig {
     public function getApplePayMerchantCapabilities() {
         return (string) $this->scopeConfig->getValue(
             'payment/checkout_com_applepay/merchant_capabilities',
-            $this->storeManager->getStore()
+            ScopeInterface::SCOPE_STORE
         );
     }
 
