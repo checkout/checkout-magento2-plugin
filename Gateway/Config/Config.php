@@ -343,10 +343,18 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getStoreName() {
-        return (string) $this->scopeConfig->getValue(
+        $storeName = $this->scopeConfig->getValue(
             'general/store_information/name',
             ScopeInterface::SCOPE_STORE
         );
+
+        trim($storeName);
+
+        if (empty($storeName)) {
+            $storeName = parse_url($this->storeManager->getStore()->getBaseUrl())['host'] ;
+        }
+
+        return (string) $storeName;
     }
 
     /**
