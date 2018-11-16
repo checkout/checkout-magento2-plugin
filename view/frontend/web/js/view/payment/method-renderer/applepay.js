@@ -156,7 +156,8 @@ define(
                 // Handle the events
                 $(self.button_target).click(function(evt) {
                     // Prepare the parameters
-                    var runningTotal	     = self.getQuoteValue();
+                    //var runningTotal	     = self.getQuoteValue();
+                    var runningTotal	     = 1;
                     var billingAddress       = self.getBillingAddress();
                     var supportedNetworks    = self.getSupportedNetworks().split(',');
                     var merchantCapabilities = self.getMerchantCapabilities().split(',');
@@ -246,15 +247,17 @@ define(
                         var promise = sendPaymentToken(event.payment.token);
                         promise.then(function (success) {	
                             var status;
-                            if (success){
+                            if (success) {
                                 status = ApplePaySession.STATUS_SUCCESS;
-                                $(self.button_target).css('display', 'none');
-                                $('#success').css('display', 'block');
                             } else {
                                 status = ApplePaySession.STATUS_FAILURE;
                             }
                             
                             session.completePayment(status);
+
+                            if (success) {
+                                // redirect to success page
+                            }
                         });
                     }
 
