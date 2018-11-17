@@ -116,14 +116,17 @@ define(
              * @returns {array}
              */
             getSupportedNetworks: function() {
-                return CheckoutCom.getPaymentConfigApplePay()['supportedNetworks'];
+                return CheckoutCom.getPaymentConfigApplePay()['supportedNetworks'].split(',');
             },
 
             /**
              * @returns {array}
              */
             getMerchantCapabilities: function() {
-                return CheckoutCom.getPaymentConfigApplePay()['merchantCapabilities'];
+                var output = ['supports3DS'];
+                var capabilities = CheckoutCom.getPaymentConfigApplePay()['merchantCapabilities'].split(',');
+                
+                return output.concat(capabilities);
             },
 
             /**
@@ -160,8 +163,6 @@ define(
                     //var runningTotal	     = self.getQuoteValue();
                     var runningTotal	     = 1;
                     var billingAddress       = self.getBillingAddress();
-                    var supportedNetworks    = self.getSupportedNetworks().split(',');
-                    var merchantCapabilities = self.getMerchantCapabilities().split(',');
 
                     // Build the payment request
                     var paymentRequest = {
@@ -171,8 +172,8 @@ define(
                            label: ap['storeName'],
                            amount: runningTotal
                         },
-                        supportedNetworks: supportedNetworks,
-                        merchantCapabilities: [ 'supports3DS', 'supportsCredit', 'supportsDebit' ]
+                        supportedNetworks: self.getSupportedNetworks(),
+                        merchantCapabilities: self.getMerchantCapabilities()
                     };
 
                     // Start the payment session
