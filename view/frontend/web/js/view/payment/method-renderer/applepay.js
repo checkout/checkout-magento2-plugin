@@ -132,7 +132,8 @@ define(
             launchApplePay: function() {
                 // Prepare the parameters
                 var ap = CheckoutCom.getPaymentConfigApplePay();
-                var debug = ap['debugMode'];
+                //var debug = ap['debugMode'];
+                var debug = true;
                 var self = this;
 
                 // Apply the button style
@@ -156,7 +157,8 @@ define(
                 // Handle the events
                 $(self.button_target).click(function(evt) {
                     // Prepare the parameters
-                    var runningTotal	     = self.getQuoteValue();
+                    //var runningTotal	     = self.getQuoteValue();
+                    var runningTotal	     = 1;
                     var billingAddress       = self.getBillingAddress();
                     var supportedNetworks    = self.getSupportedNetworks().split(',');
                     var merchantCapabilities = self.getMerchantCapabilities().split(',');
@@ -165,13 +167,12 @@ define(
                     var paymentRequest = {
                         currencyCode: CheckoutCom.getPaymentConfig()['quote_currency'],
                         countryCode: billingAddress.countryId,
-                        lineItems: self.getLineItems(),
                         total: {
                            label: ap['storeName'],
                            amount: runningTotal
                         },
                         supportedNetworks: supportedNetworks,
-                        merchantCapabilities: merchantCapabilities
+                        merchantCapabilities: [ 'supports3DS', 'supportsCredit', 'supportsDebit' ]
                     };
 
                     // Start the payment session
