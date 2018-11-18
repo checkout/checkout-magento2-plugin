@@ -130,6 +130,44 @@ define(
             },
 
             /**
+             * @returns {object}
+             */
+            performValidation: function(valURL) {
+                var controllerUrl = url.build('checkout_com/payment/applepayvalidation');
+                var validationUrl = controllerUrl + '?u=' + valURL;
+                
+                return new Promise(function(resolve, reject) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.onload = function() {
+                        var data = JSON.parse(this.responseText);
+                        resolve(data);
+                    };
+                    xhr.onerror = reject;
+                    xhr.open('GET', validationUrl);
+                    xhr.send();
+                });
+            },
+
+            /**
+             * @returns {object}
+             */
+            sendChargeRequest: function(paymentData) {
+                return new Promise(function(resolve, reject) {
+                    $.ajax({
+                        url: url.build('checkout_com/payment/applepayplaceorder'),
+                        type: "POST",
+                        data: paymentData,
+                        success: function(data, textStatus, xhr) {
+                            resolve(true);
+                        },
+                        error: function(xhr, textStatus, error) {
+                            reject;
+                        } 
+                    });
+                });
+            },
+
+            /**
              * @returns {bool}
              */
             launchApplePay: function() {
@@ -181,28 +219,10 @@ define(
                 
                     // Merchant Validation
                     session.onvalidatemerchant = function (event) {
-                        var promise = performValidation(event.validationURL);
+                        var promise = self.performValidation(event.validationURL);
                         promise.then(function (merchantSession) {
                             session.completeMerchantValidation(merchantSession);
                         }); 
-                    }
-
-                    // Merchant validation function
-                    function performValidation(valURL) {
-                        var controllerUrl = url.build('checkout_com/payment/applepayvalidation');
-                        var validationUrl = controllerUrl + '?u=' + valURL;
-                        
-                        return new Promise(function(resolve, reject) {
-                            var xhr = new XMLHttpRequest();
-                            xhr.onload = function() {
-                                console.log(this.responseText);
-                                var data = JSON.parse(this.responseText);
-                                resolve(data);
-                            };
-                            xhr.onerror = reject;
-                            xhr.open('GET', validationUrl);
-                            xhr.send();
-                        });
                     }
 
                     // Shipping contact
@@ -246,8 +266,7 @@ define(
 
                     // Payment method authorization
                     session.onpaymentauthorized = function (event) {
-                        var promise = sendPaymentToken(event.payment.token);
-                        console.log(event);
+                        var promise = self.sendChargeRequest(event.payment.token);
                         promise.then(function (success) {	
                             var status;
                             if (success) {
@@ -260,18 +279,8 @@ define(
 
                             if (success) {
                                 // redirect to success page
-                                window.location.replace(self.getRedirectUrl());
+                                //window.location.replace(self.getRedirectUrl());
                             }
-                        });
-                    }
-
-                    // Send payment token
-                    function sendPaymentToken(paymentToken) {
-                        return new Promise(function(resolve, reject) {
-                            if (debug == true)
-                            resolve(true);
-                            else
-                            reject;
                         });
                     }
 
@@ -284,7 +293,6 @@ define(
                     session.begin();
                 });
             },
-            
         });
     }
 );
