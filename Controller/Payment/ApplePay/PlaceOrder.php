@@ -68,7 +68,7 @@ class PlaceOrder extends Action {
         CustomerSession $customerSession,
         TokenChargeService $tokenChargeService
     ) {
-        parent::__construct($context, $gatewayConfig);
+        parent::__construct($context);
 
         $this->checkoutSession        = $checkoutSession;
         $this->customerSession        = $customerSession;

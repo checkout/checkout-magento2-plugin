@@ -33,7 +33,7 @@ class ApplePayValidation extends Action {
         GatewayConfig $gatewayConfig,
         JsonFactory $resultJsonFactory
     ) {
-        parent::__construct($context, $gatewayConfig);
+        parent::__construct($context);
 
         $this->resultJsonFactory = $resultJsonFactory;
     }
