@@ -8,7 +8,7 @@
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
 
-namespace CheckoutCom\Magento2\Controller\Payment;
+namespace CheckoutCom\Magento2\Controller\Payment\ApplePay;
 
 use Magento\Framework\App\Action\Context;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
