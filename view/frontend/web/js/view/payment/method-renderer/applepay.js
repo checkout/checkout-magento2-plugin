@@ -64,10 +64,10 @@ define(
             },
 
             /**
-             * @param {string} card_token_id
+             * @returns {string}
              */
-            setCardTokenId: function(card_token_id) {
-                this.card_token_id = card_token_id;
+            getRedirectUrl: function() {
+                return url.build('checkout_com/payment/applepay/placeorder');
             },
 
             /**
@@ -259,6 +259,7 @@ define(
 
                             if (success) {
                                 // redirect to success page
+                                window.location.replace(self.getRedirectUrl());
                             }
                         });
                     }
