@@ -8,13 +8,14 @@
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
 
-namespace CheckoutCom\Magento2\Controller\Payment\ApplePay;
+namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Magento\Framework\App\Action\Context;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
+use Magento\Framework\App\Action\Action;
 use Magento\Framework\Controller\Result\JsonFactory;
 
-class Validation extends AbstractAction {
+class ApplePayValidation extends Action {
 
     /**
      * @var JsonFactory

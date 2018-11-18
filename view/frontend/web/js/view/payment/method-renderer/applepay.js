@@ -246,6 +246,7 @@ define(
                     // Payment method authorization
                     session.onpaymentauthorized = function (event) {
                         var promise = sendPaymentToken(event.payment.token);
+                        console.log(event);
                         promise.then(function (success) {	
                             var status;
                             if (success) {
