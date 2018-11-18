@@ -15,7 +15,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\Controller\Result\JsonFactory;
 
-class ApplePayValidation extends Action {
+class Validation extends Action {
 
     /**
      * @var JsonFactory
