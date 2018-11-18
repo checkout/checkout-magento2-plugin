@@ -261,7 +261,7 @@ define(
                             amount: runningTotal
                         };
                         
-                        session.completePaymentMethodSelection( newTotal, self.getLineItems());
+                        session.completePaymentMethodSelection(newTotal, self.getLineItems());
                     }
 
                     // Payment method authorization
