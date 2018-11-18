@@ -381,7 +381,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getApplePayTokenRequestUrl() {
-        $path = ($this->isLive()) ? KEY_LIVE_APPLEPAY_TOKEN_REQUEST_URL : KEY_SANDBOX_APPLEPAY_TOKEN_REQUEST_URL;
+        $path = ($this->isLive()) ? 
+        self::KEY_LIVE_APPLEPAY_TOKEN_REQUEST_URL : 
+        self::KEY_SANDBOX_APPLEPAY_TOKEN_REQUEST_URL;
+        
         return (string) $this->scopeConfig->getValue(
             $path,
             ScopeInterface::SCOPE_STORE
