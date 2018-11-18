@@ -71,6 +71,8 @@ class Config extends BaseConfig {
     const KEY_MADA_BINS_PATH = 'mada_bins_path';
     const KEY_MADA_BINS_PATH_TEST = 'mada_bins_path_test';
     const KEY_MADA_ENABLED = 'mada_enabled';
+    const KEY_LIVE_APPLEPAY_TOKEN_REQUEST_URL = 'live_applepay_token_request_url';
+    const KEY_SANDBOX_APPLEPAY_TOKEN_REQUEST_URL = 'sandbox_applepay_token_request_url';
 
     /**
      * @var array
@@ -371,6 +373,19 @@ class Config extends BaseConfig {
         }
     
         return true;  
+    }
+
+    /**
+     * Returns the Apple Pay token request URL.
+     *
+     * @return string
+     */
+    public function getApplePayTokenRequestUrl() {
+        $path = ($this->isLive()) ? KEY_LIVE_APPLEPAY_TOKEN_REQUEST_URL : KEY_SANDBOX_APPLEPAY_TOKEN_REQUEST_URL;
+        return (string) $this->scopeConfig->getValue(
+            $path,
+            ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**

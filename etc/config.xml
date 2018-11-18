@@ -56,6 +56,8 @@
                 <embedded_css><![CDATA[https://cdn.checkout.com/v2/js/css/theme-template.css]]></embedded_css>
                 <sandbox_hosted_url><![CDATA[https://secure1.checkout.com/sandbox/payment/]]></sandbox_hosted_url>
                 <live_hosted_url><![CDATA[https://secure1.checkout.com/payment/]]></live_hosted_url>
+                <live_applepay_token_request_url><![CDATA[https://api2.checkout.com/tokens/]]></live_applepay_token_request_url>
+                <sandbox_applepay_token_request_url><![CDATA[https://sandbox.checkout.com/api2/tokens/]]></sandbox_applepay_token_request_url>
                 <mada_enabled>0</mada_enabled>
                 <mada_bins_path>Model/Files/Mada/mada_bins.csv</mada_bins_path>
                 <mada_bins_path_test>Model/Files/Mada/mada_bins_test.csv</mada_bins_path_test>
