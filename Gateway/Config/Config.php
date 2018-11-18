@@ -384,10 +384,10 @@ class Config extends BaseConfig {
         $path = ($this->isLive()) ? 
         self::KEY_LIVE_APPLEPAY_TOKEN_REQUEST_URL : 
         self::KEY_SANDBOX_APPLEPAY_TOKEN_REQUEST_URL;
-        
-        return (string) $this->scopeConfig->getValue(
+
+        return (string) $this->getValue(
             $path,
-            ScopeInterface::SCOPE_STORE
+            $this->storeManager->getStore()
         );
     }
 
