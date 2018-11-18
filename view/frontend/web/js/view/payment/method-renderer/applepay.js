@@ -189,7 +189,7 @@ define(
 
                     // Merchant validation function
                     function performValidation(valURL) {
-                        var controllerUrl = url.build('checkout_com/payment/applepayvalidation');
+                        var controllerUrl = url.build('checkout_com/payment/applepay/validation');
                         var validationUrl = controllerUrl + '?u=' + valURL;
                         
                         return new Promise(function(resolve, reject) {
