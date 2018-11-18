@@ -10,7 +10,6 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
@@ -23,7 +22,7 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use CheckoutCom\Magento2\Model\Service\TokenChargeService;
 
-class ApplePayPlaceOrder extends Action {
+class ApplePayPlaceOrder extends AbstractAction {
 
     /**
      * @var TokenChargeService
@@ -68,7 +67,7 @@ class ApplePayPlaceOrder extends Action {
         CustomerSession $customerSession,
         TokenChargeService $tokenChargeService
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $gatewayConfig);
 
         $this->checkoutSession        = $checkoutSession;
         $this->customerSession        = $customerSession;

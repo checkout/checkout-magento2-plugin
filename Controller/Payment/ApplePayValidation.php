@@ -12,10 +12,9 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Magento\Framework\App\Action\Context;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
-use Magento\Framework\App\Action\Action;
 use Magento\Framework\Controller\Result\JsonFactory;
 
-class ApplePayValidation extends Action {
+class ApplePayValidation extends AbstractAction {
 
     /**
      * @var JsonFactory
@@ -33,7 +32,7 @@ class ApplePayValidation extends Action {
         GatewayConfig $gatewayConfig,
         JsonFactory $resultJsonFactory
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $gatewayConfig);
 
         $this->resultJsonFactory = $resultJsonFactory;
     }
