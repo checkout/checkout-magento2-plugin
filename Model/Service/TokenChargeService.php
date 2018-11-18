@@ -71,35 +71,58 @@ class TokenChargeService {
         $this->checkoutSession          = $checkoutSession;
     }
 
-    public function sendChargeRequest($cardToken, $order) {
+    public function sendApplePayChargeRequest($payload, $quote) {
+        // Build the request URL
+        $url = $this->gatewayConfig->getApplePayTokenRequestUrl();
+
+        // Prepare the token request data
+        $transfer = $this->transferFactory->create([
+            'type' => 'applepay',
+            'token_data' => $payload['paymentData']
+        ]);
+            
+        // Send the token request
+        $response           = $this->getHttpClient($url, $transfer, $isApplePay = true)->request();
+        $tokenData      = json_decode($response->getBody(), true);
+
+        // Send the charge request
+        $result = $this->sendChargeRequest($tokenData['token'], $quote, $disable3ds = true);
+
+        return $result;
+    }
+
+    public function sendChargeRequest($cardToken, $entity, $disable3ds = false) {
+        // Prepare some variables
+        $chargeMode = ($this->gatewayConfig->isVerify3DSecure() || !$disable3ds) ? 2 : 1;
+        $attemptN3D = ((filter_var($this->gatewayConfig->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN)) && !$disable3ds); 
+
         // Set the request parameters
-        $url = 'charges/token';
-        $method = 'POST';
+        $url = $this->gatewayConfig->getApiUrl() . 'charges/token';
         $transfer = $this->transferFactory->create([
             'autoCapTime'   => $this->gatewayConfig->getAutoCaptureTimeInHours(),
             'autoCapture'   => $this->gatewayConfig->isAutoCapture() ? 'Y' : 'N',
-            'email'         => $order->getBillingAddress()->getEmail(),
-            'customerIp'    => $order->getRemoteIp(),
-            'chargeMode'    => $this->gatewayConfig->isVerify3DSecure() ? 2 : 1,
-            'attemptN3D'    => filter_var($this->gatewayConfig->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN),
-            'customerName'  => $order->getCustomerName(),
-            'currency'      => ChargeAmountAdapter::getPaymentFinalCurrencyCode($order->getCurrencyCode()),
-            'value'         => $order->getGrandTotal()*100,
-            'trackId'       => $order->getIncrementId(),
+            'email'         => $entity->getBillingAddress()->getEmail(),
+            'customerIp'    => $entity->getRemoteIp(),
+            'chargeMode'    => $chargeMode,
+            'attemptN3D'    => $attemptN3D,
+            'customerName'  => $entity->getCustomerName(),
+            'currency'      => ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode()),
+            'value'         => $entity->getGrandTotal()*100,
+            'trackId'       => $entity->getIncrementId(),
             'cardToken'     => $cardToken
         ]);
 
         // Handle the request
-        return $this->_handleRequest($url, $method, $transfer);
+        return $this->_handleRequest($url, $transfer);
     }
 
-    protected function _handleRequest($url, $method, $transfer) {
+    protected function _handleRequest($url, $transfer) {
         // Prepare log data
         $log = [
             'request'           => $transfer->getBody(),
             'request_uri'       => $url,
             'request_headers'   => $transfer->getHeaders(),
-            'request_method'    => $method,
+            'request_method'    => $transfer->getMethod(),
         ];
 
         try {
@@ -161,11 +184,18 @@ class TokenChargeService {
      * @return ZendClient
      * @throws \Exception
      */
-    private function getHttpClient($endpoint, TransferInterface $transfer) {
-        $client = new ZendClient($this->gatewayConfig->getApiUrl() . $endpoint);
+    private function getHttpClient($endpoint, TransferInterface $transfer, $isApplePay = false) {
+        // Prepare the headers
+        $headers = $transfer->getHeaders();
+        if ($isApplePay) {
+            $headers['Authorization'] = $this->gatewayConfig->getPublicKey();
+        }
+
+        // Build the client
+        $client = new ZendClient($endpoint);
         $client->setMethod('POST');
         $client->setRawData( json_encode( $transfer->getBody()) ) ;
-        $client->setHeaders($transfer->getHeaders());
+        $client->setHeaders($headers);
         
         return $client;
     }

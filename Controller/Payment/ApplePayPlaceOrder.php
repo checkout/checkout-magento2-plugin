@@ -82,61 +82,43 @@ class ApplePayPlaceOrder extends AbstractAction {
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function execute() {
-
+        // Get the request parameters
         $params = $this->getRequest()->getParams();
 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/applepay.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($params, 1));
-        exit();
+        // Get the quote
+        $quote = $this->checkoutSession->getQuote();
 
+        // Send the charge request
+        $success = $this->tokenChargeService->sendApplePayChargeRequest($params, $quote);
 
-        // Retrieve the request parameters
-        $params = array(
-            'cardToken' => $this->getRequest()->getParam('cko-card-token'),
-            'email' => $this->getRequest()->getParam('cko-context-id'),
-            'agreement' => array_keys($this->getRequest()->getPostValue('agreement', [])),
-            'quote' => $this->checkoutSession->getQuote()
-        );
-
-
-        
         // If charge is successful, create order
-        $this->createOrder($params);
+        $this->createOrder($quote);
     }
 
-    public function createOrder($params) {
-
-        // Check for guest email
-        if ($params['quote']->getCustomerEmail() === null
-            && $this->customerSession->isLoggedIn() === false
-            && isset($this->customerSession->getData('checkoutSessionData')['customerEmail'])
-            && $this->customerSession->getData('checkoutSessionData')['customerEmail'] === $params['email']) 
-        {
-            $params['quote']->setCustomerId(null)
-            ->setCustomerEmail($params['email'])
-            ->setCustomerIsGuest(true)
-            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
-        }
-
-        // Perform quote and order validation
+    public function createOrder($quote) {
         try {
-            // Create an order from the quote
-            $this->validateQuote($params['quote']);
-            
-            /**
-             *  Temporary workaround for a M2 code T&C checkbox issue not sending data.
-             *  The last parameter should be $params['agreement']
-             */
-            $this->orderService->execute($params['quote'], $params['cardToken'], array(true));
+            // Prepare session quote info for redirection after payment
+            $this->checkoutSession
+            ->setLastQuoteId($quote->getId())
+            ->setLastSuccessQuoteId($quote->getId())
+            ->clearHelperData();
 
-            return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+            // Set payment
+            $quote->getPayment()->setMethod('substitution');
+            $quote->collectTotals()->save();
+
+            // Create the order
+            $order = $this->quoteManagement->submit($quote);
+
+            // Prepare session order info for redirection after payment
+            if ($order) {
+                $this->checkoutSession->setLastOrderId($order->getId())
+                                ->setLastRealOrderId($order->getIncrementId())
+                                ->setLastOrderStatus($order->getStatus());
+            }
 
         } catch (\Exception $e) {
             $this->messageManager->addExceptionMessage($e, $e->getMessage());
         }
-
-        return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 }
