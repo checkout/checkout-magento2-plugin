@@ -67,7 +67,7 @@ define(
              * @returns {string}
              */
             getRedirectUrl: function() {
-                return url.build('checkout_com/payment/applepay/placeorder');
+                return url.build('checkout_com/payment/applepayplaceorder');
             },
 
             /**
@@ -189,12 +189,13 @@ define(
 
                     // Merchant validation function
                     function performValidation(valURL) {
-                        var controllerUrl = url.build('checkout_com/payment/applepay/validation');
+                        var controllerUrl = url.build('checkout_com/payment/applepayvalidation');
                         var validationUrl = controllerUrl + '?u=' + valURL;
                         
                         return new Promise(function(resolve, reject) {
                             var xhr = new XMLHttpRequest();
                             xhr.onload = function() {
+                                console.log(this.responseText);
                                 var data = JSON.parse(this.responseText);
                                 resolve(data);
                             };

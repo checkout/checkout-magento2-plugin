@@ -8,7 +8,7 @@
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
 
-namespace CheckoutCom\Magento2\Controller\Payment\ApplePay;
+namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -23,7 +23,7 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use CheckoutCom\Magento2\Model\Service\TokenChargeService;
 
-class PlaceOrder extends Action {
+class ApplePayPlaceOrder extends Action {
 
     /**
      * @var TokenChargeService
@@ -84,6 +84,15 @@ class PlaceOrder extends Action {
      */
     public function execute() {
 
+        $params = $this->getRequest()->getParams();
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/applepay.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($params, 1));
+        exit();
+
+
         // Retrieve the request parameters
         $params = array(
             'cardToken' => $this->getRequest()->getParam('cko-card-token'),
@@ -91,6 +100,7 @@ class PlaceOrder extends Action {
             'agreement' => array_keys($this->getRequest()->getPostValue('agreement', [])),
             'quote' => $this->checkoutSession->getQuote()
         );
+
 
         
         // If charge is successful, create order
