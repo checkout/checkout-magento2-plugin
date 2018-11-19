@@ -16,6 +16,7 @@ define(
         'CheckoutCom_Magento2/js/view/payment/method-renderer/cc-form',
         'CheckoutCom_Magento2/js/view/payment/adapter',
         'Magento_Checkout/js/model/quote',
+        'Magento_Ui/js/model/messageList',
         'mage/url',
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/model/full-screen-loader',
@@ -25,7 +26,7 @@ define(
         'Magento_Checkout/js/action/redirect-on-success',
         'mage/translate'
     ],
-    function($, Component, CheckoutCom, quote, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, checkoutData, addressConverter, redirectOnSuccessAction, t, customer) {
+    function($, Component, CheckoutCom, quote, globalMessages, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, checkoutData, addressConverter, redirectOnSuccessAction, t, customer) {
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true;
@@ -43,10 +44,49 @@ define(
             /**
              * @returns {exports}
              */
-            initialize: function() {
+            initialize: function(config, messageContainer) {
                 this._super();
+                this.initObservable();
+                this.messageContainer = messageContainer || config.messageContainer || globalMessages;
 
                 return this;
+            },
+
+            /**
+             * @returns {exports}
+             */
+            initObservable: function () {
+                this._super()
+                    .observe('isHidden');
+
+                return this;
+            },
+
+            /**
+             * @returns {bool}
+             */
+            isVisible: function () {
+                return this.isHidden(this.messageContainer.hasMessages());
+            },
+
+            /**
+             * @returns {bool}
+             */
+            removeAll: function () {
+                this.messageContainer.clear();
+            },
+
+            /**
+             * @returns {void}
+             */
+            onHiddenChange: function (isHidden) {
+                var self = this;
+                // Hide message block if needed
+                if (isHidden) {
+                    setTimeout(function () {
+                        $(self.selector).hide('blind', {}, 500)
+                    }, 10000);
+                }
             },
 
             /**
@@ -178,6 +218,10 @@ define(
              * @returns {bool}
              */
             launchApplePay: function() {
+                this.messageContainer.addErrorMessage({
+                    message: 'hello test error'
+                });
+
                 // Prepare the parameters
                 var ap = CheckoutCom.getPaymentConfigApplePay();
                 var self = this;
@@ -223,7 +267,12 @@ define(
 
                     // Start the payment session
                     var session = new ApplePaySession(1, paymentRequest);
-                
+
+                    // Validate T&C submission
+                    if (!additionalValidators.validate()) {
+                        session.abort();
+                    }
+
                     // Merchant Validation
                     session.onvalidatemerchant = function (event) {
                         self.logEvent(event);
