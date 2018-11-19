@@ -36,7 +36,6 @@ define(
                 template: 'CheckoutCom_Magento2/payment/applepay',
                 code: 'checkout_com_applepay',
                 card_token_id: null,
-                redirectAfterPlaceOrder: true, 
                 button_target: '#cko-applepay-holder button',
                 debug: false
             },
@@ -292,6 +291,7 @@ define(
 
                             if (success) {
                                 // redirect to success page
+                                fullScreenLoader.startLoader();
                                 redirectOnSuccessAction.execute(); 
                             }
                         });
