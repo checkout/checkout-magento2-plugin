@@ -108,8 +108,7 @@ class TokenChargeService {
             'attemptN3D'    => $attemptN3D,
             'customerName'  => $entity->getCustomerName(),
             'currency'      => ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode()),
-            //'value'         => $entity->getGrandTotal()*100,
-            'value'         => 1,
+            'value'         => $entity->getGrandTotal()*100,
             'trackId'       => $trackId,
             'cardToken'     => $cardToken
         ]);

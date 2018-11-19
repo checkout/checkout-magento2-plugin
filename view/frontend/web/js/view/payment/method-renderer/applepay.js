@@ -196,8 +196,7 @@ define(
                 // Handle the events
                 $(self.button_target).click(function(evt) {
                     // Prepare the parameters
-                    //var runningTotal	     = self.getQuoteValue();
-                    var runningTotal	     = 1;
+                    var runningTotal	     = self.getQuoteValue();
                     var billingAddress       = self.getBillingAddress();
 
                     // Build the payment request
