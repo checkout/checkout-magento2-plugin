@@ -64,13 +64,6 @@ define(
             },
 
             /**
-             * @returns {string}
-             */
-            getRedirectUrl: function() {
-                return url.build('checkout_com/payment/applepayplaceorder');
-            },
-
-            /**
              * @returns {bool}
              */
             isActive: function() {
@@ -158,7 +151,12 @@ define(
                         type: "POST",
                         data: paymentData,
                         success: function(data, textStatus, xhr) {
-                            resolve(true);
+                            if (data.status === true) {
+                                resolve(data.status);
+                            }
+                            else {
+                                reject;
+                            }
                         },
                         error: function(xhr, textStatus, error) {
                             reject;
@@ -198,7 +196,8 @@ define(
                 // Handle the events
                 $(self.button_target).click(function(evt) {
                     // Prepare the parameters
-                    var runningTotal	     = self.getQuoteValue();
+                    //var runningTotal	     = self.getQuoteValue();
+                    var runningTotal	     = 1;
                     var billingAddress       = self.getBillingAddress();
 
                     // Build the payment request
@@ -278,7 +277,7 @@ define(
 
                             if (success) {
                                 // redirect to success page
-                                window.location.replace(self.getRedirectUrl());
+                                redirectOnSuccessAction.execute(); 
                             }
                         });
                     }
