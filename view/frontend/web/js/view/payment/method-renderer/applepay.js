@@ -278,7 +278,7 @@ define(
 
                             if (success) {
                                 // redirect to success page
-                                //window.location.replace(self.getRedirectUrl());
+                                window.location.replace(self.getRedirectUrl());
                             }
                         });
                     }
