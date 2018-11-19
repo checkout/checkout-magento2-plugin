@@ -14,12 +14,13 @@ use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Quote\Model\QuoteManagement;
-use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use Magento\Customer\Api\Data\GroupInterface;
-use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
+use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use CheckoutCom\Magento2\Model\Service\TokenChargeService;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 
 class ApplePayPlaceOrder extends AbstractAction {
 
@@ -44,12 +45,18 @@ class ApplePayPlaceOrder extends AbstractAction {
     protected $quoteManagement;
 
     /**
+     * @var JsonFactory
+     */
+    protected $resultJsonFactory;
+
+    /**
      * PlaceOrder constructor.
      * @param Context $context
      * @param CheckoutSession $checkoutSession
      * @param GatewayConfig $gatewayConfig
      * @param QuoteManagement $quoteManagement
      * @param Order $orderManager
+     * @param JsonFactory $resultJsonFactory
      */
     public function __construct(
         Context $context,
@@ -57,7 +64,8 @@ class ApplePayPlaceOrder extends AbstractAction {
         GatewayConfig $gatewayConfig,
         QuoteManagement $quoteManagement,
         CustomerSession $customerSession,
-        TokenChargeService $tokenChargeService
+        TokenChargeService $tokenChargeService,
+        JsonFactory $resultJsonFactory
     ) {
         parent::__construct($context, $gatewayConfig);
 
@@ -65,6 +73,7 @@ class ApplePayPlaceOrder extends AbstractAction {
         $this->customerSession        = $customerSession;
         $this->quoteManagement        = $quoteManagement;
         $this->tokenChargeService     = $tokenChargeService;
+        $this->resultJsonFactory      = $resultJsonFactory;
     }
 
     /**
@@ -80,15 +89,16 @@ class ApplePayPlaceOrder extends AbstractAction {
         $quote = $this->checkoutSession->getQuote();
 
         // Send the charge request
-        //$success = $this->tokenChargeService->sendApplePayChargeRequest($params, $quote);
+        $success = $this->tokenChargeService->sendApplePayChargeRequest($params, $quote);
 
         // If charge is successful, create order
-        $orderId = $this->createOrder($quote);
+        if ($success) {
+            $orderId = $this->createOrder($quote);
+        }
 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/order.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info($orderId);
+        return $this->resultJsonFactory->create()->setData([
+            'status' => $success
+        ]);
     }
 
     public function createOrder($quote) { 
@@ -98,6 +108,12 @@ class ApplePayPlaceOrder extends AbstractAction {
 
         // Prepare the inventory
         $quote->setInventoryProcessed(false);
+
+        // Prepare session quote info for redirection after payment
+        $this->checkoutSession
+        ->setLastQuoteId($quote->getId())
+        ->setLastSuccessQuoteId($quote->getId())
+        ->clearHelperData();
 
         // Check for guest user quote
         if ($quote->getCustomerEmail() === null && $this->customerSession->isLoggedIn() === false)
@@ -111,6 +127,7 @@ class ApplePayPlaceOrder extends AbstractAction {
         // Create the order
         $order = $this->quoteManagement->submit($quote);
 
+        // Prepare session order info for redirection after payment
         if ($order) {
             $this->checkoutSession->setLastOrderId($order->getId())
                                ->setLastRealOrderId($order->getIncrementId())
