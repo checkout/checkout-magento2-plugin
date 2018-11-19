@@ -218,10 +218,6 @@ define(
              * @returns {bool}
              */
             launchApplePay: function() {
-                this.messageContainer.addErrorMessage({
-                    message: 'hello test error'
-                });
-
                 // Prepare the parameters
                 var ap = CheckoutCom.getPaymentConfigApplePay();
                 var self = this;
