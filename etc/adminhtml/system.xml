@@ -427,12 +427,6 @@
                         <comment>Payment method title displayed to shoppers.</comment>
                     </field>
 
-                    <field id="api_mode" translate="label" sortOrder="3" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>API Mode</label>
-                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayApiMode</source_model>
-                        <config_path>payment/checkout_com_applepay/api_mode</config_path>
-                    </field>
-
                     <field id="processing_certificate" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Processing Certificate</label>
                         <config_path>payment/checkout_com_applepay/processing_certificate</config_path>

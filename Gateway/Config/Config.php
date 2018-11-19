@@ -490,18 +490,6 @@ class Config extends BaseConfig {
     }
 
     /**
-     * Gets the ApplePay API mode.
-     *
-     * @return bool
-     */
-    public function getApplePayApiMode() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_applepay/api_mode',
-            ScopeInterface::SCOPE_STORE
-        ); 
-    }
-
-    /**
      * Gets the ApplePay button style.
      *
      * @return bool

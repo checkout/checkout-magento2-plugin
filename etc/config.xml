@@ -81,7 +81,6 @@
                 <can_void>0</can_void>
                 <debug>0</debug>
                 <sort_order>1</sort_order>
-                <api_mode>applepayjs</api_mode>
                 <processing_certificate>/path/to/cert</processing_certificate>
                 <processing_certificate_password></processing_certificate_password>
                 <merchant_id_certificate>/path/to/cert</merchant_id_certificate>
