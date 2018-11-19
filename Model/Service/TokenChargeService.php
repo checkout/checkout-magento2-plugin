@@ -85,21 +85,17 @@ class TokenChargeService {
         $response           = $this->getHttpClient($url, $transfer, $isApplePay = true)->request();
         $tokenData      = json_decode($response->getBody(), true);
 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/order.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($tokenData, 1));
-
         // Send the charge request
-        $result = $this->sendChargeRequest($tokenData['token'], $quote, $disable3ds = true);
+        $result = $this->sendChargeRequest($tokenData['token'], $quote, $disable3ds = true, $isQuote = true);
 
         return $result;
     }
 
-    public function sendChargeRequest($cardToken, $entity, $disable3ds = false) {
+    public function sendChargeRequest($cardToken, $entity, $disable3ds = false, $isQuote = false) {
         // Prepare some variables
         $chargeMode = ($this->gatewayConfig->isVerify3DSecure() || !$disable3ds) ? 2 : 1;
         $attemptN3D = ((filter_var($this->gatewayConfig->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN)) && !$disable3ds); 
+        $trackId = ($isQuote) ? $entity->reserveOrderId()->save()->getReservedOrderId() : $entity->getIncrementId();
 
         // Set the request parameters
         $url = $this->gatewayConfig->getApiUrl() . 'charges/token';
@@ -112,8 +108,9 @@ class TokenChargeService {
             'attemptN3D'    => $attemptN3D,
             'customerName'  => $entity->getCustomerName(),
             'currency'      => ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode()),
-            'value'         => $entity->getGrandTotal()*100,
-            'trackId'       => $entity->getIncrementId(),
+            //'value'         => $entity->getGrandTotal()*100,
+            'value'         => 1,
+            'trackId'       => $trackId,
             'cardToken'     => $cardToken
         ]);
 
