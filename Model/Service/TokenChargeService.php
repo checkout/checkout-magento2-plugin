@@ -85,6 +85,11 @@ class TokenChargeService {
         $response           = $this->getHttpClient($url, $transfer, $isApplePay = true)->request();
         $tokenData      = json_decode($response->getBody(), true);
 
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/order.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($tokenData, 1));
+
         // Send the charge request
         $result = $this->sendChargeRequest($tokenData['token'], $quote, $disable3ds = true);
 
