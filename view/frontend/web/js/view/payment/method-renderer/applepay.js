@@ -37,7 +37,8 @@ define(
                 code: 'checkout_com_applepay',
                 card_token_id: null,
                 redirectAfterPlaceOrder: true, 
-                button_target: '#cko-applepay-holder button'
+                button_target: '#cko-applepay-holder button',
+                debug: false
             },
 
             /**
@@ -123,6 +124,15 @@ define(
             },
 
             /**
+             * @returns {void}
+             */
+            logEvent: function(data) {
+                if (this.debug === true) {
+                    console.log(data);
+                }
+            },
+
+            /**
              * @returns {object}
              */
             performValidation: function(valURL) {
@@ -171,9 +181,10 @@ define(
             launchApplePay: function() {
                 // Prepare the parameters
                 var ap = CheckoutCom.getPaymentConfigApplePay();
-                //var debug = ap['debugMode'];
-                var debug = true;
                 var self = this;
+
+                // Set the debug mode
+                self.debug = JSON.parse(ap['debugMode']);
 
                 // Apply the button style
                 $(self.button_target).addClass('apple-pay-button-' + ap['buttonStyle']);
@@ -216,6 +227,7 @@ define(
                 
                     // Merchant Validation
                     session.onvalidatemerchant = function (event) {
+                        self.logEvent(event);
                         var promise = self.performValidation(event.validationURL);
                         promise.then(function (merchantSession) {
                             session.completeMerchantValidation(merchantSession);
@@ -223,7 +235,8 @@ define(
                     }
 
                     // Shipping contact
-                    session.onshippingcontactselected = function(event) {                                                
+                    session.onshippingcontactselected = function(event) {  
+                        self.logEvent(event);                                              
                         var status = ApplePaySession.STATUS_SUCCESS;
 
                         // Shipping info
@@ -239,7 +252,8 @@ define(
                     }
 
                     // Shipping method selection
-                    session.onshippingmethodselected = function(event) {                                                
+                    session.onshippingmethodselected = function(event) {   
+                        self.logEvent(event);                                             
                         var status = ApplePaySession.STATUS_SUCCESS;
                         var newTotal = {
                             type: 'final',
@@ -252,6 +266,7 @@ define(
 
                     // Payment method selection
                     session.onpaymentmethodselected = function(event) {
+                        self.logEvent(event);
                         var newTotal = {
                             type: 'final',
                             label: ap['storeName'],
@@ -263,6 +278,7 @@ define(
 
                     // Payment method authorization
                     session.onpaymentauthorized = function (event) {
+                        self.logEvent(event);
                         var promise = self.sendChargeRequest(event.payment.token);
                         promise.then(function (success) {	
                             var status;
@@ -283,7 +299,7 @@ define(
 
                     // Session cancellation
                     session.oncancel = function(event) {
-                        // Do something if needed
+                        self.logEvent(event);
                     }
 
                     // Begin session
