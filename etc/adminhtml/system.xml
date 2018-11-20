@@ -471,8 +471,13 @@
                         <config_path>payment/checkout_com_applepay/merchant_capabilities</config_path>
                         <comment>Select the Apple Pay merchant capabilities</comment>
                     </field>
-                </group>
 
+                    <field id="supported_countries" translate="label" sortOrder="10" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Suported countries</label>
+                        <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                        <comment>The Apple Pay payment option will display only for the shoppers having a billing address with a country selected here.</comment>
+                    </field>
+                </group>
             </group>
         </section>
     </system>

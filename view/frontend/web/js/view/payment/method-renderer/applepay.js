@@ -172,6 +172,13 @@ define(
             /**
              * @returns {array}
              */
+            getSupportedCountries: function() {
+                return CheckoutCom.getPaymentConfigApplePay()['supportedCountries'].split(',');
+            },
+
+            /**
+             * @returns {array}
+             */
             getMerchantCapabilities: function() {
                 var output = ['supports3DS'];
                 var capabilities = CheckoutCom.getPaymentConfigApplePay()['merchantCapabilities'].split(',');
@@ -276,7 +283,7 @@ define(
                         },
                         supportedNetworks: self.getSupportedNetworks(),
                         merchantCapabilities: self.getMerchantCapabilities(),
-                        supportedCountries: ['US', 'GB']
+                        supportedCountries: self.getSupportedCountries()
                     };
 
                     // Start the payment session

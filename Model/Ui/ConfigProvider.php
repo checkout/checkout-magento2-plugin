@@ -107,6 +107,7 @@ class ConfigProvider implements ConfigProviderInterface {
                     'title' => $this->config->getApplePayTitle(),
                     'supportedNetworks' => $this->config->getApplePaySupportedNetworks(),
                     'merchantCapabilities' => $this->config->getApplePayMerchantCapabilities(),
+                    'supportedCountries' => $this->config->getApplePaySupportedCountries()
                 ],
             ],
         ];

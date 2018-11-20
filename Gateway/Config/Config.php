@@ -359,6 +359,7 @@ class Config extends BaseConfig {
         return (string) $storeName;
     }
 
+    
     /**
      * Determines if Apple Pay is active.
      *
@@ -389,6 +390,20 @@ class Config extends BaseConfig {
             $path,
             $this->storeManager->getStore()
         );
+    }
+
+    /**
+     * Return the countries supported by Apple Pay.
+     *
+     * @return array
+     */
+    public function getApplePaySupportedCountries() {
+        $supportedCountries = $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/supported_countries',
+            ScopeInterface::SCOPE_STORE
+        );
+
+        return empty($supportedCountries) ? $supportedCountries : 'US,GB';
     }
 
     /**
