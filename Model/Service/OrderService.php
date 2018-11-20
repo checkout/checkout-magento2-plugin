@@ -29,6 +29,7 @@ use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Observer\DataAssignObserver;
 use CheckoutCom\Magento2\Helper\Watchdog;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
+use CheckoutCom\Magento2\Helper\Helper;
 
 class OrderService {
 
@@ -88,12 +89,18 @@ class OrderService {
     protected $watchdog;
 
     /**
+     * @var Helper
+     */
+    protected $helper;
+
+    /**
      * OrderService constructor.
      * @param CartManagementInterface $cartManagement
      * @param AgreementsValidatorInterface $agreementsValidator
      * @param Session $customerSession
      * @param Data $checkoutHelper
      * @param Order $orderManager
+     * @param Helper $helper
      */
     public function __construct(
         CartManagementInterface $cartManagement,
@@ -106,7 +113,8 @@ class OrderService {
         FilterBuilder $filterBuilder,
         TransferFactory $transferFactory,
         GatewayConfig $gatewayConfig,
-        Watchdog $watchdog
+        Watchdog $watchdog,
+        Helper $helper
     ) {
         $this->cartManagement        = $cartManagement;
         $this->agreementsValidator   = $agreementsValidator;
@@ -119,6 +127,7 @@ class OrderService {
         $this->transferFactory       = $transferFactory;
         $this->gatewayConfig         = $gatewayConfig;
         $this->watchdog              = $watchdog;
+        $this->helper                = $helper;
     }
 
     /**
@@ -138,10 +147,11 @@ class OrderService {
             //throw new LocalizedException(__('Please agree to all the terms and conditions before placing the order.'));
         //}
 
-        if ($this->getCheckoutMethod($quote) === Onepage::METHOD_GUEST) {
-            $this->prepareGuestQuote($quote);
+        // Check for guest email
+        if ($this->customerSession->isLoggedIn() === false) {
+            $quote = $this->helper->prepareGuestQuote($quote);
         }
-
+         
         // Set up the payment information
         $payment = $quote->getPayment();
         $payment->setMethod(ConfigProvider::CODE);
@@ -298,19 +308,6 @@ class OrderService {
         }
 
         return $quote->getCheckoutMethod();
-    }
-
-    /**
-     * Prepare quote for guest checkout order submit.
-     *
-     * @param Quote $quote
-     * @return void
-     */
-    private function prepareGuestQuote(Quote $quote) {
-        $quote->setCustomerId(null)
-            ->setCustomerEmail($quote->getBillingAddress()->getEmail())
-            ->setCustomerIsGuest(true)
-            ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
     }
 
     /**

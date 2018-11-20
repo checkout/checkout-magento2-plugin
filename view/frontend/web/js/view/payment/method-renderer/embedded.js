@@ -23,7 +23,8 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/redirect-on-success'
+        'Magento_Checkout/js/action/redirect-on-success',
+        'mage/cookies'
     ],
     function($, Component, VaultEnabler, CheckoutCom, quote, globalMessages, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, checkoutData, redirectOnSuccessAction, customer) {
         'use strict';
@@ -47,6 +48,7 @@ define(
                 this._super();
                 this.initObservable();
                 this.messageContainer = messageContainer || config.messageContainer || globalMessages;
+                this.setEmailAddress();
 
                 this.vaultEnabler = new VaultEnabler();
                 this.vaultEnabler.setPaymentCode(this.getVaultCode());
@@ -64,6 +66,21 @@ define(
                 return this;
             },
 
+            /**
+             * @returns {string}
+             */
+            getEmailAddress: function() {
+                return window.checkoutConfig.customerData.email || quote.guestEmail || checkoutData.getValidatedEmailValue();
+            },
+
+            /**
+             * @returns {void}
+             */
+            setEmailAddress: function() {
+                var email = this.getEmailAddress();
+                $.cookie('ckoEmail', email);
+            },
+            
             /**
              * @returns {bool}
              */

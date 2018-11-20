@@ -14,18 +14,15 @@ use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Quote\Model\QuoteManagement;
-use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Stdlib\CookieManagerInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use CheckoutCom\Magento2\Model\Service\TokenChargeService;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
+use CheckoutCom\Magento2\Helper\Helper;
 
 class ApplePayPlaceOrder extends AbstractAction {
-
-    const EMAIL_COOKIE_NAME = 'ckoEmail';
 
     /**
      * @var TokenChargeService
@@ -53,19 +50,20 @@ class ApplePayPlaceOrder extends AbstractAction {
     protected $resultJsonFactory;
 
     /**
-     * @var CookieManagerInterface
+     * @var Helper
      */
-    protected $cookieManager;
+    protected $helper;
 
     /**
      * PlaceOrder constructor.
      * @param Context $context
      * @param CheckoutSession $checkoutSession
+     * @param CustomerSession $customerSession
      * @param GatewayConfig $gatewayConfig
      * @param QuoteManagement $quoteManagement
      * @param Order $orderManager
      * @param JsonFactory $resultJsonFactory
-     * @param CookieManagerInterface $cookieManager
+     * @param Helper $helper
      */
     public function __construct(
         Context $context,
@@ -75,7 +73,7 @@ class ApplePayPlaceOrder extends AbstractAction {
         CustomerSession $customerSession,
         TokenChargeService $tokenChargeService,
         JsonFactory $resultJsonFactory,
-        CookieManagerInterface $cookieManager
+        Helper $helper
     ) {
         parent::__construct($context, $gatewayConfig);
 
@@ -84,7 +82,7 @@ class ApplePayPlaceOrder extends AbstractAction {
         $this->quoteManagement        = $quoteManagement;
         $this->tokenChargeService     = $tokenChargeService;
         $this->resultJsonFactory      = $resultJsonFactory;
-        $this->cookieManager          = $cookieManager;
+        $this->helper                 = $helper;
     }
 
     /**
@@ -104,13 +102,12 @@ class ApplePayPlaceOrder extends AbstractAction {
         $success = false;
 
         // If charge is successful, create order
-        if (!$success) {
+        if ($success) {
             $orderId = $this->createOrder($quote);
         }
 
         return $this->resultJsonFactory->create()->setData([
-            //'status' => $success
-            'status' => true
+            'status' => $success
         ]);
     }
 
@@ -131,19 +128,7 @@ class ApplePayPlaceOrder extends AbstractAction {
         // Check for guest user quote
         if ($this->customerSession->isLoggedIn() === false)
         {
-            // Retrieve the user email 
-            $email = $quote->getCustomerEmail() 
-            ?? $quote->getBillingAddress()->getEmail()
-            ?? $this->cookieManager->getCookie(self::EMAIL_COOKIE_NAME);
-
-            // Set the quote as guest
-            $quote->setCustomerId(null)
-            ->setCustomerEmail($email)
-            ->setCustomerIsGuest(true)
-            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
-
-            // Delete the cookie
-            $this->cookieManager->deleteCookie(self::EMAIL_COOKIE_NAME);
+            $quote = $this->helper->prepareGuestQuote($quote);
         }
         
         // Create the order

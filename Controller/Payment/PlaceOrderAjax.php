@@ -13,12 +13,12 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
-use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
-use CheckoutCom\Magento2\Model\Service\OrderService;
-use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Quote\Model\QuoteManagement;
-use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use Magento\Framework\Controller\Result\JsonFactory;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
+use CheckoutCom\Magento2\Model\Service\OrderService;
+use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
+use CheckoutCom\Magento2\Helper\Helper;
 
 class PlaceOrderAjax extends AbstractAction {
 
@@ -48,12 +48,18 @@ class PlaceOrderAjax extends AbstractAction {
     protected $resultJsonFactory;
 
     /**
+     * @var Helper
+     */
+    protected $helper;
+
+    /**
      * PlaceOrder constructor.
      * @param Context $context
      * @param CheckoutSession $checkoutSession
      * @param GatewayConfig $gatewayConfig
      * @param OrderService $orderService
      * @param JsonFactory $resultJsonFactory
+     * @param Helper $helper
      */
     public function __construct(
         Context $context,
@@ -62,7 +68,8 @@ class PlaceOrderAjax extends AbstractAction {
         OrderService $orderService,
         CustomerSession $customerSession,
         QuoteManagement $quoteManagement, 
-        JsonFactory $resultJsonFactory
+        JsonFactory $resultJsonFactory,
+        Helper $helper
     ) {
         parent::__construct($context, $gatewayConfig);
 
@@ -71,6 +78,7 @@ class PlaceOrderAjax extends AbstractAction {
         $this->orderService      = $orderService;
         $this->quoteManagement   = $quoteManagement;
         $this->resultJsonFactory = $resultJsonFactory;
+        $this->helper            = $helper;
     }
 
     /**
@@ -91,16 +99,8 @@ class PlaceOrderAjax extends AbstractAction {
         $agreement      = array_keys($this->getRequest()->getPostValue('agreement', []));
 
         // Check for guest email
-        if ($quote->getCustomerEmail() === null
-            && $this->customerSession->isLoggedIn() === false
-            && isset($this->customerSession->getData('checkoutSessionData')['customerEmail'])
-        ) 
-        {
-            $quote->setCustomerId(null)
-            ->setCustomerEmail($email)
-            ->setCustomerIsGuest(true)
-            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID)
-            ->save();
+        if ($this->customerSession->isLoggedIn() === false) {
+            $quote = $this->helper->prepareGuestQuote($quote);
         }
 
         // Prepare session quote info for redirection after payment
