@@ -24,7 +24,8 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/address-converter',
         'Magento_Checkout/js/action/redirect-on-success',
-        'mage/translate'
+        'mage/translate',
+        'mage/cookies'
     ],
     function($, Component, CheckoutCom, quote, globalMessages, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, checkoutData, addressConverter, redirectOnSuccessAction, t, customer) {
         'use strict';
@@ -48,6 +49,7 @@ define(
                 this._super();
                 this.initObservable();
                 this.messageContainer = messageContainer || config.messageContainer || globalMessages;
+                this.setEmailAddress();
 
                 return this;
             },
@@ -108,6 +110,21 @@ define(
              */
             isActive: function() {
                 return CheckoutCom.getPaymentConfigApplePay()['isActive'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getEmailAddress: function() {
+                return window.checkoutConfig.customerData.email || quote.guestEmail || checkoutData.getValidatedEmailValue();
+            },
+
+            /**
+             * @returns {void}
+             */
+            setEmailAddress: function() {
+                var email = this.getEmailAddress();
+                $.cookie('ckoEmail', email);
             },
 
             /**
@@ -258,7 +275,8 @@ define(
                            amount: runningTotal
                         },
                         supportedNetworks: self.getSupportedNetworks(),
-                        merchantCapabilities: self.getMerchantCapabilities()
+                        merchantCapabilities: self.getMerchantCapabilities(),
+                        supportedCountries: ['US', 'GB']
                     };
 
                     // Start the payment session
