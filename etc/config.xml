@@ -71,7 +71,7 @@
             </checkout_com>
             <checkout_com_applepay>
                 <title>Apple Pay (Checkout.com)</title>
-                <active>1</active>
+                <active>0</active>
                 <model>CheckoutCom\Magento2\Model\Method\ApplePayMethod</model>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
