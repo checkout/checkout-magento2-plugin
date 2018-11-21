@@ -173,6 +173,7 @@ define(
              * @returns {array}
              */
             getSupportedCountries: function() {
+                console.log(CheckoutCom.getPaymentConfigApplePay()['supportedCountries']);
                 return CheckoutCom.getPaymentConfigApplePay()['supportedCountries'].split(',');
             },
 
@@ -266,6 +267,8 @@ define(
                 } else {
                     $('#notgot').css('display', 'block');
                 }
+
+                alert(self.getSupportedCountries());
 
                 // Handle the events
                 $(self.button_target).click(function(evt) {

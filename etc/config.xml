@@ -87,6 +87,7 @@
                 <merchant_id></merchant_id>
                 <supported_networks>amex,masterCard,visa</supported_networks>
                 <merchant_capabilities>supportsCredit,supportsDebit</merchant_capabilities>
+                <supported_countries>US,GB</supported_countries>
                 <button_style>black</button_style>
             </checkout_com_applepay>            
             <checkout_com_cc_vault>

@@ -475,6 +475,7 @@
                     <field id="supported_countries" translate="label" sortOrder="10" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Suported countries</label>
                         <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                        <config_path>payment/checkout_com_applepay/supported_countries</config_path>
                         <comment>The Apple Pay payment option will display only for the shoppers having a billing address with a country selected here.</comment>
                     </field>
                 </group>
