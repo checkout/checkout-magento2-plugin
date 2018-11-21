@@ -97,9 +97,14 @@ class ApplePayPlaceOrder extends AbstractAction {
         // Get the quote
         $quote = $this->checkoutSession->getQuote();
 
+        // Check for guest user quote
+        if ($this->customerSession->isLoggedIn() === false)
+        {
+            $quote = $this->helper->prepareGuestQuote($quote);
+        }
+        
         // Send the charge request
-        //$success = $this->tokenChargeService->sendApplePayChargeRequest($params, $quote);
-        $success = false;
+        $success = $this->tokenChargeService->sendApplePayChargeRequest($params, $quote);
 
         // If charge is successful, create order
         if ($success) {
@@ -124,12 +129,6 @@ class ApplePayPlaceOrder extends AbstractAction {
         ->setLastQuoteId($quote->getId())
         ->setLastSuccessQuoteId($quote->getId())
         ->clearHelperData();
-
-        // Check for guest user quote
-        if ($this->customerSession->isLoggedIn() === false)
-        {
-            $quote = $this->helper->prepareGuestQuote($quote);
-        }
         
         // Create the order
         $order = $this->quoteManagement->submit($quote);
