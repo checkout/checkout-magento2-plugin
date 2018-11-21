@@ -403,7 +403,7 @@ class Config extends BaseConfig {
             ScopeInterface::SCOPE_STORE
         );
 
-        return empty($supportedCountries) ? $supportedCountries : 'US,GB';
+        return !empty($supportedCountries) ? $supportedCountries : 'US,GB';
     }
 
     /**
