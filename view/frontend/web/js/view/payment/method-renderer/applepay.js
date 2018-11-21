@@ -269,6 +269,12 @@ define(
 
                 // Handle the events
                 $(self.button_target).click(function(evt) {
+
+                    // Validate T&C submission
+                    if (!additionalValidators.validate()) {
+                        return;
+                    }
+
                     // Prepare the parameters
                     var runningTotal	     = self.getQuoteValue();
                     var billingAddress       = self.getBillingAddress();
@@ -288,11 +294,6 @@ define(
 
                     // Start the payment session
                     var session = new ApplePaySession(1, paymentRequest);
-
-                    // Validate T&C submission
-                    if (!additionalValidators.validate()) {
-                        session.abort();
-                    }
 
                     // Merchant Validation
                     session.onvalidatemerchant = function (event) {
