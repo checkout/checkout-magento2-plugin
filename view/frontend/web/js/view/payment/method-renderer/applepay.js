@@ -38,7 +38,7 @@ define(
                 template: 'CheckoutCom_Magento2/payment/applepay',
                 code: 'checkout_com_applepay',
                 card_token_id: null,
-                button_target: '#cko-applepay-holder button',
+                button_target: '#ckoApplePayButton',
                 debug: false
             },
 

@@ -32,14 +32,10 @@
 
         <div class="actions-toolbar">
             <div class="primary">
-                <div id="cko-applepay-holder">
-                    <div>
-                        <button type="button" class="apple-pay-button"></button>
-                        <p style="display:none" id="got_notactive">ApplePay is possible on this browser, but not currently activated.</p>
-                        <p style="display:none" id="notgot">ApplePay is not available on this browser</p>
-                    </div>
+                    <button id="ckoApplePayButton" type="button" class="apple-pay-button action primary checkout"></button>
+                    <p style="display:none" id="got_notactive">ApplePay is possible on this browser, but not currently activated.</p>
+                    <p style="display:none" id="notgot">ApplePay is not available on this browser</p>
                     <div data-bind="visible: launchApplePay()"></div>
-                </div>
             </div>
         </div>
     </div>
