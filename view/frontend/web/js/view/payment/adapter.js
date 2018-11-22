@@ -32,6 +32,14 @@
         },
 
         /**
+         * Get Google Pay payment name.
+         * @returns {String}
+         */
+        getCodeGooglePay: function () {
+            return 'checkout_com_googlepay';
+        },
+
+        /**
          * Get payment configuration array.
          * @returns {Array}
          */
@@ -40,11 +48,19 @@
         },
 
         /**
-         * Get payment configuration array.
+         * Get payment Apple Pay configuration array.
          * @returns {Array}
          */
         getPaymentConfigApplePay: function() {
             return window.checkoutConfig.payment[this.getCodeApplePay()];
+        },
+
+        /**
+         * Get payment Google Pay configuration array.
+         * @returns {Array}
+         */
+        getPaymentConfigGooglePay: function() {
+            return window.checkoutConfig.payment[this.getCodeGooglePay()];
         },
         
         /**
@@ -86,7 +102,6 @@
                 message: errorMessage
             });
         }
-
     };
 
 });

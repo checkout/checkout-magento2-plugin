@@ -78,9 +78,9 @@
                 <can_capture>1</can_capture>
                 <can_cancel>1</can_cancel>
                 <can_refund>1</can_refund>
-                <can_void>0</can_void>
+                <can_void>1</can_void>
                 <debug>0</debug>
-                <sort_order>1</sort_order>
+                <sort_order>2</sort_order>
                 <processing_certificate>/path/to/cert</processing_certificate>
                 <processing_certificate_password></processing_certificate_password>
                 <merchant_id_certificate>/path/to/cert</merchant_id_certificate>
@@ -89,7 +89,20 @@
                 <merchant_capabilities>supportsCredit,supportsDebit</merchant_capabilities>
                 <supported_countries>US,GB</supported_countries>
                 <button_style>black</button_style>
-            </checkout_com_applepay>            
+            </checkout_com_applepay>
+            <checkout_com_googlepay>
+                <title>Google Pay (Checkout.com)</title>
+                <active>0</active>
+                <model>CheckoutCom\Magento2\Model\Method\GooglePayMethod</model>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <debug>0</debug>
+                <sort_order>3</sort_order>
+            </checkout_com_googlepay>         
             <checkout_com_cc_vault>
                 <model>CheckoutComCreditCardVaultFacade</model>
                 <title>Stored Cards (Checkout.com)</title>

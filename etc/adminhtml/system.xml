@@ -479,6 +479,31 @@
                         <comment>The Apple Pay payment option will display only for the shoppers having a billing address with a country selected here.</comment>
                     </field>
                 </group>
+
+                <group id="googlepay_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="11">
+                    <attribute type="activity_path">payment/checkout_com_googlepay/active</attribute>
+                    <label>Google Pay Settings</label>
+
+                    <field id="active" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Apple Pay</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com_googlepay/active</config_path>
+                    </field>
+
+                    <field id="debug" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Debug</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com_googlepay/debug</config_path>
+                        <comment>Enabling the debug mode will log Google Pay events to the browser console.</comment>
+                    </field>
+
+                    <field id="title" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkout_com_googlepay/title</config_path>
+                        <comment>Payment method title displayed to shoppers.</comment>
+                    </field>
+                </group>
+
             </group>
         </section>
     </system>

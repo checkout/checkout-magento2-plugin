@@ -359,7 +359,58 @@ class Config extends BaseConfig {
         return (string) $storeName;
     }
 
+    /**
+     * Determines if Google Pay is active.
+     *
+     * @return bool
+     */
+    public function isActiveGooglePay() {
+        if (!$this->scopeConfig->getValue(
+                'payment/checkout_com_googlepay/active',
+                ScopeInterface::SCOPE_STORE
+            )) {
+            return false;
+        }
     
+        return true;  
+    }
+
+    /**
+     * Returns the Google Pay option title.
+     *
+     * @return string
+     */
+    public function getGooglePayTitle() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/title',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Gets the Google Pay debug mode.
+     *
+     * @return bool
+     */
+    public function getGooglePayDebugMode() {
+        return (bool) $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/debug',
+            ScopeInterface::SCOPE_STORE
+        ); 
+    }
+
+    /**
+     * Returns the Apple Pay option title.
+     *
+     * @return string
+     */
+    public function getApplePayTitle() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/title',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
     /**
      * Determines if Apple Pay is active.
      *
