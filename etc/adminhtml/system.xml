@@ -485,7 +485,7 @@
                     <label>Google Pay Settings</label>
 
                     <field id="active" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Enable Apple Pay</label>
+                        <label>Enable Google Pay</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkout_com_googlepay/active</config_path>
                     </field>
