@@ -71,6 +71,8 @@ class Config extends BaseConfig {
     const KEY_MADA_BINS_PATH = 'mada_bins_path';
     const KEY_MADA_BINS_PATH_TEST = 'mada_bins_path_test';
     const KEY_MADA_ENABLED = 'mada_enabled';
+    const KEY_LIVE_APPLEPAY_TOKEN_REQUEST_URL = 'live_applepay_token_request_url';
+    const KEY_SANDBOX_APPLEPAY_TOKEN_REQUEST_URL = 'sandbox_applepay_token_request_url';
 
     /**
      * @var array
@@ -335,6 +337,183 @@ class Config extends BaseConfig {
         $quote = $this->checkoutSession->getQuote();
 
         return (bool) in_array($quote->getQuoteCurrencyCode(), $this->getAcceptedCurrencies());
+    }
+
+    /**
+     * Returns the store name.
+     *
+     * @return string
+     */
+    public function getStoreName() {
+        $storeName = $this->scopeConfig->getValue(
+            'general/store_information/name',
+            ScopeInterface::SCOPE_STORE
+        );
+
+        trim($storeName);
+
+        if (empty($storeName)) {
+            $storeName = parse_url($this->storeManager->getStore()->getBaseUrl())['host'] ;
+        }
+
+        return (string) $storeName;
+    }
+
+    
+    /**
+     * Determines if Apple Pay is active.
+     *
+     * @return bool
+     */
+    public function isActiveApplePay() {
+        if (!$this->scopeConfig->getValue(
+                'payment/checkout_com_applepay/active',
+                ScopeInterface::SCOPE_STORE
+            )) {
+            return false;
+        }
+    
+        return true;  
+    }
+
+    /**
+     * Returns the Apple Pay token request URL.
+     *
+     * @return string
+     */
+    public function getApplePayTokenRequestUrl() {
+        $path = ($this->isLive()) ? 
+        self::KEY_LIVE_APPLEPAY_TOKEN_REQUEST_URL : 
+        self::KEY_SANDBOX_APPLEPAY_TOKEN_REQUEST_URL;
+
+        return (string) $this->getValue(
+            $path,
+            $this->storeManager->getStore()
+        );
+    }
+
+    /**
+     * Return the countries supported by Apple Pay.
+     *
+     * @return array
+     */
+    public function getApplePaySupportedCountries() {
+        $supportedCountries = $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/supported_countries',
+            ScopeInterface::SCOPE_STORE
+        );
+
+        return !empty($supportedCountries) ? $supportedCountries : 'US,GB';
+    }
+
+    /**
+     * Returns the Apple Pay option title.
+     *
+     * @return string
+     */
+    public function getApplePayTitle() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/title',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Returns the Apple Pay supported cards.
+     *
+     * @return string
+     */
+    public function getApplePaySupportedNetworks() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/supported_networks',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Returns the Apple Pay merchant capabilities.
+     *
+     * @return string
+     */
+    public function getApplePayMerchantCapabilities() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/merchant_capabilities',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Gets the ApplePay processing certificate.
+     *
+     * @return string
+     */
+    public function getApplePayProcessingCertificate() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/processing_certificate',
+            ScopeInterface::SCOPE_STORE
+        ); 
+    }
+
+    /**
+     * Gets the ApplePay processing certificate password.
+     *
+     * @return string
+     */
+    public function getApplePayProcessingCertificatePassword() {
+        $pass = $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/processing_certificate_password',
+            ScopeInterface::SCOPE_STORE
+        );
+        trim($pass);
+        return ($pass) ? $pass : ''; 
+    }
+
+    /**
+     * Gets the ApplePay merchant id certificate.
+     *
+     * @return string
+     */
+    public function getApplePayMerchantIdCertificate() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/merchant_id_certificate',
+            ScopeInterface::SCOPE_STORE
+        ); 
+    }
+
+    /**
+     * Gets the ApplePay merchant id.
+     *
+     * @return string
+     */
+    public function getApplePayMerchantId() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/merchant_id',
+            ScopeInterface::SCOPE_STORE
+        ); 
+    }
+
+    /**
+     * Gets the ApplePay debug mode.
+     *
+     * @return bool
+     */
+    public function getApplePayDebugMode() {
+        return (bool) $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/debug',
+            ScopeInterface::SCOPE_STORE
+        ); 
+    }
+
+    /**
+     * Gets the ApplePay button style.
+     *
+     * @return bool
+     */
+    public function getApplePayButtonStyle() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_applepay/button_style',
+            ScopeInterface::SCOPE_STORE
+        ); 
     }
 
     /**

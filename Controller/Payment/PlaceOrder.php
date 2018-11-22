@@ -13,14 +13,14 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
-use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
-use CheckoutCom\Magento2\Model\Service\OrderService;
-use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
+use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
+use CheckoutCom\Magento2\Model\Service\OrderService;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Model\Service\TokenChargeService;
+use CheckoutCom\Magento2\Helper\Helper;
 
 class PlaceOrder extends AbstractAction {
 
@@ -50,6 +50,11 @@ class PlaceOrder extends AbstractAction {
     protected $customerSession;
 
     /**
+     * @var Helper
+     */
+    protected $helper;
+
+    /**
      * PlaceOrder constructor.
      * @param Context $context
      * @param CheckoutSession $checkoutSession
@@ -57,6 +62,7 @@ class PlaceOrder extends AbstractAction {
      * @param OrderInterface $orderInterface
      * @param OrderService $orderService
      * @param Order $orderManager
+     * @param Helper $helper
      */
     public function __construct(
         Context $context,
@@ -65,7 +71,8 @@ class PlaceOrder extends AbstractAction {
         OrderService $orderService,
         OrderInterface $orderInterface,
         CustomerSession $customerSession,
-        TokenChargeService $tokenChargeService
+        TokenChargeService $tokenChargeService,
+        Helper $helper
     ) {
         parent::__construct($context, $gatewayConfig);
 
@@ -74,6 +81,7 @@ class PlaceOrder extends AbstractAction {
         $this->orderService           = $orderService;
         $this->orderInterface         = $orderInterface;
         $this->tokenChargeService     = $tokenChargeService;
+        $this->helper                 = $helper;
     }
 
     /**
@@ -122,17 +130,9 @@ class PlaceOrder extends AbstractAction {
     }
 
     public function createOrder($params) {
-
         // Check for guest email
-        if ($params['quote']->getCustomerEmail() === null
-            && $this->customerSession->isLoggedIn() === false
-            && isset($this->customerSession->getData('checkoutSessionData')['customerEmail'])
-            && $this->customerSession->getData('checkoutSessionData')['customerEmail'] === $params['email']) 
-        {
-            $params['quote']->setCustomerId(null)
-            ->setCustomerEmail($params['email'])
-            ->setCustomerIsGuest(true)
-            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
+        if ($this->customerSession->isLoggedIn() === false) {
+            $params['quote'] = $this->helper->prepareGuestQuote($params['quote'], $params['email']);
         }
 
         // Perform quote and order validation

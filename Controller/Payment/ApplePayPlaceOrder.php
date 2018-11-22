@@ -14,18 +14,20 @@ use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Quote\Model\QuoteManagement;
+use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
-use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
-use CheckoutCom\Magento2\Model\Service\OrderService;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
+use CheckoutCom\Magento2\Model\Service\TokenChargeService;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Helper\Helper;
 
-class PlaceOrderAjax extends AbstractAction {
+class ApplePayPlaceOrder extends AbstractAction {
 
     /**
-     * @var QuoteManagement
+     * @var TokenChargeService
      */
-    protected $quoteManagement;
+    protected $tokenChargeService;
 
     /**
      * @var CheckoutSession
@@ -33,14 +35,14 @@ class PlaceOrderAjax extends AbstractAction {
     protected $checkoutSession;
 
     /**
-     * @var OrderService
-     */
-    protected $orderService;
-
-    /**
      * @var CustomerSession
      */
     protected $customerSession;
+
+    /**
+     * @var QuoteManagement
+     */
+    protected $quoteManagement;
 
     /**
      * @var JsonFactory
@@ -56,8 +58,10 @@ class PlaceOrderAjax extends AbstractAction {
      * PlaceOrder constructor.
      * @param Context $context
      * @param CheckoutSession $checkoutSession
+     * @param CustomerSession $customerSession
      * @param GatewayConfig $gatewayConfig
-     * @param OrderService $orderService
+     * @param QuoteManagement $quoteManagement
+     * @param Order $orderManager
      * @param JsonFactory $resultJsonFactory
      * @param Helper $helper
      */
@@ -65,20 +69,20 @@ class PlaceOrderAjax extends AbstractAction {
         Context $context,
         CheckoutSession $checkoutSession,
         GatewayConfig $gatewayConfig,
-        OrderService $orderService,
+        QuoteManagement $quoteManagement,
         CustomerSession $customerSession,
-        QuoteManagement $quoteManagement, 
+        TokenChargeService $tokenChargeService,
         JsonFactory $resultJsonFactory,
         Helper $helper
     ) {
         parent::__construct($context, $gatewayConfig);
 
-        $this->checkoutSession   = $checkoutSession;
-        $this->customerSession   = $customerSession;
-        $this->orderService      = $orderService;
-        $this->quoteManagement   = $quoteManagement;
-        $this->resultJsonFactory = $resultJsonFactory;
-        $this->helper            = $helper;
+        $this->checkoutSession        = $checkoutSession;
+        $this->customerSession        = $customerSession;
+        $this->quoteManagement        = $quoteManagement;
+        $this->tokenChargeService     = $tokenChargeService;
+        $this->resultJsonFactory      = $resultJsonFactory;
+        $this->helper                 = $helper;
     }
 
     /**
@@ -87,32 +91,45 @@ class PlaceOrderAjax extends AbstractAction {
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function execute() {
-        // Prepare the redirection
-        $resultRedirect = $this->getResultRedirect();
+        // Get the request parameters
+        $params = $this->getRequest()->getParams();
 
-        // Load the customer quote
-        $quote          = $this->checkoutSession->getQuote();
+        // Get the quote
+        $quote = $this->checkoutSession->getQuote();
 
-        // Retrieve the request parameters
-        $cardToken      = $this->getRequest()->getParam('cko-card-token');
-        $email          = $this->getRequest()->getParam('cko-context-id');
-        $agreement      = array_keys($this->getRequest()->getPostValue('agreement', []));
-
-        // Check for guest email
-        if ($this->customerSession->isLoggedIn() === false) {
+        // Check for guest user quote
+        if ($this->customerSession->isLoggedIn() === false)
+        {
             $quote = $this->helper->prepareGuestQuote($quote);
         }
+        
+        // Send the charge request
+        $success = $this->tokenChargeService->sendApplePayChargeRequest($params, $quote);
+
+        // If charge is successful, create order
+        if ($success) {
+            $orderId = $this->createOrder($quote);
+        }
+
+        return $this->resultJsonFactory->create()->setData([
+            'status' => $success
+        ]);
+    }
+
+    public function createOrder($quote) { 
+        // Prepare the quote payment
+        $quote->setPaymentMethod(ConfigProvider::CODE_APPLE_PAY);
+        $quote->getPayment()->importData(array('method' => ConfigProvider::CODE_APPLE_PAY));
+
+        // Prepare the inventory
+        $quote->setInventoryProcessed(false);
 
         // Prepare session quote info for redirection after payment
         $this->checkoutSession
         ->setLastQuoteId($quote->getId())
         ->setLastSuccessQuoteId($quote->getId())
         ->clearHelperData();
-
-        // Set payment
-        $quote->getPayment()->setMethod('substitution');
-        $quote->collectTotals()->save();
-
+        
         // Create the order
         $order = $this->quoteManagement->submit($quote);
 
@@ -121,10 +138,10 @@ class PlaceOrderAjax extends AbstractAction {
             $this->checkoutSession->setLastOrderId($order->getId())
                                ->setLastRealOrderId($order->getIncrementId())
                                ->setLastOrderStatus($order->getStatus());
+
+            return $order->getId();
         }
-        
-        return $this->resultJsonFactory->create()->setData([
-            'trackId' => $order->getIncrementId()
-        ]);
+
+       return false;
     }
 }

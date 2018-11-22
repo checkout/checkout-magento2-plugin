@@ -20,7 +20,8 @@ define(
         'mage/url',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/full-screen-loader',
-        'Magento_Checkout/js/model/payment/additional-validators'
+        'Magento_Checkout/js/model/payment/additional-validators',
+        'mage/cookies'
     ],
     function ($, Component, VaultEnabler, CheckoutCom, quote, url, checkoutData, fullScreenLoader, additionalValidators) {
         'use strict';
@@ -31,6 +32,31 @@ define(
             defaults: {
                 active: true,
                 template: 'CheckoutCom_Magento2/payment/hosted'
+            },
+
+            /**
+             * @returns {exports}
+             */
+            initialize: function() {
+                this._super();
+                this.setEmailAddress();
+
+                return this;
+            },
+
+            /**
+             * @returns {string}
+             */
+            getEmailAddress: function() {
+                return window.checkoutConfig.customerData.email || quote.guestEmail || checkoutData.getValidatedEmailValue();
+            },
+
+            /**
+             * @returns {void}
+             */
+            setEmailAddress: function() {
+                var email = this.getEmailAddress();
+                $.cookie('ckoEmail', email);
             },
 
             /**

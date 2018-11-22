@@ -12,9 +12,14 @@ namespace CheckoutCom\Magento2\Helper;
 
 use Magento\Framework\Module\Dir\Reader;
 use Magento\Framework\File\Csv;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Stdlib\CookieManagerInterface;
+use Magento\Customer\Api\Data\GroupInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 
 class Helper {
+
+    const EMAIL_COOKIE_NAME = 'ckoEmail';
 
     /**
      * @var Reader
@@ -31,10 +36,28 @@ class Helper {
      */
     protected $config;
 
-    public function __construct(Reader $directoryReader, Csv $csvParser, Config $config) {
+    /**
+     * @var CookieManagerInterface
+     */
+    protected $cookieManager;
+
+    /**
+     * @var CustomerSession
+     */
+    protected $customerSession;
+
+    public function __construct(
+        Reader $directoryReader,
+        Csv $csvParser,
+        Config $config,
+        CookieManagerInterface $cookieManager,
+        CustomerSession $customerSession
+    ) {
         $this->directoryReader = $directoryReader;
-        $this->csvParser = $csvParser;
-        $this->config = $config;
+        $this->csvParser       = $csvParser;
+        $this->config          = $config;
+        $this->cookieManager   = $cookieManager;
+        $this->customerSession = $customerSession;
     }
 
     /**
@@ -75,5 +98,30 @@ class Helper {
         }
 
         return in_array($bin, $binArray);
+    }
+
+    /**
+     * Sets the email for guest users
+     *
+     * @return bool
+     */
+    public function prepareGuestQuote($quote, $email = null) {
+        // Retrieve the user email 
+        $guestEmail = $email
+        ?? $this->customerSession->getData('checkoutSessionData')['customerEmail']
+        ?? $quote->getCustomerEmail() 
+        ?? $quote->getBillingAddress()->getEmail()
+        ?? $this->cookieManager->getCookie(self::EMAIL_COOKIE_NAME);
+
+        // Set the quote as guest
+        $quote->setCustomerId(null)
+        ->setCustomerEmail($guestEmail)
+        ->setCustomerIsGuest(true)
+        ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
+
+        // Delete the cookie
+        $this->cookieManager->deleteCookie(self::EMAIL_COOKIE_NAME);
+
+        return $quote;
     }
 }

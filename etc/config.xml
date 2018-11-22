@@ -56,6 +56,8 @@
                 <embedded_css><![CDATA[https://cdn.checkout.com/v2/js/css/theme-template.css]]></embedded_css>
                 <sandbox_hosted_url><![CDATA[https://secure1.checkout.com/sandbox/payment/]]></sandbox_hosted_url>
                 <live_hosted_url><![CDATA[https://secure1.checkout.com/payment/]]></live_hosted_url>
+                <live_applepay_token_request_url><![CDATA[https://api2.checkout.com/tokens/]]></live_applepay_token_request_url>
+                <sandbox_applepay_token_request_url><![CDATA[https://sandbox.checkout.com/api2/tokens/]]></sandbox_applepay_token_request_url>
                 <mada_enabled>0</mada_enabled>
                 <mada_bins_path>Model/Files/Mada/mada_bins.csv</mada_bins_path>
                 <mada_bins_path_test>Model/Files/Mada/mada_bins_test.csv</mada_bins_path_test>
@@ -67,6 +69,27 @@
                 <save_card_check_amount>1.00</save_card_check_amount>
                 <save_card_check_currency>USD</save_card_check_currency>
             </checkout_com>
+            <checkout_com_applepay>
+                <title>Apple Pay (Checkout.com)</title>
+                <active>0</active>
+                <model>CheckoutCom\Magento2\Model\Method\ApplePayMethod</model>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>0</can_void>
+                <debug>0</debug>
+                <sort_order>1</sort_order>
+                <processing_certificate>/path/to/cert</processing_certificate>
+                <processing_certificate_password></processing_certificate_password>
+                <merchant_id_certificate>/path/to/cert</merchant_id_certificate>
+                <merchant_id></merchant_id>
+                <supported_networks>amex,masterCard,visa</supported_networks>
+                <merchant_capabilities>supportsCredit,supportsDebit</merchant_capabilities>
+                <supported_countries>US,GB</supported_countries>
+                <button_style>black</button_style>
+            </checkout_com_applepay>            
             <checkout_com_cc_vault>
                 <model>CheckoutComCreditCardVaultFacade</model>
                 <title>Stored Cards (Checkout.com)</title>
