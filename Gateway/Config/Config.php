@@ -400,18 +400,6 @@ class Config extends BaseConfig {
     }
 
     /**
-     * Returns the Apple Pay option title.
-     *
-     * @return string
-     */
-    public function getApplePayTitle() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_applepay/title',
-            ScopeInterface::SCOPE_STORE
-        );
-    }
-
-    /**
      * Determines if Apple Pay is active.
      *
      * @return bool
