@@ -25,7 +25,8 @@ define(
         'Magento_Checkout/js/model/address-converter',
         'Magento_Checkout/js/action/redirect-on-success',
         'mage/translate',
-        'mage/cookies'
+        'mage/cookies',
+        'gpay'
     ],
     function($, Component, CheckoutCom, quote, globalMessages, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, checkoutData, addressConverter, redirectOnSuccessAction, t, customer) {
         'use strict';

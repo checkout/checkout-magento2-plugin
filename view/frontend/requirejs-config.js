@@ -12,6 +12,7 @@ var config = {
         '*': {
             'Magento_Checkout/js/model/place-order': 'CheckoutCom_Magento2/js/model/place-order',
             'Magento_Checkout/js/model/error-processor': 'CheckoutCom_Magento2/js/model/error-processor',
+            'gpay': 'https://pay.google.com/gp/p/js/pay.js'
         }
     }
 };
