@@ -310,14 +310,21 @@ define(
                     function processPayment(paymentData) {
                         self.logEvent(JSON.parse(paymentData.paymentMethodToken.token));
                         $.post(
-                            "server.php",
+                            url.build('checkout_com/payment/googlepayplaceorder'),
                             {
                                 signature: JSON.parse(paymentData.paymentMethodToken.token).signature,
                                 protocolVersion: JSON.parse(paymentData.paymentMethodToken.token).protocolVersion,
                                 signedMessage: JSON.parse(paymentData.paymentMethodToken.token).signedMessage,
                             },
                             function (data, status) {
-                                alert("Response: \n" + data);
+                                if (data.status === true) {
+                                    // redirect to success page
+                                    fullScreenLoader.startLoader();
+                                    redirectOnSuccessAction.execute();                                     
+                                }
+                                else {
+                                    alert(t('An error has occurred. Please try again.'));
+                                }
                             }
                         );
                     }

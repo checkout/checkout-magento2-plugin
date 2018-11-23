@@ -73,6 +73,8 @@ class Config extends BaseConfig {
     const KEY_MADA_ENABLED = 'mada_enabled';
     const KEY_LIVE_APPLEPAY_TOKEN_REQUEST_URL = 'live_applepay_token_request_url';
     const KEY_SANDBOX_APPLEPAY_TOKEN_REQUEST_URL = 'sandbox_applepay_token_request_url';
+    const KEY_LIVE_GOOGLEPAY_TOKEN_REQUEST_URL = 'live_googlepay_token_request_url';
+    const KEY_SANDBOX_GOOGLEPAY_TOKEN_REQUEST_URL = 'sandbox_googlepay_token_request_url';
 
     /**
      * @var array
@@ -474,6 +476,22 @@ class Config extends BaseConfig {
         $path = ($this->isLive()) ? 
         self::KEY_LIVE_APPLEPAY_TOKEN_REQUEST_URL : 
         self::KEY_SANDBOX_APPLEPAY_TOKEN_REQUEST_URL;
+
+        return (string) $this->getValue(
+            $path,
+            $this->storeManager->getStore()
+        );
+    }
+
+    /**
+     * Returns the Google Pay token request URL.
+     *
+     * @return string
+     */
+    public function getGooglePayTokenRequestUrl() {
+        $path = ($this->isLive()) ? 
+        self::KEY_LIVE_GOOGLEPAY_TOKEN_REQUEST_URL : 
+        self::KEY_SANDBOX_GOOGLEPAY_TOKEN_REQUEST_URL;
 
         return (string) $this->getValue(
             $path,
