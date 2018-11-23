@@ -186,39 +186,44 @@ define(
                 // Prepare the parameters
                 var ap = CheckoutCom.getPaymentConfigGooglePay();
                 var self = this;
-                var allowedPaymentMethods = ['CARD', 'TOKENIZED_CARD'];
-                var allowedCardNetworks = ['MASTERCARD', 'VISA'];
-                var tokenizationParameters = {
-                    tokenizationType: 'PAYMENT_GATEWAY',
-                    parameters: {
-                        'gateway': 'checkoutltd',
-                        'gatewayMerchantId': 'pk_test_6e40a700-d563-43cd-89d0-f9bb17d35e73'
-                    }
-                }
 
+                //  Button click event
                 $(self.button_target).click(function(evt) {
-                    // Prepare the parameters
-                    var ap = CheckoutCom.getPaymentConfigGooglePay();
-                    var self = this;
-
+  
                     // Validate T&C submission
                     if (!additionalValidators.validate()) {
                         return;
                     }
 
-                    var paymentsClient = getGooglePaymentsClient();
-                    paymentsClient.isReadyToPay({ allowedPaymentMethods: allowedPaymentMethods })
-                    .then(function (response) {
-                        if (response.result) {
-                            addGooglePayButton();
-                            prefetchGooglePaymentData();
+                    onGooglePayLoaded();
+
+                    var allowedPaymentMethods = ['CARD', 'TOKENIZED_CARD'];
+                    var allowedCardNetworks = ['MASTERCARD', 'VISA'];
+            
+                    var tokenizationParameters = {
+                        tokenizationType: 'PAYMENT_GATEWAY',
+                        parameters: {
+                            'gateway': 'checkoutltd',
+                            'gatewayMerchantId': 'pk_test_6e40a700-d563-43cd-89d0-f9bb17d35e73'
                         }
+                    }
+         
+                    /**
+                     * Show Google Pay chooser when Google Pay purchase button is clicked
+                     */
+                    var paymentDataRequest = getGooglePaymentDataConfiguration();
+                    paymentDataRequest.transactionInfo = getGoogleTransactionInfo();
+        
+                    var paymentsClient = getGooglePaymentsClient();
+                    paymentsClient.loadPaymentData(paymentDataRequest)
+                    .then(function (paymentData) {
+                        // handle the response
+                        processPayment(paymentData);
                     })
                     .catch(function (err) {
                         // show error in developer console for debugging
                         console.error(err);
                     });
-
 
                     /**
                      * Initialize a Google Pay API client
@@ -228,11 +233,24 @@ define(
                     function getGooglePaymentsClient() {
                         return (new google.payments.api.PaymentsClient({ environment: 'TEST' }));
                     }
-
-
-
-
-
+            
+                    /**
+                     * Initialize Google PaymentsClient after Google-hosted JavaScript has loaded
+                     */
+                    function onGooglePayLoaded() {
+                        var paymentsClient = getGooglePaymentsClient();
+                        paymentsClient.isReadyToPay({ allowedPaymentMethods: allowedPaymentMethods })
+                            .then(function (response) {
+                                if (response.result) {
+                                    prefetchGooglePaymentData();
+                                }
+                            })
+                            .catch(function (err) {
+                                // show error in developer console for debugging
+                                console.error(err);
+                            });
+                    }
+            
                     /**
                      * Configure support for the Google Pay API
                      *
@@ -251,7 +269,7 @@ define(
                             }
                         };
                     }
-
+            
                     /**
                      * Provide Google Pay API with a payment amount, currency, and amount status
                      *
@@ -266,7 +284,7 @@ define(
                             totalPrice: '1.00'
                         };
                     }
-
+            
                     /**
                      * Prefetch payment data to improve performance
                      */
@@ -280,26 +298,7 @@ define(
                         var paymentsClient = getGooglePaymentsClient();
                         paymentsClient.prefetchPaymentData(paymentDataRequest);
                     }
-
-                    /**
-                     * Show Google Pay chooser when Google Pay purchase button is clicked
-                     */
-                    function onGooglePaymentButtonClicked() {
-                        var paymentDataRequest = getGooglePaymentDataConfiguration();
-                        paymentDataRequest.transactionInfo = getGoogleTransactionInfo();
-
-                        var paymentsClient = getGooglePaymentsClient();
-                        paymentsClient.loadPaymentData(paymentDataRequest)
-                            .then(function (paymentData) {
-                                // handle the response
-                                processPayment(paymentData);
-                            })
-                            .catch(function (err) {
-                                // show error in developer console for debugging
-                                console.error(err);
-                            });
-                    }
-
+            
                     /**
                      * Process payment data returned by the Google Pay API
                      *
@@ -318,32 +317,6 @@ define(
                                 alert("Response: \n" + data);
                             });
                     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 });
             },
         });
