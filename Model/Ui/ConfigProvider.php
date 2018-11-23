@@ -115,7 +115,11 @@ class ConfigProvider implements ConfigProviderInterface {
                 self::CODE_GOOGLE_PAY => [
                     'isActive' => $this->config->isActiveGooglePay(),
                     'debugMode' => $this->config->getGooglePayDebugMode(),
-                    'title' => $this->config->getGooglePayTitle()
+                    'title' => $this->config->getGooglePayTitle(),
+                    'allowedNetworks' => $this->config->getGooglePayAllowedNetworks(),
+                    'gatewayName' => $this->config->getGooglePayGatewayName(),
+                    'merchantId' => $this->config->getGooglePayMerchantId(),
+                    'environment' => $this->config->getGooglePayEnvironment()
                 ],
             ],
         ];

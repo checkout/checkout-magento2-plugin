@@ -166,8 +166,8 @@ define(
             /**
              * @returns {array}
              */
-            getSupportedCountries: function() {
-                return CheckoutCom.getPaymentConfigGooglePay()['supportedCountries'].split(',');
+            getAllowedNetworks: function() {
+                return CheckoutCom.getPaymentConfigGooglePay()['allowedNetworks'].split(',');
             },
 
             /**
@@ -184,29 +184,30 @@ define(
              */
             launchGooglePay: function() {
                 // Prepare the parameters
-                var ap = CheckoutCom.getPaymentConfigGooglePay();
+                var gp = CheckoutCom.getPaymentConfigGooglePay();
                 var self = this;
 
                 //  Button click event
                 $(self.button_target).click(function(evt) {
-  
                     // Validate T&C submission
                     if (!additionalValidators.validate()) {
                         return;
                     }
 
-                    onGooglePayLoaded();
-
+                    // Prepare the payment parameters
                     var allowedPaymentMethods = ['CARD', 'TOKENIZED_CARD'];
-                    var allowedCardNetworks = ['MASTERCARD', 'VISA'];
+                    var allowedCardNetworks = self.getAllowedNetworks();
             
                     var tokenizationParameters = {
                         tokenizationType: 'PAYMENT_GATEWAY',
                         parameters: {
-                            'gateway': 'checkoutltd',
-                            'gatewayMerchantId': 'pk_test_6e40a700-d563-43cd-89d0-f9bb17d35e73'
+                            'gateway': gp['gatewayName'],
+                            'gatewayMerchantId': self.getPublicKey()
                         }
                     }
+
+                    // Prepare the Google Pay client
+                    onGooglePayLoaded();
          
                     /**
                      * Show Google Pay chooser when Google Pay purchase button is clicked
@@ -221,8 +222,7 @@ define(
                         processPayment(paymentData);
                     })
                     .catch(function (err) {
-                        // show error in developer console for debugging
-                        console.error(err);
+                        self.logEvent(err);
                     });
 
                     /**
@@ -231,7 +231,9 @@ define(
                      * @returns {google.payments.api.PaymentsClient} Google Pay API client
                      */
                     function getGooglePaymentsClient() {
-                        return (new google.payments.api.PaymentsClient({ environment: 'TEST' }));
+                        return (new google.payments.api.PaymentsClient({
+                            environment: gp['environment'] 
+                        }));
                     }
             
                     /**
@@ -240,15 +242,14 @@ define(
                     function onGooglePayLoaded() {
                         var paymentsClient = getGooglePaymentsClient();
                         paymentsClient.isReadyToPay({ allowedPaymentMethods: allowedPaymentMethods })
-                            .then(function (response) {
-                                if (response.result) {
-                                    prefetchGooglePaymentData();
-                                }
-                            })
-                            .catch(function (err) {
-                                // show error in developer console for debugging
-                                console.error(err);
-                            });
+                        .then(function (response) {
+                            if (response.result) {
+                                prefetchGooglePaymentData();
+                            }
+                        })
+                        .catch(function (err) {
+                            self.logEvent(err);
+                        });
                     }
             
                     /**
@@ -261,7 +262,7 @@ define(
                         return {
                             // @todo a merchant ID is available for a production environment after approval by Google
                             // @see {@link https://developers.google.com/pay/api/web/guides/test-and-deploy/overview|Test and deploy}
-                            merchantId: '01234567890123456789',
+                            merchantId: gp['merchantId'],
                             paymentMethodTokenizationParameters: tokenizationParameters,
                             allowedPaymentMethods: allowedPaymentMethods,
                             cardRequirements: {
@@ -278,10 +279,9 @@ define(
                      */
                     function getGoogleTransactionInfo() {
                         return {
-                            currencyCode: 'USD',
+                            currencyCode: CheckoutCom.getPaymentConfig()['quote_currency'],
                             totalPriceStatus: 'FINAL',
-                            // set to cart total
-                            totalPrice: '1.00'
+                            totalPrice: self.getQuoteValue()
                         };
                     }
             
@@ -290,11 +290,13 @@ define(
                      */
                     function prefetchGooglePaymentData() {
                         var paymentDataRequest = getGooglePaymentDataConfiguration();
+
                         // transactionInfo must be set but does not affect cache
                         paymentDataRequest.transactionInfo = {
                             totalPriceStatus: 'NOT_CURRENTLY_KNOWN',
-                            currencyCode: 'USD'
+                            currencyCode: CheckoutCom.getPaymentConfig()['quote_currency']
                         };
+
                         var paymentsClient = getGooglePaymentsClient();
                         paymentsClient.prefetchPaymentData(paymentDataRequest);
                     }
@@ -306,8 +308,9 @@ define(
                      * @see {@link https://developers.google.com/pay/api/web/reference/object#PaymentData|PaymentData object reference}
                      */
                     function processPayment(paymentData) {
-                        console.log(JSON.parse(paymentData.paymentMethodToken.token));
-                        $.post("server.php",
+                        self.logEvent(JSON.parse(paymentData.paymentMethodToken.token));
+                        $.post(
+                            "server.php",
                             {
                                 signature: JSON.parse(paymentData.paymentMethodToken.token).signature,
                                 protocolVersion: JSON.parse(paymentData.paymentMethodToken.token).protocolVersion,
@@ -315,7 +318,8 @@ define(
                             },
                             function (data, status) {
                                 alert("Response: \n" + data);
-                            });
+                            }
+                        );
                     }
                 });
             },

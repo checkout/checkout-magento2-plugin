@@ -400,6 +400,56 @@ class Config extends BaseConfig {
     }
 
     /**
+     * Gets the Google Pay allowed networks.
+     *
+     * @return string
+     */
+    public function getGooglePayAllowedNetworks() {
+        $allowedNetworks = $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/allowed_card_networks',
+            ScopeInterface::SCOPE_STORE
+        ); 
+
+        return (string) !empty($allowedNetworks) ? $allowedNetworks : 'VISA';
+    }
+
+    /**
+     * Gets the Google Pay gateway name.
+     *
+     * @return string
+     */
+    public function getGooglePayGatewayName() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/gateway_name',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Gets the GooglePay merchant id.
+     *
+     * @return string
+     */
+    public function getGooglePayMerchantId() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/merchant_id',
+            ScopeInterface::SCOPE_STORE
+        ); 
+    }
+
+    /**
+     * Gets the GooglePay environment.
+     *
+     * @return string
+     */
+    public function getGooglePayEnvironment() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/environment',
+            ScopeInterface::SCOPE_STORE
+        ); 
+    }
+
+    /**
      * Determines if Apple Pay is active.
      *
      * @return bool
