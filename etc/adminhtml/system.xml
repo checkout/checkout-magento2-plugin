@@ -427,6 +427,12 @@
                         <comment>Payment method title displayed to shoppers.</comment>
                     </field>
 
+                    <field id="sort_order" translate="label" sortOrder="3" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort Order</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkout_com_applepay/sort_order</config_path>
+                    </field>
+
                     <field id="processing_certificate" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Processing Certificate</label>
                         <config_path>payment/checkout_com_applepay/processing_certificate</config_path>
@@ -509,20 +515,26 @@
                         <comment>Payment method title displayed to shoppers.</comment>
                     </field>
 
-                    <field id="merchant_id" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="sort_order" translate="label" sortOrder="4" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort Order</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkout_com_googlepay/sort_order</config_path>
+                    </field>
+
+                    <field id="merchant_id" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant ID</label>
                         <config_path>payment/checkout_com_googlepay/merchant_id</config_path>
                         <comment>Provide your Merchant ID</comment>
                     </field>
 
-                    <field id="button_style" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="button_style" translate="label" type="select" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Button Style</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\GooglePayButton</source_model>
                         <config_path>payment/checkout_com_googlepay/button_style</config_path>
                         <comment>The Google Pay place order button style</comment>
                     </field>
 
-                    <field id="allowed_card_networks" translate="label" type="multiselect" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="allowed_card_networks" translate="label" type="multiselect" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Supported Networks</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\GooglePayNetworks</source_model>
                         <config_path>payment/checkout_com_googlepay/allowed_card_networks</config_path>
