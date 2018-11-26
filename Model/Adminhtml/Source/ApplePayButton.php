@@ -19,7 +19,7 @@ class ApplePayButton implements ArrayInterface {
     const BUTTON_WHITE_LINE = 'white-with-line';
 
     /**
-     * Possible Apple Pay APIs
+     * Possible Apple Pay button styles
      *
      * @return array
      */
