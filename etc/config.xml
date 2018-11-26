@@ -108,6 +108,7 @@
                 <allowed_card_networks>VISA,MASTERCARD</allowed_card_networks>
                 <merchant_id></merchant_id>
                 <environment>TEST</environment>
+                <button_style>white</button_style>
             </checkout_com_googlepay>         
             <checkout_com_cc_vault>
                 <model>CheckoutComCreditCardVaultFacade</model>

@@ -455,7 +455,7 @@
                         <label>Button Style</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayButton</source_model>
                         <config_path>payment/checkout_com_applepay/button_style</config_path>
-                        <comment>The Apple Pay button style</comment>
+                        <comment>The Apple Pay place order button style</comment>
                     </field>
 
                     <field id="supported_networks" translate="label" type="multiselect" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -515,7 +515,14 @@
                         <comment>Provide your Merchant ID</comment>
                     </field>
 
-                    <field id="allowed_card_networks" translate="label" type="multiselect" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="button_style" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Button Style</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\GooglePayButton</source_model>
+                        <config_path>payment/checkout_com_googlepay/button_style</config_path>
+                        <comment>The Google Pay place order button style</comment>
+                    </field>
+
+                    <field id="allowed_card_networks" translate="label" type="multiselect" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Supported Networks</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\GooglePayNetworks</source_model>
                         <config_path>payment/checkout_com_googlepay/allowed_card_networks</config_path>

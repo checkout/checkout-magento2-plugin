@@ -187,6 +187,9 @@ define(
                 var gp = CheckoutCom.getPaymentConfigGooglePay();
                 var self = this;
 
+                // Apply the button style
+                $(self.button_target).addClass('google-pay-button-' + gp['buttonStyle']);
+
                 //  Button click event
                 $(self.button_target).click(function(evt) {
                     // Validate T&C submission

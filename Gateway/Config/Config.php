@@ -500,6 +500,18 @@ class Config extends BaseConfig {
     }
 
     /**
+     * Gets the Google Pay button style.
+     *
+     * @return bool
+     */
+    public function getGooglePayButtonStyle() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/button_style',
+            ScopeInterface::SCOPE_STORE
+        ); 
+    }
+
+    /**
      * Return the countries supported by Apple Pay.
      *
      * @return array

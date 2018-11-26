@@ -119,7 +119,8 @@ class ConfigProvider implements ConfigProviderInterface {
                     'allowedNetworks' => $this->config->getGooglePayAllowedNetworks(),
                     'gatewayName' => $this->config->getGooglePayGatewayName(),
                     'merchantId' => $this->config->getGooglePayMerchantId(),
-                    'environment' => $this->config->getGooglePayEnvironment()
+                    'environment' => $this->config->getGooglePayEnvironment(),
+                    'buttonStyle' => $this->config->getGooglePayButtonStyle()
                 ],
             ],
         ];
