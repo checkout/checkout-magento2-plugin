@@ -173,7 +173,7 @@ export default {
       sign_in_button: 'button.login',
       logged_in_name: 'ul.header:nth-child(2) > li:nth-child(2) > span:nth-child(1) > span:nth-child(1)',
       sign_out: 'li.active > div:nth-child(2) > ul:nth-child(1) > li:nth-child(3) > a:nth-child(1)',
-      checkout_option_title: 'div.payment-method:nth-child(2) > div:nth-child(1) > label:nth-child(2) > span:nth-child(1)',
+      checkout_option_title: '#checkout_com',
     },
     backend: {
       admin_username: '#username',
