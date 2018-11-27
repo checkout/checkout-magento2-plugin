@@ -73,6 +73,8 @@ class Config extends BaseConfig {
     const KEY_MADA_ENABLED = 'mada_enabled';
     const KEY_LIVE_APPLEPAY_TOKEN_REQUEST_URL = 'live_applepay_token_request_url';
     const KEY_SANDBOX_APPLEPAY_TOKEN_REQUEST_URL = 'sandbox_applepay_token_request_url';
+    const KEY_LIVE_GOOGLEPAY_TOKEN_REQUEST_URL = 'live_googlepay_token_request_url';
+    const KEY_SANDBOX_GOOGLEPAY_TOKEN_REQUEST_URL = 'sandbox_googlepay_token_request_url';
 
     /**
      * @var array
@@ -359,7 +361,96 @@ class Config extends BaseConfig {
         return (string) $storeName;
     }
 
+    /**
+     * Determines if Google Pay is active.
+     *
+     * @return bool
+     */
+    public function isActiveGooglePay() {
+        if (!$this->scopeConfig->getValue(
+                'payment/checkout_com_googlepay/active',
+                ScopeInterface::SCOPE_STORE
+            )) {
+            return false;
+        }
     
+        return true;  
+    }
+
+    /**
+     * Returns the Google Pay option title.
+     *
+     * @return string
+     */
+    public function getGooglePayTitle() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/title',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Gets the Google Pay debug mode.
+     *
+     * @return bool
+     */
+    public function getGooglePayDebugMode() {
+        return (bool) $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/debug',
+            ScopeInterface::SCOPE_STORE
+        ); 
+    }
+
+    /**
+     * Gets the Google Pay allowed networks.
+     *
+     * @return string
+     */
+    public function getGooglePayAllowedNetworks() {
+        $allowedNetworks = $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/allowed_card_networks',
+            ScopeInterface::SCOPE_STORE
+        ); 
+
+        return (string) !empty($allowedNetworks) ? $allowedNetworks : 'VISA';
+    }
+
+    /**
+     * Gets the Google Pay gateway name.
+     *
+     * @return string
+     */
+    public function getGooglePayGatewayName() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/gateway_name',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Gets the GooglePay merchant id.
+     *
+     * @return string
+     */
+    public function getGooglePayMerchantId() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/merchant_id',
+            ScopeInterface::SCOPE_STORE
+        ); 
+    }
+
+    /**
+     * Gets the GooglePay environment.
+     *
+     * @return string
+     */
+    public function getGooglePayEnvironment() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/environment',
+            ScopeInterface::SCOPE_STORE
+        ); 
+    }
+
     /**
      * Determines if Apple Pay is active.
      *
@@ -390,6 +481,34 @@ class Config extends BaseConfig {
             $path,
             $this->storeManager->getStore()
         );
+    }
+
+    /**
+     * Returns the Google Pay token request URL.
+     *
+     * @return string
+     */
+    public function getGooglePayTokenRequestUrl() {
+        $path = ($this->isLive()) ? 
+        self::KEY_LIVE_GOOGLEPAY_TOKEN_REQUEST_URL : 
+        self::KEY_SANDBOX_GOOGLEPAY_TOKEN_REQUEST_URL;
+
+        return (string) $this->getValue(
+            $path,
+            $this->storeManager->getStore()
+        );
+    }
+
+    /**
+     * Gets the Google Pay button style.
+     *
+     * @return bool
+     */
+    public function getGooglePayButtonStyle() {
+        return (string) $this->scopeConfig->getValue(
+            'payment/checkout_com_googlepay/button_style',
+            ScopeInterface::SCOPE_STORE
+        ); 
     }
 
     /**

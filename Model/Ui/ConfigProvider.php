@@ -26,6 +26,8 @@ class ConfigProvider implements ConfigProviderInterface {
 
     const CODE_APPLE_PAY = 'checkout_com_applepay';
 
+    const CODE_GOOGLE_PAY = 'checkout_com_googlepay';
+
     /**
      * @var Config
      */
@@ -108,6 +110,17 @@ class ConfigProvider implements ConfigProviderInterface {
                     'supportedNetworks' => $this->config->getApplePaySupportedNetworks(),
                     'merchantCapabilities' => $this->config->getApplePayMerchantCapabilities(),
                     'supportedCountries' => $this->config->getApplePaySupportedCountries()
+                ],
+
+                self::CODE_GOOGLE_PAY => [
+                    'isActive' => $this->config->isActiveGooglePay(),
+                    'debugMode' => $this->config->getGooglePayDebugMode(),
+                    'title' => $this->config->getGooglePayTitle(),
+                    'allowedNetworks' => $this->config->getGooglePayAllowedNetworks(),
+                    'gatewayName' => $this->config->getGooglePayGatewayName(),
+                    'merchantId' => $this->config->getGooglePayMerchantId(),
+                    'environment' => $this->config->getGooglePayEnvironment(),
+                    'buttonStyle' => $this->config->getGooglePayButtonStyle()
                 ],
             ],
         ];

@@ -427,6 +427,12 @@
                         <comment>Payment method title displayed to shoppers.</comment>
                     </field>
 
+                    <field id="sort_order" translate="label" sortOrder="3" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort Order</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkout_com_applepay/sort_order</config_path>
+                    </field>
+
                     <field id="processing_certificate" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Processing Certificate</label>
                         <config_path>payment/checkout_com_applepay/processing_certificate</config_path>
@@ -455,7 +461,7 @@
                         <label>Button Style</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayButton</source_model>
                         <config_path>payment/checkout_com_applepay/button_style</config_path>
-                        <comment>The Apple Pay button style</comment>
+                        <comment>The Apple Pay place order button style</comment>
                     </field>
 
                     <field id="supported_networks" translate="label" type="multiselect" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -479,6 +485,64 @@
                         <comment>The Apple Pay payment option will display only for the shoppers having a billing address with a country selected here.</comment>
                     </field>
                 </group>
+
+                <group id="googlepay_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="11">
+                    <attribute type="activity_path">payment/checkout_com_googlepay/active</attribute>
+                    <label>Google Pay Settings</label>
+
+                    <field id="active" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Google Pay</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com_googlepay/active</config_path>
+                    </field>
+
+                    <field id="environment" translate="label" sortOrder="1" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Environment</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\GooglePayEnvironment</source_model>
+                        <config_path>payment/checkout_com_googlepay/environment</config_path>
+                    </field>
+
+                    <field id="debug" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Debug</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com_googlepay/debug</config_path>
+                        <comment>Enabling the debug mode will log Google Pay events to the browser console.</comment>
+                    </field>
+
+                    <field id="title" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkout_com_googlepay/title</config_path>
+                        <comment>Payment method title displayed to shoppers.</comment>
+                    </field>
+
+                    <field id="sort_order" translate="label" sortOrder="4" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort Order</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkout_com_googlepay/sort_order</config_path>
+                    </field>
+
+                    <field id="merchant_id" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Merchant ID</label>
+                        <config_path>payment/checkout_com_googlepay/merchant_id</config_path>
+                        <comment>Provide your Merchant ID</comment>
+                    </field>
+
+                    <field id="button_style" translate="label" type="select" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Button Style</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\GooglePayButton</source_model>
+                        <config_path>payment/checkout_com_googlepay/button_style</config_path>
+                        <comment>The Google Pay place order button style</comment>
+                    </field>
+
+                    <field id="allowed_card_networks" translate="label" type="multiselect" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Supported Networks</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\GooglePayNetworks</source_model>
+                        <config_path>payment/checkout_com_googlepay/allowed_card_networks</config_path>
+                        <comment>Select the Google Pay supported cards</comment>
+                    </field>
+
+                </group>
+
             </group>
         </section>
     </system>

@@ -3,6 +3,7 @@
     <head>
         <css src="CheckoutCom_Magento2::css/main.css" />
         <css src="CheckoutCom_Magento2::css/applepay.css" />
+        <css src="CheckoutCom_Magento2::css/googlepay.css" />
     </head>
     <body>
         <referenceBlock name="checkout.root">
@@ -29,7 +30,10 @@
                                                                         </item>
                                                                         <item name="checkout_com_applepay" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
-                                                                        </item>   
+                                                                        </item> 
+                                                                        <item name="checkout_com_googlepay" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>                                                                     
                                                                     </item>
                                                                 </item>
                                                             </item>

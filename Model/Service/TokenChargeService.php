@@ -82,8 +82,28 @@ class TokenChargeService {
         ]);
             
         // Send the token request
-        $response           = $this->getHttpClient($url, $transfer, $isApplePay = true)->request();
-        $tokenData      = json_decode($response->getBody(), true);
+        $response  = $this->getHttpClient($url, $transfer, $needsPublicKey = true)->request();
+        $tokenData = json_decode($response->getBody(), true);
+
+        // Send the charge request
+        $result = $this->sendChargeRequest($tokenData['token'], $quote, $disable3ds = true, $isQuote = true);
+
+        return $result;
+    }
+
+    public function sendGooglePayChargeRequest($payload, $quote) {
+        // Build the request URL
+        $url = $this->gatewayConfig->getGooglePayTokenRequestUrl();
+
+        // Prepare the token request data
+        $transfer = $this->transferFactory->create([
+            'type' => 'googlepay',
+            'token_data' => $payload
+        ]);
+            
+        // Send the token request
+        $response  = $this->getHttpClient($url, $transfer, $needsPublicKey = true)->request();
+        $tokenData = json_decode($response->getBody(), true);
 
         // Send the charge request
         $result = $this->sendChargeRequest($tokenData['token'], $quote, $disable3ds = true, $isQuote = true);
@@ -185,10 +205,10 @@ class TokenChargeService {
      * @return ZendClient
      * @throws \Exception
      */
-    private function getHttpClient($endpoint, TransferInterface $transfer, $isApplePay = false) {
+    private function getHttpClient($endpoint, TransferInterface $transfer, $needsPublicKey = false) {
         // Prepare the headers
         $headers = $transfer->getHeaders();
-        if ($isApplePay) {
+        if ($needsPublicKey) {
             $headers['Authorization'] = $this->gatewayConfig->getPublicKey();
         }
 

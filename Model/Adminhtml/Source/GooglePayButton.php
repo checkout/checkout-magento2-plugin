@@ -12,14 +12,13 @@ namespace CheckoutCom\Magento2\Model\Adminhtml\Source;
 
 use Magento\Framework\Option\ArrayInterface;
 
-class ApplePayButton implements ArrayInterface {
+class GooglePayButton implements ArrayInterface {
 
     const BUTTON_BLACK = 'black';
     const BUTTON_WHITE = 'white';
-    const BUTTON_WHITE_LINE = 'white-with-line';
 
     /**
-     * Possible Apple Pay button styles
+     * Possible Google Pay button styles
      *
      * @return array
      */
@@ -32,10 +31,6 @@ class ApplePayButton implements ArrayInterface {
             [
                 'value' => self::BUTTON_WHITE,
                 'label' => __('White')
-            ],
-            [
-                'value' => self::BUTTON_WHITE_LINE,
-                'label' => __('White with line')
             ],
         ];
     }

@@ -20,6 +20,7 @@
 
         var paymentMethod = window.checkoutConfig.payment['checkout_com'];
         var paymentMethodApplePay = window.checkoutConfig.payment['checkout_com_applepay'];
+        var paymentMethodGooglePay = window.checkoutConfig.payment['checkout_com_googlepay'];
 
         if (paymentMethod.isActive) {
             rendererList.push(
@@ -35,6 +36,15 @@
                 {
                     type: 'checkout_com_applepay',
                     component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/applepay'
+                }
+            );
+        }
+
+        if (paymentMethodGooglePay.isActive) {
+            rendererList.push(
+                {
+                    type: 'checkout_com_googlepay',
+                    component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/googlepay'
                 }
             );
         }

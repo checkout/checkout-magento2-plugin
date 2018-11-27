@@ -12,31 +12,26 @@ namespace CheckoutCom\Magento2\Model\Adminhtml\Source;
 
 use Magento\Framework\Option\ArrayInterface;
 
-class ApplePayButton implements ArrayInterface {
+class GooglePayEnvironment implements ArrayInterface {
 
-    const BUTTON_BLACK = 'black';
-    const BUTTON_WHITE = 'white';
-    const BUTTON_WHITE_LINE = 'white-with-line';
+    const ENVIRONMENT_TEST = 'TEST';
+    const ENVIRONMENT_PRODUCTION = 'PRODUCTION';
 
     /**
-     * Possible Apple Pay button styles
+     * Possible environment types
      *
      * @return array
      */
     public function toOptionArray() {
         return [
             [
-                'value' => self::BUTTON_BLACK,
-                'label' => __('Black')
+                'value' => self::ENVIRONMENT_TEST,
+                'label' => __('Test')
             ],
             [
-                'value' => self::BUTTON_WHITE,
-                'label' => __('White')
-            ],
-            [
-                'value' => self::BUTTON_WHITE_LINE,
-                'label' => __('White with line')
-            ],
+                'value' => self::ENVIRONMENT_PRODUCTION,
+                'label' => __('Production')
+            ]
         ];
     }
 
