@@ -221,7 +221,7 @@ class TransactionHandler implements HandlerInterface {
             }
         }
         else {
-            $this->messageManager->addSuccessMessage( __('Invalid gateway response. Please contact the site administrator.') );
+            $this->messageManager->addErrorMessage( __('Invalid gateway response. Please contact the site administrator.') );
         }
     }
 
