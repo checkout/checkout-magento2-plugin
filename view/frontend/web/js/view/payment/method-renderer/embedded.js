@@ -277,6 +277,7 @@ define(
                     theme: ckoTheme,
                     debugMode: CheckoutCom.getPaymentConfig()['debug_mode'],
                     themeOverride: ckoThemeOverride,
+                    localisation: CheckoutCom.getPaymentConfig()['integration_language'],
                     frameActivated: function () {
                         $('#ckoPlaceOrder').attr("disabled", true);
                     },

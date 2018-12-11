@@ -15,6 +15,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Locale\Resolver as LocaleResolver;
 use CheckoutCom\Magento2\Model\Adminhtml\Source\Environment;
 use CheckoutCom\Magento2\Model\Adminhtml\Source\Integration;
 
@@ -65,6 +66,7 @@ class Config extends BaseConfig {
     const KEY_EMBEDDED_THEME = 'embedded_theme';
     const KEY_EMBEDDED_CSS = 'embedded_css';
     const KEY_CUSTOM_CSS = 'custom_css';
+    const KEY_FALLBACK_LANGUAGE = 'language_fallback';
     const KEY_CSS_FILE = 'css_file';
     const KEY_ORDER_COMMENTS_OVERRIDE = 'order_comments_override';
     const KEY_ORDER_CREATION = 'order_creation';
@@ -105,12 +107,18 @@ class Config extends BaseConfig {
     protected $checkoutSession;
 
     /**
+     * @var LocaleResolver
+     */    
+    protected $localeResolver;
+
+    /**
      * Config constructor
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
         CheckoutSession $checkoutSession,
+        LocaleResolver $localeResolver,
         $methodCode = null,
         $pathPattern = self::DEFAULT_PATH_PATTERN
     ) {
@@ -119,6 +127,86 @@ class Config extends BaseConfig {
         $this->scopeConfig  = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->checkoutSession = $checkoutSession;
+        $this->localeResolver = $localeResolver;
+    }
+
+
+    public static function getSupportedLanguages() {
+        return [
+            [
+                'value' => 'EN-GB',
+                'label' => __('English')
+            ],
+            [
+                'value' => 'ES-ES',
+                'label' => __('Spanish')
+            ],
+            [
+                'value' => 'DE-DE',
+                'label' => __('German')
+            ],            
+            [
+                'value' => 'KR-KR',
+                'label' => __('Korean')
+            ],
+            [
+                'value' => 'FR-FR',
+                'label' => __('French')
+            ],
+            [
+                'value' => 'IT-IT',
+                'label' => __('Italian')
+            ],
+            [
+                'value' => 'NL-NL',
+                'label' => __('Dutch')
+            ]
+        ];
+    }
+
+    /**
+     * Returns the integration language.
+     *
+     * @return string
+     */
+    public function getIntegrationLanguage() {
+        // Get and format the user language
+        $userLanguage = $this->localeResolver->getLocale();
+        $userLanguage = strtoupper(str_replace('_', '-', $userLanguage));
+
+        // Get and format the supported languages
+        $supportedLanguages = [];
+        foreach (self::getSupportedLanguages() as $arr) {
+            $supportedLanguages[] = $arr['value'];
+        }
+
+        $test = [
+            'userLanguage' => $userLanguage,
+            'supportedLanguages' => $supportedLanguages,
+            'fallbackLangage' => $this->getValue(
+                self::KEY_FALLBACK_LANGUAGE,
+                $this->storeManager->getStore()
+            ),
+            'isSupported' => in_array($userLanguage, $supportedLanguages)
+        ];
+
+        // Get the fallback language
+        $fallbackLanguage = $this->getValue(
+            self::KEY_FALLBACK_LANGUAGE,
+            $this->storeManager->getStore()
+        );
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info($test);
+
+        // Compare user language with supported
+        if (in_array($userLanguage, $supportedLanguages)) {
+            return $userLanguage;
+        }
+        else {
+            return ($fallbackLanguage) ? $fallbackLanguage : 'EN-EN';
+        }
     }
 
     /**

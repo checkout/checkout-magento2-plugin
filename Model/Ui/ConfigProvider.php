@@ -95,6 +95,7 @@ class ConfigProvider implements ConfigProviderInterface {
                     'vault_title' => $this->config->getVaultTitle(),
                     'order_creation' => $this->config->getOrderCreation(),
                     'card_autosave' => $this->config->isCardAutosave(),
+                    'integration_language' => $this->config->getIntegrationLanguage()
                 ],
 
                 self::CODE_APPLE_PAY => [

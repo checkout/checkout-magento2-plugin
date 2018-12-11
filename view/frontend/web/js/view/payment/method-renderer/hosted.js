@@ -163,6 +163,13 @@ define(
             /**
              * @returns {string}
              */
+            getIntegrationLanguage: function() {
+                return CheckoutCom.getPaymentConfig()['integration_language'];
+            },
+
+            /**
+             * @returns {string}
+             */
             beforePlaceOrder: function() {
                 // Get self
                 var self = this;
