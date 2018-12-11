@@ -180,25 +180,11 @@ class Config extends BaseConfig {
             $supportedLanguages[] = $arr['value'];
         }
 
-        $test = [
-            'userLanguage' => $userLanguage,
-            'supportedLanguages' => $supportedLanguages,
-            'fallbackLangage' => $this->getValue(
-                self::KEY_FALLBACK_LANGUAGE,
-                $this->storeManager->getStore()
-            ),
-            'isSupported' => in_array($userLanguage, $supportedLanguages)
-        ];
-
         // Get the fallback language
         $fallbackLanguage = $this->getValue(
             self::KEY_FALLBACK_LANGUAGE,
             $this->storeManager->getStore()
         );
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info($test);
 
         // Compare user language with supported
         if (in_array($userLanguage, $supportedLanguages)) {
