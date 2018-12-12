@@ -107,7 +107,7 @@
                         </depends>
                     </field>
 
-                    <field id="language_fallback" translate="label" sortOrder="110" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="language_fallback" translate="label" sortOrder="130" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Language Fallback</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\LanguageFallback</source_model>
                         <config_path>payment/checkout_com/language_fallback</config_path>
