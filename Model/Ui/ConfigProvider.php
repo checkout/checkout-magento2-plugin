@@ -134,7 +134,8 @@ class ConfigProvider implements ConfigProviderInterface {
      */
     public function getQuoteValue() {
         // Return the quote amount
-        return $this->checkoutSession->getQuote()->getGrandTotal()*100;
+        $quote = $this->checkoutSession->getQuote()->collectTotals()->save();
+        return $quote->getGrandTotal();
     }
 
     /**

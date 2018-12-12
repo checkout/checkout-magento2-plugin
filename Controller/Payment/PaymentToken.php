@@ -48,8 +48,11 @@ class PaymentToken extends AbstractAction {
      * Handles the controller method.
      */
     public function execute() {
-        return $this->resultJsonFactory->create()->setData([
-            'payment_token' => $this->paymentTokenService->getToken()
-        ]);
+        $request = $this->getRequest();
+        if ($request->isAjax()) {
+            return $this->resultJsonFactory->create()->setData([
+                'payment_token' => $this->paymentTokenService->getToken()
+            ]);
+        }
     }
 }

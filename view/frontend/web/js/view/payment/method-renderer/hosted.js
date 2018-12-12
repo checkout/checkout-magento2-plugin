@@ -83,7 +83,12 @@ define(
             /**
              * @returns {string}
              */
-            getPaymentToken: function() {                
+            getPaymentToken: function() {   
+                // Start the loader
+                fullScreenLoader.startLoader();
+
+                var self = this;
+
                 // Send the request
                 var ajaxRequest = $.ajax({
                     url: url.build('checkout_com/payment/paymentToken'),
@@ -93,6 +98,9 @@ define(
                 // Process the payment token response
                 ajaxRequest.done(function (response, textStatus, jqXHR) {
                     $('#paymentToken').val(response.payment_token);
+
+                    // Stop the full screen loader
+                    fullScreenLoader.stopLoader();
                 });
             },
 
@@ -100,7 +108,7 @@ define(
              * @returns {string}
              */
             getQuoteValue: function() {
-               return (quote.getTotals()().grand_total*100).toFixed(2);
+                return (CheckoutCom.getPaymentConfig()['quote_value'].toFixed(2))*100;
             },
 
             /**

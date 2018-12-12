@@ -83,7 +83,7 @@ class PaymentTokenService {
      */
     public function getToken() {
         // Get the quote object
-        $quote = $this->checkoutSession->getQuote();
+        $quote = $this->checkoutSession->getQuote()->collectTotals()->save();
 
         // Get the reserved track id
         $trackId = $quote->reserveOrderId()->save()->getReservedOrderId();

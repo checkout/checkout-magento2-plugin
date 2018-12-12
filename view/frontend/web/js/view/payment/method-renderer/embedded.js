@@ -153,13 +153,6 @@ define(
             /**
              * @returns {string}
              */
-            getQuoteValue: function() {
-                return (quote.getTotals()().grand_total*100).toFixed(2);
-            },
-
-            /**
-             * @returns {string}
-             */
             getQuoteCurrency: function() {
                 return CheckoutCom.getPaymentConfig()['quote_currency'];
             },
