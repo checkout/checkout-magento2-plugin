@@ -270,6 +270,11 @@ define(
                 // Freeze the place order button on initialisation
                 $('#ckoPlaceOrder').attr("disabled",true);
 
+                // Remove any existing event handlers
+                Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
+                Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
+                Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
+
                 // Initialise the embedded form
                 Frames.init({
                     publicKey: self.getPublicKey(),
