@@ -107,6 +107,13 @@
                         </depends>
                     </field>
 
+                    <field id="language_fallback" translate="label" sortOrder="130" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Language Fallback</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\LanguageFallback</source_model>
+                        <config_path>payment/checkout_com/language_fallback</config_path>
+                        <comment>Select the language to use by default if the one used by the shopper is not supported by the integration.</comment>
+                    </field>
+
                     <!--
                     <field id="css_file" translate="label" sortOrder="90" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>CSS file</label>
@@ -227,6 +234,7 @@
                             If Payment Action is "Authorize and Capture", Auto Capture Time will define the number of hours (0-168) between the charge authorisation and automatic capture. Set value to 0 to authorise and capture a charge at the same time.
                         </comment>
                     </field>
+
                 </group>
 
                 <group id="checkout_com_order_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="4">

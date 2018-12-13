@@ -138,7 +138,7 @@ define(
              * @returns {string}
              */
             getQuoteValue: function() {
-                return (quote.getTotals()().grand_total).toFixed(2);
+                return CheckoutCom.getPaymentConfig()['quote_value'].toFixed(2);
             },
 
             /**

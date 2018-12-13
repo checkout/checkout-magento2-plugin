@@ -153,13 +153,6 @@ define(
             /**
              * @returns {string}
              */
-            getQuoteValue: function() {
-                return (quote.getTotals()().grand_total*100).toFixed(2);
-            },
-
-            /**
-             * @returns {string}
-             */
             getQuoteCurrency: function() {
                 return CheckoutCom.getPaymentConfig()['quote_currency'];
             },
@@ -270,6 +263,11 @@ define(
                 // Freeze the place order button on initialisation
                 $('#ckoPlaceOrder').attr("disabled",true);
 
+                // Remove any existing event handlers
+                Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
+                Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
+                Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
+
                 // Initialise the embedded form
                 Frames.init({
                     publicKey: self.getPublicKey(),
@@ -277,6 +275,7 @@ define(
                     theme: ckoTheme,
                     debugMode: CheckoutCom.getPaymentConfig()['debug_mode'],
                     themeOverride: ckoThemeOverride,
+                    localisation: CheckoutCom.getPaymentConfig()['integration_language'],
                     frameActivated: function () {
                         $('#ckoPlaceOrder').attr("disabled", true);
                     },
