@@ -213,13 +213,15 @@ class ChargeAmountAdapter {
         // Get the user currency display
         $quote = $manager->create('Magento\Checkout\Model\Session')->getQuote();
         $order = $manager->create('Magento\Checkout\Model\Session')->getLastRealOrder();
-        if ($quote) {
+
+        $userCurrencyCode = null;
+        if ($quote->getQuoteCurrencyCode() !== null) {
             $userCurrencyCode = $quote->getQuoteCurrencyCode();
         }
-        else if ($order) {
-            $userCurrencyCode = $quote->getOrderCurrencyCode();
+        if ($userCurrencyCode === null && $order->getOrderCurrencyCode() !== null) {
+            $userCurrencyCode = $order->getOrderCurrencyCode();
         }
-        else {
+        if ($userCurrencyCode === null) {
             $userCurrencyCode = $manager->create('Magento\Store\Model\StoreManagerInterface')->getStore($storeId)->getCurrentCurrencyCode();
         }
 
