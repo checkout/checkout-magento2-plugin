@@ -24,6 +24,7 @@ use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Quote\Model\QuoteManagement;
+use CheckoutCom\Magento2\Helper\Helper;
 
 class Verify extends AbstractAction {
     /**
@@ -77,6 +78,11 @@ class Verify extends AbstractAction {
     protected $watchdog;
 
     /**
+     * @var Helper
+     */
+    protected $helper;
+
+    /**
      * Verify constructor.
      * @param Context $context
      * @param Session $session
@@ -88,6 +94,7 @@ class Verify extends AbstractAction {
      * @param PaymentTokenRepositoryInterface $paymentTokenRepository
      * @param PaymentTokenManagementInterface $paymentTokenManagement
      * @param Watchdog $watchdog
+     * @param Helper $helper
      */
     public function __construct(
         Context $context, 
@@ -100,7 +107,8 @@ class Verify extends AbstractAction {
         PaymentTokenRepositoryInterface $paymentTokenRepository,
         PaymentTokenManagementInterface $paymentTokenManagement,
         QuoteManagement $quoteManagement,
-        Watchdog $watchdog
+        Watchdog $watchdog,
+        Helper $helper
     ) 
     {
         parent::__construct($context, $gatewayConfig);
@@ -114,6 +122,7 @@ class Verify extends AbstractAction {
         $this->paymentTokenRepository   = $paymentTokenRepository;
         $this->paymentTokenManagement   = $paymentTokenManagement;
         $this->watchdog                 = $watchdog;
+        $this->helper                   = $helper;
         $this->redirect                 = $this->getResultRedirect();
     }
 
@@ -195,6 +204,12 @@ class Verify extends AbstractAction {
         // Get the quote from session
         $quote = $this->session->getQuote();
 
+        // Check for guest user quote
+        if ($this->customerSession->isLoggedIn() === false)
+        {
+            $quote = $this->helper->prepareGuestQuote($quote);
+        }
+        
         // Prepare the quote in session (required for success page redirection)
         $this->session
         ->setLastQuoteId($quote->getId())
