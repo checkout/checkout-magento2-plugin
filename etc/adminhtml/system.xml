@@ -348,19 +348,16 @@
                     <field id="public_key" translate="label" sortOrder="0" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Public Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkout_com/public_key</config_path>
                     </field>
 
                     <field id="secret_key" translate="label" sortOrder="10" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Secret Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkout_com/secret_key</config_path>
                     </field>
 
                     <field id="private_shared_key" translate="label" sortOrder="20" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Private Shared Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkout_com/private_shared_key</config_path>
                         <comment>Used as an authorization key to the functionality called Webhook.</comment>
                     </field>
                 </group>
