@@ -47,6 +47,9 @@
                 <auto_capture>0</auto_capture>
                 <auto_capture_time>0.02</auto_capture_time>
                 <language_fallback>EN-EN</language_fallback>
+                <public_key></public_key>
+                <secret_key></secret_key>
+                <private_shared_key></private_shared_key>
                 <sandbox_api_url><![CDATA[https://sandbox.checkout.com/api2/v2/]]></sandbox_api_url>
                 <live_api_url><![CDATA[https://api2.checkout.com/v2/]]></live_api_url>
                 <sandbox_embedded_url><![CDATA[https://cdn.checkout.com/js/frames.js]]></sandbox_embedded_url>
