@@ -16,6 +16,7 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Locale\Resolver as LocaleResolver;
+use Magento\Framework\Encryption\EncryptorInterface;
 use CheckoutCom\Magento2\Model\Adminhtml\Source\Environment;
 use CheckoutCom\Magento2\Model\Adminhtml\Source\Integration;
 
@@ -119,6 +120,7 @@ class Config extends BaseConfig {
         StoreManagerInterface $storeManager,
         CheckoutSession $checkoutSession,
         LocaleResolver $localeResolver,
+        EncryptorInterface $encryptor,
         $methodCode = null,
         $pathPattern = self::DEFAULT_PATH_PATTERN
     ) {
@@ -128,8 +130,8 @@ class Config extends BaseConfig {
         $this->storeManager = $storeManager;
         $this->checkoutSession = $checkoutSession;
         $this->localeResolver = $localeResolver;
+        $this->encryptor = $encryptor;
     }
-
 
     public static function getSupportedLanguages() {
         return [
@@ -739,10 +741,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getPublicKey() {
-        return (string) $this->getValue(
+        return (string) $this->encryptor->decrypt($this->getValue(
             self::KEY_PUBLIC_KEY,
             $this->storeManager->getStore()
-        );
+        ));
     }
 
     /**
@@ -751,10 +753,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getSecretKey() {
-        return (string) $this->getValue(
+        return (string) $this->encryptor->decrypt($this->getValue(
             self::KEY_SECRET_KEY,
             $this->storeManager->getStore()
-        );
+        ));
     }
 
     /**
@@ -792,10 +794,10 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getPrivateSharedKey() {
-        return (string) $this->getValue(
+        return (string) $this->encryptor->decrypt($this->getValue(
             self::KEY_PRIVATE_SHARED_KEY,
             $this->storeManager->getStore()
-        );
+        ));
     }
 
     /**

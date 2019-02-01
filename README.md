@@ -48,6 +48,17 @@ bin/magento setup:upgrade
 rm -rf var/cache var/generation/ var/di
 bin/magento setup:di:compile && php bin/magento cache:clean
 ```
+
+## Update
+In order to update the Checkout.com Magento 2 extension please run the following commands in a terminal, from your Magento 2 root directory:
+
+```bash
+composer update checkoutcom/magento2:*
+bin/magento setup:upgrade
+rm -rf var/cache var/generation/ var/di
+bin/magento setup:di:compile && php bin/magento cache:clean
+```
+
 For more information on the Magento 2 module installation process, please have a look at the [Magento 2 official documentation](http://devdocs.magento.com/guides/v2.0/install-gde/install/cli/install-cli-subcommands-enable.html "Magento 2 official documentation")
 
 ## Configuration
