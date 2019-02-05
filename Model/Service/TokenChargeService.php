@@ -20,6 +20,7 @@ use CheckoutCom\Magento2\Helper\Watchdog;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Http\TransferFactory;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 
 class TokenChargeService {
 
@@ -55,13 +56,19 @@ class TokenChargeService {
      */
     protected $checkoutSession;
 
+    /**
+     * @var ConfigProvider
+     */
+    protected $configProvider;
+
     public function __construct(
         Config $gatewayConfig,
         TransferFactory $transferFactory,
         Logger $logger,
         ManagerInterface $messageManager,
         Watchdog $watchdog,
-        CheckoutSession $checkoutSession
+        CheckoutSession $checkoutSession,
+        ConfigProvider $configProvider
     ) {
         $this->logger                   = $logger;
         $this->gatewayConfig            = $gatewayConfig;
@@ -69,6 +76,7 @@ class TokenChargeService {
         $this->messageManager           = $messageManager;
         $this->watchdog                 = $watchdog;
         $this->checkoutSession          = $checkoutSession;
+        $this->configProvider           = $configProvider;
     }
 
     public function sendApplePayChargeRequest($payload, $quote) {
@@ -130,7 +138,9 @@ class TokenChargeService {
             'currency'      => ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode()),
             'value'         => $entity->getGrandTotal()*100,
             'trackId'       => $trackId,
-            'cardToken'     => $cardToken
+            'cardToken'     => $cardToken,
+            'successUrl'    => $this->configProvider->getSuccessUrl(),
+            'failUrl'       => $this->configProvider->getFailUrl()
         ]);
 
         // Handle the request
