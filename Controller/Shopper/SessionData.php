@@ -60,7 +60,7 @@ class SessionData extends Action
 
     private function checkMadaBin($sessionData) {
         // Test the card bin and set the MADA status
-        if ($this->helper->isMadaBin($sessionData['cardBin'])) {
+        if (isset($sessionData['cardBin']) && $this->helper->isMadaBin($sessionData['cardBin'])) {
             $sessionData['isMadaBin'] = true;
         }
 
