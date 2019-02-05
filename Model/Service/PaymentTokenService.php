@@ -23,6 +23,7 @@ use CheckoutCom\Magento2\Gateway\Exception\ApiClientException;
 use CheckoutCom\Magento2\Model\GatewayResponseHolder;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Helper\Watchdog;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 
 class PaymentTokenService {
 
@@ -52,25 +53,33 @@ class PaymentTokenService {
     protected $watchdog;
 
     /**
+     * @var ConfigProvider
+     */
+    protected $configProvider;
+
+    /**
      * PaymentTokenService constructor.
      * @param GatewayConfig $gatewayConfig
      * @param TransferFactory $transferFactory
      * @param Session $checkoutSession
      * @param StoreManagerInterface $storeManager
      * @param Watchdog $watchdog
+     * @param ConfigProvider $configProvider
     */
     public function __construct(
         GatewayConfig $gatewayConfig,
         TransferFactory $transferFactory,
         Session $checkoutSession,
         StoreManagerInterface $storeManager,
-        Watchdog $watchdog
+        Watchdog $watchdog,
+        ConfigProvider $configProvider
     ) {
         $this->gatewayConfig    = $gatewayConfig;
         $this->transferFactory  = $transferFactory;
-        $this->checkoutSession = $checkoutSession;
-        $this->storeManager  = $storeManager;
-        $this->watchdog = $watchdog;
+        $this->checkoutSession  = $checkoutSession;
+        $this->storeManager     = $storeManager;
+        $this->watchdog         = $watchdog;
+        $this->configProvider   = $configProvider;
     }
 
     /**
@@ -101,7 +110,9 @@ class PaymentTokenService {
         $transfer = $this->transferFactory->create([
             'value'   => $value,
             'currency'   => $currencyCode,
-            'trackId' => $trackId
+            'trackId' => $trackId,
+            'successUrl'    => $this->configProvider->getSuccessUrl(),
+            'failUrl'       => $this->configProvider->getFailUrl()
         ]);
 
         // Get the token
