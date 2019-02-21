@@ -14,18 +14,11 @@ define(
         rendererList
     ) {
         'use strict';
-
-
-
-
-
-        console.log("aquila");
-
-
+console.log('aquilaaaa');
         rendererList.push(
             {
                 type: 'checkoutcom_gateway',
-                component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_gateway'
+                component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom'
             }
         );
         /** Add view logic here if needed */

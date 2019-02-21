@@ -6,8 +6,8 @@
 namespace CheckoutCom\Magento2\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
-use CheckoutCom\Magento2\Gateway\Http\Client\ClientMock;
-use CheckoutCom\Magento2\Gateway\Config\Config;
+
+
 
 /**
  * Class ConfigProvider
@@ -35,17 +35,13 @@ final class ConfigProvider implements ConfigProviderInterface
 $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
 $logger = new \Zend\Log\Logger();
 $logger->addWriter($writer);
-$logger->info($this->config->getTitle());
+$logger->info('model' . $this->config->getTitle());
 
 
 
         return [
             'payment' => [
                 self::CODE => [
-                    'transactionResults' => [
-                        ClientMock::SUCCESS => __('Success'),
-                        ClientMock::FAILURE => __('Fraud')
-                    ],
                     'title' => $this->config->getTitle()
                 ]
             ]

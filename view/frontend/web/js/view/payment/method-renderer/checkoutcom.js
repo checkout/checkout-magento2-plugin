@@ -17,17 +17,10 @@ define(
                 transactionResult: ''
             },
 
-            initObservable: function () {
 
-                this._super()
-                    .observe([
-                        'transactionResult'
-                    ]);
-                return this;
-            },
 
             getCode: function() {
-                return 'checkoutcom_gateway';
+                return 'checkoutcom_gateway_frame';
             },
 
             getTitle: function() {

@@ -3,11 +3,10 @@
     <system>
         <section id="payment">
             <group id="checkoutcom_gateway" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label><![CDATA[<div class="checkout-payment-logo"></div><div class="checkout-payment-byline">Checkout.com delivers increased payment processing speed, greater reliability, and adaptability to the needs of your business with a unified payment solution. Get your credentials <a href="https://www.checkout.com/">here</a>.</div>]]></label>
+                <fieldset_css>checkout-settings checkout-payment-section</fieldset_css>
+                <frontend_model>Magento\Paypal\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
 
-                <!-- CDATA goes here -->
-
-
-                <label>Checkout.com</label>
                 <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

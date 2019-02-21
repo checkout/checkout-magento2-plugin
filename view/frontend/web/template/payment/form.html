@@ -14,7 +14,9 @@
             <span data-bind="text: getTitle()"></span>
         </label>
     </div>
-
+    <label class="label" data-bind="attr: {'for': getCode()}">
+            <span>aquileus</span>
+        </label>
     <div class="payment-method-content">
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
