@@ -1,0 +1,1 @@
+- Remove the Gateway/Http folder as there is no HTTP client needed (SDK handles this)x
