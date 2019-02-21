@@ -1,1 +1,3 @@
-- Remove the Gateway/Http folder as there is no HTTP client needed (SDK handles this)x
+- Remove the Gateway/Http folder as there is no HTTP client needed (SDK handles this)
+- Gateway/Request and Gateway/Response will probably need removal if no specific logic is required
+- Gateway/Validator will rpobably need removal if no specific logic is required there
