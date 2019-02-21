@@ -1,21 +1,18 @@
 {
-    "name": "checkoutcom/magento2",
-    "description": "Checkout.com Payment Gateway for Magento 2",
+    "name": "checkoutcom/checkout-magento2-plugin",
+    "description": "Integration with payment gateway Checkout.com",
     "require": {
-        "php": "~5.5.0|~5.6.0|~7.0",
-        "magento/framework": ">=100.1.0",
-        "magento/magento-composer-installer": "*",
-        "magento/module-sales": "*",
-        "magento/module-checkout": "*",
-        "magento/module-payment": "*",
-        "magento/module-vault": "*"
+        "php": "~5.5.0|~5.6.0|~7.0.0",
+        "magento/module-sales": "100.0.*",
+        "magento/module-checkout": "100.0.*",
+        "magento/module-payment": "100.0.*",
+        "magento/framework": "100.0.*",
+        "magento/magento-composer-installer": "100.0.*"
     },
     "type": "magento2-module",
-    "version": "1.0.40",
+    "version": "1.0.0",
     "autoload": {
-        "files": [
-            "registration.php"
-        ],
+        "files": [ "registration.php" ],
         "psr-4": {
             "CheckoutCom\\Magento2\\": ""
         }

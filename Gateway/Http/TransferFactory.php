@@ -1,55 +1,29 @@
 <?php
 /**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
- *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
- *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
  */
- 
 namespace CheckoutCom\Magento2\Gateway\Http;
 
-use CheckoutCom\Magento2\Gateway\Config\Config;
 use Magento\Payment\Gateway\Http\TransferBuilder;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
+use CheckoutCom\Magento2\Gateway\Request\MockDataRequest;
 
-class TransferFactory implements TransferFactoryInterface {
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
+class TransferFactory implements TransferFactoryInterface
+{
     /**
      * @var TransferBuilder
      */
     private $transferBuilder;
 
     /**
-     * @var array
-     */
-    private static $headers = [
-        'Content-Type'  => 'application/json;charset=UTF-8',
-        'Accept'        => 'application/json',
-    ];
-
-    /**
-     * @var array
-     */
-    private static $clientConfig = [
-        'timeout' => 60,
-    ];
-
-    /**
-     * TransferFactory constructor.
-     * @param Config $config
      * @param TransferBuilder $transferBuilder
      */
-    public function __construct(Config $config, TransferBuilder $transferBuilder) {
-        $this->config           = $config;
-        $this->transferBuilder  = $transferBuilder;
+    public function __construct(
+        TransferBuilder $transferBuilder
+    ) {
+        $this->transferBuilder = $transferBuilder;
     }
 
     /**
@@ -58,17 +32,18 @@ class TransferFactory implements TransferFactoryInterface {
      * @param array $request
      * @return TransferInterface
      */
-    public function create(array $request) {
-        $headers = self::$headers;
-
-        $headers['Authorization'] = $this->config->getSecretKey();
-
+    public function create(array $request)
+    {
         return $this->transferBuilder
-            ->setClientConfig(self::$clientConfig)
-            ->setHeaders($headers)
-            ->setUri($this->config->getApiUrl())
             ->setBody($request)
+            ->setMethod('POST')
+            ->setHeaders(
+                [
+                    'force_result' => isset($request[MockDataRequest::FORCE_RESULT])
+                        ? $request[MockDataRequest::FORCE_RESULT]
+                        : null
+                ]
+            )
             ->build();
     }
-
 }
