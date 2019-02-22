@@ -6,18 +6,6 @@
                 <debug>1</debug>
                 <active>0</active>
                 <model>CheckoutCom\Magento2\Model\Methods\FrontEndForm</model>
-                <merchant_gateway_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
-                <order_status>pending_payment</order_status>
-                <payment_action>authorize</payment_action>
-                <title>Payment method (SampleGateway)</title>
-                <currency>USD</currency>
-                <can_authorize>1</can_authorize>
-                <can_capture>1</can_capture>
-                <can_void>1</can_void>aaaaaaa
-                <can_use_checkout>1</can_use_checkout>
-                <is_gateway>1</is_gateway>
-                <sort_order>1</sort_order>
-                <debugReplaceKeys>MERCHANT_KEY</debugReplaceKeys>
             </checkoutcom_frontend_form>
         </payment>
     </default>
