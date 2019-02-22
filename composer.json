@@ -1,5 +1,5 @@
 {
-    "name": "checkoutcom/checkout-magento2-plugin",
+    "name": "checkoutcom/magento2",
     "description": "Integration with payment gateway Checkout.com",
     "require": {
         "php": "~5.5.0|~5.6.0|~7.0.0",
