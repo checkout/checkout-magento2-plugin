@@ -2,14 +2,6 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
-<<<<<<< Updated upstream
-            <checkoutcom_magento2>
-                <title>cko</title>
-                <model>CheckoutCom\Magento2\Model\Magento2</model>
-                <active>1</active>
-                <cctypes>AE,VI,MC,DI</cctypes>
-            </checkoutcom_magento2>
-=======
             <checkoutcom_frontend_form>
                 <debug>1</debug>
                 <active>0</active>
@@ -27,7 +19,6 @@
                 <sort_order>1</sort_order>
                 <debugReplaceKeys>MERCHANT_KEY</debugReplaceKeys>
             </checkoutcom_frontend_form>
->>>>>>> Stashed changes
         </payment>
     </default>
 </config>

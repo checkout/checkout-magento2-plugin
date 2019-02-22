@@ -1,14 +1,4 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-<<<<<<< Updated upstream
-    <type name="Magento\Payment\Model\CcGenericConfigProvider">
-        <arguments>
-            <argument name="methodCodes" xsi:type="array">
-                <item name="checkoutcom_magento2" xsi:type="const">CheckoutCom\Magento2\Model\Magento2::CODE</item>
-            </argument>
-        </arguments>
-    </type>
-</config>
-=======
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
@@ -24,4 +14,3 @@
         </arguments>
     </type>
 </confg>
->>>>>>> Stashed changes
