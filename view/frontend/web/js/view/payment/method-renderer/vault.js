@@ -12,8 +12,9 @@ define([
     'Magento_Vault/js/view/payment/method-renderer/vault',
     'Magento_Checkout/js/action/place-order',
     'CheckoutCom_Magento2/js/view/payment/adapter',
-    'Magento_Checkout/js/model/payment/additional-validators'
-], function ($, VaultComponent, placeOrderAction, CheckoutCom, additionalValidators) {
+    'Magento_Checkout/js/model/payment/additional-validators',
+    'Magento_Checkout/js/model/full-screen-loader'
+], function ($, VaultComponent, placeOrderAction, Adapter, AdditionalValidators, FullScreenLoader) {
     'use strict';
 
     return VaultComponent.extend({
@@ -22,7 +23,7 @@ define([
         },
 
         getVaultTitle: function () {
-            return CheckoutCom.getPaymentConfig()['vault_title'];
+            return this.php('getVaultTitle');
         },
 
         /**
@@ -57,7 +58,7 @@ define([
          *
          * @returns {String}
          */
-        getToken: function () {
+        getPublicHash: function () {
             return this.publicHash;
         },
 
@@ -65,15 +66,35 @@ define([
          * @returns {string}
          */
         beforePlaceOrder: function() {
+            // Start the loader
+            FullScreenLoader.startLoader();
 
             // Get self
             var self = this;
 
             // Place the order
-            if (additionalValidators.validate()) {
-                self.placeOrder();
+            if (AdditionalValidators.validate()) {
+                $('#cko-vault-form').submit();
+            }
+            else  {
+                FullScreenLoader.stopLoader();
             }
         },
+
+        /**
+         * Executes a js function from the adapter.
+         */
+        js: function(functionName, params) {
+            params = params || [];
+            return (params.length > 0) ? Adapter[functionName].apply(params) : Adapter[functionName]();
+        },
+
+        /**
+         * @returns {string}
+         */
+        php: function(functionName) {
+            return Adapter.getPaymentConfig()[functionName];
+        }
     });
 
 });

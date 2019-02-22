@@ -7,12 +7,6 @@
  * MIT License
  */
 
-require([
-    'jquery', 'domReady!'
-], function($) {
-
-    $(document).ready(function() {
-
-
-    });
-});
+ #cko-form-holder {
+     margin-bottom: 20px;
+ }
