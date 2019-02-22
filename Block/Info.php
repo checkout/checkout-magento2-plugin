@@ -1,35 +1,27 @@
 <?php
 /**
- * Copyright © 2016 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
+ 
 namespace CheckoutCom\Magento2\Block;
 
 use Magento\Framework\Phrase;
 use Magento\Payment\Block\ConfigurableInfo;
 
-class Info extends ConfigurableInfo
-{
+class Info extends ConfigurableInfo {
+
     /**
-     * Returns label
+     * Returns translated label.
      *
      * @param string $field
      * @return Phrase
      */
-    protected function getLabel($field)
-    {
+    protected function getLabel($field) {
         return __($field);
-    }
-
-    /**
-     * Returns value view
-     *
-     * @param string $field
-     * @param string $value
-     * @return string | Phrase
-     */
-    protected function getValueView($field, $value)
-    {
-        return parent::getValueView($field, $value);
     }
 }

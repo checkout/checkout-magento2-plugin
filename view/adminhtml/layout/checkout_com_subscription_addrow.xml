@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-1column"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <link src="Magento_Customer::js/bootstrap/customer-post-action.js"/>
+        <css src="CheckoutCom_Magento2::css/main.css" />
+        <css src="CheckoutCom_Magento2::css/subscriptions.css" />
+        <css src="CheckoutCom_Magento2::css/msdropdown/dd.css" />
+        <script src="CheckoutCom_Magento2::js/subscriptions.js"/>
+    </head>
+    <body>
+        <referenceContainer name="content">
+           <block class="CheckoutCom\Magento2\Block\Adminhtml\Subscription\AddRow" name="add_row" />
+        </referenceContainer>
+    </body>
+</page>

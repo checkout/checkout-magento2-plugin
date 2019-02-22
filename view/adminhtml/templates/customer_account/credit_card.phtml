@@ -1,0 +1,120 @@
+<?php
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+
+use Magento\Framework\View\Element\Template;
+use Magento\Vault\Api\Data\PaymentTokenInterface;
+use Magento\Vault\Block\CardRendererInterface;
+
+/** @var CardRendererInterface|Template $block */
+
+//$ccNumberView = $block->escapeHtml($block->getNumberLast4Digits());
+
+$cards = $block->getStoredCards();
+?>
+<br>
+<div class="admin__field field">
+<input type="text" id="userCardsSearch" placeholder="<?php echo __('Search text'); ?>..." class="input-text">
+</div>
+<br>
+
+<table id="cardsTable" class="data-grid data-grid-draggable" data-role="grid">
+    <thead>
+        <tr>
+            <th class="data-grid-th _sortable _draggable">
+                <span class="data-grid-cell-content">
+                    <?php echo __('Customer'); ?>
+                </span>
+            </th>
+            <th class="data-grid-th _sortable _draggable">
+                <span class="data-grid-cell-content">
+                    <?php echo __('Card type'); ?>
+                </span>
+            </th>
+            <th class="data-grid-th _sortable _draggable">
+                <span class="data-grid-cell-content">
+                    <?php echo __('Card Number'); ?>
+                </span>
+            </th>
+            <th class="data-grid-th _sortable _draggable">
+                <span class="data-grid-cell-content">
+                    <?php echo __('Expiration Date'); ?>
+                </span>
+            </th>
+            <th class="data-grid-th _sortable _draggable">
+                <span class="data-grid-cell-content">
+                    <?php echo __('Created'); ?>
+                </span>
+            </th>            
+            <th class="data-grid-th _sortable _draggable">
+                <span class="data-grid-cell-content">
+                    <?php echo __('Actions'); ?>
+                </span>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        foreach ($cards as $card) {
+            $cardData = $card->getData();
+            $cardDetails = json_decode($cardData['details']);
+            $cardIcon = $block->getCardIcon($cardDetails->type);
+            $cardUser = $block->getCustomer($cardData['customer_id']);
+        ?>
+            <tr>
+                <td class="col card-user">
+                    <span>
+                        <a href="<?php echo $this->getUrl('customer/index/edit/id/' .  $cardData['customer_id']); ?>">
+                            <?php echo $cardUser->getLastName(); ?> <?php echo $cardUser->getFirstName(); ?>
+                        </a>
+                    </span>
+                </td>
+                <td class="col card-type">
+
+                    <span>
+                        <img src="<?php echo $cardIcon['url']; ?>" width="<?php echo $cardIcon['width']; ?>" height="<?php echo $cardIcon['height']; ?>" style="display:inline-block; vertical-align:-50%">
+                    </span>
+                </td>
+                <td class="col card-number">
+                    <span>
+                        <?php echo __('ending'); ?> <?php echo isset($cardDetails->maskedCC) ? $cardDetails->maskedCC : ''; ?>
+                    </span>             
+                </td>
+                <td class="col card-expire">
+                    <span>
+                        <?php echo isset($cardDetails->expirationDate) ? $cardDetails->expirationDate : ''; ?>
+                    </span>             
+                </td>
+                <td class="col card-created">
+                    <span>
+                        <?php echo $cardData['created_at']; ?>
+                    </span>
+                </th>            
+                <td class="col actions">
+                    <form
+                        class="form"
+                        action="<?php echo $block->getUrl('vault/cards/deleteaction'); ?>"
+                        method="post"
+                    >
+                        <?php echo $block->getBlockHtml('formkey'); ?>
+                        <input
+                            name="<?php /* @noEscape */ //echo PaymentTokenInterface::PUBLIC_HASH?>"
+                            value="<?php /* @noEscape */ //echo $block->getToken()->getPublicHash()?>"
+                            type="hidden" />
+                            <button type="submit" class="action delete">
+                            <span><?php echo __('Delete'); ?></span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        <?php
+        }
+        ?>
+    <tbody>
+</table>

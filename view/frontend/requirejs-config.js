@@ -4,7 +4,7 @@
  * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
- * MIT License
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
 
 var config = {
@@ -12,7 +12,7 @@ var config = {
         '*': {
             'Magento_Checkout/js/model/place-order': 'CheckoutCom_Magento2/js/model/place-order',
             'Magento_Checkout/js/model/error-processor': 'CheckoutCom_Magento2/js/model/error-processor',
-            'framesjs': 'https://cdn.checkout.com/js/frames.js'
+            'gpay': 'https://pay.google.com/gp/p/js/pay.js'
         }
     }
 };

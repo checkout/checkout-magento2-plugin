@@ -4,7 +4,7 @@
  * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
- * MIT License
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
 
 /*browser:true*/
@@ -13,18 +13,20 @@
 define(
     [
         'jquery',
-        'Magento_Payment/js/view/payment/cc-form',
+        'CheckoutCom_Magento2/js/view/payment/method-renderer/cc-form',
+        'Magento_Vault/js/view/payment/vault-enabler',
         'CheckoutCom_Magento2/js/view/payment/adapter',
-        'Magento_Checkout/js/action/place-order',
         'Magento_Checkout/js/model/quote',
+        'Magento_Ui/js/model/messageList',
         'mage/url',
+        'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'Magento_Vault/js/view/payment/vault-enabler',
+        'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/redirect-on-success',
-        'framesjs'
+        'mage/cookies'
     ],
-    function($, Component, Adapter, PlaceOrderAction, Quote, Url, FullScreenLoader, AdditionalValidators, VaultEnabler, RedirectOnSuccessAction) {
+    function($, Component, VaultEnabler, CheckoutCom, quote, globalMessages, url, setPaymentInformationAction, fullScreenLoader, additionalValidators, checkoutData, redirectOnSuccessAction, customer) {
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true;
@@ -32,25 +34,78 @@ define(
         return Component.extend({
             defaults: {
                 active: true,
-                template: Adapter.getName() + '/payment/embedded',
-                code: Adapter.getCode()
+                template: 'CheckoutCom_Magento2/payment/embedded',
+                code: 'checkout_com',
+                card_token_id: null,
+                redirectAfterPlaceOrder: true,
+                card_bin: null
             },
 
             /**
              * @returns {exports}
              */
-            initialize: function() {
+            initialize: function(config, messageContainer) {
                 this._super();
                 this.initObservable();
-                this.vaultEnabler = new VaultEnabler();
-                this.vaultEnabler.setPaymentCode(this.php('getVaultCode'));
-                Adapter.setCustomerData();
-            },
+                this.messageContainer = messageContainer || config.messageContainer || globalMessages;
+                this.setEmailAddress();
 
-            initObservable: function() {
-                this._super().observe([]);
+                this.vaultEnabler = new VaultEnabler();
+                this.vaultEnabler.setPaymentCode(this.getVaultCode());
 
                 return this;
+            },
+
+            /**
+             * @returns {exports}
+             */
+            initObservable: function () {
+                this._super()
+                    .observe('isHidden');
+
+                return this;
+            },
+
+            /**
+             * @returns {string}
+             */
+            getEmailAddress: function() {
+                return window.checkoutConfig.customerData.email || quote.guestEmail || checkoutData.getValidatedEmailValue();
+            },
+
+            /**
+             * @returns {void}
+             */
+            setEmailAddress: function() {
+                var email = this.getEmailAddress();
+                $.cookie('ckoEmail', email);
+            },
+            
+            /**
+             * @returns {bool}
+             */
+            isVisible: function () {
+                return this.isHidden(this.messageContainer.hasMessages());
+            },
+
+            /**
+             * @returns {bool}
+             */
+            removeAll: function () {
+                this.messageContainer.clear();
+            },
+
+            /**
+             * @returns {void}
+             */
+            onHiddenChange: function (isHidden) {
+                var self = this;
+                // Hide message block if needed
+                if (isHidden) {
+                    setTimeout(function () {
+                        $(self.selector).hide('blind', {}, 500)
+                    }, 10000);
+                }
             },
 
             /**
@@ -61,62 +116,134 @@ define(
             },
 
             /**
-             * @returns {Object}
+             * @returns {string}
              */
-            getData: function () {
-                var data = this._super();
-
-                this.vaultEnabler.visitAdditionalData(data);
-
-                return data;
-            },
-
-            /**
-             * Executes a js function from the adapter.
-             */
-            js: function(functionName, params) {
-                params = params || [];
-                return (params.length > 0) ? Adapter[functionName].apply(params) : Adapter[functionName]();
+            getVaultCode: function() {
+                return window.checkoutConfig.payment[this.getCode()].ccVaultCode;
             },
 
             /**
              * @returns {string}
              */
-            php: function(functionName) {
-                return Adapter.getPaymentConfig()[functionName];
+            getCode: function() {
+                return CheckoutCom.getCode();
+            },
+
+            /**
+             * @param {string} card_token_id
+             */
+            setCardTokenId: function(card_token_id) {
+                this.card_token_id = card_token_id;
+            },
+
+            /**
+             * @returns {bool}
+             */
+            isActive: function() {
+                return CheckoutCom.getPaymentConfig()['isActive'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getPublicKey: function() {
+                return CheckoutCom.getPaymentConfig()['public_key'];
+            },
+
+            /**
+             * @returns {string}
+             */
+            getQuoteCurrency: function() {
+                return CheckoutCom.getPaymentConfig()['quote_currency'];
+            },
+
+            /**
+             * @returns {bool}
+             */
+            isCardAutosave: function() {
+                return CheckoutCom.getPaymentConfig()['card_autosave'];
+            },
+            
+            /**
+             * @returns {string}
+             */
+            getRedirectUrl: function() {
+                return url.build('checkout_com/payment/placeOrder');
+            },
+
+            /**
+             * @returns {void}
+             */
+            saveSessionData: function() {
+                // Get self
+                var self = this;
+
+                // Prepare the session data
+                var sessionData = {
+                    saveShopperCard: $('#checkout_com_enable_vault').is(":checked"),
+                    customerEmail: self.getEmailAddress(),
+                    cardBin: self.card_bin
+                };
+
+                // Send the session data to be saved
+                $.ajax({
+                    url: url.build('checkout_com/shopper/sessionData'),
+                    type: "POST",
+                    data: sessionData,
+                    success: function(data, textStatus, xhr) {},
+                    error: function(xhr, textStatus, error) {} // todo - improve error handling
+                });
             },
 
             /**
              * @returns {string}
              */
             beforePlaceOrder: function() {
-                // Start the loader
-                FullScreenLoader.startLoader();
-
                 // Get self
                 var self = this;
 
+                // Get the form
+                var paymentForm = document.getElementById('embeddedForm');
+
                 // Validate before submission
-                if (AdditionalValidators.validate()) {
+                if (additionalValidators.validate()) {
                     if (Frames.isCardValid()) {
+                        // Start the loader
+                        fullScreenLoader.startLoader();
+
                         // Submit frames form
                         Frames.submitCard();
                     }
-                    else  {
-                        FullScreenLoader.stopLoader();
-                    }
-                }
-                else {
-                    FullScreenLoader.stopLoader();
                 }
             },
 
-            getPlaceOrderDeferredObject: function() {
-                return $.when(
-                    PlaceOrderAction(this.getData(), this.messageContainer)
+            /**
+             * @override
+             */
+            placeOrder: function() {
+                var self = this;
+
+                $.migrateMute = true;
+
+                this.updateButtonState(false);
+                this.getPlaceOrderDeferredObject()
+                .fail(
+                    function() {
+                        self.updateButtonState(true);
+                        $('html, body').animate({ scrollTop: 0 }, 'fast');
+                        self.reloadEmbeddedForm();
+                    }
+                ).done(
+                    function() {
+                        self.afterPlaceOrder();
+
+                        if (self.redirectAfterPlaceOrder) {
+                            redirectOnSuccessAction.execute();
+                        }
+                    }
                 );
             },
-
+                        
             /**
              * @returns {void}
              */
@@ -125,38 +252,51 @@ define(
                 var self = this;
 
                 // Prepare parameters
-                var ckoTheme = this.php('getEmbeddedTheme');
-                var redirectUrl = this.php('getPlaceOrderRedirectUrl');
-                var threeds_enabled = this.php('isVerify3DSecure');
+                var ckoTheme = CheckoutCom.getPaymentConfig()['embedded_theme'];
+                var css_file = CheckoutCom.getPaymentConfig()['css_file'];
+                var custom_css = CheckoutCom.getPaymentConfig()['custom_css'];
+                var ckoThemeOverride = ((custom_css) && custom_css !== '' && css_file == 'custom') ? custom_css : undefined;
+                var redirectUrl = self.getRedirectUrl();
+                var threeds_enabled = CheckoutCom.getPaymentConfig()['three_d_secure']['enabled'];
                 var paymentForm = document.getElementById('embeddedForm');
 
-                // Freeze the place order button on initialization
+                // Freeze the place order button on initialisation
                 $('#ckoPlaceOrder').attr("disabled",true);
 
-                // Initialize the embedded form
+                // Remove any existing event handlers
+                Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
+                Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
+                Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
+
+                // Initialise the embedded form
                 Frames.init({
-                    publicKey: this.php('getPublicKey'),
+                    publicKey: self.getPublicKey(),
                     containerSelector: '#cko-form-holder',
                     theme: ckoTheme,
-                    debugMode: Adapter.isDebugOn(),
+                    debugMode: CheckoutCom.getPaymentConfig()['debug_mode'],
+                    themeOverride: ckoThemeOverride,
+                    localisation: CheckoutCom.getPaymentConfig()['integration_language'],
                     frameActivated: function () {
                         $('#ckoPlaceOrder').attr("disabled", true);
                     },
-                    cardSubmitted: function() {
-                        $('#ckoPlaceOrder').attr("disabled", true);
+                    cardValidationChanged: function() {
+                        self.updateButtonState(!(Frames.isCardValid() && quote.billingAddress() != null));
                     },
-                    cardValidationChanged: function(event) {
-                        self.updateButtonState(!(Frames.isCardValid() && Quote.billingAddress() != null));
-                    },
-                    cardTokenised: function(event) {     
-                        // Set the card BIN
-                        Adapter.setCardBin(event.data.card.bin);
+                    cardTokenised: function(event) {
+                        // Keep the card info
+                        self.card_bin = event.data.card.bin;
+
+                        // Save checkout info in PHP session
+                        self.saveSessionData();
+
+                        // Set the card token
+                        self.setCardTokenId(event.data.cardToken);
 
                         // Add the card token to the form
                         Frames.addCardToken(paymentForm, event.data.cardToken);
 
-                        // Submit the payment form
-                        paymentForm.submit();
+                        // Place order
+                        window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
                     },
                 });  
             },
@@ -178,8 +318,7 @@ define(
                 // Reload the iframe
                 $('#cko-form-holder form iframe').remove();
                 self.getEmbeddedForm();
-            }
+            },
         });
     }
-
 );

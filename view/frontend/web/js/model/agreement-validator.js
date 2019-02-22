@@ -4,15 +4,15 @@
  * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
- * MIT License
+ * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
-
+ 
 define(
     [
         'jquery',
         'mage/validation'
     ],
-    function($) {
+    function ($) {
         'use strict';
         var checkoutConfig = window.checkoutConfig,
             agreementsConfig = checkoutConfig ? checkoutConfig.checkoutAgreements : {};
@@ -39,7 +39,7 @@ define(
                     errorClass: 'mage-error',
                     errorElement: 'div',
                     meta: 'validate',
-                    errorPlacement: function(error, element) {
+                    errorPlacement: function (error, element) {
                         var errorPlacement = element;
                         if (element.is(':checkbox') || element.is(':radio')) {
                             errorPlacement = element.siblings('label').last();

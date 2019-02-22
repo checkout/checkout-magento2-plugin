@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="CheckoutCom_Magento2::css/usercards.css" />
+        <script src="CheckoutCom_Magento2::js/collapseForm.js"/>
+        <script src="CheckoutCom_Magento2::js/usercards.js"/>
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block 
+                template="add-new-card-form.phtml" 
+                class="CheckoutCom\Magento2\Block\Adminhtml\Cards\Form"
+                name="checkout_com_magento2.add_new_card_form"
+            />
+            <block class="CheckoutCom\Magento2\Block\Adminhtml\Customer\CardRenderer" name="checkout_com.card.renderer" template="CheckoutCom_Magento2::customer_account/credit_card.phtml"/>
+        </referenceContainer>
+        <referenceContainer name="before.body.end">
+            <block 
+                template="embedded.phtml" 
+                class="CheckoutCom\Magento2\Block\Adminhtml\Embedded"
+                name="checkout_com_magento2.embedded"
+            />
+        </referenceContainer>
+    </body>
+</page>
