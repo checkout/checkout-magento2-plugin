@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Copyright © 2016 Magento. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 -->
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceBlock name="checkout.root">
             <arguments>
@@ -23,10 +23,10 @@
                                                         <item name="renders" xsi:type="array">
                                                             <!-- merge payment method renders here -->
                                                             <item name="children" xsi:type="array">
-                                                                <item name="checkoutcom_gateway" xsi:type="array">
-                                                                    <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/checkoutcom</item>
+                                                                <item name="gateway" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/gateway</item>
                                                                     <item name="methods" xsi:type="array">
-                                                                        <item name="checkoutcom_gateway" xsi:type="array">
+                                                                        <item name="checkoutcom_magento2" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                     </item>
