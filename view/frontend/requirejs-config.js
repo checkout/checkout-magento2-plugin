@@ -1,18 +1,14 @@
 /**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ * Checkout.com Magento 2 Magento2 Payment.
  *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
+ * PHP version 7
  *
- * MIT License
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2019 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
  */
 
-var config = {
-    map: {
-        '*': {
-            'Magento_Checkout/js/model/place-order': 'CheckoutCom_Magento2/js/model/place-order',
-            'Magento_Checkout/js/model/error-processor': 'CheckoutCom_Magento2/js/model/error-processor',
-            'framesjs': 'https://cdn.checkout.com/js/frames.js'
-        }
-    }
-};
+var config = {};

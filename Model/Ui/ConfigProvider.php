@@ -1,50 +1,43 @@
 <?php
 /**
- * Copyright © 2016 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2019 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
  */
+
 namespace CheckoutCom\Magento2\Model\Ui;
 
-use Magento\Checkout\Model\ConfigProviderInterface;
-
-
-
-/**
- * Class ConfigProvider
- */
-final class ConfigProvider implements ConfigProviderInterface
+class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
 {
 
-    const CODE_FRONTEND_FORM = 'checkoutcom_magento2';
-
+    /**
+     * @var Config
+     */
     protected $config;
 
-    public function __construct(\CheckoutCom\Magento2\Gateway\Config\Config $config) {
+    /**
+     * ConfigProvider constructor.
+     */
+    public function __construct(
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
+    ) {
         $this->config = $config;
     }
 
     /**
-     * Retrieve assoc array of checkout configuration
+     * Send the configuration to the frontend
      *
      * @return array
      */
     public function getConfig()
     {
-
-
-$writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
-$logger = new \Zend\Log\Logger();
-$logger->addWriter($writer);
-$logger->info('model' . $this->config->getTitle());
-
-
-
-        return [
-            'payment' => [
-                self::CODE_FRONTEND_FORM => [
-                    'title' => $this->config->getTitle()
-                ]
-            ]
-        ];
+        return $this->config->getConfig();
     }
 }

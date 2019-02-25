@@ -1,30 +1,37 @@
 <?php
-
+/**
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2019 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
+ */
+ 
 namespace CheckoutCom\Magento2\Gateway\Config;
 
-use Magento\Payment\Gateway\Config\Config as BaseConfig;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Framework\Module\Dir;
 
 
-class Config extends BaseConfig {
+class Config
+{
+    
+    const CODE = 'checkoutcom_magento2_redirect_method';
 
-    protected $storeManager;
-    protected $scopeConfig;
+    /**
+     * Config constructor.
+     */
+    public function __construct() {
 
-    public function __construct(
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-    )
-    {
-        $this->scopeConfig = $scopeConfig;
-        $this->storeManager = $storeManager;
     }
 
-
-    public function getTitle() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkoutcom_gateway/title',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+    public function getConfig() {
+        return [];
     }
 
 }

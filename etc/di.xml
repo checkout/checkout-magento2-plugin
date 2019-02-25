@@ -1,13 +1,15 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <virtualType name="CheckoutCom_Magento2Config" type="Magento\Payment\Gateway\Config\Config">
+
+    <!-- Configuration reader -->
+    <virtualType name="CheckoutComMagento2Config" type="Magento\Payment\Gateway\Config\Config">
         <arguments>
-            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE_FRONTEND_FORM</argument>
+            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Gateway\Config\Config::CODE</argument>
         </arguments>
     </virtualType>
     <type name="CheckoutCom\Magento2\Block\Info">
         <arguments>
-            <argument name="config" xsi:type="object">CheckoutCom_Magento2Config</argument>
+            <argument name="config" xsi:type="object">CheckoutComMagento2Config</argument>
             <argument name="data" xsi:type="array">
                 <item xsi:type="string" name="is_secure_mode">1</item>
             </argument>

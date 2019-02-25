@@ -1,11 +1,15 @@
 <!--
 /**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ * Checkout.com Magento 2 Magento2 Payment.
  *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
+ * PHP version 7
  *
- * MIT License
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2019 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
  */
 -->
 
@@ -18,22 +22,13 @@
     </div>
 
     <div class="payment-method-content">
-        <!-- ko foreach: getRegion('messages') -->
-        <!-- ko template: getTemplate() -->
-        <!-- /ko -->
-        <!--/ko-->
+
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() -->
             <!-- /ko -->
             <!--/ko-->
         </div>
-
-        <form id="checkoutcom-magento2-form" class="form" data-bind="attr: {action: getRedirectUrl()}" method="post" novalidate="novalidate" style="display:none">
-            <input name="Data" data-bind="attr: {value: getRequestData()['params']}">
-            <input name="InterfaceVersion" data-bind="attr: {value: getInterfaceVersion()}">
-            <input name="Seal" data-bind="attr: {value: getRequestData()['seal']}">
-        </form>
 
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
@@ -45,12 +40,13 @@
         <div class="actions-toolbar">
             <div class="primary">
                 <button class="action primary checkout" type="submit" data-bind="
+                        id: targetButton,
                         click: beforePlaceOrder,
                         attr: {title: $t('Place Order')},
                         css: {disabled: !isPlaceOrderActionAllowed()},
                         enable: (getCode() == isChecked())
                         " disabled>
-                    <span data-bind="i18n: getButtonLabel()"></span>
+                    <span data-bind="i18n: 'Place Order'"></span>
                 </button>
             </div>
         </div>

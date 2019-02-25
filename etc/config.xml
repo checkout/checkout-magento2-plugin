@@ -2,12 +2,28 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
-            <checkoutcom_frontend_form>
-                <debug>1</debug>
-                <active>0</active>
-                <model>CheckoutCom\Magento2\Model\Methods\FrontEndForm</model>
-            </checkoutcom_frontend_form>
+            <checkoutcom_magento2_redirect_method>
+                <debug>0</debug>
+                <logging>1</logging>
+                <model>CheckoutCom\Magento2\Model\Methods\RedirectMethod</model>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_use_internal>0</can_use_internal>
+                <payment_action>authorize_capture</payment_action>                
+                <title>Redirection Card Payment (Magento2)</title>
+                <active>1</active>
+                <button_label>Place order</button_label>
+                <verify_3ds>0</verify_3ds>
+                <auto_generate_invoice>1</auto_generate_invoice>
+                <invoice_creation>capture</invoice_creation>
+                <capture_mode>IMMEDIATE</capture_mode>
+                <capture_day>0</capture_day>
+                <sort_order>1</sort_order>
+            </checkoutcom_magento2_redirect_method>
         </payment>
     </default>
 </config>
-

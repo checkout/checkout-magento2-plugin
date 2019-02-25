@@ -1,10 +1,14 @@
 /**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ * Checkout.com Magento 2 Magento2 Payment.
  *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
+ * PHP version 7
  *
- * MIT License
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2019 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
  */
 
 define(
@@ -13,29 +17,21 @@ define(
         'CheckoutCom_Magento2/js/view/payment/adapter',
         'Magento_Checkout/js/model/payment/renderer-list'
     ],
-    function(
+    function (
         Component,
         Adapter,
-        rendererList
+        RendererList
     ) {
         'use strict';
 
-        var paymentMethod = window.checkoutConfig.payment[Adapter.getCode()];
-        var paymentMethodApplePay = window.checkoutConfig.payment[Adapter.getCodeApplePay()];
 
-        if (paymentMethod.isActive) {
-            rendererList.push({
-                type: Adapter.getCode(),
-                component: Adapter.getName() + '/js/view/payment/method-renderer/' + Adapter.getPaymentConfig()['getIntegration']
-            });
-        }
-
-        if (paymentMethodApplePay.isActive) {
-            rendererList.push({
-                type: Adapter.getCodeApplePay(),
-                component: Adapter.getName() + '/js/view/payment/method-renderer/apple-pay'
-            });
-        }
+        // Render the relevant payment methods
+        RendererList.push(
+            {
+                type: 'checkoutcom_magento2_redirect_method',
+                component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/redirect_method'
+            }
+        );
 
         return Component.extend({});
     }

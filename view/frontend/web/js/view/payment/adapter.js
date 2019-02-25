@@ -1,146 +1,147 @@
 /**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ * Checkout.com Magento 2 Magento2 Payment.
  *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
+ * PHP version 7
  *
- * MIT License
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2019 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
  */
 
-define([
+define(
+    [
     'jquery',
     'Magento_Ui/js/model/messageList',
     'Magento_Checkout/js/model/quote',
     'Magento_Checkout/js/checkout-data',
     'mage/url',
-    'jquery/jquery.cookie'
-], function($, GlobalMessageList, Quote, CheckoutData, Url) {
-    'use strict';
+    'mage/cookies'
+    ],
+    function ($, GlobalMessageList, Quote, CheckoutData, Url) {
+        'use strict';
 
-    return {
+        return {
 
-        /**
-         * Get payment code.
-         * @returns {String}
-         */
-        getCode: function() {
-            return window.checkoutConfig.payment['modtag'];
-        },
+            /**
+             * Get payment configuration array.
+             *
+             * @returns {Array}
+             */
+            getPaymentConfig: function () {
+                return window.checkoutConfig.payment['checkoutcom_magento2'];
+            },
+        
+            /**
+             * Get payment code.
+             *
+             * @returns {String}
+             */
+            getCode: function () {
+                return this.getPaymentConfig()['module_id'];
+            },
 
-        /**
-         * @returns {string}
-         */
-        getVaultCode: function () {
-            return window.checkoutConfig.payment[this.getCode()].ccVaultCode;
-        },
+            /**
+             * Get payment name.
+             *
+             * @returns {String}
+             */
+            getName: function () {
+                return this.getPaymentConfig()['module_name'];
+            },
 
-        /**
-         * @returns {{method: (*|string|String), additional_data: {card_token_id: *}}}
-         */
-        getData: function() {
-            var data = {
-                'method': this.getCode()
-            };
+            /**
+             * Get payment method id.
+             *
+             * @returns {string}
+             */
+            getMethodId: function (methodId) {
+                return this.getCode() + '_' + methodId;
+            },
 
-            return data;
-        },
+            /**
+             * @returns {string}
+             */
+            getEmailAddress: function () {
+                return window.checkoutConfig.customerData.email || Quote.guestEmail || CheckoutData.getValidatedEmailValue();
+            },
 
-        /**
-         * @returns {string}
-         */
-        getCancelUrl: function() {
-            return window.location.href;
-        },
+            /**
+             * @returns {void}
+             */
+            setCookieData: function (methodId) {
+                // Set the email
+                $.cookie(
+                    this.getPaymentConfig()['email_cookie_name'],
+                    this.getEmailAddress()
+                );
 
-        /**
-         * @returns {string}
-         */
-        getEmailAddress: function() {
-            return window.checkoutConfig.customerData.email || Quote.guestEmail || CheckoutData.getValidatedEmailValue();
-        },
+                // Set the payment method
+                $.cookie(
+                    this.getPaymentConfig()['method_cookie_name'],
+                    methodId
+                );
+            },
 
-        /**
-         * @returns {string}
-         */
-        getQuoteValue: function() {
-            return (Quote.getTotals()().grand_total * 100).toFixed(2);
-        },
+            /**
+             * @returns {string}
+             */
+            getQuoteValue: function () {
+                return (Quote.getTotals()().grand_total * 100).toFixed(2);
+            },
 
-        /**
-         * Get payment code.
-         * @returns {String}
-         */
-        getCodeApplePay: function() {
-            return window.checkoutConfig.payment['modtagapplepay'];
-        },
+            /**
+             * Show error message
+             */
+            showMessage: function (type, message) {
+                this.clearMessages();
+                var messageContainer = $('.message');
+                messageContainer.addClass('message-' + type + ' ' + type);
+                messageContainer.append('<div>' + message + '</div>');
+                messageContainer.show();
+            },
 
-        /**
-         * Get payment name.
-         * @returns {String}
-         */
-        getName: function() {
-            return window.checkoutConfig.payment['modname'];
-        },
+            /**
+             * Clear messages
+             */
+            clearMessages: function () {
+                var messageContainer = $('.message');
+                messageContainer.hide();
+                messageContainer.empty();
+            },
 
-        /**
-         * Get payment configuration array.
-         * @returns {Array}
-         */
-        getPaymentConfig: function() {
-            return window.checkoutConfig.payment[this.getCode()];
-        }, 
+            /**
+             * Log data to the browser console
+             */
+            log: function (data) {
+                var isDebugMode = JSON.parse(this.getPaymentConfig(this.getCode())['debug']);
+                var output = this.getCode() + ':' + JSON.stringify(data);
+                if (isDebugMode) {
+                    console.log(output);
+                }
+            },
 
-        /**
-         * Show error message
-         *
-         * @param {String} errorMessage
-         */
-        showError: function(errorMessage) {
-            GlobalMessageList.addErrorMessage({
-                message: errorMessage
-            });
-        },
-
-        /**
-         * Determines if logging is on
-         *
-         * @param {Object} errorMessage
-         */
-        isDebugOn: function() {
-            return JSON.parse(this.getPaymentConfig()['isJsLogging']);
-        },
-
-        /**
-         * Sets a cookie flag for the save card feature
-         */
-        updateSaveCardCookie: function() {
-            var checkboxId = '#' + this.getCode() + '_enable_vault';
-            $.cookie('ckoSaveUserCard', $(checkboxId).is(":checked"));
-        },
-    
-        /**
-         * Set some cookie values
-         */
-        setCustomerData: function() {
-            $.cookie('ckoUserEmail', this.getEmailAddress());
-        },
-
-        /**
-         * Set card BIN
-         */
-        setCardBin: function(cardBin) {
-            $.cookie('ckoCardBin', cardBin);
-        },
-
-        /**
-         * Log messages to console
-         *
-         * @param {Object} errorMessage
-         */
-        watchdog: function(errorObject) {
-            if (this.isDebugOn()) {
-                console.log(errorObject);
+            /**
+             * Send data to back end for logging
+             */
+            backendLog: function (data) {
+                var self = this;
+                var isLoggingMode = JSON.parse(self.getPaymentConfig(self.getCode())['logging']);
+                if (isLoggingMode) {
+                    $.ajax(
+                        {
+                            type: "POST",
+                            url: Url.build(self.getCode() + '/request/logger'),
+                            data: {log_data: data},
+                            error: function (request, status, error) {
+                                self.log(error);
+                            }
+                        }
+                    );
+                }
             }
-        }
-    };
-});
+        };
+    }
+);

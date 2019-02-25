@@ -1,16 +1,28 @@
 <?php
+/**
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2019 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
+ */
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use Magento\Framework\DataObject;
 use Magento\Quote\Api\Data\PaymentInterface;
-use Magento\Payment\Model\Method\AbstractMethod;
-use Magento\Sales\Model\Order\Payment\Transaction;
-use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
+use Magento\Framework\Module\Dir;
+use CheckoutCom\Magento2\Gateway\Config\Config;
 
-class FrontEndForm extends AbstractMethod {
+class RedirectMethod extends \Magento\Payment\Model\Method\AbstractMethod
+{
 
-    protected $_code = ConfigProvider::CODE_FRONTEND_FORM;
+    protected $_code = Config::CODE;
     protected $_isInitializeNeeded = true;
     protected $_isGateway = true;
     protected $_canAuthorize = true;
@@ -22,8 +34,6 @@ class FrontEndForm extends AbstractMethod {
     protected $_canUseCheckout = true;
     protected $_canRefund = true;
     protected $_canRefundInvoicePartial = true;
-    protected $_canAuthorizeVault = true;
-    protected $_canCaptureVault = true;
     protected $backendAuthSession;
     protected $cart;
     protected $urlBuilder;
@@ -37,6 +47,7 @@ class FrontEndForm extends AbstractMethod {
     protected $quoteManagement;
     protected $orderSender;
     protected $sessionQuote;
+    protected $config;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -47,6 +58,7 @@ class FrontEndForm extends AbstractMethod {
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Framework\UrlInterface $urlBuilder,
         \Magento\Framework\ObjectManagerInterface $objectManager,
@@ -75,73 +87,30 @@ class FrontEndForm extends AbstractMethod {
             $resourceCollection,
             $data
         );
-        $this->urlBuilder = $urlBuilder;
+        $this->urlBuilder         = $urlBuilder;
         $this->backendAuthSession = $backendAuthSession;
-        $this->cart = $cart;
-        $this->_objectManager = $objectManager;
-        $this->invoiceSender = $invoiceSender;
+        $this->cart               = $cart;
+        $this->_objectManager     = $objectManager;
+        $this->invoiceSender      = $invoiceSender;
         $this->transactionFactory = $transactionFactory;
-        $this->customerSession = $customerSession;
-        $this->checkoutSession = $checkoutSession;
-        $this->checkoutData = $checkoutData;
-        $this->quoteRepository = $quoteRepository;
-        $this->quoteManagement = $quoteManagement;
-        $this->orderSender = $orderSender;
-        $this->sessionQuote = $sessionQuote;
+        $this->customerSession    = $customerSession;
+        $this->checkoutSession    = $checkoutSession;
+        $this->checkoutData       = $checkoutData;
+        $this->quoteRepository    = $quoteRepository;
+        $this->quoteManagement    = $quoteManagement;
+        $this->orderSender        = $orderSender;
+        $this->sessionQuote       = $sessionQuote;
+        $this->config             = $config;
     }
 
     /**
      * Check whether method is available
      *
-     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @param  \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
      * @return bool
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null) {
-        return TRUE;
-    }
-
-    /**
-     * Check whether method is enabled in config
-     *
-     * @param \Magento\Quote\Model\Quote|null $quote
-     * @return bool
-     */
-    public function isAvailableInConfig($quote = null) {
-
-        return TRUE;
-
-    }
-
-    /**
-     * Capture a transaction
-     */
-    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-
-        return $this;
-    }
-
-    /**
-     * Void a transaction
-     */
-    public function void(\Magento\Payment\Model\InfoInterface $payment) {
-
-        return $this;
-    }
-
-    /**
-     * Refund a transaction
-     */
-    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount) {
-
-        return $this;
-    }
-
-    /**
-     * Refund a transaction
-     */
-    public function authorize(\Magento\Payment\Model\InfoInterface $payment, $amount) {
-
-        return $this;
+        return true;
     }
 }
