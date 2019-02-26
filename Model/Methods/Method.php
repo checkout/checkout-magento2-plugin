@@ -19,10 +19,9 @@ use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Framework\Module\Dir;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 
-class RedirectMethod extends \Magento\Payment\Model\Method\AbstractMethod
+abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
 {
 
-    protected $_code = Config::CODE;
     protected $_isInitializeNeeded = true;
     protected $_isGateway = true;
     protected $_canAuthorize = true;

@@ -5,7 +5,7 @@
             <checkoutcom_magento2_redirect_method>
                 <debug>0</debug>
                 <logging>1</logging>
-                <model>CheckoutCom\Magento2\Model\Methods\RedirectMethod</model>
+                <model>CheckoutCom\Magento2\Model\Methods\CardMethod</model>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
@@ -13,9 +13,9 @@
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
                 <can_use_internal>0</can_use_internal>
-                <payment_action>authorize_capture</payment_action>                
+                <payment_action>authorize_capture</payment_action>
                 <title>Redirection Card Payment (Magento2)</title>
-                <active>1</active>
+
                 <button_label>Place order</button_label>
                 <verify_3ds>0</verify_3ds>
                 <auto_generate_invoice>1</auto_generate_invoice>
@@ -23,6 +23,53 @@
                 <capture_mode>IMMEDIATE</capture_mode>
                 <capture_day>0</capture_day>
                 <sort_order>1</sort_order>
+
+
+
+                <!--  <credentials>-->
+                <active>0</active>
+                <environment>0</environment>
+                <secret_key></secret_key>
+                <public_key></public_key>
+                <shared_key></shared_key>
+                <!--  </credentials>-->
+
+                <!--  <card_payments>-->
+                <title>Pay by Card with Checkout.com</title>
+                <cctypes>AE,VI,MC,DI</cctypes>
+                <card_payments_type>0</card_payments_type>
+                <card_payments_action>1</card_payments_action>
+                <card_payments_3ds_enabled>0</card_payments_3ds_enabled>
+                <card_payments_attempt_non3ds>0</card_payments_attempt_non3ds>
+                <card_payments_save_cards_enabled>0</card_payments_save_cards_enabled>
+                <card_payments_save_cards_title>Pay with saved card:</card_payments_save_cards_title>
+                <card_payments_dynamic_decriptor_enabled>0</card_payments_dynamic_decriptor_enabled>
+                <card_payments_decriptor_name></card_payments_decriptor_name>
+                <card_payments_decriptor_city></card_payments_decriptor_city>
+                <card_payments_cvv_optional>0</card_payments_cvv_optional>
+                <card_payments_mada_bin_check>0</card_payments_mada_bin_check>
+                <!--  </card_payments>-->
+
+                <!--  <alternative_payments>-->
+                <alternative_payments_enabled>0</alternative_payments_enabled>
+                <alternative_payments_sepa>0</alternative_payments_sepa>
+                <alternative_payments_giropay>0</alternative_payments_giropay>
+                <!--  </alternative_payments>-->
+
+                <!--  <apple_pay>-->
+                <apple_pay_enabled>0</apple_pay_enabled>
+                <apple_pay_merchant_id></apple_pay_merchant_id>
+                <apple_pay_certificate></apple_pay_certificate>
+                <apple_pay_certificate_key></apple_pay_certificate_key>
+                <apple_pay_theme></apple_pay_theme>
+                <!--  </apple_pay>-->
+
+                <!--  <google_pay>-->
+                <google_pay_enabled>0</google_pay_enabled>
+                <google_pay_merchant_id></google_pay_merchant_id>
+                <google_pay_theme></google_pay_theme>
+                <!--  </google_pay>-->
+
             </checkoutcom_magento2_redirect_method>
         </payment>
     </default>

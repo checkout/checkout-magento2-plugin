@@ -1,27 +1,35 @@
 <?php
-/**
- * Checkout.com Magento 2 Magento2 Payment.
- *
- * PHP version 7
- *
- * @category  Checkout.com
- * @package   Magento2
- * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
- * @license   https://opensource.org/licenses/mit-license.html MIT License
- * @link      https://www.checkout.com
- */
- 
-namespace CheckoutCom\Magento2\Gateway\Config;
 
-use Magento\Store\Model\ScopeInterface;
-use Magento\Framework\Module\Dir;
+namespace CheckoutCom\Magento2\Gateway\Config;
 
 
 class Config
 {
-    
+
+    /**
+     * @var string
+     */
     const CODE = 'checkoutcom_magento2_redirect_method';
+
+    /**
+     * @var string
+     */
+    const CODE_CARD = 'checkoutcom_magento2_redirect_method';
+
+    /**
+     * @var string
+     */
+    const CODE_ALTERNATIVES = 'checkoutcom_alternative_payments';
+
+    /**
+     * @var string
+     */
+    const CODE_GOOGLE = 'checkoutcom_google_pay';
+
+    /**
+     * @var string
+     */
+    const CODE_APPLE = 'checkoutcom_apple_pay';
 
     /**
      * Config constructor.
