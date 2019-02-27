@@ -9,17 +9,12 @@ class Config
     /**
      * @var string
      */
-    const CODE = 'checkoutcom_magento2_redirect_method';
-
-    /**
-     * @var string
-     */
     const CODE_CARD = 'checkoutcom_magento2_redirect_method';
 
     /**
      * @var string
      */
-    const CODE_ALTERNATIVES = 'checkoutcom_alternative_payments';
+    const CODE_ALTERNATIVE = 'checkoutcom_alternative_payments';
 
     /**
      * @var string

@@ -5,7 +5,7 @@
             <checkoutcom_magento2_redirect_method>
                 <debug>0</debug>
                 <logging>1</logging>
-                <model>CheckoutCom\Magento2\Model\Methods\CardMethod</model>
+                <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>

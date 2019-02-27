@@ -4,15 +4,18 @@
     <!-- Configuration reader -->
     <virtualType name="CheckoutComMagento2Config" type="Magento\Payment\Gateway\Config\Config">
         <arguments>
-            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Gateway\Config\Config::CODE</argument>
+            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Gateway\Config\Config::CODE_CARD</argument>
+            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Gateway\Config\Config::CODE_ALTERNATIVE</argument>
+            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Gateway\Config\Config::CODE_APPLE</argument>
+            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Gateway\Config\Config::CODE_GOOGLE</argument>
         </arguments>
     </virtualType>
-    <type name="CheckoutCom\Magento2\Block\Info">
+    <!--<type name="CheckoutCom\Magento2\Block\Info">
         <arguments>
             <argument name="config" xsi:type="object">CheckoutComMagento2Config</argument>
             <argument name="data" xsi:type="array">
                 <item xsi:type="string" name="is_secure_mode">1</item>
             </argument>
         </arguments>
-    </type>
+    </type>-->
 </config>
