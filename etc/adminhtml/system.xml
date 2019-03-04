@@ -134,85 +134,90 @@
 
                 <group id="checkoutcom_alternative_payments" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Alternative Payments</label>
-                    <field id="alternative_payments_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_alternative_payments_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Alternative Payments</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_alternative_payments</config_path>
+                        <config_path>payment/checkoutcom_alternative_payments/checkoutcom_alternative_payments_enabled</config_path>
                     </field>
 
-                    <field id="alternative_payments_sepa" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_alternative_payments_sepa" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Use SEPA</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <depends>
-                            <field id="alternative_payments_enabled">1</field>
+                            <field id="checkoutcom_alternative_payments_enabled">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/alternative_payments_sepa</config_path>
+                        <config_path>payment/checkoutcom_alternative_payments/checkoutcom_alternative_payments_sepa</config_path>
                     </field>
 
-                    <field id="alternative_payments_giropay" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_alternative_payments_giropay" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Use GIROPAY</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <depends>
-                            <field id="alternative_payments_enabled">1</field>
+                            <field id="checkoutcom_alternative_payments_enabled">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/alternative_payments_giropay</config_path>
+                        <config_path>payment/checkoutcom_alternative_payments/checkoutcom_alternative_payments_giropay</config_path>
                     </field>
                 </group>
 
                 <group id="checkoutcom_apple_pay" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Apple Pay</label>
 
-                    <field id="apple_pay_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_apple_pay_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Apple Pay</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/apple_pay_enabled</config_path>
+                        <config_path>payment/checkoutcom_apple_pay/checkoutcom_apple_pay_enabled</config_path>
                         <requires>
-                            <field id="apple_pay_merchant_id"/>
-                            <field id="apple_pay_certificate"/>
-                            <field id="apple_pay_certificate_key"/>
+                            <field id="checkoutcom_apple_pay_merchant_id"/>
+                            <field id="checkoutcom_apple_pay_certificate"/>
+                            <field id="checkoutcom_apple_pay_certificate_key"/>
                         </requires>
                     </field>
-                    <field id="apple_pay_merchant_id" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_apple_pay_merchant_id" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant ID</label>
+                        <config_path>payment/checkoutcom_apple_pay/checkoutcom_apple_pay_merchant_id</config_path>
                     </field>
 
-                    <field id="apple_pay_certificate" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_apple_pay_certificate" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Certificate Path</label>
+                        <config_path>payment/checkoutcom_apple_pay/checkoutcom_apple_pay_certificate</config_path>
                     </field>
 
-                    <field id="apple_pay_certificate_key" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_apple_pay_certificate_key" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Certificate Key Path</label>
+                        <config_path>payment/checkoutcom_apple_pay/checkoutcom_apple_pay_certificate_key</config_path>
                     </field>
 
-                    <field id="apple_pay_theme" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_apple_pay_theme" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Theme</label>
                         <depends>
-                            <field id="apple_pay_enabled">1</field>
+                            <field id="checkoutcom_apple_pay_enabled">1</field>
                         </depends>
+                        <config_path>payment/checkoutcom_apple_pay/checkoutcom_apple_pay_theme</config_path>
                     </field>
                 </group>
 
                 <group id="checkoutcom_google_pay" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Google Pay</label>
 
-                    <field id="google_pay_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_google_pay_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Google Pay</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/google_pay_enabled</config_path>
+                        <config_path>payment/checkoutcom_google_pay/checkoutcom_google_pay_enabled</config_path>
                         <requires>
-                            <field id="google_pay_merchant_id"/>
+                            <field id="checkoutcom_google_pay_merchant_id"/>
                         </requires>
                     </field>
 
-                    <field id="google_pay_merchant_id" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_google_pay_merchant_id" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant ID</label>
                     </field>
 
-                    <field id="google_pay_theme" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_google_pay_theme" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Theme</label>
                         <depends>
-                            <field id="google_pay_enabled">1</field>
+                            <field id="checkoutcom_google_pay_enabled">1</field>
                         </depends>
+                        <config_path>payment/checkoutcom_google_pay/checkoutcom_google_pay_theme</config_path>
                     </field>
                 </group>
 

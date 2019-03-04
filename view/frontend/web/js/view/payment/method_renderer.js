@@ -24,12 +24,23 @@ define(
     ) {
         'use strict';
 
+        var paymentMethod = window.checkoutConfig.payment;
+
+console.log(1, paymentMethod);
 
         // Render the relevant payment methods
         RendererList.push(
             {
                 type: 'checkoutcom_magento2_redirect_method',
                 component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/redirect_method'
+            }
+        );
+
+        // Render the relevant payment methods
+        RendererList.push(
+            {
+                type: 'checkoutcom_alternative_payments',
+                component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_alternative_payments'
             }
         );
 

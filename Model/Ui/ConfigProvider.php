@@ -1,7 +1,9 @@
 <?php
 
-
 namespace CheckoutCom\Magento2\Model\Ui;
+
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Checkout\Model\Session;
 
 class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
 {
@@ -12,12 +14,20 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
     protected $config;
 
     /**
-     * ConfigProvider constructor.
+     * @var Session
      */
-    public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
-    ) {
+    protected $session;
+
+    /**
+     * ConfigProvider constructor.
+     * @param Config $config
+     * @param Session $session
+     */
+    public function __construct(Config $config, Session $session) {
+
         $this->config = $config;
+        $this->session = $session;
+
     }
 
     /**
@@ -27,6 +37,10 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
      */
     public function getConfig()
     {
-        return $this->config->getConfig();
+
+
+       // \CheckoutCom\Magento2\Helper\Logger::write($this->session);
+
+        return $this->config->getConfig($this->session->getQuote()->getStoreId());
     }
 }
