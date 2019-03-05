@@ -26,6 +26,70 @@ define(
         return {
 
             /**
+             * Codes
+             */
+
+            /**
+             * Get payment configuration array.
+             *
+             * @returns {String}
+             */
+            getCardPaymentCode: function () {
+                return 'checkoutcom_magento2_redirect_method';
+            },
+
+            /**
+             * Get payment configuration array.
+             *
+             * @returns {String}
+             */
+            getAlternativePaymentCode: function () {
+                return 'checkoutcom_alternative_payments';
+            },
+
+            /**
+             * Get payment configuration array.
+             *
+             * @returns {String}
+             */
+            getApplePayCode: function () {
+                return 'checkoutcom_apple_pay';
+            },
+
+            /**
+             * Get payment configuration array.
+             *
+             * @returns {String}
+             */
+            getGooglePayCode: function () {
+                return 'checkoutcom_google_pay';
+            },
+
+            /**
+             * Get payment configuration array.
+             *
+             * @returns {Array}
+             */
+            getPaymentMethods: function () {
+
+                return [this.getCardPaymentCode(),
+                        this.getAlternativePaymentCode(),
+                        this.getApplePayCode(),
+                        this.getGooglePayCode()];
+
+            },
+
+
+
+
+
+
+
+
+
+
+
+            /**
              * Get payment configuration array.
              *
              * @returns {Array}
@@ -33,7 +97,7 @@ define(
             getPaymentConfig: function () {
                 return window.checkoutConfig.payment['checkoutcom_magento2'];
             },
-        
+
             /**
              * Get payment code.
              *

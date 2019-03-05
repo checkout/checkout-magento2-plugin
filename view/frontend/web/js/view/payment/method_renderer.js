@@ -22,28 +22,29 @@ define(
         Adapter,
         RendererList
     ) {
+
         'use strict';
 
-        var paymentMethod = window.checkoutConfig.payment;
+        var paymentMethods = window.checkoutConfig.payment,
+            methods = Adapter.getPaymentMethods();
 
-console.log(1, paymentMethod);
+        methods.forEach(function(element) {
 
-        // Render the relevant payment methods
-        RendererList.push(
-            {
-                type: 'checkoutcom_magento2_redirect_method',
-                component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/redirect_method'
+            if(paymentMethods.hasOwnProperty(element) && +paymentMethods[element].enabled) {
+
+                // Render the relevant payment methods
+                RendererList.push(
+                    {
+                        type: element,
+                        component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/' + element
+                    }
+                );
+
             }
-        );
 
-        // Render the relevant payment methods
-        RendererList.push(
-            {
-                type: 'checkoutcom_alternative_payments',
-                component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_alternative_payments'
-            }
-        );
+        });
 
         return Component.extend({});
+
     }
 );

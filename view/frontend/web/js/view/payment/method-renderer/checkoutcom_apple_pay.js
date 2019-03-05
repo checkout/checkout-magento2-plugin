@@ -28,7 +28,7 @@ define(
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true;
-        var code = Adapter.getAlternativePaymentCode();
+        var code = Adapter.getApplePayCode();
 
         return Component.extend(
             {
