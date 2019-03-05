@@ -9,8 +9,18 @@ class AlternativePaymentMethod extends Method
 
     /**
      * @var string
+     */
+    const CODE = 'checkoutcom_alternative_payments';
+
+    /**
+     * @var array
+     */
+    const FIELDS = array('title', 'enabled', 'sepa', 'giropay');
+
+    /**
+     * @var string
      * @overriden
      */
-    protected $_code = Config::CODE_ALTERNATIVE;
+    protected $_code = AlternativePaymentMethod::CODE;
 
 }

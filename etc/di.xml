@@ -3,12 +3,12 @@
 
     <!-- Configuration reader -->
     <virtualType name="CheckoutComMagento2Config" type="Magento\Payment\Gateway\Config\Config">
-        <arguments>
+        <!-- <arguments>
             <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Gateway\Config\Config::CODE_CARD</argument>
             <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Gateway\Config\Config::CODE_ALTERNATIVE</argument>
             <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Gateway\Config\Config::CODE_APPLE</argument>
             <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Gateway\Config\Config::CODE_GOOGLE</argument>
-        </arguments>
+        </arguments> -->
     </virtualType>
     <!--<type name="CheckoutCom\Magento2\Block\Info">
         <arguments>

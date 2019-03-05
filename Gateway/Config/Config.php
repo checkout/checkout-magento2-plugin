@@ -4,6 +4,10 @@ namespace CheckoutCom\Magento2\Gateway\Config;
 
 
 use Magento\Checkout\Model\Session;
+use \CheckoutCom\Magento2\Model\Methods\CardPaymentMethod;
+use \CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
+use \CheckoutCom\Magento2\Model\Methods\GooglePayMethod;
+use \CheckoutCom\Magento2\Model\Methods\ApplePayMethod;
 
 class Config extends \Magento\Payment\Gateway\Config\Config
 {
@@ -11,80 +15,51 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     /**
      * @var string
      */
-    const CODE_CARD = 'checkoutcom_magento2_redirect_method';
+    const CODE_CARD = CardPaymentMethod::CODE;
 
     /**
      * @var string
      */
-    const CODE_ALTERNATIVE = 'checkoutcom_alternative_payments';
+    const CODE_ALTERNATIVE = AlternativePaymentMethod::CODE;
 
     /**
      * @var string
      */
-    const CODE_GOOGLE = 'checkoutcom_google_pay';
+    const CODE_GOOGLE = GooglePayMethod::CODE;
 
     /**
      * @var string
      */
-    const CODE_APPLE = 'checkoutcom_apple_pay';
+    const CODE_APPLE = ApplePayMethod::CODE;
 
     /**
+     * List of payment methods by Checkout.com
      * @var array
      */
-    const PAYMENT_METHODS = array(Config::CODE_CARD, Config::CODE_ALTERNATIVE, Config::CODE_GOOGLE, Config::CODE_APPLE);
+    const PAYMENT_METHODS = array(  CardPaymentMethod::CODE        => CardPaymentMethod::FIELDS,
+                                    AlternativePaymentMethod::CODE => AlternativePaymentMethod::FIELDS,
+                                    GooglePayMethod::CODE          => GooglePayMethod::FIELDS,
+                                    ApplePayMethod::CODE           => ApplePayMethod::FIELDS);
 
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getConfig() {
 
-    public function getConfig($sessionID) {
+        $methods = [];
+        foreach($this->getEnabledMethods() as $method) { // Get enabled methods
+            $methods[$method] = $this->getMethodValues($method); // Get config values for those methods
+        }
 
-
-        $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORES;
-        $this->setMethodCode(Config::CODE_CARD);
-        \CheckoutCom\Magento2\Helper\Logger::write($this->getValue('button_label'));
-
-
-
-        // foreach(static::PAYMENT_METHODS as $method) {
-
-
-
-
-
-        // }
-
-        // return $this->getConfigAquila();
-        return [];
+        return array('payment' => $methods);
 
     }
 
 
-
-
-    public function getConfigAquila()
-    {
-
-
-        //@todo: get values from the config
-
-        //\CheckoutCom\Magento2\Helper\Logger::write(print_r($this,1));
-
-        return [
-            'payment' => [
-                static::CODE_CARD => ['store' => 'asd'],
-                static::CODE_ALTERNATIVE => ['store' => 'asd'],
-                static::CODE_GOOGLE => ['store' => 'asd'],
-                static::CODE_APPLE => ['store' => 'asd'],
-            ]
-        ];
-
-    }
-
-
-
-
-
-
-
+    /**
+     * Getters
+     **/
 
     /**
      * Retrieve active system payments
@@ -96,7 +71,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     {
 
         $methods = [];
-        foreach (static::PAYMENT_METHODS as $method) {
+        foreach (Config::PAYMENT_METHODS as $method => $fields) {
 
             $this->setMethodCode($method);
             $enabled = $this->getValue($method . '_enabled');
@@ -106,29 +81,30 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
         }
 
-
-
-
-
-
-
-
-
-        $methods = [];
-        foreach ($this->getValue('payment', ScopeInterface::SCOPE_STORE, null) as $code => $data) {
-            if (isset($data['active'], $data['model']) && (bool)$data['active']) {
-                /** @var MethodInterface $methodModel Actually it's wrong interface */
-                $methodModel = $this->_paymentMethodFactory->create($data['model']);
-                $methodModel->setStore(null);
-                if ($methodModel->getConfigData('active', null)) {
-                    $methods[$code] = $methodModel;
-                }
-            }
-        }
         return $methods;
+
     }
 
+    /**
+     * Retrieve configuration for a method
+     *
+     * @param string $method
+     * @return array
+     * @api
+     */
+    public function getMethodValues($method)
+    {
 
+        $values = [];
+        foreach (static::PAYMENT_METHODS[$method] as $field) {
 
+            $this->setMethodCode($method);
+            $values[$field] = $this->getValue($method . '_' . $field);
+
+        }
+
+        return $values;
+
+    }
 
 }

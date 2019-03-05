@@ -10,130 +10,135 @@
 
                 <group id="checkoutcom_required" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Credentials</label>
-                    <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Module</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <requires>
-                            <field id="secret_key"/>
-                            <field id="public_key"/>
-                            <field id="shared_key"/>
+                            <field id="checkoutcom_magento2_redirect_method_secret_key"/>
+                            <field id="checkoutcom_magento2_redirect_method_public_key"/>
+                            <field id="checkoutcom_magento2_redirect_method_shared_key"/>
                         </requires>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/active</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_enabled</config_path>
                     </field>
 
-                    <field id="environment" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_environment" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Environment</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigEnvironment</source_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/environment</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_environment</config_path>
                     </field>
 
-                    <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Secret Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/secret_key</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_secret_key</config_path>
                     </field>
 
-                    <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Public Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/public_key</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_public_key</config_path>
                     </field>
 
-                    <field id="shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Private Shared Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/shared_key</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_shared_key</config_path>
                     </field>
                 </group>
 
                 <group id="checkoutcom_card_payments" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Card Payments</label>
-                    <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Option Title</label>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/title</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_title</config_path>
                     </field>
 
-                    <field id="card_payments_type" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_card_payments_type" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Integration Type</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigType</source_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/card_payments_type</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_card_payments_type</config_path>
                     </field>
 
-                    <field id="card_payments_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_card_payments_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Action</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigAction</source_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/card_payments_action</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_card_payments_action</config_path>
                     </field>
 
-                    <field id="card_payments_3ds_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_card_payments_3ds_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Use 3D Secure</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/card_payments_3ds_enabled</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_card_payments_3ds_enabled</config_path>
                     </field>
 
-                    <field id="card_payments_attempt_non3ds" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_card_payments_attempt_non3ds" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Attempt non-3D Secure</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <depends>
-                            <field id="card_payments_3ds_enabled">1</field>
+                            <field id="checkoutcom_magento2_redirect_method_card_payments_3ds_enabled">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/card_payments_attempt_non3ds</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_card_payments_attempt_non3ds</config_path>
                     </field>
 
-                    <field id="card_payments_save_cards_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_card_payments_save_cards_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Save Cards</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/card_payments_save_cards_enabled</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_card_payments_save_cards_enabled</config_path>
                     </field>
 
-                    <field id="card_payments_save_cards_title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_card_payments_save_cards_title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Saved Cards Option Title</label>
                         <depends>
-                            <field id="card_payments_save_cards_enabled">1</field>
+                            <field id="checkoutcom_magento2_redirect_method_card_payments_save_cards_enabled">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/card_payments_save_cards_title</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_card_payments_save_cards_title</config_path>
                     </field>
 
-                    <field id="card_payments_dynamic_decriptor_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_card_payments_dynamic_decriptor_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Dynamic Descriptor</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <depends>
-                            <field id="card_payments_save_cards_enabled">1</field>
+                            <field id="checkoutcom_magento2_redirect_method_card_payments_save_cards_enabled">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/card_payments_dynamic_decriptor_enabled</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_card_payments_dynamic_decriptor_enabled</config_path>
                     </field>
 
-                    <field id="card_payments_decriptor_name" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_card_payments_decriptor_name" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Descriptor Name</label>
                         <depends>
-                            <field id="card_payments_dynamic_decriptor_enabled">1</field>
+                            <field id="checkoutcom_magento2_redirect_method_card_payments_dynamic_decriptor_enabled">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/card_payments_decriptor_name</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_card_payments_decriptor_name</config_path>
                     </field>
 
-                    <field id="card_payments_decriptor_city" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_card_payments_decriptor_city" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Descriptor City</label>
                         <depends>
-                            <field id="card_payments_dynamic_decriptor_enabled">1</field>
+                            <field id="checkoutcom_magento2_redirect_method_card_payments_dynamic_decriptor_enabled">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/card_payments_decriptor_city</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_card_payments_decriptor_city</config_path>
                     </field>
 
-                    <field id="card_payments_cvv_optional" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_card_payments_cvv_optional" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>CVV Optional</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/card_payments_cvv_optional</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_card_payments_cvv_optional</config_path>
                     </field>
 
-                    <field id="card_payments_mada_bin_check" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="checkoutcom_magento2_redirect_method_card_payments_mada_bin_check" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable MADA Bin Check</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_magento2_redirect_method/card_payments_mada_bin_check</config_path>
+                        <config_path>payment/checkoutcom_magento2_redirect_method/checkoutcom_magento2_redirect_method_card_payments_mada_bin_check</config_path>
                     </field>
                 </group>
 
                 <group id="checkoutcom_alternative_payments" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Alternative Payments</label>
+                    <field id="checkoutcom_alternative_payments_title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkoutcom_alternative_payments/checkoutcom_alternative_payments_title</config_path>
+                    </field>
+
                     <field id="checkoutcom_alternative_payments_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Alternative Payments</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -161,6 +166,10 @@
 
                 <group id="checkoutcom_apple_pay" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Apple Pay</label>
+                    <field id="checkoutcom_apple_pay_title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkoutcom_apple_pay/checkoutcom_apple_pay_title</config_path>
+                    </field>
 
                     <field id="checkoutcom_apple_pay_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Apple Pay</label>
@@ -198,6 +207,10 @@
 
                 <group id="checkoutcom_google_pay" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Google Pay</label>
+                    <field id="checkoutcom_google_pay_title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkoutcom_google_pay/checkoutcom_google_pay_title</config_path>
+                    </field>
 
                     <field id="checkoutcom_google_pay_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Google Pay</label>
@@ -222,8 +235,6 @@
                 </group>
 
             </group>
-
-
         </section>
     </system>
 </config>

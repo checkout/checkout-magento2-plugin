@@ -9,8 +9,18 @@ class ApplePayMethod extends Method
 
     /**
      * @var string
+     */
+    const CODE = 'checkoutcom_apple_pay';
+
+    /**
+     * @var array
+     */
+    const FIELDS = array('title', 'enabled', 'certificate', 'certificate_key', 'theme');
+
+    /**
+     * @var string
      * @overriden
      */
-    protected $_code = Config::CODE_APPLE;
+    protected $_code = ApplePayMethod::CODE;
 
 }

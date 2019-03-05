@@ -9,8 +9,18 @@ class GooglePayMethod extends Method
 
     /**
      * @var string
+     */
+    const CODE = 'checkoutcom_google_pay';
+
+    /**
+     * @var array
+     */
+    const FIELDS = array('title', 'enabled', 'merchant_id', 'theme');
+
+    /**
+     * @var string
      * @overriden
      */
-    protected $_code = Config::CODE_GOOGLE;
+    protected $_code = GooglePayMethod::CODE;
 
 }
