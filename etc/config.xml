@@ -3,59 +3,100 @@
     <default>
         <payment>
 
-            <checkoutcom_magento2_redirect_method>
+            <checkoutcom_card_payment>
 
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
 
+                <!-- Requested by AbstractMethod -->
+                <active>0</active>
+                <debug></debug>
+                <payment_action></payment_action>
+                <!-- <title></title> -->
+                <allowspecific></allowspecific>
+                <specificcountry></specificcountry>
+                <!-- </> -->
+
                 <!--  <credentials>-->
-                <checkoutcom_magento2_redirect_method_enabled>0</checkoutcom_magento2_redirect_method_enabled>
-                <checkoutcom_magento2_redirect_method_environment>0</checkoutcom_magento2_redirect_method_environment>
-                <checkoutcom_magento2_redirect_method_secret_key></checkoutcom_magento2_redirect_method_secret_key>
-                <checkoutcom_magento2_redirect_method_public_key></checkoutcom_magento2_redirect_method_public_key>
-                <checkoutcom_magento2_redirect_method_shared_key></checkoutcom_magento2_redirect_method_shared_key>
+                <enabled>0</enabled>
+                <environment>0</environment>
+                <secret_key></secret_key>
+                <public_key></public_key>
+                <shared_key></shared_key>
                 <!--  </credentials>-->
 
                 <!--  <card_payments>-->
-                <checkoutcom_magento2_redirect_method_title>Pay by Card with Checkout.com</checkoutcom_magento2_redirect_method_title>
-                <checkoutcom_magento2_redirect_method_card_payments_type>0</checkoutcom_magento2_redirect_method_card_payments_type>
-                <checkoutcom_magento2_redirect_method_card_payments_action>1</checkoutcom_magento2_redirect_method_card_payments_action>
-                <checkoutcom_magento2_redirect_method_card_payments_3ds_enabled>0</checkoutcom_magento2_redirect_method_card_payments_3ds_enabled>
-                <checkoutcom_magento2_redirect_method_card_payments_attempt_non3ds>0</checkoutcom_magento2_redirect_method_card_payments_attempt_non3ds>
-                <checkoutcom_magento2_redirect_method_card_payments_save_cards_enabled>0</checkoutcom_magento2_redirect_method_card_payments_save_cards_enabled>
-                <checkoutcom_magento2_redirect_method_card_payments_save_cards_title>Pay with saved card:</checkoutcom_magento2_redirect_method_card_payments_save_cards_title>
-                <checkoutcom_magento2_redirect_method_card_payments_dynamic_decriptor_enabled>0</checkoutcom_magento2_redirect_method_card_payments_dynamic_decriptor_enabled>
-                <checkoutcom_magento2_redirect_method_card_payments_decriptor_name></checkoutcom_magento2_redirect_method_card_payments_decriptor_name>
-                <checkoutcom_magento2_redirect_method_card_payments_decriptor_city></checkoutcom_magento2_redirect_method_card_payments_decriptor_city>
-                <checkoutcom_magento2_redirect_method_card_payments_cvv_optional>0</checkoutcom_magento2_redirect_method_card_payments_cvv_optional>
-                <checkoutcom_magento2_redirect_method_card_payments_mada_bin_check>0</checkoutcom_magento2_redirect_method_card_payments_mada_bin_check>
+                <title>Pay by Card with Checkout.com</title>
+                <card_payments_type>0</card_payments_type>
+                <card_payments_action>1</card_payments_action>
+                <card_payments_3ds_enabled>0</card_payments_3ds_enabled>
+                <card_payments_attempt_non3ds>0</card_payments_attempt_non3ds>
+                <card_payments_save_cards_enabled>0</card_payments_save_cards_enabled>
+                <card_payments_save_cards_title>Pay with saved card:</card_payments_save_cards_title>
+                <card_payments_dynamic_decriptor_enabled>0</card_payments_dynamic_decriptor_enabled>
+                <card_payments_decriptor_name></card_payments_decriptor_name>
+                <card_payments_decriptor_city></card_payments_decriptor_city>
+                <card_payments_cvv_optional>0</card_payments_cvv_optional>
+                <card_payments_mada_bin_check>0</card_payments_mada_bin_check>
                 <!--  </card_payments>-->
 
-            </checkoutcom_magento2_redirect_method>
+            </checkoutcom_card_payment>
 
             <checkoutcom_alternative_payments>
-                <checkoutcom_alternative_payments_title>Alternative Payments with Checkout.com</checkoutcom_alternative_payments_title>
+
+                <!-- Requested by AbstractMethod -->
+                <active>0</active>
+                <debug></debug>
+                <payment_action></payment_action>
+                <!-- <title></title> -->
+                <allowspecific></allowspecific>
+                <specificcountry></specificcountry>
+                <!-- </> -->
+
+                <title>Alternative Payments with Checkout.com</title>
                 <model>CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</model>
-                <checkoutcom_alternative_payments_enabled>0</checkoutcom_alternative_payments_enabled>
-                <checkoutcom_alternative_payments_sepa>0</checkoutcom_alternative_payments_sepa>
-                <checkoutcom_alternative_payments_giropay>0</checkoutcom_alternative_payments_giropay>
+                <enabled>0</enabled>
+                <sepa>0</sepa>
+                <giropay>0</giropay>
+
             </checkoutcom_alternative_payments>
 
             <checkoutcom_google_pay>
-                <checkoutcom_google_pay_title>Google Pay with Checkout.com</checkoutcom_google_pay_title>
+
+                <!-- Requested by AbstractMethod -->
+                <active>0</active>
+                <debug></debug>
+                <payment_action></payment_action>
+                <!-- <title></title> -->
+                <allowspecific></allowspecific>
+                <specificcountry></specificcountry>
+                <!-- </> -->
+
+                <title>Google Pay with Checkout.com</title>
                 <model>CheckoutCom\Magento2\Model\Methods\GooglePayMethod</model>
-                <checkoutcom_google_pay_enabled>0</checkoutcom_google_pay_enabled>
-                <checkoutcom_google_pay_merchant_id></checkoutcom_google_pay_merchant_id>
-                <checkoutcom_google_pay_theme></checkoutcom_google_pay_theme>
+                <enabled>0</enabled>
+                <merchant_id></merchant_id>
+                <theme></theme>
+
             </checkoutcom_google_pay>
 
             <checkoutcom_apple_pay>
-                <checkoutcom_apple_pay_title>Apple Pay with Checkout.com</checkoutcom_apple_pay_title>
+
+                <!-- Requested by AbstractMethod -->
+                <active>0</active>
+                <debug></debug>
+                <payment_action></payment_action>
+                <!-- <title></title> -->
+                <allowspecific></allowspecific>
+                <specificcountry></specificcountry>
+                <!-- </> -->
+
+                <title>Apple Pay with Checkout.com</title>
                 <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
-                <checkoutcom_apple_pay_enabled>0</checkoutcom_apple_pay_enabled>
-                <checkoutcom_apple_pay_merchant_id></checkoutcom_apple_pay_merchant_id>
-                <checkoutcom_apple_pay_certificate></checkoutcom_apple_pay_certificate>
-                <checkoutcom_apple_pay_certificate_key></checkoutcom_apple_pay_certificate_key>
-                <checkoutcom_apple_pay_theme></checkoutcom_apple_pay_theme>
+                <enabled>0</enabled>
+                <merchant_id></merchant_id>
+                <certificate></certificate>
+                <certificate_key></certificate_key>
+                <theme></theme>
             </checkoutcom_apple_pay>
 
         </payment>

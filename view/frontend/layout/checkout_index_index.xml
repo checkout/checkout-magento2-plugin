@@ -24,7 +24,7 @@
                                                                     <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/method_renderer</item>
                                                                     <item name="methods" xsi:type="array">
 
-                                                                        <item name="checkoutcom_magento2_redirect_method" xsi:type="array">
+                                                                        <item name="checkoutcom_card_payment" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="checkoutcom_alternative_payments" xsi:type="array">

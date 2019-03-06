@@ -74,7 +74,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         foreach (Config::PAYMENT_METHODS as $method => $fields) {
 
             $this->setMethodCode($method);
-            $enabled = $this->getValue($method . '_enabled');
+            $enabled = $this->getValue('active');
             if($enabled) {
                 $methods []= $method;
             }
@@ -99,7 +99,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         foreach (static::PAYMENT_METHODS[$method] as $field) {
 
             $this->setMethodCode($method);
-            $values[$field] = $this->getValue($method . '_' . $field);
+            $values[$field] = $this->getValue($field);
 
         }
 

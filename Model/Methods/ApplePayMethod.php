@@ -15,7 +15,7 @@ class ApplePayMethod extends Method
     /**
      * @var array
      */
-    const FIELDS = array('title', 'enabled', 'certificate', 'certificate_key', 'theme');
+    const FIELDS = array('title', 'enabled', 'certificate', 'certificate_key', 'theme', 'active');
 
     /**
      * @var string

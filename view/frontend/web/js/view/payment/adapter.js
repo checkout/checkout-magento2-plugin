@@ -35,7 +35,7 @@ define(
              * @returns {String}
              */
             getCardPaymentCode: function () {
-                return 'checkoutcom_magento2_redirect_method';
+                return 'checkoutcom_card_payment';
             },
 
             /**

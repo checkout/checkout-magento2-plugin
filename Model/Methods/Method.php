@@ -10,16 +10,6 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
 {
 
-    /**
-     * @var string
-     */
-    const CODE = 'checkoutcom';
-
-    /**
-     * @var array
-     */
-    const FIELDS = array();
-
     protected $_isInitializeNeeded = true;
     protected $_isGateway = true;
     protected $_canAuthorize = true;

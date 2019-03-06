@@ -44,24 +44,6 @@ define(
 
         });
 
-
-
-
-
-        // Render the relevant payment methods
-        // rendererList.push(
-        //     {
-        //         type: 'checkoutcom_alternative_payments',
-        //         component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_alternative_payments'
-        //     }
-        // );
-
-
-
-
-
-
-
         return Component.extend({});
 
     }
