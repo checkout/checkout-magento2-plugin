@@ -8,7 +8,8 @@
         "magento/module-sales": "100.0.*",
         "magento/module-checkout": "100.0.*",
         "magento/module-payment": "100.0.*",
-        "magento/module-vault": "100.2.*"
+        "magento/module-vault": "100.2.*",
+        "checkoutcom/checkout-sdk-php": "*"
     },
     "type": "magento2-module",
     "version": "1.0.1",

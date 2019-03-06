@@ -17,7 +17,6 @@
                 <!-- </> -->
 
                 <!--  <credentials>-->
-                <enabled>0</enabled>
                 <environment>0</environment>
                 <secret_key></secret_key>
                 <public_key></public_key>
@@ -54,7 +53,6 @@
 
                 <title>Alternative Payments with Checkout.com</title>
                 <model>CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</model>
-                <enabled>0</enabled>
                 <sepa>0</sepa>
                 <giropay>0</giropay>
 
@@ -73,7 +71,6 @@
 
                 <title>Google Pay with Checkout.com</title>
                 <model>CheckoutCom\Magento2\Model\Methods\GooglePayMethod</model>
-                <enabled>0</enabled>
                 <merchant_id></merchant_id>
                 <theme></theme>
 
@@ -92,7 +89,6 @@
 
                 <title>Apple Pay with Checkout.com</title>
                 <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
-                <enabled>0</enabled>
                 <merchant_id></merchant_id>
                 <certificate></certificate>
                 <certificate_key></certificate_key>

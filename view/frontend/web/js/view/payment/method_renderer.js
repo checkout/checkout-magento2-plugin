@@ -1,26 +1,12 @@
-/**
- * Checkout.com Magento 2 Magento2 Payment.
- *
- * PHP version 7
- *
- * @category  Checkout.com
- * @package   Magento2
- * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
- * @license   https://opensource.org/licenses/mit-license.html MIT License
- * @link      https://www.checkout.com
- */
-
-define(
-    [
+define([
         'uiComponent',
         'Magento_Checkout/js/model/payment/renderer-list',
-        'CheckoutCom_Magento2/js/view/payment/adapter',
+        'CheckoutCom_Magento2/js/view/payment/utilities',
     ],
     function (
         Component,
         rendererList,
-        Adapter
+        Utilities
     ) {
 
         'use strict';
@@ -30,7 +16,7 @@ define(
 
         methods.forEach(function(element) {
 
-            if(paymentMethods.hasOwnProperty(element) && +paymentMethods[element].enabled) {
+            if(paymentMethods.hasOwnProperty(element) && +paymentMethods[element].active) {
 
                 // Render the relevant payment methods
                 rendererList.push(

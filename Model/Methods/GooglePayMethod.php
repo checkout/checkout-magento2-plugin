@@ -15,7 +15,7 @@ class GooglePayMethod extends Method
     /**
      * @var array
      */
-    const FIELDS = array('title', 'enabled', 'merchant_id', 'theme', 'active');
+    const FIELDS = array('title', 'merchant_id', 'theme', 'active');
 
     /**
      * @var string

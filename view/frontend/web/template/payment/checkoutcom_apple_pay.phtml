@@ -1,19 +1,5 @@
-<!--
-/**
- * Checkout.com Magento 2 Magento2 Payment.
- *
- * PHP version 7
- *
- * @category  Checkout.com
- * @package   Magento2
- * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
- * @license   https://opensource.org/licenses/mit-license.html MIT License
- * @link      https://www.checkout.com
- */
--->
-
 <div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <!-- Option title -->
     <div class="payment-method-title field choice">
         <input type="radio" name="payment[method]" class="radio" data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
         <label class="label" data-bind="attr: {'for': getCode()}">
@@ -21,16 +7,45 @@
         </label>
     </div>
 
+    <!-- Body of the payment method -->
     <div class="payment-method-content">
 
+
+
+
+
+
+
+        <p>aquila apple pay</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- Billing Address and Agreements Block-->
         <div class="payment-method-billing-address">
-            <p>aquileu apple</p>
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() -->
             <!-- /ko -->
             <!--/ko-->
         </div>
-
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
             <!-- ko template: getTemplate() -->
@@ -38,6 +53,7 @@
             <!--/ko-->
         </div>
 
+        <!-- Place Order button -->
         <div class="actions-toolbar">
             <div class="primary">
                 <button class="action primary checkout" type="submit" data-bind="

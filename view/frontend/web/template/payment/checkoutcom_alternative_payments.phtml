@@ -1,5 +1,5 @@
-
 <div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <!-- Option title -->
     <div class="payment-method-title field choice">
         <input type="radio" name="payment[method]" class="radio" data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
         <label class="label" data-bind="attr: {'for': getCode()}">
@@ -7,16 +7,45 @@
         </label>
     </div>
 
+    <!-- Body of the payment method -->
     <div class="payment-method-content">
 
+
+
+
+
+
+
+        <p>aquila alternative payment methods</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- Billing Address and Agreements Block-->
         <div class="payment-method-billing-address">
-            <p>aquileu alterni</p>
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() -->
             <!-- /ko -->
             <!--/ko-->
         </div>
-
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
             <!-- ko template: getTemplate() -->
@@ -24,6 +53,7 @@
             <!--/ko-->
         </div>
 
+        <!-- Place Order button -->
         <div class="actions-toolbar">
             <div class="primary">
                 <button class="action primary checkout" type="submit" data-bind="

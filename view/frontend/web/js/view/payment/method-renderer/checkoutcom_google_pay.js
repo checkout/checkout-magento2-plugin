@@ -1,39 +1,22 @@
-/**
- * Checkout.com Magento 2 Magento2 Payment.
- *
- * PHP version 7
- *
- * @category  Checkout.com
- * @package   Magento2
- * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
- * @license   https://opensource.org/licenses/mit-license.html MIT License
- * @link      https://www.checkout.com
- */
-
-/*browser:true*/
-/*global define*/
-
-define(
-    [
+define([
         'jquery',
         'Magento_Checkout/js/view/payment/default',
-        'CheckoutCom_Magento2/js/view/payment/adapter',
+        'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'mage/translate'
     ],
-    function ($, Component, Adapter, FullScreenLoader, AdditionalValidators, t) {
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, t) {
 
         'use strict';
 
-        window.checkoutConfig.reloadOnBillingAddress = true;
-        var code = Adapter.getGooglePayCode();
-console.log(code);
+        window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
+        const CODE = Utilities.getGooglePayCode();
+console.log(CODE);
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + code + '.phtml',
+                    template: 'CheckoutCom_Magento2/payment/' + CODE
                 },
 
                 /**
@@ -48,11 +31,17 @@ console.log(code);
                     return this;
                 },
 
+
+
+                /**
+                 * Methods
+                 */
+
                 /**
                  * @returns {string}
                  */
                 getCode: function () {
-                    return code;
+                    return CODE;
                 },
 
                 /**
@@ -63,6 +52,10 @@ console.log(code);
                 },
 
 
+
+                /**
+                 * Events
+                 */
 
                 /**
                  * @returns {string}

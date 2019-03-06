@@ -28,7 +28,7 @@ define(
 
         window.checkoutConfig.reloadOnBillingAddress = true;
         var code = 'redirect_method';
-console.log('aquileussss');
+
         return Component.extend(
             {
                 defaults: {
