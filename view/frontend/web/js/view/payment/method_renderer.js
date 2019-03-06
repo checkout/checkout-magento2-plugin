@@ -14,13 +14,13 @@
 define(
     [
         'uiComponent',
+        'Magento_Checkout/js/model/payment/renderer-list',
         'CheckoutCom_Magento2/js/view/payment/adapter',
-        'Magento_Checkout/js/model/payment/renderer-list'
     ],
     function (
         Component,
-        Adapter,
-        RendererList
+        rendererList,
+        Adapter
     ) {
 
         'use strict';
@@ -33,7 +33,7 @@ define(
             if(paymentMethods.hasOwnProperty(element) && +paymentMethods[element].enabled) {
 
                 // Render the relevant payment methods
-                RendererList.push(
+                rendererList.push(
                     {
                         type: element,
                         component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/' + element
@@ -43,6 +43,24 @@ define(
             }
 
         });
+
+
+
+
+
+        // Render the relevant payment methods
+        // rendererList.push(
+        //     {
+        //         type: 'checkoutcom_alternative_payments',
+        //         component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_alternative_payments'
+        //     }
+        // );
+
+
+
+
+
+
 
         return Component.extend({});
 

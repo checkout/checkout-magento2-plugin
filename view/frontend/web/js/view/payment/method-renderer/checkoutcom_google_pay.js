@@ -29,7 +29,7 @@ define(
 
         window.checkoutConfig.reloadOnBillingAddress = true;
         var code = Adapter.getGooglePayCode();
-
+console.log(code);
         return Component.extend(
             {
                 defaults: {

@@ -29,7 +29,7 @@ define(
 
         window.checkoutConfig.reloadOnBillingAddress = true;
         var code = Adapter.getAlternativePaymentCode();
-
+console.log(code);
         return Component.extend(
             {
                 defaults: {
