@@ -96,14 +96,48 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     {
 
         $values = [];
-        foreach (static::PAYMENT_METHODS[$method] as $field) {
+        foreach (static::PAYMENT_METHODS[$method] as &$field) {
 
             $this->setMethodCode($method);
-            $values[$field] = $this->getValue($field);
+            $values[$field] = $this->modifier($method, $field, $this->getValue($field));
 
         }
 
         return $values;
+
+    }
+
+
+    /**
+     * Modify value based on the model and field.
+     *
+     * @param      string  $method  The method
+     * @param      string  $field   The field
+     * @param      mixed  $value   The value
+     *
+     * @return     mixed
+     */
+    protected function modifier($method, &$field, $value) {
+
+        switch ($method) {
+            case CardPaymentMethod::CODE:
+                $value = CardPaymentMethod::modifier($field, $value);
+                break;
+
+            case AlternativePaymentMethod::CODE:
+                $value = AlternativePaymentMethod::modifier($field, $value);
+                break;
+
+            case GooglePayMethod::CODE:
+                $value = GooglePayMethod::modifier($field, $value);
+                break;
+
+            case ApplePayMethod::CODE:
+                $value = ApplePayMethod::modifier($field, $value);
+                break;
+        }
+
+        return $value;
 
     }
 

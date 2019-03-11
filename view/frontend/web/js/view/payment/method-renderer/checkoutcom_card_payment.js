@@ -4,15 +4,16 @@ define([
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'mage/translate'
+        'framesjs'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, t) {
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators) {
 
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
         const CODE = Utilities.getCardPaymentCode();
-console.log(CODE);
+        var token = '';
+
         return Component.extend(
             {
                 defaults: {
@@ -32,9 +33,8 @@ console.log(CODE);
                 },
 
 
-
                 /**
-                 * Methods
+                 * Getters and setters
                  */
 
                 /**
@@ -51,6 +51,31 @@ console.log(CODE);
                     return true;
                 },
 
+                /**
+                 * @returns {boolean}
+                 */
+                isAvailable: function () {
+                    return true;
+                },
+
+                /**
+                 * Enables the submit button.
+                 *
+                 * @param      {boolean}   enabled  Status.
+                 * @return     {void}
+                 */
+                enableSubmit: function (enabled) {
+
+                    $('#' + this.getCode() + '_btn').prop('disabled', !enabled); //@todo: Add quote validation
+
+                },
+
+                /**
+                 * @returns {boolean}
+                 */
+                isPlaceOrderActionAllowed: function () {
+                    return true;
+                },
 
 
                 /**
@@ -58,11 +83,44 @@ console.log(CODE);
                  */
 
                 /**
-                 * @returns {string}
+                 * Content visible
+                 *
+                 * @return     {boolean}
                  */
-                beforePlaceOrder: function () {
+                contentVisible: function() {
+
+                    var publicKey = Utilities.getField(CODE, 'public_key'),
+                        $btnSubmit = $('#ckoCardTargetButton'),
+                        $frame = $('.frames-container'),
+                        self =  this;
+
+                    Frames.init({
+                        publicKey: 'pk_test_4f3f5a2a-d1df-414d-a901-0c33986be0dc',
+                        containerSelector: '.frames-container',
+                        debugMode: true,
+
+                        cardValidationChanged: function() {
+                            self.enableSubmit(Frames.isCardValid());
+                        },
+                        cardTokenised: self.requestController,
+                        cardTokenisationFailed: function(event) {
+                            console.log('error', event); // @todo: handler error
+                        }
+
+                    });
+
+                    return true;
+
+                },
+
+                /**
+                 * @returns {void}
+                 */
+                placeOrder: function (event) {
+
                     // Start the loader
                     FullScreenLoader.startLoader();
+                    Frames.submitCard();
 
                     // Validate before submission
                     if (AdditionalValidators.validate()) {
@@ -71,7 +129,20 @@ console.log(CODE);
                     } else {
                         FullScreenLoader.stopLoader();
                     }
-                }
+
+                },
+
+                /**
+                 * @returns {string}
+                 */
+                requestController: function (event) {
+
+                    console.log('freitas');
+                    FullScreenLoader.stopLoader();
+
+                },
+
+
             }
         );
     }

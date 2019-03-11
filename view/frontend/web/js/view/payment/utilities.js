@@ -12,6 +12,7 @@ define([
 
         return {
 
+
             /**
              * Codes
              */
@@ -69,14 +70,40 @@ define([
             },
 
 
+            /**
+             * Getters
+             */
+
+            /**
+             * Gets the field.
+             *
+             * @param      {string}  code    The code
+             * @param      {string}  field   The field
+             * @return     {mixed}  The field.
+             */
+            getField: function(code, field) {
+
+                var value = null;
+
+                if(window.checkoutConfig.payment.hasOwnProperty(code) &&
+                    window.checkoutConfig.payment[code].hasOwnProperty(field)) {
+
+                    value = window.checkoutConfig.payment[code][field];
+
+                }
+
+                return value;
+
+            },
 
 
 
 
 
 
-
-
+            /**
+             * Old methods
+             */
 
             /**
              * Get payment configuration array.
@@ -85,15 +112,6 @@ define([
              */
             getPaymentConfig: function () {
                 return window.checkoutConfig.payment['checkoutcom_magento2'];
-            },
-
-            /**
-             * Get payment code.
-             *
-             * @returns {String}
-             */
-            getCode: function () {
-                return this.getPaymentConfig()['module_id'];
             },
 
             /**
@@ -165,36 +183,6 @@ define([
                 messageContainer.empty();
             },
 
-            /**
-             * Log data to the browser console
-             */
-            log: function (data) {
-                var isDebugMode = JSON.parse(this.getPaymentConfig(this.getCode())['debug']);
-                var output = this.getCode() + ':' + JSON.stringify(data);
-                if (isDebugMode) {
-                    console.log(output);
-                }
-            },
-
-            /**
-             * Send data to back end for logging
-             */
-            backendLog: function (data) {
-                var self = this;
-                var isLoggingMode = JSON.parse(self.getPaymentConfig(self.getCode())['logging']);
-                if (isLoggingMode) {
-                    $.ajax(
-                        {
-                            type: "POST",
-                            url: Url.build(self.getCode() + '/request/logger'),
-                            data: {log_data: data},
-                            error: function (request, status, error) {
-                                self.log(error);
-                            }
-                        }
-                    );
-                }
-            }
         };
     }
 );

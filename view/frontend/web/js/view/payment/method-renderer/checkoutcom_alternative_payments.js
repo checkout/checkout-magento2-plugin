@@ -4,15 +4,15 @@ define([
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'mage/translate'
+        'framesjs'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, t) {
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators) {
 
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
         const CODE = Utilities.getAlternativePaymentsCode();
-console.log(CODE);
+
         return Component.extend(
             {
                 defaults: {
@@ -34,7 +34,7 @@ console.log(CODE);
 
 
                 /**
-                 * Methods
+                 * Getters and setters
                  */
 
                 /**
@@ -51,11 +51,43 @@ console.log(CODE);
                     return true;
                 },
 
+                /**
+                 * @returns {boolean}
+                 */
+                isAvailable: function () {
+                    return true;
+                },
+
+                /**
+                 * Enables the submit button.
+                 *
+                 * @param      {boolean}   enabled  Status.
+                 * @return     {void}
+                 */
+                enableSubmit: function (enabled) {
+
+                    $('#' + this.getCode() + '_btn').prop('disabled', !enabled); //@todo: Add quote validation
+
+                },
+
 
 
                 /**
                  * Events
                  */
+
+                /**
+                 * Content visible
+                 *
+                 * @return     {boolean}
+                 */
+                contentVisible: function() {
+
+                    console.log('render alternative payments');
+
+                    return true;
+
+                },
 
                 /**
                  * @returns {string}
@@ -71,6 +103,13 @@ console.log(CODE);
                     } else {
                         FullScreenLoader.stopLoader();
                     }
+                },
+
+                /**
+                 * @returns {boolean}
+                 */
+                isPlaceOrderActionAllowed: function () {
+                    return true;
                 }
             }
         );

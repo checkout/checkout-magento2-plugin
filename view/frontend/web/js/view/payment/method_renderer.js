@@ -12,7 +12,7 @@ define([
         'use strict';
 
         var paymentMethods = window.checkoutConfig.payment,
-            methods = Adapter.getPaymentMethods();
+            methods = Utilities.getPaymentMethods();
 
         methods.forEach(function(element) {
 

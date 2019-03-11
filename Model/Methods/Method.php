@@ -5,7 +5,13 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use Magento\Framework\DataObject;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Framework\Module\Dir;
-use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Framework\Encryption\EncryptorInterface;
+use Magento\Framework\App\ObjectManager;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\MethodInterface;
+use Magento\Quote\Api\Data\PaymentMethodInterface;
+use Magento\Sales\Model\Order\Payment;
+use Magento\Directory\Helper\Data as DirectoryHelper;
 
 abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -35,7 +41,24 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
     protected $orderSender;
     protected $sessionQuote;
     protected $config;
+    protected $encryptor;
 
+
+
+    /**
+     * @param \Magento\Framework\Model\Context $context
+     * @param \Magento\Framework\Registry $registry
+     * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
+     * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
+     * @param \Magento\Payment\Helper\Data $paymentData
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
+     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
+     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+     * @param array $data
+     * @param DirectoryHelper $directory
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -44,60 +67,40 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Payment\Helper\Data $paymentData,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\ObjectManagerInterface $objectManager,
-        \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
-        \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Checkout\Helper\Data $checkoutData,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \Magento\Quote\Api\CartManagementInterface $quoteManagement,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = []
+        array $data = [],
+        DirectoryHelper $directory = null
     ) {
-        parent::__construct(
+
+       parent::__construct(
             $context,
             $registry,
             $extensionFactory,
             $customAttributeFactory,
-            $paymentData,
-            $scopeConfig,
-            $logger,
             $resource,
             $resourceCollection,
-            $data
+            $data,
+            $directory
         );
-        $this->urlBuilder         = $urlBuilder;
-        $this->backendAuthSession = $backendAuthSession;
-        $this->cart               = $cart;
-        $this->_objectManager     = $objectManager;
-        $this->invoiceSender      = $invoiceSender;
-        $this->transactionFactory = $transactionFactory;
-        $this->customerSession    = $customerSession;
-        $this->checkoutSession    = $checkoutSession;
-        $this->checkoutData       = $checkoutData;
-        $this->quoteRepository    = $quoteRepository;
-        $this->quoteManagement    = $quoteManagement;
-        $this->orderSender        = $orderSender;
-        $this->sessionQuote       = $sessionQuote;
-        $this->config             = $config;
+
+
+
     }
 
+
+
     /**
-     * Check whether method is available
-     *
-     * @param  \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
-     * @return bool
+     * Methods
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
-    {
-        return true;
+
+    /**
+     * Modify value based on the field.
+     */
+    public static function modifier(&$field, $value) {
+
+        return $value;
+
     }
+
 }

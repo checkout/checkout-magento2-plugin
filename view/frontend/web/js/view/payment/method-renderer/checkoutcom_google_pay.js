@@ -12,7 +12,7 @@ define([
 
         window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
         const CODE = Utilities.getGooglePayCode();
-console.log(CODE);
+
         return Component.extend(
             {
                 defaults: {
