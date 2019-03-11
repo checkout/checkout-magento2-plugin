@@ -20,7 +20,7 @@ Checkout.js Hosted and Frames.js are cross-browser and cross-device compatible, 
 The Checkout.com extension for Magento 2 supports VISA, Mastercard, American Express, Discover, Diners Club, JCB, in addition to the Alternative Payment options described above.
 
 ## Compatibility
-The Checkout.com extension for Magento 2 is compatible with Magento 2.1.0 to 2.2.3.
+The Checkout.com extension for Magento 2 is compatible with Magento 2.1.0 to 2.3.x.
 
 ## Features
 The Checkout.com extension for Magento 2 offers useful and unique features, allowing Magento 2 shop owners to process online payments in the best conditions. These features have been designed to offer an optimal shopping and payment experience to Magento 2 merchants and shoppers.
