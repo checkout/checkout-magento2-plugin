@@ -28,6 +28,8 @@ class ConfigProvider implements ConfigProviderInterface {
 
     const CODE_GOOGLE_PAY = 'checkout_com_googlepay';
 
+    const CODE_ADMIN_METHOD = 'checkout_com_admin_method';
+
     /**
      * @var Config
      */

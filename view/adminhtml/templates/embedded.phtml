@@ -21,3 +21,48 @@ if (!$block->hasCustomCss()) {
 <?php
 }
 ?>
+<fieldset class="admin__fieldset payment-method checkout_com_admin_method" id="payment_form_checkout_com_admin_method" style="display: none;">
+	<br>
+	<div id="cko-form-holder">
+		<form class="widget-container" id="embeddedForm" method="POST"></form>
+	</div>
+</fieldset>
+
+<script>
+	// Initialise the embedded form
+
+	Frames.init({
+		publicKey: '<?php echo $block->getPublicKey(); ?>',
+		containerSelector: '#cko-form-holder',
+		theme: '<?php echo $block->getEmbeddedTheme(); ?>',
+		debugMode: <?php echo $block->getDebugMode(); ?>,
+		localisation: '<?php echo $block->getIntegrationLanguage(); ?>',
+		frameActivated: function () {
+			//$('#ckoPlaceOrder').attr("disabled", true);
+		},
+		cardValidationChanged: function() {
+			//self.updateButtonState(!(Frames.isCardValid() && quote.billingAddress() != null));
+		},
+		cardTokenised: function(event) {
+
+			/*
+			// Keep the card info
+			self.card_bin = event.data.card.bin;
+
+			// Save checkout info in PHP session
+			self.saveSessionData();
+
+			// Set the card token
+			self.setCardTokenId(event.data.cardToken);
+
+			// Add the card token to the form
+			Frames.addCardToken(paymentForm, event.data.cardToken);
+
+			// Place order
+			window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
+
+			*/
+		},
+	});  
+
+</script>
