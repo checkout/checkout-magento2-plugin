@@ -12,7 +12,6 @@ define([
 
         window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
         const CODE = Utilities.getCardPaymentCode();
-        var token = '';
 
         return Component.extend(
             {
@@ -89,15 +88,14 @@ define([
                  */
                 contentVisible: function() {
 
-                    var publicKey = Utilities.getField(CODE, 'public_key'),
-                        $btnSubmit = $('#ckoCardTargetButton'),
+                    var $btnSubmit = $('#ckoCardTargetButton'),
                         $frame = $('.frames-container'),
                         self =  this;
 
                     Frames.init({
-                        publicKey: 'pk_test_4f3f5a2a-d1df-414d-a901-0c33986be0dc',
+                        publicKey: Utilities.getField(CODE, 'public_key'),
                         containerSelector: '.frames-container',
-                        debugMode: true,
+                        debugMode: Utilities.getField(CODE, 'debug', false),
 
                         cardValidationChanged: function() {
                             self.enableSubmit(Frames.isCardValid());
@@ -120,7 +118,7 @@ define([
 
                     // Start the loader
                     FullScreenLoader.startLoader();
-                    Frames.submitCard();
+                    Frames.submitCard(); //@note: it won't trigger a second time
 
                     // Validate before submission
                     if (AdditionalValidators.validate()) {
@@ -137,7 +135,23 @@ define([
                  */
                 requestController: function (event) {
 
-                    console.log('freitas');
+                    var token = event.data.cardToken,
+                        data = {};
+
+
+                    $.post(Utilities.getEndPoint('placeorder'), data, function(res){
+                        console.log('sucess', res);
+                    }, 'json').done(function(res) {
+                        console.log( "second success" , res);
+                      })
+                      .fail(function(res) {
+                        console.log( "error", res );
+                      })
+                      .always(function(res) {
+                        alert( "finished", res);
+                      });
+
+                    console.log('requestController');
                     FullScreenLoader.stopLoader();
 
                 },

@@ -81,9 +81,9 @@ define([
              * @param      {string}  field   The field
              * @return     {mixed}  The field.
              */
-            getField: function(code, field) {
+            getField: function(code, field, dft = null) {
 
-                var value = null;
+                var value = dft;
 
                 if(window.checkoutConfig.payment.hasOwnProperty(code) &&
                     window.checkoutConfig.payment[code].hasOwnProperty(field)) {
@@ -93,6 +93,18 @@ define([
                 }
 
                 return value;
+
+            },
+
+            /**
+             * Gets the field.
+             *
+             * @param      {string}  controller  The controller
+             * @return     {string}
+             */
+            getEndPoint: function(controller) {
+
+                return Url.build('checkout_com/payment/' + controller);
 
             },
 

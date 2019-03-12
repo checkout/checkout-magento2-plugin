@@ -8,6 +8,10 @@ use \CheckoutCom\Magento2\Model\Methods\CardPaymentMethod;
 use \CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
 use \CheckoutCom\Magento2\Model\Methods\GooglePayMethod;
 use \CheckoutCom\Magento2\Model\Methods\ApplePayMethod;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Payment\Gateway\ConfigInterface;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Framework\Encryption\EncryptorInterface;
 
 class Config extends \Magento\Payment\Gateway\Config\Config
 {
@@ -33,6 +37,11 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     const CODE_APPLE = ApplePayMethod::CODE;
 
     /**
+     * @var EncryptorInterface
+     */
+    protected $encryptor;
+
+    /**
      * List of payment methods by Checkout.com
      * @var array
      */
@@ -41,6 +50,23 @@ class Config extends \Magento\Payment\Gateway\Config\Config
                                     GooglePayMethod::CODE          => GooglePayMethod::FIELDS,
                                     ApplePayMethod::CODE           => ApplePayMethod::FIELDS);
 
+
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param string|null $methodCode
+     * @param string $pathPattern
+     */
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        $methodCode = null,
+        $pathPattern = self::DEFAULT_PATH_PATTERN,
+        EncryptorInterface $encryptor
+    ) {
+
+        parent::__construct($scopeConfig, $methodCode, $pathPattern);
+        $this->encryptor = $encryptor;
+
+    }
 
     /**
      * {@inheritdoc}
@@ -98,7 +124,12 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         $values = [];
         foreach (static::PAYMENT_METHODS[$method] as &$field) {
 
-            $this->setMethodCode($method);
+            if($field === 'public_key') {
+                $this->setMethodCode(static::CODE_CARD);
+            } else {
+                $this->setMethodCode($method);
+            }
+
             $values[$field] = $this->modifier($method, $field, $this->getValue($field));
 
         }
@@ -118,6 +149,10 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      * @return     mixed
      */
     protected function modifier($method, &$field, $value) {
+
+        if($field === 'public_key') {
+            return $this->encryptor->decrypt($value);
+        }
 
         switch ($method) {
             case CardPaymentMethod::CODE:

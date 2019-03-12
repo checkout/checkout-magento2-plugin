@@ -15,7 +15,7 @@ class AlternativePaymentMethod extends Method
     /**
      * @var array
      */
-    const FIELDS = array('title', 'sepa', 'giropay', 'active');
+    const FIELDS = array('title', 'sepa', 'giropay', 'active', 'public_key');
 
     /**
      * @var string
