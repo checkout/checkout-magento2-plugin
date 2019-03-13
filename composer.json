@@ -3,7 +3,7 @@
     "description": "Magento2 Payment Gateway for Magento 2",
     "require": {
         "php": ">5.6.0",
-        "checkout/checkout-sdk-php": "*"
+        "checkout/checkout-sdk-php": "^1.0"
     },
     "type": "magento2-module",
     "version": "1.0.1",
@@ -16,8 +16,7 @@
             "registration.php"
         ],
         "psr-4": {
-            "CheckoutCom\\Magento2\\": "",
-            "Checkout"
+            "CheckoutCom\\Magento2\\": ""
         }
     }
 }
