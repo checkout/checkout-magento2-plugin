@@ -16,7 +16,8 @@
             "registration.php"
         ],
         "psr-4": {
-            "CheckoutCom\\Magento2\\": ""
+            "CheckoutCom\\Magento2\\": "",
+            "Checkout"
         }
     }
 }

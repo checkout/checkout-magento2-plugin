@@ -92,15 +92,26 @@ define([
                         $frame = $('.frames-container'),
                         self =  this;
 
+                    // Disable button
+                    this.enableSubmit(false);
+
+                    // Remove any existing event handlers
+                    Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
+                    Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
+                    Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
+
                     Frames.init({
                         publicKey: Utilities.getField(CODE, 'public_key'),
                         containerSelector: '.frames-container',
                         debugMode: Utilities.getField(CODE, 'debug', false),
 
+                        billingDetails: Utilities.getBillingAddress(),
+                        customerName: Utilities.getCustomerName(),
+
                         cardValidationChanged: function() {
                             self.enableSubmit(Frames.isCardValid());
                         },
-                        cardTokenised: self.requestController,
+                        cardTokenised: self.requestController.bind(self),
                         cardTokenisationFailed: function(event) {
                             console.log('error', event); // @todo: handler error
                         }
@@ -118,44 +129,50 @@ define([
 
                     // Start the loader
                     FullScreenLoader.startLoader();
-                    Frames.submitCard(); //@note: it won't trigger a second time
-
                     // Validate before submission
                     if (AdditionalValidators.validate()) {
-                        // Submission logic
-
+                        Frames.submitCard(); //@note: it won't trigger a second time
                     } else {
+                        this.handleFail(); //@valitjon needed
                         FullScreenLoader.stopLoader();
                     }
 
                 },
+
+
+                /**
+                 * HTTP handlers
+                 */
 
                 /**
                  * @returns {string}
                  */
                 requestController: function (event) {
 
-                    var token = event.data.cardToken,
-                        data = {};
+                    var data = Object.assign(event.data,
+                                             Utilities.getBillingAddress(),
+                                             {customerName: Utilities.getCustomerName()});
 
-
-                    $.post(Utilities.getEndPoint('placeorder'), data, function(res){
-                        console.log('sucess', res);
-                    }, 'json').done(function(res) {
-                        console.log( "second success" , res);
-                      })
-                      .fail(function(res) {
-                        console.log( "error", res );
-                      })
-                      .always(function(res) {
-                        alert( "finished", res);
-                      });
-
-                    console.log('requestController');
-                    FullScreenLoader.stopLoader();
+                    $.ajax({
+                        type: 'POST',
+                        url: Utilities.getEndPoint('placeorder'),
+                        data: JSON.stringify(data),
+                        success: this.handleSuccess,
+                        dataType: 'json',
+                        contentType: 'application/json; charset=utf-8'
+                    }).fail(this.handleFail);
 
                 },
 
+                handleSuccess: function(res) {
+                    console.log(res);
+                    FullScreenLoader.stopLoader();
+                },
+
+                handleFail: function(res) {
+                    alert('error');
+                    console.log('error', res);
+                }
 
             }
         );

@@ -108,6 +108,52 @@ define([
 
             },
 
+            /**
+             * Customer name.
+             *
+             * @return     {string}  The billing address.
+             */
+            getCustomerName: function() {
+
+                var billingAddress = Quote.billingAddress();
+                return billingAddress.firstname + ' ' + billingAddress.lastname;
+
+            },
+
+
+            /**
+             * Billing address.
+             *
+             * @return     {string}  The billing address.
+             */
+            getBillingAddress: function() {
+
+                var billingAddress = Quote.billingAddress();
+
+                return {
+                    addressLine1: billingAddress.street[0],
+                    addressLine2: billingAddress.street[1],
+                    addressLine3: billingAddress.street[2],
+                    postcode: billingAddress.postcode,
+                    country: billingAddress.countryId,
+                    city: billingAddress.city,
+                    phone: {
+                        number: billingAddress.telephone
+                    }
+                };
+
+            },
+
+            /**
+             * Billing address.
+             *
+             * @return     {string}  The billing address.
+             */
+            getEmail: function() {
+
+                return Quote.guestEmail;
+
+            },
 
 
 
