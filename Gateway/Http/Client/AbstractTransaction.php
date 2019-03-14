@@ -150,10 +150,10 @@ abstract class AbstractTransaction implements ClientInterface {
 
         switch($this->getMethod()) {
             case \Zend_Http_Client::GET:
-                $client->setRawData( json_encode($this->body) ) ;
+                $client->setRawData( json_encode($this->body, JSON_FORCE_OBJECT) ) ;
                 break;
             case \Zend_Http_Client::POST:
-                $client->setRawData( json_encode($this->body) ) ;
+                $client->setRawData( json_encode($this->body, JSON_FORCE_OBJECT) ) ;
                 break;
             default:
                 throw new \LogicException( sprintf('Unsupported HTTP method %s', $transferObject->getMethod()) );
