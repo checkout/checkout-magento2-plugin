@@ -551,7 +551,7 @@
 
                 </group>
 
-                <group id="googlepay_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="12">
+                <group id="admin_method_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="12">
                     <attribute type="activity_path">payment/checkout_com_admin_method/active</attribute>
                 </group>
             </group>
