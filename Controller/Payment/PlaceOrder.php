@@ -5,7 +5,7 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
-use \Checkout\CheckoutApi;
+
 
 class PlaceOrder extends Action {
 
@@ -30,13 +30,11 @@ class PlaceOrder extends Action {
     	$post = json_decode($this->getRequest()->getContent(), true);
     	$response = array();
 
-    	if($post && $this->validateRequest($post)) {
+    	// if($post && $this->validateRequest($post)) {
 
-            $checkout = new Checkout\CheckoutApi('asd');
+// @todo: this
 
-            print_r($checkout);die();
-
-    	}
+    	// }
 
     	return $this->jsonFactory->create()->setData($post);
 

@@ -26,17 +26,16 @@
 
                 <!--  <card_payments>-->
                 <title>Pay by Card with Checkout.com</title>
-                <card_payments_type>0</card_payments_type>
-                <card_payments_action>1</card_payments_action>
-                <card_payments_3ds_enabled>0</card_payments_3ds_enabled>
-                <card_payments_attempt_non3ds>0</card_payments_attempt_non3ds>
-                <card_payments_save_cards_enabled>0</card_payments_save_cards_enabled>
-                <card_payments_save_cards_title>Pay with saved card:</card_payments_save_cards_title>
-                <card_payments_dynamic_decriptor_enabled>0</card_payments_dynamic_decriptor_enabled>
-                <card_payments_decriptor_name></card_payments_decriptor_name>
-                <card_payments_decriptor_city></card_payments_decriptor_city>
-                <card_payments_cvv_optional>0</card_payments_cvv_optional>
-                <card_payments_mada_bin_check>0</card_payments_mada_bin_check>
+                <action>1</action>
+                <threeds_enabled>0</threeds_enabled>
+                <attempt_non3ds>0</attempt_non3ds>
+                <save_cards_enabled>0</save_cards_enabled>
+                <save_cards_title>Pay with saved card:</save_cards_title>
+                <dynamic_decriptor_enabled>0</dynamic_decriptor_enabled>
+                <decriptor_name></decriptor_name>
+                <decriptor_city></decriptor_city>
+                <cvv_optional>0</cvv_optional>
+                <mada_bin_check>0</mada_bin_check>
                 <!--  </card_payments>-->
 
             </checkoutcom_card_payment>
@@ -55,8 +54,7 @@
 
                 <title>Alternative Payments with Checkout.com</title>
                 <model>CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</model>
-                <sepa>0</sepa>
-                <giropay>0</giropay>
+                <alternatives></alternatives>
 
             </checkoutcom_alternative_payments>
 

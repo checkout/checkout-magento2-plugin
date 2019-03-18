@@ -4,7 +4,7 @@ define([
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/checkout-data',
         'mage/url',
-        'mage/cookies'
+        'mage/cookies',
     ],
     function ($, GlobalMessageList, Quote, CheckoutData, Url) {
 
@@ -60,12 +60,17 @@ define([
              */
             getPaymentMethods: function () {
 
-                return [
+                var methods = [
                     this.getCardPaymentCode(),
                     this.getAlternativePaymentsCode(),
-                    this.getApplePayCode(),
                     this.getGooglePayCode()
                 ];
+
+                if(window.ApplePaySession) { //@todo: Check for China: https://developer.apple.com/documentation/apple_pay_on_the_web/apple_pay_js_api/checking_for_apple_pay_availability
+                    methods.push(this.getApplePayCode());
+                }
+
+                return methods;
 
             },
 
@@ -145,15 +150,39 @@ define([
             },
 
             /**
-             * Billing address.
-             *
-             * @return     {string}  The billing address.
+             * @returns {string}
              */
-            getEmail: function() {
+            getEmail: function () {
+                return window.checkoutConfig.customerData.email || Quote.guestEmail || CheckoutData.getValidatedEmailValue();
+            },
 
-                return Quote.guestEmail;
+
+            /**
+             * Methods
+             */
+
+            /**
+             * Enables the submit button.
+             *
+             * @param      {boolean}   enabled  Status.
+             * @return     {void}
+             */
+            enableSubmit: function (code, enabled) {
+
+                $('#' + code + '_btn').prop('disabled', !enabled); //@todo: Add quote validation
 
             },
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -188,13 +217,6 @@ define([
              */
             getMethodId: function (methodId) {
                 return this.getCode() + '_' + methodId;
-            },
-
-            /**
-             * @returns {string}
-             */
-            getEmailAddress: function () {
-                return window.checkoutConfig.customerData.email || Quote.guestEmail || CheckoutData.getValidatedEmailValue();
             },
 
             /**

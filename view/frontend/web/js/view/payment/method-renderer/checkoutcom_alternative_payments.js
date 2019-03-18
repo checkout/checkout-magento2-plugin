@@ -3,8 +3,7 @@ define([
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'framesjs'
+        'Magento_Checkout/js/model/payment/additional-validators'
     ],
     function ($, Component, Utilities, FullScreenLoader, AdditionalValidators) {
 
@@ -30,7 +29,6 @@ define([
                     this._super().observe([]);
                     return this;
                 },
-
 
 
                 /**
@@ -59,17 +57,11 @@ define([
                 },
 
                 /**
-                 * Enables the submit button.
-                 *
-                 * @param      {boolean}   enabled  Status.
-                 * @return     {void}
+                 * @returns {boolean}
                  */
-                enableSubmit: function (enabled) {
-
-                    $('#' + this.getCode() + '_btn').prop('disabled', !enabled); //@todo: Add quote validation
-
+                isPlaceOrderActionAllowed: function () {
+                    return true;
                 },
-
 
 
                 /**
@@ -83,34 +75,23 @@ define([
                  */
                 contentVisible: function() {
 
-                    console.log('render alternative payments');
+                    console.log('aqui');
 
                     return true;
 
                 },
 
                 /**
-                 * @returns {string}
+                 * @returns {void}
                  */
-                beforePlaceOrder: function () {
-                    // Start the loader
-                    FullScreenLoader.startLoader();
+                placeOrder: function () {
 
-                    // Validate before submission
-                    if (AdditionalValidators.validate()) {
-                        // Submission logic
+                    console.log('place order');
 
-                    } else {
-                        FullScreenLoader.stopLoader();
-                    }
+                    return false;
+
                 },
 
-                /**
-                 * @returns {boolean}
-                 */
-                isPlaceOrderActionAllowed: function () {
-                    return true;
-                }
             }
         );
     }

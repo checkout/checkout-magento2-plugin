@@ -9,7 +9,7 @@
                 <frontend_model>Magento\Paypal\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
 
                 <group id="checkoutcom_required" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Credentials</label>
+                    <label>Configuration</label>
                     <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Module</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -53,82 +53,76 @@
                         <config_path>payment/checkoutcom_card_payment/title</config_path>
                     </field>
 
-                    <field id="card_payments_type" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Integration Type</label>
-                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigType</source_model>
-                        <config_path>payment/checkoutcom_card_payment/card_payments_type</config_path>
-                    </field>
-
-                    <field id="card_payments_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Action</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigAction</source_model>
-                        <config_path>payment/checkoutcom_card_payment/card_payments_action</config_path>
+                        <config_path>payment/checkoutcom_card_payment/action</config_path>
                     </field>
 
-                    <field id="card_payments_3ds_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="threeds_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Use 3D Secure</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/card_payments_3ds_enabled</config_path>
+                        <config_path>payment/checkoutcom_card_payment/threeds_enabled</config_path>
                     </field>
 
-                    <field id="card_payments_attempt_non3ds" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="attempt_non3ds" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Attempt non-3D Secure</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <depends>
-                            <field id="card_payments_3ds_enabled">1</field>
+                            <field id="threeds_enabled">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_card_payment/card_payments_attempt_non3ds</config_path>
+                        <config_path>payment/checkoutcom_card_payment/attempt_non3ds</config_path>
                     </field>
 
-                    <field id="card_payments_save_cards_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="save_cards_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Save Cards</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/card_payments_save_cards_enabled</config_path>
+                        <config_path>payment/checkoutcom_card_payment/save_cards_enabled</config_path>
                     </field>
 
-                    <field id="card_payments_save_cards_title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="save_cards_title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Saved Cards Option Title</label>
                         <depends>
-                            <field id="card_payments_save_cards_enabled">1</field>
+                            <field id="save_cards_enabled">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_card_payment/card_payments_save_cards_title</config_path>
+                        <config_path>payment/checkoutcom_card_payment/save_cards_title</config_path>
                     </field>
 
-                    <field id="card_payments_dynamic_decriptor_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="dynamic_decriptor_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Dynamic Descriptor</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <depends>
-                            <field id="card_payments_save_cards_enabled">1</field>
+                            <field id="save_cards_enabled">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_card_payment/card_payments_dynamic_decriptor_enabled</config_path>
+                        <config_path>payment/checkoutcom_card_payment/dynamic_decriptor_enabled</config_path>
                     </field>
 
-                    <field id="card_payments_decriptor_name" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="decriptor_name" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Descriptor Name</label>
                         <depends>
-                            <field id="card_payments_dynamic_decriptor_enabled">1</field>
+                            <field id="dynamic_decriptor_enabled">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_card_payment/card_payments_decriptor_name</config_path>
+                        <config_path>payment/checkoutcom_card_payment/decriptor_name</config_path>
                     </field>
 
-                    <field id="card_payments_decriptor_city" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="decriptor_city" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Descriptor City</label>
                         <depends>
-                            <field id="card_payments_dynamic_decriptor_enabled">1</field>
+                            <field id="dynamic_decriptor_enabled">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_card_payment/card_payments_decriptor_city</config_path>
+                        <config_path>payment/checkoutcom_card_payment/decriptor_city</config_path>
                     </field>
 
-                    <field id="card_payments_cvv_optional" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="cvv_optional" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>CVV Optional</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/card_payments_cvv_optional</config_path>
+                        <config_path>payment/checkoutcom_card_payment/cvv_optional</config_path>
                     </field>
 
-                    <field id="card_payments_mada_bin_check" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="mada_bin_check" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable MADA Bin Check</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/card_payments_mada_bin_check</config_path>
+                        <config_path>payment/checkoutcom_card_payment/mada_bin_check</config_path>
                     </field>
                 </group>
 
@@ -145,22 +139,13 @@
                         <config_path>payment/checkoutcom_alternative_payments/active</config_path>
                     </field>
 
-                    <field id="sepa" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Use SEPA</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <field id="alternatives" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Alternative Payments</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigAlternativePayments</source_model>
                         <depends>
                             <field id="active">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_alternative_payments/sepa</config_path>
-                    </field>
-
-                    <field id="giropay" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Use GIROPAY</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <depends>
-                            <field id="active">1</field>
-                        </depends>
-                        <config_path>payment/checkoutcom_alternative_payments/giropay</config_path>
+                        <config_path>payment/checkoutcom_alternative_payments/alternatives</config_path>
                     </field>
                 </group>
 

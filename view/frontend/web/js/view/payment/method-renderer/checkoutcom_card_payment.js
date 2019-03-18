@@ -58,18 +58,6 @@ define([
                 },
 
                 /**
-                 * Enables the submit button.
-                 *
-                 * @param      {boolean}   enabled  Status.
-                 * @return     {void}
-                 */
-                enableSubmit: function (enabled) {
-
-                    $('#' + this.getCode() + '_btn').prop('disabled', !enabled); //@todo: Add quote validation
-
-                },
-
-                /**
                  * @returns {boolean}
                  */
                 isPlaceOrderActionAllowed: function () {
@@ -93,7 +81,7 @@ define([
                         self =  this;
 
                     // Disable button
-                    this.enableSubmit(false);
+                    Utilities.enableSubmit(CODE, false);
 
                     // Remove any existing event handlers
                     Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
@@ -101,20 +89,24 @@ define([
                     Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
 
                     Frames.init({
-                        publicKey: Utilities.getField(CODE, 'public_key'),
+                        //publicKey: Utilities.getField(CODE, 'public_key'),
+                        publicKey: 'pk_78d1c4d6-8a05-4a61-a346-de32ae5df932',
                         containerSelector: '.frames-container',
                         debugMode: Utilities.getField(CODE, 'debug', false),
 
                         billingDetails: Utilities.getBillingAddress(),
                         customerName: Utilities.getCustomerName(),
 
+                        theme: Utilities.getField(CODE, 'theme', 'standard'),
+                        themeOverride: Utilities.getField(CODE, 'themeOverride'),
+
+                        localisation: Utilities.getField(CODE, 'localisation', 'EN-GB'),
+
                         cardValidationChanged: function() {
-                            self.enableSubmit(Frames.isCardValid());
+                            Utilities.enableSubmit(CODE, Frames.isCardValid());
                         },
                         cardTokenised: self.requestController.bind(self),
-                        cardTokenisationFailed: function(event) {
-                            console.log('error', event); // @todo: handler error
-                        }
+                        cardTokenisationFailed: self.handleFail.bind(self) //@todo: improve this
 
                     });
 
@@ -125,17 +117,20 @@ define([
                 /**
                  * @returns {void}
                  */
-                placeOrder: function (event) {
+                placeOrder: function () {
 
                     // Start the loader
                     FullScreenLoader.startLoader();
                     // Validate before submission
                     if (AdditionalValidators.validate()) {
-                        Frames.submitCard(); //@note: it won't trigger a second time
+                        Frames.submitCard();
+                        return true;
                     } else {
-                        this.handleFail(); //@valitjon needed
+                        this.handleFail({}); //@todo: imrpove needed
                         FullScreenLoader.stopLoader();
                     }
+
+                    return false;
 
                 },
 
@@ -170,8 +165,9 @@ define([
                 },
 
                 handleFail: function(res) {
-                    alert('error');
-                    console.log('error', res);
+                    console.log(res);
+                    Frames.unblockFields();
+                    FullScreenLoader.stopLoader();
                 }
 
             }
