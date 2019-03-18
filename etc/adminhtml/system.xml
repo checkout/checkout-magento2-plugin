@@ -8,9 +8,9 @@
                 <fieldset_css>checkout-settings checkout-payment-section</fieldset_css>
                 <frontend_model>Magento\Paypal\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
 
-                <group id="checkoutcom_required" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="checkoutcom_configuration" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Configuration</label>
-                    <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="active_module" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Module</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <requires>
@@ -18,32 +18,41 @@
                             <field id="public_key"/>
                             <field id="shared_key"/>
                         </requires>
-                        <config_path>payment/checkoutcom_card_payment/active</config_path>
+                        <config_path>payment/checkoutcom_configuration/active_module</config_path>
                     </field>
 
                     <field id="environment" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Environment</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigEnvironment</source_model>
-                        <config_path>payment/checkoutcom_card_payment/environment</config_path>
+                        <config_path>payment/checkoutcom_configuration/environment</config_path>
                     </field>
 
                     <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Secret Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkoutcom_card_payment/secret_key</config_path>
+                        <config_path>payment/checkoutcom_configuration/secret_key</config_path>
                     </field>
 
                     <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Public Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkoutcom_card_payment/public_key</config_path>
+                        <config_path>payment/checkoutcom_configuration/public_key</config_path>
                     </field>
 
                     <field id="shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Private Shared Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkoutcom_card_payment/shared_key</config_path>
+                        <config_path>payment/checkoutcom_configuration/shared_key</config_path>
                     </field>
+
+                    <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment Action</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigAction</source_model>
+                        <config_path>payment/checkoutcom_card_payment/payment_action</config_path>
+                    </field>
+
+                    <!-- Order Management Settings go here -->
+
                 </group>
 
                 <group id="checkoutcom_card_payments" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -51,12 +60,6 @@
                     <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Option Title</label>
                         <config_path>payment/checkoutcom_card_payment/title</config_path>
-                    </field>
-
-                    <field id="action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Action</label>
-                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigAction</source_model>
-                        <config_path>payment/checkoutcom_card_payment/action</config_path>
                     </field>
 
                     <field id="threeds_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">

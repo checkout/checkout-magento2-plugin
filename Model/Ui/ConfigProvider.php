@@ -31,11 +31,7 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
     public function getConfig()
     {
 
-
-$config = $this->config->getConfig();
-\CheckoutCom\Magento2\Helper\Logger::write($config);
-
-        return $config;
+        return $this->config->getConfig();
 
     }
 }

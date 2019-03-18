@@ -3,6 +3,33 @@
     <default>
         <payment>
 
+            <checkoutcom_configuration>
+
+                <model>CheckoutCom\Magento2\Model\Methods\CheckoutComConfigMethod</model>
+
+                <!-- Requested by AbstractMethod -->
+                <active>0</active>
+                <debug>0</debug>
+                <payment_action>1</payment_action>
+                <!-- <title></title> -->
+                <allowspecific></allowspecific>
+                <specificcountry></specificcountry>
+                <sort_order></sort_order>
+                <!-- </> -->
+
+                <!--  <credentials>-->
+                <environment>0</environment>
+                <secret_key></secret_key>
+                <public_key></public_key>
+                <shared_key></shared_key>
+                <!--  </credentials>-->
+
+                <active_module>0</active_module>
+
+                <!-- Order Management Settings go here -->
+
+            </checkoutcom_configuration>
+
             <checkoutcom_card_payment>
 
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
@@ -17,16 +44,8 @@
                 <sort_order>0</sort_order>
                 <!-- </> -->
 
-                <!--  <credentials>-->
-                <environment>0</environment>
-                <secret_key></secret_key>
-                <public_key></public_key>
-                <shared_key></shared_key>
-                <!--  </credentials>-->
-
                 <!--  <card_payments>-->
                 <title>Pay by Card with Checkout.com</title>
-                <action>1</action>
                 <threeds_enabled>0</threeds_enabled>
                 <attempt_non3ds>0</attempt_non3ds>
                 <save_cards_enabled>0</save_cards_enabled>
@@ -42,6 +61,8 @@
 
             <checkoutcom_alternative_payments>
 
+                <model>CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</model>
+
                 <!-- Requested by AbstractMethod -->
                 <active>0</active>
                 <debug></debug>
@@ -53,12 +74,13 @@
                 <!-- </> -->
 
                 <title>Alternative Payments with Checkout.com</title>
-                <model>CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</model>
                 <alternatives></alternatives>
 
             </checkoutcom_alternative_payments>
 
             <checkoutcom_google_pay>
+
+                <model>CheckoutCom\Magento2\Model\Methods\GooglePayMethod</model>
 
                 <!-- Requested by AbstractMethod -->
                 <active>0</active>
@@ -71,13 +93,14 @@
                 <!-- </> -->
 
                 <title>Google Pay with Checkout.com</title>
-                <model>CheckoutCom\Magento2\Model\Methods\GooglePayMethod</model>
                 <merchant_id></merchant_id>
                 <theme></theme>
 
             </checkoutcom_google_pay>
 
             <checkoutcom_apple_pay>
+
+                <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
 
                 <!-- Requested by AbstractMethod -->
                 <active>0</active>
@@ -90,11 +113,11 @@
                 <!-- </> -->
 
                 <title>Apple Pay with Checkout.com</title>
-                <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
                 <merchant_id></merchant_id>
                 <certificate></certificate>
                 <certificate_key></certificate_key>
                 <theme></theme>
+
             </checkoutcom_apple_pay>
 
         </payment>

@@ -7,6 +7,7 @@ use Magento\Checkout\Model\Session;
 use \CheckoutCom\Magento2\Model\Methods\CardPaymentMethod;
 use \CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
 use \CheckoutCom\Magento2\Model\Methods\GooglePayMethod;
+use \CheckoutCom\Magento2\Model\Methods\CheckoutComConfigMethod;
 use \CheckoutCom\Magento2\Model\Methods\ApplePayMethod;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Gateway\ConfigInterface;
@@ -15,6 +16,11 @@ use Magento\Framework\Encryption\EncryptorInterface;
 
 class Config extends \Magento\Payment\Gateway\Config\Config
 {
+
+    /**
+     * @var string
+     */
+    const CODE_CONFIGURATION = CheckoutComConfigMethod::CODE;
 
     /**
      * @var string
@@ -75,6 +81,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
         $methods = [];
         foreach($this->getEnabledMethods() as $method) { // Get enabled methods
+
             $methods[$method] = $this->getMethodValues($method); // Get config values for those methods
         }
 
@@ -97,12 +104,17 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     {
 
         $methods = [];
-        foreach (Config::PAYMENT_METHODS as $method => $fields) {
 
-            $this->setMethodCode($method);
-            $enabled = $this->getValue('active');
-            if($enabled) {
-                $methods []= $method;
+        if ($this->getMethodValue('active_module')) {
+
+            foreach (Config::PAYMENT_METHODS as $method => $fields) {
+
+                $this->setMethodCode($method);
+                $enabled = $this->getValue('active');
+                if($enabled) {
+                    $methods []= $method;
+                }
+
             }
 
         }
@@ -122,15 +134,10 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     {
 
         $values = [];
-        foreach (static::PAYMENT_METHODS[$method] as &$field) {
+        foreach (static::PAYMENT_METHODS[$method] as $field) {
 
-            if($field === 'public_key') {
-                $this->setMethodCode(static::CODE_CARD);
-            } else {
-                $this->setMethodCode($method);
-            }
-
-            $values[$field] = $this->modifier($method, $field, $this->getValue($field));
+            $values[$field] = $this->getMethodValue($field,
+                                                    in_array($field, CheckoutComConfigMethod::FIELDS) ? static::CODE_CONFIGURATION : $method);
 
         }
 
@@ -138,37 +145,57 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
     }
 
+    /**
+     * Retrieve a value from a method.
+     *
+     * @param string $value
+     * @param string $method
+     * @return mixed
+     */
+    public function getMethodValue($field, $method = Config::CODE_CONFIGURATION)
+    {
+
+        $this->setMethodCode($method);
+        $value = $this->getValue($field);
+        return $this->modifier($value, $field, $method);
+
+    }
+
 
     /**
      * Modify value based on the model and field.
      *
-     * @param      string  $method  The method
-     * @param      string  $field   The field
      * @param      mixed  $value   The value
+     * @param      string  $field   The field
+     * @param      string  $method  The method
      *
      * @return     mixed
      */
-    protected function modifier($method, &$field, $value) {
+    protected function modifier($value, $field, $method) {
 
         if($field === 'public_key') {
             return $this->encryptor->decrypt($value);
         }
 
         switch ($method) {
+            case CheckoutComConfigMethod::CODE:
+                $value = CheckoutComConfigMethod::modifier($value, $field);
+                break;
+
             case CardPaymentMethod::CODE:
-                $value = CardPaymentMethod::modifier($field, $value);
+                $value = CardPaymentMethod::modifier($value, $field);
                 break;
 
             case AlternativePaymentMethod::CODE:
-                $value = AlternativePaymentMethod::modifier($field, $value);
+                $value = AlternativePaymentMethod::modifier($value, $field);
                 break;
 
             case GooglePayMethod::CODE:
-                $value = GooglePayMethod::modifier($field, $value);
+                $value = GooglePayMethod::modifier($value, $field);
                 break;
 
             case ApplePayMethod::CODE:
-                $value = ApplePayMethod::modifier($field, $value);
+                $value = ApplePayMethod::modifier($value, $field);
                 break;
         }
 

@@ -50,8 +50,13 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
 
     /**
      * Modify value based on the field.
+     *
+     * @param      mixed  $value  The value
+     * @param      string  $field  The field
+     *
+     * @return     mixed
      */
-    public static function modifier(&$field, $value) {
+    public static function modifier($value, $field) {
 
         return $value;
 
