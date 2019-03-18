@@ -43,12 +43,7 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
 
         if ($this->backendAuthSession->isLoggedIn() && $methodId == 'checkout_com_admin_method') {
 
-            /*
-            echo "<pre>";
-            var_dump($this->backendAuthSession->getCkoOrderPayment());
-            echo "</pre>";
-            exit();    
-            */
+
 
         }
         

@@ -158,6 +158,7 @@ class CallbackService {
         $amount         = $this->getAmount();
         $order      = $this->getAssociatedOrder();
         $payment    = $order->getPayment();
+        $methodId   = $payment->getMethodInstance()->getCode();
 
         // Get override comments setting from config
         $overrideComments = $this->gatewayConfig->overrideOrderComments();
@@ -190,7 +191,9 @@ class CallbackService {
                  * For non 3DS flow, this is handled in the TransactionHandler
                  * through dependency injection
                  */
-                if ($this->gatewayConfig->isVerify3DSecure() || (int) $this->gatewayResponse['response']['message']['chargeMode'] == 2) {
+                if ($this->gatewayConfig->isVerify3DSecure() 
+                || (int) $this->gatewayResponse['response']['message']['chargeMode'] == 2 
+                || $methodId == 'checkout_com_admin_method') {
                     // Update the payment info
                     $payment->setTransactionId($this->gatewayResponse['response']['message']['id']);
                     $payment->setLastTransId($this->gatewayResponse['response']['message']['id']);
@@ -228,15 +231,18 @@ class CallbackService {
 
                 // Create the invoice
                 if ($order->canInvoice() && ($this->gatewayConfig->getAutoGenerateInvoice())) {
+                    // Generate the invoice
                     $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
                         $this->gatewayResponse['response']['message']['value'],
                         $this->gatewayResponse['response']['message']['currency']
                     );
                     $invoice = $this->invoiceService->prepareInvoice($order);
+                    $invoice->setTransactionId($this->gatewayResponse['response']['message']['id']);
                     $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
                     $invoice->setBaseGrandTotal($amount);
                     $invoice->register();
 
+                    // Save the invoice
                     $this->invoiceRepository->save($invoice);
                 }
             }
