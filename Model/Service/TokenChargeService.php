@@ -162,7 +162,7 @@ class TokenChargeService {
             $result             = json_decode($response->getBody(), true);
 
             // Handle the response
-            $result = $this->_handleResponse($result);
+            $this->_handleResponse($result);
 
             // Log the response
             $log['response']    = $result;

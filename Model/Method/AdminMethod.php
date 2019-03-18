@@ -1,15 +1,11 @@
 <?php
 /**
- * Cmsbox.fr Magento 2 Mercanet Payment.
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
  *
- * PHP version 7
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
  *
- * @category  Cmsbox
- * @package   Mercanet
- * @author    Cmsbox Development Team <contact@cmsbox.fr>
- * @copyright 2019 Cmsbox.fr all rights reserved
- * @license   https://opensource.org/licenses/mit-license.html MIT License
- * @link      https://www.cmsbox.fr
+ * MIT License
  */
 
 namespace CheckoutCom\Magento2\Model\Method;
