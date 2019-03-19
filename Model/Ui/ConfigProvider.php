@@ -154,7 +154,7 @@ class ConfigProvider implements ConfigProviderInterface {
      * @return string
      */
     public function getSuccessUrl() {
-        $url = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB) . 'checkout_com/payment/verify';
+        $url = $this->storeManager->getStore()->getBaseUrl() . 'checkout_com/payment/verify';
         return $url;
     }
 
@@ -164,7 +164,7 @@ class ConfigProvider implements ConfigProviderInterface {
      * @return string
      */
     public function getFailUrl() {
-        $url = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB) . 'checkout_com/payment/fail';
+        $url = $this->storeManager->getStore()->getBaseUrl() . 'checkout_com/payment/fail';
         return $url;
     }
 }
