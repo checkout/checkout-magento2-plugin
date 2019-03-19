@@ -1,0 +1,30 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: integrationcheckout/ecommerce:mgtemp
+    working_directory: ~/cko_magento2
+    steps:
+      - checkout
+      - run:
+          name: Refresh Magetno and Install Checkout
+          command: |
+            a2enmod rewrite && service apache2 restart && service mysql restart
+            cd /var/www/html/magento2/app && mkdir code && cd code && mkdir CheckoutCom && cd CheckoutCom && mkdir Magento2 && cp -R ~/cko_magento2/* Magento2/
+            cd /var/www/html/magento2 && php bin/magento setup:upgrade && php bin/magento setup:di:compile && chown www-data:www-data /var/www/html/magento2 -R
+      - run:
+          name: Refresh Chrome
+          command: |
+            apt-get update -y && apt-get install google-chrome-stable -y 
+      - run:
+          name: Install dependencies
+          command: |
+            cd ~/cko_magento2/tests && npm i 
+      - run:
+          name: Run Tests
+          command: |
+            cd ~/cko_magento2/tests && ./node_modules/.bin/chimp config/chimp.js --fail-fast
+      - store_artifacts:
+          path: ~/cko_magento2/tests/screenshots
+          destination: Failed-Tests
