@@ -89,18 +89,18 @@ define([
                     Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
 
                     Frames.init({
-                        //publicKey: Utilities.getField(CODE, 'public_key'),
-                        publicKey: 'pk_78d1c4d6-8a05-4a61-a346-de32ae5df932',
+                        //publicKey: Utilities.getValue(CODE, 'public_key'),
+                        publicKey: 'pk_78d1c4d6-8a05-4a61-a346-de32ae5df932', // @todo: refuse amex
                         containerSelector: '.frames-container',
-                        debugMode: Utilities.getField(CODE, 'debug', false),
+                        debugMode: Utilities.getValue(CODE, 'debug', false),
 
                         billingDetails: Utilities.getBillingAddress(),
                         customerName: Utilities.getCustomerName(),
 
-                        theme: Utilities.getField(CODE, 'theme', 'standard'),
-                        themeOverride: Utilities.getField(CODE, 'themeOverride'),
+                        theme: Utilities.getValue(CODE, 'theme', 'standard'),
+                        themeOverride: Utilities.getValue(CODE, 'themeOverride'),
 
-                        localisation: Utilities.getField(CODE, 'localisation', 'EN-GB'),
+                        localisation: Utilities.getValue(CODE, 'localisation', 'EN-GB'),
 
                         cardValidationChanged: function() {
                             Utilities.enableSubmit(CODE, Frames.isCardValid());

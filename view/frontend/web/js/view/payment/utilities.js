@@ -86,7 +86,7 @@ define([
              * @param      {string}  field   The field
              * @return     {mixed}  The field.
              */
-            getField: function(code, field, dft = null) {
+            getValue: function(code, field, dft = null) {
 
                 var value = dft;
 

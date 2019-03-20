@@ -15,7 +15,7 @@ class CheckoutComConfigMethod extends Method
     /**
      * @var array
      */
-    const FIELDS = array('title', 'environment', 'public_key', 'type', 'action', 'active');
+    const FIELDS = array('environment', 'public_key', 'payment_action');
 
     /**
      * @var string

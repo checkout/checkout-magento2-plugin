@@ -13,9 +13,26 @@ class AlternativePaymentMethod extends Method
     const CODE = 'checkoutcom_alternative_payments';
 
     /**
+     * @var string
+     */
+    const FIELD_ALTERNATIVES = 'alternatives';
+
+    /**
+     * @var string
+     */
+    const FIELD_ACTIVE = 'active';
+
+    /**
+     * @var string
+     */
+    const FIELD_TITLE = 'title';
+
+    /**
      * @var array
      */
-    const FIELDS = array('title', 'active', 'alternatives');
+    const FIELDS = array(AlternativePaymentMethod::FIELD_TITLE,
+                        AlternativePaymentMethod::FIELD_ACTIVE,
+                        AlternativePaymentMethod::FIELD_ALTERNATIVES);
 
     /**
      * @var string
@@ -88,5 +105,46 @@ class AlternativePaymentMethod extends Method
      * @overriden
      */
     protected $_code = AlternativePaymentMethod::CODE;
+
+    /**
+     * Modify value based on the field.
+     *
+     * @param      mixed  $value  The value
+     * @param      string  $field  The field
+     *
+     * @return     mixed
+     */
+    public static function modifier($value, $field) {
+
+        static::modifyAlternatives($value, $field);
+
+        return $value;
+
+    }
+
+    /**
+     * Modify value based on the field.
+     *
+     * @param      mixed  $value  The value
+     * @param      string  $field  The field
+     *
+     * @return     mixed
+     */
+    protected static function modifyAlternatives(&$value, $field) {
+
+        if($field === static::FIELD_ALTERNATIVES) {
+
+            $list = array();
+            $ids = explode(',', $value);
+            foreach ($ids as $id) {
+                $list []= array('id' => $id, 'desc' => static::PAYMENT_LIST[$id]);
+            }
+
+            $value = json_encode($list);
+
+        }
+
+    }
+
 
 }

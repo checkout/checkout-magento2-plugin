@@ -14,11 +14,26 @@
         <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
         <!-- Alternative Payments -->
         <div class="alternatives-container" data-bind="visible: contentVisible()">
-            <!-- form will be added here -->
+            <!-- list of alternatives goes here -->
+            <form>
+                <div class="alternative-selector">
+                    <!-- ko foreach: getAlternativePaymentsList() -->
+                    <div>
+                        <input type="radio" name="alternative" data-bind="attr: {id: $data.id, value: $data.id}"/>
+                        <label data-bind="attr: {for: $data.id}">
+                            <div data-bind="attr: {class: ('alternative-icon bg-img bg-' + $data.id)}"></div>
+                            <h2 data-bind="text: $data.desc"></h2>
+                        </label>
+
+                        <!-- load dynamic form here -->
+
+                    </div>
+                    <!-- /ko -->
+                </div>
+            </form>
         </div>
 
         <br>
-
 
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->

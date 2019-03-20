@@ -63,6 +63,13 @@ define([
                     return true;
                 },
 
+                /**
+                 * @returns array
+                 */
+                getAlternativePaymentsList: function () {
+                    return JSON.parse(Utilities.getValue(CODE, 'alternatives', ''));
+                },
+
 
                 /**
                  * Events
