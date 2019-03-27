@@ -15,18 +15,16 @@
         <!-- Alternative Payments -->
         <div class="alternatives-container" data-bind="visible: contentVisible()">
             <!-- list of alternatives goes here -->
-            <form>
+            <form id="cko-alternative-form" data-bind="submit: onSubmit">
                 <div class="alternative-selector">
                     <!-- ko foreach: getAlternativePaymentsList() -->
                     <div>
-                        <input type="radio" name="alternative" data-bind="attr: {id: $data.id, value: $data.id}"/>
-                        <label data-bind="attr: {for: $data.id}">
+                        <input type="radio" name="cko-alternative-options" data-bind="attr: {id: $data.id, value: $data.id}"/>
+                        <label data-bind="click: $parent.renderSubForm, attr: {id:$data, for:$data.id}">
                             <div data-bind="attr: {class: ('alternative-icon bg-img bg-' + $data.id)}"></div>
                             <h2 data-bind="text: $data.desc"></h2>
                         </label>
-
-                        <!-- load dynamic form here -->
-
+                        <div class="cko-alternative-form" data-bind="attr: {id: ('cko-alternative-form-'+$data.id)}"></div>
                     </div>
                     <!-- /ko -->
                 </div>
@@ -53,7 +51,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order'), 'id': (getCode()+'_btn')},
                         css: {disabled: !isPlaceOrderActionAllowed()}
-                        " disabled>
+                        ">
                     <span data-bind="i18n: 'Place Order'"></span>
                 </button>
             </div>

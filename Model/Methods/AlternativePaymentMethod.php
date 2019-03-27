@@ -101,6 +101,76 @@ class AlternativePaymentMethod extends Method
     );
 
     /**
+     * @var array
+     */
+    const PAYMENT_FIELDS = array(
+        AlternativePaymentMethod::PAYMENT_SEPA => AlternativePaymentMethod::PAYMENT_FIELDS_SEPA,
+        AlternativePaymentMethod::PAYMENT_ALIPAY => AlternativePaymentMethod::PAYMENT_FIELDS_ALIPAY,
+        AlternativePaymentMethod::PAYMENT_BOLETO => AlternativePaymentMethod::PAYMENT_FIELDS_BOLETO,
+        AlternativePaymentMethod::PAYMENT_GIROPAY => AlternativePaymentMethod::PAYMENT_FIELDS_GIROPAY,
+        AlternativePaymentMethod::PAYMENT_IDEAL => AlternativePaymentMethod::PAYMENT_FIELDS_IDEAL,
+        AlternativePaymentMethod::PAYMENT_POLI => AlternativePaymentMethod::PAYMENT_FIELDS_POLI,
+        //AlternativePaymentMethod::PAYMENT_QIWI => AlternativePaymentMethod::PAYMENT_FIELDS_QIWI,
+        //AlternativePaymentMethod::PAYMENT_SAFETYPAY => AlternativePaymentMethod::PAYMENT_FIELDS_SAFETYPAY,
+        //AlternativePaymentMethod::PAYMENT_KLARNA => AlternativePaymentMethod::PAYMENT_FIELDS_KLARNA,
+        AlternativePaymentMethod::PAYMENT_SOFORT => AlternativePaymentMethod::PAYMENT_FIELDS_SOFORT
+    );
+
+    /**
+     * Required fields.
+     */
+
+    /**
+     * @var array
+     */
+    const PAYMENT_FIELDS_SEPA = array();
+
+    /**
+     * @var array
+     */
+    const PAYMENT_FIELDS_ALIPAY = array();
+
+    /**
+     * @var array
+     */
+    const PAYMENT_FIELDS_BOLETO = array('birthDate', 'cpf');
+
+    /**
+     * @var array
+     */
+    const PAYMENT_FIELDS_GIROPAY = array('purpose', 'bic', 'iban');
+
+    /**
+     * @var array
+     */
+    const PAYMENT_FIELDS_IDEAL = array('bic', 'description');
+
+    /**
+     * @var array
+     */
+    const PAYMENT_FIELDS_POLI = array();
+
+    /**
+     * @var array
+     */
+    const PAYMENT_FIELDS_QIWI = array();
+
+    /**
+     * @var array
+     */
+    const PAYMENT_FIELDS_SAFETYPAY = array();
+
+    /**
+     * @var array
+     */
+    const PAYMENT_FIELDS_KLARNA = array();
+
+    /**
+     * @var array
+     */
+    const PAYMENT_FIELDS_SOFORT = array();
+
+    /**
      * @var string
      * @overriden
      */
@@ -117,7 +187,6 @@ class AlternativePaymentMethod extends Method
     public static function modifier($value, $field) {
 
         static::modifyAlternatives($value, $field);
-
         return $value;
 
     }
@@ -137,7 +206,9 @@ class AlternativePaymentMethod extends Method
             $list = array();
             $ids = explode(',', $value);
             foreach ($ids as $id) {
-                $list []= array('id' => $id, 'desc' => static::PAYMENT_LIST[$id]);
+                $list []= array('id' => $id,
+                                'desc' => static::PAYMENT_LIST[$id],
+                                'fields' => static::PAYMENT_FIELDS[$id]);
             }
 
             $value = json_encode($list);
