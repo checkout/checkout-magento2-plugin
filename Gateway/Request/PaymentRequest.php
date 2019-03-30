@@ -52,10 +52,11 @@ class PaymentRequest extends AbstractRequest {
     public function build(array $buildSubject) {
         $paymentDO      = $this->subjectReader->readPayment($buildSubject);
         $order          = $paymentDO->getOrder();
+        $isAutoCapture  = ($this->config->isAutoCapture() || $this->config->isMadaEnabled()) ? 'Y' : 'N';
 
         $data = [
             'autoCapTime'   => $this->config->getAutoCaptureTimeInHours(),
-            'autoCapture'   => $this->config->isAutoCapture() ? 'Y' : 'N',
+            'autoCapture'   => $isAutoCapture,
             'email'         => $order->getBillingAddress()->getEmail(),
             'currency'      => ChargeAmountAdapter::getPaymentFinalCurrencyCode($order->getCurrencyCode()),
             'customerIp'    => $this->remoteAddress->getRemoteAddress(),

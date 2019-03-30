@@ -117,6 +117,41 @@
                 <autosave>1</autosave>
                 <hide_card_storage>0</hide_card_storage>
             </checkout_com_cc_vault>
+            <checkout_com_admin_method>
+                <model>CheckoutCom\Magento2\Model\Method\AdminMethod</model>
+                <title>MOTO Payments (Checkout.com)</title>
+                <active>1</active>
+                <debug>0</debug>
+                <is_gateway>1</is_gateway>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
+                <can_use_internal>1</can_use_internal>
+                <can_charge_details>1</can_charge_details>
+                <order_creation>after_auth</order_creation>
+                <payment_currency>base_currency</payment_currency>
+                <custom_currency>USD</custom_currency>
+                <accepted_currencies>AFN,ALL,DZD,AOA,ARS,AMD,AWG,AUD,AZN,AZM,BSD,BHD,BDT,BBD,BYR,BZD,BMD,BTN,BOB,BAM,BWP,BRL,GBP,BND,BGN,BUK,BIF,XOF,XPF,KHR,CAD,CVE,KYD,CLP,CNY,COP,KMF,CDF,CRC,HRK,CUP,CZK,DKK,DJF,DOP,XCD,EGP,GQE,ERN,EEK,ETB,EUR,FKP,FJD,GMD,GEK,GEL,GHS,GIP,GTQ,GNF,GYD,HTG,HNL,HKD,HUF,ISK,INR,IDR,IRR,IQD,ILS,JMD,JPY,JOD,KZT,KES,KWD,KGS,LAK,LVL,LBP,LSL,LRD,LYD,LTL,MOP,MKD,MGA,MWK,MYR,MVR,MRO,MUR,MXN,MDL,MNT,MAD,MZN,MMK,NAD,NPR,ANG,TWD,NZD,NIC,NGN,KPW,NOK,OMR,PKR,PAB,PGK,PYG,PEN,PHP,PLN,QAR,RHD,RON,ROL,RUB,RWF,SHP,SVC,WST,SAR,RSD,SCR,SLL,SGD,SKK,SBD,SOS,ZAR,KRW,LKR,SDG,SRD,SZL,SEK,CHF,SYP,STD,TJS,TZS,THB,TOP,TTD,TND,TRY,TRL,TMM,USD,UGX,UAH,AED,UYU,UZS,VUV,VEF,VEB,VND,CHE,CHW,YER,ZMK,ZWD</accepted_currencies>
+                <auto_generate_invoice>1</auto_generate_invoice>
+                <theme_color>#00b660</theme_color>
+                <embedded_theme>standard</embedded_theme>
+                <payment_action>authorize</payment_action>
+                <auto_capture>0</auto_capture>
+                <auto_capture_time>0.02</auto_capture_time>
+                <language_fallback>EN-EN</language_fallback>
+                <public_key></public_key>
+                <secret_key></secret_key>
+                <private_shared_key></private_shared_key>
+                <sandbox_api_url><![CDATA[https://sandbox.checkout.com/api2/v2/]]></sandbox_api_url>
+                <live_api_url><![CDATA[https://api2.checkout.com/v2/]]></live_api_url>
+                <sandbox_embedded_url><![CDATA[https://cdn.checkout.com/js/frames.js]]></sandbox_embedded_url>
+                <live_embedded_url><![CDATA[https://cdn.checkout.com/js/frames.js]]></live_embedded_url>
+                <embedded_css><![CDATA[https://cdn.checkout.com/v2/js/css/theme-template.css]]></embedded_css>
+                <sort_order>1</sort_order>
+            </checkout_com_admin_method>
             <checkout_com_3ds>
                 <model>CheckoutComFacade</model>
             </checkout_com_3ds>

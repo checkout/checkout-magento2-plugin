@@ -11,6 +11,7 @@ var config = {
     map: {
         '*': {
             //hideseeksearch: 'CheckoutCom_Magento2/js/hideseek/jquery.hideseek.min',
+            framesjs: 'https://cdn.checkout.com/js/frames.js'
         }
     },
     paths: {
