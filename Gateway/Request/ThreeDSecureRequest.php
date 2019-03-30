@@ -21,7 +21,7 @@ class ThreeDSecureRequest extends AbstractRequest {
      * @return array
      */
     public function build(array $buildSubject) {
-        if($this->config->isVerify3DSecure()){
+        if ($this->config->isVerify3DSecure() || $this->config->isMadaEnabled()){
             return [
                 'chargeMode' => 2,
                 'attemptN3D' => filter_var($this->config->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN),
