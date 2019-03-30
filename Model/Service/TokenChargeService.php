@@ -121,7 +121,7 @@ class TokenChargeService {
 
     public function sendChargeRequest($cardToken, $entity, $disable3ds = false, $isQuote = false) {
         // Prepare some variables
-        $chargeMode = ($this->gatewayConfig->isVerify3DSecure() || !$disable3ds) ? 2 : 1;
+        $chargeMode = ($this->gatewayConfig->isVerify3DSecure() || !$disable3ds || $this->gatewayConfig->isMadaEnabled()) ? 2 : 1;
         $attemptN3D = ((filter_var($this->gatewayConfig->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN)) && !$disable3ds); 
         $trackId = ($isQuote) ? $entity->reserveOrderId()->save()->getReservedOrderId() : $entity->getIncrementId();
 
@@ -129,7 +129,7 @@ class TokenChargeService {
         $url = $this->gatewayConfig->getApiUrl() . 'charges/token';
         $transfer = $this->transferFactory->create([
             'autoCapTime'   => $this->gatewayConfig->getAutoCaptureTimeInHours(),
-            'autoCapture'   => $this->gatewayConfig->isAutoCapture() ? 'Y' : 'N',
+            'autoCapture'   => ($this->gatewayConfig->isAutoCapture() || $this->gatewayConfig->isMadaEnabled()) ? 'Y' : 'N',
             'email'         => $entity->getBillingAddress()->getEmail(),
             'customerIp'    => $entity->getRemoteIp(),
             'chargeMode'    => $chargeMode,
