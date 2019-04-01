@@ -173,7 +173,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     protected function modifier($value, $field, $method) {
 
-        if($field === 'public_key') {
+        if (in_array($field, CheckoutComConfigMethod::FIELDS_ENCRYPTED)) {
             return $this->encryptor->decrypt($value);
         }
 

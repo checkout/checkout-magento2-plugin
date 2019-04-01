@@ -123,7 +123,7 @@ class AlternativePaymentMethod extends Method
     /**
      * @var array
      */
-    const PAYMENT_FIELDS_SEPA = array();
+    const PAYMENT_FIELDS_SEPA = array('first_name', 'last_name', 'account_iban', 'billing_descriptor', 'mandate_type');
 
     /**
      * @var array
@@ -133,7 +133,7 @@ class AlternativePaymentMethod extends Method
     /**
      * @var array
      */
-    const PAYMENT_FIELDS_BOLETO = array('birthDate', 'cpf');
+    const PAYMENT_FIELDS_BOLETO = array('customerName', 'birthDate', 'cpf');
 
     /**
      * @var array
@@ -214,6 +214,24 @@ class AlternativePaymentMethod extends Method
             $value = json_encode($list);
 
         }
+
+    }
+
+
+    /**
+     * API related.
+     */
+
+    /**
+     * Create a payment object based on the body.
+     *
+     * @param      array  $array  The value
+     *
+     * @return     Payment
+     */
+    public static function createPayment($array = array()){
+
+        \CheckoutCom\Magento2\Helper\Logger::write('aqui alternatives');
 
     }
 

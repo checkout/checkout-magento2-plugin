@@ -89,8 +89,8 @@ define([
                     Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
 
                     Frames.init({
-                        //publicKey: Utilities.getValue(CODE, 'public_key'),
-                        publicKey: 'pk_78d1c4d6-8a05-4a61-a346-de32ae5df932', // @todo: refuse amex
+                        publicKey: Utilities.getValue(CODE, 'public_key'),
+                        //publicKey: 'pk_78d1c4d6-8a05-4a61-a346-de32ae5df932', // @todo: refuse amex
                         containerSelector: '.frames-container',
                         debugMode: Utilities.getValue(CODE, 'debug', false),
 
@@ -105,8 +105,8 @@ define([
                         cardValidationChanged: function() {
                             Utilities.enableSubmit(CODE, Frames.isCardValid());
                         },
-                        cardTokenised: self.requestController.bind(self),
-                        cardTokenisationFailed: self.handleFail.bind(self) //@todo: improve this
+                        cardTokenised: self.request.bind(self),
+                        cardTokenisationFailed: self.handleFail.bind(self)
 
                     });
 
@@ -124,7 +124,7 @@ define([
                     // Validate before submission
                     if (AdditionalValidators.validate()) {
                         Frames.submitCard();
-                        return true;
+                     //   return true;
                     } else {
                         this.handleFail({}); //@todo: imrpove needed
                         FullScreenLoader.stopLoader();
@@ -142,30 +142,25 @@ define([
                 /**
                  * @returns {string}
                  */
-                requestController: function (event) {
+                request: function (res) {
 
-                    var data = Object.assign(event.data,
-                                             Utilities.getBillingAddress(),
-                                             {customerName: Utilities.getCustomerName()});
+                    Utilities.placeOrder({
+                        type: 'token',
+                        token: res.data.cardToken
 
-                    $.ajax({
-                        type: 'POST',
-                        url: Utilities.getEndPoint('placeorder'),
-                        data: JSON.stringify(data),
-                        success: this.handleSuccess,
-                        dataType: 'json',
-                        contentType: 'application/json; charset=utf-8'
-                    }).fail(this.handleFail);
+                    },
+                    this.handleSuccess,
+                    this.handleFail);
 
                 },
 
                 handleSuccess: function(res) {
-                    console.log(res);
+console.log(res);
                     FullScreenLoader.stopLoader();
                 },
 
                 handleFail: function(res) {
-                    console.log(res);
+console.log(res);
                     Frames.unblockFields();
                     FullScreenLoader.stopLoader();
                 }

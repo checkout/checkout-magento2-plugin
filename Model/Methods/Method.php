@@ -62,4 +62,50 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
 
     }
 
+
+    /**
+     * API related.
+     */
+
+    /**
+     * Create a payment object based on the body.
+     *
+     * @param      array  $array  The value
+     *
+     * @return     Payment
+     */
+    public static function createPayment($array = array()){
+
+        throw new \Exception('Override createPayment function.');
+
+    }
+
+    /**
+     * Safely get value from a multidimentional array.
+     *
+     * @param      array  $array  The value
+     *
+     * @return     Payment
+     */
+    public static function getValue($field, $array, $dft = null){
+
+        $value = null;
+        $field = (array) $field;
+
+        foreach ($field as $key) {
+
+            if(isset($array[$key])) {
+                $value = $array[$key];
+                $array = $array[$key];
+            } else {
+                $value = $dft;
+                break;
+            }
+
+        }
+
+        return $value;
+
+    }
+
 }

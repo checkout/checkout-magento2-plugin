@@ -18,6 +18,12 @@ class CheckoutComConfigMethod extends Method
     const FIELDS = array('environment', 'public_key', 'payment_action');
 
     /**
+     * List of fields that are encrypted.
+     * @var array
+     */
+    const FIELDS_ENCRYPTED = array('secret_key', 'public_key', 'shared_key');
+
+    /**
      * @var string
      * @overriden
      */

@@ -23,4 +23,28 @@ class CardPaymentMethod extends Method
      */
     protected $_code = CardPaymentMethod::CODE;
 
+    /**
+     * API related.
+     */
+
+    /**
+     * Create a payment object based on the body.
+     *
+     * @param      array  $array  The value
+     *
+     * @return     Payment
+     */
+    public static function createPayment($array = array()){
+
+        $type = Method::getValue(array('source', 'type'), $array);
+        if($type) {
+            // Create token or card
+
+        }
+
+// return new payment.
+        \CheckoutCom\Magento2\Helper\Logger::write($type);
+
+    }
+
 }

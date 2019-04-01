@@ -11,7 +11,7 @@ class ConfigEnvironment implements \Magento\Framework\Option\ArrayInterface
      */
     public function toOptionArray()
     {
-        return [['value' => 0, 'label' => __('Test')], ['value' => 1, 'label' => __('Production')]];
+        return [['value' => 1, 'label' => __('Test')], ['value' => 0, 'label' => __('Production')]];
     }
 
     /**
@@ -21,6 +21,6 @@ class ConfigEnvironment implements \Magento\Framework\Option\ArrayInterface
      */
     public function toArray()
     {
-        return [0 => __('Test'), 1 => __('Production')];
+        return [1 => __('Test'), 0 => __('Production')];
     }
 }

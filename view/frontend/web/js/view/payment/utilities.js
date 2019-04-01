@@ -5,8 +5,9 @@ define([
         'Magento_Checkout/js/checkout-data',
         'mage/url',
         'mage/cookies',
+        'Magento_Checkout/js/model/full-screen-loader'
     ],
-    function ($, GlobalMessageList, Quote, CheckoutData, Url) {
+    function ($, GlobalMessageList, Quote, CheckoutData, Url, FullScreenLoader) {
 
         'use strict';
 
@@ -116,12 +117,23 @@ define([
             /**
              * Customer name.
              *
-             * @return     {string}  The billing address.
+             * @param      {bool} return in object format.
+             * @return     {mixed}  The billing address.
              */
-            getCustomerName: function() {
+            getCustomerName: function(obj = false) {
 
-                var billingAddress = Quote.billingAddress();
-                return billingAddress.firstname + ' ' + billingAddress.lastname;
+                var billingAddress = Quote.billingAddress(),
+                    name = {
+                        first_name: billingAddress.firstname,
+                        last_name: billingAddress.lastname
+                    };
+
+
+                if(!obj) {
+                    name = name.first_name + ' ' + name.last_name
+                }
+
+                return name;
 
             },
 
@@ -129,7 +141,7 @@ define([
             /**
              * Billing address.
              *
-             * @return     {string}  The billing address.
+             * @return     {object}  The billing address.
              */
             getBillingAddress: function() {
 
@@ -141,10 +153,7 @@ define([
                     addressLine3: billingAddress.street[2],
                     postcode: billingAddress.postcode,
                     country: billingAddress.countryId,
-                    city: billingAddress.city,
-                    phone: {
-                        number: billingAddress.telephone
-                    }
+                    city: billingAddress.city
                 };
 
             },
@@ -154,6 +163,19 @@ define([
              */
             getEmail: function () {
                 return window.checkoutConfig.customerData.email || Quote.guestEmail || CheckoutData.getValidatedEmailValue();
+            },
+
+            /**
+             * @returns {object}
+             */
+            getPhone: function () {
+
+                var billingAddress = Quote.billingAddress();
+
+                return {
+                    number: billingAddress.telephone
+                };
+
             },
 
 
@@ -199,16 +221,46 @@ define([
                         autocomplete: 'off',
                         class: 'input-control',
                         required: el.required,
-                        pattern: el.pattern
+                        pattern: el.pattern,
+                        'data-validation': el.validation
                     });
 
                 return $div.append($label.append($icon)).append($input);
 
-             },
+            },
 
 
 
+            /**
+             * HTTP handlers
+             */
 
+            /**
+             * Place a new order.
+             * @returns {string}
+             */
+            placeOrder: function (source, successCallback, failCallback) {
+
+                var data = {
+                                source: source,
+                                billing_address: this.getBillingAddress(),
+                                phone: this.getPhone(),
+                                customer: {
+                                    email: this.getEmail(),
+                                    name: this.getCustomerName(false)
+                                }
+                            };
+
+                $.ajax({
+                    type: 'POST',
+                    url: this.getEndPoint('placeorder'),
+                    data: JSON.stringify(data),
+                    success: successCallback,
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8'
+                }).fail(failCallback);
+
+            },
 
 
 

@@ -253,6 +253,13 @@ div.cko-alternative-form {
     top: 0
 }
 
+.cko-alternative-form .input-group label + input + label {
+    left:unset;
+    right:10px;
+    background-color: #fff;
+    padding-left: 10px;
+}
+
 .input-group label.icon>.ckojs {
     position: absolute;
     top: 50%;

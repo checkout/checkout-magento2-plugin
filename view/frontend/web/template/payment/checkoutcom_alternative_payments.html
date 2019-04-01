@@ -15,11 +15,11 @@
         <!-- Alternative Payments -->
         <div class="alternatives-container" data-bind="visible: contentVisible()">
             <!-- list of alternatives goes here -->
-            <form id="cko-alternative-form" data-bind="submit: onSubmit">
+            <form id="cko-alternative-form">
                 <div class="alternative-selector">
                     <!-- ko foreach: getAlternativePaymentsList() -->
                     <div>
-                        <input type="radio" name="cko-alternative-options" data-bind="attr: {id: $data.id, value: $data.id}"/>
+                        <input type="radio" name="type" data-bind="attr: {id: $data.id, value: $data.id}"/>
                         <label data-bind="click: $parent.renderSubForm, attr: {id:$data, for:$data.id}">
                             <div data-bind="attr: {class: ('alternative-icon bg-img bg-' + $data.id)}"></div>
                             <h2 data-bind="text: $data.desc"></h2>

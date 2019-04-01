@@ -3,9 +3,10 @@ define([
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
-        'Magento_Checkout/js/model/payment/additional-validators'
+        'Magento_Checkout/js/model/payment/additional-validators',
+        'mage/translate'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators) {
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, t) {
 
         'use strict';
 
@@ -82,6 +83,17 @@ define([
                     return list;
                 },
 
+                /**
+                 * Content visible
+                 *
+                 * @return     {boolean}
+                 */
+                contentVisible: function() {
+
+                    return true;
+
+                },
+
 
                 /**
                  * Events
@@ -96,8 +108,6 @@ define([
 
                     var $radio = $(events.currentTarget).prev()
                         self = this;
-
-
 
                     if(!$radio.prop("checked")) {
 
@@ -133,7 +143,7 @@ define([
                     $form.append(Utilities.createInput({
                             icon: 'ckojs-card',
                             placeholder: 'cpf',
-                            type: 'tel',
+                            type: 'text',
                             name: 'cpf',
                             required: this.fields.includes('cpf'),
                             pattern: '.{11,11}'
@@ -141,11 +151,11 @@ define([
 
                     $form.append(Utilities.createInput({
                             icon: 'ckojs-calendar',
-                            placeholder: 'birthdate',
+                            placeholder: t('birthdate'),
                             type: 'text',
                             name: 'birthDate',
                             required: this.fields.includes('birthDate'),
-                            pattern: '\\d{1,2}/\\d{1,2}/\\d{4}'
+                            pattern: '\\d{1,2}/\\d{1,2}/\\d{4}',
                          }));
 
                 },
@@ -169,26 +179,9 @@ define([
                     $form.append(Utilities.createInput({
                             icon: 'ckojs-card',
                             placeholder: 'purpose',
-                            type: 'tel',
+                            type: 'text',
                             name: 'purpose',
                             required: this.fields.includes('purpose')
-                         }));
-
-
-                    $form.append(Utilities.createInput({
-                            icon: 'ckojs-card',
-                            placeholder: 'iban',
-                            type: 'tel',
-                            name: 'iban',
-                            required: this.fields.includes('iban')
-                         }));
-
-                    $form.append(Utilities.createInput({
-                            icon: 'ckojs-name',
-                            placeholder: 'account holder',
-                            type: 'tel',
-                            name: 'account_holder',
-                            required: this.fields.includes('account_holder')
                          }));
 
                 },
@@ -203,7 +196,7 @@ define([
                     $form.append(Utilities.createInput({
                             icon: 'ckojs-card',
                             placeholder: 'bic',
-                            type: 'tel',
+                            type: 'text',
                             name: 'bic',
                             required: this.fields.includes('bic'),
                          }));
@@ -212,7 +205,7 @@ define([
                     $form.append(Utilities.createInput({
                             icon: 'ckojs-card',
                             placeholder: 'description',
-                            type: 'tel',
+                            type: 'text',
                             name: 'description',
                             required: this.fields.includes('description')
                          }));
@@ -221,7 +214,7 @@ define([
                     $form.append(Utilities.createInput({
                             icon: 'ckojs-name ',
                             placeholder: 'language',
-                            type: 'tel',
+                            type: 'text',
                             name: 'language',
                             required: this.fields.includes('language')
                          }));
@@ -240,56 +233,106 @@ define([
                  *
                  * @return     {boolean}
                  */
-                missingLoader: function($form) {
+                sepa: function($form) {
 
-                    console.log('error');
+                    $form.append(Utilities.createInput({
+                            icon: 'ckojs-card',
+                            placeholder: 'bic',
+                            type: 'text',
+                            name: 'bic',
+                            required: this.fields.includes('bic'),
+                         }));
+
+
+                    $form.append(Utilities.createInput({
+                            icon: 'ckojs-card',
+                            placeholder: 'account iban',
+                            type: 'text',
+                            name: 'account_iban',
+                            required: this.fields.includes('account_iban'),
+                         }));
 
                 },
 
-
-
-
-
-
-
-
-
-
-
                 /**
-                 * Content visible
+                 * Render custom fields.
                  *
                  * @return     {boolean}
                  */
-                contentVisible: function() {
+                sofort: function($form) {},
 
-                    return true;
+                /**
+                 * Render custom fields.
+                 *
+                 * @return     {boolean}
+                 */
+                missingLoader: function($form) {
+
+                    console.log(t('Alternative payment loader not implemented.'));
 
                 },
+
+
+
+
+
+
+
+
+
+
+
+
 
                 /**
                  * @returns {void}
                  */
                 placeOrder: function () {
 
-                    var $form = $('#cko-alternative-form');
-                    console.log($form.valid());
+                    var $form = $('#cko-alternative-form'),
+                        data = {};
+
+                    // Start the loader
+                    FullScreenLoader.startLoader();
+
+                    // Validate before submission
+                    if ($form.valid() && AdditionalValidators.validate()) {
+
+                        // Serialize form.
+                        $form.serializeArray().forEach(function (e) {
+                            data[e.name] = e.value;
+                        });
+
+                        Utilities.placeOrder(data, this.handleSuccess, this.handleFail);
+
+                    } else {
+
+                        this.handleFail(data); //@todo: imrpove needed
+                        FullScreenLoader.stopLoader();
+
+                    }
 
                     return false;
 
                 },
 
+
+
                 /**
-                 * Render form.
-                 *
-                 * @return     {boolean}
+                 * HTTP handlers
                  */
-                onSubmit: function(data, events) {
 
-                    // On submit
-console.log('on submit', data, events);
 
+
+                handleSuccess: function(res) {
+console.log('success', res);
+                    FullScreenLoader.stopLoader();
                 },
+
+                handleFail: function(res) {
+console.log('fail', res);
+                    FullScreenLoader.stopLoader();
+                }
 
             }
         );
