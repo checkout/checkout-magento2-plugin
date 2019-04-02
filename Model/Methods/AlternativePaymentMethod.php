@@ -285,7 +285,6 @@ class AlternativePaymentMethod extends Method
                                     $source['bic']);
 
         $source->iban = static::getValue('iban', $array);
-        //$source->info_fields = static::getValue('info_fields', $array); //todo: is this necessary
 
         return $source;
 

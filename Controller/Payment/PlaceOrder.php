@@ -66,9 +66,7 @@ class PlaceOrder extends Action {
             switch ($request['source']['type']) {
 
                 case 'token':
-
-                    // Card tokenized payment
-                    $payment = CardPaymentMethod::createPayment($request, 'GBP');
+                    $payment = CardPaymentMethod::createPayment($request, $this->orderHandler->getCurrency());
                     break;
 
                 case 'googlepay':
@@ -80,7 +78,7 @@ class PlaceOrder extends Action {
                 default:
 
                     // Alternative payment
-                    $payment = AlternativePaymentMethod::createPayment($request, 'GBP');
+                    $payment = AlternativePaymentMethod::createPayment($request, $this->orderHandler->getCurrency());
                     break;
 
             }
@@ -118,6 +116,7 @@ class PlaceOrder extends Action {
 
         /**
          * @todo: set order reference, authorize/capture, shipping address and all that.
+         *        handle further action needed.
          */
 
         return true;
