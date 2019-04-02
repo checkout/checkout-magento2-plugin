@@ -3,6 +3,10 @@
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use \Checkout\Models\Payments\TokenSource;
+use \Checkout\Models\Payments\Payment;
+use \Checkout\Models\Address;
+use CheckoutCom\Magento2\Model\Service\SdkHandlerService;
 
 class CardPaymentMethod extends Method
 {
@@ -28,22 +32,15 @@ class CardPaymentMethod extends Method
      */
 
     /**
-     * Create a payment object based on the body.
+     * Create source.
      *
-     * @param      array  $array  The value
+     * @param      $source  The source
      *
-     * @return     Payment
+     * @return     TokenSource
      */
-    public static function createPayment($array = array()){
+    protected static function token($source) {
 
-        $type = Method::getValue(array('source', 'type'), $array);
-        if($type) {
-            // Create token or card
-
-        }
-
-// return new payment.
-        \CheckoutCom\Magento2\Helper\Logger::write($type);
+        return new \Checkout\Models\Payments\TokenSource($source['token']);
 
     }
 

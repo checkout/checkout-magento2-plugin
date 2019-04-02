@@ -3,6 +3,13 @@
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use \Checkout\Models\Payments\Payment;
+use \Checkout\Models\Payments\AlipaySource;
+use \Checkout\Models\Payments\BoletoSource;
+use \Checkout\Models\Payments\GiropaySource;
+use \Checkout\Models\Payments\IdealSource;
+use \Checkout\Models\Payments\PoliSource;
+use \Checkout\Models\Payments\SofortSource;
 
 class AlternativePaymentMethod extends Method
 {
@@ -223,17 +230,109 @@ class AlternativePaymentMethod extends Method
      */
 
     /**
-     * Create a payment object based on the body.
+     * Create source.
      *
-     * @param      array  $array  The value
+     * @param      $source  The source
      *
-     * @return     Payment
+     * @return     TokenSource
      */
-    public static function createPayment($array = array()){
+    protected static function sepa($source) {
 
-        \CheckoutCom\Magento2\Helper\Logger::write('aqui alternatives');
+//@todo: make sepa;
+
+        \CheckoutCom\Magento2\Helper\Logger::write('sepa');
 
     }
 
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function alipay($source) {
+
+        return new AlipaySource();
+
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function boleto($source) {
+
+        return new BoletoSource($source['customerName'],
+                                $source['birthDate'],
+                                $source['cpf']);
+
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function giropay($source) {
+
+        $source = new GiropaySource($source['purpose'],
+                                    $source['bic']);
+
+        $source->iban = static::getValue('iban', $array);
+        //$source->info_fields = static::getValue('info_fields', $array); //todo: is this necessary
+
+        return $source;
+
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function ideal($source) {
+
+        $source = new IdealSource($source['bic'],
+                                  $source['description']);
+
+        $source->language = static::getValue('language', $array);
+
+        return $source;
+
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function poli($source) {
+
+        return new PoliSource();
+
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function sofort($source) {
+
+        return new PoliSource();
+
+    }
 
 }

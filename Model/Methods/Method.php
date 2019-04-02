@@ -10,7 +10,7 @@ use Magento\Framework\App\ObjectManager;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Quote\Api\Data\PaymentMethodInterface;
-use Magento\Sales\Model\Order\Payment;
+use \Checkout\Models\Payments\Payment;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 
 abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
@@ -68,26 +68,13 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
      */
 
     /**
-     * Create a payment object based on the body.
-     *
-     * @param      array  $array  The value
-     *
-     * @return     Payment
-     */
-    public static function createPayment($array = array()){
-
-        throw new \Exception('Override createPayment function.');
-
-    }
-
-    /**
      * Safely get value from a multidimentional array.
      *
      * @param      array  $array  The value
      *
      * @return     Payment
      */
-    public static function getValue($field, $array, $dft = null){
+    public static function getValue($field, $array, $dft = null) {
 
         $value = null;
         $field = (array) $field;
@@ -105,6 +92,28 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
         }
 
         return $value;
+
+    }
+
+    /**
+     * Create a payment object based on the body.
+     *
+     * @param      array  $array  The value
+     *
+     * @return     Payment
+     */
+    public static function createPayment($array, $currency) {
+
+        $source = $array['source'];
+        $payment = null;
+        if($source['type']) {
+
+            $source = static::{$source['type']}($source);
+            $payment = new Payment($source, $currency); // Currency
+
+        }
+
+        return $payment;
 
     }
 

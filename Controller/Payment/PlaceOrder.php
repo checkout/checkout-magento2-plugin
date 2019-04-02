@@ -11,7 +11,10 @@ use CheckoutCom\Magento2\Model\Service\SdkHandlerService;
 use \Checkout\Library\HttpHandler;
 use \CheckoutCom\Magento2\Model\Methods\CheckoutComConfigMethod;
 use CheckoutCom\Magento2\Model\Methods\CardPaymentMethod;
-
+use CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
+use \Magento\Checkout\Model\Session as CheckoutSession;
+use \Magento\Customer\Model\Session as CustomerSession;
+use \Magento\Quote\Model\QuoteFactory;
 
 
 class PlaceOrder extends Action {
@@ -20,6 +23,9 @@ class PlaceOrder extends Action {
     protected $config;
     protected $orderHandler;
     protected $sdk;
+    protected $quoteFactory;
+    protected $checkoutSession;
+    protected $customerSession;
 
 	/**
      * @param Context $context
@@ -29,6 +35,9 @@ class PlaceOrder extends Action {
         JsonFactory $jsonFactory,
         OrderHandlerService $orderHandler,
         SdkHandlerService $sdk,
+        QuoteFactory $quoteFactory,
+        CheckoutSession $checkoutSession,
+        CustomerSession $customerSession,
         Config $config)
     {
 
@@ -36,6 +45,9 @@ class PlaceOrder extends Action {
         $this->jsonFactory = $jsonFactory;
         $this->orderHandler = $orderHandler;
         $this->sdk = $sdk;
+        $this->quoteFactory = $quoteFactory;
+        $this->checkoutSession = $checkoutSession;
+        $this->customerSession = $customerSession;
         $this->config = $config;
 
     }
@@ -50,26 +62,32 @@ class PlaceOrder extends Action {
 
         if($this->isValid($request)) {
 
-
+            $payment = null;
             switch ($request['source']['type']) {
 
                 case 'token':
+
                     // Card tokenized payment
-                    $this->placeTokenPayment($request);
+                    $payment = CardPaymentMethod::createPayment($request, 'GBP');
+                    break;
+
+                case 'googlepay':
+                    break;
+
+                case 'applepay':
                     break;
 
                 default:
-                    // Alternative payment
 
-                    $this->placeAlternativePayment($request);
+                    // Alternative payment
+                    $payment = AlternativePaymentMethod::createPayment($request, 'GBP');
                     break;
 
             }
 
-
+            //$this->pay($payment);
 
         }
-
 
     	return $this->jsonFactory->create()->setData($request);
 
@@ -89,40 +107,21 @@ class PlaceOrder extends Action {
 
     }
 
-
     /**
-     * Payment related functions.
-     */
-
-    /**
-     * Handle token payments.
+     * Process payment.
      *
-     * @param      array   $body   The body
+     * @param      Payment   $body   The body
      *
      * @return     boolean
      */
-    protected function placeTokenPayment($request = array()) {
+    protected function pay(Payment $payment) {
 
-        $payment = CardPaymentMethod::createPayment($request);
+        /**
+         * @todo: set order reference, authorize/capture, shipping address and all that.
+         */
 
         return true;
 
     }
-
-    /**
-     * Handle alternative payments.
-     *
-     * @param      array   $body   The body
-     *
-     * @return     boolean
-     */
-    protected function placeAlternativePayment($request = array()) {
-
-        $payment = CardPaymentMethod::createPayment($request);
-
-        return true;
-
-    }
-
 
 }
