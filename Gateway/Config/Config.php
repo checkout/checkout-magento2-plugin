@@ -215,9 +215,9 @@ class Config extends BaseConfig {
      * @return string
      */
     public function getVaultTitle() {
-        return (string) $this->getValue(
+        return (string) $this->scopeConfig->getValue(
             'payment/checkout_com_cc_vault/title',
-            $this->storeManager->getStore()
+            ScopeInterface::SCOPE_STORE
         );
     }
 
