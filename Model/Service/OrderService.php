@@ -204,10 +204,6 @@ class OrderService {
             try {
                 // Cancel the order
                 $order->cancel()->save();
-                
-                // Add a comment to history
-                $order->addStatusToHistory($order->getStatus(), __('Order and transaction cancelled'), $notify = true);
-                $order->save();
             }
             catch (Zend_Http_Client_Exception $e) {
                 throw new ClientException(__($e->getMessage()));
