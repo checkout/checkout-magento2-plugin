@@ -2,12 +2,124 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
-            <checkoutcom_frontend_form>
-                <debug>1</debug>
+
+            <checkoutcom_configuration>
+
+                <model>CheckoutCom\Magento2\Model\Methods\CheckoutComConfigMethod</model>
+
+                <!-- Requested by AbstractMethod -->
                 <active>0</active>
-                <model>CheckoutCom\Magento2\Model\Methods\FrontEndForm</model>
-            </checkoutcom_frontend_form>
+                <debug>0</debug>
+                <payment_action>1</payment_action>
+                <!-- <title></title> -->
+                <allowspecific></allowspecific>
+                <specificcountry></specificcountry>
+                <sort_order></sort_order>
+                <!-- </> -->
+
+                <!--  <credentials>-->
+                <environment>1</environment>
+                <secret_key></secret_key>
+                <public_key></public_key>
+                <shared_key></shared_key>
+                <!--  </credentials>-->
+
+                <active_module>0</active_module>
+
+                <!-- Order Management Settings go here -->
+
+            </checkoutcom_configuration>
+
+            <checkoutcom_card_payment>
+
+                <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
+
+                <!-- Requested by AbstractMethod -->
+                <active>0</active>
+                <debug>0</debug>
+                <payment_action></payment_action>
+                <!-- <title></title> -->
+                <allowspecific></allowspecific>
+                <specificcountry></specificcountry>
+                <sort_order>0</sort_order>
+                <!-- </> -->
+
+                <!--  <card_payments>-->
+                <title>Pay by Card with Checkout.com</title>
+                <threeds_enabled>0</threeds_enabled>
+                <attempt_non3ds>0</attempt_non3ds>
+                <save_cards_enabled>0</save_cards_enabled>
+                <save_cards_title>Pay with saved card:</save_cards_title>
+                <dynamic_decriptor_enabled>0</dynamic_decriptor_enabled>
+                <decriptor_name></decriptor_name>
+                <decriptor_city></decriptor_city>
+                <cvv_optional>0</cvv_optional>
+                <mada_bin_check>0</mada_bin_check>
+                <!--  </card_payments>-->
+
+            </checkoutcom_card_payment>
+
+            <checkoutcom_alternative_payments>
+
+                <model>CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</model>
+
+                <!-- Requested by AbstractMethod -->
+                <active>0</active>
+                <debug></debug>
+                <payment_action></payment_action>
+                <!-- <title></title> -->
+                <allowspecific></allowspecific>
+                <specificcountry></specificcountry>
+                <sort_order>1</sort_order>
+                <!-- </> -->
+
+                <title>Alternative Payments with Checkout.com</title>
+                <alternatives></alternatives>
+
+            </checkoutcom_alternative_payments>
+
+            <checkoutcom_google_pay>
+
+                <model>CheckoutCom\Magento2\Model\Methods\GooglePayMethod</model>
+
+                <!-- Requested by AbstractMethod -->
+                <active>0</active>
+                <debug></debug>
+                <payment_action></payment_action>
+                <!-- <title></title> -->
+                <allowspecific></allowspecific>
+                <specificcountry></specificcountry>
+                <sort_order>2</sort_order>
+                <!-- </> -->
+
+                <title>Google Pay with Checkout.com</title>
+                <merchant_id></merchant_id>
+                <theme></theme>
+
+            </checkoutcom_google_pay>
+
+            <checkoutcom_apple_pay>
+
+                <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
+
+                <!-- Requested by AbstractMethod -->
+                <active>0</active>
+                <debug></debug>
+                <payment_action></payment_action>
+                <!-- <title></title> -->
+                <allowspecific></allowspecific>
+                <specificcountry></specificcountry>
+                <sort_order>3</sort_order>
+                <!-- </> -->
+
+                <title>Apple Pay with Checkout.com</title>
+                <merchant_id></merchant_id>
+                <certificate></certificate>
+                <certificate_key></certificate_key>
+                <theme></theme>
+
+            </checkoutcom_apple_pay>
+
         </payment>
     </default>
 </config>
-

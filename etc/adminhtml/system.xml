@@ -2,19 +2,226 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="payment">
-            <group id="checkoutcom_magento2" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>cko</label>
-                <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Enabled</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <field id="title" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Title</label>
-                </field>
-                <field id="cctypes" translate="label" type="multiselect" sortOrder="65" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Credit Card Types</label>
-                    <source_model>Magento\Payment\Model\Source\Cctype</source_model>
-                </field>
+
+            <group id="checkoutcom" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label><![CDATA[<div class="checkout-payment-logo"></div><div class="checkout-payment-byline">Checkout.com delivers increased payment processing speed, greater reliability, and adaptability to the needs of your business with a unified payment solution.</div>]]></label>
+                <fieldset_css>checkout-settings checkout-payment-section</fieldset_css>
+                <frontend_model>Magento\Paypal\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
+
+                <group id="checkoutcom_configuration" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Configuration</label>
+                    <field id="active_module" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Module</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <requires>
+                            <field id="secret_key"/>
+                            <field id="public_key"/>
+                            <field id="shared_key"/>
+                        </requires>
+                        <config_path>payment/checkoutcom_configuration/active_module</config_path>
+                    </field>
+
+                    <field id="environment" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Environment</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigEnvironment</source_model>
+                        <config_path>payment/checkoutcom_configuration/environment</config_path>
+                    </field>
+
+                    <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Secret Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>payment/checkoutcom_configuration/secret_key</config_path>
+                    </field>
+
+                    <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Public Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>payment/checkoutcom_configuration/public_key</config_path>
+                    </field>
+
+                    <field id="shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Private Shared Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>payment/checkoutcom_configuration/shared_key</config_path>
+                    </field>
+
+                    <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment Action</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigAction</source_model>
+                        <config_path>payment/checkoutcom_card_payment/payment_action</config_path>
+                    </field>
+
+                    <!-- Order Management Settings go here -->
+
+                </group>
+
+                <group id="checkoutcom_card_payments" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Card Payments</label>
+                    <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment Option Title</label>
+                        <config_path>payment/checkoutcom_card_payment/title</config_path>
+                    </field>
+
+                    <field id="threeds_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Use 3D Secure</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_card_payment/threeds_enabled</config_path>
+                    </field>
+
+                    <field id="attempt_non3ds" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Attempt non-3D Secure</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <depends>
+                            <field id="threeds_enabled">1</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_card_payment/attempt_non3ds</config_path>
+                    </field>
+
+                    <field id="save_cards_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Save Cards</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_card_payment/save_cards_enabled</config_path>
+                    </field>
+
+                    <field id="save_cards_title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Saved Cards Option Title</label>
+                        <depends>
+                            <field id="save_cards_enabled">1</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_card_payment/save_cards_title</config_path>
+                    </field>
+
+                    <field id="dynamic_decriptor_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Dynamic Descriptor</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <depends>
+                            <field id="save_cards_enabled">1</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_card_payment/dynamic_decriptor_enabled</config_path>
+                    </field>
+
+                    <field id="decriptor_name" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Descriptor Name</label>
+                        <depends>
+                            <field id="dynamic_decriptor_enabled">1</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_card_payment/decriptor_name</config_path>
+                    </field>
+
+                    <field id="decriptor_city" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Descriptor City</label>
+                        <depends>
+                            <field id="dynamic_decriptor_enabled">1</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_card_payment/decriptor_city</config_path>
+                    </field>
+
+                    <field id="cvv_optional" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>CVV Optional</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_card_payment/cvv_optional</config_path>
+                    </field>
+
+                    <field id="mada_bin_check" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable MADA Bin Check</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_card_payment/mada_bin_check</config_path>
+                    </field>
+                </group>
+
+                <group id="checkoutcom_alternative_payments" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Alternative Payments</label>
+                    <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkoutcom_alternative_payments/title</config_path>
+                    </field>
+
+                    <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Alternative Payments</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_alternative_payments/active</config_path>
+                    </field>
+
+                    <field id="alternatives" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Alternative Payments</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigAlternativePayments</source_model>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_alternative_payments/alternatives</config_path>
+                    </field>
+                </group>
+
+                <group id="checkoutcom_apple_pay" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Apple Pay</label>
+                    <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkoutcom_apple_pay/title</config_path>
+                    </field>
+
+                    <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Apple Pay</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_apple_pay/active</config_path>
+                        <requires>
+                            <field id="merchant_id"/>
+                            <field id="certificate"/>
+                            <field id="certificate_key"/>
+                        </requires>
+                    </field>
+                    <field id="merchant_id" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Merchant ID</label>
+                        <config_path>payment/checkoutcom_apple_pay/merchant_id</config_path>
+                    </field>
+
+                    <field id="certificate" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Certificate Path</label>
+                        <config_path>payment/checkoutcom_apple_pay/certificate</config_path>
+                    </field>
+
+                    <field id="certificate_key" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Certificate Key Path</label>
+                        <config_path>payment/checkoutcom_apple_pay/certificate_key</config_path>
+                    </field>
+
+                    <field id="theme" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Theme</label>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_apple_pay/theme</config_path>
+                    </field>
+                </group>
+
+                <group id="checkoutcom_google_pay" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Google Pay</label>
+                    <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkoutcom_google_pay/title</config_path>
+                    </field>
+
+                    <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Google Pay</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_google_pay/active</config_path>
+                        <requires>
+                            <field id="merchant_id"/>
+                        </requires>
+                    </field>
+
+                    <field id="merchant_id" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Merchant ID</label>
+                    </field>
+
+                    <field id="theme" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Theme</label>
+                        <depends>
+                            <field id="enabled">1</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_google_pay/theme</config_path>
+                    </field>
+                </group>
+
             </group>
         </section>
     </system>
