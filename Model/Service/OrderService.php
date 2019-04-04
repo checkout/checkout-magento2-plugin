@@ -24,6 +24,7 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Framework\HTTP\ZendClient;
+use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use CheckoutCom\Magento2\Gateway\Http\TransferFactory;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Observer\DataAssignObserver;
@@ -94,6 +95,11 @@ class OrderService {
     protected $helper;
 
     /**
+     * @var BuilderInterface
+     */
+    protected $transactionBuilder;
+
+    /**
      * OrderService constructor.
      * @param CartManagementInterface $cartManagement
      * @param AgreementsValidatorInterface $agreementsValidator
@@ -101,6 +107,7 @@ class OrderService {
      * @param Data $checkoutHelper
      * @param Order $orderManager
      * @param Helper $helper
+     * @param BuilderInterface $transactionBuilder
      */
     public function __construct(
         CartManagementInterface $cartManagement,
@@ -114,7 +121,8 @@ class OrderService {
         TransferFactory $transferFactory,
         GatewayConfig $gatewayConfig,
         Watchdog $watchdog,
-        Helper $helper
+        Helper $helper,
+        BuilderInterface $transactionBuilder
     ) {
         $this->cartManagement        = $cartManagement;
         $this->agreementsValidator   = $agreementsValidator;
@@ -128,6 +136,7 @@ class OrderService {
         $this->gatewayConfig         = $gatewayConfig;
         $this->watchdog              = $watchdog;
         $this->helper                = $helper;
+        $this->transactionBuilder    = $transactionBuilder;
     }
 
     /**
