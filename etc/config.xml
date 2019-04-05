@@ -35,7 +35,7 @@
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
 
                 <!-- Requested by AbstractMethod -->
-                <active>0</active>
+                <active>1</active>
                 <debug>0</debug>
                 <payment_action></payment_action>
                 <!-- <title></title> -->
