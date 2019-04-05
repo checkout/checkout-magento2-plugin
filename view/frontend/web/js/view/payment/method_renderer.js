@@ -16,7 +16,7 @@ define([
 
         methods.forEach(function(element) {
 
-            if(paymentMethods.hasOwnProperty(element) && +paymentMethods[element].active) {
+            if(paymentMethods.hasOwnProperty(element) && paymentMethods[element].active) {
 
                 // Render the relevant payment methods
                 rendererList.push(
