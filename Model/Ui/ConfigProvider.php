@@ -2,8 +2,6 @@
 
 namespace CheckoutCom\Magento2\Model\Ui;
 
-use CheckoutCom\Magento2\Gateway\Config\Config;
-
 class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
 {
 
@@ -17,10 +15,10 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
      * @param Config $config
      * @param Session $session
      */
-    public function __construct(Config $config) {
-
+    public function __construct(
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
+    ) {
         $this->config = $config;
-
     }
 
     /**
@@ -30,8 +28,6 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
      */
     public function getConfig()
     {
-
-        return $this->config->getConfig();
-
+        return $this->config->getFrontendConfig();
     }
 }

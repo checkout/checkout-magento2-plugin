@@ -1,37 +1,31 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
+        <checkoutcom_configuration>
+            <!-- Requested by AbstractMethod -->
+            <active>1</active>
+            <debug>0</debug>
+            <payment_action>1</payment_action>
+            <!-- <title></title> -->
+            <allowspecific></allowspecific>
+            <specificcountry></specificcountry>
+            <sort_order></sort_order>
+            <!-- </> -->
+
+            <!--  <credentials>-->
+            <environment>1</environment>
+            <secret_key></secret_key>
+            <public_key></public_key>
+            <shared_key></shared_key>
+            <!--  </credentials>-->
+
+            <active_module>0</active_module>
+
+            <!-- Order Management Settings go here -->
+
+        </checkoutcom_configuration>
         <payment>
-
-            <checkoutcom_configuration>
-
-                <model>CheckoutCom\Magento2\Model\Methods\CheckoutComConfigMethod</model>
-
-                <!-- Requested by AbstractMethod -->
-                <active>1</active>
-                <debug>0</debug>
-                <payment_action>1</payment_action>
-                <!-- <title></title> -->
-                <allowspecific></allowspecific>
-                <specificcountry></specificcountry>
-                <sort_order></sort_order>
-                <!-- </> -->
-
-                <!--  <credentials>-->
-                <environment>1</environment>
-                <secret_key></secret_key>
-                <public_key></public_key>
-                <shared_key></shared_key>
-                <!--  </credentials>-->
-
-                <active_module>0</active_module>
-
-                <!-- Order Management Settings go here -->
-
-            </checkoutcom_configuration>
-
             <checkoutcom_card_payment>
-
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
 
                 <!-- Requested by AbstractMethod -->
