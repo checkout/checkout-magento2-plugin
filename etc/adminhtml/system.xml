@@ -8,7 +8,7 @@
                 <fieldset_css>checkout-settings checkout-payment-section</fieldset_css>
                 <frontend_model>Magento\Paypal\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
 
-                <group id="checkoutcom_configuration" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="module" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Configuration</label>
                     <field id="active_module" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Module</label>
@@ -18,31 +18,31 @@
                             <field id="public_key"/>
                             <field id="shared_key"/>
                         </requires>
-                        <config_path>payment/checkoutcom_configuration/active_module</config_path>
+                        <config_path>default/configuration/active_module</config_path>
                     </field>
 
                     <field id="environment" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Environment</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigEnvironment</source_model>
-                        <config_path>payment/checkoutcom_configuration/environment</config_path>
+                        <config_path>default/configuration/environment</config_path>
                     </field>
 
                     <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Secret Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkoutcom_configuration/secret_key</config_path>
+                        <config_path>default/configuration/secret_key</config_path>
                     </field>
 
                     <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Public Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkoutcom_configuration/public_key</config_path>
+                        <config_path>default/configuration/public_key</config_path>
                     </field>
 
                     <field id="shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Private Shared Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkoutcom_configuration/shared_key</config_path>
+                        <config_path>default/configuration/shared_key</config_path>
                     </field>
 
                     <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">

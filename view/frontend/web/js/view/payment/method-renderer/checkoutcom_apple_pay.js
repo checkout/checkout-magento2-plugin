@@ -11,7 +11,7 @@ define([
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
-        const CODE = Utilities.getApplePayCode();
+        const CODE = 'checkoutcom_applepay';
 
         return Component.extend(
             {
@@ -41,6 +41,13 @@ define([
                  */
                 getCode: function () {
                     return CODE;
+                },
+
+                /**
+                 * @returns {string}
+                 */
+                getValue: function (field) {
+                    return Utilities.getValue(CODE, field);
                 },
 
                 /**

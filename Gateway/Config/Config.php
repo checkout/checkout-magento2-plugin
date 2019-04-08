@@ -8,7 +8,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     const CONFIGURATION_FILE_NAME = 'config.xml';
     const KEY_PAYMENT = 'payment';
     const KEY_ACTIVE = 'active';
-    const KEY_CONFIGURATION = 'checkoutcom_configuration';
+    const KEY_MODULE_ID = 'checkoutcom_magento2';
+    const KEY_CONFIG = 'configuration';
 
     protected $scopeConfig;
     protected $loader;
@@ -34,20 +35,22 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
     public function getFrontendConfig() {
         return [
-            self::KEY_PAYMENT => array_merge(
-                $this->getGlobalConfig(),
-                $this->getFilteredMethods()
-            )
+            self::KEY_PAYMENT => [
+                self::KEY_MODULE_ID => array_merge(
+                    $this->getGlobalConfig(),
+                    $this->getMethodsConfig()
+                )
+            ]
         ];
     }
 
     public function getGlobalConfig() {
         return [
-            self::KEY_CONFIGURATION => $this->loader->data[self::KEY_CONFIGURATION]
+            self::KEY_CONFIG => $this->loader->data[self::KEY_CONFIG]
         ];        
     }
 
-    public function getFilteredMethods() {
+    public function getMethodsConfig() {
         $methods = [];
         foreach ($this->loader->data[self::KEY_PAYMENT] as $methodCode => $data) {
             $this->setMethodCode($methodCode);

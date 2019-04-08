@@ -2,21 +2,24 @@ define([
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
+        'CheckoutCom_Magento2/js/view/payment/config-loader',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'framesjs'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators) {
+    function ($, Component, Utilities, Config, FullScreenLoader, AdditionalValidators) {
 
         'use strict';
 
-        window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
-        const CODE = Utilities.getCardPaymentCode();
+        // Fix billing address missing.
+        window.checkoutConfig.reloadOnBillingAddress = true;
+
+        const METHOD_ID = 'checkoutcom_card_payment';
 
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + CODE
+                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID
                 },
 
                 /**
@@ -26,12 +29,6 @@ define([
                     this._super();
                 },
 
-                initObservable: function () {
-                    this._super().observe([]);
-                    return this;
-                },
-
-
                 /**
                  * Getters and setters
                  */
@@ -40,14 +37,14 @@ define([
                  * @returns {string}
                  */
                 getCode: function () {
-                    return CODE;
+                    return METHOD_ID;
                 },
 
                 /**
-                 * @returns {bool}
+                 * @returns {string}
                  */
-                isActive: function () {
-                    return true;
+                getValue: function (field) {
+                    return Config[METHOD_ID][field];
                 },
 
                 /**
@@ -64,7 +61,6 @@ define([
                     return true;
                 },
 
-
                 /**
                  * Events
                  */
@@ -72,16 +68,16 @@ define([
                 /**
                  * Content visible
                  *
-                 * @return     {boolean}
+                 * @return {void}
                  */
                 contentVisible: function() {
-
+                    
                     var $btnSubmit = $('#ckoCardTargetButton'),
                         $frame = $('.frames-container'),
                         self =  this;
 
                     // Disable button
-                    Utilities.enableSubmit(CODE, false);
+                    Utilities.enableSubmit(METHOD_ID, false);
 
                     // Remove any existing event handlers
                     Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
@@ -89,36 +85,27 @@ define([
                     Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
 
                     Frames.init({
-                        publicKey: Utilities.getValue(CODE, 'public_key'),
-                        //publicKey: 'pk_78d1c4d6-8a05-4a61-a346-de32ae5df932', // @todo: refuse amex
+                        publicKey: self.getValue('public_key'),
                         containerSelector: '.frames-container',
-                        debugMode: Utilities.getValue(CODE, 'debug', false),
-
+                        debugMode: self.getValue('debug'),
                         billingDetails: Utilities.getBillingAddress(),
                         customerName: Utilities.getCustomerName(),
-
-                        theme: Utilities.getValue(CODE, 'theme', 'standard'),
-                        themeOverride: Utilities.getValue(CODE, 'themeOverride'),
-
-                        localisation: Utilities.getValue(CODE, 'localisation', 'EN-GB'),
-
+                        theme: self.getValue('theme'),
+                        themeOverride: self.getValue('themeOverride'),
+                        localisation: self.getValue('localisation'),
                         cardValidationChanged: function() {
-                            Utilities.enableSubmit(CODE, Frames.isCardValid());
+                            Utilities.enableSubmit(METHOD_ID, Frames.isCardValid());
                         },
                         cardTokenised: self.request.bind(self),
                         cardTokenisationFailed: self.handleFail.bind(self)
 
                     });
-
-                    return true;
-
                 },
 
                 /**
                  * @returns {void}
                  */
                 placeOrder: function () {
-
                     // Start the loader
                     FullScreenLoader.startLoader();
                     // Validate before submission
@@ -131,9 +118,7 @@ define([
                     }
 
                     return false;
-
                 },
-
 
                 /**
                  * HTTP handlers
@@ -143,7 +128,6 @@ define([
                  * @returns {string}
                  */
                 request: function (res) {
-
                     Utilities.placeOrder({
                         type: 'token',
                         token: res.data.cardToken
@@ -151,7 +135,6 @@ define([
                     },
                     this.handleSuccess,
                     this.handleFail);
-
                 },
 
                 handleSuccess: function(res) {

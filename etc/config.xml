@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
-        <checkoutcom_configuration>
+        <configuration>
             <!-- Requested by AbstractMethod -->
             <active>1</active>
             <debug>0</debug>
@@ -23,7 +23,7 @@
 
             <!-- Order Management Settings go here -->
 
-        </checkoutcom_configuration>
+        </configuration>
         <payment>
             <checkoutcom_card_payment>
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
