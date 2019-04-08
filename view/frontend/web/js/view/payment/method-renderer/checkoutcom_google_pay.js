@@ -11,7 +11,7 @@ define([
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
-        const CODE = Utilities.getGooglePayCode();
+        const CODE = 'checkoutcom_googlepay';
 
         return Component.extend(
             {
@@ -45,13 +45,18 @@ define([
                 },
 
                 /**
+                 * @returns {string}
+                 */
+                getValue: function (field) {
+                    return Utilities.getValue(CODE, field);
+                },
+
+                /**
                  * @returns {bool}
                  */
                 isActive: function () {
                     return true;
                 },
-
-
 
                 /**
                  * Events

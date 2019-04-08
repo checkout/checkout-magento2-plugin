@@ -2,21 +2,24 @@ define([
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
+        'CheckoutCom_Magento2/js/view/payment/config-loader',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'mage/translate'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, t) {
+    function ($, Component, Utilities, Config, FullScreenLoader, AdditionalValidators, t) {
 
         'use strict';
 
-        window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
-        const CODE = Utilities.getAlternativePaymentsCode();
+        // Fix billing address missing.
+        window.checkoutConfig.reloadOnBillingAddress = true;
+
+        const METHOD_ID = 'checkoutcom_alternative_payments';
 
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + CODE
+                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID
                 },
 
                 /**
@@ -35,19 +38,15 @@ define([
                 /**
                  * Getters and setters
                  */
+                getCode: function () {
+                    return METHOD_ID;
+                },
 
                 /**
                  * @returns {string}
                  */
-                getCode: function () {
-                    return CODE;
-                },
-
-                /**
-                 * @returns {bool}
-                 */
-                isActive: function () {
-                    return true;
+                getValue: function (field) {
+                    return Config[METHOD_ID][field];
                 },
 
                 /**
@@ -58,17 +57,11 @@ define([
                 },
 
                 /**
-                 * @returns {boolean}
-                 */
-                isPlaceOrderActionAllowed: function () {
-                    return true;
-                },
-
-                /**
                  * @returns array
                  */
                 getAlternativePaymentsList: function () {
-                    var list = JSON.parse(Utilities.getValue(CODE, 'alternatives', '')),
+                    return {};
+                    var list = JSON.parse(this.getValue('alternatives')),
                         self = this;
 
                     list.forEach(function(el) {

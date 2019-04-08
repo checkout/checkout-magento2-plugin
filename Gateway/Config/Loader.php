@@ -8,6 +8,7 @@ class Loader
 {
 
     const CONFIGURATION_FILE_NAME = 'config.xml';
+    const KEY_MODULE_NAME = 'CheckoutCom_Magento2';
 
     protected $moduleDirReader;
     protected $xmlParser;
@@ -36,7 +37,7 @@ class Loader
     private function getConfigFilePath() {
         return $this->moduleDirReader->getModuleDir(
             Dir::MODULE_ETC_DIR,
-            'CheckoutCom_Magento2'
+            self::KEY_MODULE_NAME
         ) . '/' . self::CONFIGURATION_FILE_NAME;
     }
 }
