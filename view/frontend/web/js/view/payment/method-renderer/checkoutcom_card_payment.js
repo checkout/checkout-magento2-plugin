@@ -90,14 +90,15 @@ define([
                         debugMode: self.getValue('debug'),
                         billingDetails: Utilities.getBillingAddress(),
                         customerName: Utilities.getCustomerName(),
-                        theme: self.getValue('theme'),
-                        themeOverride: self.getValue('themeOverride'),
-                        localisation: self.getValue('localisation'),
+                        //theme: self.getValue('theme'),
+                        //themeOverride: self.getValue('themeOverride'),
+                        //localisation: self.getValue('localisation'),
+                        //localisation: 'EN-GB',
                         cardValidationChanged: function() {
                             Utilities.enableSubmit(METHOD_ID, Frames.isCardValid());
                         },
-                        cardTokenised: self.request.bind(self),
-                        cardTokenisationFailed: self.handleFail.bind(self)
+                        //cardTokenised: self.request.bind(self),
+                        //cardTokenisationFailed: self.handleFail.bind(self)
 
                     });
                 },
