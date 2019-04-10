@@ -9,7 +9,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     const KEY_PAYMENT = 'payment';
     const KEY_ACTIVE = 'active';
     const KEY_MODULE_ID = 'checkoutcom_magento2';
-    const KEY_CONFIG = 'configuration';
+    const KEY_SETTINGS = 'settings';
+    const KEY_CONFIG = 'checkoutcom_configuration';
 
     protected $scopeConfig;
     protected $loader;
@@ -46,7 +47,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
     public function getGlobalConfig() {
         return [
-            self::KEY_CONFIG => $this->loader->data[self::KEY_CONFIG]
+            self::KEY_CONFIG => $this->loader
+            ->data[self::KEY_SETTINGS][self::KEY_CONFIG]
         ];        
     }
 

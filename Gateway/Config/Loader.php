@@ -20,18 +20,41 @@ class Loader
      */
     public function __construct(
         \Magento\Framework\Module\Dir\Reader $moduleDirReader,
-        \Magento\Framework\Xml\Parser $xmlParser
+        \Magento\Framework\Xml\Parser $xmlParser,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->moduleDirReader = $moduleDirReader;
         $this->xmlParser = $xmlParser;
+        $this->scopeConfig = $scopeConfig;
+        $this->storeManager = $storeManager;
 
         $this->data = $this->getConfigFileData();
     }
 
     private function getConfigFileData() {
-        return $this->xmlParser
+        // Prepare the output array
+        $dbData = [];
+
+        // Load the xml data
+        $xmlData = $this->xmlParser
         ->load($this->getConfigFilePath())
         ->xmlToArray()['config']['_value']['default'];
+  
+        // Loop through the xml data array
+        foreach ($xmlData as $parent => $child) {
+            foreach ($child as $group => $arr) {
+                foreach ($arr as $key => $val) {
+                    $path = $parent . '/' . $group . '/' . $key;
+                    $dbData[$parent][$group][$key] = $this->scopeConfig->getValue(
+                        $path,
+                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                    );
+                }
+            }
+        }
+
+        return $dbData;
     }
 
     private function getConfigFilePath() {
