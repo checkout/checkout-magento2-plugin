@@ -69,8 +69,7 @@ define([
                  *
                  * @return {void}
                  */
-                contentVisible: function() {
-                    
+                contentVisible: function() {                    
                     var $btnSubmit = $('#ckoCardTargetButton'),
                         $frame = $('.frames-container'),
                         self =  this;

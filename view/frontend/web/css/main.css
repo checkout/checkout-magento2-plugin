@@ -1,6 +1,14 @@
 @import 'https://cdn.checkout.com/v2/css/cko-fonts-jsicons.css?v=1.1.9';
 
 /**
+ * Card payment
+ */
+
+.frames-container {
+    margin-bottom: 15px;
+}
+
+/**
  * Alternatives
  */
 
