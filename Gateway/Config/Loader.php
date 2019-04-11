@@ -9,6 +9,10 @@ class Loader
 
     const CONFIGURATION_FILE_NAME = 'config.xml';
     const KEY_MODULE_NAME = 'CheckoutCom_Magento2';
+    const KEY_MODULE_ID = 'checkoutcom_magento2';
+    const KEY_CONFIG = 'checkoutcom_configuration';
+    const KEY_PAYMENT = 'payment';
+    const KEY_SETTINGS = 'settings';
 
     /**
      * @var Parser
@@ -98,6 +102,7 @@ class Loader
             $this->getValue('settings/checkoutcom_configuration/fields_hidden')
         );
 
+        return in_array($field, $hiddenFields);
     }
 
     private function isEncrypted($field) {
@@ -105,9 +110,7 @@ class Loader
             $this->getValue('settings/checkoutcom_configuration/fields_encrypted')
         );
 
-        return is_array($encryptedFields) 
-        ? in_array($field, $encryptedFields)
-        : false;
+        return in_array($field, $encryptedFields);
     }
 
     private function decrypt($path) {

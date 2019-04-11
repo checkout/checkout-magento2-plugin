@@ -5,16 +5,8 @@ namespace CheckoutCom\Magento2\Gateway\Config;
 class Config extends \Magento\Payment\Gateway\Config\Config
 {
 
-    const CONFIGURATION_FILE_NAME = 'config.xml';
-    const KEY_PAYMENT = 'payment';
-    const KEY_ACTIVE = 'active';
-    const KEY_MODULE_ID = 'checkoutcom_magento2';
-    const KEY_SETTINGS = 'settings';
-    const KEY_CONFIG = 'checkoutcom_configuration';
-
     protected $scopeConfig;
     protected $loader;
-
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -36,8 +28,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
     public function getFrontendConfig() {
         return [
-            self::KEY_PAYMENT => [
-                self::KEY_MODULE_ID => array_merge(
+            $this->loader::KEY_PAYMENT => [
+                $this->loader::KEY_MODULE_ID => array_merge(
                     $this->getGlobalConfig(),
                     $this->getMethodsConfig()
                 )
@@ -47,14 +39,14 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
     public function getGlobalConfig() {
         return [
-            self::KEY_CONFIG => $this->loader
-            ->data[self::KEY_SETTINGS][self::KEY_CONFIG]
+            $this->loader::KEY_CONFIG => $this->loader
+            ->data[$this->loader::KEY_SETTINGS][$this->loader::KEY_CONFIG]
         ];        
     }
 
     public function getMethodsConfig() {
         $methods = [];
-        foreach ($this->loader->data[self::KEY_PAYMENT] as $methodCode => $data) {
+        foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodCode => $data) {
             $this->setMethodCode($methodCode);
             if ($this->getValue('active') == 1) {
                 $methods[$methodCode] = $data;
