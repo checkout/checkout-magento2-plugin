@@ -69,7 +69,7 @@ define([
                  *
                  * @return {void}
                  */
-                contentVisible: function() {                    
+                getPaymentForm: function() {                    
                     var $btnSubmit = $('#ckoCardTargetButton'),
                         $frame = $('.frames-container'),
                         self =  this;
