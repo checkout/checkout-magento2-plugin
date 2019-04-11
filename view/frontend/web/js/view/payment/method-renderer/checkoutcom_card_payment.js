@@ -2,12 +2,11 @@ define([
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
-        'CheckoutCom_Magento2/js/view/payment/config-loader',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'framesjs'
     ],
-    function ($, Component, Utilities, Config, FullScreenLoader, AdditionalValidators) {
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators) {
 
         'use strict';
 
@@ -43,8 +42,8 @@ define([
                 /**
                  * @returns {string}
                  */
-                getValue: function (field) {
-                    return Config[METHOD_ID][field];
+                getValue: function(field) {
+                    return Utilities.getValue(METHOD_ID, field);
                 },
 
                 /**
@@ -77,27 +76,18 @@ define([
                         self =  this;
 
                     // Disable button
-                    Utilities.enableSubmit(METHOD_ID, false);
+                    //Utilities.enableSubmit(METHOD_ID, false);
 
                     // Remove any existing event handlers
                     Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
                     Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
                     Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
 
-                    console.log('------     global  --------');
-                    console.log(window.checkoutConfig.payment);
-
-                    console.log('------     singles  --------');
-
+                    console.log('------ PUBLIC KEY --------');
                     console.log(self.getValue('public_key'));
-                    console.log(self.getValue('debug'));
-                    console.log(Utilities.getBillingAddress());
-                    console.log(Utilities.getCustomerName());
-
-                    
 
                     Frames.init({
-                        //publicKey: self.getValue('public_key'),
+                        publicKey: self.getValue('public_key'),
                         publicKey: 'pk_test_a3046803-a315-486b-812f-611ae12b1616',
                         containerSelector: '.frames-container',
                         debugMode: self.getValue('debug'),
@@ -108,7 +98,7 @@ define([
                         //localisation: self.getValue('localisation'),
                         //localisation: 'EN-GB',
                         cardValidationChanged: function() {
-                            Utilities.enableSubmit(METHOD_ID, Frames.isCardValid());
+                            //Utilities.enableSubmit(METHOD_ID, Frames.isCardValid());
                         },
                         //cardTokenised: self.request.bind(self),
                         //cardTokenisationFailed: self.handleFail.bind(self)
