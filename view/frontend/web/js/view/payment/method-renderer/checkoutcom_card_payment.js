@@ -2,12 +2,11 @@ define([
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
-        'CheckoutCom_Magento2/js/view/payment/config-loader',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'framesjs'
     ],
-    function ($, Component, Utilities, Config, FullScreenLoader, AdditionalValidators) {
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators) {
 
         'use strict';
 
@@ -43,8 +42,8 @@ define([
                 /**
                  * @returns {string}
                  */
-                getValue: function (field) {
-                    return Config[METHOD_ID][field];
+                getValue: function(field) {
+                    return Utilities.getValue(METHOD_ID, field);
                 },
 
                 /**
@@ -70,14 +69,13 @@ define([
                  *
                  * @return {void}
                  */
-                contentVisible: function() {
-                    
+                getPaymentForm: function() {                    
                     var $btnSubmit = $('#ckoCardTargetButton'),
                         $frame = $('.frames-container'),
                         self =  this;
 
                     // Disable button
-                    Utilities.enableSubmit(METHOD_ID, false);
+                    //Utilities.enableSubmit(METHOD_ID, false);
 
                     // Remove any existing event handlers
                     Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
@@ -90,15 +88,13 @@ define([
                         debugMode: self.getValue('debug'),
                         billingDetails: Utilities.getBillingAddress(),
                         customerName: Utilities.getCustomerName(),
-                        theme: self.getValue('theme'),
-                        themeOverride: self.getValue('themeOverride'),
-                        localisation: self.getValue('localisation'),
+                        //theme: self.getValue('theme'),
+                        //themeOverride: self.getValue('themeOverride'),
+                        //localisation: self.getValue('localisation'),
+                        //localisation: 'EN-GB',
                         cardValidationChanged: function() {
-                            Utilities.enableSubmit(METHOD_ID, Frames.isCardValid());
-                        },
-                        cardTokenised: self.request.bind(self),
-                        cardTokenisationFailed: self.handleFail.bind(self)
-
+                            //Utilities.enableSubmit(METHOD_ID, Frames.isCardValid());
+                        }
                     });
                 },
 

@@ -1,36 +1,41 @@
 define([
         'jquery',
-        'uiComponent',
-        'Magento_Ui/js/model/messageList',
+        'CheckoutCom_Magento2/js/view/payment/config-loader',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/checkout-data',
         'mage/url',
         'mage/cookies',
-        'Magento_Checkout/js/model/full-screen-loader'
+ 
     ],
-    function ($, Component, GlobalMessageList, Quote, CheckoutData, Url, FullScreenLoader) {
+    function ($, Config, Quote, CheckoutData, Url) {
         'use strict';
+
+        const KEY_CONFIG = 'checkoutcom_configuration';
+
+console.log(Config);
 
         return {
 
             /**
              * Gets a field value.
              *
-             * @param      {string}  code    The code
-             * @param      {string}  field   The field
-             * @return     {mixed}  The value
+             * @param      {string}  methodId The method id
+             * @param      {string}  field    The field
+             * @return     {mixed}            The value
              */
-            /*
 
-            getValue: function(code, field) {
-                var val = (window.checkoutConfig.payment.hasOwnProperty('code')
-                && window.checkoutConfig.payment[code].hasOwnProperty('field'))
-                ? window.checkoutConfig.payment[code][field]
-                : null;
+            getValue: function(methodId, field) { 
+                var val = null;
+                if (Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
+                    val = Config[methodId][field]
+                }
+                else if (Config.hasOwnProperty(KEY_CONFIG) && Config[KEY_CONFIG].hasOwnProperty(field)) {
+                    val = Config[KEY_CONFIG][field];
+                }
 
-                return JSON.parse(val);
+                return val;
             },
-            */
+
 
             /**
              * Gets the field.
@@ -39,9 +44,7 @@ define([
              * @return     {string}
              */
             getEndPoint: function(controller) {
-
                 return Url.build('checkout_com/payment/' + controller);
-
             },
 
             /**
@@ -51,7 +54,6 @@ define([
              * @return     {mixed}  The billing address.
              */
             getCustomerName: function(obj = false) {
-
                 var billingAddress = Quote.billingAddress(),
                     name = {
                         first_name: billingAddress.firstname,

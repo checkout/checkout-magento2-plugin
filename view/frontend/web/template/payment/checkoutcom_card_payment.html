@@ -4,32 +4,39 @@
                name="payment[method]"
                class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
-        <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
+        <label data-bind="attr: {'for': getCode()}" class="label">
+            <span data-bind="text: getTitle()"></span>
+        </label>
     </div>
     <div class="payment-method-content">
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->
 
+        <!-- Messages -->
         <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+
         <!-- Card form -->
-        <div class="frames-container" data-bind="visible: contentVisible()">
-            <!-- form will be added here -->
+        <div class="frames-container">
+            <form method="POST"></form>
+            <div data-bind="visible: getPaymentForm()"></div> 
         </div>
 
-        <br>
-
-
+        <!-- Billing form -->
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
+
+        <!-- Agreements form -->
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
                 <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
+
+        <!-- Actions -->
         <div class="actions-toolbar">
             <div class="primary">
                 <button class="action primary checkout"
