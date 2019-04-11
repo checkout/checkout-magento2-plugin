@@ -2,12 +2,11 @@ define([
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
-        'CheckoutCom_Magento2/js/view/payment/config-loader',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'mage/translate'
     ],
-    function ($, Component, Utilities, Config, FullScreenLoader, AdditionalValidators, t) {
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, __) {
 
         'use strict';
 
@@ -34,9 +33,8 @@ define([
                     return this;
                 },
 
-
                 /**
-                 * Getters and setters
+                 * @returns {string}
                  */
                 getCode: function () {
                     return METHOD_ID;
@@ -45,8 +43,8 @@ define([
                 /**
                  * @returns {string}
                  */
-                getValue: function (field) {
-                    return Config[METHOD_ID][field];
+                getValue: function(field) {
+                    return Utilities.getValue(METHOD_ID, field);
                 },
 
                 /**
@@ -144,7 +142,7 @@ define([
 
                     $form.append(Utilities.createInput({
                             icon: 'ckojs-calendar',
-                            placeholder: t('birthdate'),
+                            placeholder: __('birthdate'),
                             type: 'text',
                             name: 'birthDate',
                             required: this.fields.includes('birthDate'),
@@ -261,7 +259,7 @@ define([
                  */
                 missingLoader: function($form) {
 
-                    console.log(t('Alternative payment loader not implemented.'));
+                    console.log(__('Alternative payment loader not implemented.'));
 
                 },
 
