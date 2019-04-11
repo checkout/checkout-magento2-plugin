@@ -83,12 +83,8 @@ define([
                     Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
                     Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
 
-                    console.log('------ PUBLIC KEY --------');
-                    console.log(self.getValue('public_key'));
-
                     Frames.init({
                         publicKey: self.getValue('public_key'),
-                        publicKey: 'pk_test_a3046803-a315-486b-812f-611ae12b1616',
                         containerSelector: '.frames-container',
                         debugMode: self.getValue('debug'),
                         billingDetails: Utilities.getBillingAddress(),
@@ -99,10 +95,7 @@ define([
                         //localisation: 'EN-GB',
                         cardValidationChanged: function() {
                             //Utilities.enableSubmit(METHOD_ID, Frames.isCardValid());
-                        },
-                        //cardTokenised: self.request.bind(self),
-                        //cardTokenisationFailed: self.handleFail.bind(self)
-
+                        }
                     });
                 },
 

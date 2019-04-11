@@ -12,6 +12,8 @@ define([
 
         const KEY_CONFIG = 'checkoutcom_configuration';
 
+console.log(Config);
+
         return {
 
             /**
@@ -24,10 +26,6 @@ define([
 
             getValue: function(methodId, field) { 
                 var val = null;
-
-                console.log('------ DEBUG --------');
-                console.log(Config);
-
                 if (Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
                     val = Config[methodId][field]
                 }
@@ -35,7 +33,7 @@ define([
                     val = Config[KEY_CONFIG][field];
                 }
 
-               return val;
+                return val;
             },
 
 
