@@ -58,11 +58,11 @@ define([
                  * @returns array
                  */
                 getAlternativePaymentsList: function () {
-                    return {};
-                    var list = JSON.parse(this.getValue('alternatives')),
+                    var apmList = this.getValue('alternatives').split(','),
                         self = this;
 
-                    list.forEach(function(el) {
+                        /*
+                    apmList.forEach(function(el) {
 
                         el['loader'] = self.missingLoader;
                         if(typeof self[el.id] == 'function') {
@@ -70,21 +70,10 @@ define([
                         }
 
                     });
+                    */
 
-                    return list;
+                    return apmList;
                 },
-
-                /**
-                 * Content visible
-                 *
-                 * @return     {boolean}
-                 */
-                contentVisible: function() {
-
-                    return true;
-
-                },
-
 
                 /**
                  * Events
