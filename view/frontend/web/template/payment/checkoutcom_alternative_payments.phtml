@@ -15,23 +15,15 @@
         <!-- Alternative Payments -->
         <div class="alternatives-container">
             <!-- list of alternatives goes here -->
-            <form id="cko-alternative-form">
-                <div class="alternative-selector">
-                    <!-- ko foreach: getAlternativePaymentsList() -->
-                    <div>
-                        <input type="radio" name="type" data-bind="attr: {id: $data.id, value: $data.id}"/>
-                        <label data-bind="click: renderSubForm, attr: {id:$data, for:$data.id}">
-                            <div data-bind="attr: {class: ('alternative-icon bg-img bg-' + $data.id)}"></div>
-                            <h2 data-bind="text: $data.desc"></h2>
-                        </label>
-                        <div class="cko-alternative-form" data-bind="attr: {id: ('cko-alternative-form-'+$data.id)}"></div>
-                    </div>
-                    <!-- /ko -->
+            <div data-bind="foreach: apmList">
+                <div class="cko-alternative-form">
+
+                    <div data-bind="mageInit: {'CheckoutCom_Magento2/js/view/payment/method-renderer/alternative-payments/alipay': {}}"></div>
+
                 </div>
-            </form>
+            </div>
         </div>
 
-        <br>
 
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->

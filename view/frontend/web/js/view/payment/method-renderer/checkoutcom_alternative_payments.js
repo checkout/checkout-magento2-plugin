@@ -18,7 +18,7 @@ define([
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID
+                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml'
                 },
 
                 /**
@@ -26,6 +26,7 @@ define([
                  */
                 initialize: function () {
                     this._super();
+                    this.getAlternativePaymentsList();
                 },
 
                 initObservable: function () {
@@ -55,24 +56,10 @@ define([
                 },
 
                 /**
-                 * @returns array
+                 * @returns {void}
                  */
                 getAlternativePaymentsList: function () {
-                    var apmList = this.getValue('alternatives').split(','),
-                        self = this;
-
-                        /*
-                    apmList.forEach(function(el) {
-
-                        el['loader'] = self.missingLoader;
-                        if(typeof self[el.id] == 'function') {
-                            el['loader'] = self[el.id];
-                        }
-
-                    });
-                    */
-
-                    return apmList;
+                    this.apmList = this.getValue('alternatives').split(',');
                 },
 
                 /**

@@ -16,7 +16,7 @@ define([
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + CODE
+                    template: 'CheckoutCom_Magento2/payment/' + CODE + '.phtml'
                 },
 
                 /**
