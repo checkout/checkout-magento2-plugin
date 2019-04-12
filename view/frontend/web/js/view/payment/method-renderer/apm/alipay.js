@@ -10,7 +10,7 @@ define([
     return Component.extend({
 
         defaults: {
-            template: 'CheckoutCom_Magento2/payment/alternative-payments/alipay.phtml'
+            template: 'CheckoutCom_Magento2/payment/apm/alipay.phtml'
         },
 
         /**

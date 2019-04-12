@@ -129,26 +129,26 @@
                     </field>
                 </group>
 
-                <group id="checkoutcom_alternative_payments" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="checkoutcom_apm" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Alternative Payments</label>
                     <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
-                        <config_path>payment/checkoutcom_alternative_payments/title</config_path>
+                        <config_path>payment/checkoutcom_apm/title</config_path>
                     </field>
 
                     <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Alternative Payments</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_alternative_payments/active</config_path>
+                        <config_path>payment/checkoutcom_apm/active</config_path>
                     </field>
 
-                    <field id="alternatives" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="apm" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Alternative Payments</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigAlternativePayments</source_model>
                         <depends>
                             <field id="active">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_alternative_payments/alternatives</config_path>
+                        <config_path>payment/checkoutcom_apm/apm</config_path>
                     </field>
                 </group>
 

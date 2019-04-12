@@ -13,15 +13,15 @@
 
         <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
         <!-- Alternative Payments -->
-        <div class="alternatives-container">
-            <!-- list of alternatives goes here -->
+        <div class="apm-container">
+            <!-- list of apm goes here -->
 
-            <div data-bind="mageInit: {'CheckoutCom_Magento2/js/view/payment/method-renderer/alternative-payments/alipay': {}}"></div>
+            <div data-bind="mageInit: {'CheckoutCom_Magento2/js/view/payment/method-renderer/apm/alipay': {}}"></div>
 
             <div data-bind="foreach: apmList">
                 <!-- 
                 <div class="cko-cko-apm">
-                    <div data-bind="mageInit: {'CheckoutCom_Magento2/js/view/payment/method-renderer/alternative-payments/alipay': {}}"></div>
+                    <div data-bind="mageInit: {'CheckoutCom_Magento2/js/view/payment/method-renderer/apm/alipay': {}}"></div>
                 </div>
                 -->
             </div>

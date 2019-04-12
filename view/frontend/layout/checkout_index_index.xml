@@ -27,7 +27,7 @@
                                                                         <item name="checkoutcom_card_payment" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="checkoutcom_alternative_payments" xsi:type="array">
+                                                                        <item name="checkoutcom_apm" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="checkoutcom_apple_pay" xsi:type="array">

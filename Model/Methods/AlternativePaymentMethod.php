@@ -17,12 +17,12 @@ class AlternativePaymentMethod extends Method
     /**
      * @var string
      */
-    const CODE = 'checkoutcom_alternative_payments';
+    const CODE = 'checkoutcom_apm';
 
     /**
      * @var string
      */
-    const FIELD_ALTERNATIVES = 'alternatives';
+    const FIELD_ALTERNATIVES = 'apm';
 
     /**
      * @var string

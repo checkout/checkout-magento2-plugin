@@ -13,7 +13,7 @@ define([
         // Fix billing address missing.
         window.checkoutConfig.reloadOnBillingAddress = true;
 
-        const METHOD_ID = 'checkoutcom_alternative_payments';
+        const METHOD_ID = 'checkoutcom_apm';
 
         return Component.extend(
             {
@@ -59,7 +59,7 @@ define([
                  * @returns {void}
                  */
                 getAlternativePaymentsList: function () {
-                    this.apmList = this.getValue('alternatives').split(',');
+                    this.apmList = this.getValue('apm').split(',');
                 },
 
                 /**
@@ -82,10 +82,10 @@ define([
                         $radio.prop("checked", true);
 
                         // Destroy other forms
-                        $('.cko-alternative-form').empty();
+                        $('.cko-apm-form').empty();
 
                         // Create inputs
-                        var $form = $('#cko-alternative-form-' + data.id);
+                        var $form = $('#cko-apm-form-' + data.id);
                         data.loader($form);
 
                     }
@@ -120,7 +120,7 @@ define([
                  */
                 placeOrder: function () {
 
-                    var $form = $('#cko-alternative-form'),
+                    var $form = $('#cko-apm-form'),
                         data = {};
 
                     // Start the loader
