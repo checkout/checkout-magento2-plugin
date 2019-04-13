@@ -102,9 +102,6 @@ define([
                         FullScreenLoader.stopLoader();
 
                     }
-
-                    return false;
-
                 }
             }
         );
