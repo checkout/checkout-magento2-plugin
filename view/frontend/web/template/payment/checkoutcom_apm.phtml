@@ -7,33 +7,27 @@
         <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
     </div>
     <div class="payment-method-content">
-        <!-- ko foreach: getRegion('messages') -->
-        <!-- ko template: getTemplate() --><!-- /ko -->
-        <!--/ko-->
-
+        <!-- Messages -->
         <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+        
         <!-- Alternative Payments -->
-        <div class="apm-container">
-            <!-- list of apm goes here -->
-            <div data-bind="foreach: {data: ampList, as:'apmId'}">
-                <div class="cko-apm" data-bind="attr: {'class': apmId}">
-                    <div data-bind="attr: {'id': apmId}, visible: loadAlternativePayment(apmId)">
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div id="apm-container"></div>
 
-
+        <!-- Billing -->
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
+
+        <!-- Agreements -->
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
                 <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
+
+        <!-- Actions -->
         <div class="actions-toolbar">
             <div class="primary">
                 <button class="action primary checkout"

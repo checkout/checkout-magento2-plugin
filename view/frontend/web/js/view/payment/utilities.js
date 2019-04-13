@@ -23,7 +23,6 @@ console.log(Config);
              * @param      {string}  field    The field
              * @return     {mixed}            The value
              */
-
             getValue: function(methodId, field) { 
                 var val = null;
                 if (Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
@@ -36,15 +35,14 @@ console.log(Config);
                 return val;
             },
 
-
             /**
-             * Gets the field.
+             * Builds the controller URL.
              *
-             * @param      {string}  controller  The controller
+             * @param      {string}  path  The path
              * @return     {string}
              */
-            getEndPoint: function(controller) {
-                return Url.build('checkout_com/payment/' + controller);
+            getUrl: function(path) {
+                return Url.build('checkout_com/' + path);
             },
 
             /**

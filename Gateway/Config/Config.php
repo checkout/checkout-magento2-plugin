@@ -2,10 +2,8 @@
 
 namespace CheckoutCom\Magento2\Gateway\Config;
 
-class Config extends \Magento\Payment\Gateway\Config\Config
+class Config
 {
-
-    protected $scopeConfig;
     protected $loader;
 
     /**
@@ -14,15 +12,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      * @param string $pathPattern
      */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \CheckoutCom\Magento2\Gateway\Config\Loader $loader
     ) {
-        parent::__construct(
-            $scopeConfig,
-            $methodCode = null,
-            $pathPattern = self::DEFAULT_PATH_PATTERN
-        );
-
         $this->loader = $loader;
     }
 
@@ -47,12 +38,16 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public function getMethodsConfig() {
         $methods = [];
         foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodCode => $data) {
-            $this->setMethodCode($methodCode);
-            if ($this->getValue('active') == 1) {
+            $path = 'payment/' . $methodCode . '/active';
+            if ($this->loader->getValue($path) == 1) {
                 $methods[$methodCode] = $data;
             }
         }
 
         return $methods;
+    }
+
+    public function getValue($path) {
+        return $this->loader->getValue($path);
     }
 }

@@ -26,7 +26,7 @@ define([
                  */
                 initialize: function () {
                     this._super();
-                    this.getAlternativePaymentsList();
+                    this.displayApm();
                 },
 
                 initObservable: function () {
@@ -58,15 +58,21 @@ define([
                 /**
                  * @returns {void}
                  */
-                getAlternativePaymentsList: function () {
-                    this.apmList = this.getValue('apm').split(',');
-                },
-
-                /**
-                 * @returns {void}
-                 */
-                loadAlternativePayment: function (apmId) {
-                    $('#' + apmId).text(apmId);
+                displayApm: function () {
+                    FullScreenLoader.startLoader();
+                    $.ajax({
+                        type: "POST",
+                        url: Utilities.getUrl('apm/display'),
+                        success: function(data) {
+                            console.log('datalog');
+                            console.log(data);
+                            $('#apm-container').append(data.html);
+                            FullScreenLoader.stopLoader();
+                        },
+                        error: function (request, status, error) {
+                            console.log(error);
+                        }
+                    });
                 },
 
                 /**
