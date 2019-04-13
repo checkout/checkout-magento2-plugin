@@ -63,59 +63,6 @@ define([
                 },
 
                 /**
-                 * Events
-                 */
-
-                /**
-                 * Render form.
-                 *
-                 * @return     {boolean}
-                 */
-                renderSubForm: function(data, events) {
-
-                    var $radio = $(events.currentTarget).prev()
-                        self = this;
-
-                    if(!$radio.prop("checked")) {
-
-                        // Tick the radio bottom
-                        $radio.prop("checked", true);
-
-                        // Destroy other forms
-                        $('.cko-apm-form').empty();
-
-                        // Create inputs
-                        var $form = $('#cko-apm-form-' + data.id);
-                        data.loader($form);
-
-                    }
-
-                },
-
-                /**
-                 * Render custom fields.
-                 *
-                 * @return     {boolean}
-                 */
-                missingLoader: function($form) {
-
-                    console.log(__('Alternative payment loader not implemented.'));
-
-                },
-
-
-
-
-
-
-
-
-
-
-
-
-
-                /**
                  * @returns {void}
                  */
                 placeOrder: function () {
@@ -145,26 +92,7 @@ define([
 
                     return false;
 
-                },
-
-
-
-                /**
-                 * HTTP handlers
-                 */
-
-
-
-                handleSuccess: function(res) {
-console.log('success', res);
-                    FullScreenLoader.stopLoader();
-                },
-
-                handleFail: function(res) {
-console.log('fail', res);
-                    FullScreenLoader.stopLoader();
                 }
-
             }
         );
     }
