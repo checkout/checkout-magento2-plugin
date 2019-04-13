@@ -65,6 +65,13 @@ define([
                 /**
                  * @returns {void}
                  */
+                loadAlternativePayment: function (apmId) {
+                    $('#' + apmId).text(apmId);
+                },
+
+                /**
+                 * @returns {void}
+                 */
                 placeOrder: function () {
 
                     var $form = $('#cko-apm-form'),

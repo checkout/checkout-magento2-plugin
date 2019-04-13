@@ -15,15 +15,11 @@
         <!-- Alternative Payments -->
         <div class="apm-container">
             <!-- list of apm goes here -->
-
-            <div data-bind="mageInit: {'CheckoutCom_Magento2/js/view/payment/method-renderer/apm/alipay': {}}"></div>
-
-            <div data-bind="foreach: apmList">
-                <!-- 
-                <div class="cko-cko-apm">
-                    <div data-bind="mageInit: {'CheckoutCom_Magento2/js/view/payment/method-renderer/apm/alipay': {}}"></div>
+            <div data-bind="foreach: {data: ampList, as:'apmId'}">
+                <div class="cko-apm" data-bind="attr: {'class': apmId}">
+                    <div data-bind="attr: {'id': apmId}, visible: loadAlternativePayment(apmId)">
+                    </div>
                 </div>
-                -->
             </div>
         </div>
 
