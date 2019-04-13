@@ -64,8 +64,6 @@ define([
                         type: "POST",
                         url: Utilities.getUrl('apm/display'),
                         success: function(data) {
-                            console.log('datalog');
-                            console.log(data);
                             $('#apm-container').append(data.html);
                             FullScreenLoader.stopLoader();
                         },
@@ -79,7 +77,6 @@ define([
                  * @returns {void}
                  */
                 placeOrder: function () {
-
                     var $form = $('#cko-apm-form'),
                         data = {};
 
