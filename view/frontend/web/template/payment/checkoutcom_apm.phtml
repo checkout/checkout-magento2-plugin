@@ -11,9 +11,7 @@
         <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
         
         <!-- Alternative Payments -->
-        <div class="apm-container" data-bind="foreach: apmList">
-            <div class="cko-apm" data-bind="attr: {'id': $data, 'class': $data, 'text': $data, 'click': $parent.displayApm($data)}">
-            </div>
+        <div id="apm-container" data-bind="visible: initWidget()">
         </div>
 
         <!-- Billing -->

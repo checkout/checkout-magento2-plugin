@@ -1,1 +1,8 @@
-<strong>Ideal</strong>
+<div data-role="collapsible" id="<?= $block->getData('apm_id')?>" class="cko-apm <?= $block->getData('apm_id')?>">
+    <div data-role="trigger">
+        <strong><?= $block->getData('apm_id')?></strong>
+    </div>
+</div>
+<div data-role="content" class="apm-content">
+    <input type="text" value="<?= $block->getData('apm_id')?>">
+</div>

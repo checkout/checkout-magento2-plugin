@@ -44,17 +44,26 @@ class Display extends \Magento\Framework\App\Action\Action {
      * Handles the controller method.
      */
     public function execute() {
-        $html = '';
         if ($this->getRequest()->isAjax()) {
-            $apmId = $this->getRequest()->getParam('apmId', null);
-            if ($apmId) {
-                $html = $this->loadBlock($apmId);
-            }
-        }
+            // Get the list of APM
+            $html = '';
+            $apmList = explode(',', 
+                $this->config->getValue(
+                    'payment/checkoutcom_apm/apm'
+                )
+            );
 
-        return $this->jsonFactory->create()->setData(
-            ['html' => $html]
-        );
+            // Load block data for each APM
+            if (count($apmList) > 0) {
+                foreach ($apmList as $apmId) {
+                    $html .= $this->loadBlock($apmId);
+                }
+            }
+
+            return $this->jsonFactory->create()->setData(
+                ['html' => $html]
+            );
+        }
     }
 
     private function loadBlock($apmId)

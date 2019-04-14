@@ -4,7 +4,8 @@ define([
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'mage/translate'
+        'mage/translate',
+        'tabs'
     ],
     function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, __) {
 
@@ -51,30 +52,29 @@ define([
                 },
 
                 /**
+                 * @returns {void}
+                 */
+                initWidget: function () {
+                    $.ajax({
+                        type: "POST",
+                        url: Utilities.getUrl('apm/display'),
+                        success: function(data) {
+                            $('#apm-container')
+                            .append(data.html)
+                            .tabs()
+                            .show();
+                        },
+                        error: function (request, status, error) {
+                            console.log(error);
+                        }
+                    });
+                },
+
+                /**
                  * @returns {array}
                  */
                 getApmList: function () {
                     this.apmList = this.getValue('apm').split(',');
-                },
-
-                /**
-                 * @returns {void}
-                 */
-                displayApm: function (apmId) {
-                    FullScreenLoader.startLoader();
-                    $.ajax({
-                        type: "POST",
-                        url: Utilities.getUrl('apm/display'),
-                        data: {apmId: apmId},
-                        success: function(data) {
-                            $('#' + apmId).append(data.html);
-                            FullScreenLoader.stopLoader();
-                        },
-                        error: function (request, status, error) {
-                            console.log(error);
-                            FullScreenLoader.stopLoader();
-                        }
-                    });
                 },
 
                 /**
