@@ -98,10 +98,8 @@ define([
                         Utilities.placeOrder(data, this.handleSuccess, this.handleFail);
 
                     } else {
-
                         this.handleFail(data); //@todo: imrpove needed
                         FullScreenLoader.stopLoader();
-
                     }
                 }
             }
