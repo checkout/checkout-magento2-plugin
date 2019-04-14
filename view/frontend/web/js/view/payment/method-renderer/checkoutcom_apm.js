@@ -62,7 +62,10 @@ define([
                             $('#apm-container')
                             .append(data.html)
                             .accordion({
-                                heightStyle: 'content'
+                                heightStyle: 'content',
+                                animate: {
+                                    duration: 200
+                                }
                             })
                             .show();
                         },
