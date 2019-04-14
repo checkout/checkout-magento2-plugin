@@ -7,42 +7,30 @@
         <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
     </div>
     <div class="payment-method-content">
-        <!-- ko foreach: getRegion('messages') -->
-        <!-- ko template: getTemplate() --><!-- /ko -->
-        <!--/ko-->
-
+        <!-- Messages -->
         <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+        
         <!-- Alternative Payments -->
-        <div class="alternatives-container">
-            <!-- list of alternatives goes here -->
-            <form id="cko-alternative-form">
-                <div class="alternative-selector">
-                    <!-- ko foreach: getAlternativePaymentsList() -->
-                    <div>
-                        <input type="radio" name="type" data-bind="attr: {id: $data.id, value: $data.id}"/>
-                        <label data-bind="click: renderSubForm, attr: {id:$data, for:$data.id}">
-                            <div data-bind="attr: {class: ('alternative-icon bg-img bg-' + $data.id)}"></div>
-                            <h2 data-bind="text: $data.desc"></h2>
-                        </label>
-                        <div class="cko-alternative-form" data-bind="attr: {id: ('cko-alternative-form-'+$data.id)}"></div>
-                    </div>
-                    <!-- /ko -->
-                </div>
-            </form>
+        <div class="apm-container" data-bind="foreach: apmList">
+            <div class="cko-apm" data-bind="attr: {'id': $data, 'class': $data, 'text': $data, 'click': $parent.displayApm($data)}">
+            </div>
         </div>
 
-        <br>
-
+        <!-- Billing -->
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
+
+        <!-- Agreements -->
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
                 <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
+
+        <!-- Actions -->
         <div class="actions-toolbar">
             <div class="primary">
                 <button class="action primary checkout"

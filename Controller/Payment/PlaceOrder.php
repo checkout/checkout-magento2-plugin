@@ -9,7 +9,6 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\SdkHandlerService;
 use \Checkout\Library\HttpHandler;
-use \CheckoutCom\Magento2\Model\Methods\CheckoutComConfigMethod;
 use CheckoutCom\Magento2\Model\Methods\CardPaymentMethod;
 use CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
 use \Magento\Checkout\Model\Session as CheckoutSession;

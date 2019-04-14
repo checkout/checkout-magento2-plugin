@@ -57,7 +57,7 @@
 
             </checkoutcom_card_payment>
 
-            <checkoutcom_alternative_payments>
+            <checkoutcom_apm>
 
                 <model>CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</model>
 
@@ -72,9 +72,9 @@
                 <!-- </> -->
 
                 <title>Alternative Payments with Checkout.com</title>
-                <alternatives></alternatives>
+                <apm></apm>
 
-            </checkoutcom_alternative_payments>
+            </checkoutcom_apm>
 
             <checkoutcom_google_pay>
 

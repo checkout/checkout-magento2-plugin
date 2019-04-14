@@ -87,16 +87,6 @@ class Loader
         ->xmlToArray()['config']['_value']['default'];
     }
 
-    private function getValue($path) {
-        $field = 'private_key';
-        $value = $this->scopeConfig->getValue(
-            $path,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-
-        return $value;
-    }
-
     private function isHidden($field) {
         $hiddenFields = explode(',',
             $this->getValue('settings/checkoutcom_configuration/fields_hidden')
@@ -116,5 +106,14 @@ class Loader
     private function decrypt($path) {
         $value = $this->getValue($path);
         return $this->encryptor->decrypt($value);
+    }
+
+    public function getValue($path) {
+        $value = $this->scopeConfig->getValue(
+            $path,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        return $value;
     }
 }
