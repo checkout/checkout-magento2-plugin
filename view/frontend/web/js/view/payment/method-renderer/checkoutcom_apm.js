@@ -5,7 +5,7 @@ define([
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'mage/translate',
-        'tabs'
+        'jquery/ui'
     ],
     function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, __) {
 
@@ -61,7 +61,9 @@ define([
                         success: function(data) {
                             $('#apm-container')
                             .append(data.html)
-                            .tabs()
+                            .accordion({
+                                heightStyle: 'content'
+                            })
                             .show();
                         },
                         error: function (request, status, error) {

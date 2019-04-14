@@ -60,6 +60,33 @@ div.cko-alternative-form {
     padding-left: 2em;
 }
 
+/* Accordion */
+#apm-container {
+    border: 1px solid #ddd;
+    border-radius: 2px;
+}
+  
+#apm-container div[data-role="collapsible"] {
+    background: #eee;
+    padding: 1rem;
+    cursor: pointer;
+    font-size: .8rem;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+}
+
+#apm-container div[data-role="collapsible"]:last-child {
+    border-bottom: none !important;
+}
+
+#apm-container div[data-role="trigger"] {
+    cursor: pointer;
+}
+
+#apm-container div[data-role="content"] {
+    padding: 1rem 2rem;
+}
+  
 /**
  * Backgrounds
  */
