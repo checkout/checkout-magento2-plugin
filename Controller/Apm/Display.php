@@ -45,12 +45,12 @@ class Display extends \Magento\Framework\App\Action\Action {
      */
     public function execute() {
         $html = '';
-        //if ($this->getRequest()->isAjax()) {
+        if ($this->getRequest()->isAjax()) {
             $apmId = $this->getRequest()->getParam('apmId', null);
             if ($apmId) {
                 $html = $this->loadBlock($apmId);
             }
-        //}
+        }
 
         return $this->jsonFactory->create()->setData(
             ['html' => $html]
