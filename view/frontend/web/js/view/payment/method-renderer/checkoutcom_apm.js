@@ -26,12 +26,7 @@ define([
                  */
                 initialize: function () {
                     this._super();
-                    this.displayApm();
-                },
-
-                initObservable: function () {
-                    this._super().observe([]);
-                    return this;
+                    this.getApmList();
                 },
 
                 /**
@@ -56,19 +51,28 @@ define([
                 },
 
                 /**
+                 * @returns {array}
+                 */
+                getApmList: function () {
+                    this.apmList = this.getValue('apm').split(',');
+                },
+
+                /**
                  * @returns {void}
                  */
-                displayApm: function () {
+                displayApm: function (apmId) {
                     FullScreenLoader.startLoader();
                     $.ajax({
                         type: "POST",
                         url: Utilities.getUrl('apm/display'),
+                        data: {apmId: apmId},
                         success: function(data) {
-                            $('#apm-container').append(data.html);
+                            $('#' + apmId).append(data.html);
                             FullScreenLoader.stopLoader();
                         },
                         error: function (request, status, error) {
                             console.log(error);
+                            FullScreenLoader.stopLoader();
                         }
                     });
                 },
