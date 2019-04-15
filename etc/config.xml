@@ -29,7 +29,7 @@
                 <decriptor_name></decriptor_name>
                 <decriptor_city></decriptor_city>
                 <cvv_optional>0</cvv_optional>
-                <mada_bin_check>0</mada_bin_check>
+                <mada_enabled>0</mada_enabled>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
