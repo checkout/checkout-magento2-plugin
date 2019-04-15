@@ -125,42 +125,6 @@ console.log(Config);
 
             },
 
-
-            /**
-             * DOM handlers
-             */
-
-             createInput: function (el) {
-
-                var $div = $('<div>').attr({
-                        class: 'input-group'
-                    }),
-                    $label = $('<label>').attr({
-                        class: 'icon',
-                        for: el.name
-                    }),
-                    $icon = $('<span>').attr({
-                        class: 'ckojs ' + el.icon,
-                    }),
-                    $input = $('<input>').attr({
-                        id: el.name,
-                        type: el.type,
-                        placeholder: el.placeholder,
-                        name: el.name,
-                        'aria-label': el.placeholder,
-                        autocomplete: 'off',
-                        class: 'input-control',
-                        required: el.required,
-                        pattern: el.pattern,
-                        'data-validation': el.validation
-                    });
-
-                return $div.append($label.append($icon)).append($input);
-
-            },
-
-
-
             /**
              * HTTP handlers
              */
