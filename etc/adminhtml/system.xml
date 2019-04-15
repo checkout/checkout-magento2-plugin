@@ -173,7 +173,7 @@
                     <field id="sort_order" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Sort Order</label>
                         <validate>validate-number</validate>
-                        <config_path>payment/checkoutcom_applepay/sort_order</config_path>
+                        <config_path>payment/checkoutcom_apple_pay/sort_order</config_path>
                     </field>
 
                     <field id="processing_certificate" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
