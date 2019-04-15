@@ -39,9 +39,9 @@ class Config
         $methods = [];
         foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodCode => $data) {
             $path = 'payment/' . $methodCode . '/active';
-            //if ($this->loader->getValue($path) == 1) {
+            if ($this->loader->getValue($path) == 1) {
                 $methods[$methodCode] = $data;
-            //}
+            }
         }
 
         return $methods;
