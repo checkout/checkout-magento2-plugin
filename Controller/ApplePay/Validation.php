@@ -28,7 +28,7 @@ class Validation extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory
     ) {
-        parent::__construct($context, $config);
+        parent::__construct($context);
 
         $this->jsonFactory = $jsonFactory;
     }
