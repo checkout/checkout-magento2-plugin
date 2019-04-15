@@ -5,45 +5,22 @@
             <checkoutcom_configuration>
                 <fields_encrypted>secret_key,public_key,private_shared_key</fields_encrypted>
                 <fields_hidden>secret_key,private_shared_key</fields_hidden>
-                <!-- Requested by AbstractMethod -->
                 <active>1</active>
                 <debug>0</debug>
                 <payment_action>1</payment_action>
-                <!-- <title></title> -->
-                <allowspecific></allowspecific>
-                <specificcountry></specificcountry>
-                <sort_order></sort_order>
-                <!-- </> -->
-
-                <!--  <credentials>-->
                 <environment>1</environment>
                 <secret_key></secret_key>
                 <public_key></public_key>
                 <private_shared_key></private_shared_key>
-                <!--  </credentials>-->
-
-                <active_module>0</active_module>
-
-                <!-- Order Management Settings go here -->
-
             </checkoutcom_configuration>
         </settings>
         <payment>
             <checkoutcom_card_payment>
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
-
-                <!-- Requested by AbstractMethod -->
-                <active>1</active>
-                <debug>0</debug>
-                <payment_action></payment_action>
-                <!-- <title></title> -->
-                <allowspecific></allowspecific>
-                <specificcountry></specificcountry>
-                <sort_order>0</sort_order>
-                <!-- </> -->
-
-                <!--  <card_payments>-->
                 <title>Pay by Card with Checkout.com</title>
+                <active>1</active>
+                <payment_action>authorize_capture</payment_action>                
+                <sort_order>0</sort_order>
                 <threeds_enabled>0</threeds_enabled>
                 <attempt_non3ds>0</attempt_non3ds>
                 <save_cards_enabled>0</save_cards_enabled>
@@ -53,49 +30,45 @@
                 <decriptor_city></decriptor_city>
                 <cvv_optional>0</cvv_optional>
                 <mada_bin_check>0</mada_bin_check>
-                <!--  </card_payments>-->
-
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
             </checkoutcom_card_payment>
-
             <checkoutcom_apm>
-
                 <model>CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</model>
-
-                <!-- Requested by AbstractMethod -->
-                <active>0</active>
-                <debug></debug>
-                <payment_action></payment_action>
-                <!-- <title></title> -->
-                <allowspecific></allowspecific>
-                <specificcountry></specificcountry>
-                <sort_order>1</sort_order>
-                <!-- </> -->
-
                 <title>Alternative Payments with Checkout.com</title>
-                <apm></apm>
-
-            </checkoutcom_apm>
-
-            <checkoutcom_google_pay>
-
-                <model>CheckoutCom\Magento2\Model\Methods\GooglePayMethod</model>
-
-                <!-- Requested by AbstractMethod -->
                 <active>0</active>
-                <debug></debug>
-                <payment_action></payment_action>
-                <!-- <title></title> -->
-                <allowspecific></allowspecific>
-                <specificcountry></specificcountry>
-                <sort_order>2</sort_order>
-                <!-- </> -->
-
+                <payment_action>authorize_capture</payment_action>                
+                <sort_order>1</sort_order>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <apm></apm>
+            </checkoutcom_apm>
+            <checkoutcom_google_pay>
+                <model>CheckoutCom\Magento2\Model\Methods\GooglePayMethod</model>
                 <title>Google Pay with Checkout.com</title>
+                <active>0</active>
+                <payment_action>authorize_capture</payment_action>                
+                <sort_order>2</sort_order>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <gateway_name>checkoutltd</gateway_name>
+                <allowed_card_networks>VISA,MASTERCARD</allowed_card_networks>
                 <merchant_id></merchant_id>
-                <theme></theme>
-
+                <environment>TEST</environment>
+                <button_style>white</button_style>
             </checkoutcom_google_pay>
-
             <checkoutcom_apple_pay>
                 <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
                 <title>Apple Pay with Checkout.com</title>

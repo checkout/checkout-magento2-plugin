@@ -10,15 +10,15 @@
 
                 <group id="module" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Configuration</label>
-                    <field id="active_module" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Module</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>settings/checkoutcom_configuration/active</config_path>
                         <requires>
                             <field id="secret_key"/>
                             <field id="public_key"/>
                             <field id="private_shared_key"/>
                         </requires>
-                        <config_path>settings/checkoutcom_configuration/active_module</config_path>
                     </field>
 
                     <field id="environment" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -60,6 +60,12 @@
                     <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Option Title</label>
                         <config_path>payment/checkoutcom_card_payment/title</config_path>
+                    </field>
+
+                    <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Card Payments</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_card_payment/active</config_path>
                     </field>
 
                     <field id="threeds_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -238,19 +244,38 @@
                         </requires>
                     </field>
 
+                    <field id="sort_order" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort Order</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkoutcom_google_pay/sort_order</config_path>
+                    </field>
+
+                    <field id="environment" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Environment</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigGooglePayEnvironment</source_model>
+                        <config_path>payment/checkoutcom_google_pay/environment</config_path>
+                    </field>
+
                     <field id="merchant_id" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant ID</label>
+                        <config_path>payment/checkoutcom_google_pay/merchant_id</config_path>
+                        <comment>Provide your Merchant ID</comment>
                     </field>
 
-                    <field id="theme" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Theme</label>
-                        <depends>
-                            <field id="enabled">1</field>
-                        </depends>
-                        <config_path>payment/checkoutcom_google_pay/theme</config_path>
+                    <field id="button_style" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Button Style</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigGooglePayButton</source_model>
+                        <config_path>payment/checkoutcom_google_pay/button_style</config_path>
+                        <comment>The Google Pay place order button style</comment>
+                    </field>
+
+                    <field id="allowed_card_networks" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Supported Networks</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigGooglePayNetworks</source_model>
+                        <config_path>payment/checkoutcom_google_pay/allowed_card_networks</config_path>
+                        <comment>Select the Google Pay supported cards</comment>
                     </field>
                 </group>
-
             </group>
         </section>
     </system>

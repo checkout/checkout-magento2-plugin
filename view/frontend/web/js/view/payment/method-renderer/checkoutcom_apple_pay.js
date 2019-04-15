@@ -6,7 +6,7 @@ define([
         'Magento_Checkout/js/model/payment/additional-validators',
         'mage/translate'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, t) {
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, __) {
 
         'use strict';
 
@@ -17,7 +17,7 @@ define([
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + CODE + '.phtml',
+                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
                     button_target: '#ckoApplePayButton',
                 },
 
@@ -45,7 +45,7 @@ define([
                  * @returns {string}
                  */
                 getValue: function (field) {
-                    return Utilities.getValue(CODE, field);
+                    return Utilities.getValue(METHOD_ID, field);
                 },
 
                 /**
@@ -244,7 +244,7 @@ define([
 
                                 if (success) {
                                     // redirect to success page
-                                    fullScreenLoader.startLoader();
+                                    FullScreenLoader.startLoader();
                                     redirectOnSuccessAction.execute(); 
                                 }
                             });
