@@ -10,7 +10,7 @@
 
 namespace CheckoutCom\Magento2\Controller\ApplePay;
 
-class Validation extends AbstractAction {
+class Validation extends \Magento\Framework\App\Action\Action {
 
     /**
      * @var JsonFactory
