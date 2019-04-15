@@ -1,6 +1,6 @@
 <?php
 
-namespace CheckoutCom\Magento2\Model\Config\Backend;
+namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
 class ConfigAction implements \Magento\Framework\Option\ArrayInterface
 {

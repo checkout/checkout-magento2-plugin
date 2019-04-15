@@ -97,27 +97,25 @@
             </checkoutcom_google_pay>
 
             <checkoutcom_apple_pay>
-
                 <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
-
-                <!-- Requested by AbstractMethod -->
-                <active>0</active>
-                <debug></debug>
-                <payment_action></payment_action>
-                <!-- <title></title> -->
-                <allowspecific></allowspecific>
-                <specificcountry></specificcountry>
-                <sort_order>3</sort_order>
-                <!-- </> -->
-
                 <title>Apple Pay with Checkout.com</title>
+                <active>0</active>
+                <payment_action>authorize_capture</payment_action>                
+                <sort_order>3</sort_order>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <processing_certificate>/path/to/cert</processing_certificate>
+                <processing_certificate_password></processing_certificate_password>
+                <merchant_id_certificate>/path/to/cert</merchant_id_certificate>
                 <merchant_id></merchant_id>
-                <certificate></certificate>
-                <certificate_key></certificate_key>
-                <theme></theme>
-
+                <supported_networks>amex,masterCard,visa</supported_networks>
+                <merchant_capabilities>supportsCredit,supportsDebit</merchant_capabilities>
+                <button_style>black</button_style>
             </checkoutcom_apple_pay>
-
         </payment>
     </default>
 </config>

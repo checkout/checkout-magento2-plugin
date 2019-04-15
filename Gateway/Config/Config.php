@@ -7,28 +7,42 @@ class Config
     protected $loader;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param string|null $methodCode
-     * @param string $pathPattern
+     * Config constructor
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Loader $loader
+        \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     ) {
         $this->loader = $loader;
+        $this->quoteHandler = $quoteHandler;
+    }
+
+    public function getValue($path) {
+        return $this->loader->getValue($path);
     }
 
     public function getFrontendConfig() {
         return [
             $this->loader::KEY_PAYMENT => [
-                $this->loader::KEY_MODULE_ID => array_merge(
-                    $this->getGlobalConfig(),
-                    $this->getMethodsConfig()
-                )
+                $this->loader::KEY_MODULE_ID => $this->getConfigArray()
             ]
         ];
     }
 
-    public function getGlobalConfig() {
+    public function getConfigArray() { 
+        return array_merge(
+            $this->getModuleConfig(),
+            $this->getMethodsConfig(),
+            [
+                'quote' => $this->quoteHandler->getQuoteData(),
+                'store' => [
+                    'name' => $this->getStoreName()
+                ]
+            ]
+        );
+    }
+
+    public function getModuleConfig() {
         return [
             $this->loader::KEY_CONFIG => $this->loader
             ->data[$this->loader::KEY_SETTINGS][$this->loader::KEY_CONFIG]
@@ -47,7 +61,19 @@ class Config
         return $methods;
     }
 
-    public function getValue($path) {
-        return $this->loader->getValue($path);
+    /**
+     * Returns the store name.
+     *
+     * @return string
+     */
+    public function getStoreName() {
+        $storeName = $this->getValue('general/store_information/name');
+
+        trim($storeName);
+        if (empty($storeName)) {
+            $storeName = parse_url($this->storeManager->getStore()->getBaseUrl())['host'] ;
+        }
+
+        return (string) $storeName;
     }
 }

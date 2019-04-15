@@ -35,6 +35,18 @@ console.log(Config);
                 return val;
             },
 
+            getStoreName: function() {
+                return Config[KEY_CONFIG].store.name;
+            },
+
+            getQuoteValue: function() {
+                return Config[KEY_CONFIG].quote.value;
+            },
+
+            getQuoteCurrency: function() {
+                return Config[KEY_CONFIG].quote.currency;
+            },
+
             /**
              * Builds the controller URL.
              *
@@ -67,25 +79,13 @@ console.log(Config);
 
             },
 
-
             /**
              * Billing address.
              *
              * @return     {object}  The billing address.
              */
             getBillingAddress: function() {
-
-                var billingAddress = Quote.billingAddress();
-
-                return {
-                    addressLine1: billingAddress.street[0],
-                    addressLine2: billingAddress.street[1],
-                    addressLine3: billingAddress.street[2],
-                    postcode: billingAddress.postcode,
-                    country: billingAddress.countryId,
-                    city: billingAddress.city
-                };
-
+                return Quote.billingAddress();
             },
 
             /**
@@ -124,42 +124,6 @@ console.log(Config);
                 $('#' + code + '_btn').prop('disabled', !enabled); //@todo: Add quote validation
 
             },
-
-
-            /**
-             * DOM handlers
-             */
-
-             createInput: function (el) {
-
-                var $div = $('<div>').attr({
-                        class: 'input-group'
-                    }),
-                    $label = $('<label>').attr({
-                        class: 'icon',
-                        for: el.name
-                    }),
-                    $icon = $('<span>').attr({
-                        class: 'ckojs ' + el.icon,
-                    }),
-                    $input = $('<input>').attr({
-                        id: el.name,
-                        type: el.type,
-                        placeholder: el.placeholder,
-                        name: el.name,
-                        'aria-label': el.placeholder,
-                        autocomplete: 'off',
-                        class: 'input-control',
-                        required: el.required,
-                        pattern: el.pattern,
-                        'data-validation': el.validation
-                    });
-
-                return $div.append($label.append($icon)).append($input);
-
-            },
-
-
 
             /**
              * HTTP handlers

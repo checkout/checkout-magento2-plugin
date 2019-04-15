@@ -3,7 +3,7 @@
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace CheckoutCom\Magento2\Model\Config\Backend;
+namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
 use \CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
 
