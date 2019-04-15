@@ -35,6 +35,10 @@ console.log(Config);
                 return val;
             },
 
+            getQuoteValue: function() {
+                return Config[KEY_CONFIG].quote.value;
+            },
+
             /**
              * Builds the controller URL.
              *

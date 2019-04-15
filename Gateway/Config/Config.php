@@ -17,7 +17,15 @@ class Config
         $this->quoteHandler = $quoteHandler;
     }
 
-    private function getConfigArray() { 
+    public function getFrontendConfig() {
+        return [
+            $this->loader::KEY_PAYMENT => [
+                $this->loader::KEY_MODULE_ID => $this->getConfigArray()
+            ]
+        ];
+    }
+    
+    public function getConfigArray() { 
         return array_merge(
             $this->getModuleConfig(),
             $this->getMethodsConfig(),
@@ -25,14 +33,6 @@ class Config
                 'quote' => $this->quoteHandler->getQuoteData()
             ]
         );
-    }
-
-    public function getFrontendConfig() {
-        return [
-            $this->loader::KEY_PAYMENT => [
-                $this->loader::KEY_MODULE_ID => $this->getConfigArray()
-            ]
-        ];
     }
 
     public function getModuleConfig() {
