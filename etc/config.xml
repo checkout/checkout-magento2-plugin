@@ -100,7 +100,6 @@
                 <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
                 <title>Apple Pay with Checkout.com</title>
                 <active>0</active>
-                <debug>0</debug>
                 <payment_action>authorize_capture</payment_action>                
                 <sort_order>3</sort_order>
                 <can_use_checkout>1</can_use_checkout>
