@@ -7,23 +7,30 @@ class Config
     protected $loader;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param string|null $methodCode
-     * @param string $pathPattern
+     * Config constructor
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Loader $loader
+        \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     ) {
         $this->loader = $loader;
+        $this->quoteHandler = $quoteHandler;
+    }
+
+    private function getConfigArray() { 
+        return array_merge(
+            $this->getGlobalConfig(),
+            $this->getMethodsConfig(),
+            [
+                'quote' => $this->quoteHandler->getQuoteData()
+            ]
+        );
     }
 
     public function getFrontendConfig() {
         return [
             $this->loader::KEY_PAYMENT => [
-                $this->loader::KEY_MODULE_ID => array_merge(
-                    $this->getGlobalConfig(),
-                    $this->getMethodsConfig()
-                )
+                $this->loader::KEY_MODULE_ID => $this->getConfigArray()
             ]
         ];
     }
