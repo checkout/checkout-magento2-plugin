@@ -114,7 +114,6 @@
                 <merchant_id></merchant_id>
                 <supported_networks>amex,masterCard,visa</supported_networks>
                 <merchant_capabilities>supportsCredit,supportsDebit</merchant_capabilities>
-                <supported_countries>US,GB</supported_countries>
                 <button_style>black</button_style>
             </checkoutcom_apple_pay>
         </payment>
