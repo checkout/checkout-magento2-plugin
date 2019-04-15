@@ -35,8 +35,16 @@ console.log(Config);
                 return val;
             },
 
+            getStoreName: function() {
+                return Config[KEY_CONFIG].store.name;
+            },
+
             getQuoteValue: function() {
                 return Config[KEY_CONFIG].quote.value;
+            },
+
+            getQuoteCurrency: function() {
+                return Config[KEY_CONFIG].quote.currency;
             },
 
             /**
@@ -71,25 +79,13 @@ console.log(Config);
 
             },
 
-
             /**
              * Billing address.
              *
              * @return     {object}  The billing address.
              */
             getBillingAddress: function() {
-
-                var billingAddress = Quote.billingAddress();
-
-                return {
-                    addressLine1: billingAddress.street[0],
-                    addressLine2: billingAddress.street[1],
-                    addressLine3: billingAddress.street[2],
-                    postcode: billingAddress.postcode,
-                    country: billingAddress.countryId,
-                    city: billingAddress.city
-                };
-
+                return Quote.billingAddress();
             },
 
             /**

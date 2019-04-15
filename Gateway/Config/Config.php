@@ -17,6 +17,10 @@ class Config
         $this->quoteHandler = $quoteHandler;
     }
 
+    public function getValue($path) {
+        return $this->loader->getValue($path);
+    }
+
     public function getFrontendConfig() {
         return [
             $this->loader::KEY_PAYMENT => [
@@ -24,13 +28,16 @@ class Config
             ]
         ];
     }
-    
+
     public function getConfigArray() { 
         return array_merge(
             $this->getModuleConfig(),
             $this->getMethodsConfig(),
             [
-                'quote' => $this->quoteHandler->getQuoteData()
+                'quote' => $this->quoteHandler->getQuoteData(),
+                'store' => [
+                    'name' => $this->getStoreName()
+                ]
             ]
         );
     }
@@ -54,7 +61,19 @@ class Config
         return $methods;
     }
 
-    public function getValue($path) {
-        return $this->loader->getValue($path);
+    /**
+     * Returns the store name.
+     *
+     * @return string
+     */
+    public function getStoreName() {
+        $storeName = $this->getValue('general/store_information/name');
+
+        trim($storeName);
+        if (empty($storeName)) {
+            $storeName = parse_url($this->storeManager->getStore()->getBaseUrl())['host'] ;
+        }
+
+        return (string) $storeName;
     }
 }
