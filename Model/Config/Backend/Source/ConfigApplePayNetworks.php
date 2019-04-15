@@ -10,7 +10,7 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-class ConfigApplePayNetworks implements Magento\Framework\Option\ArrayInterface {
+class ConfigApplePayNetworks implements \Magento\Framework\Option\ArrayInterface {
 
     const CARD_VISA = 'visa';
     const CARD_MASTERCARD = 'masterCard';
@@ -37,5 +37,4 @@ class ConfigApplePayNetworks implements Magento\Framework\Option\ArrayInterface 
             ],
         ];
     }
-
 }
