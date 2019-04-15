@@ -19,7 +19,7 @@ class Config
 
     private function getConfigArray() { 
         return array_merge(
-            $this->getGlobalConfig(),
+            $this->getModuleConfig(),
             $this->getMethodsConfig(),
             [
                 'quote' => $this->quoteHandler->getQuoteData()
@@ -35,7 +35,7 @@ class Config
         ];
     }
 
-    public function getGlobalConfig() {
+    public function getModuleConfig() {
         return [
             $this->loader::KEY_CONFIG => $this->loader
             ->data[$this->loader::KEY_SETTINGS][$this->loader::KEY_CONFIG]
