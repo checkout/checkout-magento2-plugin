@@ -10,9 +10,7 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-use Magento\Framework\Option\ArrayInterface;
-
-class ConfigApplePayButton implements ArrayInterface {
+class ConfigApplePayButton implements Magento\Framework\Option\ArrayInterface {
 
     const BUTTON_BLACK = 'black';
     const BUTTON_WHITE = 'white';

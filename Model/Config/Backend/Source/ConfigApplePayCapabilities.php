@@ -10,9 +10,7 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-use Magento\Framework\Option\ArrayInterface;
-
-class ConfigApplePayCapabilities implements ArrayInterface {
+class ConfigApplePayCapabilities implements Magento\Framework\Option\ArrayInterface {
 
     const CAP_CRE = 'supportsCredit';
     const CAP_DEB = 'supportsDebit';
