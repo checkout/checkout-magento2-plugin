@@ -23,31 +23,31 @@
 
                     <field id="environment" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Environment</label>
-                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigEnvironment</source_model>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigEnvironment</source_model>
                         <config_path>settings/checkoutcom_configuration/environment</config_path>
                     </field>
 
                     <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Secret Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <backend_model>Magento\Config\Model\Config\Backend\Source\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_configuration/secret_key</config_path>
                     </field>
 
                     <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Public Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <backend_model>Magento\Config\Model\Config\Backend\Source\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_configuration/public_key</config_path>
                     </field>
 
                     <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Private Shared Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <backend_model>Magento\Config\Model\Config\Backend\Source\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
                     </field>
 
                     <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Action</label>
-                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigAction</source_model>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigAction</source_model>
                         <config_path>payment/checkoutcom_card_payment/payment_action</config_path>
                     </field>
 
@@ -144,7 +144,7 @@
 
                     <field id="apm" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Alternative Payments</label>
-                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\ConfigAlternativePayments</source_model>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigAlternativePayments</source_model>
                         <depends>
                             <field id="active">1</field>
                         </depends>
@@ -202,21 +202,21 @@
 
                     <field id="button_style" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Button Style</label>
-                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayButton</source_model>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigApplePayButton</source_model>
                         <config_path>payment/checkoutcom_apple_pay/button_style</config_path>
                         <comment>The Apple Pay place order button style</comment>
                     </field>
 
                     <field id="supported_networks" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Supported Networks</label>
-                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayNetworks</source_model>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigApplePayNetworks</source_model>
                         <config_path>payment/checkoutcom_apple_pay/supported_networks</config_path>
                         <comment>Select the Apple Pay supported cards</comment>
                     </field>
 
                     <field id="merchant_capabilities" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant Capabilities</label>
-                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayCapabilities</source_model>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigApplePayCapabilities</source_model>
                         <config_path>payment/checkoutcom_apple_pay/merchant_capabilities</config_path>
                         <comment>Select the Apple Pay merchant capabilities</comment>
                     </field>
