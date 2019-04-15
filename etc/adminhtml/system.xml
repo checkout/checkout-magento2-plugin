@@ -44,15 +44,6 @@
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
                     </field>
-
-                    <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Action</label>
-                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigAction</source_model>
-                        <config_path>payment/checkoutcom_card_payment/payment_action</config_path>
-                    </field>
-
-                    <!-- Order Management Settings go here -->
-
                 </group>
 
                 <group id="checkoutcom_card_payments" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
