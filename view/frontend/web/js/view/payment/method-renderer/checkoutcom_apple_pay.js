@@ -87,7 +87,7 @@ define([
                  * @returns {object}
                  */
                 performValidation: function(valURL) {
-                    var controllerUrl = Utilities.getUrl('payment/applepayvalidation');
+                    var controllerUrl = Utilities.getUrl('applepay/validation');
                     var validationUrl = controllerUrl + '?u=' + valURL;
                     
                     return new Promise(function(resolve, reject) {
@@ -108,7 +108,7 @@ define([
                 sendChargeRequest: function(paymentData) {
                     return new Promise(function(resolve, reject) {
                         $.ajax({
-                            url: url.build('payment/applepayplaceorder'),
+                            url: url.build('payment/placeorder'),
                             type: "POST",
                             data: paymentData,
                             success: function(data, textStatus, xhr) {
