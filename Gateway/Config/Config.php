@@ -78,7 +78,7 @@ class Config
         $methods = [];
         foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodCode => $data) {
             $path = 'payment/' . $methodCode . '/active';
-            if ($this->loader->getValue($path) == 1) {
+            if ($this->getValue($path) == 1) {
                 $methods[$methodCode] = $data;
             }
         }
@@ -100,5 +100,23 @@ class Config
         }
 
         return (string) $storeName;
+    }
+
+    /**
+     * Determines if the module is in sandbox mode.
+     *
+     * @return bool
+     */
+    public function isSandbox() {
+        return $this->getValue('settings/checkoutcom_configuration/environment') == 0;
+    }
+
+    /**
+     * Determines if the module is in production mode.
+     *
+     * @return bool
+     */
+    public function isLive() {
+        return $this->getValue('settings/checkoutcom_configuration/environment') == 1;
     }
 }
