@@ -119,10 +119,13 @@
                         <config_path>payment/checkoutcom_card_payment/cvv_optional</config_path>
                     </field>
 
-                    <field id="mada_bin_check" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Enable MADA Bin Check</label>
+                    <field id="mada_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable MADA BIN Check</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/mada_bin_check</config_path>
+                        <config_path>payment/checkoutcom_card_payment/mada_enabled</config_path>
+                        <comment>
+                            Add a flag to the charge request if the payment card is MADA.
+                        </comment>
                     </field>
                 </group>
 

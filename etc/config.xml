@@ -12,6 +12,8 @@
                 <secret_key></secret_key>
                 <public_key></public_key>
                 <private_shared_key></private_shared_key>
+                <mada_test_file>Model/Files/Mada/mada_test.csv</mada_test_file>
+                <mada_live_file>Model/Files/Mada/mada_live.csv</mada_live_file>
             </checkoutcom_configuration>
         </settings>
         <payment>
@@ -29,7 +31,7 @@
                 <decriptor_name></decriptor_name>
                 <decriptor_city></decriptor_city>
                 <cvv_optional>0</cvv_optional>
-                <mada_bin_check>0</mada_bin_check>
+                <mada_enabled>0</mada_enabled>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
