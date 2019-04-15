@@ -17,10 +17,20 @@ class Config
         $this->quoteHandler = $quoteHandler;
     }
 
+    /**
+     * Returns a config value.
+     *
+     * @return string
+     */
     public function getValue($path) {
         return $this->loader->getValue($path);
     }
 
+    /**
+     * Returns a frontend config array.
+     *
+     * @return array
+     */
     public function getFrontendConfig() {
         return [
             $this->loader::KEY_PAYMENT => [
@@ -29,6 +39,11 @@ class Config
         ];
     }
 
+    /**
+     * Returns a merged array of config values.
+     *
+     * @return array
+     */
     public function getConfigArray() { 
         return array_merge(
             $this->getModuleConfig(),
@@ -42,6 +57,11 @@ class Config
         );
     }
 
+    /**
+     * Returns the module global config.
+     *
+     * @return array
+     */
     public function getModuleConfig() {
         return [
             $this->loader::KEY_CONFIG => $this->loader
@@ -49,6 +69,11 @@ class Config
         ];        
     }
 
+    /**
+     * Returns the payment methods config.
+     *
+     * @return array
+     */
     public function getMethodsConfig() {
         $methods = [];
         foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodCode => $data) {
