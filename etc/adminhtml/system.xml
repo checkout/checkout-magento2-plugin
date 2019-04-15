@@ -164,32 +164,61 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_apple_pay/active</config_path>
                         <requires>
+                            <field id="processing_certificate"/>
+                            <field id="merchant_id_certificate"/>
                             <field id="merchant_id"/>
-                            <field id="certificate"/>
-                            <field id="certificate_key"/>
                         </requires>
                     </field>
+
+                    <field id="sort_order" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort Order</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkoutcom_applepay/sort_order</config_path>
+                    </field>
+
+                    <field id="processing_certificate" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment Processing Certificate</label>
+                        <config_path>payment/checkoutcom_apple_pay/processing_certificate</config_path>
+                        <comment>Abslolute path to the file on your server</comment>
+                    </field>
+
+                    <field id="processing_certificate_password" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Processing Certificate Password</label>
+                        <config_path>payment/checkoutcom_apple_pay/processing_certificate_password</config_path>
+                        <comment>Password for the payment processing certificate</comment>
+                    </field>
+                    
+                    <field id="merchant_id_certificate" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Merchant Identity Certificate</label>
+                        <config_path>payment/checkoutcom_apple_pay/merchant_id_certificate</config_path>
+                        <comment>Abslolute path to the file on your server</comment>
+                    </field>
+
                     <field id="merchant_id" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant ID</label>
                         <config_path>payment/checkoutcom_apple_pay/merchant_id</config_path>
+                        <comment>Provide your Merchant ID</comment>
                     </field>
 
-                    <field id="certificate" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Certificate Path</label>
-                        <config_path>payment/checkoutcom_apple_pay/certificate</config_path>
+                    <field id="button_style" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Button Style</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayButton</source_model>
+                        <config_path>payment/checkoutcom_apple_pay/button_style</config_path>
+                        <comment>The Apple Pay place order button style</comment>
                     </field>
 
-                    <field id="certificate_key" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Certificate Key Path</label>
-                        <config_path>payment/checkoutcom_apple_pay/certificate_key</config_path>
+                    <field id="supported_networks" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Supported Networks</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayNetworks</source_model>
+                        <config_path>payment/checkoutcom_apple_pay/supported_networks</config_path>
+                        <comment>Select the Apple Pay supported cards</comment>
                     </field>
 
-                    <field id="theme" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Theme</label>
-                        <depends>
-                            <field id="active">1</field>
-                        </depends>
-                        <config_path>payment/checkoutcom_apple_pay/theme</config_path>
+                    <field id="merchant_capabilities" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Merchant Capabilities</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\ApplePayCapabilities</source_model>
+                        <config_path>payment/checkoutcom_apple_pay/merchant_capabilities</config_path>
+                        <comment>Select the Apple Pay merchant capabilities</comment>
                     </field>
                 </group>
 
