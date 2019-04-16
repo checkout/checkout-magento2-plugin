@@ -106,7 +106,10 @@ define([
                         },
                         cardTokenised: function(event) {
                             alert(event.data.cardToken);
-                            Frames.addCardToken(self.formId, event.data.cardToken);
+                            Frames.addCardToken(
+                                document.getElementById(self.formId),
+                                event.data.cardToken
+                            );
                         }
                     });
                 },
