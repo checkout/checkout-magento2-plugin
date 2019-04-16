@@ -105,7 +105,6 @@ console.log(Config);
                 return {
                     number: billingAddress.telephone
                 };
-
             },
 
             /**
@@ -128,27 +127,25 @@ console.log(Config);
 
             /**
              * Place a new order.
-             * @returns {string}
+             * @returns {void}
              */
-            placeOrder: function (source, successCallback, failCallback) {
-                var data = {
-                                source: source,
-                                billing_address: this.getBillingAddress(),
-                                phone: this.getPhone(),
-                                customer: {
-                                    email: this.getEmail(),
-                                    name: this.getCustomerName(false)
-                                }
-                            };
-
+            placeOrder: function (payload) {
+                var self = this;
                 $.ajax({
                     type: 'POST',
-                    url: this.getEndPoint('placeorder'),
-                    data: JSON.stringify(data),
-                    success: successCallback,
+                    url: self.getUrl('payment/placeorder'),
+                    data: payload,
                     dataType: 'json',
-                    contentType: 'application/json; charset=utf-8'
-                }).fail(failCallback);
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        console.log('place order data');
+                        console.log(data);
+                    },
+                    error: function (request, status, error) {
+                        console.log('place order error');
+                        console.log(error);
+                    }
+                });
             }
         };
     }
