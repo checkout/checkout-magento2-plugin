@@ -2,23 +2,50 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Customer\Api\Data\GroupInterface;
 class QuoteHandlerService
 {
 
+    const EMAIL_COOKIE_NAME = 'email';
+
+    /**
+     * @var Session
+     */
     protected $checkoutSession;
+
+    /**
+     * @var CookieManagerInterface
+     */
+
+    /**
+     * @var QuoteFactory
+     */
+    protected $quoteFactory;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
+     * @var Config
+     */
     protected $config;
+
 
     /**
      * @param Context $context
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
     {
         $this->checkoutSession = $checkoutSession;
+        $this->cookieManager = $cookieManager;
         $this->quoteFactory = $quoteFactory;
         $this->storeManager = $storeManager;
         $this->config = $config;
@@ -95,7 +122,7 @@ class QuoteHandlerService
             ->setCustomerIsGuest(true)
             ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
         // Delete the cookie
-        $this->cookieManager->deleteCookie(Connector::EMAIL_COOKIE_NAME);
+        $this->cookieManager->deleteCookie(self::EMAIL_COOKIE_NAME);
         // Return the quote
         return $quote;
     }
@@ -107,7 +134,7 @@ class QuoteHandlerService
     {
         return $quote->getCustomerEmail()
         ?? $quote->getBillingAddress()->getEmail()
-        ?? $this->cookieManager->getCookie(Connector::EMAIL_COOKIE_NAME);
+        ?? $this->cookieManager->getCookie(self::EMAIL_COOKIE_NAME);
     }
 
 }
