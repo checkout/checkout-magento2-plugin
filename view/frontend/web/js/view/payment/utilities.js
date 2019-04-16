@@ -108,7 +108,6 @@ console.log(Config);
 
             },
 
-
             /**
              * Methods
              */
@@ -132,7 +131,6 @@ console.log(Config);
              * @returns {string}
              */
             placeOrder: function (source, successCallback, failCallback) {
-
                 var data = {
                                 source: source,
                                 billing_address: this.getBillingAddress(),
@@ -151,7 +149,6 @@ console.log(Config);
                     dataType: 'json',
                     contentType: 'application/json; charset=utf-8'
                 }).fail(failCallback);
-
             }
         };
     }
