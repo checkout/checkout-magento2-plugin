@@ -16,6 +16,7 @@ class QuoteHandlerService
     /**
      * @var CookieManagerInterface
      */
+    protected $cookieManager;
 
     /**
      * @var QuoteFactory
