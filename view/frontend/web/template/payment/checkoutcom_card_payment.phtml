@@ -18,7 +18,7 @@
 
         <!-- Card form -->
         <div class="frames-container">
-            <form method="POST"></form>
+            <form method="POST" data-bind="attr: {'id': formId}"></form>
             <div data-bind="visible: getPaymentForm()"></div> 
         </div>
 
@@ -43,7 +43,7 @@
                         type="submit"
                         data-bind="
                         click: placeOrder,
-                        attr: {title: $t('Place Order'), 'id': (getCode()+'_btn')},
+                        attr: {title: $t('Place Order'), 'id': buttonId},
                         css: {disabled: !isPlaceOrderActionAllowed()}
                         " disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

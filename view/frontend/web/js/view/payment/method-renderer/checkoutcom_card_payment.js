@@ -18,7 +18,9 @@ define([
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml'
+                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
+                    buttonId: '#' + METHOD_ID + '_btn',
+                    formId: '#' + METHOD_ID + '_frm'
                 },
 
                 /**
@@ -61,26 +63,33 @@ define([
                 },
 
                 /**
+                 * @returns {boolean}
+                 */
+                cleanEvents: function () {
+                    Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
+                    Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
+                    Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
+                },
+
+                /**
                  * Events
                  */
 
                 /**
-                 * Content visible
+                 * Gets the payment form
                  *
                  * @return {void}
                  */
                 getPaymentForm: function() {                    
                     var $btnSubmit = $('#ckoCardTargetButton'),
                         $frame = $('.frames-container'),
-                        self =  this;
+                        self = this;
 
                     // Disable button
-                    //Utilities.enableSubmit(METHOD_ID, false);
+                    //Utilities.canPlaceOrder(this.buttonId, false);
 
                     // Remove any existing event handlers
-                    Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
-                    Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
-                    Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
+                    this.cleanEvents();
 
                     Frames.init({
                         publicKey: self.getValue('public_key'),
@@ -88,12 +97,20 @@ define([
                         debugMode: self.getValue('debug'),
                         billingDetails: Utilities.getBillingAddress(),
                         customerName: Utilities.getCustomerName(),
-                        //theme: self.getValue('theme'),
-                        //themeOverride: self.getValue('themeOverride'),
                         //localisation: self.getValue('localisation'),
                         //localisation: 'EN-GB',
+                        frameActivated: function () {
+                            //$('#ckoPlaceOrder').attr("disabled", true);
+                        },
                         cardValidationChanged: function() {
-                            //Utilities.enableSubmit(METHOD_ID, Frames.isCardValid());
+                            if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
+                                //Utilities.canPlaceOrder(this.buttonId, true);
+                                Frames.submitCard();
+                            }
+                        },
+                        cardTokenised: function(event) {
+                            alert(event.data.cardToken);
+                            Frames.addCardToken(self.formId, event.data.cardToken);
                         }
                     });
                 },
@@ -102,46 +119,13 @@ define([
                  * @returns {void}
                  */
                 placeOrder: function () {
-                    // Start the loader
-                    FullScreenLoader.startLoader();
-                    // Validate before submission
-                    if (AdditionalValidators.validate()) {
-                        Frames.submitCard();
-                     //   return true;
+                    if (AdditionalValidators.validate() && Frames.isCardValid()) {
+                        alert('submission triggered');
                     } else {
-                        this.handleFail({}); //@todo: imrpove needed
-                        FullScreenLoader.stopLoader();
+                        Frames.unblockFields();
                     }
 
                     return false;
-                },
-
-                /**
-                 * HTTP handlers
-                 */
-
-                /**
-                 * @returns {string}
-                 */
-                request: function (res) {
-                    Utilities.placeOrder({
-                        type: 'token',
-                        token: res.data.cardToken
-
-                    },
-                    this.handleSuccess,
-                    this.handleFail);
-                },
-
-                handleSuccess: function(res) {
-console.log(res);
-                    FullScreenLoader.stopLoader();
-                },
-
-                handleFail: function(res) {
-console.log(res);
-                    Frames.unblockFields();
-                    FullScreenLoader.stopLoader();
                 }
 
             }

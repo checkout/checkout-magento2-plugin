@@ -114,15 +114,13 @@ console.log(Config);
              */
 
             /**
-             * Enables the submit button.
+             * Updates the submit button state.
              *
              * @param      {boolean}   enabled  Status.
              * @return     {void}
              */
-            enableSubmit: function (code, enabled) {
-
-                $('#' + code + '_btn').prop('disabled', !enabled); //@todo: Add quote validation
-
+            canPlaceOrder: function (buttonId, enabled) {
+                $(buttonId).prop('disabled', !enabled);
             },
 
             /**
