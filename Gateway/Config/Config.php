@@ -10,6 +10,11 @@ class Config
     protected $storeManager;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
      * @var Loader
      */
     protected $loader;
@@ -19,21 +24,35 @@ class Config
      */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     ) {
+        $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
         $this->loader = $loader;
         $this->quoteHandler = $quoteHandler;
-        $this->storeManager = $storeManager;
     }
 
     /**
-     * Returns a config value.
+     * Returns a module config value.
      *
      * @return string
      */
-    public function getValue($path) {
-        return $this->loader->getValue($path);
+    public function getValue($field, $methodId = null) {
+        return $this->loader->getValue($field, $methodId);
+    }
+
+    /**
+     * Returns a Magento core value.
+     *
+     * @return string
+     */
+    public function getCoreValue($path) {
+        return $this->scopeConfig->getValue(
+            $path,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**
@@ -102,7 +121,7 @@ class Config
      * @return string
      */
     public function getStoreName() {
-        $storeName = $this->getValue('general/store_information/name');
+        $storeName = $this->getCoreValue('general/store_information/name');
 
         trim($storeName);
         if (empty($storeName)) {
@@ -118,7 +137,7 @@ class Config
      * @return bool
      */
     public function isSandbox() {
-        return $this->getValue('settings/checkoutcom_configuration/environment') == 0;
+        return $this->getValue('environment') == 0;
     }
 
     /**
@@ -127,6 +146,6 @@ class Config
      * @return bool
      */
     public function isLive() {
-        return $this->getValue('settings/checkoutcom_configuration/environment') == 1;
+        return $this->getValue('environment') == 1;
     }
 }

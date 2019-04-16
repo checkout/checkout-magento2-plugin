@@ -118,7 +118,7 @@ console.log(Config);
              * @return     {void}
              */
             setButtonState: function (buttonId, enabled) {
-                $(buttonId).prop('disabled', !enabled);
+                $('#' + buttonId).prop('disabled', !enabled);
             },
 
             /**
