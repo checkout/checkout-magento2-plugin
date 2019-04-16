@@ -43,9 +43,7 @@ class QuoteHandlerService
     }
 
     /**
-     * Get a quote value.
-     *
-     * @return float
+     * Gets an array of quote parameters
      */
     public function getQuoteData() {
         try {
@@ -58,6 +56,9 @@ class QuoteHandlerService
         }
     }
 
+    /**
+     * Gets a quote currency
+     */
     public function getQuoteCurrency() {
         try {            
             return $this->getQuote()->getQuoteCurrencyCode() 
@@ -67,6 +68,9 @@ class QuoteHandlerService
         }
     }
 
+    /**
+     * Gets a quote value
+     */
     public function getQuoteValue() {
         try {            
             return $this->getQuote()
@@ -77,4 +81,34 @@ class QuoteHandlerService
             return false;
         }
     }
+
+    /**
+     * Sets the email for guest users
+     */
+    public function prepareGuestQuote($quote, $email = null)
+    {
+        // Retrieve the user email
+        $guestEmail = ($email) ? $email : $this->findCustomerEmail();
+        // Set the quote as guest
+        $quote->setCustomerId(null)
+            ->setCustomerEmail($guestEmail)
+            ->setCustomerIsGuest(true)
+            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
+        // Delete the cookie
+        $this->cookieManager->deleteCookie(Connector::EMAIL_COOKIE_NAME);
+        // Return the quote
+        return $quote;
+    }
+
+
+    /**
+     * Finds a customer email
+     */
+    public function findCustomerEmail($quote)
+    {
+        return $quote->getCustomerEmail()
+        ?? $quote->getBillingAddress()->getEmail()
+        ?? $this->cookieManager->getCookie(Connector::EMAIL_COOKIE_NAME);
+    }
+
 }
