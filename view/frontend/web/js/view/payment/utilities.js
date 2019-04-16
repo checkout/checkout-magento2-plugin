@@ -119,7 +119,7 @@ console.log(Config);
              * @param      {boolean}   enabled  Status.
              * @return     {void}
              */
-            canPlaceOrder: function (buttonId, enabled) {
+            setButtonState: function (buttonId, enabled) {
                 $(buttonId).prop('disabled', !enabled);
             },
 

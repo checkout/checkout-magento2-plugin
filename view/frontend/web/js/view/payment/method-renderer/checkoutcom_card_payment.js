@@ -86,7 +86,7 @@ define([
                         self = this;
 
                     // Disable button
-                    //Utilities.canPlaceOrder(this.buttonId, false);
+                    Utilities.setButtonState(this.buttonId, false);
 
                     // Remove any existing event handlers
                     this.cleanEvents();
@@ -104,7 +104,7 @@ define([
                         },
                         cardValidationChanged: function() {
                             if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
-                                //Utilities.canPlaceOrder(this.buttonId, true);
+                                //Utilities.setButtonState(this.buttonId, true);
                                 Frames.submitCard();
                             }
                         },
