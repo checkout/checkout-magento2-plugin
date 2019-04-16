@@ -33,7 +33,6 @@ class QuoteHandlerService
      */
     protected $config;
 
-
     /**
      * @param Context $context
      */
