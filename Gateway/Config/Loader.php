@@ -72,7 +72,7 @@ class Loader
                     if (!$this->isHidden($key)) {
                         $path = $parent . '/' . $group . '/' . $key;
                         $dbData[$parent][$group][$key] = ($this->isEncrypted($key))
-                        ? $this->decrypt($path) 
+                        ? $this->decrypt($key) 
                         : $this->scopeConfig->getValue(
                             $path,
                             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
@@ -107,16 +107,19 @@ class Loader
     }
 
     private function isEncrypted($field) {
-        $encryptedFields = explode(',',
-            $this->getValue('fields_encrypted')
+        return in_array(
+            $field,
+            explode(
+                ',',
+                $this->getValue('fields_encrypted')
+            )
         );
-
-        return in_array($field, $encryptedFields);
     }
 
-    private function decrypt($path) {
-        $value = $this->getValue($path);
-        return $this->encryptor->decrypt($value);
+    private function decrypt($field) {
+        return $this->encryptor->decrypt(
+            $this->getValue($field)
+        );
     }
 
     public function getValue($field, $methodId = null) {
