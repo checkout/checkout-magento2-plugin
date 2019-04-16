@@ -7,7 +7,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
-use CheckoutCom\Magento2\Model\Service\SdkHandlerService;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use \Checkout\Library\HttpHandler;
 use CheckoutCom\Magento2\Model\Methods\CardPaymentMethod;
 use CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
@@ -21,7 +21,7 @@ class PlaceOrder extends Action {
 	protected $jsonFactory;
     protected $config;
     protected $orderHandler;
-    protected $sdk;
+    protected $api;
     protected $quoteFactory;
     protected $checkoutSession;
     protected $customerSession;
@@ -33,7 +33,7 @@ class PlaceOrder extends Action {
         Context $context,
         JsonFactory $jsonFactory,
         OrderHandlerService $orderHandler,
-        SdkHandlerService $sdk,
+        ApiHandlerService $api,
         QuoteFactory $quoteFactory,
         CheckoutSession $checkoutSession,
         CustomerSession $customerSession,
@@ -43,7 +43,7 @@ class PlaceOrder extends Action {
         parent::__construct($context);
         $this->jsonFactory = $jsonFactory;
         $this->orderHandler = $orderHandler;
-        $this->sdk = $sdk;
+        $this->api = $api;
         $this->quoteFactory = $quoteFactory;
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;

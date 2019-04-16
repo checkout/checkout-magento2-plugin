@@ -8,9 +8,9 @@ use \Checkout\Models\Phone;
 use CheckoutCom\Magento2\Model\Methods\Method;
 
 /**
- * Class for sdk handler service.
+ * Class for API handler service.
  */
-class SdkHandlerService
+class ApiHandlerService
 {
 
     protected $config;
