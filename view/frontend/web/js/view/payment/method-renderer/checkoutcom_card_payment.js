@@ -81,9 +81,7 @@ define([
                  * @return {void}
                  */
                 getPaymentForm: function() {                    
-                    var $btnSubmit = $('#ckoCardTargetButton'),
-                        $frame = $('.frames-container'),
-                        self = this;
+                    var self = this;
 
                     // Disable button
                     Utilities.setButtonState(this.buttonId, false);
@@ -95,8 +93,6 @@ define([
                         publicKey: self.getValue('public_key'),
                         containerSelector: '.frames-container',
                         debugMode: self.getValue('debug'),
-                        billingDetails: Utilities.getBillingAddress(),
-                        customerName: Utilities.getCustomerName(),
                         //localisation: self.getValue('localisation'),
                         //localisation: 'EN-GB',
                         frameActivated: function () {
