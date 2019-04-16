@@ -22,6 +22,7 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
+    /*
     public function placeOrder($data, $methodId)
     {
         // Get the fields
@@ -41,10 +42,12 @@ class OrderHandlerService
         }
         return $order;
     }
-
+*/
     /**
      * Creates an order
      */
+
+    /*
     public function createOrder($fields, $methodId)
     {
         try {
@@ -105,6 +108,7 @@ class OrderHandlerService
             return false;
         }
     }
+    */
 
     /**
      * Tasks after place order
