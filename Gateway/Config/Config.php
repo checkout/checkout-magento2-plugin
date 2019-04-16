@@ -105,10 +105,9 @@ class Config
      */
     public function getMethodsConfig() {
         $methods = [];
-        foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodCode => $data) {
-            $path = 'payment/' . $methodCode . '/active';
-            if ($this->getValue($path) == 1) {
-                $methods[$methodCode] = $data;
+        foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodId => $data) {
+            if ($this->getValue('active', $methodId) == 1) {
+                $methods[$methodId] = $data;
             }
         }
 
