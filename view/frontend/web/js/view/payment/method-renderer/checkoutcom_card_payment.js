@@ -121,6 +121,7 @@ define([
                 placeOrder: function () {
                     if (AdditionalValidators.validate() && Frames.isCardValid()) {
                         Utilities.placeOrder({
+                            method_id: METHOD_ID
                         });
                     } else {
                         Frames.unblockFields();
