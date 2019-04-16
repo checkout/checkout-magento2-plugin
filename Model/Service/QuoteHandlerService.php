@@ -29,26 +29,19 @@ class QuoteHandlerService
     protected $storeManager;
 
     /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
      * @param Context $context
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     )
     {
         $this->checkoutSession = $checkoutSession;
         $this->cookieManager = $cookieManager;
         $this->quoteFactory = $quoteFactory;
         $this->storeManager = $storeManager;
-        $this->config = $config;
     }
 
     /**
