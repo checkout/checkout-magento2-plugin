@@ -25,12 +25,13 @@ class Validation extends \Magento\Framework\App\Action\Action {
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory
     ) {
         parent::__construct($context);
 
         $this->jsonFactory = $jsonFactory;
+        $this->methodId = $this->getRequest()->getParam('method_id');
+        $this->url = $this->getRequest()->getParam('u');
     }
 
     /**
@@ -39,11 +40,8 @@ class Validation extends \Magento\Framework\App\Action\Action {
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function execute() {
-        // Get the validation URL from the request
-        $url = $this->getRequest()->getParam('u');
-
         // Process the call after check
-        if ("https" == parse_url($url, PHP_URL_SCHEME) && substr( parse_url($url, PHP_URL_HOST), -10 )  == ".apple.com" ) {
+        if ("https" == parse_url($this->url, PHP_URL_SCHEME) && substr(parse_url($this->url, PHP_URL_HOST), -10 )  == ".apple.com" ) {
             // Prepare the configuration parameters
             $params = $this->getParams();
 
@@ -60,7 +58,7 @@ class Validation extends \Magento\Framework\App\Action\Action {
             .'"}';
 
             // Initialise the request
-            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_URL, $this->url);
             curl_setopt($ch, CURLOPT_SSLCERT, $params['merchantCertificate']);
             curl_setopt($ch, CURLOPT_SSLKEY, $params['processingCertificate']);
             curl_setopt($ch, CURLOPT_SSLKEYPASSWD, $params['processingCertificatePass']);
@@ -78,12 +76,12 @@ class Validation extends \Magento\Framework\App\Action\Action {
 
     public function getParams() {
         return [
-            'merchantId' => $this->config->getValue('payment/checkoutcom_apple_pay/merchant_id'),
+            'merchantId' => $this->config->getValue('merchant_id', $this->methodId),
             'domainName' => $_SERVER["HTTP_HOST"],
             'displayName' => $this->config->getStoreName(),
-            'processingCertificate' => $this->config->getValue('payment/checkoutcom_apple_pay/processing_certificate'),
-            'processingCertificatePass' => $this->config->getValue('payment/checkoutcom_apple_pay/processing_certificate_password'),
-            'merchantCertificate' => $this->config->getValue('payment/checkoutcom_apple_pay/merchant_id_certificate')
+            'processingCertificate' => $this->config->getValue('processing_certificate', $this->methodId),
+            'processingCertificatePass' => $this->config->getValue('processing_certificate_password', $this->methodId),
+            'merchantCertificate' => $this->config->getValue('merchant_id_certificate', $this->methodId)
         ];
     }
 }

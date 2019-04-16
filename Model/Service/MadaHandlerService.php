@@ -28,7 +28,7 @@ class MadaHandlerService
         $file = ($this->config->isLive()) ? 'mada_live_file' : 'mada_test_file';
 
         // Get the MADA file path
-        $path = $this->config->getValue('settings/checkoutcom_configuration/' . $file);
+        $path = $this->config->getValue($file);
 
         return $this->directoryReader->getModuleDir('', 
             'CheckoutCom_Magento2'

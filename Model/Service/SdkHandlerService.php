@@ -25,9 +25,15 @@ class SdkHandlerService
     {
         $this->config = $config;
         $this->checkoutApi = new CheckoutApi(
-            $this->config->getMethodValue('secret_key'),
-            $this->config->getMethodValue('environment'),
-            $this->config->getMethodValue('public_key')
+            $this->config->getValue('secret_key'),
+            $this->config->getValue('environment'),
+            $this->config->getValue('public_key')
         );
+    }
+
+    public function loadClient() {
+
+
+
     }
 }
