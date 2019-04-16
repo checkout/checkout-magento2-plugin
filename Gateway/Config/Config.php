@@ -4,17 +4,27 @@ namespace CheckoutCom\Magento2\Gateway\Config;
 
 class Config
 {
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
+     * @var Loader
+     */
     protected $loader;
 
     /**
      * Config constructor
      */
     public function __construct(
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     ) {
         $this->loader = $loader;
         $this->quoteHandler = $quoteHandler;
+        $this->storeManager = $storeManager;
     }
 
     /**
