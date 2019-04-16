@@ -120,7 +120,8 @@ define([
                  */
                 placeOrder: function () {
                     if (AdditionalValidators.validate() && Frames.isCardValid()) {
-                        alert('submission triggered');
+                        Utilities.placeOrder({
+                        });
                     } else {
                         Frames.unblockFields();
                     }
