@@ -67,7 +67,6 @@ class QuoteHandlerService
         }
     }
 
-
     public function getQuoteValue() {
         try {            
             return $this->getQuote()
