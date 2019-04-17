@@ -47,7 +47,7 @@ class QuoteHandlerService
     /**
      * Find a quote
      */
-    public function getQuote($reservedIncrementId = null) {
+    public function findQuote($reservedIncrementId = null) {
         try {
             if ($reservedIncrementId) {
                 return $this->quoteFactory
@@ -56,7 +56,7 @@ class QuoteHandlerService
                     ->getFirstItem();
             }
 
-            return $this->checkoutSession->getQuote();
+            return $this->checkoutSession->findQuote();
         } catch (\Exception $e) {
             return false;
         }
@@ -81,7 +81,7 @@ class QuoteHandlerService
      */
     public function getQuoteCurrency() {
         try {            
-            return $this->getQuote()->getQuoteCurrencyCode() 
+            return $this->findQuote()->getQuoteCurrencyCode() 
             ?? $this->storeManager->getStore()->getCurrentCurrency()->getCode();
         } catch (\Exception $e) {
             return false;
@@ -93,7 +93,7 @@ class QuoteHandlerService
      */
     public function getQuoteValue() {
         try {            
-            return $this->getQuote()
+            return $this->findQuote()
             ->collectTotals()
             ->save()
             ->getGrandTotal();
