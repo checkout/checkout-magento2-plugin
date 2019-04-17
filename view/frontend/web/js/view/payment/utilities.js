@@ -135,8 +135,6 @@ console.log(Config);
                     type: 'POST',
                     url: self.getUrl('payment/placeorder'),
                     data: payload,
-                    dataType: 'json',
-                    contentType: 'application/json; charset=utf-8',
                     success: function (data) {
                         console.log('place order data');
                         console.log(data);

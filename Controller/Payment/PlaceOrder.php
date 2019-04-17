@@ -55,70 +55,20 @@ class PlaceOrder extends Action {
      * Handles the controller method.
      */
     public function execute() {
+        if ($this->getRequest()->isAjax()) {
+            $methodId = $this->getRequest()->getParam('methodId');
+            $cardToken = $this->getRequest()->getParam('cardToken');
+            
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($methodId, 1));
+            $logger->info(print_r($cardToken, 1));
 
-    	$request = json_decode($this->getRequest()->getContent(), true);
-    	$response = array();
-
-        if($this->isValid($request)) {
-
-            $payment = null;
-            switch ($request['source']['type']) {
-
-                case 'token':
-                    $payment = CardPaymentMethod::createPayment($request, $this->orderHandler->getCurrency());
-                    break;
-
-                case 'googlepay':
-                    break;
-
-                case 'applepay':
-                    break;
-
-                default:
-
-                    // Alternative payment
-                    $payment = AlternativePaymentMethod::createPayment($request, $this->orderHandler->getCurrency());
-                    break;
-
-            }
-
-            //$this->pay($payment);
 
         }
 
-    	return $this->jsonFactory->create()->setData($request);
-
-    }
-
-
-    /**
-     * Define what is a valid request.
-     *
-     * @param      array   $body   The body
-     *
-     * @return     boolean
-     */
-    protected function isValid($request = array()) {
-
-    	return true;
-
-    }
-
-    /**
-     * Process payment.
-     *
-     * @param      Payment   $body   The body
-     *
-     * @return     boolean
-     */
-    protected function pay(Payment $payment) {
-
-        /**
-         * @todo: set order reference, authorize/capture, shipping address and all that.
-         *        handle further action needed.
-         */
-
-        return true;
+    	return $this->jsonFactory->create()->setData([]);
 
     }
 

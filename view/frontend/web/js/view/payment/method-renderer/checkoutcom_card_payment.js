@@ -19,7 +19,8 @@ define([
             defaults: {
                 template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
                 buttonId: METHOD_ID + '_btn',
-                formId: METHOD_ID + '_frm'
+                formId: METHOD_ID + '_frm',
+                cardToken: null
             },
 
             /**
@@ -57,13 +58,6 @@ define([
             /**
              * @returns {boolean}
              */
-            isPlaceOrderActionAllowed: function () {
-                return true;
-            },
-
-            /**
-             * @returns {boolean}
-             */
             cleanEvents: function () {
                 Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
                 Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
@@ -83,7 +77,7 @@ define([
                 var self = this;
 
                 // Disable button
-                Utilities.setButtonState(this.buttonId, false);
+                self.isPlaceOrderActionAllowed(false);
 
                 // Remove any existing event handlers
                 this.cleanEvents();
@@ -95,17 +89,19 @@ define([
                     //localisation: self.getValue('localisation'),
                     //localisation: 'EN-GB',
                     frameActivated: function () {
-                        // Disable button
-                        Utilities.setButtonState(this.buttonId, false);
+                        self.isPlaceOrderActionAllowed(false);
                     },
                     cardValidationChanged: function() {
                         if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
-                            Utilities.setButtonState(this.buttonId, true);
+                            self.isPlaceOrderActionAllowed(true);
                             Frames.submitCard();
                         }
                     },
                     cardTokenised: function(event) {
-                        alert(event.data.cardToken);
+                        // Store the card token for later submission
+                        self.cardToken = event.data.cardToken;
+
+                        // Add the card token to the form
                         Frames.addCardToken(
                             document.getElementById(self.formId),
                             event.data.cardToken
@@ -118,15 +114,15 @@ define([
              * @returns {void}
              */
             placeOrder: function () {
+                var self = this;
                 if (AdditionalValidators.validate() && Frames.isCardValid()) {
                     Utilities.placeOrder({
-                        method_id: METHOD_ID
+                        methodId: METHOD_ID,
+                        cardToken: self.cardToken
                     });
                 } else {
                     Frames.unblockFields();
                 }
-
-                return false;
             }
         });
     }
