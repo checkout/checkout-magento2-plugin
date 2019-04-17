@@ -68,7 +68,10 @@ class PlaceOrder extends Action {
 
         }
 
-    	return $this->jsonFactory->create()->setData([]);
+    	return $this->jsonFactory->create()->setData([
+            'success' => false,
+            'message' => __('There  was  an error with the transaction.')
+        ]);
 
     }
 

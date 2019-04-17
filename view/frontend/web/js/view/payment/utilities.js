@@ -112,13 +112,23 @@ console.log(Config);
              */
 
             /**
-             * Updates the submit button state.
-             *
-             * @param      {boolean}   enabled  Status.
-             * @return     {void}
+             * Show a message
              */
-            setButtonState: function (buttonId, enabled) {
-                $('#' + buttonId).prop('disabled', !enabled);
+            showMessage: function (type, message) {
+                this.clearMessages();
+                var messageContainer = $('.message');
+                messageContainer.addClass('message-' + type + ' ' + type);
+                messageContainer.append('<div>' + message + '</div>');
+                messageContainer.show();
+            },
+
+            /**
+             * Clear all messages
+             */
+            clearMessages: function () {
+                var messageContainer = $('.message');
+                messageContainer.hide();
+                messageContainer.empty();
             },
 
             /**
@@ -137,11 +147,12 @@ console.log(Config);
                     data: payload,
                     success: function (data) {
                         console.log('place order data');
-                        console.log(data);
+                        if (!data.success) {
+                            self.showMessage('error', data.message);
+                        }
                     },
                     error: function (request, status, error) {
-                        console.log('place order error');
-                        console.log(error);
+                        self.showMessage('error', error);
                     }
                 });
             }

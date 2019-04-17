@@ -116,11 +116,16 @@ define([
             placeOrder: function () {
                 var self = this;
                 if (AdditionalValidators.validate() && Frames.isCardValid()) {
+                    // Start the loader
+                    FullScreenLoader.startLoader();
+
+                    // Place the order
                     Utilities.placeOrder({
                         methodId: METHOD_ID,
                         cardToken: self.cardToken
                     });
-                } else {
+
+                    // Make sure the card form stays unblocked
                     Frames.unblockFields();
                 }
             }
