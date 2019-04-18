@@ -45,13 +45,6 @@ define([
                 },
 
                 /**
-                 * @returns {boolean}
-                 */
-                isAvailable: function () {
-                    return true;
-                },
-
-                /**
                  * @returns {void}
                  */
                 initWidget: function () {
