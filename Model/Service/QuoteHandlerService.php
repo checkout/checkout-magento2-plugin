@@ -56,7 +56,7 @@ class QuoteHandlerService
                     ->getFirstItem();
             }
 
-            return $this->checkoutSession->findQuote();
+            return $this->checkoutSession->getQuote();
         } catch (\Exception $e) {
             return false;
         }

@@ -19,12 +19,10 @@ use \Magento\Quote\Model\QuoteFactory;
 class PlaceOrder extends Action {
 
 	protected $jsonFactory;
-    protected $config;
     protected $orderHandler;
-    protected $api;
-    protected $quoteFactory;
+    protected $apiHandler;
     protected $checkoutSession;
-    protected $customerSession;
+    protected $config;
 
 	/**
      * @param Context $context
@@ -33,20 +31,16 @@ class PlaceOrder extends Action {
         Context $context,
         JsonFactory $jsonFactory,
         OrderHandlerService $orderHandler,
-        ApiHandlerService $api,
-        QuoteFactory $quoteFactory,
+        ApiHandlerService $apiHandler,
         CheckoutSession $checkoutSession,
-        CustomerSession $customerSession,
         Config $config)
     {
 
         parent::__construct($context);
         $this->jsonFactory = $jsonFactory;
         $this->orderHandler = $orderHandler;
-        $this->api = $api;
-        $this->quoteFactory = $quoteFactory;
+        $this->apiHandler = $apiHandler;
         $this->checkoutSession = $checkoutSession;
-        $this->customerSession = $customerSession;
         $this->config = $config;
 
     }
@@ -64,9 +58,10 @@ class PlaceOrder extends Action {
             $logger->addWriter($writer);
             $logger->info(print_r($methodId, 1));
             $logger->info(print_r($cardToken, 1));
-
-
         }
+
+        $this->apiHandler->setParams();
+        exit();
 
     	return $this->jsonFactory->create()->setData([
             'success' => false,

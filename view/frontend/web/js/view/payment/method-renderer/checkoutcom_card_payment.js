@@ -51,8 +51,8 @@ define([
             /**
              * @returns {boolean}
              */
-            isAvailable: function () {
-                return true;
+            isPlaceOrderActionAllowed: function() {
+                return false;
             },
 
             /**
@@ -75,9 +75,6 @@ define([
              */
             getPaymentForm: function() {                    
                 var self = this;
-
-                // Disable button
-                self.isPlaceOrderActionAllowed(false);
 
                 // Remove any existing event handlers
                 this.cleanEvents();

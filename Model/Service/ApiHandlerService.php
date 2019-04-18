@@ -31,9 +31,14 @@ class ApiHandlerService
         );
     }
 
-    public function loadClient() {
+	/**
+     * Set the request parameters .
+     */
+    public function setParams() {
 
-
+        echo "<pre>";
+        var_dump(get_class_methods($this->checkoutApi));
+        echo "</pre>";
 
     }
 }
