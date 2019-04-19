@@ -47,16 +47,31 @@ class QuoteHandlerService
     /**
      * Find a quote
      */
-    public function getQuote($reservedIncrementId = null) {
+    public function getQuote($fields = []) {
         try {
-            if ($reservedIncrementId) {
-                return $this->quoteFactory
-                    ->create()->getCollection()
-                    ->addFieldToFilter('reserved_order_id', $reservedIncrementId)
-                    ->getFirstItem();
+            if (count($fields) > 0) {
+                // Get the quote factory
+                $quoteFactory = $this->quoteFactory
+                    ->create()
+                    ->getCollection();
+
+                // Add search filters
+                foreach ($fields as $key => $value) {
+                    $quoteFactory->addFieldToFilter(
+                        $key,
+                        $value
+                    );
+                }
+
+                // Return the first result found
+                return $quoteFactory->getFirstItem();
+            }
+            else {
+                // Try to find the quote in session
+                return $this->checkoutSession->getQuote();
             }
 
-            return $this->checkoutSession->getQuote();
+            return false;
         } catch (\Exception $e) {
             return false;
         }
