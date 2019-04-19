@@ -152,27 +152,4 @@ class QuoteHandlerService
             return false;
         }
     }
-
-    /**
-     * Sets the email for guest users
-     */
-    public function prepareGuestQuote($quote, $email = null)
-    {
-        // Retrieve the user email
-        $guestEmail = ($email) ? $email : $this->findEmail($quote);
-
-        // Set the quote as guest
-        $quote->setCustomerId(null)
-            ->setCustomerEmail($guestEmail)
-            ->setCustomerIsGuest(true)
-            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
-
-        // Delete the cookie
-        $this->cookieManager->deleteCookie(
-            $this->config->getValue('email_cookie_name')
-        );
-
-        // Return the quote
-        return $quote;
-    }
 }
