@@ -103,7 +103,7 @@ class OrderHandlerService
         // Process transaction
         
         // Place order from quote
-        $quote = $this->quoteHandler->findQuote();
+        $quote = $this->quoteHandler->getQuote();
         if ($quote) {
 
         }
