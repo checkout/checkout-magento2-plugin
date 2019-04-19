@@ -54,7 +54,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      * Handles the controller method.
      */
     public function execute() {
-        //if ($this->getRequest()->isAjax()) {
+        if ($this->getRequest()->isAjax()) {
             // Get the request parameters
             $methodId = $this->getRequest()->getParam('methodId');
             $cardToken = $this->getRequest()->getParam('cardToken');
@@ -69,8 +69,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                     $quote->getGrandTotal(),
                     $quote->getQuoteCurrencyCode()
                 );
+
+                return 'code success';
             }
-        //}
+        }
 
         // Return the result
     	return $this->jsonFactory->create()->setData([
