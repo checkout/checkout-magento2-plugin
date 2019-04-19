@@ -61,7 +61,6 @@ class PlaceOrder extends Action {
         }
 
         $this->apiHandler->setParams();
-        exit();
 
     	return $this->jsonFactory->create()->setData([
             'success' => false,

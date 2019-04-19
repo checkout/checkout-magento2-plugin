@@ -2,33 +2,54 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use CheckoutCom\Magento2\Gateway\Config\Config;
 use \Checkout\CheckoutApi;
-use \Checkout\Models\Phone;
-use CheckoutCom\Magento2\Model\Methods\Method;
 
 /**
  * Class for API handler service.
  */
 class ApiHandlerService
 {
+    /**
+     * @var EncryptorInterface
+     */
+     protected $encryptor;
 
+    /**
+     * @var Config
+     */
     protected $config;
+
+    /**
+     * @var CheckoutApi
+     */
     protected $checkoutApi;
 
 	/**
      * Initialize SDK wrapper.
-     *
-     * @param      \CheckoutCom\Magento2\Gateway\Config\Config  $config  The configuration
      */
-    public function __construct(Config $config)
+    public function __construct(
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \Magento\Framework\Encryption\EncryptorInterface $encryptor
+    )
     {
         $this->config = $config;
-        $this->checkoutApi = new CheckoutApi(
-            $this->config->getValue('secret_key'),
+        $this->encryptor = $encryptor;
+
+        // Load the API client with credentials.
+        $this->loadClient();
+    }
+
+
+    private function loadClient() {
+        return new CheckoutApi(
+            $this->encryptor->decrypt(
+                $this->config->getValue('secret_key')
+            ),
             $this->config->getValue('environment'),
-            $this->config->getValue('public_key')
-        );
+            $this->encryptor->decrypt(
+                $this->config->getValue('public_key')
+            )
+        );        
     }
 
 	/**
@@ -36,9 +57,22 @@ class ApiHandlerService
      */
     public function setParams() {
 
+var_dump(
+    $this->encryptor->decrypt(
+        $this->config->getValue('secret_key')
+    )
+);
+exit();
+
         echo "<pre>";
         var_dump(get_class_methods($this->checkoutApi));
         echo "</pre>";
 
+        return $this;
+    }
+
+    public function sendChargeRequest() {
+
+        return $this;
     }
 }
