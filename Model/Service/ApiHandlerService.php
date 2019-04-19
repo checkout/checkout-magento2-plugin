@@ -37,7 +37,7 @@ class ApiHandlerService
     public function __construct(
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
     {
         $this->encryptor = $encryptor;
@@ -81,11 +81,11 @@ class ApiHandlerService
         $payment->amount = $amount*100;
 
         // Send the charge request
-        $response = $checkout->payments()->request($payment);
+        $response = $this->checkoutApi->payments()->request($payment);
 
-        echo "<pre>";
-        var_dump($response);
-        echo "</pre>";
-        exit();
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($response, 1));
     }
 }
