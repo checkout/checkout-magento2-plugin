@@ -20,11 +20,6 @@ class OrderHandlerService
      protected $quoteManagement;
 
     /**
-     * @var QuoteHandlerService
-     */
-    protected $quoteHandler;
-
-    /**
      * @var OrderRepositoryInterface
      */
      protected $orderRepository;
@@ -40,25 +35,30 @@ class OrderHandlerService
     protected $config;
 
     /**
+     * @var QuoteHandlerService
+     */
+    protected $quoteHandler;
+
+    /**
      * @param Context $context
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Sales\Api\Data\OrderInterface $orderInterface,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
     )
     {
         $this->checkoutSession = $checkoutSession;
         $this->orderInterface = $orderInterface;
         $this->quoteManagement = $quoteManagement;
-        $this->quoteHandler = $quoteHandler;
         $this->orderRepository = $orderRepository;
         $this->searchBuilder = $searchBuilder;
         $this->config = $config;
+        $this->quoteHandler = $quoteHandler;
     }
 
     /**
