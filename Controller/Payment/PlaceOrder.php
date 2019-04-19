@@ -55,34 +55,47 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      */
     public function execute() {
         if ($this->getRequest()->isAjax()) {
-            // Get the request parameters
-            $methodId = $this->getRequest()->getParam('methodId');
-            $cardToken = $this->getRequest()->getParam('cardToken');
-        
-            // Get the quote
-            $quote = $this->quoteHandler->getQuote();
-            if ($quote) {
-                // Send the charge request
-                $success = $this->apiHandler
-                    ->sendChargeRequest(
-                        $methodId,
-                        $cardToken, 
-                        $quote->getGrandTotal(),
-                        $quote->getQuoteCurrencyCode()
-                    )
-                    ->processResponse();
+            try {
+                // Prepare the parameters
+                $success = false;
+                $message = '';
+                $methodId = $this->getRequest()->getParam('methodId');
+                $cardToken = $this->getRequest()->getParam('cardToken');
+            
+                // Get the quote
+                $quote = $this->quoteHandler->getQuote();
+                if ($quote) {
+                    // Send the charge request
+                    $success = $this->apiHandler
+                        ->sendChargeRequest(
+                            $methodId,
+                            $cardToken, 
+                            $quote->getGrandTotal(),
+                            $quote->getQuoteCurrencyCode()
+                        )
+                        ->processResponse();
 
-                return $this->jsonFactory->create()->setData([
-                    'success' => true,
-                    'message' => ''
-                ]);
+                    // Handle errors
+                    if (!$success) {
+                        $message = __('The transaction could not be processed.');
+                    }
+                }
             }
+            catch(\Exception $e) {
+                $message = new \Magento\Framework\Exception\LocalizedException(
+                    __($e->getMessage())
+                );
+            }   
+        }
+        else {
+            $message = new \Magento\Framework\Exception\LocalizedException(
+                __('Invalid request.')
+            );
         }
 
-        // Return the result
-    	return $this->jsonFactory->create()->setData([
-            'success' => false,
-            'message' => __('There  was  an error with the transaction.')
+        return $this->jsonFactory->create()->setData([
+            'success' => $success,
+            'message' => $message
         ]);
     }
 }
