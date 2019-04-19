@@ -10,6 +10,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     protected $quoteHandler;
 
     /**
+     * @var OrderHandlerService
+     */
+     protected $orderHandler;
+
+    /**
      * @var ApiHandlerService
      */
     protected $apiHandler;
@@ -37,6 +42,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Checkout\Model\Session $checkoutSession,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $ordereHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
@@ -45,6 +51,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
 
         $this->jsonFactory = $jsonFactory;
         $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
         $this->apiHandler = $apiHandler;
         $this->checkoutSession = $checkoutSession;
         $this->config = $config;
@@ -75,8 +82,14 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                         )
                         ->processResponse();
 
-                    // Handle errors
-                    if (!$success) {
+                    // Handle the order
+                    if ($success) {
+                        $orderHandler->placeOrder(
+                            $methodId,
+                            
+                        );
+                    }
+                    else {
                         $message = __('The transaction could not be processed.');
                     }
                 }
