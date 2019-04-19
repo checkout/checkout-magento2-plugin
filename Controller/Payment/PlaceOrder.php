@@ -2,47 +2,51 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\Controller\Result\JsonFactory;
-use CheckoutCom\Magento2\Gateway\Config\Config;
-use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
-use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
-use \Checkout\Library\HttpHandler;
-use CheckoutCom\Magento2\Model\Methods\CardPaymentMethod;
-use CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
-use \Magento\Checkout\Model\Session as CheckoutSession;
-use \Magento\Customer\Model\Session as CustomerSession;
-use \Magento\Quote\Model\QuoteFactory;
-
-
-class PlaceOrder extends Action {
-
-	protected $jsonFactory;
+class PlaceOrder extends \Magento\Framework\App\Action\Action {
+    
+    /**
+     * @var OrderHandlerService
+     */
     protected $orderHandler;
+
+    /**
+     * @var ApiHandlerService
+     */
     protected $apiHandler;
+
+    /**
+     * @var JsonFactory
+     */
+     protected $jsonFactory;
+
+    /**
+     * @var Session
+     */
     protected $checkoutSession;
+
+    /**
+     * @var Config
+     */
     protected $config;
 
 	/**
-     * @param Context $context
+     * PlaceOrder constructor
      */
     public function __construct(
-        Context $context,
-        JsonFactory $jsonFactory,
-        OrderHandlerService $orderHandler,
-        ApiHandlerService $apiHandler,
-        CheckoutSession $checkoutSession,
-        Config $config)
+        \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
+    )
     {
-
         parent::__construct($context);
         $this->jsonFactory = $jsonFactory;
         $this->orderHandler = $orderHandler;
         $this->apiHandler = $apiHandler;
         $this->checkoutSession = $checkoutSession;
         $this->config = $config;
-
     }
 
     /**
@@ -50,23 +54,26 @@ class PlaceOrder extends Action {
      */
     public function execute() {
         if ($this->getRequest()->isAjax()) {
+            // Get the request parameters
             $methodId = $this->getRequest()->getParam('methodId');
             $cardToken = $this->getRequest()->getParam('cardToken');
-            
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($methodId, 1));
-            $logger->info(print_r($cardToken, 1));
         }
 
-        $this->apiHandler->setParams();
+        // Send the charge request
+        $order = $this->orderHandler->getOrder([
+            'entity_id' => 2
+        ]);
 
+        if ($order) {
+            var_dump($order->getIncrementId());
+        }
+
+        $this->apiHandler->sendChargeRequest($methodId, $cardToken, $order);
+
+        // Return the result
     	return $this->jsonFactory->create()->setData([
             'success' => false,
             'message' => __('There  was  an error with the transaction.')
         ]);
-
     }
-
 }
