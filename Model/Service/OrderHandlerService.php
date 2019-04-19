@@ -100,7 +100,6 @@ class OrderHandlerService
      */
     public function placeOrder($methodId, $reservedIncrementId = null)
     {
-        // Process transaction
         
         // Place order from quote
         $quote = $this->quoteHandler->getQuote();
