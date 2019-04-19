@@ -12,7 +12,7 @@ class ShopperHandlerService
     /**
      * @var Config
      */
-     protected $config;
+    protected $config;
 
     /**
      * ShopperHandlerService constructor
