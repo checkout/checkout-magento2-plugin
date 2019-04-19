@@ -112,16 +112,16 @@ class OrderHandlerService
 
         // Check if the order exists
         if ($reservedIncrementId) {
-            $order = $this->getOrder(
+            $order = $this->getOrder([
                 'reserved_order_id' => $reservedIncrementId
-            );
+            ]);
         }
 
         // Create the order
         if (!$order && $reservedIncrementId) {
             $quote = $this->quoteHandler->getQuote(
-                'reserved_order_id' => $reservedIncrementId
-            ));
+                ['reserved_order_id' => $reservedIncrementId]
+            );
 
             if ($quote &&  $quote->getId() > 0) {
                 // Prepare the inventory
@@ -155,7 +155,7 @@ class OrderHandlerService
             ->setLastQuoteId($quote->getId())
             ->setLastSuccessQuoteId($quote->getId())
             ->clearHelperData();
-            
+
         // Prepare session order info for redirection after payment
         $this->checkoutSession->setLastOrderId($order->getId())
             ->setLastRealOrderId($order->getIncrementId())
