@@ -20,6 +20,16 @@ class OrderHandlerService
     protected $quoteHandler;
 
     /**
+     * @var OrderRepositoryInterface
+     */
+     protected $orderRepository;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+     protected $searchBuilder;
+     
+    /**
      * @var Config
      */
     protected $config;
@@ -31,13 +41,58 @@ class OrderHandlerService
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Sales\Api\Data\OrderInterface $orderInterface,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
     {
         $this->checkoutSession = $checkoutSession;
         $this->orderInterface = $orderInterface;
         $this->quoteHandler = $quoteHandler;
+        $this->orderRepository = $orderRepository;
+        $this->searchBuilder = $searchBuilder;
         $this->config = $config;
+    }
+
+    /**
+     * Load an order by field
+     */
+    public function getOrder($fields = [])
+    {
+        try {
+            if (count($fields) > 0) {
+                // Add each field as filter
+                foreach ($fields as $key => $value) {
+                    $this->searchBuilder->addFilter(
+                        $key,
+                        $value
+                    );
+                }
+                
+                // Create the search instance
+                $search = $this->searchBuilder->create();
+
+                // Get the resultin order
+                $order = $this->orderRepository
+                    ->getList($search)
+                    ->getFirstItem();
+
+                return $order;
+            }
+            else {
+                // Try to find and order id in session
+                $orderId = $this->checkoutSession->getLastOrderId();
+
+                // Load the order from id
+                $order = $this->orderRepository->get($orderId);
+
+                return $order;
+            }
+
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
