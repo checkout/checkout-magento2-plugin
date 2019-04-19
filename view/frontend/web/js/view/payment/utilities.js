@@ -146,7 +146,7 @@ console.log(Config);
                     url: self.getUrl('payment/placeorder'),
                     data: payload,
                     success: function (data) {
-                        console.log('place order data');
+                        console.log(data);
                         if (!data.success) {
                             self.showMessage('error', data.message);
                         }

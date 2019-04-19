@@ -63,16 +63,18 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             $quote = $this->quoteHandler->getQuote();
             if ($quote) {
                 // Send the charge request
-                $this->apiHandler->sendChargeRequest(
-                    $methodId,
-                    $cardToken, 
-                    $quote->getGrandTotal(),
-                    $quote->getQuoteCurrencyCode()
-                );
+                $success = $this->apiHandler
+                    ->sendChargeRequest(
+                        $methodId,
+                        $cardToken, 
+                        $quote->getGrandTotal(),
+                        $quote->getQuoteCurrencyCode()
+                    )
+                    ->processResponse();
 
                 return $this->jsonFactory->create()->setData([
                     'success' => true,
-                    'message' => __('Request successful.')
+                    'message' => ''
                 ]);
             }
         }
