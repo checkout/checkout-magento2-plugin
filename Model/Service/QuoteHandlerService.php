@@ -6,9 +6,6 @@ use Magento\Customer\Api\Data\GroupInterface;
 
 class QuoteHandlerService
 {
-
-    const EMAIL_COOKIE_NAME = 'email';
-
     /**
      * @var Session
      */
@@ -30,19 +27,33 @@ class QuoteHandlerService
     protected $storeManager;
 
     /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * @var ShopperHandlerService
+     */
+    protected $shopperHandlerService;
+
+    /**
      * @param Context $context
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler
     )
     {
         $this->checkoutSession = $checkoutSession;
         $this->cookieManager = $cookieManager;
         $this->quoteFactory = $quoteFactory;
         $this->storeManager = $storeManager;
+        $this->config = $config;
+        $this->shopperHandler = $shopperHandler;
     }
 
     /**
@@ -78,6 +89,30 @@ class QuoteHandlerService
         }
     }
 
+    /**
+     * Sets the email for guest users
+     */
+    public function prepareGuestQuote($quote, $email = null)
+    {
+        // Retrieve the user email
+        $guestEmail = ($email) ? $email : $this->shopperHandler->findEmail();
+
+         // Set the quote as guest
+        $quote->setCustomerId(null)
+            ->setCustomerEmail($guestEmail)
+            ->setCustomerIsGuest(true)
+            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
+
+        // Delete the cookie
+        $this->cookieManager->deleteCookie(
+             $this->config->getValue('email_cookie_name')
+        );
+
+        // Return the quote
+        return $quote;
+    }
+
+     
     /**
      * Gets an array of quote parameters
      */
@@ -124,26 +159,20 @@ class QuoteHandlerService
     public function prepareGuestQuote($quote, $email = null)
     {
         // Retrieve the user email
-        $guestEmail = ($email) ? $email : $this->findCustomerEmail($quote);
+        $guestEmail = ($email) ? $email : $this->findEmail($quote);
+
         // Set the quote as guest
         $quote->setCustomerId(null)
             ->setCustomerEmail($guestEmail)
             ->setCustomerIsGuest(true)
             ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
+
         // Delete the cookie
-        $this->cookieManager->deleteCookie(self::EMAIL_COOKIE_NAME);
+        $this->cookieManager->deleteCookie(
+            $this->config->getValue('email_cookie_name')
+        );
+
         // Return the quote
         return $quote;
     }
-
-    /**
-     * Finds a customer email
-     */
-    public function findCustomerEmail($quote)
-    {
-        return $quote->getCustomerEmail()
-        ?? $quote->getBillingAddress()->getEmail()
-        ?? $this->cookieManager->getCookie(self::EMAIL_COOKIE_NAME);
-    }
-
 }

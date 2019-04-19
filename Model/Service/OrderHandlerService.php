@@ -15,6 +15,11 @@ class OrderHandlerService
     protected $orderInterface;
 
     /**
+     * @var QuoteManagement
+     */
+     protected $quoteManagement;
+
+    /**
      * @var QuoteHandlerService
      */
     protected $quoteHandler;
@@ -40,6 +45,7 @@ class OrderHandlerService
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Sales\Api\Data\OrderInterface $orderInterface,
+        \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
@@ -48,6 +54,7 @@ class OrderHandlerService
     {
         $this->checkoutSession = $checkoutSession;
         $this->orderInterface = $orderInterface;
+        $this->quoteManagement = $quoteManagement;
         $this->quoteHandler = $quoteHandler;
         $this->orderRepository = $orderRepository;
         $this->searchBuilder = $searchBuilder;
@@ -100,13 +107,42 @@ class OrderHandlerService
      */
     public function placeOrder($methodId, $reservedIncrementId = null)
     {
-        
-        // Place order from quote
-        $quote = $this->quoteHandler->getQuote();
-        if ($quote) {
+        // Prepare the parameters
+        $order = null;
 
+        // Check if the order exists
+        if ($reservedIncrementId) {
+            $order = $this->getOrder(
+                'reserved_order_id' => $reservedIncrementId
+            );
         }
 
+        // Create the order
+        if (!$order && $reservedIncrementId) {
+            $quote = $this->quoteHandler->getQuote(
+                'reserved_order_id' => $reservedIncrementId
+            ));
+
+            if ($quote &&  $quote->getId() > 0) {
+                // Prepare the inventory
+                $quote->setInventoryProcessed(false);
+
+                // Check for guest user quote
+                if ($this->customerSession->isLoggedIn() === false) {
+                    $quote = $this->prepareGuestQuote($quote);
+                }
+
+                // Set the payment information
+                $payment = $quote->getPayment();
+                $payment->setMethod($methodId);
+                $payment->save();
+
+                // Create the order
+                $order = $this->quoteManagement->submit($quote);
+            }
+        }
+
+        return $order;
     }
 
     /**
@@ -119,6 +155,7 @@ class OrderHandlerService
             ->setLastQuoteId($quote->getId())
             ->setLastSuccessQuoteId($quote->getId())
             ->clearHelperData();
+            
         // Prepare session order info for redirection after payment
         $this->checkoutSession->setLastOrderId($order->getId())
             ->setLastRealOrderId($order->getIncrementId())

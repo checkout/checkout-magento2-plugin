@@ -86,7 +86,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                     if ($success) {
                         $orderHandler->placeOrder(
                             $methodId,
-                            
+                            $quote->reserveOrderId()->save()->getReservedOrderId()
                         );
                     }
                     else {
