@@ -31,6 +31,16 @@ class ApiHandlerService
      */
     protected $checkoutApi;
 
+    /**
+     * @var Payment
+     */
+    protected $request;
+
+    /**
+     * @var Payment
+     */
+    protected $response;
+
 	/**
      * Initialize the API client wrapper.
      */
@@ -71,21 +81,27 @@ class ApiHandlerService
         $tokenSource = new TokenSource($cardToken);
 
         // Set the payment
-        $payment = new Payment(
+        $this->request = new Payment(
             $tokenSource, 
             $currency
         );
 
         // Set the request parameters
-        $payment->capture = false;
-        $payment->amount = $amount*100;
+        $this->request->capture = false;
+        $this->request->amount = $amount*100;
 
         // Send the charge request
-        $response = $this->checkoutApi->payments()->request($payment);
+        $this->response = $this->checkoutApi
+            ->payments()
+            ->request($this->request);
 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($response, 1));
+        return $this;
     }
+
+	/**
+     * Process a charge response.
+     */
+    public function processResponse() {
+        $this->response->isSuccessful();
+    } 
 }
