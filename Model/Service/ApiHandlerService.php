@@ -3,6 +3,8 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use \Checkout\CheckoutApi;
+use \Checkout\Models\Payments\TokenSource;
+use \Checkout\Models\Payments\Payment;
 
 /**
  * Class for API handler service.
@@ -15,6 +17,11 @@ class ApiHandlerService
      protected $encryptor;
 
     /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManagerInterface;
+
+    /**
      * @var Config
      */
     protected $config;
@@ -25,21 +32,25 @@ class ApiHandlerService
     protected $checkoutApi;
 
 	/**
-     * Initialize SDK wrapper.
+     * Initialize the API client wrapper.
      */
     public function __construct(
+        \Magento\Framework\Encryption\EncryptorInterface $encryptor,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \Magento\Framework\Encryption\EncryptorInterface $encryptor
     )
     {
-        $this->config = $config;
         $this->encryptor = $encryptor;
+        $this->storeManager = $storeManager;
+        $this->config = $config;
 
         // Load the API client with credentials.
-        $this->loadClient();
+        $this->checkoutApi = $this->loadClient();
     }
 
-
+	/**
+     * Load the API client.
+     */
     private function loadClient() {
         return new CheckoutApi(
             $this->encryptor->decrypt(
@@ -53,26 +64,28 @@ class ApiHandlerService
     }
 
 	/**
-     * Set the request parameters .
+     * Send a charge request.
      */
-    public function setParams() {
+    public function sendChargeRequest($methodId, $cardToken, $amount, $currency) {
+        // Set the token source
+        $tokenSource = new TokenSource($cardToken);
 
-var_dump(
-    $this->encryptor->decrypt(
-        $this->config->getValue('secret_key')
-    )
-);
-exit();
+        // Set the payment
+        $payment = new Payment(
+            $tokenSource, 
+            $currency
+        );
+
+        // Set the request parameters
+        $payment->capture = false;
+        $payment->amount = $amount*100;
+
+        // Send the charge request
+        $response = $checkout->payments()->request($payment);
 
         echo "<pre>";
-        var_dump(get_class_methods($this->checkoutApi));
+        var_dump($response);
         echo "</pre>";
-
-        return $this;
-    }
-
-    public function sendChargeRequest() {
-
-        return $this;
+        exit();
     }
 }
