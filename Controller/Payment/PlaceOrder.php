@@ -59,10 +59,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             $methodId = $this->getRequest()->getParam('methodId');
             $cardToken = $this->getRequest()->getParam('cardToken');
         
-            // Send the charge request
+            // Get the quote
             $quote = $this->quoteHandler->getQuote();
-
             if ($quote) {
+                // Send the charge request
                 $this->apiHandler->sendChargeRequest(
                     $methodId,
                     $cardToken, 
@@ -70,7 +70,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                     $quote->getQuoteCurrencyCode()
                 );
 
-                return 'code success';
+                return $this->jsonFactory->create()->setData([
+                    'success' => true,
+                    'message' => __('Request successful.')
+                ]);
             }
         }
 
