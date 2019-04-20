@@ -12,8 +12,6 @@ define([
 
         const KEY_CONFIG = 'checkoutcom_configuration';
 
-console.log(Config);
-
         return {
 
             /**
