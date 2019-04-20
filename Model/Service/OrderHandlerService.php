@@ -49,7 +49,7 @@ class OrderHandlerService
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     )
     {
         $this->checkoutSession = $checkoutSession;
