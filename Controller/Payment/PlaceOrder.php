@@ -58,6 +58,29 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     }
 
     /**
+     * Handles the order placing process.
+     */
+    protected function placeOrder($methodId, $quote) {
+        // Create an order
+        $order = $this->orderHandler->placeOrder(
+            $methodId,
+            $quote->reserveOrderId()->save()->getReservedOrderId()
+        );
+
+        // If the order has been created
+        if ($order && $order->getId() > 0) {
+            $this->orderHandler->afterPlaceOrder(
+                $quote,
+                $order
+            );
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Handles the controller method.
      */
     public function execute() {
@@ -83,12 +106,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                         ->processResponse();
 
                     // Handle the order
-                    if ($success) {
-                        $order = $this->orderHandler->placeOrder(
-                            $methodId,
-                            $quote->reserveOrderId()->save()->getReservedOrderId()
-                        );
-
+                    if ($success && $this->placeOrder($methodId, $quote)) {
                         $message = [
                             'orderId' => $order->getId(),
                             'orderIncrementId' => $order->getIncrementId()
