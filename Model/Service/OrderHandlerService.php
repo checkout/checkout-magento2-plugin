@@ -162,15 +162,23 @@ class OrderHandlerService
      */
     public function afterPlaceOrder($quote, $order)
     {
-        // Prepare session quote info for redirection after payment
-        $this->checkoutSession
-            ->setLastQuoteId($quote->getId())
-            ->setLastSuccessQuoteId($quote->getId())
-            ->clearHelperData();
+        try {
+            if ($quote && $quote->getId() > 0 $order && $order->getId() > 0) {
+                // Prepare session quote info for redirection after payment
+                $this->checkoutSession
+                    ->setLastQuoteId($quote->getId())
+                    ->setLastSuccessQuoteId($quote->getId())
+                    ->clearHelperData();
 
-        // Prepare session order info for redirection after payment
-        $this->checkoutSession->setLastOrderId($order->getId())
-            ->setLastRealOrderId($order->getIncrementId())
-            ->setLastOrderStatus($order->getStatus());
+                // Prepare session order info for redirection after payment
+                $this->checkoutSession->setLastOrderId($order->getId())
+                    ->setLastRealOrderId($order->getIncrementId())
+                    ->setLastOrderStatus($order->getStatus());
+
+                return true;
+            }
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }

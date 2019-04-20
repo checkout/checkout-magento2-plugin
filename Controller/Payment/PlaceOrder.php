@@ -34,6 +34,26 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      */
     protected $config;
 
+    /**
+     * @var Bool
+     */
+    protected $success;
+
+    /**
+     * @var String
+     */
+    protected $message;
+
+    /**
+     * @var String
+     */
+    protected $methodId;
+
+    /**
+     * @var String
+     */
+    protected $cardToken;
+
 	/**
      * PlaceOrder constructor
      */
@@ -55,29 +75,53 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         $this->apiHandler = $apiHandler;
         $this->checkoutSession = $checkoutSession;
         $this->config = $config;
+
+        // Set some required properties
+        $this->setParameters();
     }
 
     /**
      * Handles the order placing process.
      */
-    protected function placeOrder($methodId, $quote) {
-        // Create an order
-        $order = $this->orderHandler->placeOrder(
-            $methodId,
-            $quote->reserveOrderId()->save()->getReservedOrderId()
-        );
+    protected function placeOrder() {
+        try {
+            // Get the reserved order increment id
+            $reservedIncrementId = $this->quote
+                ->reserveOrderId()
+                ->save()
+                ->getReservedOrderId();
 
-        // If the order has been created
-        if ($order && $order->getId() > 0) {
-            $this->orderHandler->afterPlaceOrder(
-                $quote,
-                $order
+            // Create an order
+            $order = $this->orderHandler->placeOrder(
+                $this->methodId,
+                $reservedIncrementId
             );
 
-            return true;
+            // Prepare place order redirection
+            return $this->orderHandler->afterPlaceOrder(
+                $this->quote,
+                $order
+            );
         }
+        catch(\Exception $e) {
+            return false;
+        }   
+    }
 
-        return false;
+    /**
+     * Prepare some required properties.
+     */
+    protected function setParameters() {
+        try {
+            $this->success = false;
+            $this->message = '';
+            $this->methodId = $this->getRequest()->getParam('methodId');
+            $this->cardToken = $this->getRequest()->getParam('cardToken');
+            $this->quote = $this->quoteHandler->getQuote();
+        }
+        catch(\Exception $e) {
+
+        }   
     }
 
     /**
@@ -86,52 +130,44 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     public function execute() {
         if ($this->getRequest()->isAjax()) {
             try {
-                // Prepare the parameters
-                $success = false;
-                $message = '';
-                $methodId = $this->getRequest()->getParam('methodId');
-                $cardToken = $this->getRequest()->getParam('cardToken');
-            
-                // Get the quote
-                $quote = $this->quoteHandler->getQuote();
-                if ($quote) {
+                if ($this->quote) {
                     // Send the charge request
-                    $success = $this->apiHandler
+                    $this->success = $this->apiHandler
                         ->sendChargeRequest(
-                            $methodId,
-                            $cardToken, 
-                            $quote->getGrandTotal(),
-                            $quote->getQuoteCurrencyCode()
+                            $this->methodId,
+                            $this->cardToken, 
+                            $this->quote->getGrandTotal(),
+                            $this->quote->getQuoteCurrencyCode()
                         )
                         ->processResponse();
 
                     // Handle the order
-                    if ($success && $this->placeOrder($methodId, $quote)) {
-                        $message = [
+                    if ($this->success && $this->placeOrder()) {
+                        $this->message = [
                             'orderId' => $order->getId(),
                             'orderIncrementId' => $order->getIncrementId()
                         ];
                     }
                     else {
-                        $message = __('The transaction could not be processed.');
+                        $this->message = __('The transaction could not be processed.');
                     }
                 }
             }
             catch(\Exception $e) {
-                $message = new \Magento\Framework\Exception\LocalizedException(
+                $this->message = new \Magento\Framework\Exception\LocalizedException(
                     __($e->getMessage())
                 );
             }   
         }
         else {
-            $message = new \Magento\Framework\Exception\LocalizedException(
+            $this->message = new \Magento\Framework\Exception\LocalizedException(
                 __('Invalid request.')
             );
         }
 
         return $this->jsonFactory->create()->setData([
-            'success' => $success,
-            'message' => $message
+            'success' => $this->success,
+            'message' => $this->message
         ]);
     }
 }
