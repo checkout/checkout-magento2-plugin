@@ -2,11 +2,10 @@ define([
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
-        'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'framesjs'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators) {
+    function ($, Component, Utilities, AdditionalValidators) {
 
         'use strict';
 
@@ -105,9 +104,6 @@ define([
             placeOrder: function () {
                 var self = this;
                 if (AdditionalValidators.validate() && Frames.isCardValid()) {
-                    // Start the loader
-                    FullScreenLoader.startLoader();
-
                     // Place the order
                     Utilities.placeOrder({
                         methodId: METHOD_ID,

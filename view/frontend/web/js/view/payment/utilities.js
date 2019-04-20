@@ -5,9 +5,10 @@ define([
         'Magento_Checkout/js/checkout-data',
         'mage/url',
         'Magento_Checkout/js/action/redirect-on-success',
+        'Magento_Checkout/js/model/full-screen-loader',
         'mage/cookies',
     ],
-    function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction) {
+    function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction, FullScreenLoader) {
         'use strict';
 
         const KEY_CONFIG = 'checkoutcom_configuration';
@@ -97,7 +98,6 @@ define([
              * @returns {object}
              */
             getPhone: function () {
-
                 var billingAddress = Quote.billingAddress();
 
                 return {
@@ -139,12 +139,18 @@ define([
              */
             placeOrder: function (payload) {
                 var self = this;
+
+                // Start the loader
+                FullScreenLoader.startLoader();
+                
+                // Send the request
                 $.ajax({
                     type: 'POST',
                     url: self.getUrl('payment/placeorder'),
                     data: payload,
                     success: function (data) {
                         if (!data.success) {
+                            FullScreenLoader.stopLoader();
                             self.showMessage('error', data.message);
                         }
                         else {
@@ -152,6 +158,7 @@ define([
                         }
                     },
                     error: function (request, status, error) {
+                        FullScreenLoader.stopLoader();
                         self.showMessage('error', error);
                     }
                 });
