@@ -17,7 +17,7 @@ class Config
     /**
      * @var Loader
      */
-    protected $loader;
+    public $loader;
 
     /**
      * Config constructor
@@ -91,7 +91,9 @@ class Config
 
         trim($storeName);
         if (empty($storeName)) {
-            $storeName = parse_url($this->storeManager->getStore()->getBaseUrl())['host'] ;
+            $storeName = parse_url(
+                $this->storeManager->getStore()->getBaseUrl()
+            )['host'] ;
         }
 
         return (string) $storeName;
