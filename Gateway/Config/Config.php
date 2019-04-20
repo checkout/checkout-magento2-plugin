@@ -25,13 +25,11 @@ class Config
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
+        \CheckoutCom\Magento2\Gateway\Config\Loader $loader
     ) {
         $this->storeManager = $storeManager;
         $this->scopeConfig = $scopeConfig;
         $this->loader = $loader;
-        $this->quoteHandler = $quoteHandler;
     }
 
     /**
@@ -76,13 +74,16 @@ class Config
     public function getConfigArray() { 
         return array_merge(
             $this->getModuleConfig(),
-            $this->getMethodsConfig(),
+            $this->getMethodsConfig()
+
+            /*
             [
                 'quote' => $this->quoteHandler->getQuoteData(),
                 'store' => [
                     'name' => $this->getStoreName()
                 ]
             ]
+            */
         );
     }
 
