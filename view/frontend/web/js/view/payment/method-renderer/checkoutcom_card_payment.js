@@ -84,6 +84,7 @@ define([
                         if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
                             self.isPlaceOrderActionAllowed(true);
                             Frames.submitCard();
+                            Frames.unblockFields();
                         }
                     },
                     cardTokenised: function(event) {
