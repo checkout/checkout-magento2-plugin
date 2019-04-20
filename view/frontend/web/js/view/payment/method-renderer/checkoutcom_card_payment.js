@@ -28,6 +28,7 @@ define([
              */
             initialize: function () {
                 this._super();
+                this.isPlaceOrderActionAllowed(false);
             },
 
             /**
@@ -46,13 +47,6 @@ define([
              */
             getValue: function(field) {
                 return Utilities.getValue(METHOD_ID, field);
-            },
-
-            /**
-             * @returns {boolean}
-             */
-            isPlaceOrderActionAllowed: function() {
-                return false;
             },
 
             /**
@@ -85,9 +79,6 @@ define([
                     debugMode: self.getValue('debug'),
                     //localisation: self.getValue('localisation'),
                     //localisation: 'EN-GB',
-                    frameActivated: function () {
-                        self.isPlaceOrderActionAllowed(false);
-                    },
                     cardValidationChanged: function() {
                         if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
                             self.isPlaceOrderActionAllowed(true);
