@@ -54,40 +54,6 @@ class Config
     }
 
     /**
-     * Returns a frontend config array.
-     *
-     * @return array
-     */
-    public function getFrontendConfig() {
-        return [
-            $this->loader::KEY_PAYMENT => [
-                $this->loader::KEY_MODULE_ID => $this->getConfigArray()
-            ]
-        ];
-    }
-
-    /**
-     * Returns a merged array of config values.
-     *
-     * @return array
-     */
-    public function getConfigArray() { 
-        return array_merge(
-            $this->getModuleConfig(),
-            $this->getMethodsConfig()
-
-            /*
-            [
-                'quote' => $this->quoteHandler->getQuoteData(),
-                'store' => [
-                    'name' => $this->getStoreName()
-                ]
-            ]
-            */
-        );
-    }
-
-    /**
      * Returns the module global config.
      *
      * @return array

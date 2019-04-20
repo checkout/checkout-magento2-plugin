@@ -11,14 +11,19 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
     protected $config;
 
     /**
+     * @var QuoteHandlerService
+     */
+     protected $quoteHandler;
+
+    /**
      * ConfigProvider constructor.
-     * @param Config $config
-     * @param Session $session
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     ) {
         $this->config = $config;
+        $this->quoteHandler = $quoteHandler;
     }
 
     /**
@@ -28,6 +33,29 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
      */
     public function getConfig()
     {
-        return $this->config->getFrontendConfig();
+        return [
+            $this->config->loader::KEY_PAYMENT =>
+            [
+                $this->config->loader::KEY_MODULE_ID => $this->getConfigArray()
+            ]
+        ];
+    }
+
+    /**
+     * Returns a merged array of config values.
+     *
+     * @return array
+     */
+    protected function getConfigArray() { 
+        return array_merge(
+            $this->config->getModuleConfig(),
+            $this->config->getMethodsConfig(),
+            [
+                'quote' => $this->quoteHandler->getQuoteData(),
+                'store' => [
+                    'name' => $this->config->getStoreName()
+                ]
+            ]
+        );
     }
 }
