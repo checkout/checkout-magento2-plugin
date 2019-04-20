@@ -4,10 +4,10 @@ define([
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/checkout-data',
         'mage/url',
+        'Magento_Checkout/js/action/redirect-on-success',
         'mage/cookies',
- 
     ],
-    function ($, Config, Quote, CheckoutData, Url) {
+    function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction) {
         'use strict';
 
         const KEY_CONFIG = 'checkoutcom_configuration';
@@ -144,9 +144,11 @@ define([
                     url: self.getUrl('payment/placeorder'),
                     data: payload,
                     success: function (data) {
-                        console.log(data);
                         if (!data.success) {
                             self.showMessage('error', data.message);
+                        }
+                        else {
+                            RedirectOnSuccessAction.execute();
                         }
                     },
                     error: function (request, status, error) {

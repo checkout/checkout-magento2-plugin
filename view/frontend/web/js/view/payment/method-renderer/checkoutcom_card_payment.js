@@ -20,7 +20,8 @@ define([
                 template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
                 buttonId: METHOD_ID + '_btn',
                 formId: METHOD_ID + '_frm',
-                cardToken: null
+                cardToken: null,
+                redirectAfterPlaceOrder: false
             },
 
             /**
