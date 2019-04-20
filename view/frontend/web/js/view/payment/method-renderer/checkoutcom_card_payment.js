@@ -15,136 +15,109 @@ define([
 
         const METHOD_ID = 'checkoutcom_card_payment';
 
-        return Component.extend(
-            {
-                defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml'
-                },
+        return Component.extend({
+            defaults: {
+                template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
+                buttonId: METHOD_ID + '_btn',
+                formId: METHOD_ID + '_frm',
+                cardToken: null,
+                redirectAfterPlaceOrder: false
+            },
 
-                /**
-                 * @returns {exports}
-                 */
-                initialize: function () {
-                    this._super();
-                },
+            /**
+             * @returns {exports}
+             */
+            initialize: function () {
+                this._super();
+                this.isPlaceOrderActionAllowed(false);
+            },
 
-                /**
-                 * Getters and setters
-                 */
+            /**
+             * Getters and setters
+             */
 
-                /**
-                 * @returns {string}
-                 */
-                getCode: function () {
-                    return METHOD_ID;
-                },
+            /**
+             * @returns {string}
+             */
+            getCode: function () {
+                return METHOD_ID;
+            },
 
-                /**
-                 * @returns {string}
-                 */
-                getValue: function(field) {
-                    return Utilities.getValue(METHOD_ID, field);
-                },
+            /**
+             * @returns {string}
+             */
+            getValue: function(field) {
+                return Utilities.getValue(METHOD_ID, field);
+            },
 
-                /**
-                 * @returns {boolean}
-                 */
-                isAvailable: function () {
-                    return true;
-                },
+            /**
+             * @returns {boolean}
+             */
+            cleanEvents: function () {
+                Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
+                Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
+                Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
+            },
 
-                /**
-                 * @returns {boolean}
-                 */
-                isPlaceOrderActionAllowed: function () {
-                    return true;
-                },
+            /**
+             * Events
+             */
 
-                /**
-                 * Events
-                 */
+            /**
+             * Gets the payment form
+             *
+             * @return {void}
+             */
+            getPaymentForm: function() {                    
+                var self = this;
 
-                /**
-                 * Content visible
-                 *
-                 * @return {void}
-                 */
-                getPaymentForm: function() {                    
-                    var $btnSubmit = $('#ckoCardTargetButton'),
-                        $frame = $('.frames-container'),
-                        self =  this;
+                // Remove any existing event handlers
+                this.cleanEvents();
 
-                    // Disable button
-                    //Utilities.enableSubmit(METHOD_ID, false);
-
-                    // Remove any existing event handlers
-                    Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
-                    Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
-                    Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
-
-                    Frames.init({
-                        publicKey: self.getValue('public_key'),
-                        containerSelector: '.frames-container',
-                        debugMode: self.getValue('debug'),
-                        billingDetails: Utilities.getBillingAddress(),
-                        customerName: Utilities.getCustomerName(),
-                        //theme: self.getValue('theme'),
-                        //themeOverride: self.getValue('themeOverride'),
-                        //localisation: self.getValue('localisation'),
-                        //localisation: 'EN-GB',
-                        cardValidationChanged: function() {
-                            //Utilities.enableSubmit(METHOD_ID, Frames.isCardValid());
+                Frames.init({
+                    publicKey: self.getValue('public_key'),
+                    containerSelector: '.frames-container',
+                    debugMode: self.getValue('debug'),
+                    //localisation: self.getValue('localisation'),
+                    //localisation: 'EN-GB',
+                    cardValidationChanged: function() {
+                        if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
+                            self.isPlaceOrderActionAllowed(true);
+                            Frames.submitCard();
                         }
-                    });
-                },
+                    },
+                    cardTokenised: function(event) {
+                        // Store the card token for later submission
+                        self.cardToken = event.data.cardToken;
 
-                /**
-                 * @returns {void}
-                 */
-                placeOrder: function () {
+                        // Add the card token to the form
+                        Frames.addCardToken(
+                            document.getElementById(self.formId),
+                            event.data.cardToken
+                        );
+                    }
+                });
+            },
+
+            /**
+             * @returns {void}
+             */
+            placeOrder: function () {
+                var self = this;
+                if (AdditionalValidators.validate() && Frames.isCardValid()) {
                     // Start the loader
                     FullScreenLoader.startLoader();
-                    // Validate before submission
-                    if (AdditionalValidators.validate()) {
-                        Frames.submitCard();
-                     //   return true;
-                    } else {
-                        this.handleFail({}); //@todo: imrpove needed
-                        FullScreenLoader.stopLoader();
-                    }
 
-                    return false;
-                },
-
-                /**
-                 * HTTP handlers
-                 */
-
-                /**
-                 * @returns {string}
-                 */
-                request: function (res) {
+                    // Place the order
                     Utilities.placeOrder({
-                        type: 'token',
-                        token: res.data.cardToken
+                        methodId: METHOD_ID,
+                        cardToken: self.cardToken
+                    });
 
-                    },
-                    this.handleSuccess,
-                    this.handleFail);
-                },
-
-                handleSuccess: function(res) {
-console.log(res);
-                    FullScreenLoader.stopLoader();
-                },
-
-                handleFail: function(res) {
-console.log(res);
+                    // Make sure the card form stays unblocked
                     Frames.unblockFields();
-                    FullScreenLoader.stopLoader();
                 }
-
             }
-        );
+        });
     }
 );

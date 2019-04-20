@@ -2,124 +2,172 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\Controller\Result\JsonFactory;
-use CheckoutCom\Magento2\Gateway\Config\Config;
-use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
-use CheckoutCom\Magento2\Model\Service\SdkHandlerService;
-use \Checkout\Library\HttpHandler;
-use CheckoutCom\Magento2\Model\Methods\CardPaymentMethod;
-use CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
-use \Magento\Checkout\Model\Session as CheckoutSession;
-use \Magento\Customer\Model\Session as CustomerSession;
-use \Magento\Quote\Model\QuoteFactory;
+class PlaceOrder extends \Magento\Framework\App\Action\Action {
+    
+    /**
+     * @var QuoteHandlerService
+     */
+    protected $quoteHandler;
 
+    /**
+     * @var OrderHandlerService
+     */
+     protected $orderHandler;
 
-class PlaceOrder extends Action {
+    /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandler;
 
-	protected $jsonFactory;
-    protected $config;
-    protected $orderHandler;
-    protected $sdk;
-    protected $quoteFactory;
+    /**
+     * @var JsonFactory
+     */
+     protected $jsonFactory;
+     
+    /**
+     * @var Session
+     */
     protected $checkoutSession;
-    protected $customerSession;
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * @var Bool
+     */
+    protected $success;
+
+    /**
+     * @var String
+     */
+    protected $message;
+
+    /**
+     * @var String
+     */
+    protected $methodId;
+
+    /**
+     * @var String
+     */
+    protected $cardToken;
 
 	/**
-     * @param Context $context
+     * PlaceOrder constructor
      */
     public function __construct(
-        Context $context,
-        JsonFactory $jsonFactory,
-        OrderHandlerService $orderHandler,
-        SdkHandlerService $sdk,
-        QuoteFactory $quoteFactory,
-        CheckoutSession $checkoutSession,
-        CustomerSession $customerSession,
-        Config $config)
+        \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
+    )
     {
-
         parent::__construct($context);
+
         $this->jsonFactory = $jsonFactory;
+        $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
-        $this->sdk = $sdk;
-        $this->quoteFactory = $quoteFactory;
+        $this->apiHandler = $apiHandler;
         $this->checkoutSession = $checkoutSession;
-        $this->customerSession = $customerSession;
         $this->config = $config;
 
+        // Set some required properties
+        $this->setParameters();
+    }
+
+    /**
+     * Handles the order placing process.
+     */
+    protected function placeOrder() {
+        try {
+            // Get the reserved order increment id
+            $reservedIncrementId = $this->quote
+                ->reserveOrderId()
+                ->save()
+                ->getReservedOrderId();
+
+            // Create an order
+            $order = $this->orderHandler->placeOrder(
+                $this->methodId,
+                $reservedIncrementId
+            );
+
+            // Prepare place order redirection
+            return $this->orderHandler->afterPlaceOrder(
+                $this->quote,
+                $order
+            );
+        }
+        catch(\Exception $e) {
+            return false;
+        }   
+    }
+
+    /**
+     * Prepare some required properties.
+     */
+    protected function setParameters() {
+        try {
+            $this->success = false;
+            $this->message = '';
+            $this->methodId = $this->getRequest()->getParam('methodId');
+            $this->cardToken = $this->getRequest()->getParam('cardToken');
+            $this->quote = $this->quoteHandler->getQuote();
+        }
+        catch(\Exception $e) {
+
+        }   
     }
 
     /**
      * Handles the controller method.
      */
     public function execute() {
+        if ($this->getRequest()->isAjax()) {
+            try {
+                if ($this->quote) {
+                    // Send the charge request
+                    $this->success = $this->apiHandler
+                        ->sendChargeRequest(
+                            $this->methodId,
+                            $this->cardToken, 
+                            $this->quote->getGrandTotal(),
+                            $this->quote->getQuoteCurrencyCode()
+                        )
+                        ->processResponse();
 
-    	$request = json_decode($this->getRequest()->getContent(), true);
-    	$response = array();
-
-        if($this->isValid($request)) {
-
-            $payment = null;
-            switch ($request['source']['type']) {
-
-                case 'token':
-                    $payment = CardPaymentMethod::createPayment($request, $this->orderHandler->getCurrency());
-                    break;
-
-                case 'googlepay':
-                    break;
-
-                case 'applepay':
-                    break;
-
-                default:
-
-                    // Alternative payment
-                    $payment = AlternativePaymentMethod::createPayment($request, $this->orderHandler->getCurrency());
-                    break;
-
+                    // Handle the order
+                    if ($this->success && $this->placeOrder()) {
+                        $this->message = [
+                            'orderId' => $order->getId(),
+                            'orderIncrementId' => $order->getIncrementId()
+                        ];
+                    }
+                    else {
+                        $this->message = __('The transaction could not be processed.');
+                    }
+                }
             }
-
-            //$this->pay($payment);
-
+            catch(\Exception $e) {
+                $this->message = new \Magento\Framework\Exception\LocalizedException(
+                    __($e->getMessage())
+                );
+            }   
+        }
+        else {
+            $this->message = new \Magento\Framework\Exception\LocalizedException(
+                __('Invalid request.')
+            );
         }
 
-    	return $this->jsonFactory->create()->setData($request);
-
+        return $this->jsonFactory->create()->setData([
+            'success' => $this->success,
+            'message' => $this->message
+        ]);
     }
-
-
-    /**
-     * Define what is a valid request.
-     *
-     * @param      array   $body   The body
-     *
-     * @return     boolean
-     */
-    protected function isValid($request = array()) {
-
-    	return true;
-
-    }
-
-    /**
-     * Process payment.
-     *
-     * @param      Payment   $body   The body
-     *
-     * @return     boolean
-     */
-    protected function pay(Payment $payment) {
-
-        /**
-         * @todo: set order reference, authorize/capture, shipping address and all that.
-         *        handle further action needed.
-         */
-
-        return true;
-
-    }
-
 }

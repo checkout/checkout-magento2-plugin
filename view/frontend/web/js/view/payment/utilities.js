@@ -4,15 +4,13 @@ define([
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/checkout-data',
         'mage/url',
+        'Magento_Checkout/js/action/redirect-on-success',
         'mage/cookies',
- 
     ],
-    function ($, Config, Quote, CheckoutData, Url) {
+    function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction) {
         'use strict';
 
         const KEY_CONFIG = 'checkoutcom_configuration';
-
-console.log(Config);
 
         return {
 
@@ -105,24 +103,30 @@ console.log(Config);
                 return {
                     number: billingAddress.telephone
                 };
-
             },
-
 
             /**
              * Methods
              */
 
             /**
-             * Enables the submit button.
-             *
-             * @param      {boolean}   enabled  Status.
-             * @return     {void}
+             * Show a message
              */
-            enableSubmit: function (code, enabled) {
+            showMessage: function (type, message) {
+                this.clearMessages();
+                var messageContainer = $('.message');
+                messageContainer.addClass('message-' + type + ' ' + type);
+                messageContainer.append('<div>' + message + '</div>');
+                messageContainer.show();
+            },
 
-                $('#' + code + '_btn').prop('disabled', !enabled); //@todo: Add quote validation
-
+            /**
+             * Clear all messages
+             */
+            clearMessages: function () {
+                var messageContainer = $('.message');
+                messageContainer.hide();
+                messageContainer.empty();
             },
 
             /**
@@ -131,29 +135,26 @@ console.log(Config);
 
             /**
              * Place a new order.
-             * @returns {string}
+             * @returns {void}
              */
-            placeOrder: function (source, successCallback, failCallback) {
-
-                var data = {
-                                source: source,
-                                billing_address: this.getBillingAddress(),
-                                phone: this.getPhone(),
-                                customer: {
-                                    email: this.getEmail(),
-                                    name: this.getCustomerName(false)
-                                }
-                            };
-
+            placeOrder: function (payload) {
+                var self = this;
                 $.ajax({
                     type: 'POST',
-                    url: this.getEndPoint('placeorder'),
-                    data: JSON.stringify(data),
-                    success: successCallback,
-                    dataType: 'json',
-                    contentType: 'application/json; charset=utf-8'
-                }).fail(failCallback);
-
+                    url: self.getUrl('payment/placeorder'),
+                    data: payload,
+                    success: function (data) {
+                        if (!data.success) {
+                            self.showMessage('error', data.message);
+                        }
+                        else {
+                            RedirectOnSuccessAction.execute();
+                        }
+                    },
+                    error: function (request, status, error) {
+                        self.showMessage('error', error);
+                    }
+                });
             }
         };
     }

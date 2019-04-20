@@ -15,7 +15,7 @@ class Loader
     const KEY_SETTINGS = 'settings';
 
     /**
-     * @var Parser
+     * @var Dir
      */
     protected $moduleDirReader;
 
@@ -25,14 +25,22 @@ class Loader
     protected $xmlParser;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * @var EncryptorInterface
      */
     protected $encryptor;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param string|null $methodCode
-     * @param string $pathPattern
+     * Loader constructor
      */
     public function __construct(
         \Magento\Framework\Module\Dir\Reader $moduleDirReader,
@@ -64,8 +72,11 @@ class Loader
                     if (!$this->isHidden($key)) {
                         $path = $parent . '/' . $group . '/' . $key;
                         $dbData[$parent][$group][$key] = ($this->isEncrypted($key))
-                        ? $this->decrypt($path) 
-                        : $this->getValue($path);
+                        ? $this->decrypt($key) 
+                        : $this->scopeConfig->getValue(
+                            $path,
+                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                        );
                     }
                 }
             }
@@ -89,31 +100,38 @@ class Loader
 
     private function isHidden($field) {
         $hiddenFields = explode(',',
-            $this->getValue('settings/checkoutcom_configuration/fields_hidden')
+            $this->getValue('fields_hidden')
         );
 
         return in_array($field, $hiddenFields);
     }
 
     private function isEncrypted($field) {
-        $encryptedFields = explode(',',
-            $this->getValue('settings/checkoutcom_configuration/fields_encrypted')
+        return in_array(
+            $field,
+            explode(
+                ',',
+                $this->getValue('fields_encrypted')
+            )
         );
-
-        return in_array($field, $encryptedFields);
     }
 
-    private function decrypt($path) {
-        $value = $this->getValue($path);
-        return $this->encryptor->decrypt($value);
+    private function decrypt($field) {
+        return $this->encryptor->decrypt(
+            $this->getValue($field)
+        );
     }
 
-    public function getValue($path) {
-        $value = $this->scopeConfig->getValue(
+    public function getValue($field, $methodId = null) {
+        // Prepare the path
+        $path = ($methodId) 
+        ? 'payment/' . $methodId  . '/' .  $field
+        : 'settings/checkoutcom_configuration/' .  $field;
+
+        // Return the requested value
+        return $this->scopeConfig->getValue(
             $path,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-
-        return $value;
     }
 }

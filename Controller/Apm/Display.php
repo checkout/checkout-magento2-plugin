@@ -49,7 +49,8 @@ class Display extends \Magento\Framework\App\Action\Action {
             $html = '';
             $apmList = explode(',', 
                 $this->config->getValue(
-                    'payment/checkoutcom_apm/apm'
+                    'apm',
+                    'checkoutcom_apm'
                 )
             );
 

@@ -6,7 +6,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Address;
-use CheckoutCom\Magento2\Model\Service\SdkHandlerService;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 
 class CardPaymentMethod extends Method
 {

@@ -88,7 +88,7 @@ define([
                  */
                 performValidation: function(valURL) {
                     var controllerUrl = Utilities.getUrl('applepay/validation');
-                    var validationUrl = controllerUrl + '?u=' + valURL;
+                    var validationUrl = controllerUrl + '?u=' + valURL + '&method_id=' + METHOD_ID;
                     
                     return new Promise(function(resolve, reject) {
                         var xhr = new XMLHttpRequest();

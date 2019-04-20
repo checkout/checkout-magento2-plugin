@@ -4,56 +4,52 @@ namespace CheckoutCom\Magento2\Gateway\Config;
 
 class Config
 {
-    protected $loader;
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
+     * @var ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * @var Loader
+     */
+    public $loader;
 
     /**
      * Config constructor
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \CheckoutCom\Magento2\Gateway\Config\Loader $loader
     ) {
+        $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
         $this->loader = $loader;
-        $this->quoteHandler = $quoteHandler;
     }
 
     /**
-     * Returns a config value.
+     * Returns a module config value.
      *
      * @return string
      */
-    public function getValue($path) {
-        return $this->loader->getValue($path);
+    public function getValue($field, $methodId = null) {
+        return $this->loader->getValue($field, $methodId);
     }
 
     /**
-     * Returns a frontend config array.
+     * Returns a Magento core value.
      *
-     * @return array
+     * @return string
      */
-    public function getFrontendConfig() {
-        return [
-            $this->loader::KEY_PAYMENT => [
-                $this->loader::KEY_MODULE_ID => $this->getConfigArray()
-            ]
-        ];
-    }
-
-    /**
-     * Returns a merged array of config values.
-     *
-     * @return array
-     */
-    public function getConfigArray() { 
-        return array_merge(
-            $this->getModuleConfig(),
-            $this->getMethodsConfig(),
-            [
-                'quote' => $this->quoteHandler->getQuoteData(),
-                'store' => [
-                    'name' => $this->getStoreName()
-                ]
-            ]
+    public function getCoreValue($path) {
+        return $this->scopeConfig->getValue(
+            $path,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
     }
 
@@ -76,10 +72,9 @@ class Config
      */
     public function getMethodsConfig() {
         $methods = [];
-        foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodCode => $data) {
-            $path = 'payment/' . $methodCode . '/active';
-            if ($this->getValue($path) == 1) {
-                $methods[$methodCode] = $data;
+        foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodId => $data) {
+            if ($this->getValue('active', $methodId) == 1) {
+                $methods[$methodId] = $data;
             }
         }
 
@@ -92,11 +87,13 @@ class Config
      * @return string
      */
     public function getStoreName() {
-        $storeName = $this->getValue('general/store_information/name');
+        $storeName = $this->getCoreValue('general/store_information/name');
 
         trim($storeName);
         if (empty($storeName)) {
-            $storeName = parse_url($this->storeManager->getStore()->getBaseUrl())['host'] ;
+            $storeName = parse_url(
+                $this->storeManager->getStore()->getBaseUrl()
+            )['host'] ;
         }
 
         return (string) $storeName;
@@ -108,7 +105,7 @@ class Config
      * @return bool
      */
     public function isSandbox() {
-        return $this->getValue('settings/checkoutcom_configuration/environment') == 0;
+        return $this->getValue('environment') == 0;
     }
 
     /**
@@ -117,6 +114,6 @@ class Config
      * @return bool
      */
     public function isLive() {
-        return $this->getValue('settings/checkoutcom_configuration/environment') == 1;
+        return $this->getValue('environment') == 1;
     }
 }

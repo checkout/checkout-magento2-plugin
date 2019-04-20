@@ -2,50 +2,119 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Customer\Api\Data\GroupInterface;
+
 class QuoteHandlerService
 {
-
+    /**
+     * @var Session
+     */
     protected $checkoutSession;
+
+    /**
+     * @var CookieManagerInterface
+     */
+    protected $cookieManager;
+
+    /**
+     * @var QuoteFactory
+     */
+    protected $quoteFactory;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
+     * @var Config
+     */
     protected $config;
+
+    /**
+     * @var ShopperHandlerService
+     */
+    protected $shopperHandlerService;
 
     /**
      * @param Context $context
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler
     )
     {
         $this->checkoutSession = $checkoutSession;
+        $this->cookieManager = $cookieManager;
         $this->quoteFactory = $quoteFactory;
         $this->storeManager = $storeManager;
         $this->config = $config;
+        $this->shopperHandler = $shopperHandler;
     }
 
     /**
      * Find a quote
      */
-    public function getQuote($reservedIncrementId = null) {
+    public function getQuote($fields = []) {
         try {
-            if ($reservedIncrementId) {
-                return $this->quoteFactory
-                    ->create()->getCollection()
-                    ->addFieldToFilter('reserved_order_id', $reservedIncrementId)
-                    ->getFirstItem();
+            if (count($fields) > 0) {
+                // Get the quote factory
+                $quoteFactory = $this->quoteFactory
+                    ->create()
+                    ->getCollection();
+
+                // Add search filters
+                foreach ($fields as $key => $value) {
+                    $quoteFactory->addFieldToFilter(
+                        $key,
+                        $value
+                    );
+                }
+
+                // Return the first result found
+                return $quoteFactory->getFirstItem();
+            }
+            else {
+                // Try to find the quote in session
+                return $this->checkoutSession->getQuote();
             }
 
-            return $this->checkoutSession->getQuote();
+            return false;
         } catch (\Exception $e) {
             return false;
         }
     }
 
     /**
-     * Get a quote value.
-     *
-     * @return float
+     * Sets the email for guest users
+     */
+    public function prepareGuestQuote($quote, $email = null)
+    {
+        // Retrieve the user email
+        $guestEmail = ($email) ? $email : $this->shopperHandler->findEmail();
+
+         // Set the quote as guest
+        $quote->setCustomerId(null)
+            ->setCustomerEmail($guestEmail)
+            ->setCustomerIsGuest(true)
+            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
+
+        // Delete the cookie
+        $this->cookieManager->deleteCookie(
+             $this->config->getValue('email_cookie_name')
+        );
+
+        // Return the quote
+        return $quote;
+    }
+
+     
+    /**
+     * Gets an array of quote parameters
      */
     public function getQuoteData() {
         try {
@@ -58,6 +127,9 @@ class QuoteHandlerService
         }
     }
 
+    /**
+     * Gets a quote currency
+     */
     public function getQuoteCurrency() {
         try {            
             return $this->getQuote()->getQuoteCurrencyCode() 
@@ -67,7 +139,9 @@ class QuoteHandlerService
         }
     }
 
-
+    /**
+     * Gets a quote value
+     */
     public function getQuoteValue() {
         try {            
             return $this->getQuote()
