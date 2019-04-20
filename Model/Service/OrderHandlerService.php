@@ -10,6 +10,11 @@ class OrderHandlerService
     protected $checkoutSession;
 
     /**
+     * @var Session
+     */
+     protected $customerSession;
+
+    /**
      * @var OrderInterface
      */
     protected $orderInterface;
@@ -44,6 +49,7 @@ class OrderHandlerService
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Customer\Model\Session $customerSession,
         \Magento\Sales\Api\Data\OrderInterface $orderInterface,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
@@ -53,6 +59,7 @@ class OrderHandlerService
     )
     {
         $this->checkoutSession = $checkoutSession;
+        $this->customerSession = $customerSession;
         $this->orderInterface = $orderInterface;
         $this->quoteManagement = $quoteManagement;
         $this->orderRepository = $orderRepository;
@@ -107,42 +114,47 @@ class OrderHandlerService
      */
     public function placeOrder($methodId, $reservedIncrementId = null)
     {
-        // Prepare the parameters
-        $order = null;
+        try {
+            // Prepare the parameters
+            $order = null;
 
-        // Check if the order exists
-        if ($reservedIncrementId) {
-            $order = $this->getOrder([
-                'reserved_order_id' => $reservedIncrementId
-            ]);
-        }
-
-        // Create the order
-        if (!$order && $reservedIncrementId) {
-            $quote = $this->quoteHandler->getQuote(
-                ['reserved_order_id' => $reservedIncrementId]
-            );
-
-            if ($quote &&  $quote->getId() > 0) {
-                // Prepare the inventory
-                $quote->setInventoryProcessed(false);
-
-                // Check for guest user quote
-                if ($this->customerSession->isLoggedIn() === false) {
-                    $quote = $this->prepareGuestQuote($quote);
-                }
-
-                // Set the payment information
-                $payment = $quote->getPayment();
-                $payment->setMethod($methodId);
-                $payment->save();
-
-                // Create the order
-                $order = $this->quoteManagement->submit($quote);
+            // Check if the order exists
+            if ($reservedIncrementId) {
+                $order = $this->getOrder([
+                    'reserved_order_id' => $reservedIncrementId
+                ]);
             }
-        }
 
-        return $order;
+            // Create the order
+            if (!$order && $reservedIncrementId) {
+                $quote = $this->quoteHandler->getQuote(
+                    ['reserved_order_id' => $reservedIncrementId]
+                );
+
+                if ($quote &&  $quote->getId() > 0) {
+                    // Prepare the inventory
+                    $quote->setInventoryProcessed(false);
+
+                    // Check for guest user quote
+                    if ($this->customerSession->isLoggedIn() === false) {
+                        $quote = $this->prepareGuestQuote($quote);
+                    }
+
+                    // Set the payment information
+                    $payment = $quote->getPayment();
+                    $payment->setMethod($methodId);
+                    $payment->save();
+
+                    // Create the order
+                    $order = $this->quoteManagement->submit($quote);
+                }
+            }
+
+            return $order;
+
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
