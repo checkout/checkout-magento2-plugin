@@ -102,6 +102,6 @@ class ApiHandlerService
      * Process a charge response.
      */
     public function processResponse() {
-        $this->response->isSuccessful();
+        return $this->response->isSuccessful();
     } 
 }
