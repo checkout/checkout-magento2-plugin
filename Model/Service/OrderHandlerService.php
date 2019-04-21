@@ -99,7 +99,10 @@ class OrderHandlerService
      * Set payment data for transactions
      */
     public function setPaymentData($paymentData) {
-        $this->paymentData = $paymentData;
+        if ($paymentData) {
+            $this->paymentData = (array) $paymentData;
+        }
+
         return $this;
     }
 

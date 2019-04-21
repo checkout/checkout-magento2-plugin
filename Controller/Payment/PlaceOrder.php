@@ -126,7 +126,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     /**
      * Handles the order placing process.
      */
-    protected function placeOrder($response = []) {
+    protected function placeOrder($response = null) {
         try {
             // Get the reserved order increment id
             $reservedIncrementId = $this->quote
@@ -135,13 +135,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                 ->getReservedOrderId();
 
             // Create an order
-            $order = $this->orderHandler
-                ->setMethodId($this->methodId)
-                ->setPaymentData($response)
+            $order = $this->orderHandler->setMethodId($this->methodId);
+                ->setPaymentData($response);
                 ->placeOrder($reservedIncrementId);
 
-            // Prepare place order redirection
-            return $this->orderHandler->afterPlaceOrder($this->quote, $order);
+            return $order;
         }
         catch(\Exception $e) {
             return false;
