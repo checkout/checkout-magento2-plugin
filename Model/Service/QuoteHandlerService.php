@@ -90,6 +90,17 @@ class QuoteHandlerService
     }
 
     /**
+     * Checks if a quote exists and is valid
+     */
+    public function isQuote($quote)
+    {
+        return $quote
+        && is_object($quote)
+        && method_exists($quote, 'getId')
+        && $quote->getId() > 0
+    }
+
+    /**
      * Sets the email for guest users
      */
     public function prepareGuestQuote($quote, $email = null)

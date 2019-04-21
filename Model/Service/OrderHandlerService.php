@@ -45,6 +45,16 @@ class OrderHandlerService
     protected $quoteHandler;
 
     /**
+     * @var String
+     */
+    protected $methodId;
+
+    /**
+     * @var Array
+     */
+    protected $paymentData;
+
+    /**
      * @param Context $context
      */
     public function __construct(
@@ -69,38 +79,89 @@ class OrderHandlerService
     }
 
     /**
-     * Load an order by field
+     * Set the payment method id
+     */
+    public function setMehodId($methodId) {
+        $this->methodId = $methodId;
+    }
+
+    /**
+     * Set payment data for transactions
+     */
+    public function setPaymentData($paymentData) {
+        $this->paymentData = $paymentData;
+    }
+
+    /**
+     * Places an order if not already created
+     */
+    public function placeOrder($reservedIncrementId = '')
+    {
+        if ($this->methodId) {
+            try {
+                //  Prepare a fields filter
+                $filters = ['reserved_order_id' => $reservedIncrementId];
+
+                // Check if the order exists
+                $order = $this->getOrder($filters);
+
+                // Create the order
+                if (!$this->isOrder($order)) {
+                    // Prepare the quote
+                    $quote = $this->prepareQuote($filters);
+                    if ($quote) {
+                        // Create the order
+                        $order = $this->quoteManagement->submit($quote);
+
+                        // Process the transactions for the order
+                        $this->processTransactions($quote, $order);
+
+                        // Save the order
+                        $this->orderRepository->save($order);
+
+                        // Send the email
+                        $this->orderSender->send($order);
+                    }
+                }
+
+                return $order;
+
+            } catch (\Exception $e) {
+                return false;
+            }
+        }
+        else {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('A payment method ID is required to place an order.');
+            );
+        }
+    }
+
+    /**
+     * Checks if an order exists and is valid
+     */
+    public function isOrder($order)
+    {
+        return $order
+        && is_object($order)
+        && method_exists($order, 'getId')
+        && $order->getId() > 0
+    }
+
+    /**
+     * Load an order
      */
     public function getOrder($fields = [])
     {
         try {
-            if (count($fields) > 0) {
-                // Add each field as filter
-                foreach ($fields as $key => $value) {
-                    $this->searchBuilder->addFilter(
-                        $key,
-                        $value
-                    );
-                }
-                
-                // Create the search instance
-                $search = $this->searchBuilder->create();
-
-                // Get the resultin order
-                $order = $this->orderRepository
-                    ->getList($search)
-                    ->getFirstItem();
-
-                return $order;
+            if ($fields && is_array($fields) && count($fields) > 0) {
+                return $this->findOrderByFields($fields);
             }
             else {
                 // Try to find and order id in session
-                $orderId = $this->checkoutSession->getLastOrderId();
-
-                // Load the order from id
-                $order = $this->orderRepository->get($orderId);
-
-                return $order;
+                return $this->orderRepository->get(
+                    $this->checkoutSession->getLastOrderId();
+                );
             }
 
             return false;
@@ -110,61 +171,58 @@ class OrderHandlerService
     }
 
     /**
-     * Places an order if not already created
+     * Find an order by fields
      */
-    public function placeOrder($methodId, $reservedIncrementId = null)
-    {
+    public function findOrderByFields($fields) {
         try {
-            // Prepare the parameters
-            $order = null;
-
-            // Check if the order exists
-            if ($reservedIncrementId) {
-                $order = $this->getOrder([
-                    'reserved_order_id' => $reservedIncrementId
-                ]);
-            }
-
-            // Create the order
-            if (!$order && $reservedIncrementId) {
-                $quote = $this->quoteHandler->getQuote(
-                    ['reserved_order_id' => $reservedIncrementId]
+            // Add each field as filter
+            foreach ($fields as $key => $value) {
+                $this->searchBuilder->addFilter(
+                    $key,
+                    $value
                 );
-
-                if ($quote &&  $quote->getId() > 0) {
-                    // Prepare the inventory
-                    $quote->setInventoryProcessed(false);
-
-                    // Check for guest user quote
-                    if ($this->customerSession->isLoggedIn() === false) {
-                        $quote = $this->prepareGuestQuote($quote);
-                    }
-
-                    // Set the payment information
-                    $payment = $quote->getPayment();
-                    $payment->setMethod($methodId);
-                    $payment->save();
-
-                    // Create the order
-                    $order = $this->quoteManagement->submit($quote);
-
-                    // Get the capture status
-                    // Todo - improve this code
-                    $this->processTransactions($quote, $order);
-
-                    // Save the order
-                    $this->orderRepository->save($order);
-
-                    // Send the email
-                    $this->orderSender->send($order);
-                }
             }
+            
+            // Create the search instance
+            $search = $this->searchBuilder->create();
+
+            // Get the resultin order
+            $order = $this->orderRepository
+                ->getList($search)
+                ->getFirstItem();
 
             return $order;
-
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * Prepares a quote for order placement
+     */
+    public function prepareQuote($fields = [])
+    {
+        // Find quote and perform tasks
+        $quote = $this->quoteHandler->getQuote($fields);
+        if ($this->quoteHandler->isQuote($quote)) {
+            // Prepare the inventory
+            $quote->setInventoryProcessed(false);
+
+            // Check for guest user quote
+            if ($this->customerSession->isLoggedIn() === false) {
+                $quote = $this->quoteHandler->prepareGuestQuote($quote);
+            }
+
+            // Set the payment information
+            $payment = $quote->getPayment();
+            $payment->setMethod($this->methodId);
+            $payment->save();
+
+            return $quote;
+        }
+
+        return null;
     }
 
     /**
@@ -172,19 +230,14 @@ class OrderHandlerService
      */
     public function processTransactions($quote, $order)
     {
-        $isAutoCapture = $this->config->getValue(
-            'payment_action',
-            $methodId
-        ) == 'authorize_capture';
-
         // Handle the transactions 
-        if ($isCaptureImmediate) {
+        if ($this->config->isAutoCapture($this->methodId)) {
             // Create the transaction
-            $transactionId = $this->transactionHandler->createTransaction(
+            $transactionId = $this->transactionHandler->createTransaction
+            (
                 $order,
-                $fields,
                 Transaction::TYPE_CAPTURE,
-                $methodId
+                $this->paymentData
             );
         } else {
             // Update order status
@@ -196,13 +249,12 @@ class OrderHandlerService
             */
 
             // Create the transaction
-            $transactionId = $this->transactionHandler->createTransaction(
+            $transactionId = $this->transactionHandler->createTransaction
+            (
                 $order,
-                $fields,
                 Transaction::TYPE_AUTH,
-                $methodId
+                $this->paymentData
             );
-
         }
     }  
 

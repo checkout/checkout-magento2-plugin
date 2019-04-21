@@ -116,4 +116,14 @@ class Config
     public function isLive() {
         return $this->getValue('environment') == 1;
     }
+
+    /**
+     * Determines if the payment method needs autocapture.
+     *
+     * @return bool
+     */
+    public function isAutoCapture($methodId) {
+        $value = $this->config->getValue('payment_action', $methodId));
+        return $value == 'authorize_capture';
+    }
 }
