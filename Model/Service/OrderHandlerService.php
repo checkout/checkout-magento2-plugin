@@ -160,7 +160,7 @@ class OrderHandlerService
             else {
                 // Try to find and order id in session
                 return $this->orderRepository->get(
-                    $this->checkoutSession->getLastOrderId();
+                    $this->checkoutSession->getLastOrderId()
                 );
             }
 
