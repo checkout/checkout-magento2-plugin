@@ -47,7 +47,7 @@ class OrderHandlerService
     /**
      * @var TransactionHandlerService
      */
-     protected $transactionHandler;
+    protected $transactionHandler;
      
     /**
      * @var String
