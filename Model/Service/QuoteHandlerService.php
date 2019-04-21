@@ -97,7 +97,7 @@ class QuoteHandlerService
         return $quote
         && is_object($quote)
         && method_exists($quote, 'getId')
-        && $quote->getId() > 0
+        && $quote->getId() > 0;
     }
 
     /**

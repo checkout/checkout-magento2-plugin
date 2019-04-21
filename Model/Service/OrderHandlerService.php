@@ -145,7 +145,7 @@ class OrderHandlerService
         return $order
         && is_object($order)
         && method_exists($order, 'getId')
-        && $order->getId() > 0
+        && $order->getId() > 0;
     }
 
     /**
