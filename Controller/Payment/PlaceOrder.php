@@ -115,15 +115,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                 }
             }
             catch(\Exception $e) {
-                $message = new \Magento\Framework\Exception\LocalizedException(
-                    __($e->getMessage())
-                );
+                $message = __($e->getMessage());
             }   
         }
         else {
-            $message = new \Magento\Framework\Exception\LocalizedException(
-                __('Invalid request.')
-            );
+            $message = __('Invalid request.');
         }
 
         return $this->jsonFactory->create()->setData([
