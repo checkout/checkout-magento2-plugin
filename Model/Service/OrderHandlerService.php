@@ -116,7 +116,7 @@ class OrderHandlerService
                         $order = $this->quoteManagement->submit($quote);
 
                         // Process the transactions for the order
-                        //$this->processTransactions($quote, $order);
+                        $this->processTransactions($quote, $order);
                     }
                 }
 
