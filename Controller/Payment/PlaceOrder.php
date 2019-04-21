@@ -103,7 +103,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                     $success = $response->isSuccessful();
 
                     // Handle the order
-                    if ($success && $this->placeOrder($response)) {
+                    $order = $this->placeOrder($response);
+                    if ($success && $this->orderHandler->isOrder($order)) {
                         $message = [
                             'orderId' => $order->getId(),
                             'orderIncrementId' => $order->getIncrementId()
