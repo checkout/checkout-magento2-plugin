@@ -81,7 +81,7 @@ class OrderHandlerService
     /**
      * Set the payment method id
      */
-    public function setMehodId($methodId) {
+    public function setMethodId($methodId) {
         $this->methodId = $methodId;
         return $this;
     }
