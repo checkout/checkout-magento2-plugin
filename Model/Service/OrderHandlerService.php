@@ -263,9 +263,13 @@ class OrderHandlerService
     /**
      * Tasks after place order
      */
-    public function afterPlaceOrder($quote, $order)
+    public function afterPlaceOrder()
     {
         try {
+            // Get the quote and the order
+            $order = $this->getOrder();
+            $quote = $this->quoteHandler->getQuote();
+
             // Prepare session quote info for redirection after payment
             $this->checkoutSession
                 ->setLastQuoteId($quote->getId())
