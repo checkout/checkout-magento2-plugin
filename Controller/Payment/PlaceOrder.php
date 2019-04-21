@@ -136,7 +136,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
 
             // Create an order
             $order = $this->orderHandler->setMethodId($this->methodId);
-                ->setPaymentData($response);
+                ->setPaymentData($response)
                 ->placeOrder($reservedIncrementId);
 
             return $order;
