@@ -116,7 +116,7 @@ class OrderHandlerService
                         $order = $this->quoteManagement->submit($quote);
 
                         // Process the transactions for the order
-                        $this->processTransactions($quote, $order);
+                        //$this->processTransactions($quote, $order);
 
                         // Save the order
                         $this->orderRepository->save($order);
@@ -263,12 +263,12 @@ class OrderHandlerService
     /**
      * Tasks after place order
      */
-    public function afterPlaceOrder()
+    public function afterPlaceOrder($quote = null, $order = null)
     {
         try {
-            // Get the quote and the order
-            $order = $this->getOrder();
-            $quote = $this->quoteHandler->getQuote();
+            // Find the quote and the order
+            $quote = $quote ? $quote : $this->quoteHandler->getQuote();
+            $order = $order ? $order : $this->getOrder();
 
             // Prepare session quote info for redirection after payment
             $this->checkoutSession
@@ -281,7 +281,7 @@ class OrderHandlerService
                 ->setLastRealOrderId($order->getIncrementId())
                 ->setLastOrderStatus($order->getStatus());
 
-            return true;
+            return $order;
         } catch (\Exception $e) {
             return false;
         }

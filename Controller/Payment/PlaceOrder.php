@@ -146,7 +146,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                 ->placeOrder($reservedIncrementId);
 
             // Prepare place order redirection
-            return $this->orderHandler->afterPlaceOrder();
+            return $this->orderHandler->afterPlaceOrder($quote, $order);
         }
         catch(\Exception $e) {
             return false;
