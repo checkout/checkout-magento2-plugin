@@ -104,13 +104,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
 
                     // Handle the order
                     $order = $this->placeOrder($response);
-                    if ($success && $this->orderHandler->isOrder($order)) {
-                        $message = [
-                            'orderId' => $order->getId(),
-                            'orderIncrementId' => $order->getIncrementId()
-                        ];
-                    }
-                    else {
+                    if (!($success && $this->orderHandler->isOrder($order))) {
                         $message = __('The transaction could not be processed.');
                     }
                 }
