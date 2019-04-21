@@ -132,7 +132,7 @@ class OrderHandlerService
         }
         else {
             throw new \Magento\Framework\Exception\LocalizedException(
-                __('A payment method ID is required to place an order.');
+                __('A payment method ID is required to place an order.')
             );
         }
     }
