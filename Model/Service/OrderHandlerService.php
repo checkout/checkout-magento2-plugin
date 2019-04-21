@@ -147,6 +147,16 @@ class OrderHandlerService
 
                     // Create the order
                     $order = $this->quoteManagement->submit($quote);
+
+                    // Get the capture status
+                    // Todo - improve this code
+                    $this->processTransactions($quote, $order);
+
+                    // Save the order
+                    $this->orderRepository->save($order);
+
+                    // Send the email
+                    $this->orderSender->send($order);
                 }
             }
 
@@ -156,6 +166,45 @@ class OrderHandlerService
             return false;
         }
     }
+
+    /**
+     * Handle the order transactions
+     */
+    public function processTransactions($quote, $order)
+    {
+        $isAutoCapture = $this->config->getValue(
+            'payment_action',
+            $methodId
+        ) == 'authorize_capture';
+
+        // Handle the transactions 
+        if ($isCaptureImmediate) {
+            // Create the transaction
+            $transactionId = $this->transactionHandler->createTransaction(
+                $order,
+                $fields,
+                Transaction::TYPE_CAPTURE,
+                $methodId
+            );
+        } else {
+            // Update order status
+            // Todo - Add order status handling settings
+            /*
+            $order->setStatus(
+                $this->config->params[Core::moduleId()][Connector::KEY_ORDER_STATUS_AUTHORIZED]
+            );
+            */
+
+            // Create the transaction
+            $transactionId = $this->transactionHandler->createTransaction(
+                $order,
+                $fields,
+                Transaction::TYPE_AUTH,
+                $methodId
+            );
+
+        }
+    }  
 
     /**
      * Tasks after place order

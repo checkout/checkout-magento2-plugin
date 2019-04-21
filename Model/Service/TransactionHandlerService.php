@@ -114,7 +114,7 @@ class TransactionHandlerService
             $transaction->save();
 
             // Create the invoice
-            // Todo - check this setting, add  parameter to config
+            // Todo - check this setting, add parameter to config
             if ($this->config->getValue('invoice_creation') == $transactionMode) {
                 $this->invoiceHandler->processInvoice($order);
             }
