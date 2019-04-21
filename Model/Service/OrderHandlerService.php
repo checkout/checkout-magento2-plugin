@@ -83,6 +83,7 @@ class OrderHandlerService
      */
     public function setMehodId($methodId) {
         $this->methodId = $methodId;
+        return $this;
     }
 
     /**
@@ -90,6 +91,7 @@ class OrderHandlerService
      */
     public function setPaymentData($paymentData) {
         $this->paymentData = $paymentData;
+        return $this;
     }
 
     /**
