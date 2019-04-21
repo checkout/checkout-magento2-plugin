@@ -67,70 +67,69 @@ class TransactionHandlerService
      */
     public function createTransaction($order, $transactionMode, $paymentData = [])
     {
-            // Get a transaction id
-            $tid = $this->getTransactionId($paymentData);
+        // Get a transaction id
+        $tid = $this->getTransactionId($paymentData);
 
-            // Get a method id
-            $methodId = $order->getPayment()
-                ->getMethodInstance()
-                ->getCode();
-        
-            // Process the transaction
-            try {
-                // Prepare payment object
-                $payment = $order->getPayment();
-                $payment->setMethod($methodId);
-                $payment->setLastTransId($tid);
-                $payment->setTransactionId($tid);
-                $payment->setAdditionalInformation(
+        // Get a method id
+        $methodId = $order->getPayment()
+            ->getMethodInstance()
+            ->getCode();
+    
+        // Process the transaction
+        try {
+            // Prepare payment object
+            $payment = $order->getPayment();
+            $payment->setMethod($methodId);
+            $payment->setLastTransId($tid);
+            $payment->setTransactionId($tid);
+            $payment->setAdditionalInformation(
+                [
+                    Transaction::RAW_DETAILS => $paymentData
+                ]
+            );
+
+            // Formatted price
+            $formatedPrice = $order->getBaseCurrency()
+                ->formatTxt(
+                    $order->getGrandTotal()
+                );
+
+            // Prepare transaction
+            $transaction = $this->transactionBuilder
+                ->setPayment($payment)
+                ->setOrder($order)
+                ->setTransactionId($tid)
+                ->setAdditionalInformation(
                     [
                         Transaction::RAW_DETAILS => $paymentData
                     ]
+                )
+                ->setFailSafe(true)
+                ->build($transactionMode);
+
+            // Add authorization transaction to payment if needed
+            if ($transactionMode == Transaction::TYPE_AUTH) {
+                $payment->addTransactionCommentsToOrder(
+                    $transaction,
+                    __('The authorized amount is %1.', $formatedPrice)
                 );
-
-                // Formatted price
-                $formatedPrice = $order->getBaseCurrency()
-                    ->formatTxt(
-                        $order->getGrandTotal()
-                    );
-    
-                // Prepare transaction
-                $transaction = $this->transactionBuilder
-                    ->setPayment($payment)
-                    ->setOrder($order)
-                    ->setTransactionId($tid)
-                    ->setAdditionalInformation(
-                        [
-                            Transaction::RAW_DETAILS => $paymentData
-                        ]
-                    )
-                    ->setFailSafe(true)
-                    ->build($transactionMode);
-    
-                // Add authorization transaction to payment if needed
-                if ($transactionMode == Transaction::TYPE_AUTH) {
-                    $payment->addTransactionCommentsToOrder(
-                        $transaction,
-                        __('The authorized amount is %1.', $formatedPrice)
-                    );
-                    $payment->setParentTransactionId(null);
-                }
-
-                // Save payment, transaction and order
-                $payment->save();
-                $order->save();
-                $transaction->save();
-
-                // Create the invoice
-                // Todo - check this setting, add parameter to config
-                if ($this->config->getValue('invoice_creation') == $transactionMode) {
-                    $this->invoiceHandler->processInvoice($order);
-                }
-    
-                return $transaction->getTransactionId();
-            } catch (Exception $e) {
-                return false;
+                $payment->setParentTransactionId(null);
             }
+
+            // Save payment, transaction and order
+            $payment->save();
+            $order->save();
+            $transaction->save();
+
+            // Create the invoice
+            // Todo - check this setting, add parameter to config
+            if ($this->config->getValue('invoice_creation') == $transactionMode) {
+                $this->invoiceHandler->processInvoice($order);
+            }
+
+            return $transaction->getTransactionId();
+        } catch (Exception $e) {
+            return false;
         }
     }
 
