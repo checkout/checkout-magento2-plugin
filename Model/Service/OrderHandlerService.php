@@ -12,7 +12,7 @@ class OrderHandlerService
     /**
      * @var Session
      */
-     protected $customerSession;
+    protected $customerSession;
 
     /**
      * @var OrderInterface
@@ -22,17 +22,22 @@ class OrderHandlerService
     /**
      * @var QuoteManagement
      */
-     protected $quoteManagement;
+    protected $quoteManagement;
 
     /**
      * @var OrderRepositoryInterface
      */
-     protected $orderRepository;
+    protected $orderRepository;
+
+    /**
+     * @var OrderSender
+     */
+    protected $orderSender;
 
     /**
      * @var SearchCriteriaBuilder
      */
-     protected $searchBuilder;
+    protected $searchBuilder;
      
     /**
      * @var Config
@@ -55,7 +60,7 @@ class OrderHandlerService
     protected $paymentData;
 
     /**
-     * @param Context $context
+     * OrderHandler constructor
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -63,6 +68,7 @@ class OrderHandlerService
         \Magento\Sales\Api\Data\OrderInterface $orderInterface,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
@@ -70,9 +76,10 @@ class OrderHandlerService
     {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
-        $this->orderInterface = $orderInterface;
+        $this->orderInterface  = $orderInterface;
         $this->quoteManagement = $quoteManagement;
         $this->orderRepository = $orderRepository;
+        $this->orderSender = $orderSender;
         $this->searchBuilder = $searchBuilder;
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
