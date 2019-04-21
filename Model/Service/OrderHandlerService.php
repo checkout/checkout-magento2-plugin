@@ -45,6 +45,11 @@ class OrderHandlerService
     protected $quoteHandler;
 
     /**
+     * @var TransactionHandlerService
+     */
+     protected $transactionHandler;
+     
+    /**
      * @var String
      */
     protected $methodId;
@@ -65,7 +70,8 @@ class OrderHandlerService
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
     )
     {
         $this->checkoutSession = $checkoutSession;
@@ -76,6 +82,7 @@ class OrderHandlerService
         $this->searchBuilder = $searchBuilder;
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
+        $this->transactionHandler = $transactionHandler;
     }
 
     /**
