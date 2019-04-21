@@ -130,7 +130,12 @@ class OrderHandlerService
                 }
 
                 // Return the saved order
-                return $this->orderRepository->save($order);
+                $order = $this->orderRepository->save($order);
+
+                // Perform after place order tasks
+                $order = $this->orderHandler->afterPlaceOrder($this->quote, $order);
+
+                return $order;
 
             } catch (\Exception $e) {
 
