@@ -3,7 +3,6 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Sales\Model\Order\Invoice;
-use Magento\Sales\Model\Order\Payment\Transaction;
 
 class InvoiceHandlerService
 {
