@@ -123,7 +123,7 @@ class Config
      * @return bool
      */
     public function isAutoCapture($methodId) {
-        $value = $this->config->getValue('payment_action', $methodId));
+        $value = $this->config->getValue('payment_action', $methodId);
         return $value == 'authorize_capture';
     }
 }
