@@ -124,6 +124,12 @@ class OrderHandlerService
                 return $this->orderRepository->save($order);
 
             } catch (\Exception $e) {
+
+                $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/placeorder.log');
+                $logger = new \Zend\Log\Logger();
+                $logger->addWriter($writer);
+                $logger->info($e->getMessage());
+
                 return false;
             }
         }
