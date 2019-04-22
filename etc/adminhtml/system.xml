@@ -70,6 +70,7 @@
                         <depends>
                             <field id="payment_action">authorize_capture</field>
                         </depends>
+                        <frontend_model>CheckoutCom\Magento2\Block\Widgets\DatePicker</frontend_model>
                         <config_path>payment/checkoutcom_card_payment/capture_on</config_path>
                     </field>
                     
