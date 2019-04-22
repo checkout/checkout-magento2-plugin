@@ -100,15 +100,6 @@ class Config
     }
 
     /**
-     * Determines if the module is in sandbox mode.
-     *
-     * @return bool
-     */
-    public function isSandbox() {
-        return $this->getValue('environment') == 0;
-    }
-
-    /**
      * Determines if the module is in production mode.
      *
      * @return bool
