@@ -124,13 +124,14 @@ class ApiHandlerService
             $this->request->capture = $this->config->isAutoCapture($methodId);
             $this->request->amount = $amount*100;
             $this->request->reference = $reference;
-            /*$this->request->description = _(
-                'Payment request from %1', $this->config->getStoreName()
-            );
             $this->request->threeDs = new ThreeDs(
                 $this->config->getValue(
                     'three_ds', $methodId
                 )
+            );
+            /*
+            $this->request->description = _(
+                'Payment request from %1', $this->config->getStoreName()
             );
             */
 
@@ -142,11 +143,22 @@ class ApiHandlerService
                 ->payments()
                 ->request($this->request);
 
+
+            // Todo - remove logging code
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/response.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($this->response, 1));
+
             return $this;
 
         }   
         catch(\Exception $e) {
-
+            // Todo - remove logging code
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/error.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($e->getMessage(), 1));
         }
     }
 
