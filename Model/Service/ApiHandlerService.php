@@ -14,7 +14,7 @@ class ApiHandlerService
     /**
      * @var EncryptorInterface
      */
-     protected $encryptor;
+    protected $encryptor;
 
     /**
      * @var StoreManagerInterface
