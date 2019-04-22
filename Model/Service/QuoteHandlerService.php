@@ -101,6 +101,23 @@ class QuoteHandlerService
     }
 
     /**
+     * Get the order increment id from a quote
+     */
+    public function getReference($quote = null)
+    {
+        try {
+            $entity = $quote ? $quote : $this->getQuote();
+            $reference = $entity->reserveOrderId()
+            ->save()
+            ->getReservedOrderId();
+
+            return $reference;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
      * Sets the email for guest users
      */
     public function prepareGuestQuote($quote, $email = null)

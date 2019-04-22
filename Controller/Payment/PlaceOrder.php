@@ -85,7 +85,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     public function execute() {
         $message = '';
         $success = false;
-
         if ($this->getRequest()->isAjax()) {
             try {
                 if ($this->quote) {
@@ -95,7 +94,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                             $this->methodId,
                             $this->cardToken, 
                             $this->quote->getGrandTotal(),
-                            $this->quote->getQuoteCurrencyCode()
+                            $this->quote->getQuoteCurrencyCode(),
+                            $this->quoteHandler->getReference($this->quote)
                         )
                         ->getResponse();
 
@@ -129,10 +129,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     protected function placeOrder($response = null) {
         try {
             // Get the reserved order increment id
-            $reservedIncrementId = $this->quote
-                ->reserveOrderId()
-                ->save()
-                ->getReservedOrderId();
+            $reservedIncrementId = $this->quoteHandler
+                ->getReference($this->quote);
 
             // Create an order
             $order = $this->orderHandler->setMethodId($this->methodId)
