@@ -9,4 +9,10 @@
 - add order status settings
 - add APMs forms and payment requests
 - check issue with default button state
+
+
+
+SDK
 - check capture date field in API
+- why is 3ds parameter not Working?
+- fix typo in sdk  => 'The endpoint did not accepted the request' 
