@@ -5,6 +5,7 @@ namespace CheckoutCom\Magento2\Model\Service;
 use \Checkout\CheckoutApi;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
+use \Checkout\Models\Payments\ThreeDs;
 
 /**
  * Class for API handler service.
@@ -87,8 +88,11 @@ class ApiHandlerService
         );
 
         // Set the request parameters
-        $this->request->capture = false;
+        $this->request->capture = $this->config->getValue('three_ds', $methodId);
         $this->request->amount = $amount*100;
+        $this->request->threeDs = new ThreeDs(
+            $this->config->getValue('three_ds', $methodId)
+        );
 
         // Send the charge request
         $this->response = $this->checkoutApi
