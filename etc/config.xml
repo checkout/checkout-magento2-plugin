@@ -25,7 +25,7 @@
                 <payment_action>authorize_capture</payment_action>
                 <capture_on>0</capture_on>        
                 <sort_order>0</sort_order>
-                <threed_ds>0</three_ds>
+                <three_ds>0</three_ds>
                 <attempt_non3ds>0</attempt_non3ds>
                 <save_cards_enabled>0</save_cards_enabled>
                 <save_cards_title>Pay with saved card:</save_cards_title>
