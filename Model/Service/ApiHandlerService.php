@@ -97,6 +97,7 @@ class ApiHandlerService
 
             // Check the setting
             if ($this->config->isAutoCapture() && !empty($captureDate)) {
+                // Todo - Check capture time missing in SDK?
                 $this->request->capture_on = $this->formatDate($captureDate);
             }
         }
@@ -134,8 +135,6 @@ class ApiHandlerService
 
             // Auto capture time setting
             $this->setCaptureDate();
-            // Todo - Check capture time missing in SDK?
-
 
             // Send the charge request
             $this->response = $this->checkoutApi
