@@ -56,7 +56,7 @@ class DatePicker extends \Magento\Config\Block\System\Config\Form\Field
                 }
             );
         });
-            </script>';
+        </script>';
             
         // return datepicker element
         return $html;
