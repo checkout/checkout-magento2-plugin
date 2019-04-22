@@ -88,16 +88,25 @@ class ApiHandlerService
         );
 
         // Set the request parameters
-        $this->request->capture = $this->config->getValue('three_ds', $methodId);
+        $this->request->capture = $this->config->isAutoCapture();
         $this->request->amount = $amount*100;
         $this->request->reference = $reference;
         $this->request->description = _(
-            'Payment request from %1',
-            $this->config->getStoreName()
+            'Payment request from %1', $this->config->getStoreName()
         );
         $this->request->threeDs = new ThreeDs(
-            $this->config->getValue('three_ds', $methodId)
+            $this->config->getValue(
+                'three_ds', $methodId
+            )
         );
+
+        // Auto capture time setting
+        // Todo - Check capture time missing in SDK?
+        if ($this->config->isAutoCapture()) {
+            $this->request->capture_on = $this->config->getValue(
+                'capture_on', $methodId
+            );
+        }
 
         // Send the charge request
         $this->response = $this->checkoutApi

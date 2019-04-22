@@ -22,7 +22,8 @@
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
                 <title>Pay by Card with Checkout.com</title>
                 <active>1</active>
-                <payment_action>authorize_capture</payment_action>                
+                <payment_action>authorize_capture</payment_action>
+                <capture_on>0</capture_on>        
                 <sort_order>0</sort_order>
                 <threed_ds>0</three_ds>
                 <attempt_non3ds>0</attempt_non3ds>

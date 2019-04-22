@@ -59,6 +59,20 @@
                         <config_path>payment/checkoutcom_card_payment/active</config_path>
                     </field>
 
+                    <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment Action</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
+                        <config_path>payment/checkoutcom_card_payment/payment_action</config_path>
+                    </field>
+
+                    <field id="capture_on" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Capture On</label>
+                        <depends>
+                            <field id="payment_action">authorize_capture</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_card_payment/capture_on</config_path>
+                    </field>
+                    
                     <field id="three_ds" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Use 3D Secure</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
