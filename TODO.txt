@@ -9,3 +9,4 @@
 - add order status settings
 - add APMs forms and payment requests
 - check issue with default button state
+- check capture date field in API
