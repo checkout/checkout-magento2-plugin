@@ -90,13 +90,13 @@ class ApiHandlerService
 	/**
      * Checks and sets a capture time for the request.
      */
-    protected function setCaptureDate() {
+    protected function setCaptureDate($methodId) {
         try {
             // Get the  capture date from config
             $captureDate = $this->config->getValue('capture_on', $methodId);
 
             // Check the setting
-            if ($this->config->isAutoCapture() && !empty($captureDate)) {
+            if ($this->config->isAutoCapture($methodId) && !empty($captureDate)) {
                 // Todo - Check capture time missing in SDK?
                 $this->request->capture_on = $this->formatDate($captureDate);
             }
@@ -121,10 +121,10 @@ class ApiHandlerService
             );
 
             // Set the request parameters
-            $this->request->capture = $this->config->isAutoCapture();
+            $this->request->capture = $this->config->isAutoCapture($methodId);
             $this->request->amount = $amount*100;
             $this->request->reference = $reference;
-            $this->request->description = _(
+            /*$this->request->description = _(
                 'Payment request from %1', $this->config->getStoreName()
             );
             $this->request->threeDs = new ThreeDs(
@@ -132,21 +132,21 @@ class ApiHandlerService
                     'three_ds', $methodId
                 )
             );
+            */
 
             // Auto capture time setting
-            $this->setCaptureDate();
+            //$this->setCaptureDate($methodId);
 
             // Send the charge request
             $this->response = $this->checkoutApi
                 ->payments()
                 ->request($this->request);
 
+            return $this;
+
         }   
         catch(\Exception $e) {
 
-        }
-        finally {
-            return $this;
         }
     }
 
