@@ -75,9 +75,42 @@ class ApiHandlerService
     }
 
 	/**
+     * Convert a date string to ISO8601 format.
+     */
+    protected function formatDate($dateString) {
+        try {
+            $datetime = new \DateTime($dateString);
+            return $datetime->format(\DateTime::ATOM);
+        } 
+        catch(\Exception $e) {
+            return null;
+        }
+    }
+
+	/**
+     * Checks and sets a capture time for the request.
+     */
+    protected function setCaptureDate() {
+        try {
+            // Get the  capture date from config
+            $captureDate = $this->config->getValue('capture_on', $methodId);
+
+            // Check the setting
+            if ($this->config->isAutoCapture() && !empty($captureDate)) {
+                $this->request->capture_on = $this->formatDate($captureDate);
+            }
+        }
+        catch(\Exception $e) {
+            return null;
+        }
+    }
+
+	/**
      * Send a charge request.
      */
     public function sendChargeRequest($methodId, $cardToken, $amount, $currency, $reference = '') {
+        try {
+
         // Set the token source
         $tokenSource = new TokenSource($cardToken);
 
@@ -101,19 +134,21 @@ class ApiHandlerService
         );
 
         // Auto capture time setting
+        $this->setCaptureDate();
         // Todo - Check capture time missing in SDK?
-        if ($this->config->isAutoCapture()) {
-            $this->request->capture_on = $this->config->getValue(
-                'capture_on', $methodId
-            );
-        }
+
 
         // Send the charge request
         $this->response = $this->checkoutApi
             ->payments()
             ->request($this->request);
 
-        return $this;
+        catch(\Exception $e) {
+
+        }
+        finally {
+            return $this;
+        }
     }
 
 	/**

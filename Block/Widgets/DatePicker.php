@@ -37,33 +37,28 @@ class DatePicker extends \Magento\Config\Block\System\Config\Form\Field
   
     protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
-        // Aet configuration element
+        // Add configuration element
         $html = $element->getElementHtml();
 
-        // Check datepicker set or not
-        if (!$this->_coreRegistry->registry('datepicker_loaded')) {
-            $this->_coreRegistry->registry('datepicker_loaded', 1);
-        }
-
         // Add icon on datepicker 
-        $html .= '<button type="button" style="display:none;" class="ui-datepicker-trigger '
+        $html .= '<button type="button" class="ui-datepicker-trigger '
             .'v-middle"><span>Select Date</span></button>';
 
         // Add datepicker with element by jquery
         $html .= '<script type="text/javascript">
-            require(["jquery", "jquery/ui"], function (jq) {
-                jq(document).ready(function () {
-                    jq("#' . $element->getHtmlId() . '").datepicker( { dateFormat: "dd/mm/yy" } );
-                    jq(".ui-datepicker-trigger").removeAttr("style");
-                    jq(".ui-datepicker-trigger").click(function(){
-                        jq("#' . $element->getHtmlId() . '").focus();
-                    });
-                });
-            });
+        require(["jquery",
+            "mage/calendar"
+        ], function($){
+            $("#' . $element->getHtmlId() . '").datetimepicker({
+                    stepMinute: 1,
+                    minDate: new Date(),
+                    dateFormat:"dd-mm-yy"
+                }
+            );
+        });
             </script>';
             
         // return datepicker element
         return $html;
     }
 }
-
