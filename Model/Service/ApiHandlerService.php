@@ -77,7 +77,7 @@ class ApiHandlerService
 	/**
      * Send a charge request.
      */
-    public function sendChargeRequest($methodId, $cardToken, $amount, $currency) {
+    public function sendChargeRequest($methodId, $cardToken, $amount, $currency, $reference = '') {
         // Set the token source
         $tokenSource = new TokenSource($cardToken);
 
@@ -90,9 +90,7 @@ class ApiHandlerService
         // Set the request parameters
         $this->request->capture = $this->config->getValue('three_ds', $methodId);
         $this->request->amount = $amount*100;
-        $this->request->threeDs = new ThreeDs(
-            $this->config->getValue('three_ds', $methodId)
-        );
+        $this->request->reference = $reference;
 
         // Send the charge request
         $this->response = $this->checkoutApi
