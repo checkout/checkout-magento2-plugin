@@ -12,7 +12,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     /**
      * @var OrderHandlerService
      */
-     protected $orderHandler;
+    protected $orderHandler;
 
     /**
      * @var ApiHandlerService
@@ -22,7 +22,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     /**
      * @var JsonFactory
      */
-     protected $jsonFactory;
+    protected $jsonFactory;
      
     /**
      * @var Session
