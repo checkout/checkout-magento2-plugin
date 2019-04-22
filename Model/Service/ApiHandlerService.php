@@ -91,6 +91,13 @@ class ApiHandlerService
         $this->request->capture = $this->config->getValue('three_ds', $methodId);
         $this->request->amount = $amount*100;
         $this->request->reference = $reference;
+        $this->request->description = _(
+            'Payment request from %1',
+            $this->config->getStoreName()
+        );
+        $this->request->threeDs = new ThreeDs(
+            $this->config->getValue('three_ds', $methodId)
+        );
 
         // Send the charge request
         $this->response = $this->checkoutApi
