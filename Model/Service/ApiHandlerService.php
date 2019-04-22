@@ -110,39 +110,39 @@ class ApiHandlerService
      */
     public function sendChargeRequest($methodId, $cardToken, $amount, $currency, $reference = '') {
         try {
+            // Set the token source
+            $tokenSource = new TokenSource($cardToken);
 
-        // Set the token source
-        $tokenSource = new TokenSource($cardToken);
+            // Set the payment
+            $this->request = new Payment(
+                $tokenSource, 
+                $currency
+            );
 
-        // Set the payment
-        $this->request = new Payment(
-            $tokenSource, 
-            $currency
-        );
+            // Set the request parameters
+            $this->request->capture = $this->config->isAutoCapture();
+            $this->request->amount = $amount*100;
+            $this->request->reference = $reference;
+            $this->request->description = _(
+                'Payment request from %1', $this->config->getStoreName()
+            );
+            $this->request->threeDs = new ThreeDs(
+                $this->config->getValue(
+                    'three_ds', $methodId
+                )
+            );
 
-        // Set the request parameters
-        $this->request->capture = $this->config->isAutoCapture();
-        $this->request->amount = $amount*100;
-        $this->request->reference = $reference;
-        $this->request->description = _(
-            'Payment request from %1', $this->config->getStoreName()
-        );
-        $this->request->threeDs = new ThreeDs(
-            $this->config->getValue(
-                'three_ds', $methodId
-            )
-        );
-
-        // Auto capture time setting
-        $this->setCaptureDate();
-        // Todo - Check capture time missing in SDK?
+            // Auto capture time setting
+            $this->setCaptureDate();
+            // Todo - Check capture time missing in SDK?
 
 
-        // Send the charge request
-        $this->response = $this->checkoutApi
-            ->payments()
-            ->request($this->request);
+            // Send the charge request
+            $this->response = $this->checkoutApi
+                ->payments()
+                ->request($this->request);
 
+        }   
         catch(\Exception $e) {
 
         }
