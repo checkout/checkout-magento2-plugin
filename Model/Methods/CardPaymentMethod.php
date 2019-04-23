@@ -122,11 +122,12 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             */
 
             // Auto capture time setting
-            $request = $this->apiHandler
+            /*$request = $this->apiHandler
                 ->setCaptureDate(
                     $this->_code,
                     $request
                 );
+            */
 
             // Send the charge request
             $response = $this->apiHandler->checkoutApi
