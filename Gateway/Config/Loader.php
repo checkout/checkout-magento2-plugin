@@ -64,39 +64,48 @@ class Loader
     }
 
     private function getConfigFileData() {
-        // Prepare the output array
-        $dbData = [];
+        try {
+            // Prepare the output array
+            $dbData = [];
 
-        // Load the xml data
-        $xmlData = $this->loadXmlData();
-  
-        // Loop through the xml data array
-        foreach ($xmlData as $parent => $child) {
-            foreach ($child as $group => $arr) {
-                // Store the payment method model class
-                $this->paymentMethods = $group;
+            // Load the xml data
+            $xmlData = $this->loadXmlData();
+    
+            // Loop through the xml data array
+            foreach ($xmlData as $parent => $child) {
+                foreach ($child as $group => $arr) {
+                    // Store the payment method model class
+                    $this->paymentMethods[$group] = $arr['model'];
 
-                // Loop through values for the payment method
-                foreach ($arr as $key => $val) {
-                    if (!$this->isHidden($key)) {
-                        $finalValue = '';
-                        if ($this->isEncrypted($key)) {
-                            $finalValue = $this->decrypt($key);
+                    // Loop through values for the payment method
+                    foreach ($arr as $key => $val) {
+                        if (!$this->isHidden($key)) {
+                            $finalValue = '';
+                            if ($this->isEncrypted($key)) {
+                                $finalValue = $this->decrypt($key);
+                            } else {
+                                $path = $parent . '/' . $group . '/' . $key;
+                                $finalValue = $this->scopeConfig->getValue(
+                                    $path,
+                                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                                );
+                            }
+                            $dbData[$parent][$group][$key] = $finalValue;
                         }
-                        else {
-                            $path = $parent . '/' . $group . '/' . $key;
-                            $finalValue = $this->scopeConfig->getValue(
-                                $path,
-                                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                            );
-                        }
-                        $dbData[$parent][$group][$key] = $finalValue;
                     }
                 }
             }
-        }
 
-        return $dbData;
+            return $dbData;
+        }
+        catch(\Exception $e) {
+            throw new \Magento\Framework\Exception\Exception(
+                __(
+                    "The module configuration file can't be loaded" . " - "
+                    . $e->getMessage()
+                )
+            );          
+        }
     }
 
     private function getConfigFilePath() {
