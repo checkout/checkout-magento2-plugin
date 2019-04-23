@@ -100,6 +100,12 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                     // Process the response
                     $success = $response->isSuccessful();
 
+                    // Handle 3DS cases
+                    $redirectionUrl = $response->getRedirection();
+                    if ($success && !empty($redirectionUrl)) {
+                        $message = $redirectionUrl;
+                    }
+
                     // Handle the order
                     $order = $this->placeOrder($response);
                     if (!($success && $this->orderHandler->isOrder($order))) {

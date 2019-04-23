@@ -109,14 +109,26 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->capture = $this->config->isAutoCapture($this->_code);
             $request->amount = $amount*100;
             $request->reference = $reference;
-            /*
+
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/code.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($this->_code, 1));
+
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/dbval.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($this->config->getValue(
+                'three_ds', $this->_code
+            ), 1));
+
             $request->threeDs = new ThreeDs(
-                $this->config->getValue(
+                (bool) $this->config->getValue(
                     'three_ds', $this->_code
                 )
             );
-
-            $request->description = _(
+            /*
+            $request->description = __(
                 'Payment request from %1', $this->config->getStoreName()
             );
             */
