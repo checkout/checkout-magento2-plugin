@@ -6,19 +6,19 @@ class MethodHandlerService
 {
 
     /**
-     * @var Session
+     * @var Array
      */
-    public $methods;
+    public $instances;
 
     /**
      * @param MethodHandlerService constructor
      */
-    public function __construct(array $data = [])
+    public function __construct($instances)
     {
-        $this->methods = $data['methods'];
+        $this->instances = $instances;
     }
 
     public function get($methodId) {
-        return $this->methods[$methodId];
+        return $this->instances[$methodId];
     }
 }
