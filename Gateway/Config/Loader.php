@@ -40,11 +40,6 @@ class Loader
     protected $encryptor;
 
     /**
-     * @var Array
-     */
-    public $paymentMethods = [];
-
-    /**
      * Loader constructor
      */
     public function __construct(
@@ -74,9 +69,6 @@ class Loader
             // Loop through the xml data array
             foreach ($xmlData as $parent => $child) {
                 foreach ($child as $group => $arr) {
-                    // Store the payment method model class
-                    $this->paymentMethods[$group] = $arr['model'];
-
                     // Loop through values for the payment method
                     foreach ($arr as $key => $val) {
                         if (!$this->isHidden($key)) {

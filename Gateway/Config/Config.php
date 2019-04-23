@@ -20,6 +20,11 @@ class Config
     public $loader;
 
     /**
+     * @var Array
+     */
+    public $paymentModels;
+
+    /**
      * Config constructor
      */
     public function __construct(
@@ -30,6 +35,9 @@ class Config
         $this->storeManager = $storeManager;
         $this->scopeConfig = $scopeConfig;
         $this->loader = $loader;
+
+        // Load the payment model class paths
+        $this->loadPaymentModels();
     }
 
     /**
@@ -80,6 +88,28 @@ class Config
         }
 
         return $methods;
+    }
+
+    /**
+     * Returns the payment methods models.
+     *
+     * @return void
+     */
+    public function loadPaymentModels() {
+        foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodId) {
+            // Check if the method has a model
+            $value = $this->getValue('model', $methodId);
+
+            // No empty model value accepted
+            if (empty($value)) {
+                throw new \Magento\Framework\Exception\Exception(
+                    __('A payment model class path is required in configuration.')
+                );    
+            }
+
+            // Add the model to the array
+            $this->paymentModels[$methodId] = $value;
+        }
     }
 
     /**
