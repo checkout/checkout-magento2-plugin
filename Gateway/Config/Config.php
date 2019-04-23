@@ -101,6 +101,16 @@ class Config
     }
 
     /**
+     * Returns the store name.
+     *
+     * @return string
+     */
+    public function getStoreUrl() {
+        return $this->storeManager->getStore()->getBaseUrl();
+    }
+    
+
+    /**
      * Determines if the module is in production mode.
      *
      * @return bool
