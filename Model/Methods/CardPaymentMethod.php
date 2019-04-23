@@ -94,7 +94,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 	/**
      * Send a charge request.
      */
-    public function sendChargeRequest($cardToken, $amount, $currency, $reference = '') {
+    public function sendPaymentRequest($cardToken, $amount, $currency, $reference = '') {
         try {
             // Set the token source
             $tokenSource = new TokenSource($cardToken);

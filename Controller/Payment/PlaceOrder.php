@@ -90,7 +90,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                 if ($this->quote) {
                     // Send the charge request
                     $response = $this->methodHandler->get($this->methodId)
-                        ->sendChargeRequest(
+                        ->sendPaymentRequest(
                             $this->cardToken, 
                             $this->quote->getGrandTotal(),
                             $this->quote->getQuoteCurrencyCode(),

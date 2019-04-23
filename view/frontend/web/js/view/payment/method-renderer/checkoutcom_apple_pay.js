@@ -105,7 +105,7 @@ define([
                 /**
                  * @returns {object}
                  */
-                sendChargeRequest: function(paymentData) {
+                sendPaymentRequest: function(paymentData) {
                     return new Promise(function(resolve, reject) {
                         $.ajax({
                             url: url.build('payment/placeorder'),
@@ -231,7 +231,7 @@ define([
 
                         // Payment method authorization
                         session.onpaymentauthorized = function (event) {
-                            var promise = self.sendChargeRequest(event.payment.token);
+                            var promise = self.sendPaymentRequest(event.payment.token);
                             promise.then(function (success) {	
                                 var status;
                                 if (success) {
