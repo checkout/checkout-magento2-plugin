@@ -117,20 +117,16 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                     'three_ds', $this->_code
                 )
             );
-
-            /*
             $request->description = __(
                 'Payment request from %1', $this->config->getStoreName()
             );
-            */
 
             // Auto capture time setting
-            /*$request = $this->apiHandler
+            $request = $this->apiHandler
                 ->setCaptureDate(
                     $this->_code,
                     $request
                 );
-            */
 
             // Send the charge request
             $response = $this->apiHandler->checkoutApi
