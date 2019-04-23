@@ -29,13 +29,11 @@ class ApiHandlerService
      */
     public function __construct(
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        array $methods = []
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
     {
         $this->encryptor = $encryptor;
         $this->config = $config;
-        $this->methods = $methods;
 
         // Load the API client with credentials.
         $this->checkoutApi = $this->loadClient();

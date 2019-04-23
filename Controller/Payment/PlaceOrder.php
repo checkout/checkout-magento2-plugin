@@ -15,6 +15,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     protected $orderHandler;
 
     /**
+     * @var MethodHandlerService
+     */
+    protected $methodHandler;
+
+    /**
      * @var JsonFactory
      */
     protected $jsonFactory;
@@ -53,6 +58,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         \Magento\Checkout\Model\Session $checkoutSession,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
     {
@@ -61,6 +67,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         $this->jsonFactory = $jsonFactory;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
+        $this->methodHandler = $methodHandler;
         $this->checkoutSession = $checkoutSession;
         $this->config = $config;
 
@@ -82,8 +89,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             try {
                 if ($this->quote) {
                     // Send the charge request
-                    $response = $this->apiHandler[$this->methodId]->test();
-                    $response = $this->apiHandler[$this->methodId]
+                    $response = $this->methodHandler-get([$this->methodId])->test();
+                    $response = $this->methodHandler[$this->methodId]
                         ->sendChargeRequest(
                             $this->methodId,
                             $this->cardToken, 
