@@ -56,7 +56,6 @@
                 <can_void>1</can_void>
                 <auto_generate_invoice>1</auto_generate_invoice>
                 <apm></apm>
-        
             </checkoutcom_apm>
             <checkoutcom_google_pay>
                 <model>CheckoutCom\Magento2\Model\Methods\GooglePayMethod</model>
