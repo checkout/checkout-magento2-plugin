@@ -15,11 +15,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     protected $orderHandler;
 
     /**
-     * @var ApiHandlerService
-     */
-    protected $apiHandler;
-
-    /**
      * @var JsonFactory
      */
     protected $jsonFactory;
@@ -58,7 +53,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         \Magento\Checkout\Model\Session $checkoutSession,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
     {
@@ -67,7 +61,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         $this->jsonFactory = $jsonFactory;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
-        $this->apiHandler = $apiHandler;
         $this->checkoutSession = $checkoutSession;
         $this->config = $config;
 

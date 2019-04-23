@@ -2,11 +2,9 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use CheckoutCom\Magento2\Gateway\Config\Config;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Address;
-use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use \Checkout\Models\Payments\ThreeDs;
 
 class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -27,6 +25,25 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected $_code = CardPaymentMethod::CODE;
 
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandlerService;
+
+    /**
+     * @var Payment
+     */
+    protected $request;
+
+    /**
+     * @var Payment
+     */
+    protected $response;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -51,6 +68,8 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         array $data = []
     ) {
         parent::__construct(
@@ -78,7 +97,68 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
+        $this->config             = $config;
+        $this->apiHandler         = $apiHandler;
     }
 
+	/**
+     * Send a charge request.
+     */
+    public function sendChargeRequest($methodId, $cardToken, $amount, $currency, $reference = '') {
+        try {
+            // Set the token source
+            $tokenSource = new TokenSource($cardToken);
+
+            // Set the payment
+            $this->request = new Payment(
+                $tokenSource, 
+                $currency
+            );
+
+            // Set the request parameters
+            $this->request->capture = $this->config->isAutoCapture($methodId);
+            $this->request->amount = $amount*100;
+            $this->request->reference = $reference;
+            /*
+            $this->request->threeDs = new ThreeDs(
+                $this->config->getValue(
+                    'three_ds', $methodId
+                )
+            );
+
+            $this->request->description = _(
+                'Payment request from %1', $this->config->getStoreName()
+            );
+            */
+
+            // Auto capture time setting
+            $this->request = $this->apiHandler
+                ->setCaptureDate(
+                    $methodId,
+                    $this->request
+                );
+
+            // Send the charge request
+            $this->response = $this->apiHandler->checkoutApi
+                ->payments()
+                ->request($this->request);
+
+            // Todo - remove logging code
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/response.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($this->response, 1));
+
+            return $this;
+
+        }   
+        catch(\Exception $e) {
+            // Todo - remove logging code
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/error.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($e->getMessage(), 1));
+        }
+    }
 
 }
