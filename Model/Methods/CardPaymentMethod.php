@@ -35,16 +35,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected $apiHandlerService;
 
-    /**
-     * @var Payment
-     */
-    protected $request;
-
-    /**
-     * @var Payment
-     */
-    protected $response;
-
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -110,48 +100,48 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $tokenSource = new TokenSource($cardToken);
 
             // Set the payment
-            $this->request = new Payment(
+            $request = new Payment(
                 $tokenSource, 
                 $currency
             );
 
             // Set the request parameters
-            $this->request->capture = $this->config->isAutoCapture($this->_code);
-            $this->request->amount = $amount*100;
-            $this->request->reference = $reference;
+            $request->capture = $this->config->isAutoCapture($this->_code);
+            $request->amount = $amount*100;
+            $request->reference = $reference;
             /*
-            $this->request->threeDs = new ThreeDs(
+            $request->threeDs = new ThreeDs(
                 $this->config->getValue(
                     'three_ds', $this->_code
                 )
             );
 
-            $this->request->description = _(
+            $request->description = _(
                 'Payment request from %1', $this->config->getStoreName()
             );
             */
 
             // Auto capture time setting
-            $this->request = $this->apiHandler
+            $request = $this->apiHandler
                 ->setCaptureDate(
                     $this->_code,
-                    $this->request
+                    $request
                 );
 
             // Send the charge request
-            $this->response = $this->apiHandler->checkoutApi
+            $response = $this->apiHandler->checkoutApi
                 ->payments()
-                ->request($this->request);
+                ->request($request);
 
             // Todo - remove logging code
             $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/response.log');
             $logger = new \Zend\Log\Logger();
             $logger->addWriter($writer);
-            $logger->info(print_r($this->response, 1));
+            $logger->info(print_r($response, 1));
 
-            return $this;
-
+            return $response;
         }   
+
         catch(\Exception $e) {
             // Todo - remove logging code
             $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/error.log');

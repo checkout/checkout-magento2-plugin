@@ -95,8 +95,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                             $this->quote->getGrandTotal(),
                             $this->quote->getQuoteCurrencyCode(),
                             $this->quoteHandler->getReference($this->quote)
-                        )
-                        ->getResponse();
+                        );
 
                     // Process the response
                     $success = $response->isSuccessful();
