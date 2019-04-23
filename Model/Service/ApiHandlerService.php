@@ -57,7 +57,7 @@ class ApiHandlerService
 	/**
      * Convert a date string to ISO8601 format.
      */
-    protected function formatDate($dateString) {
+    public function formatDate($dateString) {
         try {
             $datetime = new \DateTime($dateString);
             return $datetime->format(\DateTime::ATOM);
@@ -70,7 +70,7 @@ class ApiHandlerService
 	/**
      * Checks and sets a capture time for the request.
      */
-    protected function setCaptureDate($methodId, $request) {
+    public function setCaptureDate($methodId, $request) {
         try {
             // Get the  capture date from config
             $captureDate = $this->config->getValue('capture_on', $methodId);
