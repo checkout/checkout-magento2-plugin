@@ -92,7 +92,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                     $response = $this->methodHandler-get([$this->methodId])->test();
                     $response = $this->methodHandler[$this->methodId]
                         ->sendChargeRequest(
-                            $this->methodId,
                             $this->cardToken, 
                             $this->quote->getGrandTotal(),
                             $this->quote->getQuoteCurrencyCode(),

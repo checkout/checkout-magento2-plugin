@@ -111,7 +111,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 	/**
      * Send a charge request.
      */
-    public function sendChargeRequest($methodId, $cardToken, $amount, $currency, $reference = '') {
+    public function sendChargeRequest($cardToken, $amount, $currency, $reference = '') {
         try {
             // Set the token source
             $tokenSource = new TokenSource($cardToken);
@@ -123,13 +123,13 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             );
 
             // Set the request parameters
-            $this->request->capture = $this->config->isAutoCapture($methodId);
+            $this->request->capture = $this->config->isAutoCapture($this->_code);
             $this->request->amount = $amount*100;
             $this->request->reference = $reference;
             /*
             $this->request->threeDs = new ThreeDs(
                 $this->config->getValue(
-                    'three_ds', $methodId
+                    'three_ds', $this->_code
                 )
             );
 
@@ -141,7 +141,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             // Auto capture time setting
             $this->request = $this->apiHandler
                 ->setCaptureDate(
-                    $methodId,
+                    $this->_code,
                     $this->request
                 );
 
