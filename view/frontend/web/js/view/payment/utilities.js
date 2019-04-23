@@ -129,6 +129,11 @@ define([
                 messageContainer.empty();
             },
 
+            isUrl: function (str) {
+                var pattern = '/^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/';
+                return pattern.test(str);
+            },
+
             /**
              * HTTP handlers
              */
@@ -153,7 +158,12 @@ define([
                             FullScreenLoader.stopLoader();
                             self.showMessage('error', data.message);
                         }
+                        else if (data.success && self.isUrl(data.message)) {
+                            // Handle 3DS redirection
+                            window.location.href = data.message
+                        }
                         else {
+                            // Normal redirection
                             RedirectOnSuccessAction.execute();
                         }
                     },
