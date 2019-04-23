@@ -23,4 +23,8 @@ class GooglePayMethod extends Method
      */
     protected $_code = GooglePayMethod::CODE;
 
+    public function __construct(...$args) {
+        parent::__construct(...$args);
+    }
+
 }

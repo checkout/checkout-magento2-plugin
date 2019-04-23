@@ -27,21 +27,8 @@ class CardPaymentMethod extends Method
      */
     protected $_code = CardPaymentMethod::CODE;
 
-    /**
-     * API related.
-     */
-
-    /**
-     * Create source.
-     *
-     * @param      $source  The source
-     *
-     * @return     TokenSource
-     */
-    protected static function token($source) {
-
-        return new \Checkout\Models\Payments\TokenSource($source['token']);
-
+    public function __construct(...$args) {
+        parent::__construct(...$args);
     }
 
 }

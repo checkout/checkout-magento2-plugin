@@ -6,7 +6,6 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 
 class ApplePayMethod extends Method
 {
-
     /**
      * @var string
      */
@@ -23,4 +22,7 @@ class ApplePayMethod extends Method
      */
     protected $_code = ApplePayMethod::CODE;
 
+    public function __construct(...$args) {
+        parent::__construct(...$args);
+    }
 }
