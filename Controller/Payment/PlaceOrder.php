@@ -82,7 +82,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             try {
                 if ($this->quote) {
                     // Send the charge request
-                    $response = $this->apiHandler
+                    $response = $this->apiHandler[$this->methodId]->test();
+                    $response = $this->apiHandler[$this->methodId]
                         ->sendChargeRequest(
                             $this->methodId,
                             $this->cardToken, 
