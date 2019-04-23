@@ -17,7 +17,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var array
      */
-    const FIELDS = array('title', 'environment', 'public_key', 'type', 'action', '3ds_enabled', 'attempt_non3ds', 'save_cards_enabled', 'save_cards_title', 'dynamic_decriptor_enabled', 'decriptor_name', 'decriptor_city', 'cvv_optional', 'mada_enabled', 'active');
+    const FIELDS = array('title', 'environment', 'public_key', 'type', 'action', '3ds_enabled', 'attempt_n3d', 'save_cards_enabled', 'save_cards_title', 'dynamic_decriptor_enabled', 'decriptor_name', 'decriptor_city', 'cvv_optional', 'mada_enabled', 'active');
 
     /**
      * @var string

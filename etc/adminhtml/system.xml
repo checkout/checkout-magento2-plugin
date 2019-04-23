@@ -80,13 +80,13 @@
                         <config_path>payment/checkoutcom_card_payment/three_ds</config_path>
                     </field>
 
-                    <field id="attempt_non3ds" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="attempt_n3d" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Attempt non-3D Secure</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <depends>
                             <field id="three_ds">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_card_payment/attempt_non3ds</config_path>
+                        <config_path>payment/checkoutcom_card_payment/attempt_n3d</config_path>
                     </field>
 
                     <field id="save_cards_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
