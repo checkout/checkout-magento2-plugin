@@ -4,15 +4,21 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 class MethodHandlerService
 {
+
     /**
-     * @param Context $context
+     * @var Session
+     */
+    public $methods;
+
+    /**
+     * @param MethodHandlerService constructor
      */
     public function __construct(array $data = [])
     {
-        $this->data = $data;
+        $this->methods = $data['methods'];
     }
 
     public function get($methodId) {
-        return $this->data[$methodId];
+        return $this->methods[$methodId];
     }
 }
