@@ -8,7 +8,7 @@
 - add APMs forms and payment requests
 - check issue with default button state
 
-
+- check after multiple failed requests (add idempotency?)
 
 SDK
 - fix typo in sdk  => 'The endpoint did not accepted the request' 
