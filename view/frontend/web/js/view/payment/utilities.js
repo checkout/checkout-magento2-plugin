@@ -130,7 +130,7 @@ define([
             },
 
             isUrl: function (str) {
-                var pattern = '/^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/';
+                var pattern = /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/;
                 return pattern.test(str);
             },
 
