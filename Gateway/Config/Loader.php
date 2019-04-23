@@ -40,6 +40,11 @@ class Loader
     protected $encryptor;
 
     /**
+     * @var Array
+     */
+    public $paymentMethods = [];
+
+    /**
      * Loader constructor
      */
     public function __construct(
@@ -68,15 +73,24 @@ class Loader
         // Loop through the xml data array
         foreach ($xmlData as $parent => $child) {
             foreach ($child as $group => $arr) {
+                // Store the payment method model class
+                $this->paymentMethods = $group;
+
+                // Loop through values for the payment method
                 foreach ($arr as $key => $val) {
                     if (!$this->isHidden($key)) {
-                        $path = $parent . '/' . $group . '/' . $key;
-                        $dbData[$parent][$group][$key] = ($this->isEncrypted($key))
-                        ? $this->decrypt($key) 
-                        : $this->scopeConfig->getValue(
-                            $path,
-                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                        );
+                        $finalValue = '';
+                        if ($this->isEncrypted($key)) {
+                            $finalValue = $this->decrypt($key);
+                        }
+                        else {
+                            $path = $parent . '/' . $group . '/' . $key;
+                            $finalValue = $this->scopeConfig->getValue(
+                                $path,
+                                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                            );
+                        }
+                        $dbData[$parent][$group][$key] = $finalValue;
                     }
                 }
             }

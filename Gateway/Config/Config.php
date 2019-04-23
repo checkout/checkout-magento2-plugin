@@ -73,6 +73,7 @@ class Config
     public function getMethodsConfig() {
         $methods = [];
         foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodId => $data) {
+            // Check if the method is active
             if ($this->getValue('active', $methodId) == 1) {
                 $methods[$methodId] = $data;
             }
