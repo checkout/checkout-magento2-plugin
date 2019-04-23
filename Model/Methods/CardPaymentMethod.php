@@ -101,13 +101,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->apiHandler         = $apiHandler;
     }
 
-    public function test () {
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r('hello', 1));
-    }
-
 	/**
      * Send a charge request.
      */
