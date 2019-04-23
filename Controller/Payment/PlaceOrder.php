@@ -106,8 +106,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                         $message = $redirectionUrl;
                     }
 
-                    // Handle the order
-                    $order = $this->placeOrder($response);
+                    // Handle the order placement
+                    else if ($success && empty($redirectionUrl)) {
+                        $order = $this->placeOrder($response);
+                    }
+
                     if (!($success && $this->orderHandler->isOrder($order))) {
                         $message = __('The transaction could not be processed.');
                     }
