@@ -22,7 +22,7 @@ class ApiHandlerService
     /**
      * @var CheckoutApi
      */
-    protected $checkoutApi;
+    public $checkoutApi;
 
 	/**
      * Initialize the API client wrapper.
