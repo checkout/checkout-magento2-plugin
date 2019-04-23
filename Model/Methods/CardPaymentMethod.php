@@ -109,8 +109,9 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->capture = $this->config->isAutoCapture($this->_code);
             $request->amount = $amount*100;
             $request->reference = $reference;
-            $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/success';
-            $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/failure';
+            //$request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/success';
+            //$request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/failure';
+            //$request->attempt_n3d = true;
 
             $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/code.log');
             $logger = new \Zend\Log\Logger();
