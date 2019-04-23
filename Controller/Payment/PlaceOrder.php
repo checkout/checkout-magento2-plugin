@@ -83,6 +83,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      * Handles the controller method.
      */
     public function execute() {
+        $url = false;
         $message = '';
         $success = false;
         if ($this->getRequest()->isAjax()) {
@@ -103,7 +104,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                     // Handle 3DS cases
                     $redirectionUrl = $response->getRedirection();
                     if ($success && !empty($redirectionUrl)) {
-                        $message = $redirectionUrl;
+                        $url = $redirectionUrl;
                     }
 
                     // Handle the order placement
@@ -126,7 +127,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
 
         return $this->jsonFactory->create()->setData([
             'success' => $success,
-            'message' => $message
+            'message' => $message,
+            'url' => $url
         ]);
     }
 

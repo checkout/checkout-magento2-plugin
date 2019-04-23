@@ -112,24 +112,13 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             //$request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/success';
             //$request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/failure';
             //$request->attempt_n3d = true;
-
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/code.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($this->_code, 1));
-
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/dbval.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($this->config->getValue(
-                'three_ds', $this->_code
-            ), 1));
-
-            $request->threeDs = new ThreeDs(
+            /*$request->threeDs = new ThreeDs(
                 (bool) $this->config->getValue(
                     'three_ds', $this->_code
                 )
-            );
+            );*/
+            $request->threeDs = new ThreeDs(true);
+
             /*
             $request->description = __(
                 'Payment request from %1', $this->config->getStoreName()

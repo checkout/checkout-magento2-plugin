@@ -158,9 +158,9 @@ define([
                             FullScreenLoader.stopLoader();
                             self.showMessage('error', data.message);
                         }
-                        else if (data.success && self.isUrl(data.message)) {
+                        else if (data.success && data.url) {
                             // Handle 3DS redirection
-                            window.location.href = data.message
+                            window.location.href = data.url
                         }
                         else {
                             // Normal redirection
