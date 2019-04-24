@@ -10,7 +10,7 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-class OrderStatus implements \Magento\Framework\Option\ArrayInterface {
+class ConfigOrderStatus implements \Magento\Framework\Option\ArrayInterface {
 
     /**
      * @var Collection 
