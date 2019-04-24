@@ -108,6 +108,9 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             // Prepare the capture date setting
             $captureDate = $this->config->getCaptureDate($this->_code);
 
+            // Prepare the MADA setting
+            $madaEnabled = (bool) $this->config->getValue('mada_enabled', $this->_code);
+
             // Set the request parameters
             $request->capture = $this->config->needsAutoCapture($this->_code);
             $request->amount = $amount*100;
@@ -119,6 +122,9 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->description = __('Payment request from %1', $this->config->getStoreName());
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureDate($this->_code);
+            }
+            if ($madaEnabled) {
+                $request->metadata = ['udf1' => 'MADA'];
             }
 
             // Send the charge request
