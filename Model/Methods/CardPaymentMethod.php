@@ -123,6 +123,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureDate($this->_code);
             }
+            // Todo - add the card BIN check
             if ($madaEnabled) {
                 $request->metadata = ['udf1' => 'MADA'];
             }
