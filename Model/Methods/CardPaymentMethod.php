@@ -26,6 +26,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     protected $_code = CardPaymentMethod::CODE;
 
     /**
+     * @var RemoteAddress
+     */
+    protected $remoteAddress;
+
+    /**
      * @var Config
      */
     protected $config;
@@ -58,6 +63,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         array $data = []
@@ -87,6 +93,8 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
+
+        $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
     }
@@ -120,6 +128,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
             $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
             $request->description = __('Payment request from %1', $this->config->getStoreName());
+            $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureDate($this->_code);
             }
