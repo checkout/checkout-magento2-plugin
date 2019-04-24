@@ -83,6 +83,16 @@ class Config
     }
 
     /**
+     * Determines if 3DS should be enabled for a payment request.
+     *
+     * @return string
+     */
+    public function is3dsNeeded($methodId) {
+        return (((bool) $this->getValue('three_ds', $methodId) === true) 
+        || ((bool) $this->config->getValue('mada_enabled', $methodId) === true));
+    }
+
+    /**
      * Returns the store name.
      *
      * @return string
