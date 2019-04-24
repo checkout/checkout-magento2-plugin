@@ -53,17 +53,4 @@ class ApiHandlerService
             )
         );        
     }
-
-	/**
-     * Convert a date string to ISO8601 format.
-     */
-    public function formatDate($dateString) {
-        try {
-            $datetime = new \DateTime($dateString);
-            return $datetime->format(\DateTime::ATOM);
-        } 
-        catch(\Exception $e) {
-            return null;
-        }
-    }
 }

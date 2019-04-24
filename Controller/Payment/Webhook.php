@@ -26,6 +26,13 @@ class Webhook extends \Magento\Framework\App\Action\Action {
      * Handles the controller method.
      */
     public function execute() {
-        
+        // Get the post data
+        $postData = $this->getRequest()->getPostValue();
+
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/webhook.log');
+		$logger = new \Zend\Log\Logger();
+		$logger->addWriter($writer);
+		$logger->info(print_r($postData, 1));
     }
 }

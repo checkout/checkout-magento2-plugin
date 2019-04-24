@@ -25,11 +25,13 @@ class Config
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \CheckoutCom\Magento2\Gateway\Config\Loader $loader
+        \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         $this->storeManager = $storeManager;
         $this->scopeConfig = $scopeConfig;
         $this->loader = $loader;
+        $this->utilities = $utilities;
     }
 
     /**
@@ -101,7 +103,7 @@ class Config
 
         // Check the setting
         if ($this->needsAutoCapture($methodId) && !empty($captureDate)) {
-            return $this->formatDate($captureDate);
+            return $this->utilities->formatDate($captureDate);
         }
 
         return false;
