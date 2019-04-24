@@ -123,8 +123,8 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->capture = $this->config->needsAutoCapture($this->_code);
             $request->amount = $amount*100;
             $request->reference = $reference;
-            $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/success';
-            $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/failure';
+            $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+            $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
             $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
             $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
             $request->description = __('Payment request from %1', $this->config->getStoreName());
