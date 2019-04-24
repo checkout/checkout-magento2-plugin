@@ -87,9 +87,24 @@ class Config
      *
      * @return string
      */
-    public function is3dsNeeded($methodId) {
+    public function needs3ds($methodId) {
         return (((bool) $this->getValue('three_ds', $methodId) === true) 
         || ((bool) $this->config->getValue('mada_enabled', $methodId) === true));
+    }
+
+	/**
+     * Checks and sets a capture time for the request.
+     */
+    public function getCaptureDate($methodId) {
+        // Get the  capture date from config
+        $captureDate = $this->getValue('capture_on', $methodId);
+
+        // Check the setting
+        if ($this->needsAutoCapture($methodId) && !empty($captureDate)) {
+            return $this->formatDate($captureDate);
+        }
+
+        return false;
     }
 
     /**
@@ -119,7 +134,6 @@ class Config
         return $this->storeManager->getStore()->getBaseUrl();
     }
     
-
     /**
      * Determines if the module is in production mode.
      *
@@ -134,8 +148,8 @@ class Config
      *
      * @return bool
      */
-    public function isAutoCapture($methodId) {
-        $value = $this->getValue('payment_action', $methodId);
-        return $value == 'authorize_capture';
+    public function needsAutoCapture($methodId) {
+        return ($this->getValue('payment_action', $methodId) == 'authorize_capture'
+        || (bool) $this->getValue('mada_enabled', $methodId) === true);
     }
 }

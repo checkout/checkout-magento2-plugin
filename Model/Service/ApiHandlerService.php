@@ -66,25 +66,4 @@ class ApiHandlerService
             return null;
         }
     }
-
-	/**
-     * Checks and sets a capture time for the request.
-     */
-    public function setCaptureDate($methodId, $request) {
-        try {
-            // Get the  capture date from config
-            $captureDate = $this->config->getValue('capture_on', $methodId);
-
-            // Check the setting
-            if ($this->config->isAutoCapture($methodId) && !empty($captureDate)) {
-                // Todo - Check capture time missing in SDK?
-                $request->capture_on = $this->formatDate($captureDate);
-            }
-
-            return $request;
-        }
-        catch(\Exception $e) {
-            return null;
-        }
-    }
 }

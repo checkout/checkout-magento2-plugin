@@ -105,25 +105,21 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $currency
             );
 
-            // Prepare the 3DS setting
-            $threeDs = 
+            // Prepare the capture date setting
+            $captureDate = $this->config->getCaptureDate($this->_code);
 
             // Set the request parameters
-            $request->capture = $this->config->isAutoCapture($this->_code);
+            $request->capture = $this->config->needsAutoCapture($this->_code);
             $request->amount = $amount*100;
             $request->reference = $reference;
             $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/success';
             $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/failure';
             $request->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
-            $request->threeDs = new ThreeDs($this->config->is3dsNeeded($this->_code));
+            $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
             $request->description = __('Payment request from %1', $this->config->getStoreName());
-
-            // Auto capture time setting
-            $request = $this->apiHandler
-                ->setCaptureDate(
-                    $this->_code,
-                    $request
-                );
+            if ($captureDate) {
+                $request->capture_on = $this->config->getCaptureDate($this->_code);
+            }
 
             // Send the charge request
             $response = $this->apiHandler->checkoutApi
