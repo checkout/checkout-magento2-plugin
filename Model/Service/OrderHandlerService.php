@@ -129,6 +129,11 @@ class OrderHandlerService
 
                         // Process the transactions for the order
                         $this->processTransactions($quote, $order);
+
+                        // Set the order status
+                        $order->setStatus(
+                            $this->config->getValue('order_status_authorized')
+                        );
                     }
                 }
 
