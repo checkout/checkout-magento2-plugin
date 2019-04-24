@@ -1,14 +1,14 @@
-- add complementary fields to api payment request
 - add web hook handling feature
 - add instant payments feature
 - add MOTO feature
 - add void, and refund to orders 
-- add MADA payment logic
+- add MADA payment card bin check
 - add order status settings
 - add APMs forms and payment requests
 - check issue with default button state
 
 - check after multiple failed requests (add idempotency?)
+-  add  guest user email Retrieval for checkout
 
 SDK
 - fix typo in sdk  => 'The endpoint did not accepted the request' 
