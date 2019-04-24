@@ -2,7 +2,7 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-class Success extends \Magento\Framework\App\Action\Action {
+class Verify extends \Magento\Framework\App\Action\Action {
 
     /**
      * @var JsonFactory
