@@ -28,6 +28,7 @@ define([
              */
             initialize: function () {
                 this._super();
+                this.isPlaceOrderActionAllowed(false);
             },
 
             /**
@@ -71,7 +72,6 @@ define([
 
                 // Remove any existing event handlers
                 this.cleanEvents();
-                this.isPlaceOrderActionAllowed(false);
 
                 // Initialise the payment form
                 Frames.init({
