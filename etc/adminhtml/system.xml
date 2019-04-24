@@ -10,40 +10,83 @@
 
                 <group id="module" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Configuration</label>
-                    <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Enable Module</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>settings/checkoutcom_configuration/active</config_path>
-                        <requires>
-                            <field id="secret_key"/>
-                            <field id="public_key"/>
-                            <field id="private_shared_key"/>
-                        </requires>
-                    </field>
+                    <group id="global_settings" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Global Settings</label>
+                        <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Enable Module</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>settings/checkoutcom_configuration/active</config_path>
+                            <requires>
+                                <field id="secret_key"/>
+                                <field id="public_key"/>
+                                <field id="private_shared_key"/>
+                            </requires>
+                        </field>
 
-                    <field id="environment" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Environment</label>
-                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigEnvironment</source_model>
-                        <config_path>settings/checkoutcom_configuration/environment</config_path>
-                    </field>
+                        <field id="environment" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Environment</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigEnvironment</source_model>
+                            <config_path>settings/checkoutcom_configuration/environment</config_path>
+                        </field>
 
-                    <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Secret Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>settings/checkoutcom_configuration/secret_key</config_path>
-                    </field>
+                        <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Secret Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                            <config_path>settings/checkoutcom_configuration/secret_key</config_path>
+                        </field>
 
-                    <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Public Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>settings/checkoutcom_configuration/public_key</config_path>
-                    </field>
+                        <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Public Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                            <config_path>settings/checkoutcom_configuration/public_key</config_path>
+                        </field>
 
-                    <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Private Shared Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
-                    </field>
+                        <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Private Shared Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                            <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
+                        </field>
+                    </group>
+                    <group id="order_settings" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Order Settings</label>
+                        <field id="order_status_new" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>New order status</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
+                            <config_path>settings/checkoutcom_configuration/order_status_new</config_path>
+                            <comment>Select the status that should be used for new orders.</comment>
+                        </field>
+
+                        <field id="order_status_authorized" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Authorization order status</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
+                            <config_path>settings/checkoutcom_configuration/order_status_authorized</config_path>
+                            <comment>Select the status that should be used for orders with successful payment authorisation.</comment>
+                        </field>
+
+                        <field id="order_status_captured" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Capture order status</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
+                            <config_path>settings/checkoutcom_configuration/order_status_captured</config_path>
+                            <comment>Select the status that should be used for orders with successful payment capture.</comment>
+                        </field>
+
+                        <field id="order_status_refunded" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Refund order status</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
+                            <config_path>settings/checkoutcom_configuration/order_status_refunded</config_path>
+                            <comment>Select the status that should be used for new orders with successful payment refund.</comment>
+                        </field>
+
+                        <field id="order_status_flagged" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Flagged order status</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
+                            <config_path>settings/checkoutcom_configuration/order_status_flagged</config_path>
+                            <comment>Select the status that should be used for flagged orders.</comment>
+                        </field>
+                    
+
+                    </group>
+
                 </group>
 
                 <group id="checkoutcom_card_payments" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
