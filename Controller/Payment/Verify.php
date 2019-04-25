@@ -27,5 +27,9 @@ class Verify extends \Magento\Framework\App\Action\Action {
      */
     public function execute() {
         
+        $postData = $this->getRequest()->getPostValue();
+
+        var_dump($postData);
+        exit();
     }
 }
