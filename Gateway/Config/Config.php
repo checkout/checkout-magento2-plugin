@@ -91,7 +91,7 @@ class Config
      */
     public function needs3ds($methodId) {
         return (((bool) $this->getValue('three_ds', $methodId) === true) 
-        || ((bool) $this->config->getValue('mada_enabled', $methodId) === true));
+        || ((bool) $this->getValue('mada_enabled', $methodId) === true));
     }
 
 	/**
