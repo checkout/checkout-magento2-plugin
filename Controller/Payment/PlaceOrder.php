@@ -99,7 +99,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                         );
 
                     // Process the response
-                    $success = $response->isSuccessful();
+                    $success = ($response) ? $response->isSuccessful() : false;
 
                     // Handle 3DS cases
                     $redirectionUrl = $response->getRedirection();
