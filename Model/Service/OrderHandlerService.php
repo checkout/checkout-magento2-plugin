@@ -250,7 +250,7 @@ class OrderHandlerService
     public function processTransactions($quote, $order)
     {
         // Handle the transactions 
-        if ($this->config->isAutoCapture($this->methodId)) {
+        if ($this->config->needsAutoCapture($this->methodId)) {
             // Create the transaction
             $transactionId = $this->transactionHandler->createTransaction
             (
