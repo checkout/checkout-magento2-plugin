@@ -22,13 +22,23 @@
             </checkoutcom_configuration>
         </settings>
         <payment>
+            <checkoutcom_vault>
+                <model>CheckoutComCreditCardVaultFacade</model>
+                <title>Stored Cards with Checkout.com</title>
+                <active>0</active>
+                <sort_order>0</sort_order>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_capture_vault>1</can_capture_vault>
+            </checkoutcom_vault>
             <checkoutcom_card_payment>
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
                 <title>Pay by Card with Checkout.com</title>
                 <active>1</active>
                 <payment_action>authorize_capture</payment_action>
                 <capture_on>0</capture_on>        
-                <sort_order>0</sort_order>
+                <sort_order>1</sort_order>
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>
                 <save_cards_enabled>0</save_cards_enabled>
@@ -51,7 +61,7 @@
                 <title>Alternative Payments with Checkout.com</title>
                 <active>0</active>
                 <payment_action>authorize_capture</payment_action>                
-                <sort_order>1</sort_order>
+                <sort_order>2</sort_order>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
@@ -66,7 +76,7 @@
                 <title>Google Pay with Checkout.com</title>
                 <active>0</active>
                 <payment_action>authorize_capture</payment_action>                
-                <sort_order>2</sort_order>
+                <sort_order>3</sort_order>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
@@ -85,7 +95,7 @@
                 <title>Apple Pay with Checkout.com</title>
                 <active>0</active>
                 <payment_action>authorize_capture</payment_action>                
-                <sort_order>3</sort_order>
+                <sort_order>4</sort_order>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
