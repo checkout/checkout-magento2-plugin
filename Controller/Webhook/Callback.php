@@ -10,7 +10,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
     protected $jsonFactory;
 
 	/**
-     * Webhook constructor
+     * Callback constructor
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -33,6 +33,11 @@ class Callback extends \Magento\Framework\App\Action\Action {
         $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/webhook.log');
 		$logger = new \Zend\Log\Logger();
 		$logger->addWriter($writer);
-		$logger->info(print_r($postData, 1));
+        $logger->info(print_r($postData, 1));
+
+        exit();
+        
+        return $this->jsonFactory->create()->setData([]);
+
     }
 }
