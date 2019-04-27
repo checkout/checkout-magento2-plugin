@@ -339,7 +339,6 @@
                         <config_path>payment/checkoutcom_vault/sort_order</config_path>
                     </field>
                 </group>
-                
             </group>
         </section>
     </system>
