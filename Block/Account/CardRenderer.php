@@ -25,7 +25,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
     public function __construct(
         \Magento\Framework\View\Element\Template $context,
         \Magento\Payment\Model\CcConfigProvider $iconsProvider,
-        CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         array $data
     ) {
         parent::__construct($context, $iconsProvider, $data);

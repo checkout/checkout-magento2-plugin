@@ -23,7 +23,9 @@ class CardTypeAdapter {
      * CcTypeAdapter constructor.
      * @param Config $config
      */
-    public function __construct(Config $config) {
+    public function __construct(
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
+    ) {
         $this->config = $config;
     }
 
