@@ -12,7 +12,7 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 
-class StoreCardService {
+class VaultHandlerService {
 
     /**
      * @var VaultTokenFactory
@@ -60,7 +60,7 @@ class StoreCardService {
     protected $authorizedResponse = [];
     
     /**
-     * StoreCardService constructor.
+     * VaultHandlerService constructor.
      */
     public function __construct(
         \CheckoutCom\Magento2\Model\Factory\VaultTokenFactory $vaultTokenFactory,
@@ -78,7 +78,7 @@ class StoreCardService {
      * Sets the customer ID.
      *
      * @param int $customerId
-     * @return StoreCardService
+     * @return VaultHandlerService
      */
     public function setCustomerId($id = null) {
         $this->customerId = (int) $id > 0 ? $id : $this->customerSession->getCustomer()->getId();
@@ -90,7 +90,7 @@ class StoreCardService {
      * Sets the customer email address.
      *
      * @param string $customerEmail
-     * @return StoreCardService
+     * @return VaultHandlerService
      */
     public function setCustomerEmail() {
         $this->customerEmail = $this->customerSession->getCustomer()->getEmail();
@@ -102,7 +102,7 @@ class StoreCardService {
      * Sets the card token.
      *
      * @param string $cardToken
-     * @return StoreCardService
+     * @return VaultHandlerService
      */
     public function setCardToken($cardToken) {
         $this->cardToken    = $cardToken;
@@ -114,7 +114,7 @@ class StoreCardService {
     /**
      * Sets the card data.
      *
-     * @return StoreCardService
+     * @return VaultHandlerService
      */
     public function setCardData() {
 
@@ -137,7 +137,7 @@ class StoreCardService {
     /**
      * Tests the card through gateway.
      *
-     * @return StoreCardService
+     * @return VaultHandlerService
      */
     public function test() {
 
