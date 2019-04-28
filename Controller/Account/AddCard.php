@@ -12,11 +12,6 @@ namespace CheckoutCom\Magento2\Controller\Account;
 
 class AddCard extends \Magento\Framework\App\Action\Action {
 
-    /**
-     * @var Tools
-     */
-    protected $tools;
-
     public function __construct(
         Magento\Framework\App\Action\Context $context
     ) {
