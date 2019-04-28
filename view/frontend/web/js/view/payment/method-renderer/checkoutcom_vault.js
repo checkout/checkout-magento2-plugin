@@ -10,9 +10,10 @@
 define([
     'jquery',
     'Magento_Vault/js/view/payment/method-renderer/vault',
-    'Magento_Checkout/js/model/payment/additional-validators'
+    'Magento_Checkout/js/model/payment/additional-validators',
+    'CheckoutCom_Magento2/js/view/payment/utilities'
 ],
-function ($, VaultComponent, AdditionalValidators) {
+function ($, VaultComponent, AdditionalValidators, Utilities) {
 
     'use strict';
 
@@ -21,6 +22,7 @@ function ($, VaultComponent, AdditionalValidators) {
     return VaultComponent.extend({
         defaults: {
             template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
+            formId: METHOD_ID + '_frm'
         },
 
         /**
@@ -63,14 +65,23 @@ function ($, VaultComponent, AdditionalValidators) {
          * @returns {string}
          */
         beforePlaceOrder: function() {
+            // Start the loader
+            FullScreenLoader.startLoader();
+
             // Get self
             var self = this;
 
             // Place the order
             if (AdditionalValidators.validate()) {
-                self.placeOrder();
+                Utilities.placeOrder({
+                    methodId: METHOD_ID,
+                    cardToken: self.cardToken
+                });
             }
-        },
+            else  {
+                FullScreenLoader.stopLoader();
+            }
+        }
     });
 
 });

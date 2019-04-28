@@ -38,6 +38,11 @@
 
     <div class="payment-method-content">
         <each args="getRegion('messages')" render=""></each>
+
+        <form method="POST" data-bind="attr: {'id': formId}">
+            <input type="hidden" name="public-hash" data-bind="attr: {value: getPublicHash()}">
+        </form>
+
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
             <!-- ko template: getTemplate() --><!-- /ko -->
