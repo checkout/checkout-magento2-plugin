@@ -13,7 +13,7 @@ namespace CheckoutCom\Magento2\Controller\Account;
 class AddCard extends \Magento\Framework\App\Action\Action {
 
     public function __construct(
-        Magento\Framework\App\Action\Context $context
+        \Magento\Framework\App\Action\Context $context
     ) {
         parent::__construct($context);
     }
