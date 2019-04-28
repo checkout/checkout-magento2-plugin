@@ -322,6 +322,7 @@
                 </group>
     
                 <group id="checkoutcom_vault" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Vault Cards</label>
                     <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Vault Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
