@@ -1,6 +1,6 @@
 
 <div id="cko-form-holder" data-mage-init='{"loader": {}}'>
-    <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl($block->tools->modmeta['tag'] . '/payment/placeorderajax'); ?>"></form>
+    <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl('checkout_com/payment/placeorder'); ?>"></form>
 </div>
 <button id="cko-save-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>">
     <?= $block->escapeHtml(__('Save the card')) ?>
@@ -20,7 +20,7 @@
         // Prepare the elements
         var buttonId = '#cko-save-card';
         var ckoContainerSelectorId = '#cko-form-holder';
-        var ckoPublicKey = '<?= $block->config->getPublicKey(); ?>';
+        var ckoPublicKey = '<?= $block->config->getValue('public_key'); ?>';
         var paymentForm = document.getElementById('embeddedForm');
         var ckoTheme = '';
         var ckoDebugMode = false;
