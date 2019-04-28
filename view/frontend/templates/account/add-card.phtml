@@ -1,0 +1,62 @@
+
+<div id="cko-form-holder" data-mage-init='{"loader": {}}'>
+    <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl($block->tools->modmeta['tag'] . '/payment/placeorderajax'); ?>"></form>
+</div>
+<button id="cko-save-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>">
+    <?= $block->escapeHtml(__('Save the card')) ?>
+</button>
+
+<div class="loading-mask" data-role="loader">
+    <div class="loader">
+         <img src="<?= $block->getViewFileUrl('images/loader-1.gif'); ?>">
+    </div>
+</div>
+
+<script type="text/javascript">
+    require(['jquery', 'domReady!', 'framesjs'], function ($) {
+        // Start the loader
+        $('.loading-mask').show();
+
+        // Prepare the elements
+        var buttonId = '#cko-save-card';
+        var ckoContainerSelectorId = '#cko-form-holder';
+        var ckoPublicKey = '<?= $block->config->getPublicKey(); ?>';
+        var paymentForm = document.getElementById('embeddedForm');
+        var ckoTheme = '';
+        var ckoDebugMode = false;
+
+        // Initialize the embedded form
+        Frames.init({
+            publicKey: ckoPublicKey,
+            containerSelector: ckoContainerSelectorId,
+            theme: ckoTheme,
+            debugMode: ckoDebugMode,
+            frameActivated: function () {
+                $(buttonId).attr("disabled", true);
+            },
+            cardSubmitted: function() {
+                $(buttonId).attr("disabled", true);
+            },
+            cardValidationChanged: function(event) {
+                $(buttonId).attr("disabled", !Frames.isCardValid());
+            },
+            cardTokenised: function(event) {                        
+                // Add the card token to the form
+                Frames.addCardToken(paymentForm, event.data.cardToken);
+
+                // Submit the payment form
+                paymentForm.submit();
+            },
+        });  
+
+        // Handle the submit event
+        $(buttonId).on('click touch', function (event) {
+            $('.loading-mask').show();
+            event.preventDefault();
+            Frames.submitCard();
+        });
+
+        // Stop the loader
+        $('.loading-mask').hide();
+    });
+</script>
