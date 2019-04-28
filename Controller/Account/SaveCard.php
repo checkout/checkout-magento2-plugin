@@ -13,21 +13,21 @@ namespace CheckoutCom\Magento2\Controller\Cards;
 class SaveCard extends \Magento\Framework\App\Action\Action {
 
     /**
-     * @var StoreCardService
+     * @var SaveCardService
      */
-    protected $storeCardService;
+    protected $saveCardService;
 
     /**
      * SaveCard constructor.
      * @param Context $context
-     * @param StoreCardService $storeCardService
+     * @param SaveCardService $saveCardService
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \CheckoutCom\Magento2\Model\Service\StoreCardService $storeCardService
+        \CheckoutCom\Magento2\Model\Service\SaveCardService $saveCardService
     ) {
         parent::__construct($context);
-        $this->storeCardService = $storeCardService;
+        $this->saveCardService = $saveCardService;
     }
 
     /**
@@ -38,7 +38,7 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
      */
     public function execute() {
         // Get the card token from request
-        $ckoCardToken = $this->getCardToken();
+        $ckoCardToken = $this->getRequest()->getParams('cardToken');
 
         // Save the card
         try {
@@ -57,19 +57,5 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
         }
         
         return $this->_redirect('vault/cards/listAction');
-    }    
-
-    public function getCardToken() {
-        $params = array_keys($this->getRequest()->getParams());
-        if (isset($params[0])) {
-            $params = json_decode($params[0]);
-
-            if (is_object($params)) {
-                return $params->ckoCardToken;
-            }
-        }
-
-        return false;
     }
-
 }
