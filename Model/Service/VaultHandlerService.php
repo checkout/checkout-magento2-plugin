@@ -30,6 +30,11 @@ class VaultHandlerService {
     protected $paymentTokenRepository;
 
     /**
+     * @var PaymentTokenManagementInterface
+     */
+    protected $paymentTokenManagement;
+
+    /**
      * @var Session
      */
     protected $customerSession;
@@ -65,13 +70,25 @@ class VaultHandlerService {
     public function __construct(
         \CheckoutCom\Magento2\Model\Factory\VaultTokenFactory $vaultTokenFactory,
         \Magento\Vault\Api\PaymentTokenRepositoryInterface $paymentTokenRepository,
+        \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement,
         \Magento\Customer\Model\Session $customerSession,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->vaultTokenFactory = $vaultTokenFactory;
         $this->paymentTokenRepository = $paymentTokenRepository;
+        $this->paymentTokenManagement = $paymentTokenManagement;
         $this->customerSession = $customerSession;
         $this->config = $config;
+    }
+
+    /**
+     * Returns the payment token instance if exists.
+     *
+     * @param PaymentTokenInterface $paymentToken
+     * @return PaymentTokenInterface|null
+     */
+    private function foundExistedPaymentToken(PaymentTokenInterface $paymentToken) {
+        return $this->paymentTokenManagement->getByPublicHash($paymentToken->getPublicHash(), $paymentToken->getCustomerId() );
     }
 
     /**
@@ -287,13 +304,18 @@ class VaultHandlerService {
         }
     }
 
-    /**
-     * Returns the payment token instance if exists.
-     *
-     * @param PaymentTokenInterface $paymentToken
-     * @return PaymentTokenInterface|null
-     */
-    private function foundExistedPaymentToken(PaymentTokenInterface $paymentToken) {
-        return $this->paymentTokenManagement->getByPublicHash( $paymentToken->getPublicHash(), $paymentToken->getCustomerId() );
+    public function userHasCards() {
+        // Get the customer id (currently logged in user)
+        $customerId = $this->session->getCustomer()->getId();   
+        
+        if ((int) $customerId > 0) {
+            // Get the card list
+            $cardList = $this->paymentTokenManagement->getListByCustomerId($customerId);
+            if (count($cardList) > 0) {
+                return  true;
+            }
+        }
+
+        return false;
     }
 }

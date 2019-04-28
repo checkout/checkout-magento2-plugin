@@ -38,6 +38,10 @@ define([
                 return Config[KEY_CONFIG].store.name;
             },
 
+            userHasCards: function() {
+                return Config[KEY_CONFIG].user.hasCards;
+            },
+
             getQuoteValue: function() {
                 return Config[KEY_CONFIG].quote.value;
             },
