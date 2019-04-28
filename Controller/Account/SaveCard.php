@@ -42,7 +42,7 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
 
         // Save the card
         try {
-            $this->storeCardService
+            $this->vaultHandler
                  ->setCardToken($ckoCardToken)
                  ->setCustomerId()
                  ->setCustomerEmail()
