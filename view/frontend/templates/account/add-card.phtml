@@ -6,7 +6,7 @@
 <div id="cko-form-holder" style="display: none;" data-mage-init='{"loader": {}}'>
     <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl('checkout_com/payment/placeorder'); ?>"></form>
 </div>
-<button id="cko-save-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>">
+<button id="cko-save-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>" style="display: none;">
     <?= $block->escapeHtml(__('Save the card')) ?>
 </button>
 
@@ -33,6 +33,7 @@
         // Add card form controls
         showFormButton.on('click touch', function (event) {
             $(cardFormContainerId).show();
+            saveCardButton.show();
             showFormButton.hide();
         });
 

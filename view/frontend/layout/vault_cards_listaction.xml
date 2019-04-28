@@ -10,6 +10,7 @@
                 template="CheckoutCom_Magento2::account/add-card.phtml" 
                 class="CheckoutCom\Magento2\Block\Account\AddCard"
                 name="checkoutcom_magento2.add_card"
+                after="-"
             />
         </referenceContainer>
         <referenceContainer name="content">
@@ -18,6 +19,7 @@
                     class="CheckoutCom\Magento2\Block\Account\CardRenderer"
                     name="checkoutcom_magento2.card.renderer"
                     template="CheckoutCom_Magento2::account/cards-list.phtml"
+                    after="-"
                 />
             </referenceBlock>
         </referenceContainer>
