@@ -38,7 +38,9 @@
                                                                         <item name="checkoutcom_google_pay" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-
+                                                                        <item name="checkoutcom_vault" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>     
                                                                     </item>
                                                                 </item>
                                                             </item>
