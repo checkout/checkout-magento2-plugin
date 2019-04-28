@@ -30,7 +30,7 @@ class AddCard extends \Magento\Framework\App\Action\Action {
      */
     public function execute() {
         // Force login
-        $this->tools->checkLoggedIn();
+        $this->utilities->checkLoggedIn();
 
         // Display the page
         $this->_view->loadLayout(); 
