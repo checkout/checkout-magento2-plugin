@@ -3,30 +3,21 @@
 	<!-- ko i18n: 'Add Credit Card (checkout.com)'--><!-- /ko -->
 </button>
 
-<div id="cko-form-holder" style="display: none;" data-mage-init='{"loader": {}}'>
-    <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl('checkout_com/payment/placeorder'); ?>"></form>
+<div id="cko-form-holder" style="display: none;">
+    <form class="widget-container" id="saveCardForm" method="POST" action="<?= $block->getUrl('checkout_com/payment/placeorder'); ?>"></form>
 </div>
 <button id="cko-save-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>" style="display: none;">
     <?= $block->escapeHtml(__('Save the card')) ?>
 </button>
 
-<div class="loading-mask" data-role="loader">
-    <div class="loader">
-         <img src="<?= $block->getViewFileUrl('images/loader-1.gif'); ?>">
-    </div>
-</div>
-
 <script type="text/javascript">
     require(['jquery', 'domReady!', 'framesjs'], function ($) {
-        // Start the loader
-        $('.loading-mask').show();
-
         // Prepare the elements
         var saveCardButton = $('#cko-save-card');
         var showFormButton = $('#cko-show-card-form');
         var cardFormContainerId = '#cko-form-holder';
         var ckoPublicKey = '<?= $block->config->getValue('public_key'); ?>';
-        var paymentForm = document.getElementById('embeddedForm');
+        var paymentForm = document.getElementById('saveCardForm');
         var ckoTheme = '';
         var ckoDebugMode = false;
 
@@ -67,8 +58,5 @@
                 paymentForm.submit();
             },
         });  
-
-        // Stop the loader
-        $('.loading-mask').hide();
     });
 </script>
