@@ -13,21 +13,21 @@ namespace CheckoutCom\Magento2\Controller\Cards;
 class SaveCard extends \Magento\Framework\App\Action\Action {
 
     /**
-     * @var SaveCardService
+     * @var VaultHandlerService
      */
-    protected $saveCardService;
+    protected $vaultHandler;
 
     /**
      * SaveCard constructor.
      * @param Context $context
-     * @param SaveCardService $saveCardService
+     * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \CheckoutCom\Magento2\Model\Service\SaveCardService $saveCardService
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
     ) {
         parent::__construct($context);
-        $this->saveCardService = $saveCardService;
+        $this->saveCardService = $vaultHandler;
     }
 
     /**
