@@ -21,5 +21,11 @@
             </argument>
         </arguments>
     </type>
-
+    <type name="Magento\Vault\Model\Ui\TokensConfigProvider">
+        <arguments>
+            <argument name="tokenUiComponentProviders" xsi:type="array">
+                <item name="checkout_com" xsi:type="object">CheckoutCom\Magento2\Model\Ui\TokenUiComponentProvider</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
