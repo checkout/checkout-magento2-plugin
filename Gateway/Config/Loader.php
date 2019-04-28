@@ -12,6 +12,7 @@ class Loader
     const KEY_MODULE_ID = 'checkoutcom_magento2';
     const KEY_PAYMENT = 'payment';
     const KEY_SETTINGS = 'settings';
+    const KEY_CONFIG = 'checkoutcom_configuration';
 
     /**
      * @var Dir
