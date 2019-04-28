@@ -137,16 +137,23 @@ class Loader
         );
     }
 
-    public function getValue($field, $methodId = null) {
+    public function getValue($key, $methodId = null) {
         // Prepare the path
         $path = ($methodId) 
-        ? 'payment/' . $methodId  . '/' .  $field
-        : 'settings/checkoutcom_configuration/' .  $field;
+        ? 'payment/' . $methodId  . '/' .  $key
+        : 'settings/checkoutcom_configuration/' . $key;
 
-        // Return the requested value
-        return $this->scopeConfig->getValue(
+        // Get the requested value
+        $value = $this->scopeConfig->getValue(
             $path,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+
+        // Return the requested value
+        if ($this->isEncrypted($key)) {
+            $value = $this->decrypt($key);
+        }
+
+        return $value;
     }
 }

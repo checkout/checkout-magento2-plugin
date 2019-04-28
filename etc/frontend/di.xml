@@ -21,13 +21,6 @@
             </argument>
         </arguments>
     </type>
-    <type name="CheckoutCom\Magento2\Block\Info">
-        <arguments>
-            <argument name="data" xsi:type="array">
-                <item xsi:type="string" name="is_secure_mode">1</item>
-            </argument>
-        </arguments>
-    </type>
     <type name="Magento\Vault\Model\Ui\TokensConfigProvider">
         <arguments>
             <argument name="tokenUiComponentProviders" xsi:type="array">
