@@ -10,7 +10,6 @@ class Loader
     const CONFIGURATION_FILE_NAME = 'config.xml';
     const KEY_MODULE_NAME = 'CheckoutCom_Magento2';
     const KEY_MODULE_ID = 'checkoutcom_magento2';
-    const KEY_CONFIG = 'checkoutcom_configuration';
     const KEY_PAYMENT = 'payment';
     const KEY_SETTINGS = 'settings';
 
@@ -117,8 +116,12 @@ class Loader
     }
 
     private function isHidden($field) {
-        $hiddenFields = explode(',',
-            $this->getValue('fields_hidden')
+        $hiddenFields = explode(
+            ',',
+            $this->scopeConfig->getValue(
+                'settings/checkoutcom_configuration/fields_hidden',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            )
         );
 
         return in_array($field, $hiddenFields);
@@ -129,7 +132,10 @@ class Loader
             $field,
             explode(
                 ',',
-                $this->getValue('fields_encrypted')
+                $this->scopeConfig->getValue(
+                    'settings/checkoutcom_configuration/fields_encrypted',
+                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                )
             )
         );
     }
