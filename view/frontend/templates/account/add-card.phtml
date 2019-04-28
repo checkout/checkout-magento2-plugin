@@ -50,13 +50,13 @@
             theme: ckoTheme,
             debugMode: ckoDebugMode,
             frameActivated: function () {
-                $(buttonId).attr("disabled", true);
+                saveCardButton.attr("disabled", true);
             },
             cardSubmitted: function() {
-                $(buttonId).attr("disabled", true);
+                saveCardButton.attr("disabled", true);
             },
             cardValidationChanged: function(event) {
-                $(buttonId).attr("disabled", !Frames.isCardValid());
+                saveCardButton.attr("disabled", !Frames.isCardValid());
             },
             cardTokenised: function(event) {                        
                 // Add the card token to the form
