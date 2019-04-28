@@ -18,8 +18,8 @@
     <virtualType name="CheckoutComCreditCardVaultFacade" type="Magento\Vault\Model\Method\Vault">
         <arguments>
             <argument name="config" xsi:type="object">CheckoutComVaultPaymentConfig</argument>
-            <argument name="code" xsi:type="string">checkoutcom_vault</argument>
-            <argument name="vaultProvider" xsi:type="object">CheckoutCom\Magento2\Model\Methods\DefaultMethod</argument>
+            <argument name="code" xsi:type="string">CheckoutCom\Magento2\Model\Methods\VaultMethod::CODE</argument>
+            <argument name="vaultProvider" xsi:type="object">CheckoutCom\Magento2\Model\Methods\VaultMethod</argument>
         </arguments>
     </virtualType>
     <virtualType name="CheckoutComVaultPaymentConfig" type="Magento\Payment\Gateway\Config\Config">
