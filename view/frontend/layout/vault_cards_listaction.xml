@@ -6,8 +6,19 @@
     </head>
     <body>
         <referenceContainer name="content">
+            <block 
+                template="CheckoutCom_Magento2::account/add-card.phtml" 
+                class="CheckoutCom\Magento2\Block\Account\AddCard"
+                name="checkoutcom_magento2.add_card"
+            />
+        </referenceContainer>
+        <referenceContainer name="content">
             <referenceBlock name="vault.cards.list">
-                <block class="CheckoutCom\Magento2\Block\Account\CardRenderer" name="checkoutcom.card.renderer" template="CheckoutCom_Magento2::account/cards-list.phtml"/>
+                <block 
+                    class="CheckoutCom\Magento2\Block\Account\CardRenderer"
+                    name="checkoutcom_magento2.card.renderer"
+                    template="CheckoutCom_Magento2::account/cards-list.phtml"
+                />
             </referenceBlock>
         </referenceContainer>
     </body>
