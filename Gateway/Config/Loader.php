@@ -146,15 +146,18 @@ class Loader
         ? 'payment/' . $methodId  . '/' .  $key
         : 'settings/checkoutcom_configuration/' . $key;
 
-        // Return a decrypted value for encrypted fields
-        if ($this->isEncrypted($key)) {
-            return $this->encryptor->decrypt($key);
-        }
-
-        // Return a normal value
-        return $this->scopeConfig->getValue(
+        // Get field value in database
+        $value = $this->scopeConfig->getValue(
             $path,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+
+        // Return a decrypted value for encrypted fields
+        if ($this->isEncrypted($key)) {
+            return $this->encryptor->decrypt($value);
+        }
+
+        // Return a normal value
+        return $value;
     }
 }
