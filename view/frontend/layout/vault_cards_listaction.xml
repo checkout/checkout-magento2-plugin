@@ -7,7 +7,7 @@
     <body>
         <referenceContainer name="content">
             <referenceBlock name="vault.cards.list">
-                <block class="CheckoutCom\Magento2\Block\Account\CardRenderer" name="checkout_com.card.renderer" template="CheckoutCom_Magento2::account/cards_list.phtml"/>
+                <block class="CheckoutCom\Magento2\Block\Account\CardRenderer" name="checkoutcom.card.renderer" template="CheckoutCom_Magento2::account/cards-list.phtml"/>
             </referenceBlock>
         </referenceContainer>
     </body>
