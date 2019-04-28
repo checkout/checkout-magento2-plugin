@@ -72,17 +72,20 @@ class Loader
                     // Loop through values for the payment method
                     foreach ($arr as $key => $val) {
                         if (!$this->isHidden($key)) {
-                            $finalValue = '';
+                            // Get the field  value in db
+                            $path = $parent . '/' . $group . '/' . $key;
+                            $value = $this->scopeConfig->getValue(
+                                $path,
+                                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                            );
+
+                            // Process encrypted fields
                             if ($this->isEncrypted($key)) {
-                                $finalValue = $this->decrypt($key);
-                            } else {
-                                $path = $parent . '/' . $group . '/' . $key;
-                                $finalValue = $this->scopeConfig->getValue(
-                                    $path,
-                                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                                );
-                            }
-                            $dbData[$parent][$group][$key] = $finalValue;
+                                $value = $this->encryptor->decrypt($value);
+                            } 
+
+                            // Add the final value to the config array
+                            $dbData[$parent][$group][$key] = $value;
                         }
                     }
                 }
@@ -128,12 +131,6 @@ class Loader
                 ',',
                 $this->getValue('fields_encrypted')
             )
-        );
-    }
-
-    private function decrypt($field) {
-        return $this->encryptor->decrypt(
-            $this->getValue($field)
         );
     }
 
