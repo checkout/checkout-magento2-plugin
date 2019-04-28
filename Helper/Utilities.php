@@ -6,13 +6,15 @@ namespace CheckoutCom\Magento2\Helper;
 class Utilities {
 
 	/**
-     * Initialize the API client wrapper.
+     * Utilities constructor.
      */
     public function __construct(
-
+        \Magento\Framework\UrlInterface $urlInterface,
+        \Magento\Customer\Model\Session $customerSession
     )
     {
-
+        $this->urlInterface      = $urlInterface;
+        $this->customerSession   = $customerSession;
 	}
 	
 	/**
@@ -26,5 +28,15 @@ class Utilities {
         catch(\Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * Force authentication if the user is not logged in.
+     */    
+    public function isLoggedIn() {
+        if (!$this->customerSession->isLoggedIn()) {
+            $this->customerSession->setAfterAuthUrl($this->urlInterface->getCurrentUrl());
+            $this->customerSession->authenticate();
+        }    
     }
 }
