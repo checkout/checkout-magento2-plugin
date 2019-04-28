@@ -1,5 +1,9 @@
 
-<div id="cko-form-holder" data-mage-init='{"loader": {}}'>
+<button id="cko-show-card-form" class="action submit primary">
+	<!-- ko i18n: 'Add Credit Card (checkout.com)'--><!-- /ko -->
+</button>
+
+<div id="cko-form-holder" style="display: none;" data-mage-init='{"loader": {}}'>
     <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl('checkout_com/payment/placeorder'); ?>"></form>
 </div>
 <button id="cko-save-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>">
@@ -18,17 +22,31 @@
         $('.loading-mask').show();
 
         // Prepare the elements
-        var buttonId = '#cko-save-card';
-        var ckoContainerSelectorId = '#cko-form-holder';
+        var saveCardButton = $('#cko-save-card');
+        var showFormButton = $('#cko-show-card-form');
+        var cardFormContainerId = '#cko-form-holder';
         var ckoPublicKey = '<?= $block->config->getValue('public_key'); ?>';
         var paymentForm = document.getElementById('embeddedForm');
         var ckoTheme = '';
         var ckoDebugMode = false;
 
+        // Add card form controls
+        showFormButton.on('click touch', function (event) {
+            $(cardFormContainerId).show();
+            showFormButton.hide();
+        });
+
+        // Handle the submit event
+        saveCardButton.on('click touch', function (event) {
+            $('.loading-mask').show();
+            event.preventDefault();
+            Frames.submitCard();
+        });
+
         // Initialize the embedded form
         Frames.init({
             publicKey: ckoPublicKey,
-            containerSelector: ckoContainerSelectorId,
+            containerSelector: cardFormContainerId,
             theme: ckoTheme,
             debugMode: ckoDebugMode,
             frameActivated: function () {
@@ -48,13 +66,6 @@
                 paymentForm.submit();
             },
         });  
-
-        // Handle the submit event
-        $(buttonId).on('click touch', function (event) {
-            $('.loading-mask').show();
-            event.preventDefault();
-            Frames.submitCard();
-        });
 
         // Stop the loader
         $('.loading-mask').hide();
