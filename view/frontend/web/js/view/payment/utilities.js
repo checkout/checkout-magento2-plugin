@@ -12,8 +12,12 @@ define([
         'use strict';
 
         const KEY_CONFIG = 'checkoutcom_configuration';
+        const KEY_DATA = 'checkoutcom_data';
 
         return {
+            test: function () {
+                alert('i love you dad');
+            },
 
             /**
              * Gets a field value.
@@ -38,16 +42,16 @@ define([
                 return Config[KEY_CONFIG].store.name;
             },
 
-            userHasCards: function() {
-                return Config[KEY_CONFIG].user.hasCards;
-            },
-
             getQuoteValue: function() {
-                return Config[KEY_CONFIG].quote.value;
+                return Config[KEY_DATA].quote.value;
             },
 
             getQuoteCurrency: function() {
-                return Config[KEY_CONFIG].quote.currency;
+                return Config[KEY_DATA].quote.currency;
+            },
+
+            userHasCards: function() {
+                return Config[KEY_DATA].user.hasCards;
             },
 
             /**
@@ -73,13 +77,11 @@ define([
                         last_name: billingAddress.lastname
                     };
 
-
                 if(!obj) {
                     name = name.first_name + ' ' + name.last_name
                 }
 
                 return name;
-
             },
 
             /**
