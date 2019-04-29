@@ -306,7 +306,7 @@ class VaultHandlerService {
 
     public function userHasCards() {
         // Get the customer id (currently logged in user)
-        $customerId = $this->session->getCustomer()->getId();   
+        $customerId = $this->customerSession->getCustomer()->getId();   
         
         if ((int) $customerId > 0) {
             // Get the card list
