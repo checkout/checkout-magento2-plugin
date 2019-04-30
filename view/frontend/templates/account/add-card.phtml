@@ -18,6 +18,7 @@
         // Prepare the elements
         var saveCardButton = $('#cko-save-card');
         var showFormButton = $('#cko-show-card-form');
+        var cardTokenField = $('#cko-card-token');
         var cardFormContainerId = '#cko-form-holder';
         var ckoPublicKey = '<?= $block->config->getValue('public_key'); ?>';
         var paymentForm = document.getElementById('saveCardForm');
@@ -47,7 +48,7 @@
                 Frames.addCardToken(paymentForm, event.data.cardToken);
 
                 // Add the card token to the hidden input field
-                $('input[name="cko-card-token"]').val(event.data.cardToken);
+                cardTokenField.val(event.data.cardToken);
             }
         });  
 
@@ -70,7 +71,7 @@
             $.ajax({
                 type: 'POST',
                 url: '<?= $block->getUrl('checkout_com/account/savecard'); ?>',
-                data: {cardToken: $('#cko-card-token').val()},
+                data: {cardToken: cardTokenField.val()},
                 success: function (data) {
                     if (!data.success) {
                         //FullScreenLoader.stopLoader();
