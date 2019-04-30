@@ -15,9 +15,6 @@ define([
         const KEY_DATA = 'checkoutcom_data';
 
         return {
-            test: function () {
-                alert('i love you dad');
-            },
 
             /**
              * Gets a field value.
