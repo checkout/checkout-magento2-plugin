@@ -11,6 +11,9 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Vault\Api\Data\PaymentTokenInterface;
+use \Checkout\Models\Payments\TokenSource;
+use \Checkout\Models\Payments\Payment;
+use \Checkout\Models\Payments\ThreeDs;
 
 class VaultHandlerService {
 
@@ -38,6 +41,11 @@ class VaultHandlerService {
      * @var Session
      */
     protected $customerSession;
+
+    /**
+     * @var RemoteAddress
+     */
+    protected $remoteAddress;
 
     /**
      * @var string
@@ -72,12 +80,14 @@ class VaultHandlerService {
         \Magento\Vault\Api\PaymentTokenRepositoryInterface $paymentTokenRepository,
         \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement,
         \Magento\Customer\Model\Session $customerSession,
+        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->vaultTokenFactory = $vaultTokenFactory;
         $this->paymentTokenRepository = $paymentTokenRepository;
         $this->paymentTokenManagement = $paymentTokenManagement;
         $this->customerSession = $customerSession;
+        $this->remoteAddress = $remoteAddress;
         $this->config = $config;
     }
 
@@ -122,11 +132,10 @@ class VaultHandlerService {
      * @return VaultHandlerService
      */
     public function setCardToken($cardToken) {
-        $this->cardToken    = $cardToken;
+        $this->cardToken = $cardToken;
 
         return $this;
     }
-
 
     /**
      * Sets the card data.
@@ -134,7 +143,6 @@ class VaultHandlerService {
      * @return VaultHandlerService
      */
     public function setCardData() {
-
         // Prepare the card data to save
         $cardData = $this->authorizedResponse['card'];
         unset($cardData['customerId']);
@@ -147,25 +155,6 @@ class VaultHandlerService {
 
         // Assign the card data
         $this->cardData = $cardData;
-
-        return $this;
-    }
-
-    /**
-     * Tests the card through gateway.
-     *
-     * @return VaultHandlerService
-     */
-    public function test() {
-
-        // Perform the authorization
-        $this->authorizeTransaction();
-
-        // Validate the authorization
-        $this->validateAuthorization();
-
-        // Perform the void
-        $this->voidTransaction();
 
         return $this;
     }
@@ -212,40 +201,38 @@ class VaultHandlerService {
      * @throws \Exception
      */
     private function authorizeTransaction() {
-
-        $requestUri = 'charges/token'; // todo - get this url from http client class
-
-        $transfer = $this->transferFactory->create([
-            'autoCapture'   => 'N',
-            'description'   => 'Saving new card',
-            'value'         => (float) $this->scopeConfig->getValue('payment/checkout_com/save_card_check_amount') * 100,
-            'currency'      => $this->scopeConfig->getValue('payment/checkout_com/save_card_check_currency'),
-            'cardToken'     => $this->cardToken,
-            'email'         => $this->customerEmail,
-        ]);
-        
-        $log = [
-            'request'           => $transfer->getBody(),
-            'request_uri'       => $requestUri,
-            'request_headers'   => $transfer->getHeaders(),
-            'request_method'    => 'POST',
-        ];
-
         try {
-            $response           = $this->getHttpClient($requestUri, $transfer)->request();
-            
-            $result             = json_decode($response->getBody(), true);
-            $log['response']    = $result;
+            // Set the token source
+            $tokenSource = new TokenSource($this->cardToken);
 
-            // Outpout the response in debug mode
-            $this->watchdog->bark($result);
+            // Set the payment
+            $request = new Payment(
+                $tokenSource, 
+                $this->config->getValue('request_currency', 'checkoutcom_vault')
+            );
 
+            // Set the request parameters
+            $request->capture = false;
+            $request->amount = 0;
+            $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+            $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+            $request->threeDs = new ThreeDs($this->config->needs3ds('checkoutcom_vault'));
+            $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', 'checkoutcom_vault');
+            $request->description = __('Save card authorization request from %1', $this->config->getStoreName());
+            $request->payment_ip = $this->remoteAddress->getRemoteAddress();
 
-            if( array_key_exists('errorCode', $result) ) {
-                throw new ApiClientException($result['message'], $result['errorCode'], $result['eventId']);
-            }
+            // Send the charge request
+            $response = $this->apiHandler->checkoutApi
+                ->payments()
+                ->request($request);
 
-            $this->authorizedResponse = $result;
+            // Todo - remove logging code
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/vault_response.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($response, 1));
+
+            //$this->authorizedResponse = $result;
         }
         catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
@@ -264,46 +251,10 @@ class VaultHandlerService {
             throw new LocalizedException(__('The transaction has been declined.'));
         }
     }
-
+    
     /**
-     * Runs the void command for the gateway.
-     *
-     * @throws ApiClientException
-     * @throws ClientException
-     * @throws \Exception
+     * Checks if a user has saved cards.
      */
-    private function voidTransaction() {
-        $transactionId  = $this->authorizedResponse['id'];
-        $transfer       = $this->transferFactory->create([
-            'trackId'   => ''
-        ]);
-
-        $chargeUrl = 'charges/' . $transactionId . '/void';
-
-        $log = [
-            'request'           => $transfer->getBody(),
-            'request_uri'       => $chargeUrl,
-            'request_headers'   => $transfer->getHeaders(),
-            'request_method'    => 'POST',
-        ];
-
-        try {
-            $response           = $this->getHttpClient($chargeUrl, $transfer)->request();
-           
-            $result             = json_decode($response->getBody(), true);
-            $log['response']    = $result;
-
-            if( array_key_exists('errorCode', $result) ) {
-                throw new ApiClientException($result['message'], $result['errorCode'], $result['eventId']);
-            }
-        }
-        catch (\Exception $e) {
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __($e->getMessage())
-            );
-        }
-    }
-
     public function userHasCards() {
         // Get the customer id (currently logged in user)
         $customerId = $this->customerSession->getCustomer()->getId();   

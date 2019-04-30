@@ -8,7 +8,7 @@
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
 
-namespace CheckoutCom\Magento2\Controller\Cards;
+namespace CheckoutCom\Magento2\Controller\Account;
 
 class SaveCard extends \Magento\Framework\App\Action\Action {
 
@@ -27,7 +27,7 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
     ) {
         parent::__construct($context);
-        $this->saveCardService = $vaultHandler;
+        $this->vaultHandler = $vaultHandler;
     }
 
     /**
@@ -38,7 +38,7 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
      */
     public function execute() {
         // Get the card token from request
-        $ckoCardToken = $this->getRequest()->getParams('cardToken');
+        $ckoCardToken = $this->getRequest()->getParam('cardToken');
 
         // Save the card
         try {
@@ -46,9 +46,9 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
                  ->setCardToken($ckoCardToken)
                  ->setCustomerId()
                  ->setCustomerEmail()
-                 ->test()
-                 ->setCardData()
-                 ->save();
+                 ->authorizeTransaction();
+                 //->setCardData()
+                 //->save();
 
             $this->messageManager->addSuccessMessage( __('The payment card has been stored successfully.') );
         }
