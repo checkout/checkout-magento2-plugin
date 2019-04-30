@@ -4,7 +4,10 @@
 </button>
 
 <div id="cko-form-holder" style="display: none;">
-    <form class="widget-container" id="saveCardForm" method="POST" action="<?= $block->getUrl('checkoutcom/account/savecard'); ?>"></form>
+    <form class="widget-container" id="saveCardForm" method="POST">
+        <?php echo $block->getBlockHtml('formkey')?>
+        <input type="hidden" id="cko-card-token" name="cko-card-token">
+    </form>
 </div>
 <button id="cko-save-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>" style="display: none;">
     <?= $block->escapeHtml(__('Save the card')) ?>
@@ -19,21 +22,9 @@
         var ckoPublicKey = '<?= $block->config->getValue('public_key'); ?>';
         var paymentForm = document.getElementById('saveCardForm');
         var ckoTheme = '';
+        
         // Todo - Connect the  debug mode to config
         var ckoDebugMode = false;
-
-        // Add card form controls
-        showFormButton.on('click touch', function (event) {
-            $(cardFormContainerId).show();
-            saveCardButton.show();
-            showFormButton.hide();
-        });
-
-        // Handle the submit event
-        saveCardButton.on('click touch', function (event) {
-            event.preventDefault();
-            Frames.submitCard();
-        });
 
         // Initialize the embedded form
         Frames.init({
@@ -44,19 +35,61 @@
             frameActivated: function () {
                 saveCardButton.attr("disabled", true);
             },
-            cardSubmitted: function() {
-                saveCardButton.attr("disabled", true);
-            },
             cardValidationChanged: function(event) {
-                saveCardButton.attr("disabled", !Frames.isCardValid());
+                if (Frames.isCardValid()) {
+                    saveCardButton.attr("disabled", false);
+                    Frames.submitCard();
+                    Frames.unblockFields();
+                }
             },
             cardTokenised: function(event) {                        
                 // Add the card token to the form
                 Frames.addCardToken(paymentForm, event.data.cardToken);
 
-                // Submit the payment form
-                paymentForm.submit();
-            },
+                // Add the card token to the hidden input field
+                $('input[name="cko-card-token"]').val(event.data.cardToken);
+            }
         });  
+
+        // Add card form controls
+        showFormButton.on('click touch', function (event) {
+            $(cardFormContainerId).show();
+            saveCardButton.show();
+            showFormButton.hide();
+        });
+
+        // Handle the submit event
+        saveCardButton.on('click touch', function (event) {
+            // Disable the save button
+            saveCardButton.attr("disabled", true);
+
+            // Prevent default events
+            event.preventDefault();
+
+            // Send the request
+            $.ajax({
+                type: 'POST',
+                url: '<?= $block->getUrl('checkout_com/account/savecard'); ?>',
+                data: {cardToken: $('#cko-card-token').val()},
+                success: function (data) {
+                    if (!data.success) {
+                        //FullScreenLoader.stopLoader();
+                        //self.showMessage('error', data.message);
+                    }
+                    else if (data.success && data.url) {
+                        // Handle 3DS redirection
+                        //window.location.href = data.url
+                    }
+                    else {
+                        // Normal redirection
+                        //RedirectOnSuccessAction.execute();
+                    }
+                },
+                error: function (request, status, error) {
+                    //FullScreenLoader.stopLoader();
+                   // self.showMessage('error', error);
+                }
+            });
+        });
     });
 </script>
