@@ -46,9 +46,8 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
                  ->setCardToken($ckoCardToken)
                  ->setCustomerId()
                  ->setCustomerEmail()
-                 ->authorizeTransaction();
-                 //->setCardData()
-                 //->save();
+                 ->authorizeTransaction()
+                 ->saveCard();
 
             $this->messageManager->addSuccessMessage( __('The payment card has been stored successfully.') );
         }
