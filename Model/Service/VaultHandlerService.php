@@ -144,27 +144,6 @@ class VaultHandlerService {
         return $this;
     }
 
-    /**
-     * Sets the card data.
-     *
-     * @return VaultHandlerService
-     */
-    public function setCardData() {
-        // Prepare the card data to save
-        $cardData = $this->response['card'];
-        unset($cardData['customerId']);
-        unset($cardData['billingDetails']);
-        unset($cardData['bin']);
-        unset($cardData['fingerprint']);
-        unset($cardData['cvvCheck']);
-        unset($cardData['name']);
-        unset($cardData['avsCheck']);
-
-        // Assign the card data
-        $this->cardData = $cardData;
-
-        return $this;
-    }
 
     /**
      * Saves the credit card in the repository.
@@ -182,7 +161,7 @@ class VaultHandlerService {
         // Check if card exists
         if ($foundPaymentToken) {
             if ($foundPaymentToken->getIsActive()) {
-                $this->messageManager->addNoticeMessage(__('The credit card has been stored already.'));
+                //$this->messageManager->addNoticeMessage(__('The credit card has been stored already.'));
             }
 
             // Activate or reactivate the card
@@ -246,12 +225,37 @@ class VaultHandlerService {
         // Check if the response is success
         $success = $this->apiHandler->isValidResponse($this->response);
         if ($success) {
-            $data = $this->response->getValues();
+            // Get the response array
+            $values = $this->response->getValues();
+            if (isset($values['source'])) {
+                // Get the card data
+                $cardData = $values['source'];
 
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/data.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($data, 1));
+                // Create the payment token
+                $paymentToken = $this->vaultTokenFactory->create($cardData, 'checkoutcom_card_payment', $this->customerId);
+                $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
+
+                // Check if card exists
+                if ($foundPaymentToken) {
+                    if ($foundPaymentToken->getIsActive()) {
+                        //$this->messageManager->addNoticeMessage(__('The credit card has been stored already.'));
+                    }
+
+                    // Activate or reactivate the card
+                    $foundPaymentToken->setIsActive(true);
+                    $foundPaymentToken->setIsVisible(true);
+                    $this->paymentTokenRepository->save($foundPaymentToken);
+                }
+
+                // Otherwise save the card
+                else {
+                    $gatewayToken = $cardData['id'];
+                    $paymentToken->setGatewayToken($gatewayToken);
+                    $paymentToken->setIsVisible(true);
+                    $this->paymentTokenRepository->save($paymentToken);
+                }
+            }
+
         }
     }
     

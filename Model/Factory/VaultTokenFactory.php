@@ -52,17 +52,17 @@ class VaultTokenFactory {
      * @param int|null $customerId
      * @return PaymentTokenInterface
      */
-    public function create(array $card, $customerId = null) {
-        $expiryMonth    = str_pad($card['expiryMonth'], 2, '0', STR_PAD_LEFT);
-        $expiryYear     = $card['expiryYear'];
+    public function create(array $card, $methodId, $customerId = null) {
+        $expiryMonth    = str_pad($card['expiry_month'], 2, '0', STR_PAD_LEFT);
+        $expiryYear     = $card['expiry_year'];
         $expiresAt      = $this->getExpirationDate($expiryMonth, $expiryYear);
-        $cardType         = $this->cardTypeAdapter->getFromGateway($card['paymentMethod']);
+        $cardType       = $card['scheme'];
 
         /** @var PaymentTokenInterface $paymentToken */
         $paymentToken = $this->creditCardTokenFactory->create();
         $paymentToken->setExpiresAt($expiresAt);
 
-        if( array_key_exists('id', $card) ) {
+        if (array_key_exists('id', $card) ) {
             $paymentToken->setGatewayToken($card['id']);
         }
 
@@ -74,9 +74,9 @@ class VaultTokenFactory {
 
         $paymentToken->setTokenDetails($this->convertDetailsToJSON($tokenDetails));
         $paymentToken->setIsActive(true);
-        $paymentToken->setPaymentMethodCode('checkoutcom_card_payment');
+        $paymentToken->setPaymentMethodCode($methodId);
 
-        if($customerId) {
+        if ($customerId) {
             $paymentToken->setCustomerId($customerId);
         }
 
@@ -138,5 +138,4 @@ class VaultTokenFactory {
         $json = \Zend_Json::encode($details);
         return $json ?: '{}';
     }
-
 }
