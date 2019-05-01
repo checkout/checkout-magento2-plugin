@@ -20,6 +20,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     protected $methodHandler;
 
     /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandler;
+
+    /**
      * @var JsonFactory
      */
     protected $jsonFactory;
@@ -59,6 +64,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
     {
@@ -68,6 +74,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
         $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
         $this->checkoutSession = $checkoutSession;
         $this->config = $config;
 
@@ -99,7 +106,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                         );
 
                     // Process the response
-                    $success = ($response) ? $response->isSuccessful() : false;
+                    $success = $this->apiHandler->isValidResponse($response);
 
                     // Handle 3DS cases
                     $redirectionUrl = $response->getRedirection();
