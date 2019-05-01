@@ -142,22 +142,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 ->payments()
                 ->request($request);
 
-            // Todo - remove logging code
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/card_response.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($response, 1));
-
             return $response;
         }   
 
         catch(\Exception $e) {
-            // Todo - remove logging code
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/card_error.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($e->getMessage(), 1));
+
         }
     }
-
 }
