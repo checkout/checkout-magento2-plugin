@@ -48,6 +48,11 @@ class VaultHandlerService {
     protected $remoteAddress;
 
     /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandlerService;
+
+    /**
      * @var string
      */
     protected $customerEmail;
@@ -70,7 +75,7 @@ class VaultHandlerService {
     /**
      * @var array
      */
-    protected $authorizedResponse = [];
+    protected $response = [];
     
     /**
      * VaultHandlerService constructor.
@@ -81,6 +86,7 @@ class VaultHandlerService {
         \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->vaultTokenFactory = $vaultTokenFactory;
@@ -88,6 +94,7 @@ class VaultHandlerService {
         $this->paymentTokenManagement = $paymentTokenManagement;
         $this->customerSession = $customerSession;
         $this->remoteAddress = $remoteAddress;
+        $this->apiHandler = $apiHandler;
         $this->config = $config;
     }
 
@@ -144,7 +151,7 @@ class VaultHandlerService {
      */
     public function setCardData() {
         // Prepare the card data to save
-        $cardData = $this->authorizedResponse['card'];
+        $cardData = $this->response['card'];
         unset($cardData['customerId']);
         unset($cardData['billingDetails']);
         unset($cardData['bin']);
@@ -186,7 +193,7 @@ class VaultHandlerService {
 
         // Otherwise save the card
         else {
-            $gatewayToken = $this->authorizedResponse['card']['id'];
+            $gatewayToken = $this->response['card']['id'];
             $paymentToken->setGatewayToken($gatewayToken);
             $paymentToken->setIsVisible(true);
             $this->paymentTokenRepository->save($paymentToken);
@@ -200,7 +207,7 @@ class VaultHandlerService {
      * @throws ClientException
      * @throws \Exception
      */
-    private function authorizeTransaction() {
+    public function authorizeTransaction() {
         try {
             // Set the token source
             $tokenSource = new TokenSource($this->cardToken);
@@ -212,32 +219,21 @@ class VaultHandlerService {
             );
 
             // Set the request parameters
-            $request->capture = false;
             $request->amount = 0;
-            $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
-            $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
             $request->threeDs = new ThreeDs($this->config->needs3ds('checkoutcom_vault'));
             $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', 'checkoutcom_vault');
-            $request->description = __('Save card authorization request from %1', $this->config->getStoreName());
+            //$request->description = __('Save card authorization request from %1', $this->config->getStoreName());
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
 
-            // Send the charge request
-            $response = $this->apiHandler->checkoutApi
+            // Send the charge request and get the response
+            $this->response = $this->apiHandler->checkoutApi
                 ->payments()
                 ->request($request);
 
-            // Todo - remove logging code
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/vault_response.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($response, 1));
-
-            //$this->authorizedResponse = $result;
+            return $this;
         }
         catch (\Exception $e) {
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __($e->getMessage())
-            );
+
         }
     }
 
@@ -246,9 +242,16 @@ class VaultHandlerService {
      *
      * @throws LocalizedException
      */
-    private function validateAuthorization() {
-        if( array_key_exists('status', $this->authorizedResponse) AND $this->authorizedResponse['status'] === 'Declined') {
-            throw new LocalizedException(__('The transaction has been declined.'));
+    public function saveCard() {
+        // Check if the response is success
+        $success = $this->apiHandler->isValidResponse($this->response);
+        if ($success) {
+            $data = $this->response->getValues();
+
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/data.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($data, 1));
         }
     }
     
@@ -259,8 +262,8 @@ class VaultHandlerService {
         // Get the customer id (currently logged in user)
         $customerId = $this->customerSession->getCustomer()->getId();   
         
+        // Get the card list
         if ((int) $customerId > 0) {
-            // Get the card list
             $cardList = $this->paymentTokenManagement->getListByCustomerId($customerId);
             if (count($cardList) > 0) {
                 return  true;
