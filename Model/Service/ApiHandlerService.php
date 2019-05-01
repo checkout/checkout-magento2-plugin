@@ -44,13 +44,9 @@ class ApiHandlerService
      */
     private function loadClient() {
         return new CheckoutApi(
-            $this->encryptor->decrypt(
-                $this->config->getValue('secret_key')
-            ),
+            $this->config->getValue('secret_key'),
             $this->config->getValue('environment'),
-            $this->encryptor->decrypt(
-                $this->config->getValue('public_key')
-            )
+            $this->config->getValue('public_key')
         );        
     }
 }
