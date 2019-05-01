@@ -49,4 +49,13 @@ class ApiHandlerService
             $this->config->getValue('public_key')
         );        
     }
+
+    /**
+     * Checks if a response is valid.
+     */
+    public function isValidResponse($response) {
+        return is_object($response)
+        && method_exists($response, 'isSuccessful')
+        && $response->isSuccessful();
+    }
 }
