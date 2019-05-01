@@ -38,7 +38,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandlerService;
+    protected $apiHandler;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
