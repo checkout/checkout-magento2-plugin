@@ -32,6 +32,8 @@
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_capture_vault>1</can_capture_vault>
                 <request_currency>USD</request_currency>
+                <three_ds>0</three_ds>
+                <attempt_n3d>0</attempt_n3d>
             </checkoutcom_vault>
             <checkoutcom_card_payment>
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
