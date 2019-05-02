@@ -10,9 +10,9 @@ class Loader
     const CONFIGURATION_FILE_NAME = 'config.xml';
     const KEY_MODULE_NAME = 'CheckoutCom_Magento2';
     const KEY_MODULE_ID = 'checkoutcom_magento2';
-    const KEY_CONFIG = 'checkoutcom_configuration';
     const KEY_PAYMENT = 'payment';
     const KEY_SETTINGS = 'settings';
+    const KEY_CONFIG = 'checkoutcom_configuration';
 
     /**
      * @var Dir
@@ -72,17 +72,20 @@ class Loader
                     // Loop through values for the payment method
                     foreach ($arr as $key => $val) {
                         if (!$this->isHidden($key)) {
-                            $finalValue = '';
+                            // Get the field  value in db
+                            $path = $parent . '/' . $group . '/' . $key;
+                            $value = $this->scopeConfig->getValue(
+                                $path,
+                                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                            );
+
+                            // Process encrypted fields
                             if ($this->isEncrypted($key)) {
-                                $finalValue = $this->decrypt($key);
-                            } else {
-                                $path = $parent . '/' . $group . '/' . $key;
-                                $finalValue = $this->scopeConfig->getValue(
-                                    $path,
-                                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                                );
-                            }
-                            $dbData[$parent][$group][$key] = $finalValue;
+                                $value = $this->encryptor->decrypt($value);
+                            } 
+
+                            // Add the final value to the config array
+                            $dbData[$parent][$group][$key] = $value;
                         }
                     }
                 }
@@ -114,8 +117,12 @@ class Loader
     }
 
     private function isHidden($field) {
-        $hiddenFields = explode(',',
-            $this->getValue('fields_hidden')
+        $hiddenFields = explode(
+            ',',
+            $this->scopeConfig->getValue(
+                'settings/checkoutcom_configuration/fields_hidden',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            )
         );
 
         return in_array($field, $hiddenFields);
@@ -126,27 +133,32 @@ class Loader
             $field,
             explode(
                 ',',
-                $this->getValue('fields_encrypted')
+                $this->scopeConfig->getValue(
+                    'settings/checkoutcom_configuration/fields_encrypted',
+                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                )
             )
         );
     }
 
-    private function decrypt($field) {
-        return $this->encryptor->decrypt(
-            $this->getValue($field)
-        );
-    }
-
-    public function getValue($field, $methodId = null) {
+    public function getValue($key, $methodId = null) {
         // Prepare the path
         $path = ($methodId) 
-        ? 'payment/' . $methodId  . '/' .  $field
-        : 'settings/checkoutcom_configuration/' .  $field;
+        ? 'payment/' . $methodId  . '/' .  $key
+        : 'settings/checkoutcom_configuration/' . $key;
 
-        // Return the requested value
-        return $this->scopeConfig->getValue(
+        // Get field value in database
+        $value = $this->scopeConfig->getValue(
             $path,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+
+        // Return a decrypted value for encrypted fields
+        if ($this->isEncrypted($key)) {
+            return $this->encryptor->decrypt($value);
+        }
+
+        // Return a normal value
+        return $value;
     }
 }

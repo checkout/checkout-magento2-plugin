@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
 
+    <!-- Method handler configurations -->
     <type name="CheckoutCom\Magento2\Model\Service\MethodHandlerService">
         <arguments>
             <argument name="instances" xsi:type="array">
@@ -11,4 +12,21 @@
             </argument>
         </arguments>
     </type>
+    <!-- END Method handler configurations -->
+
+    <!-- Configuration for Vault payment method -->
+    <virtualType name="CheckoutComCreditCardVaultFacade" type="Magento\Vault\Model\Method\Vault">
+        <arguments>
+            <argument name="config" xsi:type="object">CheckoutComVaultPaymentConfig</argument>
+            <argument name="code" xsi:type="const">CheckoutCom\Magento2\Model\Methods\VaultMethod::CODE</argument>
+            <argument name="vaultProvider" xsi:type="object">CheckoutCom\Magento2\Model\Methods\VaultMethod</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="CheckoutComVaultPaymentConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Model\Methods\VaultMethod::CODE</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Configuration for Vault payments -->
+
 </config>

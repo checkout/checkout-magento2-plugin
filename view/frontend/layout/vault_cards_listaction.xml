@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="customer_account"/>
+    <head>
+        <css src="CheckoutCom_Magento2::css/cards-list.css" />
+        <css src="CheckoutCom_Magento2::css/add-card.css" />
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block 
+                template="CheckoutCom_Magento2::account/add-card.phtml" 
+                class="CheckoutCom\Magento2\Block\Account\AddCard"
+                name="checkoutcom_magento2.add_card"
+                after="-"
+            />
+        </referenceContainer>
+        <referenceContainer name="content">
+            <referenceBlock name="vault.cards.list">
+                <block 
+                    class="CheckoutCom\Magento2\Block\Account\CardRenderer"
+                    name="checkoutcom_magento2.card.renderer"
+                    template="CheckoutCom_Magento2::account/cards-list.phtml"
+                    after="-"
+                />
+            </referenceBlock>
+        </referenceContainer>
+    </body>
+</page>
