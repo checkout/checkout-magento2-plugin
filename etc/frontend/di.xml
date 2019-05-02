@@ -24,7 +24,7 @@
     <type name="Magento\Vault\Model\Ui\TokensConfigProvider">
         <arguments>
             <argument name="tokenUiComponentProviders" xsi:type="array">
-                <item name="checkout_com" xsi:type="object">CheckoutCom\Magento2\Model\Ui\TokenUiComponentProvider</item>
+                <item name="checkoutcom_vault" xsi:type="object">CheckoutCom\Magento2\Model\Ui\TokenUiComponentProvider</item>
             </argument>
         </arguments>
     </type>
