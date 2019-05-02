@@ -44,13 +44,18 @@ class ApiHandlerService
      */
     private function loadClient() {
         return new CheckoutApi(
-            $this->encryptor->decrypt(
-                $this->config->getValue('secret_key')
-            ),
+            $this->config->getValue('secret_key'),
             $this->config->getValue('environment'),
-            $this->encryptor->decrypt(
-                $this->config->getValue('public_key')
-            )
+            $this->config->getValue('public_key')
         );        
+    }
+
+    /**
+     * Checks if a response is valid.
+     */
+    public function isValidResponse($response) {
+        return is_object($response)
+        && method_exists($response, 'isSuccessful')
+        && $response->isSuccessful();
     }
 }

@@ -2,8 +2,8 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
         <css src="CheckoutCom_Magento2::css/main.css" />
-        <css src="CheckoutCom_Magento2::css/apple_pay.css" />
-        <css src="CheckoutCom_Magento2::css/google_pay.css" />
+        <css src="CheckoutCom_Magento2::css/apple-pay.css" />
+        <css src="CheckoutCom_Magento2::css/google-pay.css" />
     </head>
     <body>
         <referenceBlock name="checkout.root">
@@ -38,7 +38,9 @@
                                                                         <item name="checkoutcom_google_pay" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-
+                                                                        <item name="checkoutcom_vault" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>     
                                                                     </item>
                                                                 </item>
                                                             </item>

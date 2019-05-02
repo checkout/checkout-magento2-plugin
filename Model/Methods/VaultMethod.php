@@ -6,13 +6,13 @@ use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 
-class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
+class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
 
 	/**
      * @var string
      */
-    const CODE = 'checkoutcom_card_payment';
+    const CODE = 'checkoutcom_vault';
 
     /**
      * @var array
@@ -38,7 +38,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandler;
+    protected $apiHandlerService;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -142,11 +142,22 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 ->payments()
                 ->request($request);
 
+            // Todo - remove logging code
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/card_response.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($response, 1));
+
             return $response;
         }   
 
         catch(\Exception $e) {
-
+            // Todo - remove logging code
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/card_error.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($e->getMessage(), 1));
         }
     }
+
 }
