@@ -8,7 +8,7 @@
  * MIT License
  */
 
-namespace CheckoutCom\Magento2\Model\Method;
+namespace CheckoutCom\Magento2\Model\Methods;
 
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
 use \Checkout\Models\Payments\TokenSource;

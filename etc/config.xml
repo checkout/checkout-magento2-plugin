@@ -114,7 +114,7 @@
                 <button_style>black</button_style>
             </checkoutcom_apple_pay>
             <checkoutcom_moto>
-                <model>CheckoutCom\Magento2\Model\Method\MotoMethod</model>
+                <model>CheckoutCom\Magento2\Model\Methods\MotoMethod</model>
                 <title>MOTO Payments with Checkout.com</title>
                 <active>0</active>
                 <sort_order>0</sort_order>
