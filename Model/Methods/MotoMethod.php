@@ -10,6 +10,7 @@
 
 namespace CheckoutCom\Magento2\Model\Method;
 
+use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
 
