@@ -355,6 +355,26 @@
                         <config_path>payment/checkoutcom_vault/sort_order</config_path>
                     </field>
                 </group>
+
+                <group id="checkoutcom_moto" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>MOTO Payments</label>
+                    <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Vault Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_moto/active</config_path>
+                    </field>
+
+                    <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkoutcom_moto/title</config_path>
+                    </field>
+
+                    <field id="sort_order" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort Order</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkoutcom_moto/sort_order</config_path>
+                    </field>
+                </group>
             </group>
         </section>
     </system>
