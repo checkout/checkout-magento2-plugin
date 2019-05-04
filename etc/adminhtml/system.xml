@@ -104,6 +104,7 @@
                             <field id="payment_action">authorize_capture</field>
                         </depends>
                         <config_path>payment/checkoutcom_card_payment/capture_time</config_path>
+                        <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
                     </field>
                     
                     <field id="three_ds" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -378,6 +379,7 @@
                             <field id="payment_action">authorize_capture</field>
                         </depends>
                         <config_path>payment/checkoutcom_card_payment/capture_time</config_path>
+                        <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
                     </field>
 
                     <field id="sort_order" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
