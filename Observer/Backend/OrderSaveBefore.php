@@ -20,12 +20,19 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     protected $backendAuthSession;
 
     /**
+     * @var Http
+     */
+    protected $request;
+
+    /**
      * OrderSaveBefore constructor.
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session $backendAuthSession
+        \Magento\Backend\Model\Auth\Session $backendAuthSession,
+        \Magento\Framework\App\Request\Http $request
     ) {
         $this->backendAuthSession = $backendAuthSession;
+        $this->request = $request;
 
         // Get the request parameters
         $this->params = $this->request->getParams();
