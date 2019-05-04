@@ -5,8 +5,9 @@
             <input type="hidden" id="cko-card-token" name="cko-card-token">
         </form>
     </div>
+</fieldset>
 
-    <script type="text/javascript">
+<script type="text/javascript">
     require(['jquery', 'domReady!', 'framesjs'], function ($) {
         // Prepare the elements
         var cardTokenField = $('#cko-card-token');
@@ -16,8 +17,13 @@
         var ckoTheme = '';
         
         // Todo - Connect the  debug mode to config
-        var ckoDebugMode = false;
+        var ckoDebugMode = true;
 
+        // Remove any existing event handlers
+        Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
+        Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
+        Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
+            
         // Initialize the embedded form
         Frames.init({
             publicKey: ckoPublicKey,
@@ -26,7 +32,6 @@
             debugMode: ckoDebugMode,
             cardValidationChanged: function(event) {
                 if (Frames.isCardValid()) {
-                    saveCardButton.attr("disabled", false);
                     Frames.submitCard();
                     Frames.unblockFields();
                 }
@@ -40,5 +45,4 @@
             }
         });  
     });
-    </script>
-</fieldset>
+</script>
