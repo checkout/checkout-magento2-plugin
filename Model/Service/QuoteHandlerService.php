@@ -118,6 +118,33 @@ class QuoteHandlerService
     }
 
     /**
+     * Prepares a quote for order placement
+     */
+    public function prepareQuote($fields = [])
+    {
+        // Find quote and perform tasks
+        $quote = $this->getQuote($fields);
+        if ($this->isQuote($quote)) {
+            // Prepare the inventory
+            $quote->setInventoryProcessed(false);
+
+            // Check for guest user quote
+            if ($this->customerSession->isLoggedIn() === false) {
+                $quote = $this->prepareGuestQuote($quote);
+            }
+
+            // Set the payment information
+            $payment = $quote->getPayment();
+            $payment->setMethod($this->methodId);
+            $payment->save();
+
+            return $quote;
+        }
+
+        return null;
+    }
+
+    /**
      * Sets the email for guest users
      */
     public function prepareGuestQuote($quote, $email = null)

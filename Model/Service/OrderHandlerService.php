@@ -122,7 +122,7 @@ class OrderHandlerService
                 // Create the order
                 if (!$this->isOrder($order)) {
                     // Prepare the quote
-                    $quote = $this->prepareQuote($filters);
+                    $quote = $this->quoteHandler->prepareQuote($filters);
                     if ($quote) {
                         // Create the order
                         $order = $this->quoteManagement->submit($quote);
@@ -215,33 +215,6 @@ class OrderHandlerService
         catch (\Exception $e) {
             return false;
         }
-    }
-
-    /**
-     * Prepares a quote for order placement
-     */
-    public function prepareQuote($fields = [])
-    {
-        // Find quote and perform tasks
-        $quote = $this->quoteHandler->getQuote($fields);
-        if ($this->quoteHandler->isQuote($quote)) {
-            // Prepare the inventory
-            $quote->setInventoryProcessed(false);
-
-            // Check for guest user quote
-            if ($this->customerSession->isLoggedIn() === false) {
-                $quote = $this->quoteHandler->prepareGuestQuote($quote);
-            }
-
-            // Set the payment information
-            $payment = $quote->getPayment();
-            $payment->setMethod($this->methodId);
-            $payment->save();
-
-            return $quote;
-        }
-
-        return null;
     }
 
     /**
