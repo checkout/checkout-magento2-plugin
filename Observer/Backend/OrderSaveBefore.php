@@ -23,7 +23,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      * OrderSaveBefore constructor.
      */
     public function __construct(
-        Magento\Backend\Model\Auth\Session $backendAuthSession
+        \Magento\Backend\Model\Auth\Session $backendAuthSession
     ) {
         $this->backendAuthSession = $backendAuthSession;
 
@@ -41,6 +41,13 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
         // Get the method id
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($this->params, 1));
+
+        exit();
 
         // Process the payment
         if ($this->backendAuthSession->isLoggedIn() && isset($this->params['ckoCardToken']) && $methodId == 'checkoutcom_moto') {

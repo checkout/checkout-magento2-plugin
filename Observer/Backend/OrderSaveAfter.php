@@ -11,8 +11,6 @@
 namespace CheckoutCom\Magento2\Observer\Backend;
 
 use Magento\Framework\Event\Observer;
-use Magento\Sales\Model\Order\Payment\Transaction;
-use Magento\Backend\Model\Auth\Session as BackendAuthSession;
 
 class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
 {
@@ -25,7 +23,7 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
      * OrderSaveBefore constructor.
      */
     public function __construct(
-        BackendAuthSession $backendAuthSession
+        \Magento\Backend\Model\Auth\Session $backendAuthSession
     ) {
         $this->backendAuthSession    = $backendAuthSession;
     }
