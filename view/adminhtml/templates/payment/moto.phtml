@@ -8,8 +8,6 @@
     <script type="text/javascript">
     require(['jquery', 'domReady!', 'framesjs'], function ($) {
         // Prepare the elements
-        var saveCardButton = $('#cko-save-card');
-        var showFormButton = $('#cko-show-card-form');
         var cardTokenField = $('#cko-card-token');
         var cardFormContainerId = '#cko-form-holder';
         var ckoPublicKey = '<?= $block->config->getValue('public_key'); ?>';
@@ -25,9 +23,6 @@
             containerSelector: cardFormContainerId,
             theme: ckoTheme,
             debugMode: ckoDebugMode,
-            frameActivated: function () {
-                saveCardButton.attr("disabled", true);
-            },
             cardValidationChanged: function(event) {
                 if (Frames.isCardValid()) {
                     saveCardButton.attr("disabled", false);
@@ -43,47 +38,6 @@
                 cardTokenField.val(event.data.cardToken);
             }
         });  
-
-        // Add card form controls
-        showFormButton.on('click touch', function (event) {
-            $(cardFormContainerId).show();
-            saveCardButton.show();
-            showFormButton.hide();
-        });
-
-        // Handle the submit event
-        saveCardButton.on('click touch', function (event) {
-            // Disable the save button
-            saveCardButton.attr("disabled", true);
-
-            // Prevent default events
-            event.preventDefault();
-
-            // Send the request
-            $.ajax({
-                type: 'POST',
-                url: '<?= $block->getUrl('checkout_com/account/savecard'); ?>',
-                data: {cardToken: cardTokenField.val()},
-                success: function (data) {
-                    if (!data.success) {
-                        //FullScreenLoader.stopLoader();
-                        //self.showMessage('error', data.message);
-                    }
-                    else if (data.success && data.url) {
-                        // Handle 3DS redirection
-                        //window.location.href = data.url
-                    }
-                    else {
-                        // Normal redirection
-                        //RedirectOnSuccessAction.execute();
-                    }
-                },
-                error: function (request, status, error) {
-                    //FullScreenLoader.stopLoader();
-                   // self.showMessage('error', error);
-                }
-            });
-        });
     });
     </script>
 </fieldset>
