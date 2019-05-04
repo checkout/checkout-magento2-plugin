@@ -2,7 +2,7 @@
     <br>
     <div id="cko-form-holder">
         <form id="saveCardForm" method="POST">
-            <input type="hidden" id="cko-card-token" name="cko-card-token">
+            <input type="hidden" id="ckoCardToken" name="ckoCardToken">
         </form>
     </div>
 </fieldset>
@@ -10,7 +10,7 @@
 <script type="text/javascript">
     require(['jquery', 'domReady!', 'framesjs'], function ($) {
         // Prepare the elements
-        var cardTokenField = $('#cko-card-token');
+        var cardTokenField = $('#ckoCardToken');
         var cardFormContainerId = '#cko-form-holder';
         var ckoPublicKey = '<?= $block->config->getValue('public_key'); ?>';
         var paymentForm = document.getElementById('saveCardForm');

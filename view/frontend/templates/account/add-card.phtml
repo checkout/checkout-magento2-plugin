@@ -1,24 +1,24 @@
 
-<button id="cko-show-card-form" class="action submit primary">
+<button id="ckoShowForm" class="action submit primary">
 	<!-- ko i18n: 'Add Credit Card (checkout.com)'--><!-- /ko -->
 </button>
 
 <div id="cko-form-holder" style="display: none;">
     <form class="widget-container" id="saveCardForm" method="POST">
         <?php echo $block->getBlockHtml('formkey')?>
-        <input type="hidden" id="cko-card-token" name="cko-card-token">
+        <input type="hidden" id="ckoCardToken" name="ckoCardToken">
     </form>
 </div>
-<button id="cko-save-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>" style="display: none;">
+<button id="ckoSaveCard" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>" style="display: none;">
     <?= $block->escapeHtml(__('Save the card')) ?>
 </button>
 
 <script type="text/javascript">
     require(['jquery', 'domReady!', 'framesjs'], function ($) {
         // Prepare the elements
-        var saveCardButton = $('#cko-save-card');
-        var showFormButton = $('#cko-show-card-form');
-        var cardTokenField = $('#cko-card-token');
+        var saveCardButton = $('#ckoSaveCard');
+        var showFormButton = $('#ckoShowForm');
+        var cardTokenField = $('#ckoCardToken');
         var cardFormContainerId = '#cko-form-holder';
         var ckoPublicKey = '<?= $block->config->getValue('public_key'); ?>';
         var paymentForm = document.getElementById('saveCardForm');
