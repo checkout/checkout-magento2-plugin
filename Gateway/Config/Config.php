@@ -98,7 +98,7 @@ class Config
      * Checks and sets a capture time for the request.
      */
     public function getCaptureTime($methodId) {
-        // Get the  capture date from config
+        // Get the capture date from config
         $captureTime = $this->getValue('capture_time', $methodId);
 
         // Check the setting
