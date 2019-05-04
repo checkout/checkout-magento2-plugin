@@ -97,13 +97,13 @@ class Config
 	/**
      * Checks and sets a capture time for the request.
      */
-    public function getCaptureDate($methodId) {
+    public function getCaptureTime($methodId) {
         // Get the  capture date from config
-        $captureDate = $this->getValue('capture_on', $methodId);
+        $captureTime = $this->getValue('capture_time', $methodId);
 
         // Check the setting
-        if ($this->needsAutoCapture($methodId) && !empty($captureDate)) {
-            return $this->utilities->formatDate($captureDate);
+        if ($this->needsAutoCapture($methodId) && !empty($captureTime)) {
+            return $this->utilities->formatDate($captureTime);
         }
 
         return false;

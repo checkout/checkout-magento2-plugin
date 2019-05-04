@@ -40,7 +40,7 @@
                 <title>Pay by Card with Checkout.com</title>
                 <active>1</active>
                 <payment_action>authorize_capture</payment_action>
-                <capture_on>0</capture_on>        
+                <capture_time>0</capture_time>        
                 <sort_order>1</sort_order>
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>
