@@ -1,27 +1,24 @@
 <?php
+/**
+ * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ *
+ * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Author: David Fiaty | integration@checkout.com
+ *
+ * MIT License
+ */
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
+use \Checkout\Models\Payments\TokenSource;
+use \Checkout\Models\Payments\Payment;
 
-class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
+class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
-    /**
-     * @var string
-     */
-    const CODE = 'checkoutcom_apple_pay';
-
-    /**
-     * @var array
-     */
-    const FIELDS = array('title', 'certificate', 'certificate_key', 'theme', 'active', 'public_key');
-
-    /**
-     * @var string
-     * @overriden
-     */
-    protected $_code = ApplePayMethod::CODE;
-
+    const CODE = 'checkoutcom_moto';
+    protected $_code = self::CODE;
+    protected $_formBlockType = Moto::class;
     protected $_isInitializeNeeded = true;
     protected $_isGateway = true;
     protected $_canAuthorize = true;
@@ -29,11 +26,25 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     protected $_canCancel = true;
     protected $_canCapturePartial = true;
     protected $_canVoid = true;
-    protected $_canUseInternal = false;
-    protected $_canUseCheckout = true;
+    protected $_canUseInternal = true;
+    protected $_canUseCheckout = false;
     protected $_canRefund = true;
     protected $_canRefundInvoicePartial = true;
-    
+    protected $backendAuthSession;
+    protected $cart;
+    protected $urlBuilder;
+    protected $_objectManager;
+    protected $invoiceSender;
+    protected $transactionFactory;
+    protected $customerSession;
+    protected $checkoutSession;
+    protected $checkoutData;
+    protected $quoteRepository;
+    protected $quoteManagement;
+    protected $orderSender;
+    protected $sessionQuote;
+    protected $config;
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -86,4 +97,25 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->sessionQuote       = $sessionQuote;
     }
 
+    /**
+     * Check whether method is available
+     *
+     * @param  \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @return bool
+     */
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        return parent::isAvailable($quote) && null !== $quote;
+    }
+
+    /**
+     * Check whether method is enabled in config
+     *
+     * @param \Magento\Quote\Model\Quote|null $quote
+     * @return bool
+     */
+    public function isAvailableInConfig($quote = null)
+    {
+        return parent::isAvailable($quote);
+    }
 }

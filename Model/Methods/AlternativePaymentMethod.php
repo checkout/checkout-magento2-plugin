@@ -19,6 +19,18 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     const CODE = 'checkoutcom_apm';
 
+    protected $_isInitializeNeeded = true;
+    protected $_isGateway = true;
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
+    protected $_canCancel = true;
+    protected $_canCapturePartial = true;
+    protected $_canVoid = true;
+    protected $_canUseInternal = false;
+    protected $_canUseCheckout = true;
+    protected $_canRefund = true;
+    protected $_canRefundInvoicePartial = true;
+    
     /**
      * @var string
      */
@@ -183,6 +195,21 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     protected $_code = AlternativePaymentMethod::CODE;
 
+    /**
+     * @var RemoteAddress
+     */
+    protected $remoteAddress;
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandler;
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -206,6 +233,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         array $data = []
     ) {
         parent::__construct(
@@ -233,6 +263,10 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
+
+        $this->remoteAddress      = $remoteAddress;
+        $this->config             = $config;
+        $this->apiHandler         = $apiHandler;
     }
 
 }
