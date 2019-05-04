@@ -8,7 +8,6 @@ use \Checkout\Models\Payments\ThreeDs;
 
 class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
-
 	/**
      * @var string
      */
