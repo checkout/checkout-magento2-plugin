@@ -359,7 +359,7 @@
                 <group id="checkoutcom_moto" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>MOTO Payments</label>
                     <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Vault Enabled</label>
+                        <label>MOTO Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_moto/active</config_path>
                     </field>

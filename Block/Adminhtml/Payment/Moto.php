@@ -27,16 +27,22 @@ class Moto extends \Magento\Payment\Block\Form\Cc
     protected $paymentModelConfig;
  
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
      * Moto constructor.
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Payment\Model\Config $paymentModelConfig
+        \Magento\Payment\Model\Config $paymentModelConfig,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         parent::__construct($context, $paymentModelConfig);
         
-        // Set the template
         $this->_template = 'CheckoutCom_Magento2::payment/moto.phtml';
+        $this->config = $config;
     }
 
     /**
