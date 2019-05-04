@@ -1,7 +1,6 @@
 <fieldset class="admin__fieldset payment-method checkoutcom_moto" id="payment_form_checkoutcom_moto" style="display: none;">
-    <div class="card-form-container">
+    <div id="cko-form-holder">
         <form class="widget-container" id="saveCardForm" method="POST">
-            <?php echo $block->getBlockHtml('formkey')?>
             <input type="hidden" id="cko-card-token" name="cko-card-token">
         </form>
     </div>
