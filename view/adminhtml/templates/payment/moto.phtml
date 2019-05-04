@@ -1,7 +1,7 @@
 <fieldset class="admin__fieldset payment-method checkoutcom_moto" id="payment_form_checkoutcom_moto" style="display: none;">
     <br>
     <div id="cko-form-holder">
-        <form class="widget-container" id="saveCardForm" method="POST">
+        <form id="saveCardForm" method="POST">
             <input type="hidden" id="cko-card-token" name="cko-card-token">
         </form>
     </div>
@@ -37,9 +37,6 @@
                 }
             },
             cardTokenised: function(event) {                        
-                // Add the card token to the form
-                Frames.addCardToken(paymentForm, event.data.cardToken);
-
                 // Add the card token to the hidden input field
                 cardTokenField.val(event.data.cardToken);
             }
