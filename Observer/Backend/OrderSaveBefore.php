@@ -99,11 +99,13 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 ->payments()
                 ->request($request);
 
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/moto.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($response, 1));
-
+            // Process the response
+            $success = $this->apiHandler->isValidResponse($response);
+            if (!$success) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The transaction could not be processed.')
+                );
+            }
         }
       
         return $this;
