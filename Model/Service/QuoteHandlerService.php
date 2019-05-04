@@ -140,7 +140,6 @@ class QuoteHandlerService
         return $quote;
     }
 
-     
     /**
      * Gets an array of quote parameters
      */
