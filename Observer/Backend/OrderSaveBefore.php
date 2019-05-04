@@ -11,7 +11,8 @@
 namespace CheckoutCom\Magento2\Observer\Backend;
 
 use Magento\Framework\Event\Observer;
-
+use \Checkout\Models\Payments\TokenSource;
+use \Checkout\Models\Payments\Payment;
 class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 {
     /**
@@ -25,14 +26,35 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     protected $request;
 
     /**
+     * @var RemoteAddress
+     */
+    protected $remoteAddress;
+
+    /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandler;
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
      * OrderSaveBefore constructor.
      */
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Framework\App\Request\Http $request
+        \Magento\Framework\App\Request\Http $request,
+        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
+        $this->remoteAddress = $remoteAddress;
+        $this->apiHandler = $apiHandler;
+        $this->config = $config;
 
         // Get the request parameters
         $this->params = $this->request->getParams();
@@ -49,29 +71,39 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         // Get the method id
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($this->params, 1));
-
-        exit();
-
         // Process the payment
         if ($this->backendAuthSession->isLoggedIn() && isset($this->params['ckoCardToken']) && $methodId == 'checkoutcom_moto') {
+            // Set the token source
+            $tokenSource = new TokenSource($this->params['ckoCardToken']);
 
-            // Send the charge request
-            /*
-            $result = $this->tokenChargeService->sendChargeRequest(
-                $this->params['ckoCardToken'],
-                $order,
-                $disable3ds = true,
-                $isQuote = false
-            );*/
+            // Set the payment
+            $request = new Payment(
+                $tokenSource, 
+                $order->getOrderCurrencyCode()
+            );
+
+            // Prepare the capture date setting
+            $captureDate = $this->config->getCaptureTime($methodId);
             
-            // Save result in session of order save after
-            $this->backendAuthSession->setCkoOrderPayment([
-                $order->getIncrementId() => $result
-            ]);
+            // Set the request parameters
+            $request->capture = $this->config->needsAutoCapture($methodId);
+            $request->amount = $order->getGrandTotal()*100;
+            $request->reference = $order->getIncrementId();
+            $request->payment_ip = $this->remoteAddress->getRemoteAddress();
+            if ($captureDate) {
+                $request->capture_time = $this->config->getCaptureTime($methodId);
+            }
+            
+            // Send the charge request
+            $response = $this->apiHandler->checkoutApi
+                ->payments()
+                ->request($request);
+
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/moto.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($response, 1));
+
         }
       
         return $this;
