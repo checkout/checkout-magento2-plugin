@@ -116,8 +116,12 @@ class OrderHandlerService
                         // Create the order
                         $order = $this->quoteManagement->submit($quote);
 
-                        // Process the transactions for the order
-                        $this->processTransactions($order);
+                        // Create the authorization transaction
+                        $this->transactionHandler->createTransaction
+                        (
+                            $order,
+                            Transaction::TYPE_AUTH
+                        );
 
                         // Set the order status
                         $order->setStatus(
@@ -211,14 +215,10 @@ class OrderHandlerService
      */
     public function processTransactions($order)
     {
-        // Create the authorization transaction
-        $transactionId = $this->transactionHandler->createTransaction
-        (
-            $order,
-            Transaction::TYPE_AUTH
-        );
 
         // Create the capture transaction
+        // Todo - Move this to webhook callback handler
+        /*
         if ($this->config->needsAutoCapture($this->methodId)) {
             // Create the transaction
             $transactionId = $this->transactionHandler->createTransaction
@@ -227,6 +227,7 @@ class OrderHandlerService
                 Transaction::TYPE_CAPTURE
             );
         }
+        */
 
         // Update order status
         // Todo - Add order status handling settings

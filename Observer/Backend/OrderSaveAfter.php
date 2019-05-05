@@ -20,19 +20,19 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
     protected $backendAuthSession;
 
     /**
-     * @var OrderHandlerService
+     * @var TransactionHandlerService
      */
-    protected $orderHandler;
+    protected $transactionHandler;
 
     /**
      * OrderSaveBefore constructor.
      */
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->orderHandler = $orderHandler;
+        $this->transactionHandler = $transactionHandler;
     }
  
     /**
@@ -47,9 +47,12 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
         if ($this->backendAuthSession->isLoggedIn() && $methodId == 'checkoutcom_moto') {
-               // Process the order
-               $order = $this->orderHandler->setMethodId($methodId)
-               ->processTransactions($order);
+            // Create the authorization transaction
+            $this->transactionHandler->createTransaction
+            (
+                $order,
+                Transaction::TYPE_AUTH
+            );
         }
         
         return $this;
