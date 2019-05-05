@@ -39,7 +39,10 @@ class Utilities {
     public function getPaymentData($order)
     {
         try {
-            return $order->getPayment()->getMethodInstance()->getInfoInstance();
+            return $order->getPayment()
+                ->getMethodInstance()
+                ->getInfoInstance()
+                ->getData();
         } catch (\Exception $e) {
             return false;
         }
