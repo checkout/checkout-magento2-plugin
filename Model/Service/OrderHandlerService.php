@@ -122,11 +122,6 @@ class OrderHandlerService
                             $order,
                             Transaction::TYPE_AUTH
                         );
-
-                        // Set the order status
-                        $order->setStatus(
-                            $this->config->getValue('order_status_authorized')
-                        );
                     }
                 }
 

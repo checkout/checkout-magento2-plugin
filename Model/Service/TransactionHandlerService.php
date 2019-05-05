@@ -112,11 +112,19 @@ class TransactionHandlerService
 
             // Add an authorization transaction to the payment
             if ($transactionMode == Transaction::TYPE_AUTH) {
+                // Add order comments
                 $payment->addTransactionCommentsToOrder(
                     $transaction,
                     __('The authorized amount is %1.', $formatedPrice)
                 );
+
+                // Set the parent transaction id
                 $payment->setParentTransactionId(null);
+
+                // Set the order status
+                $order->setStatus(
+                    $this->config->getValue('order_status_authorized')
+                );
             }
 
             // Save payment, transaction and order
