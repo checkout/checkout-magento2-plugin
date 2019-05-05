@@ -26,14 +26,31 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
     protected $transactionHandler;
 
     /**
-     * OrderSaveBefore constructor.
+     * @var OrderHandlerService
+     */
+    protected $orderHandler;
+
+    /**
+     * @var Order
+     */
+    protected $order;
+
+    /**
+     * @var String
+     */
+    protected $methodId;
+
+    /**
+     * OrderSaveAfter constructor.
      */
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->transactionHandler = $transactionHandler;
+        $this->orderHandler = $orderHandler;
     }
  
     /**
@@ -42,20 +59,29 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
     public function execute(Observer $observer)
     {
         // Get the order
-        $order = $observer->getEvent()->getOrder();
+        $this->order = $observer->getEvent()->getOrder();
 
         // Get the method id
-        $methodId = $order->getPayment()->getMethodInstance()->getCode();
+        $this->methodId = $this->order->getPayment()->getMethodInstance()->getCode();
 
         // Create the authorization transaction
-        if ($this->backendAuthSession->isLoggedIn() && $methodId == 'checkoutcom_moto') {
+        if ($this->needsMotoProcessing()) {
             $this->transactionHandler->createTransaction
             (
-                $order,
+                $this->order,
                 Transaction::TYPE_AUTH
             );
         }
         
         return $this;
+    }
+
+    /**
+     * Checks if the MOTO logic should be triggered.
+     */
+    protected function needsMotoProcessing() {
+        return $this->backendAuthSession->isLoggedIn()
+        && $this->methodId == 'checkoutcom_moto'
+        && !$this->orderHandler->hasTransaction($this->order, Transaction::TYPE_AUTH);
     }
 }

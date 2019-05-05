@@ -130,6 +130,7 @@ class TransactionHandlerService
             // Save payment, transaction and order
             $payment->save();
             $transaction->save();
+            $order->save();
 
             // Create the invoice
             // Todo - check this setting, add parameter to config
@@ -169,9 +170,9 @@ class TransactionHandlerService
     }
 
     /**
-     * Get all transactions for an order.
+     * Get transactions for an order.
      */
-    public function getTransactions($order)
+    public function getTransactions($order, $transactionType = null)
     {
         try {
             // Payment filter
@@ -189,7 +190,23 @@ class TransactionHandlerService
                 ->addFilters($filters)
                 ->create();
 
-            return $this->transactionRepository->getList($searchCriteria)->getItems();
+            // Get the list of transactions
+            $transactions = $this->transactionRepository->getList($searchCriteria)->getItems();
+
+            // Filter by transaction type
+            if ($transactionType && count($transactions) > 0) {
+                $filteredResult = [];
+                foreach ($transactions as $transaction) {
+                    if ($transaction->getTxnType() == $transactionType) {
+                        $filteredResult[] = $transaction;
+                    }
+                }
+
+                return $filteredResult;
+            }
+
+            return $transactions;
+
         } catch (Exception $e) {
             return false;
         }

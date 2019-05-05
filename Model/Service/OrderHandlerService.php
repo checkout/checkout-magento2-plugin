@@ -232,4 +232,17 @@ class OrderHandlerService
         }
     }
 
+    /**
+     * Checks if an order has a transaction type.
+     */
+    public function hasTransaction($order, $transactionType)
+    {
+        // Get the auth transactions
+        $transactions = $this->transactionHandler->getTransactions(
+            $order,
+            $transactionType
+        );
+
+        return count($transactions) > 0 ? true : false;
+    }
 }

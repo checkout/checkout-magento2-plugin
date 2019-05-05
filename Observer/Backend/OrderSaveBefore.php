@@ -11,6 +11,7 @@
 namespace CheckoutCom\Magento2\Observer\Backend;
 
 use Magento\Framework\Event\Observer;
+use Magento\Sales\Model\Order\Payment\Transaction;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
 class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
@@ -51,6 +52,21 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     protected $utilities;
 
     /**
+     * @var Array
+     */
+    protected $params;
+
+    /**
+     * @var Order
+     */
+    protected $order;
+
+    /**
+     * @var String
+     */
+    protected $methodId;
+
+    /**
      * OrderSaveBefore constructor.
      */
     public function __construct(
@@ -75,39 +91,39 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     }
  
     /**
-     * Observer execute function.
+     * OrderSaveBefore constructor.
      */
     public function execute(Observer $observer)
     {
         // Get the order
-        $order = $observer->getEvent()->getOrder();
+        $this->order = $observer->getEvent()->getOrder();
 
         // Get the method id
-        $methodId = $order->getPayment()->getMethodInstance()->getCode();
+        $this->methodId = $this->order->getPayment()->getMethodInstance()->getCode();
 
         // Process the payment
-        if ($this->backendAuthSession->isLoggedIn() && isset($this->params['ckoCardToken']) && $methodId == 'checkoutcom_moto') {
+        if ($this->needsMotoProcessing()) {
             // Set the token source
             $tokenSource = new TokenSource($this->params['ckoCardToken']);
 
             // Set the payment
             $request = new Payment(
                 $tokenSource, 
-                $order->getOrderCurrencyCode()
+                $this->order->getOrderCurrencyCode()
             );
 
             // Prepare the capture date setting
-            $captureDate = $this->config->getCaptureTime($methodId);
+            $captureDate = $this->config->getCaptureTime($this->methodId);
             
             // Set the request parameters
-            $request->capture = $this->config->needsAutoCapture($methodId);
-            $request->amount = $order->getGrandTotal()*100;
-            $request->reference = $order->getIncrementId();
+            $request->capture = $this->config->needsAutoCapture($this->methodId);
+            $request->amount = $this->order->getGrandTotal()*100;
+            $request->reference = $this->order->getIncrementId();
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             if ($captureDate) {
-                $request->capture_time = $this->config->getCaptureTime($methodId);
+                $request->capture_time = $this->config->getCaptureTime($this->methodId);
             }
-            
+
             // Send the charge request
             $response = $this->apiHandler->checkoutApi
                 ->payments()
@@ -118,7 +134,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
             //  Add the response to the order
             if ($success) {
-                $this->utilities->setPaymentData($order, $response);
+                $this->utilities->setPaymentData($this->order, $response);
             }
             else {
                 throw new \Magento\Framework\Exception\LocalizedException(
@@ -128,5 +144,15 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         }
       
         return $this;
+    }
+
+    /**
+     * Checks if the MOTO logic should be triggered.
+     */
+    protected function needsMotoProcessing() {
+        return $this->backendAuthSession->isLoggedIn()
+        && isset($this->params['ckoCardToken'])
+        && $this->methodId == 'checkoutcom_moto'
+        && !$this->orderHandler->hasTransaction($this->order, Transaction::TYPE_AUTH);
     }
 }
