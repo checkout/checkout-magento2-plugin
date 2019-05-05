@@ -211,7 +211,6 @@ class OrderHandlerService
      */
     public function processTransactions($order)
     {
-
         // Create the authorization transaction
         $transactionId = $this->transactionHandler->createTransaction
         (
