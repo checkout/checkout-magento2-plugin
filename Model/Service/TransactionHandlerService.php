@@ -131,7 +131,6 @@ class TransactionHandlerService
 
             // Save payment, transaction and order
             $payment->save();
-            $order->save();
             $transaction->save();
 
             // Create the invoice
