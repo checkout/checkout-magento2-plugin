@@ -36,10 +36,15 @@ class TransactionHandlerService
      */
     protected $invoiceHandler;
 
-     /**
-      * @var Config
-      */
+    /**
+     * @var Config
+     */
     protected $config;
+
+    /**
+     * @var Utilities
+     */
+    protected $utilities;
 
     /**
      * TransactionHandlerService constructor.
@@ -51,7 +56,8 @@ class TransactionHandlerService
         \Magento\Framework\Api\FilterBuilder $filterBuilder,
         \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
-    	\CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         $this->transactionBuilder    = $transactionBuilder;
         $this->messageManager        = $messageManager;
@@ -60,15 +66,16 @@ class TransactionHandlerService
         $this->transactionRepository = $transactionRepository;
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
+        $this->utilities             = $utilities;
     }
 
     /**
      * Create a transaction for an order.
      */
-    public function createTransaction($order, $transactionMode, $paymentData = [])
+    public function createTransaction($order, $transactionMode)
     {
         // Get a transaction id
-        $tid = $this->getTransactionId($paymentData);
+        $tid = $this->getTransactionId($order);
 
         // Get a method id
         $methodId = $order->getPayment()
@@ -82,11 +89,14 @@ class TransactionHandlerService
             $payment->setMethod($methodId);
             $payment->setLastTransId($tid);
             $payment->setTransactionId($tid);
+            // Todo - Add transaction info
+            /*
             $payment->setAdditionalInformation(
                 [
                     Transaction::RAW_DETAILS => $paymentData
                 ]
             );
+            */
 
             // Formatted price
             $formatedPrice = $order->getBaseCurrency()
@@ -99,11 +109,14 @@ class TransactionHandlerService
                 ->setPayment($payment)
                 ->setOrder($order)
                 ->setTransactionId($tid)
+                // Todo - Add transaction info
+                /*
                 ->setAdditionalInformation(
                     [
                         Transaction::RAW_DETAILS => $paymentData
                     ]
                 )
+                */
                 ->setFailSafe(true)
                 ->build($transactionMode);
 
@@ -133,12 +146,9 @@ class TransactionHandlerService
         }
     }
 
-    public function getTransactionId($paymentData = []) {
-        if (count($paymentData) > 0 && isset($paymentData['id'])) {
-            return $paymentData['id'];
-        }
-
-        return 'cko_' . time();
+    public function getTransactionId($order) {
+        $paymentData = $this->utilities->getPaymentData($order);
+        return isset($paymentData['id']) ? $paymentData['id'] : 'cko_' . time();
     }
 
     /**

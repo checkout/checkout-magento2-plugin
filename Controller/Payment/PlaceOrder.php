@@ -35,6 +35,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     protected $checkoutSession;
 
     /**
+     * @var Utilities
+     */
+    protected $utilities;
+
+    /**
      * @var Config
      */
     protected $config;
@@ -65,6 +70,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
     {
@@ -76,6 +82,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->checkoutSession = $checkoutSession;
+        $this->utilities = $utilities;
         $this->config = $config;
 
         // Try to load a quote
@@ -142,16 +149,20 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     /**
      * Handles the order placing process.
      */
-    protected function placeOrder($response = null) {
+    protected function placeOrder($response = []) {
         try {
             // Get the reserved order increment id
             $reservedIncrementId = $this->quoteHandler
                 ->getReference($this->quote);
 
             // Create an order
-            $order = $this->orderHandler->setMethodId($this->methodId)
-                ->setPaymentData($response)
+            $order = $this->orderHandler
+                ->setMethodId($this->methodId)
                 ->placeOrder($reservedIncrementId);
+
+            // Add the payment info to the order
+            $order = $this->utilities
+                ->setPaymentData($order, $response);
 
             return $order;
         }

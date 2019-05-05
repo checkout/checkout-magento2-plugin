@@ -36,9 +36,19 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     protected $apiHandler;
 
     /**
+     * @var OrderHandlerService
+     */
+    protected $orderHandler;
+
+    /**
      * @var Config
      */
     protected $config;
+
+    /**
+     * @var Utilities
+     */
+    protected $utilities;
 
     /**
      * OrderSaveBefore constructor.
@@ -48,13 +58,17 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         \Magento\Framework\App\Request\Http $request,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
         $this->remoteAddress = $remoteAddress;
         $this->apiHandler = $apiHandler;
+        $this->orderHandler = $orderHandler;
         $this->config = $config;
+        $this->utilities = $utilities;
 
         // Get the request parameters
         $this->params = $this->request->getParams();
@@ -101,7 +115,12 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
             // Process the response
             $success = $this->apiHandler->isValidResponse($response);
-            if (!$success) {
+
+            //  Add the response to the order
+            if ($success) {
+                $this->utilities->setPaymentData($order, $response);
+            }
+            else {
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('The transaction could not be processed.')
                 );

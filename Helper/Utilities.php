@@ -32,4 +32,37 @@ class Utilities {
             $this->customerSession->authenticate();
         }    
     }
+
+    /**
+     * Get the gateway payment information from an order
+     */
+    public function getPaymentData($order)
+    {
+        try {
+            return $order->getPayment()->getMethodInstance()->getInfoInstance();
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Add the gateway payment information to an order
+     */
+    public function setPaymentData($order, $data)
+    {
+        try {
+            // Get the payment info instance
+            $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();
+
+            // Add the transaction info for order save after
+            $paymentInfo->setAdditionalInformation(
+                'transaction_info',
+                (array) $data
+            );
+
+            return $order;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }

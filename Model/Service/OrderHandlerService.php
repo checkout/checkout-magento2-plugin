@@ -96,17 +96,6 @@ class OrderHandlerService
     }
 
     /**
-     * Set payment data for transactions
-     */
-    public function setPaymentData($paymentData) {
-        if ($paymentData) {
-            $this->paymentData = (array) $paymentData;
-        }
-
-        return $this;
-    }
-
-    /**
      * Places an order if not already created
      */
     public function placeOrder($reservedIncrementId = '')
@@ -128,7 +117,7 @@ class OrderHandlerService
                         $order = $this->quoteManagement->submit($quote);
 
                         // Process the transactions for the order
-                        $this->processTransactions($quote, $order);
+                        $this->processTransactions($order);
 
                         // Set the order status
                         $order->setStatus(
@@ -205,7 +194,7 @@ class OrderHandlerService
             // Create the search instance
             $search = $this->searchBuilder->create();
 
-            // Get the resultin order
+            // Get the resulting order
             $order = $this->orderRepository
                 ->getList($search)
                 ->getFirstItem();
@@ -220,34 +209,33 @@ class OrderHandlerService
     /**
      * Handle the order transactions
      */
-    public function processTransactions($quote, $order)
+    public function processTransactions($order)
     {
-        // Handle the transactions 
+
+        // Create the authorization transaction
+        $transactionId = $this->transactionHandler->createTransaction
+        (
+            $order,
+            Transaction::TYPE_AUTH
+        );
+
+        // Create the capture transaction
         if ($this->config->needsAutoCapture($this->methodId)) {
             // Create the transaction
             $transactionId = $this->transactionHandler->createTransaction
             (
                 $order,
-                Transaction::TYPE_CAPTURE,
-                $this->paymentData
-            );
-        } else {
-            // Update order status
-            // Todo - Add order status handling settings
-            /*
-            $order->setStatus(
-                $this->config->params[Core::moduleId()][Connector::KEY_ORDER_STATUS_AUTHORIZED]
-            );
-            */
-
-            // Create the transaction
-            $transactionId = $this->transactionHandler->createTransaction
-            (
-                $order,
-                Transaction::TYPE_AUTH,
-                $this->paymentData
+                Transaction::TYPE_CAPTURE
             );
         }
+
+        // Update order status
+        // Todo - Add order status handling settings
+        /*
+        $order->setStatus(
+            $this->config->params[Core::moduleId()][Connector::KEY_ORDER_STATUS_AUTHORIZED]
+        );
+        */
     }  
 
     /**
@@ -276,4 +264,5 @@ class OrderHandlerService
             return false;
         }
     }
+
 }
