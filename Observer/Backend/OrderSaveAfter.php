@@ -11,6 +11,7 @@
 namespace CheckoutCom\Magento2\Observer\Backend;
 
 use Magento\Framework\Event\Observer;
+use Magento\Sales\Model\Order\Payment\Transaction;
 
 class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
 {
