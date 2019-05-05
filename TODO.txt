@@ -7,8 +7,9 @@
 - check issue with default button state
 
 - check after multiple failed requests (add idempotency?)
--  add  guest user email Retrieval for checkout
--  add vault feature
+- add  guest user email Retrieval for checkout
+- add vault feature
+- add MOTO partial capture feature?
 
 SDK
 - fix typo in sdk  => 'The endpoint did not accepted the request' 
