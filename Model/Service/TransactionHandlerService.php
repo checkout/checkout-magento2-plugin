@@ -75,7 +75,8 @@ class TransactionHandlerService
     public function createTransaction($order, $transactionMode)
     {
         // Get a transaction id
-        $tid = $this->getTransactionId($order);
+        $paymentData = $this->utilities->getPaymentData($order);
+        $tid = $paymentData['id'];
 
         // Get a method id
         $methodId = $order->getPayment()
@@ -89,14 +90,6 @@ class TransactionHandlerService
             $payment->setMethod($methodId);
             $payment->setLastTransId($tid);
             $payment->setTransactionId($tid);
-            // Todo - Add transaction info
-            /*
-            $payment->setAdditionalInformation(
-                [
-                    Transaction::RAW_DETAILS => $paymentData
-                ]
-            );
-            */
 
             // Formatted price
             $formatedPrice = $order->getBaseCurrency()
@@ -109,18 +102,15 @@ class TransactionHandlerService
                 ->setPayment($payment)
                 ->setOrder($order)
                 ->setTransactionId($tid)
-                // Todo - Add transaction info
-                /*
                 ->setAdditionalInformation(
                     [
-                        Transaction::RAW_DETAILS => $paymentData
+                        Transaction::RAW_DETAILS => $this->buildDataArray($paymentData)
                     ]
                 )
-                */
                 ->setFailSafe(true)
                 ->build($transactionMode);
 
-            // Add authorization transaction to payment if needed
+            // Add an authorization transaction to the payment
             if ($transactionMode == Transaction::TYPE_AUTH) {
                 $payment->addTransactionCommentsToOrder(
                     $transaction,
@@ -146,11 +136,28 @@ class TransactionHandlerService
     }
 
     /**
-     * Get a gateway transaction id.
+     * Build a flat array from the gateway response.
      */
-    public function getTransactionId($order) {
-        $paymentData = $this->utilities->getPaymentData($order);
-        return isset($paymentData['id']) ? $paymentData['id'] : 'cko_' . time();
+    public function buildDataArray($gatewayResponse) {
+        // Prepare the output array
+        $output = [];
+
+        // Remove the _links key
+        if (isset($gatewayResponse['_links'])) unset($gatewayResponse['_links']);
+
+        // Process the remaining data
+        foreach ($gatewayResponse as $key => $val) {
+            if (is_array($val)) {
+                foreach ($val as $k => $v) {
+                    $output[$key . '_' . $k] = $v;
+                }
+            }
+            else  {
+                $output[$key] = $val;
+            }
+        }
+
+        return $output;
     }
 
     /**
