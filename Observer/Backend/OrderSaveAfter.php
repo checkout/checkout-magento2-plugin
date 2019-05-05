@@ -47,8 +47,8 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
         // Get the method id
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
+        // Create the authorization transaction
         if ($this->backendAuthSession->isLoggedIn() && $methodId == 'checkoutcom_moto') {
-            // Create the authorization transaction
             $this->transactionHandler->createTransaction
             (
                 $order,
