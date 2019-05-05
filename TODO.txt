@@ -1,6 +1,5 @@
 - add web hook handling feature
 - add instant payments feature
-- add MOTO feature
 - add void, and refund to orders 
 - add MADA payment card bin check
 - add order status actions for capture, refund, void, flagged
