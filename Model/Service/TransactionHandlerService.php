@@ -145,6 +145,9 @@ class TransactionHandlerService
         }
     }
 
+    /**
+     * Get a gateway transaction id.
+     */
     public function getTransactionId($order) {
         $paymentData = $this->utilities->getPaymentData($order);
         return isset($paymentData['id']) ? $paymentData['id'] : 'cko_' . time();
