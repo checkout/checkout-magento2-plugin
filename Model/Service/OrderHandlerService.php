@@ -211,34 +211,6 @@ class OrderHandlerService
     }
 
     /**
-     * Handle the order transactions
-     */
-    public function processTransactions($order)
-    {
-
-        // Create the capture transaction
-        // Todo - Move this to webhook callback handler
-        /*
-        if ($this->config->needsAutoCapture($this->methodId)) {
-            // Create the transaction
-            $transactionId = $this->transactionHandler->createTransaction
-            (
-                $order,
-                Transaction::TYPE_CAPTURE
-            );
-        }
-        */
-
-        // Update order status
-        // Todo - Add order status handling settings
-        /*
-        $order->setStatus(
-            $this->config->params[Core::moduleId()][Connector::KEY_ORDER_STATUS_AUTHORIZED]
-        );
-        */
-    }  
-
-    /**
      * Tasks after place order
      */
     public function afterPlaceOrder($quote = null, $order = null)
