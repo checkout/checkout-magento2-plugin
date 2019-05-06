@@ -24,16 +24,6 @@ class Utilities {
     }
 
     /**
-     * Force authentication if the user is not logged in.
-     */    
-    public function isUserLoggedIn() {
-        if (!$this->customerSession->isLoggedIn()) {
-            $this->customerSession->setAfterAuthUrl($this->urlInterface->getCurrentUrl());
-            $this->customerSession->authenticate();
-        }    
-    }
-
-    /**
      * Get the gateway payment information from an order
      */
     public function getPaymentData($order)
