@@ -72,10 +72,10 @@ class TransactionHandlerService
     /**
      * Create a transaction for an order.
      */
-    public function createTransaction($order, $transactionMode)
+    public function createTransaction($order, $transactionMode, $data = [])
     {
         // Get a transaction id
-        $paymentData = $this->utilities->getPaymentData($order);
+        $paymentData = count($data) > 0 ? $data : $this->utilities->getPaymentData($order);
         $tid = $paymentData['id'];
 
         // Get a method id

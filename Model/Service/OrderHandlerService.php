@@ -98,7 +98,7 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function placeOrder($reservedIncrementId = '')
+    public function placeOrder($reservedIncrementId = '', $paymentData = [])
     {
         if ($this->methodId) {
             try {
@@ -120,7 +120,8 @@ class OrderHandlerService
                         $this->transactionHandler->createTransaction
                         (
                             $order,
-                            Transaction::TYPE_AUTH
+                            Transaction::TYPE_AUTH,
+                            $paymentData
                         );
                     }
                 }
