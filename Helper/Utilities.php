@@ -4,6 +4,16 @@ namespace CheckoutCom\Magento2\Helper;
 
 class Utilities {
 
+    /**
+     * @var UrlInterface
+     */
+    protected $urlInterface;
+
+    /**
+     * @var Session
+     */
+    protected $customerSession;
+
 	/**
      * Utilities constructor.
      */
