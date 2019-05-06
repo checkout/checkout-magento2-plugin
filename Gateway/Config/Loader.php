@@ -111,7 +111,7 @@ class Loader
             return $dbData;
         }
         catch(\Exception $e) {
-            throw new \Magento\Framework\Exception\Exception(
+            throw new \Magento\Framework\Exception\LocalizedException(
                 __(
                     "The module configuration file can't be loaded" . " - "
                     . $e->getMessage()
