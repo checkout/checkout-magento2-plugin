@@ -135,12 +135,6 @@ class OrderHandlerService
                 return $order;
 
             } catch (\Exception $e) {
-
-                $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/mess.log');
-                $logger = new \Zend\Log\Logger();
-                $logger->addWriter($writer);
-                $logger->info(print_r($e->getMessage(), 1));
-
                 return false;
             }
         }
