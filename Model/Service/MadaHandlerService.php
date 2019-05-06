@@ -4,6 +4,22 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 class MadaHandlerService
 {
+
+    /**
+     * @var Reader
+     */
+    protected $directoryReader;
+
+    /**
+     * @var Csv
+     */
+    protected $csvParser;
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
     /**
      * @param Context $context
      */
