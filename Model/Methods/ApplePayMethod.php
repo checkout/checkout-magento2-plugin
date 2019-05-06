@@ -12,15 +12,10 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     const CODE = 'checkoutcom_apple_pay';
 
     /**
-     * @var array
-     */
-    const FIELDS = array('title', 'certificate', 'certificate_key', 'theme', 'active', 'public_key');
-
-    /**
      * @var string
      * @overriden
      */
-    protected $_code = ApplePayMethod::CODE;
+    protected $_code = self::CODE;
 
     protected $_isInitializeNeeded = true;
     protected $_isGateway = true;

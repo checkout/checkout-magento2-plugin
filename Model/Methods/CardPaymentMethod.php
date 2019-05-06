@@ -14,15 +14,9 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     const CODE = 'checkoutcom_card_payment';
 
     /**
-     * @var array
-     */
-    const FIELDS = array('title', 'environment', 'public_key', 'type', 'action', '3ds_enabled', 'attempt_n3d', 'save_cards_enabled', 'save_cards_title', 'dynamic_decriptor_enabled', 'decriptor_name', 'decriptor_city', 'cvv_optional', 'mada_enabled', 'active');
-
-    /**
      * @var string
-     * @overriden
      */
-    protected $_code = CardPaymentMethod::CODE;
+    protected $_code = self::CODE;
 
     protected $_isInitializeNeeded = true;
     protected $_isGateway = true;
