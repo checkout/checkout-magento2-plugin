@@ -190,13 +190,13 @@
                         <config_path>payment/checkoutcom_apm/active</config_path>
                     </field>
 
-                    <field id="apm" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="apm_enabled" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Alternative Payments</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigAlternativePayments</source_model>
                         <depends>
                             <field id="active">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_apm/apm</config_path>
+                        <config_path>payment/checkoutcom_apm/apm_enabled</config_path>
                     </field>
                 </group>
 

@@ -48,10 +48,7 @@ class Display extends \Magento\Framework\App\Action\Action {
             // Get the list of APM
             $html = '';
             $apmList = explode(',', 
-                $this->config->getValue(
-                    'apm',
-                    'checkoutcom_apm'
-                )
+                $this->config->getValue('apm_enabled', 'checkoutcom_apm')
             );
 
             // Load block data for each APM

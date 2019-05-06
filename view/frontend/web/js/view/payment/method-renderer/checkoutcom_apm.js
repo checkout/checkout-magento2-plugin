@@ -72,7 +72,7 @@ define([
                  * @returns {array}
                  */
                 getApmList: function () {
-                    this.apmList = this.getValue('apm').split(',');
+                    this.apmList = this.getValue('apm_enabled').split(',');
                 },
 
                 /**
