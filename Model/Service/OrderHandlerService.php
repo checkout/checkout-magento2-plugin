@@ -98,7 +98,7 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function placeOrder($reservedIncrementId = '', $paymentData = [])
+    public function placeOrder($reservedIncrementId = '', $paymentData = null)
     {
         if ($this->methodId) {
             try {

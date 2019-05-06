@@ -123,7 +123,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
 
                     // Handle the order placement
                     else if ($success && empty($redirectionUrl)) {
-                        $order = $this->placeOrder($response);
+                        $order = $this->placeOrder((array) $response);
                     }
 
                     if (!($success && $this->orderHandler->isOrder($order))) {
@@ -149,7 +149,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     /**
      * Handles the order placing process.
      */
-    protected function placeOrder($response = []) {
+    protected function placeOrder($response = null) {
         try {
             // Get the reserved order increment id
             $reservedIncrementId = $this->quoteHandler
