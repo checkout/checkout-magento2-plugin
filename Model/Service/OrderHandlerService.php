@@ -111,7 +111,7 @@ class OrderHandlerService
                 // Create the order
                 if (!$this->isOrder($order)) {
                     // Prepare the quote
-                    $quote = $this->quoteHandler->prepareQuote($filters);
+                    $quote = $this->quoteHandler->prepareQuote($filters, $this->methodId);
                     if ($quote) {
                         // Create the order
                         $order = $this->quoteManagement->submit($quote);
@@ -134,6 +134,12 @@ class OrderHandlerService
                 return $order;
 
             } catch (\Exception $e) {
+
+                $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/mess.log');
+                $logger = new \Zend\Log\Logger();
+                $logger->addWriter($writer);
+                $logger->info(print_r($e->getMessage(), 1));
+
                 return false;
             }
         }

@@ -124,7 +124,7 @@ class QuoteHandlerService
     /**
      * Prepares a quote for order placement
      */
-    public function prepareQuote($fields = [])
+    public function prepareQuote($fields = [], $methodId)
     {
         // Find quote and perform tasks
         $quote = $this->getQuote($fields);
@@ -139,7 +139,7 @@ class QuoteHandlerService
 
             // Set the payment information
             $payment = $quote->getPayment();
-            $payment->setMethod($this->methodId);
+            $payment->setMethod($methodId);
             $payment->save();
 
             return $quote;
