@@ -5,38 +5,32 @@
  */
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-use \CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
-
 /**
  * Class ConfigAlternativePayments
  */
 class ConfigAlternativePayments implements \Magento\Framework\Option\ArrayInterface
 {
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * ConfigAlternativePayments  constructor
+     */
+    public function __construct(
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
+    )
+    {
+        $this->config = $config;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function toOptionArray()
     {
-
-        $list = array();
-        foreach (AlternativePaymentMethod::PAYMENT_LIST as $key => $value) {
-            $list []= array(
-                'value' => $key,
-                'label' => $value
-            );
-        }
-
-        return $list;
-
-    }
-
-    /**
-     * Get options in "key-value" format
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return AlternativePaymentMethod::PAYMENT_LIST;
+        return $this->config->getValue('apm_list');
     }
 }

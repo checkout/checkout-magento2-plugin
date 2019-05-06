@@ -135,8 +135,8 @@ class Loader
         $apmArray = [];
         foreach ($csvData as $row) {
             $apmArray[] = [
-                'id' => $row[1],
-                'title' => $row[2]
+                'value' => $row[0],
+                'label' => __($row[1])
             ];
         }
 
