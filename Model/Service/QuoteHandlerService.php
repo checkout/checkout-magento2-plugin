@@ -103,15 +103,12 @@ class QuoteHandlerService
     /**
      * Get the order increment id from a quote
      */
-    public function getReference($quote = null)
+    public function getReference($quote)
     {
         try {
-            $entity = $quote ? $quote : $this->getQuote();
-            $reference = $entity->reserveOrderId()
-            ->save()
-            ->getReservedOrderId();
-
-            return $reference;
+            return $quote->reserveOrderId()
+                ->save()
+                ->getReservedOrderId();
         } catch (\Exception $e) {
             return null;
         }
