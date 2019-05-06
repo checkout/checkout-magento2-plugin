@@ -27,7 +27,6 @@ define([
                  */
                 initialize: function () {
                     this._super();
-                    this.getApmList();
                 },
 
                 /**
@@ -66,13 +65,6 @@ define([
                             console.log(error);
                         }
                     });
-                },
-
-                /**
-                 * @returns {array}
-                 */
-                getApmList: function () {
-                    this.apmList = this.getValue('apm_enabled').split(',');
                 },
 
                 /**
