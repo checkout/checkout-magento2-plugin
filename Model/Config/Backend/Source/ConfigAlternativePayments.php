@@ -20,10 +20,10 @@ class ConfigAlternativePayments implements \Magento\Framework\Option\ArrayInterf
      * ConfigAlternativePayments  constructor
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Loader $configLoader
     )
     {
-        $this->config = $config;
+        $this->configLoader = $configLoader;
     }
 
     /**
@@ -31,6 +31,6 @@ class ConfigAlternativePayments implements \Magento\Framework\Option\ArrayInterf
      */
     public function toOptionArray()
     {
-        return $this->config->getValue('apm_list');
+        return $this->configLoader->data['settings']['checkoutcom_configuration']['apm_list'];
     }
 }
