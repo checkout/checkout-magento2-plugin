@@ -13,6 +13,7 @@
                 <private_shared_key></private_shared_key>
                 <mada_test_file>Model/Files/Mada/mada_test.csv</mada_test_file>
                 <mada_live_file>Model/Files/Mada/mada_live.csv</mada_live_file>
+                <apm_file>Model/Files/Mada/apm_list.csv</apm_file>
                 <email_cookie_name>email</email_cookie_name>
                 <order_status_authorized>pending_payment</order_status_authorized>
                 <order_status_captured>processing</order_status_captured>
