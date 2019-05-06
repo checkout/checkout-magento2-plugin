@@ -158,20 +158,10 @@ class OrderHandlerService
     /**
      * Load an order
      */
-    public function getOrder($fields = [])
+    public function getOrder($fields)
     {
         try {
-            if ($fields && is_array($fields) && count($fields) > 0) {
-                return $this->findOrderByFields($fields);
-            }
-            else {
-                // Try to find and order id in session
-                return $this->orderRepository->get(
-                    $this->checkoutSession->getLastOrderId()
-                );
-            }
-
-            return false;
+            return $this->findOrderByFields($fields);
         } catch (\Exception $e) {
             return false;
         }
@@ -208,13 +198,9 @@ class OrderHandlerService
     /**
      * Tasks after place order
      */
-    public function afterPlaceOrder($quote = null, $order = null)
+    public function afterPlaceOrder($quote, $order)
     {
         try {
-            // Find the quote and the order
-            $quote = $quote ? $quote : $this->quoteHandler->getQuote();
-            $order = $order ? $order : $this->getOrder();
-
             // Prepare session quote info for redirection after payment
             $this->checkoutSession
                 ->setLastQuoteId($quote->getId())
