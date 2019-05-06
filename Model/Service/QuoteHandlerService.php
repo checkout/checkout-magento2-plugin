@@ -12,6 +12,11 @@ class QuoteHandlerService
     protected $checkoutSession;
 
     /**
+     * @var Session
+     */
+    protected $customerSession;
+
+    /**
      * @var CookieManagerInterface
      */
     protected $cookieManager;
@@ -41,6 +46,7 @@ class QuoteHandlerService
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -49,6 +55,7 @@ class QuoteHandlerService
     )
     {
         $this->checkoutSession = $checkoutSession;
+        $this->customerSession = $customerSession;
         $this->cookieManager = $cookieManager;
         $this->quoteFactory = $quoteFactory;
         $this->storeManager = $storeManager;
