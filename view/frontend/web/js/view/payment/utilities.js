@@ -23,7 +23,7 @@ define([
              * @param      {string}  field    The field
              * @return     {mixed}            The value
              */
-            getValue: function(methodId, field) { 
+            getValue: function(methodId, field) {
                 var val = null;
                 if (Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
                     val = Config[methodId][field]
@@ -150,7 +150,7 @@ define([
 
                 // Start the loader
                 FullScreenLoader.startLoader();
-                
+
                 // Send the request
                 $.ajax({
                     type: 'POST',

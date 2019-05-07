@@ -87,7 +87,7 @@ define([
                     FullScreenLoader.startLoader();
 
                     // Validate before submission
-                    if ($form.valid() && AdditionalValidators.validate()) {
+                    if (AdditionalValidators.validate()) {
 
                         // Serialize form.
                         $form.serializeArray().forEach(function (e) {
