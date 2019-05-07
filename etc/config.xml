@@ -7,13 +7,13 @@
                 <fields_hidden>secret_key,private_shared_key,email</fields_hidden>
                 <active>1</active>
                 <debug>0</debug>
-                <payment_action>1</payment_action>
                 <environment>1</environment>
                 <secret_key></secret_key>
                 <public_key></public_key>
                 <private_shared_key></private_shared_key>
                 <mada_test_file>Model/Files/Mada/mada_test.csv</mada_test_file>
                 <mada_live_file>Model/Files/Mada/mada_live.csv</mada_live_file>
+                <apm_file>Model/Files/Mada/apm_list.csv</apm_file>
                 <email_cookie_name>email</email_cookie_name>
                 <order_status_authorized>pending_payment</order_status_authorized>
                 <order_status_captured>processing</order_status_captured>
@@ -31,6 +31,7 @@
                 <can_capture>1</can_capture>
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_capture_vault>1</can_capture_vault>
+                <can_use_internal>0</can_use_internal>
                 <request_currency>USD</request_currency>
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>
@@ -40,7 +41,7 @@
                 <title>Pay by Card with Checkout.com</title>
                 <active>1</active>
                 <payment_action>authorize_capture</payment_action>
-                <capture_on>0</capture_on>        
+                <capture_time>0</capture_time>        
                 <sort_order>1</sort_order>
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>
@@ -57,6 +58,7 @@
                 <can_cancel>1</can_cancel>
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
+                <can_use_internal>0</can_use_internal>
                 <auto_generate_invoice>1</auto_generate_invoice>
             </checkoutcom_card_payment>
             <checkoutcom_apm>
@@ -71,8 +73,9 @@
                 <can_cancel>1</can_cancel>
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
+                <can_use_internal>0</can_use_internal>
                 <auto_generate_invoice>1</auto_generate_invoice>
-                <apm></apm>
+                <apm_enabled></apm_enabled>
             </checkoutcom_apm>
             <checkoutcom_google_pay>
                 <model>CheckoutCom\Magento2\Model\Methods\GooglePayMethod</model>
@@ -86,6 +89,7 @@
                 <can_cancel>1</can_cancel>
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
+                <can_use_internal>0</can_use_internal>
                 <auto_generate_invoice>1</auto_generate_invoice>
                 <gateway_name>checkoutltd</gateway_name>
                 <allowed_card_networks>VISA,MASTERCARD</allowed_card_networks>
@@ -105,6 +109,7 @@
                 <can_cancel>1</can_cancel>
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
+                <can_use_internal>0</can_use_internal>
                 <auto_generate_invoice>1</auto_generate_invoice>
                 <processing_certificate>/path/to/cert</processing_certificate>
                 <processing_certificate_password></processing_certificate_password>
@@ -114,6 +119,28 @@
                 <merchant_capabilities>supportsCredit,supportsDebit</merchant_capabilities>
                 <button_style>black</button_style>
             </checkoutcom_apple_pay>
+            <checkoutcom_moto>
+                <model>CheckoutCom\Magento2\Model\Methods\MotoMethod</model>
+                <title>MOTO Payments with Checkout.com</title>
+                <active>0</active>
+                <sort_order>0</sort_order>
+                <is_gateway>1</is_gateway>
+                <payment_action>authorize_capture</payment_action>                
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
+                <can_use_internal>1</can_use_internal>
+                <can_charge_details>1</can_charge_details>
+                <can_use_checkout>0</can_use_checkout>
+                <auto_generate_invoice>1</auto_generate_invoice>
+                <environment>1</environment>
+                <secret_key></secret_key>
+                <public_key></public_key>
+                <private_shared_key></private_shared_key>
+            </checkoutcom_moto>
         </payment>
     </default>
 </config>

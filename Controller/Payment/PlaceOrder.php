@@ -3,7 +3,7 @@
 namespace CheckoutCom\Magento2\Controller\Payment;
 
 class PlaceOrder extends \Magento\Framework\App\Action\Action {
-    
+
     /**
      * @var QuoteHandlerService
      */
@@ -28,11 +28,16 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      * @var JsonFactory
      */
     protected $jsonFactory;
-     
+
     /**
      * @var Session
      */
     protected $checkoutSession;
+
+    /**
+     * @var Utilities
+     */
+    protected $utilities;
 
     /**
      * @var Config
@@ -65,6 +70,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
     {
@@ -76,13 +82,14 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->checkoutSession = $checkoutSession;
+        $this->utilities = $utilities;
         $this->config = $config;
 
         // Try to load a quote
         $this->quote = $this->quoteHandler->getQuote();
 
         // Set some required properties
-        $this->methodId = $this->getRequest()->getParam('methodId');
+        $this->data = $this->getRequest()->getParams();
         $this->cardToken = $this->getRequest()->getParam('cardToken');
     }
 
@@ -99,7 +106,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                     // Send the charge request
                     $response = $this->methodHandler->get($this->methodId)
                         ->sendPaymentRequest(
-                            $this->cardToken, 
+                            $this->data,
                             $this->quote->getGrandTotal(),
                             $this->quote->getQuoteCurrencyCode(),
                             $this->quoteHandler->getReference($this->quote)
@@ -116,7 +123,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
 
                     // Handle the order placement
                     else if ($success && empty($redirectionUrl)) {
-                        $order = $this->placeOrder($response);
+                        $order = $this->placeOrder((array) $response);
                     }
 
                     if (!($success && $this->orderHandler->isOrder($order))) {
@@ -126,7 +133,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             }
             catch(\Exception $e) {
                 $message = __($e->getMessage());
-            }   
+            }
         }
         else {
             $message = __('Invalid request.');
@@ -149,14 +156,18 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                 ->getReference($this->quote);
 
             // Create an order
-            $order = $this->orderHandler->setMethodId($this->methodId)
-                ->setPaymentData($response)
-                ->placeOrder($reservedIncrementId);
+            $order = $this->orderHandler
+                ->setMethodId($this->methodId)
+                ->placeOrder($reservedIncrementId, $response);
+
+            // Add the payment info to the order
+            $order = $this->utilities
+                ->setPaymentData($order, $response);
 
             return $order;
         }
         catch(\Exception $e) {
             return false;
-        }   
+        }
     }
 }

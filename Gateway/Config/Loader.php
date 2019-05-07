@@ -40,6 +40,16 @@ class Loader
     protected $encryptor;
 
     /**
+     * @var Reader
+     */
+    protected $directoryReader;
+
+    /**
+     * @var Csv
+     */
+    protected $csvParser;
+
+    /**
      * Loader constructor
      */
     public function __construct(
@@ -47,13 +57,17 @@ class Loader
         \Magento\Framework\Xml\Parser $xmlParser,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Encryption\EncryptorInterface $encryptor
+        \Magento\Framework\Encryption\EncryptorInterface $encryptor,
+        \Magento\Framework\Module\Dir\Reader $directoryReader,
+        \Magento\Framework\File\Csv $csvParser
     ) {
         $this->moduleDirReader = $moduleDirReader;
         $this->xmlParser = $xmlParser;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->encryptor = $encryptor;
+    	$this->directoryReader = $directoryReader;
+    	$this->csvParser = $csvParser;
 
         $this->data = $this->getConfigFileData();
     }
@@ -91,16 +105,42 @@ class Loader
                 }
             }
 
+            // Load the APM list
+            $dbData['settings']['checkoutcom_configuration']['apm_list'] = $this->loadApmList();
+
             return $dbData;
         }
         catch(\Exception $e) {
-            throw new \Magento\Framework\Exception\Exception(
+            throw new \Magento\Framework\Exception\LocalizedException(
                 __(
                     "The module configuration file can't be loaded" . " - "
                     . $e->getMessage()
                 )
             );          
         }
+    }
+
+    private function loadApmList() {
+        // Get the CSV path
+        $csvPath = $this->directoryReader->getModuleDir('', 
+        'CheckoutCom_Magento2') . '/' . $this->getValue('apm_file');
+
+        // Load the data
+        $csvData = $this->csvParser->getData($csvPath);
+
+        // Remove the first row of csv columns
+        unset($csvData[0]);
+
+        // Build the APM array
+        $apmArray = [];
+        foreach ($csvData as $row) {
+            $apmArray[] = [
+                'value' => $row[0],
+                'label' => __($row[1])
+            ];
+        }
+
+        return $apmArray;
     }
 
     private function getConfigFilePath() {

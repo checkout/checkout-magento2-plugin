@@ -47,16 +47,13 @@ class Display extends \Magento\Framework\App\Action\Action {
         if ($this->getRequest()->isAjax()) {
             // Get the list of APM
             $html = '';
-            $apmList = explode(',', 
-                $this->config->getValue(
-                    'apm',
-                    'checkoutcom_apm'
-                )
+            $apmEnabled = explode(',', 
+                $this->config->getValue('apm_enabled', 'checkoutcom_apm')
             );
 
             // Load block data for each APM
-            if (count($apmList) > 0) {
-                foreach ($apmList as $apmId) {
+            if (count($apmEnabled) > 0) {
+                foreach ($apmEnabled as $apmId) {
                     $html .= $this->loadBlock($apmId);
                 }
             }

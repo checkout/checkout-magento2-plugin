@@ -76,8 +76,11 @@
                             <config_path>settings/checkoutcom_configuration/order_status_flagged</config_path>
                             <comment>Select the status that should be used for flagged orders.</comment>
                         </field>
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upa
                     </group>
                 </group>
 
@@ -100,13 +103,13 @@
                         <config_path>payment/checkoutcom_card_payment/payment_action</config_path>
                     </field>
 
-                    <field id="capture_on" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Capture On</label>
+                    <field id="capture_time" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Capture Time</label>
                         <depends>
                             <field id="payment_action">authorize_capture</field>
                         </depends>
-                        <frontend_model>CheckoutCom\Magento2\Block\Widgets\DatePicker</frontend_model>
-                        <config_path>payment/checkoutcom_card_payment/capture_on</config_path>
+                        <config_path>payment/checkoutcom_card_payment/capture_time</config_path>
+                        <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
                     </field>
 
                     <field id="three_ds" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -138,6 +141,21 @@
                         <config_path>payment/checkoutcom_card_payment/save_cards_title</config_path>
                     </field>
 
+                    <field id="cvv_optional" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>CVV Optional</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_card_payment/cvv_optional</config_path>
+                    </field>
+
+                    <field id="mada_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable MADA BIN Check</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_card_payment/mada_enabled</config_path>
+                        <comment>
+                            Add a flag to the charge request if the payment card is MADA.
+                        </comment>
+                    </field>
+
                     <field id="dynamic_decriptor_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Dynamic Descriptor</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -162,21 +180,6 @@
                         </depends>
                         <config_path>payment/checkoutcom_card_payment/decriptor_city</config_path>
                     </field>
-
-                    <field id="cvv_optional" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>CVV Optional</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/cvv_optional</config_path>
-                    </field>
-
-                    <field id="mada_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Enable MADA BIN Check</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/mada_enabled</config_path>
-                        <comment>
-                            Add a flag to the charge request if the payment card is MADA.
-                        </comment>
-                    </field>
                 </group>
 
                 <group id="checkoutcom_apm" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -192,13 +195,13 @@
                         <config_path>payment/checkoutcom_apm/active</config_path>
                     </field>
 
-                    <field id="apm" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="apm_enabled" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Alternative Payments</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigAlternativePayments</source_model>
                         <depends>
                             <field id="active">1</field>
                         </depends>
-                        <config_path>payment/checkoutcom_apm/apm</config_path>
+                        <config_path>payment/checkoutcom_apm/apm_enabled</config_path>
                     </field>
                 </group>
 
@@ -353,6 +356,41 @@
                         <label>Sort Order</label>
                         <validate>validate-number</validate>
                         <config_path>payment/checkoutcom_vault/sort_order</config_path>
+                    </field>
+                </group>
+
+                <group id="checkoutcom_moto" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>MOTO Payments</label>
+                    <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>MOTO Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_moto/active</config_path>
+                    </field>
+
+                    <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkoutcom_moto/title</config_path>
+                    </field>
+
+                    <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment Action</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
+                        <config_path>payment/checkoutcom_card_payment/payment_action</config_path>
+                    </field>
+
+                    <field id="capture_time" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Capture Time</label>
+                        <depends>
+                            <field id="payment_action">authorize_capture</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_card_payment/capture_time</config_path>
+                        <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
+                    </field>
+
+                    <field id="sort_order" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort Order</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkoutcom_moto/sort_order</config_path>
                     </field>
                 </group>
             </group>

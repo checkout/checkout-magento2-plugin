@@ -4,6 +4,16 @@ namespace CheckoutCom\Magento2\Helper;
 
 class Utilities {
 
+    /**
+     * @var UrlInterface
+     */
+    protected $urlInterface;
+
+    /**
+     * @var Session
+     */
+    protected $customerSession;
+
 	/**
      * Utilities constructor.
      */
@@ -19,23 +29,45 @@ class Utilities {
 	/**
      * Convert a date string to ISO8601 format.
      */
-    public function formatDate($dateString) {
+    public function formatDate($timestamp) {
+        return gmdate("Y-m-d\TH:i:s\Z", $timestamp); 
+    }
+
+    /**
+     * Get the gateway payment information from an order
+     */
+    public function getPaymentData($order)
+    {
         try {
-            $datetime = new \DateTime($dateString);
-            return $datetime->format(\DateTime::ATOM);
-        } 
-        catch(\Exception $e) {
-            return null;
+            $paymentData = $order->getPayment()
+            ->getMethodInstance()
+            ->getInfoInstance()
+            ->getData();
+
+            return $paymentData['additional_information']['transaction_info'];
+        } catch (\Exception $e) {
+            return false;
         }
     }
 
     /**
-     * Force authentication if the user is not logged in.
-     */    
-    public function isUserLoggedIn() {
-        if (!$this->customerSession->isLoggedIn()) {
-            $this->customerSession->setAfterAuthUrl($this->urlInterface->getCurrentUrl());
-            $this->customerSession->authenticate();
-        }    
+     * Add the gateway payment information to an order
+     */
+    public function setPaymentData($order, $data)
+    {
+        try {
+            // Get the payment info instance
+            $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();
+
+            // Add the transaction info for order save after
+            $paymentInfo->setAdditionalInformation(
+                'transaction_info',
+                (array) $data
+            );
+
+            return $order;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }

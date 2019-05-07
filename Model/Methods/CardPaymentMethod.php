@@ -8,22 +8,27 @@ use \Checkout\Models\Payments\ThreeDs;
 
 class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
-
 	/**
      * @var string
      */
     const CODE = 'checkoutcom_card_payment';
 
     /**
-     * @var array
-     */
-    const FIELDS = array('title', 'environment', 'public_key', 'type', 'action', '3ds_enabled', 'attempt_n3d', 'save_cards_enabled', 'save_cards_title', 'dynamic_decriptor_enabled', 'decriptor_name', 'decriptor_city', 'cvv_optional', 'mada_enabled', 'active');
-
-    /**
      * @var string
-     * @overriden
      */
-    protected $_code = CardPaymentMethod::CODE;
+    protected $_code = self::CODE;
+
+    protected $_isInitializeNeeded = true;
+    protected $_isGateway = true;
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
+    protected $_canCancel = true;
+    protected $_canCapturePartial = true;
+    protected $_canVoid = true;
+    protected $_canUseInternal = false;
+    protected $_canUseCheckout = true;
+    protected $_canRefund = true;
+    protected $_canRefundInvoicePartial = true;
 
     /**
      * @var RemoteAddress
@@ -102,19 +107,19 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 	/**
      * Send a charge request.
      */
-    public function sendPaymentRequest($cardToken, $amount, $currency, $reference = '') {
+    public function sendPaymentRequest($data, $amount, $currency, $reference = '') {
         try {
             // Set the token source
-            $tokenSource = new TokenSource($cardToken);
+            $tokenSource = new TokenSource($data['cardToken']);
 
             // Set the payment
             $request = new Payment(
-                $tokenSource, 
+                $tokenSource,
                 $currency
             );
 
             // Prepare the capture date setting
-            $captureDate = $this->config->getCaptureDate($this->_code);
+            $captureDate = $this->config->getCaptureTime($this->_code);
 
             // Prepare the MADA setting
             $madaEnabled = (bool) $this->config->getValue('mada_enabled', $this->_code);
@@ -130,7 +135,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->description = __('Payment request from %1', $this->config->getStoreName());
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             if ($captureDate) {
-                $request->capture_on = $this->config->getCaptureDate($this->_code);
+                $request->capture_time = $this->config->getCaptureTime($this->_code);
             }
             // Todo - add the card BIN check
             if ($madaEnabled) {
@@ -143,7 +148,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 ->request($request);
 
             return $response;
-        }   
+        }
 
         catch(\Exception $e) {
 

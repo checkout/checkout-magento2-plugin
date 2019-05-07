@@ -12,6 +12,11 @@ class QuoteHandlerService
     protected $checkoutSession;
 
     /**
+     * @var Session
+     */
+    protected $customerSession;
+
+    /**
      * @var CookieManagerInterface
      */
     protected $cookieManager;
@@ -41,6 +46,7 @@ class QuoteHandlerService
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -49,6 +55,7 @@ class QuoteHandlerService
     )
     {
         $this->checkoutSession = $checkoutSession;
+        $this->customerSession = $customerSession;
         $this->cookieManager = $cookieManager;
         $this->quoteFactory = $quoteFactory;
         $this->storeManager = $storeManager;
@@ -103,18 +110,42 @@ class QuoteHandlerService
     /**
      * Get the order increment id from a quote
      */
-    public function getReference($quote = null)
+    public function getReference($quote)
     {
         try {
-            $entity = $quote ? $quote : $this->getQuote();
-            $reference = $entity->reserveOrderId()
-            ->save()
-            ->getReservedOrderId();
-
-            return $reference;
+            return $quote->reserveOrderId()
+                ->save()
+                ->getReservedOrderId();
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * Prepares a quote for order placement
+     */
+    public function prepareQuote($fields = [], $methodId)
+    {
+        // Find quote and perform tasks
+        $quote = $this->getQuote($fields);
+        if ($this->isQuote($quote)) {
+            // Prepare the inventory
+            $quote->setInventoryProcessed(false);
+
+            // Check for guest user quote
+            if ($this->customerSession->isLoggedIn() === false) {
+                $quote = $this->prepareGuestQuote($quote);
+            }
+
+            // Set the payment information
+            $payment = $quote->getPayment();
+            $payment->setMethod($methodId);
+            $payment->save();
+
+            return $quote;
+        }
+
+        return null;
     }
 
     /**
@@ -140,7 +171,6 @@ class QuoteHandlerService
         return $quote;
     }
 
-     
     /**
      * Gets an array of quote parameters
      */

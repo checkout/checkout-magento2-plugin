@@ -2,14 +2,14 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use CheckoutCom\Magento2\Gateway\Config\Config;
 use \Checkout\Models\Payments\Payment;
+use \Checkout\Models\Payments\PoliSource;
+use \Checkout\Models\Payments\IdealSource;
 use \Checkout\Models\Payments\AlipaySource;
 use \Checkout\Models\Payments\BoletoSource;
-use \Checkout\Models\Payments\GiropaySource;
-use \Checkout\Models\Payments\IdealSource;
-use \Checkout\Models\Payments\PoliSource;
 use \Checkout\Models\Payments\SofortSource;
+use \Checkout\Models\Payments\GiropaySource;
+use CheckoutCom\Magento2\Gateway\Config\Config;
 
 class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -19,169 +19,38 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     const CODE = 'checkoutcom_apm';
 
-    /**
-     * @var string
-     */
-    const FIELD_ALTERNATIVES = 'apm';
-
-    /**
-     * @var string
-     */
-    const FIELD_ACTIVE = 'active';
-
-    /**
-     * @var string
-     */
-    const FIELD_TITLE = 'title';
-
-    /**
-     * @var array
-     */
-    const FIELDS = array(AlternativePaymentMethod::FIELD_TITLE,
-                        AlternativePaymentMethod::FIELD_ACTIVE,
-                        AlternativePaymentMethod::FIELD_ALTERNATIVES);
-
-    /**
-     * @var string
-     */
-    const PAYMENT_SEPA = 'sepa';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_ALIPAY = 'alipay';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_BOLETO = 'boleto';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_GIROPAY = 'giropay';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_IDEAL = 'ideal';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_POLI = 'poli';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_QIWI = 'qiwi';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_SAFETYPAY = 'safetypay';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_KLARNA = 'klarna';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_SOFORT = 'sofort';
-
-    /**
-     * @var array
-     */
-    const PAYMENT_LIST = array(
-        AlternativePaymentMethod::PAYMENT_SEPA => 'SEPA',
-        AlternativePaymentMethod::PAYMENT_ALIPAY => 'Alipay',
-        AlternativePaymentMethod::PAYMENT_BOLETO => 'Boleto',
-        AlternativePaymentMethod::PAYMENT_GIROPAY => 'Giropay',
-        AlternativePaymentMethod::PAYMENT_IDEAL => 'iDEAL',
-        AlternativePaymentMethod::PAYMENT_POLI => 'Poli',
-        //AlternativePaymentMethod::PAYMENT_QIWI => 'Qiwi',
-        //AlternativePaymentMethod::PAYMENT_SAFETYPAY => 'SafetyPay',
-        AlternativePaymentMethod::PAYMENT_KLARNA => 'Klarna',
-        AlternativePaymentMethod::PAYMENT_SOFORT => 'Sofort'
-    );
-
-    /**
-     * @var array
-     */
-    const PAYMENT_FIELDS = array(
-        AlternativePaymentMethod::PAYMENT_SEPA => AlternativePaymentMethod::PAYMENT_FIELDS_SEPA,
-        AlternativePaymentMethod::PAYMENT_ALIPAY => AlternativePaymentMethod::PAYMENT_FIELDS_ALIPAY,
-        AlternativePaymentMethod::PAYMENT_BOLETO => AlternativePaymentMethod::PAYMENT_FIELDS_BOLETO,
-        AlternativePaymentMethod::PAYMENT_GIROPAY => AlternativePaymentMethod::PAYMENT_FIELDS_GIROPAY,
-        AlternativePaymentMethod::PAYMENT_IDEAL => AlternativePaymentMethod::PAYMENT_FIELDS_IDEAL,
-        AlternativePaymentMethod::PAYMENT_POLI => AlternativePaymentMethod::PAYMENT_FIELDS_POLI,
-        //AlternativePaymentMethod::PAYMENT_QIWI => AlternativePaymentMethod::PAYMENT_FIELDS_QIWI,
-        //AlternativePaymentMethod::PAYMENT_SAFETYPAY => AlternativePaymentMethod::PAYMENT_FIELDS_SAFETYPAY,
-        AlternativePaymentMethod::PAYMENT_KLARNA => AlternativePaymentMethod::PAYMENT_FIELDS_KLARNA,
-        AlternativePaymentMethod::PAYMENT_SOFORT => AlternativePaymentMethod::PAYMENT_FIELDS_SOFORT
-    );
-
-    /**
-     * Required fields.
-     */
-
-    /**
-     * @var array
-     */
-    const PAYMENT_FIELDS_SEPA = array('first_name', 'last_name', 'account_iban', 'billing_descriptor', 'mandate_type');
-
-    /**
-     * @var array
-     */
-    const PAYMENT_FIELDS_ALIPAY = array();
-
-    /**
-     * @var array
-     */
-    const PAYMENT_FIELDS_BOLETO = array('customerName', 'birthDate', 'cpf');
-
-    /**
-     * @var array
-     */
-    const PAYMENT_FIELDS_GIROPAY = array('purpose', 'bic', 'iban');
-
-    /**
-     * @var array
-     */
-    const PAYMENT_FIELDS_IDEAL = array('bic', 'description');
-
-    /**
-     * @var array
-     */
-    const PAYMENT_FIELDS_POLI = array();
-
-    /**
-     * @var array
-     */
-    const PAYMENT_FIELDS_QIWI = array();
-
-    /**
-     * @var array
-     */
-    const PAYMENT_FIELDS_SAFETYPAY = array();
-
-    /**
-     * @var array
-     */
-    const PAYMENT_FIELDS_KLARNA = array();
-
-    /**
-     * @var array
-     */
-    const PAYMENT_FIELDS_SOFORT = array();
+    protected $_isInitializeNeeded = true;
+    protected $_isGateway = true;
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
+    protected $_canCancel = true;
+    protected $_canCapturePartial = true;
+    protected $_canVoid = true;
+    protected $_canUseInternal = false;
+    protected $_canUseCheckout = true;
+    protected $_canRefund = true;
+    protected $_canRefundInvoicePartial = true;
 
     /**
      * @var string
      * @overriden
      */
-    protected $_code = AlternativePaymentMethod::CODE;
+    protected $_code = self::CODE;
+
+    /**
+     * @var RemoteAddress
+     */
+    protected $remoteAddress;
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandler;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -206,6 +75,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         array $data = []
     ) {
         parent::__construct(
@@ -233,6 +105,50 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
+
+        $this->remoteAddress      = $remoteAddress;
+        $this->config             = $config;
+        $this->apiHandler         = $apiHandler;
+    }
+
+
+
+    /**
+     * Send a charge request.
+     */
+    public function sendPaymentRequest(array $data, $amount, $currency, $reference = '') {
+        try {
+            // Set the token source
+            $source = new AlipaySource();
+
+
+            // ----------------------------------------
+
+            // Set the payment
+            $request = new Payment(
+                $tokenSource,
+                $currency
+            );
+
+            // Set the request parameters
+            $request->capture = $this->config->needsAutoCapture($this->_code);
+            $request->amount = $amount*100;
+            $request->reference = $reference;
+            $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+            $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+
+            $request->description = __('Payment request from %1', $this->config->getStoreName());
+            $request->payment_ip = $this->remoteAddress->getRemoteAddress();
+
+
+Logger::write($request);
+
+            return;
+
+
+        } catch(\Exception $e) {
+
+        }
     }
 
 }

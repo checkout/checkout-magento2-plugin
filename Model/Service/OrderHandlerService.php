@@ -96,20 +96,9 @@ class OrderHandlerService
     }
 
     /**
-     * Set payment data for transactions
-     */
-    public function setPaymentData($paymentData) {
-        if ($paymentData) {
-            $this->paymentData = (array) $paymentData;
-        }
-
-        return $this;
-    }
-
-    /**
      * Places an order if not already created
      */
-    public function placeOrder($reservedIncrementId = '')
+    public function placeOrder($reservedIncrementId = '', $paymentData = null)
     {
         if ($this->methodId) {
             try {
@@ -122,17 +111,17 @@ class OrderHandlerService
                 // Create the order
                 if (!$this->isOrder($order)) {
                     // Prepare the quote
-                    $quote = $this->prepareQuote($filters);
+                    $quote = $this->quoteHandler->prepareQuote($filters, $this->methodId);
                     if ($quote) {
                         // Create the order
                         $order = $this->quoteManagement->submit($quote);
 
-                        // Process the transactions for the order
-                        $this->processTransactions($quote, $order);
-
-                        // Set the order status
-                        $order->setStatus(
-                            $this->config->getValue('order_status_authorized')
+                        // Create the authorization transaction
+                        $this->transactionHandler->createTransaction
+                        (
+                            $order,
+                            Transaction::TYPE_AUTH,
+                            $paymentData
                         );
                     }
                 }
@@ -170,20 +159,10 @@ class OrderHandlerService
     /**
      * Load an order
      */
-    public function getOrder($fields = [])
+    public function getOrder($fields)
     {
         try {
-            if ($fields && is_array($fields) && count($fields) > 0) {
-                return $this->findOrderByFields($fields);
-            }
-            else {
-                // Try to find and order id in session
-                return $this->orderRepository->get(
-                    $this->checkoutSession->getLastOrderId()
-                );
-            }
-
-            return false;
+            return $this->findOrderByFields($fields);
         } catch (\Exception $e) {
             return false;
         }
@@ -205,7 +184,7 @@ class OrderHandlerService
             // Create the search instance
             $search = $this->searchBuilder->create();
 
-            // Get the resultin order
+            // Get the resulting order
             $order = $this->orderRepository
                 ->getList($search)
                 ->getFirstItem();
@@ -218,75 +197,11 @@ class OrderHandlerService
     }
 
     /**
-     * Prepares a quote for order placement
-     */
-    public function prepareQuote($fields = [])
-    {
-        // Find quote and perform tasks
-        $quote = $this->quoteHandler->getQuote($fields);
-        if ($this->quoteHandler->isQuote($quote)) {
-            // Prepare the inventory
-            $quote->setInventoryProcessed(false);
-
-            // Check for guest user quote
-            if ($this->customerSession->isLoggedIn() === false) {
-                $quote = $this->quoteHandler->prepareGuestQuote($quote);
-            }
-
-            // Set the payment information
-            $payment = $quote->getPayment();
-            $payment->setMethod($this->methodId);
-            $payment->save();
-
-            return $quote;
-        }
-
-        return null;
-    }
-
-    /**
-     * Handle the order transactions
-     */
-    public function processTransactions($quote, $order)
-    {
-        // Handle the transactions 
-        if ($this->config->needsAutoCapture($this->methodId)) {
-            // Create the transaction
-            $transactionId = $this->transactionHandler->createTransaction
-            (
-                $order,
-                Transaction::TYPE_CAPTURE,
-                $this->paymentData
-            );
-        } else {
-            // Update order status
-            // Todo - Add order status handling settings
-            /*
-            $order->setStatus(
-                $this->config->params[Core::moduleId()][Connector::KEY_ORDER_STATUS_AUTHORIZED]
-            );
-            */
-
-            // Create the transaction
-            $transactionId = $this->transactionHandler->createTransaction
-            (
-                $order,
-                Transaction::TYPE_AUTH,
-                $this->paymentData
-            );
-        }
-    }  
-
-    /**
      * Tasks after place order
      */
-    public function afterPlaceOrder($quote = null, $order = null)
+    public function afterPlaceOrder($quote, $order)
     {
         try {
-            // Find the quote and the order
-            $quote = $quote ? $quote : $this->quoteHandler->getQuote();
-            $order = $order ? $order : $this->getOrder();
-
             // Prepare session quote info for redirection after payment
             $this->checkoutSession
                 ->setLastQuoteId($quote->getId())
@@ -302,5 +217,19 @@ class OrderHandlerService
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * Checks if an order has a transaction type.
+     */
+    public function hasTransaction($order, $transactionType)
+    {
+        // Get the auth transactions
+        $transactions = $this->transactionHandler->getTransactions(
+            $order,
+            $transactionType
+        );
+
+        return count($transactions) > 0 ? true : false;
     }
 }

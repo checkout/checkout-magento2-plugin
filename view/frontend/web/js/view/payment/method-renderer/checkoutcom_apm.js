@@ -27,7 +27,6 @@ define([
                  */
                 initialize: function () {
                     this._super();
-                    this.getApmList();
                 },
 
                 /**
@@ -69,19 +68,12 @@ define([
                 },
 
                 /**
-                 * @returns {array}
-                 */
-                getApmList: function () {
-                    this.apmList = this.getValue('apm').split(',');
-                },
-
-                /**
                  * @returns {void}
                  */
                 placeOrder: function () {
                     var id = $("#apm-container div[aria-selected=true]").attr('id'),
                         $form = $("#cko-apm-form-" + id),
-                        data = {};
+                        data = {methodId: METHOD_ID};
 
                     // Start the loader
                     FullScreenLoader.startLoader();

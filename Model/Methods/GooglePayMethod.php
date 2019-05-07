@@ -13,16 +13,23 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     const CODE = 'checkoutcom_google_pay';
 
     /**
-     * @var array
-     */
-    const FIELDS = array('title', 'merchant_id', 'theme', 'active', 'public_key');
-
-    /**
      * @var string
      * @overriden
      */
-    protected $_code = GooglePayMethod::CODE;
+    protected $_code = self::CODE;
 
+    protected $_isInitializeNeeded = true;
+    protected $_isGateway = true;
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
+    protected $_canCancel = true;
+    protected $_canCapturePartial = true;
+    protected $_canVoid = true;
+    protected $_canUseInternal = false;
+    protected $_canUseCheckout = true;
+    protected $_canRefund = true;
+    protected $_canRefundInvoicePartial = true;
+    
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
