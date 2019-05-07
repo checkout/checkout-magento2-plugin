@@ -4,14 +4,19 @@
     </div>
 </div>
 <div data-role="content" class="apm-content">
-    <div class="input-group">
-        <label class="icon" for="cpf">
-        <span class="ckojs ckojs-card"></label>
-        <input type="text" id="cpf" name="cpf" placeholder="<?= $block->escapeHtml(__('CPF')); ?>" class="input-control" data-validate="{'required':true}" pattern=".{11,11}">
-    </div>
-    <div class="input-group">
-        <label class="icon" for="birthDate">
-        <span class="ckojs ckojs-calendar"></label>
-        <input type="text" id="birthDate" name="birthDate" placeholder="<?= $block->escapeHtml(__('Birth date')); ?>" class="input-control" data-validate="{'required':true}" pattern="\\d{1,2}/\\d{1,2}/\\d{4}">
-    </div>
+    <form id="cko-apm-form-<?= $block->getData('apm_id')?>">
+        <input type="hidden" name="source" value="<?= $block->getData('apm_id')?>">
+        <div class="input-group">
+            <label class="icon" for="cpf">
+            <span class="ckojs ckojs-card"></label>
+            <input type="text" id="cpf" name="cpf" placeholder="<?= $block->escapeHtml(__('CPF')); ?>" class="input-control" data-validate="{'required':true}" pattern=".{11,11}">
+        </div>
+        <div class="input-group">
+            <label class="icon" for="birthDate">
+            <span class="ckojs ckojs-calendar"></label>
+            <input type="text" id="birthDate" name="birthDate" placeholder="<?= $block->escapeHtml(__('Birth date')); ?>" class="input-control" data-validate="{'required':true}" pattern="\\d{1,2}/\\d{1,2}/\\d{4}">
+        </div>
+        <br>
+        <p align="center">You will be redirected to an external page.</p>
+    </form>
 </div>

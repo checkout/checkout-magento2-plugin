@@ -103,7 +103,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         AlternativePaymentMethod::PAYMENT_POLI => 'Poli',
         //AlternativePaymentMethod::PAYMENT_QIWI => 'Qiwi',
         //AlternativePaymentMethod::PAYMENT_SAFETYPAY => 'SafetyPay',
-        //AlternativePaymentMethod::PAYMENT_KLARNA => 'Klarna',
+        AlternativePaymentMethod::PAYMENT_KLARNA => 'Klarna',
         AlternativePaymentMethod::PAYMENT_SOFORT => 'Sofort'
     );
 
@@ -119,7 +119,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         AlternativePaymentMethod::PAYMENT_POLI => AlternativePaymentMethod::PAYMENT_FIELDS_POLI,
         //AlternativePaymentMethod::PAYMENT_QIWI => AlternativePaymentMethod::PAYMENT_FIELDS_QIWI,
         //AlternativePaymentMethod::PAYMENT_SAFETYPAY => AlternativePaymentMethod::PAYMENT_FIELDS_SAFETYPAY,
-        //AlternativePaymentMethod::PAYMENT_KLARNA => AlternativePaymentMethod::PAYMENT_FIELDS_KLARNA,
+        AlternativePaymentMethod::PAYMENT_KLARNA => AlternativePaymentMethod::PAYMENT_FIELDS_KLARNA,
         AlternativePaymentMethod::PAYMENT_SOFORT => AlternativePaymentMethod::PAYMENT_FIELDS_SOFORT
     );
 

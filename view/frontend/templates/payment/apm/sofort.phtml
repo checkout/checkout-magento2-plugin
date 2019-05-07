@@ -4,5 +4,8 @@
     </div>
 </div>
 <div data-role="content" class="apm-content">
-    <input type="text" value="<?= $block->getData('apm_id')?>">
+	<form id="cko-apm-form-<?= $block->getData('apm_id')?>">
+		<input type="hidden" name="source" value="<?= $block->getData('apm_id')?>">
+		<p align="center">You will be redirected to an external page.</p>
+    </form>
 </div>
