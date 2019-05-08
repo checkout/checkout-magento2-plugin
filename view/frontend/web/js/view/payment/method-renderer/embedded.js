@@ -52,6 +52,7 @@ define(
 
                 this.vaultEnabler = new VaultEnabler();
                 this.vaultEnabler.setPaymentCode(this.getVaultCode());
+                this.getEmbeddedForm();
 
                 return this;
             },
