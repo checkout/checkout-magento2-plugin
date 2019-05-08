@@ -24,7 +24,6 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use CheckoutCom\Magento2\Model\Adapter\CallbackEventAdapter;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Model\GatewayResponseHolder;
 use CheckoutCom\Magento2\Model\GatewayResponseTrait;
@@ -41,11 +40,6 @@ class CallbackService {
      * @var CallbackMethod
      */
     protected $callbackMethod;
-
-    /**
-     * @var CallbackEventAdapter
-     */
-    protected $eventAdapter;
 
     /**
      * @var OrderFactory
@@ -105,13 +99,11 @@ class CallbackService {
     /**
      * CallbackService constructor.
      * @param CallbackMethod $callbackMethod
-     * @param CallbackEventAdapter $eventAdapter
      * @param OrderFactory $orderFactory
      * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         CallbackMethod $callbackMethod,
-        CallbackEventAdapter $eventAdapter,
         OrderFactory $orderFactory,
         OrderRepositoryInterface $orderRepository,
         GatewayConfig $gatewayConfig,
@@ -125,7 +117,6 @@ class CallbackService {
         BuilderInterface $transactionBuilder
     ) {
         $this->callbackMethod        = $callbackMethod;
-        $this->eventAdapter          = $eventAdapter;
         $this->orderFactory          = $orderFactory;
         $this->orderRepository       = $orderRepository;
         $this->gatewayConfig         = $gatewayConfig;
@@ -171,12 +162,19 @@ class CallbackService {
             $this->putGatewayResponseToHolder();
 
             // Test the command name
-            if ($commandName == 'refund' || $commandName == 'void') {
+            if ($commandName == 'charge.refunded' || $commandName == 'charge.voided') {
                 $this->orderService->cancelTransactionFromRemote($order);
+
+                // Prepare the order comment
+                $msg = 'Order cancelled. The transaction has been ' . explode('.', $this->gatewayResponse['response']['eventType'])[1];
+
+                // Add a comment to history
+                $order->addStatusToHistory($order->getStatus(), __($msg), $notify = true);
+                $order->save();
             }
             
             // Perform authorize complementary actions
-            else if ($commandName == 'authorize') {
+            else if ($commandName == 'charge.succeeded') {
                 // Update order status
                 $order->setStatus($this->gatewayConfig->getOrderStatusAuthorized());
 
@@ -225,7 +223,7 @@ class CallbackService {
             }
 
             // Perform capture complementary actions
-            else if ($commandName == 'capture') {
+            else if ($commandName == 'charge.captured') {
                 // Update order status
                 $order->setStatus($this->gatewayConfig->getOrderStatusCaptured());
 
@@ -244,6 +242,54 @@ class CallbackService {
 
                     // Save the invoice
                     $this->invoiceRepository->save($invoice);
+                }
+            }
+
+            // Handle alternative cases
+            else {
+                $msg = '';
+                switch ($commandName) {
+                    case 'charge.failed':
+                    $msg = 'The transaction authorisation could not be completed.';
+                    break;
+
+                    case 'charge.captured.failed':
+                    $msg = 'The transaction capture could not be completed.';
+                    break;
+
+                    case 'charge.refunded.failed':
+                    $msg = 'The captured transaction could not be refunded.';
+                    break;
+
+                    case 'charge.voided.failed':
+                    $msg = 'The authorised transaction could not be voided.';
+                    break;
+
+                    case 'charge.retrieval':
+                    $msg = 'The charge retrieval has been completed.';
+                    break;
+
+                    case 'charge.chargeback':
+                    $msg = 'The chargeback has been completed.';
+                    break;
+
+                    case 'charge.captured.deferred':
+                    $msg = 'The capture has been deferred.';
+                    break;
+
+                    case 'charge.pending':
+                    $msg = 'The charge is pending.';
+                    break;
+
+                    case 'invoice.cancelled':
+                    $msg = 'The Alternative Payment Method transaction has expired.';
+                    break;
+                }
+
+                // Add a comment to history
+                if (!empty($msg)) {
+                    $order->addStatusToHistory($order->getStatus(), __($msg), $notify = true);
+                    $order->save();
                 }
             }
 
@@ -275,7 +321,7 @@ class CallbackService {
      * @return null|string
      */
     private function getCommandName() {
-        return $this->eventAdapter->getTargetCommandName($this->gatewayResponse['response']['eventType']);
+        return $this->gatewayResponse['response']['eventType'];
     }
 
     /**

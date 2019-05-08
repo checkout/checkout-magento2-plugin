@@ -17,7 +17,6 @@ use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
 use Magento\Framework\Exception\LocalizedException;
 use CheckoutCom\Magento2\Model\Service\CallbackService;
-use Zend_Controller_Request_Http;
 use Exception;
 
 class Callback extends Action {
@@ -45,14 +44,7 @@ class Callback extends Action {
      * @throws Exception
      */
     public function execute() {
-        $request    = new Zend_Controller_Request_Http();
         $response   = $this->resultFactory->create(ResultFactory::TYPE_JSON);
-
-        if( ! $request->isPost() ) {
-            $response->setHttpResponseCode(WebException::HTTP_METHOD_NOT_ALLOWED);
-
-            return $response;
-        }
 
         $data = json_decode(file_get_contents('php://input'), true);
 
@@ -62,15 +54,9 @@ class Callback extends Action {
             return $response;
         }
 
-        if($this->isTestRequest($data)) {
-            $response->setHttpResponseCode(WebResponse::HTTP_OK);
-
-            return $response;
-        }
-
         $preparedData = [
             'headers' => [
-                'Authorization' => $request->getHeader('Authorization'),
+                'Authorization' => $this->getRequest()->getHeader('Authorization'),
             ],
             'response' => $data,
         ];
@@ -93,27 +79,5 @@ class Callback extends Action {
         }
 
         return $response;
-    }
-
-    /**
-     * Determines if the request has data for only test purpose.
-     *
-     * @param array $request
-     * @return bool
-     */
-    private function isTestRequest(array $request) {
-        $eventType = $request['eventType'];
-
-        if($eventType === 'ping') {
-            return true;
-        }
-
-        $id = $request['message']['id'];
-
-        if($eventType === 'charge.succeeded' AND $id === 'charge_100002') {
-            return true;
-        }
-
-        return ($eventType === 'charge.failed' AND $id === 'charge_100003');
     }
 }

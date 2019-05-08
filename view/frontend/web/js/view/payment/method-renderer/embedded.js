@@ -52,6 +52,7 @@ define(
 
                 this.vaultEnabler = new VaultEnabler();
                 this.vaultEnabler.setPaymentCode(this.getVaultCode());
+                this.getEmbeddedForm();
 
                 return this;
             },
@@ -231,7 +232,7 @@ define(
                     function() {
                         self.updateButtonState(true);
                         $('html, body').animate({ scrollTop: 0 }, 'fast');
-                        self.reloadEmbeddedForm();
+                        Frames.unblockFields();
                     }
                 ).done(
                     function() {
@@ -306,19 +307,7 @@ define(
              */
             updateButtonState: function(status) {
                 $('#ckoPlaceOrder').attr("disabled", status);
-            },
-
-            /**
-             * @returns {void}
-             */
-            reloadEmbeddedForm: function() {
-                // Get self
-                var self = this;
-
-                // Reload the iframe
-                $('#cko-form-holder form iframe').remove();
-                self.getEmbeddedForm();
-            },
+            }
         });
     }
 );
