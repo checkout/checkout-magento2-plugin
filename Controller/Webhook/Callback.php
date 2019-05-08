@@ -46,16 +46,6 @@ class Callback extends Action {
     public function execute() {
         $response   = $this->resultFactory->create(ResultFactory::TYPE_JSON);
 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/input.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r(json_decode(file_get_contents('php://input'), true), 1));
-
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/content.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($this->getRequest()->getContent(), 1));
-
         $data = json_decode(file_get_contents('php://input'), true);
 
         if($data === null) {
