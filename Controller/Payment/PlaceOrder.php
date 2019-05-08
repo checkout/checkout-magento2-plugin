@@ -50,6 +50,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     protected $methodId;
 
     /**
+     * @var array
+     */
+    protected $data;
+
+    /**
      * @var String
      */
     protected $cardToken;
@@ -90,6 +95,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
 
         // Set some required properties
         $this->data = $this->getRequest()->getParams();
+        \CheckoutCom\Magento2\Helper\Logger::write($this->data);
+        $this->methodId = $this->data['methodId'];
         $this->cardToken = $this->getRequest()->getParam('cardToken');
     }
 
@@ -97,12 +104,19 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      * Handles the controller method.
      */
     public function execute() {
+
+
+return $this->execute2();
+
+
+
         $url = false;
         $message = '';
         $success = false;
         if ($this->getRequest()->isAjax()) {
             try {
                 if ($this->quote) {
+
                     // Send the charge request
                     $response = $this->methodHandler->get($this->methodId)
                         ->sendPaymentRequest(
@@ -113,7 +127,21 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                         );
 
                     // Process the response
-                    $success = $this->apiHandler->isValidResponse($response);
+                    $success = $this->apiHandler->isValidResponse($response); //@todo: remove this?
+
+
+
+
+                    // Pending -> further action needed.
+
+
+
+
+
+
+
+
+
 
                     // Handle 3DS cases
                     $redirectionUrl = $response->getRedirection();
@@ -170,4 +198,100 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             return false;
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+    protected function execute2() {
+
+        $url = '';
+        $message = __('Invalid request.');
+        $success = false;
+
+        if ($this->getRequest()->isAjax() && $this->quote) {
+
+            $response = $this->requestPayment();
+            if($success = $response->isSuccessful()) { // Payment requested successfully
+
+                if ($response->isPending()) { // Further action needed
+                    $url = $response->getRedirection();
+\CheckoutCom\Magento2\Helper\Logger::write('PlaceOrder: ' . $url);
+                } else {
+                    $order = $this->placeOrder((array) $response); // What to do from here?
+                }
+
+
+
+
+
+
+            } else { // Payment failed
+                $success = false;
+                $message = __('The transaction could not be processed.');
+            }
+
+        }
+
+        return $this->jsonFactory->create()->setData([
+            'success' => $success,
+            'message' => $message,
+            'url' => $url
+        ]);
+
+    }
+
+
+
+    protected function requestPayment() {
+
+        // Send the charge request
+        return $this->methodHandler->get($this->methodId)
+                                    ->sendPaymentRequest($this->data,
+                                                         $this->quote->getGrandTotal(),
+                                                         $this->quote->getQuoteCurrencyCode(),
+                                                         $this->quoteHandler->getReference($this->quote));
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -11,7 +11,7 @@ use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 
-class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
+class AlternativePaymentMethod extends Method
 {
 
     /**
@@ -19,17 +19,94 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     const CODE = 'checkoutcom_apm';
 
-    protected $_isInitializeNeeded = true;
-    protected $_isGateway = true;
-    protected $_canAuthorize = true;
-    protected $_canCapture = true;
-    protected $_canCancel = true;
-    protected $_canCapturePartial = true;
-    protected $_canVoid = true;
-    protected $_canUseInternal = false;
-    protected $_canUseCheckout = true;
-    protected $_canRefund = true;
-    protected $_canRefundInvoicePartial = true;
+    /**
+     * @var string
+     */
+    const PAYMENT_SEPA = 'sepa';
+
+    /**
+     * @var string
+     */
+    const PAYMENT_ALIPAY = 'alipay';
+
+    /**
+     * @var string
+     */
+    const PAYMENT_BOLETO = 'boleto';
+
+    /**
+     * @var string
+     */
+    const PAYMENT_GIROPAY = 'giropay';
+
+    /**
+     * @var string
+     */
+    const PAYMENT_IDEAL = 'ideal';
+
+    /**
+     * @var string
+     */
+    const PAYMENT_POLI = 'poli';
+
+    /**
+     * @var string
+     */
+    const PAYMENT_QIWI = 'qiwi';
+
+    /**
+     * @var string
+     */
+    const PAYMENT_SAFETYPAY = 'safetypay';
+
+    /**
+     * @var string
+     */
+    const PAYMENT_KLARNA = 'klarna';
+
+    /**
+     * @var string
+     */
+    const PAYMENT_SOFORT = 'sofort';
+
+    /**
+     * @var string
+     */
+    const PAYMENT_EPS = 'eps';
+
+    /**
+     * @var array
+     */
+    const PAYMENT_LIST = array(
+        AlternativePaymentMethod::PAYMENT_SEPA => 'SEPA',
+        AlternativePaymentMethod::PAYMENT_ALIPAY => 'Alipay',
+        AlternativePaymentMethod::PAYMENT_BOLETO => 'Boleto',
+        AlternativePaymentMethod::PAYMENT_GIROPAY => 'Giropay',
+        AlternativePaymentMethod::PAYMENT_IDEAL => 'iDEAL',
+        AlternativePaymentMethod::PAYMENT_POLI => 'Poli',
+        //AlternativePaymentMethod::PAYMENT_QIWI => 'Qiwi',
+        //AlternativePaymentMethod::PAYMENT_SAFETYPAY => 'SafetyPay',
+        //AlternativePaymentMethod::PAYMENT_KLARNA => 'Klarna',
+        AlternativePaymentMethod::PAYMENT_SOFORT => 'Sofort',
+        //AlternativePaymentMethod::PAYMENT_EPS => 'EPS'
+    );
+
+    /**
+     * @var array
+     */
+    const SUPPORTED_CURRENCIES = array(
+        AlternativePaymentMethod::PAYMENT_SEPA => array('EUR'),
+        AlternativePaymentMethod::PAYMENT_ALIPAY => array('USD'),
+        AlternativePaymentMethod::PAYMENT_BOLETO => array('USD', 'BRL'),
+        AlternativePaymentMethod::PAYMENT_GIROPAY => array('EUR'),
+        AlternativePaymentMethod::PAYMENT_IDEAL => array('EUR'),
+        AlternativePaymentMethod::PAYMENT_POLI => array('AUD', 'NZD'),
+        //AlternativePaymentMethod::PAYMENT_QIWI => array('USD', 'EUR'),
+        //AlternativePaymentMethod::PAYMENT_SAFETYPAY => array('EUR'),
+        //AlternativePaymentMethod::PAYMENT_KLARNA => array('EUR', 'DKK', 'GBP', 'NOK', 'SEK'),
+        AlternativePaymentMethod::PAYMENT_SOFORT => array('EUR'),
+        //AlternativePaymentMethod::PAYMENT_EPS => array('EUR')
+    );
 
     /**
      * @var string
@@ -37,118 +114,190 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     protected $_code = self::CODE;
 
-    /**
-     * @var RemoteAddress
-     */
-    protected $remoteAddress;
 
     /**
-     * @var Config
+     * Methods
      */
-    protected $config;
-
-    /**
-     * @var ApiHandlerService
-     */
-    protected $apiHandler;
-
-    public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Payment\Helper\Data $paymentData,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\ObjectManagerInterface $objectManager,
-        \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
-        \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Checkout\Helper\Data $checkoutData,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \Magento\Quote\Api\CartManagementInterface $quoteManagement,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Magento\Backend\Model\Session\Quote $sessionQuote,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        array $data = []
-    ) {
-        parent::__construct(
-            $context,
-            $registry,
-            $extensionFactory,
-            $customAttributeFactory,
-            $paymentData,
-            $scopeConfig,
-            $logger,
-            $resource,
-            $resourceCollection,
-            $data
-        );
-        $this->urlBuilder         = $urlBuilder;
-        $this->backendAuthSession = $backendAuthSession;
-        $this->cart               = $cart;
-        $this->_objectManager     = $objectManager;
-        $this->invoiceSender      = $invoiceSender;
-        $this->transactionFactory = $transactionFactory;
-        $this->customerSession    = $customerSession;
-        $this->checkoutSession    = $checkoutSession;
-        $this->checkoutData       = $checkoutData;
-        $this->quoteRepository    = $quoteRepository;
-        $this->quoteManagement    = $quoteManagement;
-        $this->orderSender        = $orderSender;
-        $this->sessionQuote       = $sessionQuote;
-
-        $this->remoteAddress      = $remoteAddress;
-        $this->config             = $config;
-        $this->apiHandler         = $apiHandler;
-    }
-
-
 
     /**
      * Send a charge request.
      */
     public function sendPaymentRequest(array $data, $amount, $currency, $reference = '') {
-        try {
-            // Set the token source
-            $source = new AlipaySource();
 
+        $method = $data['source'];
 
-            // ----------------------------------------
+        if ($this->validateRequest($method, $currency)) {
 
-            // Set the payment
-            $request = new Payment(
-                $tokenSource,
-                $currency
-            );
+             // Create source object
+            $source = call_user_func_array(array($this, $data['source']), $data);
+            $payment = $this->createPayment($source, $amount, $currency, $reference);
 
-            // Set the request parameters
-            $request->capture = $this->config->needsAutoCapture($this->_code);
-            $request->amount = $amount*100;
-            $request->reference = $reference;
-            $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
-            $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+            // Send the charge request
+            $response = $this->apiHandler->checkoutApi->payments()
+                                                      ->request($payment);
 
-            $request->description = __('Payment request from %1', $this->config->getStoreName());
-            $request->payment_ip = $this->remoteAddress->getRemoteAddress();
-
-
-Logger::write($request);
-
-            return;
-
-
-        } catch(\Exception $e) {
+            return $response;
 
         }
+
+    }
+
+    /**
+     * Methods
+     */
+
+    /**
+     * Verify if country and currency are supported by the payment method.
+     *
+     * @param      string  $method    The method
+     * @param      string  $currency  The currency
+     *
+     * @return     bool
+     * @todo       validateCountry($method, $country)!
+     */
+    protected function validateRequest(string $method, string $currency) {
+
+        return $this->validateCurrency($method, $currency); // && $this->validateCountry();
+
+    }
+
+
+    /**
+     * Verify if currency is supported.
+     *
+     * @param      string  $method    The method
+     * @param      string  $currency  The currency
+     *
+     * @return     bool
+     */
+    protected function validateCurrency(string $method, string $currency) {
+
+        return isset(AlternativePaymentMethod::SUPPORTED_CURRENCIES[$method]) && in_array($currency, AlternativePaymentMethod::SUPPORTED_CURRENCIES[$method]);
+
+    }
+
+
+
+
+    /**
+     * API related.
+     */
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function sepa($data) {
+//@todo: make sepa; this will require a separate flow
+        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->sepa');
+
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function alipay($data) {
+        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->alipay');
+        return new AlipaySource();
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function boleto($data) {
+        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->boleto');
+        return new BoletoSource('asdads',
+                                $data['birthDate'],
+                                $data['cpf']);
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function giropay($data) {
+        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->giropay');
+        $source = new GiropaySource($source['purpose'],
+                                    $source['bic']);
+        $source->iban = static::getValue('iban', $array);
+        return $source;
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function ideal($data) {
+        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->ideal');
+        $source = new IdealSource($source['bic'],
+                                  $source['description']);
+        $source->language = static::getValue('language', $array);
+        return $source;
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function poli($data) {
+        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->poli');
+        return new PoliSource();
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function sofort($data) {
+        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->sofort');
+        return new SofortSource();
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function klarna($data) {
+        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->klarna');
+        return new PoliSource();
+    }
+
+    /**
+     * Create source.
+     *
+     * @param      $source  The source
+     *
+     * @return     TokenSource
+     */
+    protected static function eps($data) {
+        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->eps');
+        return new PoliSource();
     }
 
 }
