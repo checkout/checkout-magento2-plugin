@@ -129,7 +129,7 @@ class AlternativePaymentMethod extends Method
         if ($this->validateRequest($method, $currency)) {
 
              // Create source object
-            $source = call_user_func_array(array($this, $data['source']), $data);
+            $source = call_user_func(array($this, $data['source']), $data);
             $payment = $this->createPayment($source, $amount, $currency, $reference);
 
             // Send the charge request
@@ -204,7 +204,6 @@ class AlternativePaymentMethod extends Method
      * @return     TokenSource
      */
     protected static function alipay($data) {
-        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->alipay');
         return new AlipaySource();
     }
 
@@ -213,7 +212,7 @@ class AlternativePaymentMethod extends Method
      *
      * @param      $source  The source
      *
-     * @return     TokenSource
+     * @return     BoletoSource
      */
     protected static function boleto($data) {
         \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->boleto');
@@ -225,15 +224,14 @@ class AlternativePaymentMethod extends Method
     /**
      * Create source.
      *
-     * @param      $source  The source
+     * @param      $data  The source
      *
-     * @return     TokenSource
+     * @return     GiropaySource
      */
-    protected static function giropay($data) {
-        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->giropay');
-        $source = new GiropaySource($source['purpose'],
-                                    $source['bic']);
-        $source->iban = static::getValue('iban', $array);
+    protected function giropay(array $data) {
+        $source = new GiropaySource($data['purpose'],
+                                    static::getValue('bic', $data));
+        $source->iban = static::getValue('iban', $data);
         return $source;
     }
 
@@ -245,10 +243,9 @@ class AlternativePaymentMethod extends Method
      * @return     TokenSource
      */
     protected static function ideal($data) {
-        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->ideal');
-        $source = new IdealSource($source['bic'],
-                                  $source['description']);
-        $source->language = static::getValue('language', $array);
+        $source = new IdealSource($data['bic'],
+                                  $data['description']);
+        $source->language = static::getValue('language', $data);
         return $source;
     }
 
@@ -260,7 +257,6 @@ class AlternativePaymentMethod extends Method
      * @return     TokenSource
      */
     protected static function poli($data) {
-        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->poli');
         return new PoliSource();
     }
 

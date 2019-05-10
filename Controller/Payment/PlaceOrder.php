@@ -64,6 +64,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      */
     protected $quote;
 
+
+    /**
+     * Magic Methods
+     */
+
 	/**
      * PlaceOrder constructor
      */
@@ -95,76 +100,49 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
 
         // Set some required properties
         $this->data = $this->getRequest()->getParams();
-        \CheckoutCom\Magento2\Helper\Logger::write($this->data);
         $this->methodId = $this->data['methodId'];
         $this->cardToken = $this->getRequest()->getParam('cardToken');
     }
 
+
     /**
-     * Handles the controller method.
+     * Methods
+     */
+
+    /**
+     * Main controller function.
+     *
+     * @return     JSON
      */
     public function execute() {
 
-
-return $this->execute2();
-
-
-
-        $url = false;
-        $message = '';
+        $url = '';
+        $message = __('Invalid request.');
         $success = false;
-        if ($this->getRequest()->isAjax()) {
-            try {
-                if ($this->quote) {
 
-                    // Send the charge request
-                    $response = $this->methodHandler->get($this->methodId)
-                        ->sendPaymentRequest(
-                            $this->data,
-                            $this->quote->getGrandTotal(),
-                            $this->quote->getQuoteCurrencyCode(),
-                            $this->quoteHandler->getReference($this->quote)
-                        );
+        if ($this->getRequest()->isAjax() && $this->quote) {
 
-                    // Process the response
-                    $success = $this->apiHandler->isValidResponse($response); //@todo: remove this?
+            $response = $this->requestPayment();
+            if($response && $success = $response->isSuccessful()) { // Payment requested successfully
 
+                if ($response->isPending()) { // Further action needed
+                    $url = $response->getRedirection();
+                } else {
 
-
-
-                    // Pending -> further action needed.
-
-
-
-
-
-
-
-
-
-
-                    // Handle 3DS cases
-                    $redirectionUrl = $response->getRedirection();
-                    if ($success && !empty($redirectionUrl)) {
-                        $url = $redirectionUrl;
+                    if(!$this->placeOrder((array) $response)) {
+                        // refund or void accordingly
+\CheckoutCom\Magento2\Helper\Logger::write('PlaceOrder->execute: should refund');
                     }
 
-                    // Handle the order placement
-                    else if ($success && empty($redirectionUrl)) {
-                        $order = $this->placeOrder((array) $response);
-                    }
-
-                    if (!($success && $this->orderHandler->isOrder($order))) {
-                        $message = __('The transaction could not be processed.');
-                    }
                 }
+
+                $message = '';
+
+            } else { // Payment failed
+                $success = false;
+                $message = __('The transaction could not be processed. Review payment method\'s conditions.');
             }
-            catch(\Exception $e) {
-                $message = __($e->getMessage());
-            }
-        }
-        else {
-            $message = __('Invalid request.');
+
         }
 
         return $this->jsonFactory->create()->setData([
@@ -172,12 +150,34 @@ return $this->execute2();
             'message' => $message,
             'url' => $url
         ]);
+
+    }
+
+    /**
+     * Request payment to API handler.
+     *
+     * @return     Response
+     */
+    protected function requestPayment() {
+
+        // Send the charge request
+        return $this->methodHandler->get($this->methodId)
+                                    ->sendPaymentRequest($this->data,
+                                                         $this->quote->getGrandTotal(),
+                                                         $this->quote->getQuoteCurrencyCode(),
+                                                         $this->quoteHandler->getReference($this->quote));
+
+
     }
 
     /**
      * Handles the order placing process.
+     *
+     * @param      array    $response  The response
+     *
+     * @return     mixed
      */
-    protected function placeOrder($response = null) {
+    protected function placeOrder(array $response = null) {
         try {
             // Get the reserved order increment id
             $reservedIncrementId = $this->quoteHandler
@@ -198,100 +198,5 @@ return $this->execute2();
             return false;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-    protected function execute2() {
-
-        $url = '';
-        $message = __('Invalid request.');
-        $success = false;
-
-        if ($this->getRequest()->isAjax() && $this->quote) {
-
-            $response = $this->requestPayment();
-            if($success = $response->isSuccessful()) { // Payment requested successfully
-
-                if ($response->isPending()) { // Further action needed
-                    $url = $response->getRedirection();
-\CheckoutCom\Magento2\Helper\Logger::write('PlaceOrder: ' . $url);
-                } else {
-                    $order = $this->placeOrder((array) $response); // What to do from here?
-                }
-
-
-
-
-
-
-            } else { // Payment failed
-                $success = false;
-                $message = __('The transaction could not be processed.');
-            }
-
-        }
-
-        return $this->jsonFactory->create()->setData([
-            'success' => $success,
-            'message' => $message,
-            'url' => $url
-        ]);
-
-    }
-
-
-
-    protected function requestPayment() {
-
-        // Send the charge request
-        return $this->methodHandler->get($this->methodId)
-                                    ->sendPaymentRequest($this->data,
-                                                         $this->quote->getGrandTotal(),
-                                                         $this->quote->getQuoteCurrencyCode(),
-                                                         $this->quoteHandler->getReference($this->quote));
-
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

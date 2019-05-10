@@ -171,8 +171,8 @@ define([
                         }
                     },
                     error: function (request, status, error) {
-                        FullScreenLoader.stopLoader();
                         self.showMessage('error', error);
+                        FullScreenLoader.stopLoader();
                     }
                 });
             }
