@@ -44,9 +44,9 @@ class Display extends \Magento\Framework\App\Action\Action {
      * Handles the controller method.
      */
     public function execute() {
+        $html = '';
         if ($this->getRequest()->isAjax()) {
             // Get the list of APM
-            $html = '';
             $apmEnabled = explode(',', 
                 $this->config->getValue('apm_enabled', 'checkoutcom_apm')
             );
@@ -57,11 +57,11 @@ class Display extends \Magento\Framework\App\Action\Action {
                     $html .= $this->loadBlock($apmId);
                 }
             }
-
-            return $this->jsonFactory->create()->setData(
-                ['html' => $html]
-            );
         }
+
+        return $this->jsonFactory->create()->setData(
+            ['html' => $html]
+        );
     }
 
     private function loadBlock($apmId)
