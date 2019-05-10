@@ -3,9 +3,10 @@
         <span><?= $block->getData('apm_id')?></span>
     </div>
 </div>
-<div data-role="content" class="apm-content">
+<div data-role="content" class="apm-content <?= $block->getData('apm_id')?>">
     <form id="cko-apm-form-<?= $block->getData('apm_id')?>">
         <input type="hidden" name="source" value="<?= $block->getData('apm_id')?>">
+        <input type="hidden" name="task" value="mandate">
         <div class="input-group">
             <label class="icon" for="bic">
             <span class="ckojs ckojs-card"></label>
@@ -19,7 +20,7 @@
         <br>
         <p align="center">
             <?= __('You will be redirected to an external page.')?>
-            <button><?= __('Continue')?></button>
+            <button type="button"><?= __('Continue')?></button>
         </p>
     </form>
 </div>
@@ -27,29 +28,30 @@
 
 <script type="text/javascript">
 require(['jquery', 'domReady!'], function ($) {
-    // Prepare the formm id
-    var sepaform = $('#' + 'cko-apm-form-<?= $block->getData('apm_id')?>');
+    // Prepare the form id
+    var sepaForm = $('#' + 'cko-apm-form-<?= $block->getData('apm_id')?>');
 
     // Form click event
-    sepaform.on('click touch', function(e) {
-        // Prevent default submission
-        e.preventDefault();
+    sepaForm.find('button').on('click touch', function() {
+        // Prepare the data array
+        var formData = {};
+        sepaForm.serializeArray().forEach(function (elt) {
+            formData[elt.name] = elt.value;
+        });
 
-        //  Prepare the payload
-        var payload = $(this).serializeObject();
-
-        console.log(payload);
-
-        // Send the AJAX request
+        // Send the request
         $.ajax({
             type: 'POST',
-            url: '<?= $block->getUrl('checkout_com/apm/displaysepa/getMandate')?>',
-            data: payload,
+            url: '<?= $block->getUrl('checkout_com/apm/displaysepa')?>',
+            data: formData,
             success: function (data) {
+                console.log('success');
+                console.log(data);
 
             },
             error: function (request, status, error) {
-
+                console.log('error');
+                console.log(error);
             }
         });
     });

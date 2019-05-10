@@ -38,23 +38,24 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
         $this->pageFactory = $pageFactory;
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
+
+        // Get the request parameters
+        $this->source = $this->getRequest()->getParam('source');
+        $this->task = $this->getRequest()->getParam('task');
+        $this->bic = $this->getRequest()->getParam('bic');
+        $this->account_iban = $this->getRequest()->getParam('account_iban');
     }
 
     /**
      * Handles the controller method.
      */
     public function execute() {
+        // Prepare the output container
         $html = '';
-        if ($this->getRequest()->isAjax()) {
-            // Get the list of APM
-            $apmEnabled = explode(',', 
-                $this->config->getValue('apm_enabled', 'checkoutcom_apm')
-            );
 
-            // Load block data for each APM
-            if (in_array('sepa', $apmEnabled)) {
-
-            }
+        // Run the requested task
+        if ($this->isValidRequest()) {
+            $this->runTask();
         }
     
         return $this->jsonFactory->create()->setData(
@@ -62,23 +63,71 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
         );
     }
 
-    public function getMandate() {
-
-        $post = $this->getRequest()->getParams();
-
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/sepa.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($post, 1));
-
+    /**
+     * Checks if the request is valid.
+     */
+    protected function isValidRequest() {
+        return $this->getRequest()->isAjax()
+        && $this->isValidApm()
+        && $this->isValidTask();
     }
 
-    private function loadBlock($apmId)
+    /**
+     * Checks if the task is valid.
+     */
+    protected function isValidTask() {
+        return method_exists($this, $this->buildMethodName());
+    }
+
+    /**
+     * Runs the requested task.
+     */
+    protected function runTask() {
+        $methodName = $this->buildMethodName();
+        return $this->$methodName();
+    }
+
+    /**
+     * Builds a method name from request.
+     */
+    protected function buildMethodName() {
+        return 'get' . ucfirst($this->task);
+    }
+
+    /**
+     * Checks if the requested APM is valid.
+     */
+    protected function isValidApm() {
+        // Get the list of APM
+        $apmEnabled = explode(',', 
+            $this->config->getValue('apm_enabled', 'checkoutcom_apm')
+        );
+
+        // Load block data for each APM
+       return in_array($this->source, $apmEnabled) ? true : false;
+    }
+
+    /**
+     * Returns the SEPA mandate block.
+     */
+    protected function loadBlock()
     {
         return $this->pageFactory->create()->getLayout()
         ->createBlock('CheckoutCom\Magento2\Block\Apm\Form')
-        ->setTemplate('CheckoutCom_Magento2::payment/apm/' . $apmId . '.phtml')
-        ->setData('apm_id', $apmId)
+        ->setTemplate('CheckoutCom_Magento2::payment/apm/sepa/mandate.phtml')
         ->toHtml();
+    }
+
+    /**
+     * Request the SEPA mandate.
+     */
+    public function getMandate() {
+        // Todo - Send the mandate request using the SDK 
+        $mandate = true;
+
+        // Return the mandate content 
+        if ($mandate) {
+            return $this->loadBlock();
+        }
     }
 }
