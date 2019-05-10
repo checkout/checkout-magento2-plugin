@@ -23,34 +23,33 @@
             <button type="button"><?= __('Continue')?></button>
         </p>
     </form>
+
+    <script type="text/javascript">
+        require(['jquery', 'domReady!'], function ($) {
+            // Prepare the form id
+            var sepaForm = $('#' + 'cko-apm-form-<?= $block->getData('apm_id')?>');
+
+            // Form click event
+            sepaForm.find('button').on('click touch', function() {
+                // Prepare the data array
+                var formData = {};
+                sepaForm.serializeArray().forEach(function (elt) {
+                    formData[elt.name] = elt.value;
+                });
+
+                // Send the request
+                $.ajax({
+                    type: 'POST',
+                    url: '<?= $block->getUrl('checkout_com/apm/displaysepa')?>',
+                    data: formData,
+                    success: function (data) {
+                        sepaForm.html(data.html);
+                    },
+                    error: function (request, status, error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+    </script>
 </div>
-
-
-<script type="text/javascript">
-require(['jquery', 'domReady!'], function ($) {
-    // Prepare the form id
-    var sepaForm = $('#' + 'cko-apm-form-<?= $block->getData('apm_id')?>');
-
-    // Form click event
-    sepaForm.find('button').on('click touch', function() {
-        // Prepare the data array
-        var formData = {};
-        sepaForm.serializeArray().forEach(function (elt) {
-            formData[elt.name] = elt.value;
-        });
-
-        // Send the request
-        $.ajax({
-            type: 'POST',
-            url: '<?= $block->getUrl('checkout_com/apm/displaysepa')?>',
-            data: formData,
-            success: function (data) {
-                sepaForm.html(data.html);
-            },
-            error: function (request, status, error) {
-                console.log(error);
-            }
-        });
-    });
-});
-</script>
