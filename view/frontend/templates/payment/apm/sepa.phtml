@@ -17,6 +17,41 @@
             <input type="text" id="account_iban" name="account_iban" placeholder="<?= $block->escapeHtml(__('Account IBAN')); ?>" class="input-control" data-validate="{'required':true}">
         </div>
         <br>
-        <p align="center">You will be redirected to an external page.</p>
+        <p align="center">
+            <?= __('You will be redirected to an external page.')?>
+            <button><?= __('Continue')?></button>
+        </p>
     </form>
 </div>
+
+
+<script type="text/javascript">
+require(['jquery', 'domReady!'], function ($) {
+    // Prepare the formm id
+    var sepaform = $('#' + 'cko-apm-form-<?= $block->getData('apm_id')?>');
+
+    // Form click event
+    sepaform.on('click touch', function(e) {
+        // Prevent default submission
+        e.preventDefault();
+
+        //  Prepare the payload
+        var payload = $(this).serializeObject();
+
+        console.log(payload);
+
+        // Send the AJAX request
+        $.ajax({
+            type: 'POST',
+            url: '<?= $block->getUrl('checkout_com/apm/displaysepa/getMandate')?>',
+            data: payload,
+            success: function (data) {
+
+            },
+            error: function (request, status, error) {
+
+            }
+        });
+    });
+});
+</script>
