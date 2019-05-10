@@ -45,12 +45,9 @@ require(['jquery', 'domReady!'], function ($) {
             url: '<?= $block->getUrl('checkout_com/apm/displaysepa')?>',
             data: formData,
             success: function (data) {
-                console.log('success');
-                console.log(data);
-
+                sepaForm.html(data.html);
             },
             error: function (request, status, error) {
-                console.log('error');
                 console.log(error);
             }
         });

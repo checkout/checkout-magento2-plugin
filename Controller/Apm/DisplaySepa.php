@@ -55,7 +55,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
 
         // Run the requested task
         if ($this->isValidRequest()) {
-            $this->runTask();
+            $html = $this->runTask();
         }
     
         return $this->jsonFactory->create()->setData(
