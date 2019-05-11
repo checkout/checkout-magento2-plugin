@@ -11,8 +11,7 @@
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
-use \Checkout\Models\Payments\TokenSource;
-use \Checkout\Models\Payments\Payment;
+use \Checkout\Models\Payments\Refund;
 
 class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -43,7 +42,12 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
     protected $quoteManagement;
     protected $orderSender;
     protected $sessionQuote;
-    protected $config;
+    protected $utilities;
+
+    /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandler;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -68,6 +72,8 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         array $data = []
     ) {
         parent::__construct(
@@ -95,6 +101,8 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
+        $this->utilities          = $utilities;
+        $this->apiHandler         = $apiHandler;
     }
 
     /**
@@ -117,5 +125,42 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public function isAvailableInConfig($quote = null)
     {
         return parent::isAvailable($quote);
+    }
+
+    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    {
+        // Check the status
+        if (!$this->canRefund()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
+        }
+
+        return $this;
+    }
+
+    public function void(\Magento\Payment\Model\InfoInterface $payment)
+    {
+        if (!$this->canVoid()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
+        }
+
+        // Get the order
+        $order = $payment->getOrder();
+
+        // Get the payment info
+        $paymentInfo = $this->utilities->getPaymentData($order);
+
+        // Process the void request
+        if (isset($paymentInfo['id'])) {
+            $payment = new Voids($paymentInfo['id']);
+            $response = $this->apiHandler->checkoutApi
+                ->payments()
+                ->void($payment);
+
+            if (!$response->isSuccessful()) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
+            }
+        }
+
+        return $this;
     }
 }
