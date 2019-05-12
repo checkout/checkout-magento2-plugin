@@ -85,7 +85,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return boolean
      */
     public function canRender(PaymentTokenInterface $token) {
-        return $token->getPaymentMethodCode() === 'checkoutcom_card_payment';
+        return $token->getPaymentMethodCode() === 'checkoutcom_vault';
     }
 
     /**
