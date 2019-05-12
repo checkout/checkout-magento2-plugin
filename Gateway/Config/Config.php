@@ -63,15 +63,6 @@ class Config
     }
 
     /**
-     * Get the available card types.
-     *
-     * @return string
-     */
-    public function getCardTypes() {
-        return $this->paymentModelConfig->getCcTypes();
-    }
-
-    /**
      * Returns the module global config.
      *
      * @return array
