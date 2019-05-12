@@ -18,9 +18,9 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
     protected $jsonFactory;
 
     /**
-     * @var StoreManagerInterface
+     * @var UrlInterface
      */
-    protected $storeManager;
+    protected $urlInterface;
 
     /**
      * @var VaultHandlerService
@@ -35,13 +35,13 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\UrlInterface $urlInterface,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
     ) {
         parent::__construct($context);
 
         $this->jsonFactory = $jsonFactory;
-        $this->storeManager = $storeManager;
+        $this->urlInterface = $urlInterface;
         $this->vaultHandler = $vaultHandler;
     }
 
@@ -51,7 +51,7 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
     public function execute() {
         // Prepare the parameters
         $success = false;
-        $url = $this->storeManager->getUrl('vault/cards/listaction');
+        $url = $this->urlInterface->getUrl('vault/cards/listaction');
         $message = __('The card could not be saved.');
         $ckoCardToken = $this->getRequest()->getParam('cardToken');
 
