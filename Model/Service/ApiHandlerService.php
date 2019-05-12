@@ -3,6 +3,8 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use \Checkout\CheckoutApi;
+use \Checkout\Models\Payments\Refund;
+use \Checkout\Models\Payments\Voids;
 
 /**
  * Class for API handler service.
@@ -24,16 +26,24 @@ class ApiHandlerService
      */
     public $checkoutApi;
 
+    /**
+     * @var CheckoutApi
+     */
+    protected $utilities;
+
+
 	/**
      * Initialize the API client wrapper.
      */
     public function __construct(
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities
     )
     {
         $this->encryptor = $encryptor;
         $this->config = $config;
+        $this->utilities = $utilities;
 
         // Load the API client with credentials.
         $this->checkoutApi = $this->loadClient();
@@ -57,5 +67,28 @@ class ApiHandlerService
         return is_object($response)
         && method_exists($response, 'isSuccessful')
         && $response->isSuccessful();
+    }
+
+    /**
+     * Voids a transaction.
+     */
+    public function voidTransaction($payment) {
+        // Get the order
+        $order = $payment->getOrder();
+
+        // Get the payment info
+        $paymentInfo = $this->utilities->getPaymentData($order);
+
+        // Process the void request
+        if (isset($paymentInfo['id'])) {
+            $voidRequest = new Voids($paymentInfo['id']);
+            $response = $this->apiHandler->checkoutApi
+                ->payments()
+                ->void($voidRequest);
+
+            return $response;
+        }
+
+        return false;
     }
 }

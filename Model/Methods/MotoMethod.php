@@ -11,8 +11,6 @@
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
-use \Checkout\Models\Payments\Refund;
-use \Checkout\Models\Payments\Voids;
 
 class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -43,7 +41,6 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
     protected $quoteManagement;
     protected $orderSender;
     protected $sessionQuote;
-    protected $utilities;
 
     /**
      * @var ApiHandlerService
@@ -73,7 +70,6 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         array $data = []
     ) {
@@ -102,7 +98,6 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
-        $this->utilities          = $utilities;
         $this->apiHandler         = $apiHandler;
     }
 
@@ -144,23 +139,10 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
             throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
         }
 
-        // Get the order
-        $order = $payment->getOrder();
-
-        // Get the payment info
-        $paymentInfo = $this->utilities->getPaymentData($order);
-
         // Process the void request
-        if (isset($paymentInfo['id'])) {
-            $voidRequest = new Voids($paymentInfo['id']);
-            $response = $this->apiHandler->checkoutApi
-                ->payments()
-                ->void($voidRequest);
- 
-            // Handle the response
-            if (!$response->isSuccessful()) {
-                throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
-            }
+        $response = $this->apiHandler->voidTransaction($payment);
+        if (!$response || !$response->isSuccessful()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
         }
 
         return $this;
