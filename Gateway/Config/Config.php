@@ -30,7 +30,7 @@ class Config
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        Magento\Payment\Model\Config $paymentModelConfig,
+        \Magento\Payment\Model\Config $paymentModelConfig,
         \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
