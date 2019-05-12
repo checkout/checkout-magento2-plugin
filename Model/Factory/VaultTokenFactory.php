@@ -15,11 +15,6 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
 class VaultTokenFactory {
 
     /**
-     * @var CcTypeAdapter
-     */
-    protected $cardTypeAdapter;
-
-    /**
      * @var CreditCardTokenFactory
      */
     protected $creditCardTokenFactory;
@@ -36,17 +31,12 @@ class VaultTokenFactory {
 
     /**
      * VaultTokenFactory constructor.
-     * @param CcTypeAdapter $cardTypeAdapter
-     * @param CreditCardTokenFactory $creditCardTokenFactory
-     * @param EncryptorInterface $encryptor
      */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Adapter\CardTypeAdapter $cardTypeAdapter,
         \Magento\Vault\Model\CreditCardTokenFactory $creditCardTokenFactory,
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
-        $this->cardTypeAdapter = $cardTypeAdapter;
         $this->creditCardTokenFactory = $creditCardTokenFactory;
         $this->encryptor = $encryptor;
         $this->config = $config;
