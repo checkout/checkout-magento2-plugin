@@ -152,11 +152,12 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
         // Process the void request
         if (isset($paymentInfo['id'])) {
-            $payment = new Voids($paymentInfo['id']);
+            $voidRequest = new Voids($paymentInfo['id']);
             $response = $this->apiHandler->checkoutApi
                 ->payments()
-                ->void($payment);
+                ->void($voidRequest);
  
+            // Handle the response
             if (!$response->isSuccessful()) {
                 throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
             }
