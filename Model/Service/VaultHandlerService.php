@@ -232,7 +232,7 @@ class VaultHandlerService {
                 $cardData = $values['source'];
 
                 // Create the payment token
-                $paymentToken = $this->vaultTokenFactory->create($cardData, 'checkoutcom_card_payment', $this->customerId);
+                $paymentToken = $this->vaultTokenFactory->create($cardData, 'checkoutcom_vault', $this->customerId);
                 $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
 
                 // Check if card exists
