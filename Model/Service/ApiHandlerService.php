@@ -91,4 +91,28 @@ class ApiHandlerService
 
         return false;
     }
+
+    /**
+     * Refunds a transaction.
+     */
+    public function refundTransaction($payment, $amount) {
+        // Get the order
+        $order = $payment->getOrder();
+
+        // Get the payment info
+        $paymentInfo = $this->utilities->getPaymentData($order);
+
+        // Process the void request
+        if (isset($paymentInfo['id'])) {
+            $request = new Refund($paymentInfo['id']);
+            $request->amount = $amount*100;
+            $response = $this->apiHandler->checkoutApi
+                ->payments()
+                ->refund($request);
+
+            return $response;
+        }
+
+        return false;
+    }
 }

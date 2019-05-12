@@ -130,11 +130,18 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
             throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
         }
 
+        // Process the refund request
+        $response = $this->apiHandler->refundTransaction($payment, $amount);
+        if (!$response || !$response->isSuccessful()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
+        }
+
         return $this;
     }
 
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
+        // Check the status
         if (!$this->canVoid()) {
             throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
         }
