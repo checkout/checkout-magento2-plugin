@@ -31,6 +31,12 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
         parent::__construct($context, $iconsProvider, $data);
 
         $this->config = $config;
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/cards.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($this->config->getCardTypes(), 1));
+
     }
 
     /**
