@@ -13,6 +13,11 @@ namespace CheckoutCom\Magento2\Controller\Account;
 class SaveCard extends \Magento\Framework\App\Action\Action {
 
     /**
+     * @var Redirect
+     */
+    protected $redirect;
+
+    /**
      * @var VaultHandlerService
      */
     protected $vaultHandler;
@@ -24,9 +29,12 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Controller\Result\Redirect $redirect, 
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
     ) {
         parent::__construct($context);
+
+        $this->redirect = $redirect;
         $this->vaultHandler = $vaultHandler;
     }
 
@@ -55,6 +63,6 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
             $this->messageManager->addErrorMessage($e->getMessage());
         }
         
-        return $this->_redirect('vault/cards/listAction');
+        return $this->redirect->create()->setPath('vault/cards/listAction');
     }
 }
