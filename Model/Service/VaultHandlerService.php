@@ -144,7 +144,6 @@ class VaultHandlerService {
         return $this;
     }
 
-
     /**
      * Saves the credit card in the repository.
      *

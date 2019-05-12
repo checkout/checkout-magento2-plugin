@@ -29,9 +29,13 @@
                 <sort_order>0</sort_order>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_capture_vault>1</can_capture_vault>
-                <can_use_internal>0</can_use_internal>
                 <request_currency>USD</request_currency>
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>
@@ -59,6 +63,8 @@
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
                 <can_use_internal>0</can_use_internal>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_capture_vault>1</can_capture_vault>
                 <auto_generate_invoice>1</auto_generate_invoice>
             </checkoutcom_card_payment>
             <checkoutcom_apm>
