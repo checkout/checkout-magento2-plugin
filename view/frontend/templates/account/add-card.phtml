@@ -64,9 +64,6 @@
             // Disable the save button
             saveCardButton.attr("disabled", true);
 
-            // Prevent default events
-            event.preventDefault();
-
             // Send the request
             $.ajax({
                 type: 'POST',
