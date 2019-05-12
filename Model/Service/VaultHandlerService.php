@@ -251,8 +251,9 @@ class VaultHandlerService {
                     $this->paymentTokenRepository->save($paymentToken);
                 }
             }
-
         }
+
+        return $success;
     }
     
     /**
