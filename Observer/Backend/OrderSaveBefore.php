@@ -132,7 +132,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             // Process the response
             $success = $this->apiHandler->isValidResponse($response);
 
-            //  Add the response to the order
+            // Add the response to the order
             if ($success) {
                 $this->utilities->setPaymentData($this->order, $response);
             }

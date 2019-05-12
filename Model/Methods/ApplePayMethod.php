@@ -28,7 +28,12 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     protected $_canUseCheckout = true;
     protected $_canRefund = true;
     protected $_canRefundInvoicePartial = true;
-    
+
+    /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandler;   
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -52,6 +57,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         array $data = []
     ) {
         parent::__construct(
@@ -79,6 +85,39 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
+
+        $this->apiHandler         = $apiHandler;
     }
 
+    public function void(\Magento\Payment\Model\InfoInterface $payment)
+    {
+        // Check the status
+        if (!$this->canVoid()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
+        }
+
+        // Process the void request
+        $response = $this->apiHandler->voidTransaction($payment);
+        if (!$response || !$response->isSuccessful()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
+        }
+
+        return $this;
+    }
+
+    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    {
+        // Check the status
+        if (!$this->canRefund()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
+        }
+
+        // Process the refund request
+        $response = $this->apiHandler->refundTransaction($payment, $amount);
+        if (!$response || !$response->isSuccessful()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
+        }
+
+        return $this;
+    }
 }
