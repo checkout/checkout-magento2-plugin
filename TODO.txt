@@ -1,6 +1,5 @@
 - add web hook handling feature
 - add instant payments feature
-- add void, and refund to orders 
 - add MADA payment card bin check
 - add order status actions for capture, refund, void, flagged
 - add APMs forms and payment requests
@@ -10,6 +9,8 @@
 - add  guest user email Retrieval for checkout
 - add vault feature
 - add MOTO partial capture feature?
+- update transaction id for MOTO void and refund using webhook
+- move common payment method functions to an abstract class
 
 SDK
 - fix typo in sdk  => 'The endpoint did not accepted the request' 
