@@ -82,7 +82,7 @@ class ApiHandlerService
         // Process the void request
         if (isset($paymentInfo['id'])) {
             $request = new Voids($paymentInfo['id']);
-            $response = $this->apiHandler->checkoutApi
+            $response = $this->checkoutApi
                 ->payments()
                 ->void($request);
 
@@ -106,7 +106,7 @@ class ApiHandlerService
         if (isset($paymentInfo['id'])) {
             $request = new Refund($paymentInfo['id']);
             $request->amount = $amount*100;
-            $response = $this->apiHandler->checkoutApi
+            $response = $this->checkoutApi
                 ->payments()
                 ->refund($request);
 
