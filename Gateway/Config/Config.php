@@ -67,9 +67,9 @@ class Config
      *
      * @return string
      */
-    public function getCardCode($name) {
+    public function getCardCode($scheme) {
         return array_search(
-            $name,
+            $scheme,
             $this->paymentModelConfig->getCcTypes()
         );
     }

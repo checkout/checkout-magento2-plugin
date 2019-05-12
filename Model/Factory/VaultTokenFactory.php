@@ -30,6 +30,11 @@ class VaultTokenFactory {
     protected $encryptor;
 
     /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
      * VaultTokenFactory constructor.
      * @param CcTypeAdapter $cardTypeAdapter
      * @param CreditCardTokenFactory $creditCardTokenFactory
@@ -38,11 +43,13 @@ class VaultTokenFactory {
     public function __construct(
         \CheckoutCom\Magento2\Model\Adapter\CardTypeAdapter $cardTypeAdapter,
         \Magento\Vault\Model\CreditCardTokenFactory $creditCardTokenFactory,
-        \Magento\Framework\Encryption\EncryptorInterface $encryptor
+        \Magento\Framework\Encryption\EncryptorInterface $encryptor,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
-        $this->cardTypeAdapter          = $cardTypeAdapter;
-        $this->creditCardTokenFactory   = $creditCardTokenFactory;
-        $this->encryptor                = $encryptor;
+        $this->cardTypeAdapter = $cardTypeAdapter;
+        $this->creditCardTokenFactory = $creditCardTokenFactory;
+        $this->encryptor = $encryptor;
+        $this->config = $config;
     }
 
     /**
@@ -56,7 +63,7 @@ class VaultTokenFactory {
         $expiryMonth    = str_pad($card['expiry_month'], 2, '0', STR_PAD_LEFT);
         $expiryYear     = $card['expiry_year'];
         $expiresAt      = $this->getExpirationDate($expiryMonth, $expiryYear);
-        $cardType       = $card['scheme'];
+        $cardScheme      = $card['scheme'];
 
         /** @var PaymentTokenInterface $paymentToken */
         $paymentToken = $this->creditCardTokenFactory->create();
@@ -67,7 +74,7 @@ class VaultTokenFactory {
         }
 
         $tokenDetails = [
-            'type'              => $cardType,
+            'type'              => $this->config->getCardCode($cardScheme),
             'maskedCC'          => $card['last4'],
             'expirationDate'    => $expiryMonth . '/' . $expiryYear,
         ];
