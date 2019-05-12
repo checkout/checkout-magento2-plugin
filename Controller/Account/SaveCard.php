@@ -63,6 +63,6 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
             $this->messageManager->addErrorMessage($e->getMessage());
         }
         
-        return $this->redirect->create()->setPath('vault/cards/listAction');
+        return $this->redirect->create()->setPath('vault/cards/listaction');
     }
 }
