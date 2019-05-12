@@ -12,6 +12,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
 use \Checkout\Models\Payments\Refund;
+use \Checkout\Models\Payments\Voids;
 
 class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
