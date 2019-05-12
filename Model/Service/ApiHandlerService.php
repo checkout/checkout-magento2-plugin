@@ -81,10 +81,10 @@ class ApiHandlerService
 
         // Process the void request
         if (isset($paymentInfo['id'])) {
-            $voidRequest = new Voids($paymentInfo['id']);
+            $request = new Voids($paymentInfo['id']);
             $response = $this->apiHandler->checkoutApi
                 ->payments()
-                ->void($voidRequest);
+                ->void($request);
 
             return $response;
         }
