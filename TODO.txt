@@ -11,6 +11,8 @@
 - add MOTO partial capture feature?
 - update transaction id for MOTO void and refund using webhook
 - move common payment method functions to an abstract class
+- add save card feature in checkout process
+- add instant payments feature
 
 SDK
 - fix typo in sdk  => 'The endpoint did not accepted the request' 
