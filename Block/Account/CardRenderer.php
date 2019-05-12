@@ -15,9 +15,9 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
 class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
 
     /**
-     * @var GatewayConfig
+     * @var Config
      */
-    protected $gatewayConfig;
+    protected $config;
 
     /**
      * CardRenderer constructor.
