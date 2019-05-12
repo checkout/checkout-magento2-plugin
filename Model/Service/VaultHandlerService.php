@@ -237,10 +237,6 @@ class VaultHandlerService {
 
                 // Check if card exists
                 if ($foundPaymentToken) {
-                    if ($foundPaymentToken->getIsActive()) {
-                        //$this->messageManager->addNoticeMessage(__('The credit card has been stored already.'));
-                    }
-
                     // Activate or reactivate the card
                     $foundPaymentToken->setIsActive(true);
                     $foundPaymentToken->setIsVisible(true);
