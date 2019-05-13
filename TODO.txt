@@ -15,3 +15,4 @@
 - move vault option filtering to php
 - filter/hide relevant parameters in frontend config
 - connect the remaining frames parameters (debug, layout...)
+- fix vault method title not showing in order details
