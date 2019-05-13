@@ -15,6 +15,7 @@
 - add instant payments feature
 - move vault option filtering to php
 - filter/hide relevant parameters in frontend config
+- connect the remaining frames parameters (debug, layout...)
 
 SDK
 - fix typo in sdk  => 'The endpoint did not accepted the request' 
