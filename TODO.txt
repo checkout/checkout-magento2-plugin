@@ -13,6 +13,8 @@
 - move common payment method functions to an abstract class
 - add save card feature in checkout process
 - add instant payments feature
+- move vault option filtering to php
+- filter/hide relevant parameters in frontend config
 
 SDK
 - fix typo in sdk  => 'The endpoint did not accepted the request' 
