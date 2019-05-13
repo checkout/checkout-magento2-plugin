@@ -43,9 +43,14 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     protected $config;
 
     /**
-     * @var ApiHandlerService
+     * @var apiHandler
      */
-    protected $apiHandlerService;
+    protected $apiHandler;
+
+    /**
+     * @var VaultHandlerService
+     */
+    protected $vaultHandler;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -72,7 +77,8 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\apiHandler $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         array $data = []
     ) {
         parent::__construct(
@@ -104,6 +110,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
+        $this->vaultHandler       = $vaultHandler;
     }
 
 	/**
@@ -111,8 +118,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function sendPaymentRequest($data, $amount, $currency, $reference = '') {
         try {
+            // Find the  card token
+            $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
+
             // Set the token source
-            $tokenSource = new TokenSource($data['cardToken']);
+            $tokenSource = new TokenSource($card->getGatewayToken());
 
             // Set the payment
             $request = new Payment(
