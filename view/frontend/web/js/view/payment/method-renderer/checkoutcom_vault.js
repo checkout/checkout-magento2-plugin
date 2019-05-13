@@ -99,9 +99,6 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
                     methodId: METHOD_ID,
                     publicHash: self.getPublicHash()
                 });
-
-                // Make sure the card form stays unblocked
-                Frames.unblockFields();
             }
         }
     });
