@@ -22,8 +22,7 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
     return VaultComponent.extend({
         defaults: {
             template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
-            formId: METHOD_ID + '_frm',
-            config: window.checkoutConfig.payment.vault[this.getId()].config
+            formId: METHOD_ID + '_frm'
         },
 
         /**
@@ -40,8 +39,8 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
          * @returns {void}
          */
         buildConfig: function () {
-            this.cardData = cardData = window.checkoutConfig.payment.vault[this.getId()].config;
-            this.iconData = window.checkoutConfig.payment.ccform.icons[cardData.details.type];
+            this.cardData = window.checkoutConfig.payment.vault[this.getId()].config;
+            this.iconData = window.checkoutConfig.payment.ccform.icons[this.cardData.details.type];
         },    
 
         /**
