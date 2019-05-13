@@ -89,24 +89,19 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
         },
 
         /**
-         * @returns {string}
+         * @returns {void}
          */
-        beforePlaceOrder: function() {
-            // Start the loader
-            FullScreenLoader.startLoader();
-
-            // Get self
+        placeOrder: function () {
             var self = this;
-
-            // Place the order
             if (AdditionalValidators.validate()) {
+                // Place the order
                 Utilities.placeOrder({
                     methodId: METHOD_ID,
-                    cardToken: self.cardToken
+                    publicHash: self.getPublicHash()
                 });
-            }
-            else  {
-                FullScreenLoader.stopLoader();
+
+                // Make sure the card form stays unblocked
+                Frames.unblockFields();
             }
         }
     });
