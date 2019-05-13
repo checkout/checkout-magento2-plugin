@@ -15,6 +15,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     protected $orderHandler;
 
     /**
+     * @var VaultHandlerService
+     */
+    protected $vaultHandler;
+
+    /**
      * @var MethodHandlerService
      */
     protected $methodHandler;
@@ -78,6 +83,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         \Magento\Checkout\Model\Session $checkoutSession,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
@@ -89,6 +95,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         $this->jsonFactory = $jsonFactory;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
+        $this->vaultHandler = $vaultHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->checkoutSession = $checkoutSession;
@@ -101,7 +108,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         // Set some required properties
         $this->data = $this->getRequest()->getParams();
         $this->methodId = $this->data['methodId'];
-        $this->cardToken = $this->getRequest()->getParam('cardToken');
+        $this->cardToken = $this->getCardToken();
     }
 
 
@@ -199,4 +206,19 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         }
     }
 
+    protected function getCardToken() {
+        // Get the request parameters
+        $cardToken = $this->getRequest()->getParam('cardToken', null);
+        $publicHash = $this->getRequest()->getParam('publicHash', null);
+
+        // Handle the saved card case
+        if (!$cardToken && $publicHash) {
+            $card = $this->vaultHandler->getCardFromHash($publicHash);
+            if ($card) {
+                return $card->getGatewayToken();
+            }
+        }
+
+        return $cardToken;
+    }
 }
