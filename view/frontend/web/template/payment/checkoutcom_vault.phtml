@@ -23,9 +23,9 @@
         <label class="label" data-bind="attr: {'for': getId()}">
             <span data-bind="text: getTitle()"></span>
             <img data-bind="attr: {
-            'src': getIcons(getCardType()).url,
-            'width': getIcons(getCardType()).width,
-            'height': getIcons(getCardType()).height
+            'src': getIcon().url,
+            'width': getIcon().width,
+            'height': getIcon().height
             }" class="payment-icon">
             <span translate="'ending'"></span>
             <span text="getMaskedCard()"></span>

@@ -22,7 +22,35 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
     return VaultComponent.extend({
         defaults: {
             template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
-            formId: METHOD_ID + '_frm'
+            formId: METHOD_ID + '_frm',
+            config: window.checkoutConfig.payment.vault[this.getId()].config
+        },
+
+        /**
+         * @returns {exports}
+         */
+        initialize: function () {
+            this._super();
+            this.buildConfig();
+
+            return this;
+        },
+
+        /**
+         * @returns {void}
+         */
+        buildConfig: function () {
+            this.cardData = cardData = window.checkoutConfig.payment.vault[this.getId()].config;
+            this.iconData = window.checkoutConfig.payment.ccform.icons[cardData.details.type];
+        },    
+
+        /**
+         * Get the card icon.
+         *
+         * @returns {String}
+         */
+        getIcon: function () {
+            return this.iconData;
         },
 
         /**
@@ -31,8 +59,7 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
          * @returns {String}
          */
         getMaskedCard: function () {
-            console.log(this.getId());
-            return this.maskedCC;
+            return this.cardData.details.maskedCC;
         },
 
         /**
@@ -41,7 +68,7 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
          * @returns {String}
          */
         getExpirationDate: function () {
-            return this.expirationDate;
+            return this.cardData.details.expirationDate;
         },
 
         /**
@@ -50,7 +77,7 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
          * @returns {String}
          */
         getCardType: function () {
-            return this.type;
+            return this.cardData.details.type;
         },
 
         /**
@@ -59,7 +86,7 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
          * @returns {String}
          */
         getPublicHash: function () {
-            return this.publicHash;
+            return this.cardData.publicHash;
         },
 
         /**
