@@ -31,7 +31,8 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
          * @returns {String}
          */
         getMaskedCard: function () {
-            return this.details.maskedCC;
+            console.log(this.getId());
+            return this.maskedCC;
         },
 
         /**
@@ -40,7 +41,7 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
          * @returns {String}
          */
         getExpirationDate: function () {
-            return this.details.expirationDate;
+            return this.expirationDate;
         },
 
         /**
@@ -49,7 +50,7 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
          * @returns {String}
          */
         getCardType: function () {
-            return this.details.type;
+            return this.type;
         },
 
         /**
