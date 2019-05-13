@@ -64,9 +64,6 @@
             // Disable the save button
             saveCardButton.attr("disabled", true);
 
-            // Prevent default events
-            event.preventDefault();
-
             // Send the request
             $.ajax({
                 type: 'POST',
@@ -74,20 +71,18 @@
                 data: {cardToken: cardTokenField.val()},
                 success: function (data) {
                     if (!data.success) {
+                        // Todo - handle error message display
                         //FullScreenLoader.stopLoader();
                         //self.showMessage('error', data.message);
                     }
                     else if (data.success && data.url) {
-                        // Handle 3DS redirection
-                        //window.location.href = data.url
-                    }
-                    else {
-                        // Normal redirection
-                        //RedirectOnSuccessAction.execute();
+                        // Todo - handle3 DS redirection
+                        window.location.href = data.url
                     }
                 },
                 error: function (request, status, error) {
-                    //FullScreenLoader.stopLoader();
+                   // Todo - handle error message display
+                   //FullScreenLoader.stopLoader();
                    // self.showMessage('error', error);
                 }
             });

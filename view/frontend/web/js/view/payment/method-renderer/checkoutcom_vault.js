@@ -57,7 +57,7 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
          *
          * @returns {String}
          */
-        getToken: function () {
+        getPublicHash: function () {
             return this.publicHash;
         },
 

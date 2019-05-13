@@ -20,21 +20,14 @@ class TokenUiComponentProvider implements TokenUiComponentProviderInterface
      * @var TokenUiComponentInterfaceFactory
      */
     private $componentFactory;
-
-    /**
-     * @var Config
-     */
-    protected $config;
     
     /**
      * TokenUiComponentProvider constructor.
      */
     public function __construct(
-        \Magento\Vault\Model\Ui\TokenUiComponentInterfaceFactory $componentFactory,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \Magento\Vault\Model\Ui\TokenUiComponentInterfaceFactory $componentFactory
     ) {
         $this->componentFactory = $componentFactory;
-        $this->config = $config;
     }
 
     /**

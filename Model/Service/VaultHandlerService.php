@@ -144,7 +144,6 @@ class VaultHandlerService {
         return $this;
     }
 
-
     /**
      * Saves the credit card in the repository.
      *
@@ -232,15 +231,11 @@ class VaultHandlerService {
                 $cardData = $values['source'];
 
                 // Create the payment token
-                $paymentToken = $this->vaultTokenFactory->create($cardData, 'checkoutcom_card_payment', $this->customerId);
+                $paymentToken = $this->vaultTokenFactory->create($cardData, 'checkoutcom_vault', $this->customerId);
                 $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
 
                 // Check if card exists
                 if ($foundPaymentToken) {
-                    if ($foundPaymentToken->getIsActive()) {
-                        //$this->messageManager->addNoticeMessage(__('The credit card has been stored already.'));
-                    }
-
                     // Activate or reactivate the card
                     $foundPaymentToken->setIsActive(true);
                     $foundPaymentToken->setIsVisible(true);
@@ -255,8 +250,9 @@ class VaultHandlerService {
                     $this->paymentTokenRepository->save($paymentToken);
                 }
             }
-
         }
+
+        return $success;
     }
     
     /**

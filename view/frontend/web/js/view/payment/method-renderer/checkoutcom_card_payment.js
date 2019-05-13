@@ -32,7 +32,7 @@ define([
                 this.isPlaceOrderActionAllowed(false);
                 this.loadVault();
 
-                return  this;
+                return this;
             },
 
             /**
