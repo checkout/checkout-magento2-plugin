@@ -25,7 +25,6 @@
                                                                 <item name="checkoutcom_magento2" xsi:type="array">
                                                                     <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/method-renderer</item>
                                                                     <item name="methods" xsi:type="array">
-
                                                                         <item name="checkoutcom_card_payment" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
