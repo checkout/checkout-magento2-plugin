@@ -259,17 +259,45 @@ class VaultHandlerService {
      * Checks if a user has saved cards.
      */
     public function userHasCards() {
-        // Get the customer id (currently logged in user)
-        $customerId = $this->customerSession->getCustomer()->getId();   
-        
         // Get the card list
-        if ((int) $customerId > 0) {
-            $cardList = $this->paymentTokenManagement->getListByCustomerId($customerId);
-            if (count($cardList) > 0) {
-                return  true;
-            }
+        $cardList = $this->getUserCards();
+
+        // Check if the user has cards
+        if (count($cardList) > 0) {
+            return  true;
         }
 
         return false;
+    }
+
+    /**
+     * Get a user's saved card from public hash.
+     */
+    public function getCardFromHash($publicHash) {
+        if ($publicHash) {
+            $cardList = $this->getUserCards();
+            foreach ($cardList as $card) {
+                if ($card->getPublicHash() == $publicHash) {
+                    return $card;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get a user's saved cards.
+     */
+    public function getUserCards() {
+        // Get the customer id (currently logged in user)
+        $customerId = $this->customerSession->getCustomer()->getId(); 
+
+        // Find the customer cards
+        if ((int) $customerId > 0) {
+            return $this->paymentTokenManagement->getListByCustomerId($customerId);
+        }
+
+        return [];
     }
 }

@@ -2,7 +2,7 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Models\Payments\TokenSource;
+use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 
@@ -43,9 +43,14 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     protected $config;
 
     /**
-     * @var ApiHandlerService
+     * @var apiHandler
      */
-    protected $apiHandlerService;
+    protected $apiHandler;
+
+    /**
+     * @var VaultHandlerService
+     */
+    protected $vaultHandler;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -72,7 +77,8 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         array $data = []
     ) {
         parent::__construct(
@@ -104,19 +110,23 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
+        $this->vaultHandler       = $vaultHandler;
     }
 
 	/**
      * Send a charge request.
      */
-    public function sendPaymentRequest($cardToken, $amount, $currency, $reference = '') {
+    public function sendPaymentRequest($data, $amount, $currency, $reference = '') {
         try {
+            // Find the  card token
+            $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
+
             // Set the token source
-            $tokenSource = new TokenSource($cardToken);
+            $idSource = new IdSource($card->getGatewayToken());
 
             // Set the payment
             $request = new Payment(
-                $tokenSource, 
+                $idSource,
                 $currency
             );
 
@@ -149,21 +159,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 ->payments()
                 ->request($request);
 
-            // Todo - remove logging code
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/card_response.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($response, 1));
-
             return $response;
-        }   
+        }
 
         catch(\Exception $e) {
-            // Todo - remove logging code
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/card_error.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($e->getMessage(), 1));
+
         }
     }
 
