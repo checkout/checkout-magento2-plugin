@@ -2,7 +2,7 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Models\Payments\TokenSource;
+use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 
@@ -122,11 +122,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
 
             // Set the token source
-            $tokenSource = new TokenSource($card->getGatewayToken());
+            $idSource = new IdSource($card->getGatewayToken());
 
             // Set the payment
             $request = new Payment(
-                $tokenSource,
+                $idSource,
                 $currency
             );
 
