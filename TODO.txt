@@ -4,7 +4,6 @@
 - add order status actions for capture, refund, void, flagged
 - add APMs forms and payment requests
 - check issue with default button state
-
 - check after multiple failed requests (add idempotency?)
 - add  guest user email Retrieval for checkout
 - add vault feature
@@ -16,6 +15,3 @@
 - move vault option filtering to php
 - filter/hide relevant parameters in frontend config
 - connect the remaining frames parameters (debug, layout...)
-
-SDK
-- fix typo in sdk  => 'The endpoint did not accepted the request' 
