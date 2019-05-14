@@ -16,3 +16,6 @@
 - filter/hide relevant parameters in frontend config
 - connect the remaining frames parameters (debug, layout...)
 - fix vault method title not showing in order details
+- do CLR to LF normalisation
+- update git ignore
+
