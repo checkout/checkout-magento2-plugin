@@ -311,6 +311,7 @@ define(
                      * @see {@link https://developers.google.com/pay/api/web/reference/object#PaymentData|PaymentData object reference}
                      */
                     function processPayment(paymentData) {
+                        fullScreenLoader.startLoader();
                         self.logEvent(JSON.parse(paymentData.paymentMethodToken.token));
                         $.post(
                             url.build('checkout_com/payment/googlepayplaceorder'),
@@ -322,7 +323,6 @@ define(
                             function (data, status) {
                                 if (data.status === true) {
                                     // redirect to success page
-                                    fullScreenLoader.startLoader();
                                     redirectOnSuccessAction.execute();                                     
                                 }
                                 else {

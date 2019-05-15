@@ -91,6 +91,9 @@ class ApplePayPlaceOrder extends AbstractAction {
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function execute() {
+        // Response status
+        $success = false;
+
         // Get the request parameters
         $params = $this->getRequest()->getParams();
 
@@ -104,11 +107,14 @@ class ApplePayPlaceOrder extends AbstractAction {
         }
         
         // Send the charge request
-        $success = $this->tokenChargeService->sendApplePayChargeRequest($params, $quote);
+        $response = $this->tokenChargeService->sendApplePayChargeRequest($params, $quote);
 
         // If charge is successful, create order
-        if ($success) {
+        if (isset($response['responseCode']) && ((int) $response['responseCode'] == 10000 || (int) $response['responseCode'] == 10100)) {
             $orderId = $this->createOrder($quote);
+            if ((int) $orderId > 0) {
+                $success = true;
+            }
         }
 
         return $this->resultJsonFactory->create()->setData([
