@@ -26,12 +26,39 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
         },
 
         /**
+         * @returns {exports}
+         */
+        initialize: function () {
+            this._super();
+            this.buildConfig();
+
+            return this;
+        },
+
+        /**
+         * @returns {void}
+         */
+        buildConfig: function () {
+            this.cardData = window.checkoutConfig.payment.vault[this.getId()].config;
+            this.iconData = window.checkoutConfig.payment.ccform.icons[this.cardData.details.type];
+        },    
+
+        /**
+         * Get the card icon.
+         *
+         * @returns {String}
+         */
+        getIcon: function () {
+            return this.iconData;
+        },
+
+        /**
          * Get last 4 digits of card.
          *
          * @returns {String}
          */
         getMaskedCard: function () {
-            return this.details.maskedCC;
+            return this.cardData.details.maskedCC;
         },
 
         /**
@@ -40,7 +67,7 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
          * @returns {String}
          */
         getExpirationDate: function () {
-            return this.details.expirationDate;
+            return this.cardData.details.expirationDate;
         },
 
         /**
@@ -49,7 +76,7 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
          * @returns {String}
          */
         getCardType: function () {
-            return this.details.type;
+            return this.cardData.details.type;
         },
 
         /**
@@ -58,28 +85,20 @@ function ($, VaultComponent, AdditionalValidators, Utilities) {
          * @returns {String}
          */
         getPublicHash: function () {
-            return this.publicHash;
+            return this.cardData.publicHash;
         },
 
         /**
-         * @returns {string}
+         * @returns {void}
          */
-        beforePlaceOrder: function() {
-            // Start the loader
-            FullScreenLoader.startLoader();
-
-            // Get self
+        placeOrder: function () {
             var self = this;
-
-            // Place the order
             if (AdditionalValidators.validate()) {
+                // Place the order
                 Utilities.placeOrder({
                     methodId: METHOD_ID,
-                    cardToken: self.cardToken
+                    publicHash: self.getPublicHash()
                 });
-            }
-            else  {
-                FullScreenLoader.stopLoader();
             }
         }
     });

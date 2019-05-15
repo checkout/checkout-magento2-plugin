@@ -4,7 +4,6 @@
 - add order status actions for capture, refund, void, flagged
 - add APMs forms and payment requests
 - check issue with default button state
-
 - check after multiple failed requests (add idempotency?)
 - add  guest user email Retrieval for checkout
 - add vault feature
@@ -13,6 +12,10 @@
 - move common payment method functions to an abstract class
 - add save card feature in checkout process
 - add instant payments feature
+- move vault option filtering to php
+- filter/hide relevant parameters in frontend config
+- connect the remaining frames parameters (debug, layout...)
+- fix vault method title not showing in order details
+- do CLR to LF normalisation
+- update git ignore
 
-SDK
-- fix typo in sdk  => 'The endpoint did not accepted the request' 

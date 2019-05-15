@@ -101,7 +101,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         // Set some required properties
         $this->data = $this->getRequest()->getParams();
         $this->methodId = $this->data['methodId'];
-        $this->cardToken = $this->getRequest()->getParam('cardToken');
     }
 
 
@@ -198,5 +197,4 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             return false;
         }
     }
-
 }
