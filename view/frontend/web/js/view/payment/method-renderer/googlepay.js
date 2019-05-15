@@ -326,6 +326,7 @@ define(
                                     redirectOnSuccessAction.execute();                                     
                                 }
                                 else {
+                                    fullScreenLoader.stopLoader();
                                     alert(t('An error has occurred. Please try again.'));
                                 }
                             }
