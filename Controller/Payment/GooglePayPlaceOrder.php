@@ -91,6 +91,9 @@ class GooglePayPlaceOrder extends AbstractAction {
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function execute() {
+        // Response status
+        $success = false;
+
         // Get the request parameters
         $params = $this->getRequest()->getParams();
 
@@ -104,11 +107,14 @@ class GooglePayPlaceOrder extends AbstractAction {
         }
         
         // Send the charge request
-        $success = $this->tokenChargeService->sendGooglePayChargeRequest($params, $quote);
+        $response = $this->tokenChargeService->sendGooglePayChargeRequest($params, $quote);
 
         // If charge is successful, create order
-        if ($success) {
+        if (isset($response['responseCode']) && ((int) $response['responseCode'] == 10000 || (int) $response['responseCode'] == 10100)) {
             $orderId = $this->createOrder($quote);
+            if ((int) $orderId > 0) {
+                $success = true;
+            }
         }
 
         return $this->resultJsonFactory->create()->setData([
