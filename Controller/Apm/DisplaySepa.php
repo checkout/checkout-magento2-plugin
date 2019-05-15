@@ -2,18 +2,24 @@
 
 namespace CheckoutCom\Magento2\Controller\Apm;
 
+use Checkout\CheckoutApi;
+use Checkout\Library\HttpHandler;
+use Checkout\Models\Sources\Sepa;
+use Checkout\Models\Sources\SepaData;
+use Checkout\Models\Sources\SepaAddress;
+
 class DisplaySepa extends \Magento\Framework\App\Action\Action {
 
 	/**
      * @var Context
      */
-    protected $context; 
+    protected $context;
 
     /**
      * @var PageFactory
      */
-    protected $pageFactory;  
-   
+    protected $pageFactory;
+
     /**
      * @var JsonFactory
      */
@@ -25,13 +31,42 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
     protected $config;
 
     /**
+     * @var CheckoutApi
+     */
+    protected $apiHandler;
+
+    /**
+     * @var QuoteHandlerService
+     */
+    protected $quoteHandler;
+
+    /**
+     * @var Quote
+     */
+    protected $quote;
+
+    /**
+     * @var Address
+     */
+    protected $billingAddress;
+
+    /**
+     * @var Store
+     */
+    protected $store;
+
+    /**
      * Display constructor
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\View\Result\PageFactory $pageFactory,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \Magento\Store\Model\Information $storeManager,
+        \Magento\Store\Model\Store $store
     ) {
         parent::__construct($context);
 
@@ -44,6 +79,15 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
         $this->task = $this->getRequest()->getParam('task');
         $this->bic = $this->getRequest()->getParam('bic');
         $this->account_iban = $this->getRequest()->getParam('account_iban');
+
+        // Try to load a quote
+        $this->quoteHandler = $quoteHandler;
+        $this->quote = $this->quoteHandler->getQuote();
+        $this->billingAddress = $quoteHandler->getBillingAddress();
+        $this->store = $storeManager->getStoreInformationObject($store);
+
+        // SDK related
+        $this->apiHandler = $apiHandler;
     }
 
     /**
@@ -57,7 +101,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
         if ($this->isValidRequest()) {
             $html = $this->runTask();
         }
-    
+
         return $this->jsonFactory->create()->setData(
             ['html' => $html]
         );
@@ -99,7 +143,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
      */
     protected function isValidApm() {
         // Get the list of APM
-        $apmEnabled = explode(',', 
+        $apmEnabled = explode(',',
             $this->config->getValue('apm_enabled', 'checkoutcom_apm')
         );
 
@@ -110,24 +154,105 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
     /**
      * Returns the SEPA mandate block.
      */
-    protected function loadBlock()
+    protected function loadBlock($reference)
     {
         return $this->pageFactory->create()->getLayout()
-        ->createBlock('CheckoutCom\Magento2\Block\Apm\Form')
+        ->createBlock('CheckoutCom\Magento2\Block\Apm\Sepa\Mandate')
         ->setTemplate('CheckoutCom_Magento2::payment/apm/sepa/mandate.phtml')
+        ->setData('billingAddress', $this->billingAddress)
+        ->setData('store', $this->store)
+        ->setData('reference', $reference)
         ->toHtml();
     }
 
     /**
-     * Request the SEPA mandate.
+     * Gets the mandate.
+     *
+     * @return     <type>  The mandate.
      */
     public function getMandate() {
-        // Todo - Send the mandate request using the SDK 
-        $mandate = true;
 
-        // Return the mandate content 
-        if ($mandate) {
-            return $this->loadBlock();
+        $html = null; // @todo: return error message in HTML
+        $mandate = null;
+        $sepa = $this->requestSepa();
+        if($sepa && $sepa->isSuccessful()) {
+            $html = $this->loadBlock($sepa->response_data['mandate_reference']);
         }
+
+        return $html;
+
     }
+
+
+
+    /**
+     * Methods
+     */
+
+    /**
+     * Request gateway to add new source.
+     *
+     * @return     Sepa
+     */
+    protected function requestSepa() {
+
+        $address = new SepaAddress( $this->billingAddress->getStreetLine(1),
+                                    $this->billingAddress->getCity(),
+                                    $this->billingAddress->getPostcode(),
+                                    $this->billingAddress->getCountryId());
+        $address->address_line2 = $this->billingAddress->getStreetLine(2);
+
+        $data = new SepaData(   $this->billingAddress->getFirstname(),
+                                $this->billingAddress->getLastname(),
+                                $this->account_iban,
+                                $this->bic,
+                                $this->config->getStoreName(),
+                                'single');
+
+        $source = new Sepa($address, $data);
+
+        try {
+
+            $sepa = $this->apiHandler->checkoutApi->sources()
+                                                     ->add($source);
+
+        } catch(Checkout\Library\Exceptions\CheckoutHttpException $ex) {
+            // @todo: debug error
+            $sepa =  null;
+        }
+
+        return $sepa;
+
+    }
+
+    /**
+     * Generate the array with the information of the mandate.
+     *
+     * @param      \Checkout\Models\Sources\Sepa  $sepa   The sepa
+     *
+     * @return     array
+     */
+    protected function generateMandate(Sepa $sepa) {
+
+        $url = $sepa->getSepaMandateGet();
+        $secret = $this->config->getValue('secret_key');
+        $options = array(
+            CURLOPT_FAILONERROR => false,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => array('Content-type: ' . HttpHandler::MIME_TYPE_JSON,
+                                        'Accept: ' . HttpHandler::MIME_TYPE_JSON,
+                                        'Authorization: ' . $secret,
+                                        'User-Agent: checkout-magento2-plugin/1.0.0')
+
+        );
+
+        $curl = curl_init($url);
+        curl_setopt_array($curl, $options);
+        $content = curl_exec($curl);
+        curl_close($curl);
+
+        return json_decode($content, true);
+
+    }
+
 }

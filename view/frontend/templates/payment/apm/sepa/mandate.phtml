@@ -9,20 +9,22 @@
     <div class="sepa-mandate-content">
         <div class="sepa-creditor">
             <h2 style="margin: unset;"><?= __('Creditor')?></h2>
-            <h3 style="margin: unset; font-weight: bold; ">b4payment GmbH</h3>
-            <p style="margin: unset;">Obermünsterstraße&nbsp;14</p>
-            <p style="margin: unset;">93047&nbsp;Regensburg</p>
-            <p style="margin: unset;">GERMANY</p>
+            <h3 style="margin: unset; font-weight: bold; "><?= $block->getData('store')->getName(); ?></h3>
+            <p style="margin: unset;" class="ng-star-inserted"><?= $block->getData('store')->getStreetLine(1); ?></p>
+            <p style="margin: unset;"><?= $block->getData('store')->getStreetLine(2); ?></p>
+            <p style="margin: unset;"><?= ($block->getData('store')->getPostcode() . ' ' . $block->getData('store')->getCity()); ?></p>
+            <p style="margin: unset;"><?= $block->getData('store')->getCountry(); ?></p>
             <br>
-            <p style="margin: unset;" class="monospace"><?= __('Creditor ID')?>: DE36ZZZ00001690322</p>
+            <p style="margin: unset;" class="monospace"><?= (__('Creditor ID') . ': ' . $block->getData('reference'))?></p>
         </div>
         <div class="sepa-debitor">
             <h2 style="margin: unset;"><?= __('Debitor')?></h2>
-            <h3 style="margin: unset; font-weight: bold; "><?php //echo $billingInfo['customerName']; ?></h3>
+            <h3 style="margin: unset; font-weight: bold; "><?= ($block->getData('billingAddress')->getFirstname() . ' ' . $block->getData('billingAddress')->getLastname()); ?></h3>
             <div class="address" style="margin: unset;">
-                <p style="margin: unset;" class="ng-star-inserted"><?php //echo $billingInfo['billAddress1']; ?></p>
-                <p style="margin: unset;"><?php //echo $billingInfo['billAddress2'] . ', '. $billingInfo['billCity'] ; ?></p>
-                <p style="margin: unset;"><?php //echo $billingInfo['billCountry']; ?></p>
+                <p style="margin: unset;" class="ng-star-inserted"><?= $block->getData('billingAddress')->getStreetLine(1); ?></p>
+                <p style="margin: unset;"><?= $block->getData('billingAddress')->getStreetLine(2); ?></p>
+                <p style="margin: unset;"><?= ($block->getData('billingAddress')->getPostcode() . ' ' . $block->getData('billingAddress')->getCity()); ?></p>
+                <p style="margin: unset;"><?= $block->getData('billingAddress')->getCountry(); ?></p>
             </div>
             <br>
             <p class="monospace" style="margin: unset;" id="sepa-dd-bic"></p>

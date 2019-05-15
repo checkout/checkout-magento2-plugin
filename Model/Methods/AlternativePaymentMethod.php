@@ -3,7 +3,9 @@
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\PoliSource;
+use \Checkout\Models\Payments\EpsSource;
+use \Checkout\Models\Payments\IdSource;
+use \Checkout\Models\Payments\KlarnaSource;
 use \Checkout\Models\Payments\IdealSource;
 use \Checkout\Models\Payments\AlipaySource;
 use \Checkout\Models\Payments\BoletoSource;
@@ -86,26 +88,30 @@ class AlternativePaymentMethod extends Method
         AlternativePaymentMethod::PAYMENT_POLI => 'Poli',
         //AlternativePaymentMethod::PAYMENT_QIWI => 'Qiwi',
         //AlternativePaymentMethod::PAYMENT_SAFETYPAY => 'SafetyPay',
-        //AlternativePaymentMethod::PAYMENT_KLARNA => 'Klarna',
+        AlternativePaymentMethod::PAYMENT_KLARNA => 'Klarna',
         AlternativePaymentMethod::PAYMENT_SOFORT => 'Sofort',
-        //AlternativePaymentMethod::PAYMENT_EPS => 'EPS'
+        AlternativePaymentMethod::PAYMENT_EPS => 'EPS'
     );
 
     /**
      * @var array
      */
     const SUPPORTED_CURRENCIES = array(
-        AlternativePaymentMethod::PAYMENT_SEPA => array('EUR'),
-        AlternativePaymentMethod::PAYMENT_ALIPAY => array('USD'),
-        AlternativePaymentMethod::PAYMENT_BOLETO => array('USD', 'BRL'),
-        AlternativePaymentMethod::PAYMENT_GIROPAY => array('EUR'),
-        AlternativePaymentMethod::PAYMENT_IDEAL => array('EUR'),
-        AlternativePaymentMethod::PAYMENT_POLI => array('AUD', 'NZD'),
-        //AlternativePaymentMethod::PAYMENT_QIWI => array('USD', 'EUR'),
-        //AlternativePaymentMethod::PAYMENT_SAFETYPAY => array('EUR'),
-        //AlternativePaymentMethod::PAYMENT_KLARNA => array('EUR', 'DKK', 'GBP', 'NOK', 'SEK'),
-        AlternativePaymentMethod::PAYMENT_SOFORT => array('EUR'),
-        //AlternativePaymentMethod::PAYMENT_EPS => array('EUR')
+        'EUR' => array(AlternativePaymentMethod::PAYMENT_SEPA,
+                        AlternativePaymentMethod::PAYMENT_GIROPAY,
+                        AlternativePaymentMethod::PAYMENT_IDEAL,
+                        AlternativePaymentMethod::PAYMENT_KLARNA,
+                        AlternativePaymentMethod::PAYMENT_SOFORT,
+                        AlternativePaymentMethod::PAYMENT_EPS),
+        'USD' => array(AlternativePaymentMethod::PAYMENT_ALIPAY,
+                        AlternativePaymentMethod::PAYMENT_BOLETO),
+        'BRL' => array(AlternativePaymentMethod::PAYMENT_BOLETO),
+        'AUD' => array(AlternativePaymentMethod::PAYMENT_POLI),
+        'NZD' => array(AlternativePaymentMethod::PAYMENT_POLI),
+        'DKK' => array(AlternativePaymentMethod::PAYMENT_KLARNA),
+        'GBP' => array(AlternativePaymentMethod::PAYMENT_KLARNA),
+        'NOK' => array(AlternativePaymentMethod::PAYMENT_KLARNA),
+        'SEK' => array(AlternativePaymentMethod::PAYMENT_KLARNA)
     );
 
     /**
@@ -138,6 +144,8 @@ class AlternativePaymentMethod extends Method
 
             return $response;
 
+        } else {
+\CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->sendPaymentRequest:: Payment not supported');
         }
 
     }
@@ -172,7 +180,7 @@ class AlternativePaymentMethod extends Method
      */
     protected function validateCurrency(string $method, string $currency) {
 
-        return isset(AlternativePaymentMethod::SUPPORTED_CURRENCIES[$method]) && in_array($currency, AlternativePaymentMethod::SUPPORTED_CURRENCIES[$method]);
+        return isset(AlternativePaymentMethod::SUPPORTED_CURRENCIES[$currency]) && in_array($method, AlternativePaymentMethod::SUPPORTED_CURRENCIES[$currency]);
 
     }
 
@@ -190,10 +198,22 @@ class AlternativePaymentMethod extends Method
      *
      * @return     TokenSource
      */
-    protected static function sepa($data) {
+    protected function sepa($data) {
+
+
+        $this->activateSepa();
+
+
+
+
+
+
+
+
+
 //@todo: make sepa; this will require a separate flow
         \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->sepa');
-
+        return new IdSource('t');
     }
 
     /**
@@ -203,7 +223,7 @@ class AlternativePaymentMethod extends Method
      *
      * @return     TokenSource
      */
-    protected static function alipay($data) {
+    protected function alipay($data) {
         return new AlipaySource();
     }
 
@@ -214,11 +234,8 @@ class AlternativePaymentMethod extends Method
      *
      * @return     BoletoSource
      */
-    protected static function boleto($data) {
-        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->boleto');
-        return new BoletoSource('asdads',
-                                $data['birthDate'],
-                                $data['cpf']);
+    protected function boleto($data) {
+        return new BoletoSource($data['name'], $data['birthDate'], $data['cpf']);
     }
 
     /**
@@ -229,7 +246,7 @@ class AlternativePaymentMethod extends Method
      * @return     GiropaySource
      */
     protected function giropay(array $data) {
-        $source = new GiropaySource($data['purpose'],
+        $source = new GiropaySource(__('Payment request from %1', $this->config->getStoreName()),
                                     static::getValue('bic', $data));
         $source->iban = static::getValue('iban', $data);
         return $source;
@@ -242,9 +259,9 @@ class AlternativePaymentMethod extends Method
      *
      * @return     TokenSource
      */
-    protected static function ideal($data) {
+    protected function ideal($data) {
         $source = new IdealSource($data['bic'],
-                                  $data['description']);
+                                  __('Payment request from %1', $this->config->getStoreName()));
         $source->language = static::getValue('language', $data);
         return $source;
     }
@@ -256,7 +273,7 @@ class AlternativePaymentMethod extends Method
      *
      * @return     TokenSource
      */
-    protected static function poli($data) {
+    protected function poli($data) {
         return new PoliSource();
     }
 
@@ -267,8 +284,7 @@ class AlternativePaymentMethod extends Method
      *
      * @return     TokenSource
      */
-    protected static function sofort($data) {
-        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->sofort');
+    protected function sofort($data) {
         return new SofortSource();
     }
 
@@ -279,9 +295,9 @@ class AlternativePaymentMethod extends Method
      *
      * @return     TokenSource
      */
-    protected static function klarna($data) {
+    protected function klarna($data) {
         \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->klarna');
-        return new PoliSource();
+        return new KlarnaSource();
     }
 
     /**
@@ -291,10 +307,23 @@ class AlternativePaymentMethod extends Method
      *
      * @return     TokenSource
      */
-    protected static function eps($data) {
-        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->eps');
-        return new PoliSource();
+    protected function eps($data) {
+        return new EpsSource(__('Payment request from %1', $this->config->getStoreName()));
     }
+
+
+
+
+    /**
+     * Methods
+     *
+     * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
+     *
+     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return     self                                             ( description_of_the_return_value )
+     */
+
 
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {

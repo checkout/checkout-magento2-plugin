@@ -32,7 +32,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandler;   
+    protected $apiHandler;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -55,9 +55,9 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Quote\Api\CartManagementInterface $quoteManagement,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Backend\Model\Session\Quote $sessionQuote,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         array $data = []
     ) {
         parent::__construct(

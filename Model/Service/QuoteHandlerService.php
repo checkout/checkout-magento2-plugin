@@ -189,8 +189,8 @@ class QuoteHandlerService
      * Gets a quote currency
      */
     public function getQuoteCurrency() {
-        try {            
-            return $this->getQuote()->getQuoteCurrencyCode() 
+        try {
+            return $this->getQuote()->getQuoteCurrencyCode()
             ?? $this->storeManager->getStore()->getCurrentCurrency()->getCode();
         } catch (\Exception $e) {
             return false;
@@ -201,7 +201,7 @@ class QuoteHandlerService
      * Gets a quote value
      */
     public function getQuoteValue() {
-        try {            
+        try {
             return $this->getQuote()
             ->collectTotals()
             ->save()
@@ -210,4 +210,20 @@ class QuoteHandlerService
             return false;
         }
     }
+
+    /**
+     * Gets the billing address.
+     *
+     * @return     Address  The billing address.
+     */
+    public function getBillingAddress() {
+
+        try {
+            return $this->getQuote()->getBillingAddress();
+        } catch (\Exception $e) {
+            return false;
+        }
+
+    }
+
 }
