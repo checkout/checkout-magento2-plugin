@@ -108,7 +108,8 @@ define(
              * @returns {string}
              */
             getQuoteValue: function() {
-                return (CheckoutCom.getPaymentConfig()['quote_value'].toFixed(2))*100;
+                var total = window.checkoutConfig.totalsData['base_subtotal_with_discount'];
+                return parseFloat(total).toFixed(2)*100;
             },
 
             /**
