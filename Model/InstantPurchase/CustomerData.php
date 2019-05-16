@@ -3,7 +3,7 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace CheckoutCom\Magento2\CustomerData;
+namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
 use Magento\Customer\CustomerData\SectionSourceInterface;
 use Magento\Customer\Model\Session;
@@ -22,7 +22,7 @@ use Magento\Store\Model\StoreManagerInterface;
  *  - billing address
  *  - shipping method
  */
-class InstantPurchase implements SectionSourceInterface
+class CustomerData implements SectionSourceInterface
 {
     /**
      * @var Session
@@ -92,17 +92,16 @@ class InstantPurchase implements SectionSourceInterface
         $customer = $this->customerSession->getCustomer();
         $instantPurchaseOption = $this->instantPurchase->getOption($store, $customer);
         $data = [
-            'available' => $instantPurchaseOption->isAvailable()
+            //'available' => $instantPurchaseOption->isAvailable()
+            'available' => true
         ];
 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/xxx.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($data, 1));
-
+        return $data;
+        /*
         if (!$instantPurchaseOption->isAvailable()) {
             return $data;
         }
+        */
 
         $paymentToken = $instantPurchaseOption->getPaymentToken();
         $shippingAddress = $instantPurchaseOption->getShippingAddress();
