@@ -13,15 +13,6 @@ use Magento\InstantPurchase\Model\Ui\PaymentTokenFormatter;
 use Magento\InstantPurchase\Model\Ui\ShippingMethodFormatter;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Instant Purchase private customer data source.
- *
- * Contains all required data to perform instance purchase:
- *  - payment method
- *  - shipping address
- *  - billing address
- *  - shipping method
- */
 class CustomerData implements SectionSourceInterface
 {
     /**
@@ -84,12 +75,18 @@ class CustomerData implements SectionSourceInterface
      */
     public function getSectionData(): array
     {
+        // Restrict instant purchase to logged in users
         if (!$this->customerSession->isLoggedIn()) {
             return ['available' => false];
         }
 
+        // Get the store manager
         $store = $this->storeManager->getStore();
+
+        // Get the customer instance
         $customer = $this->customerSession->getCustomer();
+
+        // Get the instant purchase option
         $instantPurchaseOption = $this->instantPurchase->getOption($store, $customer);
         $data = [
             //'available' => $instantPurchaseOption->isAvailable()
