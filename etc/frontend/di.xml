@@ -35,4 +35,5 @@
             </argument>
         </arguments>
     </type>
+    <preference for="Magento\InstantPurchase\Controller\Button\PlaceOrder" type="CheckoutCom\Magento2\Controller\Button\PlaceOrder" />
 </config>
