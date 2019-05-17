@@ -106,7 +106,7 @@ class QuoteHandlerService
         $quote->setStore($this->storeManager->getStore());
 
         // Set the quote currency
-        $currency = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+        $currency = $this->storeManager->getStore()->getCurrentCurrency();
         $quote->setCurrency($currency);
 
         // Set the quote customer
