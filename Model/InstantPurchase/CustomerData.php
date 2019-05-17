@@ -46,7 +46,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
      * InstantPurchase constructor.
      * @param Session $customerSession
      * @param StoreManagerInterface $storeManager
-     * @param InstantPurchaseModel $instantPurchase
+     * @param InstantPurchaseInterface $instantPurchase
      * @param CustomerAddressesFormatter $customerAddressesFormatter
      * @param ShippingMethodFormatter $shippingMethodFormatter
      * @param VaultHandlerService $vaultHandler
@@ -56,7 +56,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\InstantPurchase\Model\InstantPurchaseInterface $instantPurchase,
-        \CheckoutCom\Magento2\Model\InstantPurchase $paymentTokenFormatter,
+        \CheckoutCom\Magento2\Model\InstantPurchase\TokenFormatter $paymentTokenFormatter,
         \Magento\InstantPurchase\Model\Ui\CustomerAddressesFormatter $customerAddressesFormatter,
         \Magento\InstantPurchase\Model\Ui\ShippingMethodFormatter $shippingMethodFormatter,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
