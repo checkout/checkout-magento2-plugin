@@ -104,11 +104,8 @@ class QuoteHandlerService
         // Create the quote instance
         $quote = $this->quoteFactory->create();
         $quote->setStore($this->storeManager->getStore());
-
-        // Set the quote currency
-        $currency = $this->storeManager->getStore()->getCurrentCurrency();
-        $quote->setCurrency($currency);
-
+        $quote->setCurrency();
+        
         // Set the quote customer
         $quote->assignCustomer($this->shopperHandler->getCustomer());
 
