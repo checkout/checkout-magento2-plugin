@@ -41,8 +41,4 @@ class ShopperHandlerService
             return $this->customerRepository->getById($customerId);
         }
     }
-
-    public function isLoggedIn() {
-        return $this->customerSession->isLoggedIn();
-    }
 }

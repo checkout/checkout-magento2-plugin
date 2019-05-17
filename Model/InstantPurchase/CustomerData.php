@@ -139,7 +139,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
      * Checks if the instant purchase option is available
      */    
     protected function isAvailable() {
-        return $this->shopperHandler->isLoggedIn()
+        return $this->customerSession->isLoggedIn()
         && !empty($this->paymentToken)
         && $this->instantPurchaseOption
         && $this->shippingAddress
