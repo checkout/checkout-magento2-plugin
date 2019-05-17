@@ -249,7 +249,7 @@ class QuoteHandlerService
     /**
      * Add product items to a quote
      */
-    public function addItems(Quote $quote, array $items = []) {
+    public function addItems($quote, $items = []) {
         foreach ($items as $item) {
             if (isset($item['id']) && (int) $item['id'] > 0) {
                 // Load the product
