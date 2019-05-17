@@ -26,7 +26,7 @@ class ShopperHandlerService
         $this->customerRepository  = $customerRepository;
     }
 
-    public function getCustomer($filters = []) {
+    public function getCustomerData($filters = []) {
         if (isset($filters['id'])) {
             return $this->customerRepository->getById($filters['id']);
         }
@@ -37,7 +37,7 @@ class ShopperHandlerService
             );
         }
         else {
-            $customerId = $this->customerSession->getCustomer()->getId();
+            $customerId = $this->customerSession->getCustomer->getId();
             return $this->customerRepository->getById($customerId);
         }
     }
