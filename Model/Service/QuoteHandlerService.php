@@ -37,11 +37,6 @@ class QuoteHandlerService
     protected $config;
 
     /**
-     * @var ShopperHandlerService
-     */
-    protected $shopperHandlerService;
-
-    /**
      * @param Context $context
      */
     public function __construct(
@@ -50,8 +45,7 @@ class QuoteHandlerService
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
     {
         $this->checkoutSession = $checkoutSession;
@@ -60,7 +54,6 @@ class QuoteHandlerService
         $this->quoteFactory = $quoteFactory;
         $this->storeManager = $storeManager;
         $this->config = $config;
-        $this->shopperHandler = $shopperHandler;
     }
 
     /**
@@ -154,7 +147,7 @@ class QuoteHandlerService
     public function prepareGuestQuote($quote, $email = null)
     {
         // Retrieve the user email
-        $guestEmail = ($email) ? $email : $this->shopperHandler->findEmail();
+        $guestEmail = ($email) ? $email : $this->findEmail($quote);
 
          // Set the quote as guest
         $quote->setCustomerId(null)
@@ -169,6 +162,18 @@ class QuoteHandlerService
 
         // Return the quote
         return $quote;
+    }
+
+    /**
+     * Find a customer email
+     */
+    public function findEmail($quote)
+    {
+        return $quote->getCustomerEmail()
+        ?? $quote->getBillingAddress()->getEmail()
+        ?? $this->cookieManager->getCookie(
+            $this->config->getValue('email_cookie_name')
+        );
     }
 
     /**
