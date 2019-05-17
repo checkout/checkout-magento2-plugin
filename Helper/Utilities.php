@@ -14,16 +14,23 @@ class Utilities {
      */
     protected $customerSession;
 
+    /**
+     * @var Config
+     */
+    protected $paymentModelConfig;
+    
 	/**
      * Utilities constructor.
      */
     public function __construct(
         \Magento\Framework\UrlInterface $urlInterface,
-        \Magento\Customer\Model\Session $customerSession
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Payment\Model\Config $paymentModelConfig
     )
     {
-        $this->urlInterface      = $urlInterface;
-        $this->customerSession   = $customerSession;
+        $this->urlInterface = $urlInterface;
+        $this->customerSession = $customerSession;
+        $this->paymentModelConfig = $paymentModelConfig;
 	}
 	
 	/**
@@ -69,5 +76,26 @@ class Utilities {
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * Get a card code from name.
+     *
+     * @return string
+     */
+    public function getCardCode($scheme) {
+        return array_search(
+            $scheme,
+            $this->paymentModelConfig->getCcTypes()
+        );
+    }
+
+    /**
+     * Get a card name from code.
+     *
+     * @return string
+     */
+    public function getCardName($code) {
+        return $this->paymentModelConfig->getCcTypes()[$code];
     }
 }

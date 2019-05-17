@@ -15,11 +15,6 @@ class Config
     protected $scopeConfig;
 
     /**
-     * @var Config
-     */
-    protected $paymentModelConfig;
-
-    /**
      * @var Loader
      */
     public $loader;
@@ -30,13 +25,11 @@ class Config
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Payment\Model\Config $paymentModelConfig,
         \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         $this->storeManager = $storeManager;
         $this->scopeConfig = $scopeConfig;
-        $this->paymentModelConfig = $paymentModelConfig;
         $this->loader = $loader;
         $this->utilities = $utilities;
     }
@@ -60,27 +53,6 @@ class Config
             $path,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-    }
-
-    /**
-     * Get a card code from name.
-     *
-     * @return string
-     */
-    public function getCardCode($scheme) {
-        return array_search(
-            $scheme,
-            $this->paymentModelConfig->getCcTypes()
-        );
-    }
-
-    /**
-     * Get a card name from code.
-     *
-     * @return string
-     */
-    public function getCardName($code) {
-        return $this->paymentModelConfig->getCcTypes()[$code];
     }
 
     /**
