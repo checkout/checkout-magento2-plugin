@@ -160,6 +160,7 @@ class VaultHandlerService {
         // Check if card exists
         if ($foundPaymentToken) {
             if ($foundPaymentToken->getIsActive()) {
+                //  Todo - Check if this snippet is necessary
                 //$this->messageManager->addNoticeMessage(__('The credit card has been stored already.'));
             }
 
@@ -232,7 +233,7 @@ class VaultHandlerService {
 
                 // Create the payment token
                 $paymentToken = $this->vaultTokenFactory->create($cardData, 'checkoutcom_vault', $this->customerId);
-                $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
+                $foundPaymentToken = $this->foundExistedPaymentToken($paymentToken);
 
                 // Check if card exists
                 if ($foundPaymentToken) {
@@ -287,6 +288,25 @@ class VaultHandlerService {
     }
 
     /**
+     * Get a user's last saved card.
+     */
+    public function getLastSavedCard() {
+        // Get the cards list
+        $cardList = $this->getUserCards();
+        if (count($cardList) > 0) {
+            // Sort the array by date
+            usort($cardList, function ($a, $b) {
+                return new DateTime($a->getCreatedAt()) <=> new DateTime($b->getCreatedAt());
+            });
+
+            // Return the most recent
+            return $cardList[0];
+        }
+
+        return [];
+    }
+
+    /**
      * Get a user's saved cards.
      */
     public function getUserCards() {
@@ -295,6 +315,7 @@ class VaultHandlerService {
 
         // Find the customer cards
         if ((int) $customerId > 0) {
+            // Todo - return only active cards
             return $this->paymentTokenManagement->getListByCustomerId($customerId);
         }
 
