@@ -75,6 +75,15 @@ class Config
     }
 
     /**
+     * Get a card name from code.
+     *
+     * @return string
+     */
+    public function getCardName($code) {
+        return $this->paymentModelConfig->getCcTypes()[$code];
+    }
+
+    /**
      * Returns the module global config.
      *
      * @return array
