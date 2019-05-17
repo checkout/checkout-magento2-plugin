@@ -20,3 +20,4 @@
 - update git ignore
 - implement the verify and fail controllers
 - add the place order API (with MADA support)
+- fix js error on instant purchase button click without product options selected
