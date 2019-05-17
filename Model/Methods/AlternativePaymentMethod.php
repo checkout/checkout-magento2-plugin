@@ -2,13 +2,14 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
+use \Checkout\Library\HttpHandler;
 use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\EpsSource;
 use \Checkout\Models\Payments\IdSource;
-use \Checkout\Models\Payments\KlarnaSource;
+use \Checkout\Models\Payments\EpsSource;
 use \Checkout\Models\Payments\IdealSource;
 use \Checkout\Models\Payments\AlipaySource;
 use \Checkout\Models\Payments\BoletoSource;
+use \Checkout\Models\Payments\KlarnaSource;
 use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -145,6 +146,7 @@ class AlternativePaymentMethod extends Method
             return $response;
 
         } else {
+//@todo: improve this error
 \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->sendPaymentRequest:: Payment not supported');
         }
 
@@ -196,25 +198,50 @@ class AlternativePaymentMethod extends Method
      *
      * @param      $source  The source
      *
-     * @return     TokenSource
+     * @return     IdSource
      */
     protected function sepa($data) {
 
+        $mandate = $this->activateMandate($data['url']);
+        $pos = strripos($data['url'], '/');
+        $id = substr($data['url'], $pos +1);
 
-        $this->activateSepa();
+        return new IdSource($id);
 
-
-
-
-
-
-
-
-
-//@todo: make sepa; this will require a separate flow
-        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->sepa');
-        return new IdSource('t');
     }
+
+    /**
+     * Activate the mandate.
+     *
+     * @param      string   $url
+     * @return     array
+     */
+    protected function activateMandate(string $url) {
+
+        $secret = $this->config->getValue('secret_key');
+        $options = array(
+            CURLOPT_FAILONERROR => false,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => array('Content-type: ' . HttpHandler::MIME_TYPE_JSON,
+                                        'Accept: ' . HttpHandler::MIME_TYPE_JSON,
+                                        'Authorization: ' . $secret,
+                                        'User-Agent: checkout-magento2-plugin/1.0.0') //@todo: finish this
+        );
+
+        $curl = curl_init($url);
+        curl_setopt_array($curl, $options);
+        $content = curl_exec($curl);
+        curl_close($curl);
+
+        return json_decode($content, true);
+
+    }
+
+
+
+
+
+
 
     /**
      * Create source.

@@ -3,12 +3,12 @@
 namespace CheckoutCom\Magento2\Controller\Apm;
 
 use Checkout\CheckoutApi;
+use Checkout\Models\Product;
 use Checkout\Library\HttpHandler;
 use Checkout\Models\Sources\Sepa;
-use Checkout\Models\Sources\SepaData;
-use Checkout\Models\Sources\SepaAddress;
+use Checkout\Models\Sources\Klarna;
 
-class DisplaySepa extends \Magento\Framework\App\Action\Action {
+class DisplayKlarna extends \Magento\Framework\App\Action\Action {
 
 	/**
      * @var Context
@@ -95,16 +95,15 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
      */
     public function execute() {
         // Prepare the output container
-        $html = '';
+        $res = '{}';
 
         // Run the requested task
         if ($this->isValidRequest()) {
-            $html = $this->runTask();
+            $res = $this->runTask();
         }
 
-        return $this->jsonFactory->create()->setData(
-            ['html' => $html]
-        );
+        return $this->jsonFactory->create()
+                                 ->setData($res);
     }
 
     /**
@@ -152,7 +151,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
     }
 
     /**
-     * Returns the SEPA mandate block.
+     * Returns the Klarna mandate block.
      */
     protected function loadBlock($reference, $url)
     {
@@ -173,14 +172,35 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
      */
     public function getMandate() {
 
-        $html = null; // @todo: return error message in HTML
-        $mandate = null;
-        $sepa = $this->requestSepa();
-        if($sepa && $sepa->isSuccessful()) {
-            $html = $this->loadBlock($sepa->response_data['mandate_reference'], $sepa->getSepaMandateGet());
+        $products = array();
+        $tax = 0;
+        foreach ($this->quote->getAllVisibleItems() as $item) {
+
+            $product = new Product();
+            $product->name = $item->getName();
+            $product->quantity = $item->getQty();
+            $product->unit_price = $item->getPriceInclTax() *100;
+            $product->tax_rate = $item->getTaxPercent() *100;
+            $product->total_amount = $item->getRowTotalInclTax() *100;
+            $product->total_tax_amount = $item->getTaxAmount() *100;
+
+            $tax += $product->total_tax_amount;
+            $products []= $product;
+
         }
 
-        return $html;
+        $klarna = new Klarna($this->billingAddress->getCountry(),
+                             $this->quote->getQuoteCurrencyCode(),
+                             'en-GB',
+                             $this->quote->getGrandTotal() *100,
+                             $tax,
+                             $products
+                         );
+
+// handle error
+
+        $source = $this->apiHandler->checkoutApi->sources()->add($klarna);
+        return $source->getValues();
 
     }
 
@@ -190,40 +210,5 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
      * Methods
      */
 
-    /**
-     * Request gateway to add new source.
-     *
-     * @return     Sepa
-     */
-    protected function requestSepa() {
-
-        $address = new SepaAddress( $this->billingAddress->getStreetLine(1),
-                                    $this->billingAddress->getCity(),
-                                    $this->billingAddress->getPostcode(),
-                                    $this->billingAddress->getCountryId());
-        $address->address_line2 = $this->billingAddress->getStreetLine(2);
-
-        $data = new SepaData(   $this->billingAddress->getFirstname(),
-                                $this->billingAddress->getLastname(),
-                                $this->account_iban,
-                                $this->bic,
-                                $this->config->getStoreName(),
-                                'single');
-
-        $source = new Sepa($address, $data);
-
-        try {
-
-            $sepa = $this->apiHandler->checkoutApi->sources()
-                                                  ->add($source);
-
-        } catch(Checkout\Library\Exceptions\CheckoutHttpException $ex) {
-            // @todo: debug error
-            $sepa =  null;
-        }
-
-        return $sepa;
-
-    }
 
 }

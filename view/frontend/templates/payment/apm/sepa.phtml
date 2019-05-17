@@ -10,12 +10,12 @@
         <div class="input-group">
             <label class="icon" for="bic">
             <span class="ckojs ckojs-card"></label>
-            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtml(__('BIC')); ?>" class="input-control" data-validate="{'required':true}">
+            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtml(__('BIC')); ?>" class="input-control">
         </div>
         <div class="input-group">
             <label class="icon" for="account_iban">
             <span class="ckojs ckojs-card"></label>
-            <input type="text" id="account_iban" name="account_iban" placeholder="<?= $block->escapeHtml(__('Account IBAN')); ?>" class="input-control" data-validate="{'required':true}">
+            <input type="text" id="account_iban" name="account_iban" placeholder="<?= $block->escapeHtml(__('Account IBAN')); ?>" class="input-control" data-validate="{'required':true}" required>
         </div>
         <br>
         <p align="center">

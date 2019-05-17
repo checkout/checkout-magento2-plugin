@@ -9,12 +9,7 @@
         <div class="input-group">
             <label class="icon" for="bic">
             <span class="ckojs ckojs-card"></label>
-            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtml(__('BIC')); ?>" class="input-control" data-validate="{'required':true}">
-        </div>
-        <div class="input-group">
-            <label class="icon" for="purpose">
-            <span class="ckojs ckojs-card"></label>
-            <input type="text" id="purpose" name="purpose" placeholder="<?= $block->escapeHtml(__('Purpose')); ?>" class="input-control" data-validate="{'required':true}">
+            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtml(__('BIC')); ?>" class="input-control" data-validate="{'required':true}" required>
         </div>
         <br>
         <p align="center">You will be redirected to an external page.</p>
