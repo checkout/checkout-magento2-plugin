@@ -44,6 +44,4 @@ class ShopperHandlerService
     public function isLoggedIn() {
         return $this->customerSession->isLoggedIn();
     }
-
-
 }
