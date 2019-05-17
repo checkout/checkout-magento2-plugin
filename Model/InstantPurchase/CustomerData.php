@@ -8,11 +8,6 @@ namespace CheckoutCom\Magento2\Model\InstantPurchase;
 class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterface
 {
     /**
-     * @var Session
-     */
-    private $customerSession;
-
-    /**
      * @var StoreManagerInterface
      */
     private $storeManager;
@@ -43,31 +38,37 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     private $paymentTokenFormatter;
 
     /**
+     * @var ShopperHandlerService
+     */
+    private $shopperHandlerService;
+
+    /**
      * InstantPurchase constructor.
-     * @param Session $customerSession
      * @param StoreManagerInterface $storeManager
      * @param InstantPurchaseInterface $instantPurchase
      * @param CustomerAddressesFormatter $customerAddressesFormatter
      * @param ShippingMethodFormatter $shippingMethodFormatter
      * @param VaultHandlerService $vaultHandler
      * @param PaymentTokenFormatter $paymentTokenFormatter
+     * @param ShopperHandlerService $shopperHandlerService
      */
     public function __construct(
-        \Magento\Customer\Model\Session $customerSession,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\InstantPurchase\Model\InstantPurchaseInterface $instantPurchase,
         \CheckoutCom\Magento2\Model\InstantPurchase\TokenFormatter $paymentTokenFormatter,
         \Magento\InstantPurchase\Model\Ui\CustomerAddressesFormatter $customerAddressesFormatter,
         \Magento\InstantPurchase\Model\Ui\ShippingMethodFormatter $shippingMethodFormatter,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler
+
     ) {
-        $this->customerSession = $customerSession;
         $this->storeManager = $storeManager;
         $this->instantPurchase = $instantPurchase;
         $this->customerAddressesFormatter = $customerAddressesFormatter;
         $this->shippingMethodFormatter = $shippingMethodFormatter;
         $this->vaultHandler = $vaultHandler;
         $this->paymentTokenFormatter = $paymentTokenFormatter;
+        $this->shopperHandler = $shopperHandler;
 
         // Prepare the required data
         $this->prepareData();
@@ -99,7 +100,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
         $store = $this->storeManager->getStore();       
 
         // Get the customer instance
-        $customer = $this->customerSession->getCustomer();
+        $customer = $this->shopperHandler->getCustomer();
 
         // Return the option
         return $this->instantPurchase->getOption($store, $customer);
@@ -143,7 +144,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
      * Checks if the instant purchase option is available
      */    
     protected function isAvailable() {
-        return $this->customerSession->isLoggedIn()
+        return $this->shopperHandler->isLoggedIn()
         && !empty($this->paymentToken)
         && $this->instantPurchaseOption
         && $this->shippingAddress

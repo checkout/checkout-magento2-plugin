@@ -12,11 +12,6 @@ class QuoteHandlerService
     protected $checkoutSession;
 
     /**
-     * @var Session
-     */
-    protected $customerSession;
-
-    /**
      * @var CookieManagerInterface
      */
     protected $cookieManager;
@@ -37,23 +32,28 @@ class QuoteHandlerService
     protected $config;
 
     /**
+     * @var ShopperHandlerService
+     */
+    protected $shopperHandler;
+
+    /**
      * @param Context $context
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler
     )
     {
         $this->checkoutSession = $checkoutSession;
-        $this->customerSession = $customerSession;
         $this->cookieManager = $cookieManager;
         $this->quoteFactory = $quoteFactory;
         $this->storeManager = $storeManager;
         $this->config = $config;
+        $this->shopperHandler = $shopperHandler;
     }
 
     /**
@@ -88,6 +88,24 @@ class QuoteHandlerService
             return false;
         }
     }
+
+    /**
+     * Create a new quote
+     */
+    public function createQuote()
+    {
+        // Create the quote instance
+        $quote = $this->quoteFactory->create();
+        $quote->setStore($this->storeManager->getStore());
+
+        // Set the quote currency
+        $currency = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+        $quote->setCurrency($currency);
+
+        // Set the quote customer
+        $quote->assignCustomer($this->shopperHandler->getCustomer());
+
+    }  
 
     /**
      * Checks if a quote exists and is valid
@@ -126,7 +144,7 @@ class QuoteHandlerService
             $quote->setInventoryProcessed(false);
 
             // Check for guest user quote
-            if ($this->customerSession->isLoggedIn() === false) {
+            if ($this->shopperHandler->isLoggedIn() === false) {
                 $quote = $this->prepareGuestQuote($quote);
             }
 
