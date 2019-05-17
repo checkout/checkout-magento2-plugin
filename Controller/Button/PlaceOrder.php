@@ -74,12 +74,14 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $shippingId = (int) $this->getRequest()->getParam('instant_purchase_shipping_address');
         
         // Create the quote
-        $quote = $this->quoteHandler
-            ->createQuote()
-            ->addProduct(
-                $this->productModel->load($productId), 
-                $quantity
-            );
+        $quote = $this->quoteHandler->createQuote();
+        $quote = $this->quoteHandler->addItems(
+            $quote, 
+            [
+                'id' => $productId,
+                'quantity' => $quantity
+            ]
+        );
         
         // Set the billing address
         $billingAddress = $this->addressManager->load($billingId);
