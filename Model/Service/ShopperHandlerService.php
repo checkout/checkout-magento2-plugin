@@ -37,7 +37,8 @@ class ShopperHandlerService
             );
         }
         else {
-            return $this->customerSession->getCustomer();
+            $customerId = $this->customerSession->getCustomer()->getId();
+            return $this->customerRepository->getById($customerId);
         }
     }
 
