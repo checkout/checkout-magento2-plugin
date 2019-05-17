@@ -107,7 +107,7 @@ class QuoteHandlerService
         $quote->setCurrency();
         
         // Set the quote customer
-        $quote->assignCustomer($this->shopperHandler->getCustomer());
+        $quote->assignCustomer($this->shopperHandler->getCustomerData());
 
         return $quote;
     }  
