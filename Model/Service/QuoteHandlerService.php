@@ -27,6 +27,11 @@ class QuoteHandlerService
     protected $storeManager;
 
     /**
+     * @var Product
+     */
+    protected $productModel;
+
+    /**
      * @var Config
      */
     protected $config;
@@ -37,13 +42,14 @@ class QuoteHandlerService
     protected $shopperHandler;
 
     /**
-     * @param Context $context
+     * QuoteHandlerService constructor
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Catalog\Model\Product $productModel,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler
     )
@@ -52,6 +58,7 @@ class QuoteHandlerService
         $this->cookieManager = $cookieManager;
         $this->quoteFactory = $quoteFactory;
         $this->storeManager = $storeManager;
+        $this->productModel = $productModel;
         $this->config = $config;
         $this->shopperHandler = $shopperHandler;
     }
@@ -105,6 +112,7 @@ class QuoteHandlerService
         // Set the quote customer
         $quote->assignCustomer($this->shopperHandler->getCustomer());
 
+        return $quote;
     }  
 
     /**
@@ -232,5 +240,27 @@ class QuoteHandlerService
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * Add product items to a quote
+     */
+    public function addItems(Quote $quote, array $items = []) {
+        foreach ($items as $item) {
+            if (isset($item['id']) && (int) $item['id'] > 0) {
+                // Load the product
+                $product = $this->productModel->load($item['id']);
+
+                // Get the quantity
+                $quantity = isset($item['quantity']) && (int) $item['quantity'] > 0
+                ? $item['quantity'] : 1;
+
+                // Add the item
+                $quote->addProduct($product, $quantity);
+            }
+        }
+
+        // Return the quote
+        return $quote;
     }
 }

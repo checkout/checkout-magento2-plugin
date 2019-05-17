@@ -13,7 +13,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     private $storeManager;
 
     /**
-     * @var InstantPurchaseModel
+     * @var InstantPurchaseInterface
      */
     private $instantPurchase;
 
@@ -40,7 +40,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * @var ShopperHandlerService
      */
-    private $shopperHandlerService;
+    private $shopperHandler;
 
     /**
      * InstantPurchase constructor.
