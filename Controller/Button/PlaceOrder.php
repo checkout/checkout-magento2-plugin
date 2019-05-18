@@ -59,12 +59,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
     public function execute()
     {
-
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/data.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($this->getRequest()->getParams(), 1));
-
         // Get the request parameters
         $productId = (int) $this->getRequest()->getParam('product');
         $quantity = (int) $this->getRequest()->getParam('qty');
@@ -107,11 +101,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
         // Save the quote
         $quote->collectTotals()->save();
-
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/quote.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($quote->getData(), 1));
 
         // Create the order
         $order = $this->quoteManagement->submit($quote);
