@@ -19,7 +19,7 @@ class Form extends \Magento\Framework\View\Element\Template
     /**
      * @var CcConfigProvider
      */
-    private $iconsProvider;
+    public $cardHandler;
 
     /**
      * @var VaultHandlerService
@@ -31,40 +31,13 @@ class Form extends \Magento\Framework\View\Element\Template
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Payment\Model\CcConfigProvider $iconsProvider,
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         array $data = []
     ) {
         parent::__construct($context, $data);
 
-        $this->iconsProvider = $iconsProvider;
+        $this->cardHandler = $cardHandler;
         $this->vaultHandler = $vaultHandler;         
-    }
-
-    /**
-     * Returns the url to the CC icon.
-     *
-     * @return string
-     */
-    public function getIconUrl($type) {
-        return  $this->iconsProvider->getIcons()[$type]['url'];
-    }
-
-    /**
-     * Returns the icon height in pixels.
-     *
-     * @return int
-     */
-    public function getIconHeight($type) {
-        return  $this->iconsProvider->getIcons()[$type]['height'];
-    }
-
-    /**
-     * Returns the icon width in pixels.
-     *
-     * @return int
-     */
-    public function getIconWidth($type) {
-        return  $this->iconsProvider->getIcons()[$type]['width'];
     }
 }

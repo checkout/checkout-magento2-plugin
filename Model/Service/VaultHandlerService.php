@@ -53,9 +53,9 @@ class VaultHandlerService {
     protected $apiHandlerService;
 
     /**
-     * @var Utilities
+     * @var CardHandlerService
      */
-    protected $utilities;
+    protected $cardHandler;
 
     /**
      * @var string
@@ -92,7 +92,7 @@ class VaultHandlerService {
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->vaultTokenFactory = $vaultTokenFactory;
@@ -101,7 +101,7 @@ class VaultHandlerService {
         $this->customerSession = $customerSession;
         $this->remoteAddress = $remoteAddress;
         $this->apiHandler = $apiHandler;
-        $this->utilities = $utilities;
+        $this->cardHandler = $cardHandler;
         $this->config = $config;
     }
 
@@ -238,12 +238,6 @@ class VaultHandlerService {
                 // Get the card data
                 $cardData = $values['source'];
 
-
-                $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/card.log');
-                $logger = new \Zend\Log\Logger();
-                $logger->addWriter($writer);
-                $logger->info(print_r($cardData, 1));
-
                 // Create the payment token
                 $paymentToken = $this->vaultTokenFactory->create($cardData, 'checkoutcom_vault', $this->customerId);
                 $foundPaymentToken = $this->foundExistedPaymentToken($paymentToken);
@@ -346,7 +340,7 @@ class VaultHandlerService {
         return sprintf(
             '%s: %s, %s: %s (%s: %s)',
             __('Card type'),
-            $this->utilities->getCardName($details['type']),
+            $this->cardHandler->getCardScheme($details['type']),
             __('ending'),
             $details['maskedCC'],
             __('expires'),

@@ -7,9 +7,7 @@ $details = json_decode($card->getTokenDetails() ?: '{}', true);
     <div>
         <label>
             <input type="radio" name="savedCard[]" value="<?= $card->getPublicHash()?>">
-            <img src="<?php /* @noEscape */ echo $block->getIconUrl($details['type']); ?>"
-                width="<?php /* @noEscape */ echo $block->getIconWidth($details['type']); ?>"
-                height="<?php /* @noEscape */ echo $block->getIconHeight($details['type']); ?>"
+            <img src="<?php /* @noEscape */ echo $block->cardHandler->getCardIcon($details['type']); ?>"
                 style="display:inline-block; vertical-align:-50%"
             >
         </label>
