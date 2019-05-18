@@ -238,6 +238,12 @@ class VaultHandlerService {
                 // Get the card data
                 $cardData = $values['source'];
 
+
+                $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/card.log');
+                $logger = new \Zend\Log\Logger();
+                $logger->addWriter($writer);
+                $logger->info(print_r($cardData, 1));
+
                 // Create the payment token
                 $paymentToken = $this->vaultTokenFactory->create($cardData, 'checkoutcom_vault', $this->customerId);
                 $foundPaymentToken = $this->foundExistedPaymentToken($paymentToken);
