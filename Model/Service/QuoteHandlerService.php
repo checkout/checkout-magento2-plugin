@@ -32,9 +32,9 @@ class QuoteHandlerService
     protected $storeManager;
 
     /**
-     * @var Product
+     * @var ProductRepositoryInterface
      */
-    protected $productModel;
+    protected $productRepository;
 
     /**
      * @var Config
@@ -55,7 +55,7 @@ class QuoteHandlerService
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Catalog\Model\Product $productModel,
+        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler
     )
@@ -65,7 +65,7 @@ class QuoteHandlerService
         $this->cookieManager = $cookieManager;
         $this->quoteFactory = $quoteFactory;
         $this->storeManager = $storeManager;
-        $this->productModel = $productModel;
+        $this->productRepository = $productRepository;
         $this->config = $config;
         $this->shopperHandler = $shopperHandler;
     }
@@ -249,18 +249,24 @@ class QuoteHandlerService
     /**
      * Add product items to a quote
      */
-    public function addItems($quote, $items = []) {
+    public function addItems($quote, $items) {
         foreach ($items as $item) {
-            if (isset($item['id']) && (int) $item['id'] > 0) {
+            if (isset($item['product_id']) && (int) $item['product_id'] > 0) {
                 // Load the product
-                $product = $this->productModel->load($item['id']);
+                $product = $this->productRepository->getById($item['product_id']);
 
                 // Get the quantity
-                $quantity = isset($item['quantity']) && (int) $item['quantity'] > 0
-                ? $item['quantity'] : 1;
+                $quantity = isset($item['qty']) && (int) $item['qty'] > 0
+                ? $item['qty'] : 1;
 
                 // Add the item
-                $quote->addProduct($product, $quantity);
+                if (!empty($item['super_attribute'])) {
+                    $buyRequest = new \Magento\Framework\DataObject($item);
+                    $quote->addProduct($product, $buyRequest);
+                }
+                else {
+                    $quote->addProduct($product, $quantity);
+                }
             }
         }
 

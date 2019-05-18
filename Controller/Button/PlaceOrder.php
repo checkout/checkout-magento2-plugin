@@ -68,6 +68,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         // Get the request parameters
         $productId = (int) $this->getRequest()->getParam('product');
         $quantity = (int) $this->getRequest()->getParam('qty');
+        $attributes = $this->getRequest()->getParam('super_attribute');
         $billingId = (int) $this->getRequest()->getParam('instant_purchase_billing_address');
         $shippingId = (int) $this->getRequest()->getParam('instant_purchase_shipping_address');
         
@@ -77,8 +78,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $quote, 
             [
                 [
-                    'id' => $productId,
-                    'quantity' => $quantity
+                    'product_id' => $productId,
+                    'qty' => $quantity,
+                    'super_attribute' => $attributes
                 ]
             ]
         );
