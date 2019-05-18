@@ -10,7 +10,7 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Vault\Api\Data\PaymentTokenInterface;
+use \Magento\Vault\Api\Data\PaymentTokenInterface;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
@@ -53,6 +53,11 @@ class VaultHandlerService {
     protected $apiHandlerService;
 
     /**
+     * @var Utilities
+     */
+    protected $utilities;
+
+    /**
      * @var string
      */
     protected $customerEmail;
@@ -87,6 +92,7 @@ class VaultHandlerService {
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->vaultTokenFactory = $vaultTokenFactory;
@@ -95,6 +101,7 @@ class VaultHandlerService {
         $this->customerSession = $customerSession;
         $this->remoteAddress = $remoteAddress;
         $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
         $this->config = $config;
     }
 
@@ -320,5 +327,24 @@ class VaultHandlerService {
         }
 
         return [];
+    }
+
+    /**
+     * Render a payment token.
+     */
+    public function renderTokenData(PaymentTokenInterface $paymentToken) {
+        // Get the card details
+        $details = json_decode($paymentToken->getTokenDetails() ?: '{}', true);
+
+        // Return the formatted token
+        return sprintf(
+            '%s: %s, %s: %s (%s: %s)',
+            __('Card type'),
+            $this->utilities->getCardName($details['type']),
+            __('ending'),
+            $details['maskedCC'],
+            __('expires'),
+            $details['expirationDate']
+        );        
     }
 }

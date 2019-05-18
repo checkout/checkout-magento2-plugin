@@ -3,10 +3,9 @@ define([
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'Magento_Vault/js/view/payment/vault-enabler',
         'framesjs'
     ],
-    function ($, Component, Utilities, AdditionalValidators, VaultEnabler) {
+    function ($, Component, Utilities, AdditionalValidators) {
 
         'use strict';
 
@@ -30,7 +29,6 @@ define([
             initialize: function () {
                 this._super();
                 this.isPlaceOrderActionAllowed(false);
-                this.loadVault();
 
                 return this;
             },
@@ -51,14 +49,6 @@ define([
              */
             getValue: function(field) {
                 return Utilities.getValue(METHOD_ID, field);
-            },
-
-            /**
-             * @returns {void}
-             */
-            loadVault: function() {
-                this.vault = new VaultEnabler();
-                this.vault.setPaymentCode(METHOD_ID);
             },
 
             /**

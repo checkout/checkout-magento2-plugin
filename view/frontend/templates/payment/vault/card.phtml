@@ -1,0 +1,40 @@
+<?php
+$card = $block->getData('card');
+$details = json_decode($card->getTokenDetails() ?: '{}', true);
+
+?>
+<div id="cko-vault-card-<?= $card->getEntityId()?>" class="cko-vault-card">
+    <div>
+        <label>
+            <input type="radio" name="savedCard[]" value="<?= $card->getPublicHash()?>">
+            <img src="<?php /* @noEscape */ echo $block->getIconUrl($details['type']); ?>"
+                width="<?php /* @noEscape */ echo $block->getIconWidth($details['type']); ?>"
+                height="<?php /* @noEscape */ echo $block->getIconHeight($details['type']); ?>"
+                style="display:inline-block; vertical-align:-50%"
+            >
+        </label>
+        <span>
+            <?= $block->vaultHandler->renderTokenData($card)?>
+        </span>
+    </div>
+</div>
+
+<style>
+.cko-vault-card input[type=radio] { 
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* IMAGE STYLES */
+.cko-vault-card input[type=radio] + img {
+  cursor: pointer;
+}
+
+/* CHECKED STYLES */
+.cko-vault-card input[type=radio]:checked + img {
+  outline: 2px solid #f00;
+}
+
+</style>

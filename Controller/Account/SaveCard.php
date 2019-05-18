@@ -29,8 +29,6 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
 
     /**
      * SaveCard constructor.
-     * @param Context $context
-     * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,

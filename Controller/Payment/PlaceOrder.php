@@ -64,7 +64,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      */
     protected $quote;
 
-
     /**
      * Magic Methods
      */

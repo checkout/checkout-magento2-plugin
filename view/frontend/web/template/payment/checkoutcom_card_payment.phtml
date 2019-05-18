@@ -35,15 +35,6 @@
                 <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
-
-        <!-- ko if: (vault.isVaultEnabled()) -->
-        <div class="field choice">
-            <input type="checkbox" name="vault[is_enabled]" class="checkbox" data-bind="attr: {'id': getCode() + '_enable_vault'}, checked: vaultEnabler.isActivePaymentTokenEnabler" />
-            <label class="label" data-bind="attr: {'for': getCode() + '_enable_vault'}">
-                <span><!-- ko i18n: 'Save this card for later use.'--><!-- /ko --></span>
-            </label>
-        </div>
-        <!-- /ko -->
         
         <!-- Actions -->
         <div class="actions-toolbar">
