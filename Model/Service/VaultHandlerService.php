@@ -303,7 +303,7 @@ class VaultHandlerService {
         if (count($cardList) > 0) {
             // Sort the array by date
             usort($cardList, function ($a, $b) {
-                return new DateTime($a->getCreatedAt()) <=> new DateTime($b->getCreatedAt());
+                return new \DateTime($a->getCreatedAt()) <=> new \DateTime($b->getCreatedAt());
             });
 
             // Return the most recent
