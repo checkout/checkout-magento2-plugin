@@ -65,6 +65,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $attributes = $this->getRequest()->getParam('super_attribute');
         $billingId = (int) $this->getRequest()->getParam('instant_purchase_billing_address');
         $shippingId = (int) $this->getRequest()->getParam('instant_purchase_shipping_address');
+        $publicHash = $this->getRequest()->getParam('instant_purchase_payment_token');
         
         // Create the quote
         $quote = $this->quoteHandler->createQuote();
