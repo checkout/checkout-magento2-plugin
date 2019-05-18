@@ -10,7 +10,6 @@
 
 namespace CheckoutCom\Magento2\Controller\Button;
 
-use Magento\Checkout\Model\Type\Onepage;
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
     /**
@@ -34,11 +33,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     protected $addressManager;
 
     /**
-     * @var CustomerData
-     */
-    private $customerData;
-
-    /**
      * @var QuoteHandlerService
      */
     protected $quoteHandler;
@@ -52,7 +46,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \Magento\Catalog\Model\Product $productModel,
         \Magento\InstantPurchase\Model\QuoteManagement\ShippingConfiguration $shippingConfiguration,
         \Magento\Customer\Model\Address $addressManager,
-        \CheckoutCom\Magento2\Model\InstantPurchase\CustomerData $customerData,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     ) {
         parent::__construct($context);
@@ -61,12 +54,17 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->productModel = $productModel;
         $this->shippingConfiguration = $shippingConfiguration;
         $this->addressManager = $addressManager;
-        $this->customerData = $customerData;
         $this->quoteHandler = $quoteHandler;
     }
 
     public function execute()
     {
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/data.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($this->getRequest()->getParams(), 1));
+
         // Get the request parameters
         $productId = (int) $this->getRequest()->getParam('product');
         $quantity = (int) $this->getRequest()->getParam('qty');
@@ -78,8 +76,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $quote = $this->quoteHandler->addItems(
             $quote, 
             [
-                'id' => $productId,
-                'quantity' => $quantity
+                [
+                    'id' => $productId,
+                    'quantity' => $quantity
+                ]
             ]
         );
         
@@ -87,33 +87,29 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $billingAddress = $this->addressManager->load($billingId);
         $quote->getBillingAddress()->addData($billingAddress->getData());
 
-        // Set the shipping address
+        // Set the shipping address and method
         $shippingAddress = $this->addressManager->load($shippingId);
-        $quote->getShippingAddress()->addData($shippingAddress->getData());
-        $quote->setTotalsCollectedFlag(false)->collectTotals();
-
-        // Set the shipping method
-        $quote = $this->shippingConfiguration->configureShippingMethod(
-            $quote,
-            $this->customerData->instantPurchaseOption->getShippingMethod()
-        );
-
-        // Inventory
-        $quote->setInventoryProcessed(false);
+        $quote->getShippingAddress()
+            ->addData($shippingAddress->getData())
+            ->setCollectShippingRates(true)
+            ->collectShippingRates()
+            ->setShippingMethod('flatrate_flatrate');
 
         // Set payment
-        $payment = $quote->getPayment();
-        $payment->setMethod('checkoutcom_vault');
+        $quote->setPaymentMethod('checkoutcom_vault');
+        $quote->setInventoryProcessed(false);
         $quote->save();
-
-        // Only registered users can order
-        $quote->setCheckoutMethod(Onepage::METHOD_REGISTER);
-
-        // Set sales order payment
-        $quote->getPayment()->importData(['method' => 'checkoutcom_vault']);
+        $quote->getPayment()->importData(
+            ['method' => 'checkoutcom_vault']
+        );
 
         // Save the quote
         $quote->collectTotals()->save();
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/quote.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($quote->getData(), 1));
 
         // Create the order
         $order = $this->quoteManagement->submit($quote);
