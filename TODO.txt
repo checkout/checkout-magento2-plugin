@@ -24,3 +24,4 @@
 - add vault extra config parameter fields from config.xml + instant purchase control
 - Add instant purchase note in order somewhere
 - Add transaction handling to instant payment orders
+- Is the \Model\Ui\TokenUiComponentProvider class still useful?
