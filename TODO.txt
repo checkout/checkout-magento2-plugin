@@ -26,3 +26,4 @@
 - improve the vault cards list display
 - replace the account vault card renderer by a custom one
 - add vault extra config parameter fields from config.xml + instant purchase control
+- Add instant purchase note in order somewhere
