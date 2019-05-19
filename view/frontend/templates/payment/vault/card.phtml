@@ -6,7 +6,7 @@ $details = json_decode($card->getTokenDetails() ?: '{}', true);
 <div id="cko-vault-card-<?= $card->getEntityId()?>" class="cko-vault-card">
     <div>
         <label>
-            <input type="radio" name="savedCard[]" value="<?= $card->getPublicHash()?>">
+            <input type="radio" name="savedCard" value="<?= $card->getPublicHash()?>">
             <img src="<?php /* @noEscape */ echo $block->cardHandler->getCardIcon($details['type']); ?>"
                 style="display:inline-block; vertical-align:-50%"
             >

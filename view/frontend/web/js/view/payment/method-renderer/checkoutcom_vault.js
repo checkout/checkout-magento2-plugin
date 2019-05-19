@@ -27,7 +27,8 @@ define([
              */
             initialize: function () {
                 this._super();
-                this.isPlaceOrderActionAllowed(false);
+                // Todo - handle button state
+                //this.isPlaceOrderActionAllowed(false);
 
                 return this;
             },
@@ -51,6 +52,13 @@ define([
             },
 
             /**
+             * @returns {string}
+             */
+            getPublicHash: function() {
+                return $('#vault-container input[name="savedCard"]:checked').val();
+            },
+
+            /**
              * @returns {void}
              */
             initWidget: function () {
@@ -60,12 +68,6 @@ define([
                     success: function(data) {
                         $('#vault-container')
                         .append(data.html)
-                        .accordion({
-                            heightStyle: 'content',
-                            animate: {
-                                duration: 200
-                            }
-                        })
                         .show();
                     },
                     error: function (request, status, error) {
@@ -80,7 +82,11 @@ define([
             placeOrder: function () {
                 var self = this;
                 if (AdditionalValidators.validate()) {
-
+                    // Place the order
+                    Utilities.placeOrder({
+                        methodId: METHOD_ID,
+                        publicHash: self.getPublicHash()
+                    });
                 }
             }
         });
