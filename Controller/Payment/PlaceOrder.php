@@ -121,7 +121,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
 
             $response = $this->requestPayment();
             if($response && $success = $response->isSuccessful()) { // Payment requested successfully
-
+\CheckoutCom\Magento2\Helper\Logger::write($response);
                 if ($response->isPending()) { // Further action needed
                     $url = $response->getRedirection();
                 } else {

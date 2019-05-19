@@ -3,11 +3,154 @@
         <span><?= $block->getData('apm_id')?></span>
     </div>
 </div>
-<div data-role="content" class="apm-content">
-	<form id="cko-apm-form-<?= $block->getData('apm_id')?>">
-		<input type="hidden" name="source" value="<?= $block->getData('apm_id')?>">
-        <input type="text" placeholder="<?= $block->getData('apm_id')?>">
+<div data-role="content" class="apm-content <?= $block->getData('apm_id')?>">
+    <form id="cko-apm-form-<?= $block->getData('apm_id')?>">
+        <input type="hidden" name="source" value="<?= $block->getData('apm_id')?>">
+        <input type="hidden" name="task" value="mandate">
+        <div class="input-group">
+            <label class="icon" for="bic">
+            <span class="ckojs ckojs-card"></label>
+            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtml(__('BIC')); ?>" class="input-control">
+        </div>
+        <div class="input-group">
+            <label class="icon" for="account_iban">
+            <span class="ckojs ckojs-card"></label>
+            <input type="text" id="account_iban" name="account_iban" placeholder="<?= $block->escapeHtml(__('Account IBAN')); ?>" class="input-control" data-validate="{'required':true}" required>
+        </div>
         <br>
-        <p align="center">You will be redirected to an external page.</p>
+        <p align="center">
+            <?= __('You will be redirected to an external page.')?>
+            <button type="button"><?= __('Continue')?></button>
+        </p>
     </form>
+    <div id="klarna_container"></div>
+
+    <script type="text/javascript">
+        require(['jquery', 'domReady!'], function ($) {
+            // Prepare the form id
+            var klarnaForm = $('#' + 'cko-apm-form-<?= $block->getData('apm_id')?>');
+
+
+
+            var formData = {};
+                klarnaForm.serializeArray().forEach(function (elt) {
+                    formData[elt.name] = elt.value;
+                });
+
+
+window.klarnaAsyncCallback = function () {
+
+
+	  	// Send the request
+                $.ajax({
+                    type: 'POST',
+                    url: '<?= $block->getUrl('checkout_com/apm/displayklarna')?>',
+                    data: formData,
+                    success: function (data) {
+
+                        //klarnaForm.html(data.html);
+
+console.log('success', data);
+
+
+
+
+
+
+try {
+    Klarna.Payments.init({client_token: data.client_token});
+
+
+    Klarna.Payments.load({
+            container: "#klarna_container",
+            payment_method_categories: ["pay_later"],
+            instance_id: "klarna-payments-instance"
+        },
+        {
+            purchase_country: "GB",
+            purchase_currency: "GBP",
+            locale: "en-GB",
+            billing_address: {
+                given_name: "John",
+                family_name: "Doe",
+                email: "john@doe.com",
+                title: "Mr",
+                street_address: "13 New Burlington St",
+                street_address2: "Apt 214",
+                postal_code: "W13 3BG",
+                city: "London",
+                region: "",
+                phone: "01895808221",
+                country: "GB"
+            },
+            shipping_address: {
+                given_name: "John",
+                family_name: "Doe",
+                email: "john@doe.com",
+                title: "Mr",
+                street_address: "13 New Burlington St",
+                street_address2: "Apt 214",
+                postal_code: "W13 3BG",
+                city: "London",
+                region: "",
+                phone: "01895808221",
+                country: "GB"
+            },
+            order_amount: 10,
+            order_tax_amount: 0,
+            order_lines: [
+                {
+                    type: "physical",
+                    reference: "19-402",
+                    name: "Battery Power Pack",
+                    quantity: 1,
+                    unit_price: 10,
+                    tax_rate: 0,
+                    total_amount: 10,
+                    total_discount_amount: 0,
+                    total_tax_amount: 0,
+                    product_url: "https://www.estore.com/products/f2a8d7e34",
+                    image_url: "https://www.exampleobjects.com/logo.png"
+                }
+            ],
+            customer {
+                date_of_birth: "1970-01-01",
+                gender: "male"
+            }
+        },
+
+        function (response) {
+            console.log('success', response);
+        }
+    );
+
+} catch (e) {
+    // Handle error
+
+
+    console.log('error', e);
+}
+
+
+
+
+
+
+                    },
+                    error: function (request, status, error) {
+                        console.log(error);
+                    }
+                });
+
+
+	  };
+
+
+
+
+
+
+        });
+    </script>
+	<script src="https://x.klarnacdn.net/kp/lib/v1/api.js" async></script>
 </div>
