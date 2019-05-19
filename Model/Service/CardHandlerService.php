@@ -44,7 +44,7 @@ class CardHandlerService
     }
 
     /**
-     * Get a card name from code.
+     * Get a card scheme from code.
      *
      * @return string
      */
