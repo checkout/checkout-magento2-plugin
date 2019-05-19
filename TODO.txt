@@ -15,7 +15,15 @@
 - move vault option filtering to php
 - filter/hide relevant parameters in frontend config
 - connect the remaining frames parameters (debug, layout...)
-- fix vault method title not showing in order details
 - do CLR to LF normalisation
 - update git ignore
-
+- implement the verify and fail controllers
+- add the place order API (with MADA support)
+- fix js error on instant purchase button click without product options selected
+- check if configurable product is working with instant purchase - same for other prod types
+- check deleted vault cards not removed from db
+- add a screen loader to vault and apm display
+- improve the vault cards list display
+- replace the account vault card renderer by a custom one
+- add vault extra config parameter fields from config.xml + instant purchase control
+- Add instant purchase note in order somewhere

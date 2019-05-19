@@ -12,12 +12,10 @@ define([
     ) {
         // Render the active payment methods
         for (var method in Config) {
-            if (method != 'checkoutcom_vault') {
-                rendererList.push({
-                        type: method,
-                        component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/' + method
-                });
-            }
+            rendererList.push({
+                    type: method,
+                    component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/' + method
+            });
         }
 
         return Component.extend({});

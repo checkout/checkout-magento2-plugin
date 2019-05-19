@@ -32,6 +32,11 @@ class QuoteHandlerService
     protected $storeManager;
 
     /**
+     * @var ProductRepositoryInterface
+     */
+    protected $productRepository;
+
+    /**
      * @var Config
      */
     protected $config;
@@ -39,10 +44,10 @@ class QuoteHandlerService
     /**
      * @var ShopperHandlerService
      */
-    protected $shopperHandlerService;
+    protected $shopperHandler;
 
     /**
-     * @param Context $context
+     * QuoteHandlerService constructor
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -50,6 +55,7 @@ class QuoteHandlerService
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler
     )
@@ -59,6 +65,7 @@ class QuoteHandlerService
         $this->cookieManager = $cookieManager;
         $this->quoteFactory = $quoteFactory;
         $this->storeManager = $storeManager;
+        $this->productRepository = $productRepository;
         $this->config = $config;
         $this->shopperHandler = $shopperHandler;
     }
@@ -95,6 +102,22 @@ class QuoteHandlerService
             return false;
         }
     }
+
+    /**
+     * Create a new quote
+     */
+    public function createQuote()
+    {
+        // Create the quote instance
+        $quote = $this->quoteFactory->create();
+        $quote->setStore($this->storeManager->getStore());
+        $quote->setCurrency();
+        
+        // Set the quote customer
+        $quote->assignCustomer($this->shopperHandler->getCustomerData());
+
+        return $quote;
+    }  
 
     /**
      * Checks if a quote exists and is valid
@@ -154,7 +177,7 @@ class QuoteHandlerService
     public function prepareGuestQuote($quote, $email = null)
     {
         // Retrieve the user email
-        $guestEmail = ($email) ? $email : $this->shopperHandler->findEmail();
+        $guestEmail = ($email) ? $email : $this->findEmail($quote);
 
          // Set the quote as guest
         $quote->setCustomerId(null)
@@ -169,6 +192,18 @@ class QuoteHandlerService
 
         // Return the quote
         return $quote;
+    }
+
+    /**
+     * Find a customer email
+     */
+    public function findEmail($quote)
+    {
+        return $quote->getCustomerEmail()
+        ?? $quote->getBillingAddress()->getEmail()
+        ?? $this->cookieManager->getCookie(
+            $this->config->getValue('email_cookie_name')
+        );
     }
 
     /**
@@ -212,18 +247,42 @@ class QuoteHandlerService
     }
 
     /**
-     * Gets the billing address.
+     * Add product items to a quote
+     */
+    public function addItems($quote, $items) {
+        foreach ($items as $item) {
+            if (isset($item['product_id']) && (int) $item['product_id'] > 0) {
+                // Load the product
+                $product = $this->productRepository->getById($item['product_id']);
+
+                // Get the quantity
+                $quantity = isset($item['qty']) && (int) $item['qty'] > 0
+                ? $item['qty'] : 1;
+
+                // Add the item
+                if (!empty($item['super_attribute'])) {
+                    $buyRequest = new \Magento\Framework\DataObject($item);
+                    $quote->addProduct($product, $buyRequest);
+                }
+                else {
+                    $quote->addProduct($product, $quantity);
+                }
+            }
+        }
+
+        // Return the quote
+        return $quote;
+    }
+
+    /* Gets the billing address.
      *
      * @return     Address  The billing address.
      */
     public function getBillingAddress() {
-
         try {
             return $this->getQuote()->getBillingAddress();
         } catch (\Exception $e) {
             return false;
         }
-
     }
-
 }

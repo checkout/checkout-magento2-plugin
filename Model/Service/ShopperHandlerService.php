@@ -5,36 +5,40 @@ namespace CheckoutCom\Magento2\Model\Service;
 class ShopperHandlerService
 {
     /**
-     * @var CookieManagerInterface
+     * @var Session
      */
-    protected $cookieManager;
+    protected $customerSession;
 
     /**
-     * @var Config
-     */
-    protected $config;
+     * @var CustomerRepositoryInterface
+     */        
+    protected $customerRepository;
 
     /**
      * ShopperHandlerService constructor
      */
     public function __construct(
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
     )
     {
-        $this->cookieManager = $cookieManager;
-        $this->config = $config;
+        $this->customerSession = $customerSession;
+        $this->customerRepository  = $customerRepository;
     }
 
-    /**
-     * Find a customer email
-     */
-    public function findEmail($quote)
-    {
-        return $quote->getCustomerEmail()
-        ?? $quote->getBillingAddress()->getEmail()
-        ?? $this->cookieManager->getCookie(
-            $this->config->getValue('email_cookie_name')
-        );
+    public function getCustomerData($filters = []) {
+        if (isset($filters['id'])) {
+            return $this->customerRepository->getById($filters['id']);
+        }
+        else if (isset($filters['email'])) {
+            return $this->customerRepository->get(
+                filter_var($filters['email'],
+                FILTER_SANITIZE_EMAIL)
+            );
+        }
+        else {
+            $customerId = $this->customerSession->getCustomer()->getId();
+            return $this->customerRepository->getById($customerId);
+        }
     }
 }
