@@ -102,7 +102,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         $this->methodId = $this->data['methodId'];
     }
 
-
     /**
      * Methods
      */
