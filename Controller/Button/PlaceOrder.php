@@ -129,7 +129,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     /**
      * Creates response with the operation status message.
      */
-    private function createResponse(string $message, bool $successMessage): JsonResult
+    private function createResponse(string $message, bool $successMessage)
     {
         // Prepare the result
         $result = $this->jsonFactory->create()->setData(
