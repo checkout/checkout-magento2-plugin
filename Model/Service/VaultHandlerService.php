@@ -317,16 +317,24 @@ class VaultHandlerService {
      * Get a user's saved cards.
      */
     public function getUserCards() {
+        // Output array
+        $output = [];
+
         // Get the customer id (currently logged in user)
         $customerId = $this->customerSession->getCustomer()->getId(); 
 
         // Find the customer cards
         if ((int) $customerId > 0) {
             // Todo - return only active cards filtered by checkoutcom_vault code
-            return $this->paymentTokenManagement->getListByCustomerId($customerId);
+            $cards = $this->paymentTokenManagement->getListByCustomerId($customerId);
+            foreach ($cards as $card) {
+                if  ($card->getIsActive() == 1 && $card->getPaymentMethodCode() == 'checkoutcom_vault') {
+                    $output[] = $card;
+                }
+            }
         }
 
-        return [];
+        return $output;
     }
 
     /**
