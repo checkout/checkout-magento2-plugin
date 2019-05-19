@@ -64,7 +64,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      */
     protected $quote;
 
-
     /**
      * Magic Methods
      */
@@ -102,7 +101,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         $this->data = $this->getRequest()->getParams();
         $this->methodId = $this->data['methodId'];
     }
-
 
     /**
      * Methods

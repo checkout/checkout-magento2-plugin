@@ -3,7 +3,6 @@
 namespace CheckoutCom\Magento2\Helper;
 
 class Utilities {
-
     /**
      * @var UrlInterface
      */
@@ -13,7 +12,7 @@ class Utilities {
      * @var Session
      */
     protected $customerSession;
-
+    
 	/**
      * Utilities constructor.
      */
@@ -22,8 +21,8 @@ class Utilities {
         \Magento\Customer\Model\Session $customerSession
     )
     {
-        $this->urlInterface      = $urlInterface;
-        $this->customerSession   = $customerSession;
+        $this->urlInterface = $urlInterface;
+        $this->customerSession = $customerSession;
 	}
 	
 	/**
