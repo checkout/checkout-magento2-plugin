@@ -23,4 +23,5 @@
 - fix js error on instant purchase button click without product options selected
 - check if configurable product is working with instant purchase - same for other prod types
 - check deleted vault cards not removed from db
-- add a screen loader to vault and api display
+- add a screen loader to vault and apm display
+- improve the vault cards list display
