@@ -25,3 +25,4 @@
 - check deleted vault cards not removed from db
 - add a screen loader to vault and apm display
 - improve the vault cards list display
+- replace the account vault card renderer by a custom one
