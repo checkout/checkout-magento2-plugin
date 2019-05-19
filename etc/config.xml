@@ -23,13 +23,25 @@
         </settings>
         <payment>
             <checkoutcom_vault>
-                <model>CheckoutComCreditCardVaultFacade</model>
+                <model>CheckoutCom\Magento2\Model\Methods\VaultMethod</model>
                 <title>Stored Cards with Checkout.com</title>
                 <active>0</active>
+                <payment_action>authorize_capture</payment_action>
+                <capture_time>0</capture_time>        
                 <sort_order>0</sort_order>
                 <request_currency>USD</request_currency>
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_use_internal>0</can_use_internal>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_capture_vault>1</can_capture_vault>
+                <auto_generate_invoice>1</auto_generate_invoice>
                 <instant_purchase>
                     <available>CheckoutCom\Magento2\Model\InstantPurchase\AvailabilityChecker</available>
                     <tokenFormat>CheckoutCom\Magento2\Model\InstantPurchase\TokenFormatter</tokenFormat>
@@ -46,7 +58,6 @@
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>
                 <save_cards_enabled>0</save_cards_enabled>
-                <save_cards_title>Pay with saved card:</save_cards_title>
                 <dynamic_decriptor_enabled>0</dynamic_decriptor_enabled>
                 <decriptor_name></decriptor_name>
                 <decriptor_city></decriptor_city>

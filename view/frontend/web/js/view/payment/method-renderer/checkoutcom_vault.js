@@ -1,106 +1,94 @@
-/**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
- *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
- *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
- */
- 
 define([
-    'jquery',
-    'Magento_Vault/js/view/payment/method-renderer/vault',
-    'Magento_Checkout/js/model/payment/additional-validators',
-    'CheckoutCom_Magento2/js/view/payment/utilities'
-],
-function ($, VaultComponent, AdditionalValidators, Utilities) {
+        'jquery',
+        'Magento_Checkout/js/view/payment/default',
+        'CheckoutCom_Magento2/js/view/payment/utilities',
+        'Magento_Checkout/js/model/payment/additional-validators',
+    ],
+    function ($, Component, Utilities, AdditionalValidators) {
 
-    'use strict';
+        'use strict';
 
-    const METHOD_ID = 'checkoutcom_vault';
+        // Fix billing address missing.
+        window.checkoutConfig.reloadOnBillingAddress = true;
 
-    return VaultComponent.extend({
-        defaults: {
-            template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
-            formId: METHOD_ID + '_frm'
-        },
+        const METHOD_ID = 'checkoutcom_vault';
 
-        /**
-         * @returns {exports}
-         */
-        initialize: function () {
-            this._super();
-            this.buildConfig();
+        return Component.extend({
+            defaults: {
+                template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
+                buttonId: METHOD_ID + '_btn',
+                formId: METHOD_ID + '_frm',
+                cardToken: null,
+                redirectAfterPlaceOrder: false
+            },
 
-            return this;
-        },
+            /**
+             * @returns {exports}
+             */
+            initialize: function () {
+                this._super();
+                // Todo - handle button state
+                //this.isPlaceOrderActionAllowed(false);
 
-        /**
-         * @returns {void}
-         */
-        buildConfig: function () {
-            this.cardData = window.checkoutConfig.payment.vault[this.getId()].config;
-            this.iconData = window.checkoutConfig.payment.ccform.icons[this.cardData.details.type];
-        },    
+                return this;
+            },
 
-        /**
-         * Get the card icon.
-         *
-         * @returns {String}
-         */
-        getIcon: function () {
-            return this.iconData;
-        },
+            /**
+             * Getters and setters
+             */
 
-        /**
-         * Get last 4 digits of card.
-         *
-         * @returns {String}
-         */
-        getMaskedCard: function () {
-            return this.cardData.details.maskedCC;
-        },
+            /**
+             * @returns {string}
+             */
+            getCode: function () {
+                return METHOD_ID;
+            },
 
-        /**
-         * Get expiration date.
-         *
-         * @returns {String}
-         */
-        getExpirationDate: function () {
-            return this.cardData.details.expirationDate;
-        },
+            /**
+             * @returns {string}
+             */
+            getValue: function(field) {
+                return Utilities.getValue(METHOD_ID, field);
+            },
 
-        /**
-         * Get card type.
-         *
-         * @returns {String}
-         */
-        getCardType: function () {
-            return this.cardData.details.type;
-        },
+            /**
+             * @returns {string}
+             */
+            getPublicHash: function() {
+                return $('#vault-container input[name="savedCard"]:checked').val();
+            },
 
-        /**
-         * Get stored card token (encrypted card_id).
-         *
-         * @returns {String}
-         */
-        getPublicHash: function () {
-            return this.cardData.publicHash;
-        },
-
-        /**
-         * @returns {void}
-         */
-        placeOrder: function () {
-            var self = this;
-            if (AdditionalValidators.validate()) {
-                // Place the order
-                Utilities.placeOrder({
-                    methodId: METHOD_ID,
-                    publicHash: self.getPublicHash()
+            /**
+             * @returns {void}
+             */
+            initWidget: function () {
+                $.ajax({
+                    type: "POST",
+                    url: Utilities.getUrl('vault/display'),
+                    success: function(data) {
+                        $('#vault-container')
+                        .append(data.html)
+                        .show();
+                    },
+                    error: function (request, status, error) {
+                        console.log(error);
+                    }
                 });
+            },
+                
+            /**
+             * @returns {void}
+             */
+            placeOrder: function () {
+                var self = this;
+                if (AdditionalValidators.validate()) {
+                    // Place the order
+                    Utilities.placeOrder({
+                        methodId: METHOD_ID,
+                        publicHash: self.getPublicHash()
+                    });
+                }
             }
-        }
-    });
-
-});
+        });
+    }
+);

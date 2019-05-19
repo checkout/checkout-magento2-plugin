@@ -3,7 +3,6 @@
 namespace CheckoutCom\Magento2\Helper;
 
 class Utilities {
-
     /**
      * @var UrlInterface
      */
@@ -13,24 +12,17 @@ class Utilities {
      * @var Session
      */
     protected $customerSession;
-
-    /**
-     * @var Config
-     */
-    protected $paymentModelConfig;
     
 	/**
      * Utilities constructor.
      */
     public function __construct(
         \Magento\Framework\UrlInterface $urlInterface,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Payment\Model\Config $paymentModelConfig
+        \Magento\Customer\Model\Session $customerSession
     )
     {
         $this->urlInterface = $urlInterface;
         $this->customerSession = $customerSession;
-        $this->paymentModelConfig = $paymentModelConfig;
 	}
 	
 	/**
@@ -76,26 +68,5 @@ class Utilities {
         } catch (\Exception $e) {
             return false;
         }
-    }
-
-    /**
-     * Get a card code from name.
-     *
-     * @return string
-     */
-    public function getCardCode($scheme) {
-        return array_search(
-            $scheme,
-            $this->paymentModelConfig->getCcTypes()
-        );
-    }
-
-    /**
-     * Get a card name from code.
-     *
-     * @return string
-     */
-    public function getCardName($code) {
-        return $this->paymentModelConfig->getCcTypes()[$code];
     }
 }

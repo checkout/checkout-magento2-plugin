@@ -10,7 +10,7 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Vault\Api\Data\PaymentTokenInterface;
+use \Magento\Vault\Api\Data\PaymentTokenInterface;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
@@ -53,6 +53,11 @@ class VaultHandlerService {
     protected $apiHandlerService;
 
     /**
+     * @var CardHandlerService
+     */
+    protected $cardHandler;
+
+    /**
      * @var string
      */
     protected $customerEmail;
@@ -87,6 +92,7 @@ class VaultHandlerService {
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->vaultTokenFactory = $vaultTokenFactory;
@@ -95,6 +101,7 @@ class VaultHandlerService {
         $this->customerSession = $customerSession;
         $this->remoteAddress = $remoteAddress;
         $this->apiHandler = $apiHandler;
+        $this->cardHandler = $cardHandler;
         $this->config = $config;
     }
 
@@ -296,7 +303,7 @@ class VaultHandlerService {
         if (count($cardList) > 0) {
             // Sort the array by date
             usort($cardList, function ($a, $b) {
-                return new DateTime($a->getCreatedAt()) <=> new DateTime($b->getCreatedAt());
+                return new \DateTime($a->getCreatedAt()) <=> new \DateTime($b->getCreatedAt());
             });
 
             // Return the most recent
@@ -310,15 +317,42 @@ class VaultHandlerService {
      * Get a user's saved cards.
      */
     public function getUserCards() {
+        // Output array
+        $output = [];
+
         // Get the customer id (currently logged in user)
         $customerId = $this->customerSession->getCustomer()->getId(); 
 
         // Find the customer cards
         if ((int) $customerId > 0) {
             // Todo - return only active cards filtered by checkoutcom_vault code
-            return $this->paymentTokenManagement->getListByCustomerId($customerId);
+            $cards = $this->paymentTokenManagement->getListByCustomerId($customerId);
+            foreach ($cards as $card) {
+                if  ($card->getIsActive() == 1 && $card->getPaymentMethodCode() == 'checkoutcom_vault') {
+                    $output[] = $card;
+                }
+            }
         }
 
-        return [];
+        return $output;
+    }
+
+    /**
+     * Render a payment token.
+     */
+    public function renderTokenData(PaymentTokenInterface $paymentToken) {
+        // Get the card details
+        $details = json_decode($paymentToken->getTokenDetails() ?: '{}', true);
+
+        // Return the formatted token
+        return sprintf(
+            '%s: %s, %s: %s (%s: %s)',
+            __('Card type'),
+            $this->cardHandler->getCardScheme($details['type']),
+            __('ending'),
+            $details['maskedCC'],
+            __('expires'),
+            $details['expirationDate']
+        );        
     }
 }
