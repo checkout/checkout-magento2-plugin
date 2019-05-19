@@ -131,10 +131,12 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     private function createResponse(string $message, bool $successMessage): JsonResult
     {
+        // Prepare the result
         $result = $this->jsonFactory->create()->setData(
             ['response' => $message]
         );
 
+        // Prepare the response message
         if ($successMessage) {
             $this->messageManager->addSuccessMessage($message);
         } else {
