@@ -26,8 +26,7 @@ define([
              */
             initialize: function () {
                 this._super();
-                // Todo - handle button state
-                //this.isPlaceOrderActionAllowed(false);
+                this.isPlaceOrderActionAllowed(false);
 
                 return this;
             },
