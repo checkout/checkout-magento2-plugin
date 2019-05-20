@@ -48,6 +48,7 @@ div.cko-vault-card:hover  {
 .cko-vault-card label img {
     width: 45px;
     height: 30px;
+    margin-right: 10px;
 }
 
 /**
@@ -142,6 +143,7 @@ div.cko-alternative-form {
     display: inline-block;
     width: 45px;
     height: 30px;
+    margin-right: 10px;
 }
 
 .bg-alipay {
