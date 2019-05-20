@@ -44,10 +44,12 @@ class Verify extends \Magento\Framework\App\Action\Action {
         $sessionId = $this->getRequest()->getParam('cko-session-id');
 
         if (!empty($sessionId)) {
-            $details = $this->apiHandler->getPaymentDetails($sessionId);
-            var_dump($details);
+            $response = $this->apiHandler->getPaymentDetails($sessionId);
+            //if ($response && $success = $response->isSuccessful()) {
+            var_dump($response->isSuccessful());
+            var_dump($response);
         }
-        
+
         exit();
     }
 
