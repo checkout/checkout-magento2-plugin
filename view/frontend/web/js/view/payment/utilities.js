@@ -138,7 +138,7 @@ define([
             },
 
             allowPlaceOrder: function (buttonId, yesNo) {
-                $('#' + buttonId).prop('disabled', yesNo);
+                $('#' + buttonId).prop('disabled', !yesNo);
             },
 
             /**
