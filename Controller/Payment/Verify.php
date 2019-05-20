@@ -19,6 +19,11 @@ class Verify extends \Magento\Framework\App\Action\Action {
      */
     protected $apiHandler;
 
+    /**
+     * @var Utilities
+     */
+    protected $utilities;
+
 	/**
      * PlaceOrder constructor
      */
@@ -26,7 +31,8 @@ class Verify extends \Magento\Framework\App\Action\Action {
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\View\Result\PageFactory $pageFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities
     )
     {
         parent::__construct($context);
@@ -34,17 +40,20 @@ class Verify extends \Magento\Framework\App\Action\Action {
         $this->pageFactory = $pageFactory;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
     }
 
     /**
      * Handles the controller method.
      */
     public function execute() {
-        // $this->apiHandler->getPaymentDetails($paymentId)
-        $sessionId = $this->getRequest()->getParam('cko-session-id');
-
-        if (!empty($sessionId)) {
+        // Get the session id
+        $sessionId = $this->getRequest()->getParam('cko-session-id', null);
+        if ($sessionId && $this->isValidRequest()) {
+            // Get the payment details
             $response = $this->apiHandler->getPaymentDetails($sessionId);
+
+            // Process the respoonse
             //if ($response && $success = $response->isSuccessful()) {
             var_dump($response->isSuccessful());
             var_dump($response);
@@ -53,9 +62,7 @@ class Verify extends \Magento\Framework\App\Action\Action {
         exit();
     }
 
-    protected function isValidRequest () {
-        $authorization = $this->getRequest()->getHeader('Authorization');
-        $secretKey = $this->config->getValue('secret_key');
-        return $authorization == $secretKey;
+    protected function isValidRequest() {
+        return $this->utilities->isValidAuth();
     }
 }
