@@ -72,6 +72,7 @@ define([
                     success: function(data) {
                         // Insert the HTML content
                         container.append(data.html).show();
+                        self.initEvents();
 
                         // Stop the loader
                         container.trigger('hide.loader');
@@ -81,7 +82,23 @@ define([
                     }
                 });
             },
-                
+
+            /**
+             * @returns {void}
+             */
+            initEvents: function () {
+                // Prepare some variables
+                var self = this;
+                var container = $('#' + self.containerId);
+
+                // Allow order placement if a card is selected
+                container.find('.cko-vault-card').on('click', function() {
+                    if ($('.cko-vault-card:focus').length > 0) {
+                        this.isPlaceOrderActionAllowed(true);
+                    }
+                });
+            },
+
             /**
              * @returns {void}
              */
