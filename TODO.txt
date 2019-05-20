@@ -21,3 +21,4 @@
 - add vault extra config parameter fields from config.xml + instant purchase control
 - Add instant purchase note in order somewhere
 - Add charge request and transaction handling to instant payment orders
+- check all translation strings
