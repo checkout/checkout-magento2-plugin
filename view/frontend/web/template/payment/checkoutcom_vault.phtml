@@ -40,9 +40,9 @@
                 <button class="action primary checkout"
                         type="submit"
                         data-bind="
+                        visible: isPlaceOrderActionAllowed(false),
                         click: placeOrder,
-                        attr: {title: $t('Place Order'), 'id': buttonId},
-                        css: {disabled: !isPlaceOrderActionAllowed()}
+                        attr: {title: $t('Place Order'), 'id': buttonId}
                         ">
                     <span data-bind="i18n: 'Place Order'"></span>
                 </button>

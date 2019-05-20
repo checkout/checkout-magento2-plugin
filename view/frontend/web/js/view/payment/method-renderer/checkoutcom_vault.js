@@ -26,7 +26,6 @@ define([
              */
             initialize: function () {
                 this._super();
-                this.isPlaceOrderActionAllowed(false);
 
                 return this;
             },
