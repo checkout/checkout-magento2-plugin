@@ -15,16 +15,12 @@
     margin-bottom: 20px;
 }
 
-#vault-container div:first-child {
-    padding: 0px 0px 10px 0px !important;
-}
-
 #vault-container div:last-child {
     border-bottom: none !important;
 }
 
-#vault-container div.cko-vault-card {
-    padding: 10px 0px 10px 0px;
+#vault-container .cko-vault-card {
+    padding: 10px;
 }
 
 div.cko-vault-card:focus,
@@ -34,7 +30,7 @@ div.cko-vault-card:hover  {
 
 .cko-vault-card {
     border-bottom: 1px solid #ccc;
-    margin-bottom: 20px;
+    cursor: pointer;
 }
 
 .cko-vault-card input[type=radio] { 
@@ -106,21 +102,14 @@ div.cko-alternative-form {
 
 /* Accordion */
 #apm-container {
-    border: 1px solid #ddd;
-    border-radius: 2px;
     margin-bottom: 20px;
 }
   
 #apm-container div[data-role="collapsible"] {
-    background: #eee;
-    padding: 1rem;
-    cursor: pointer;
-    font-size: .8rem;
-    font-weight: bold;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #ccc;
 }
 
-#apm-container div:last-child[data-role="collapsible"]{
+#apm-container div:last-child[data-role="collapsible"] {
     border-bottom: none !important;
 }
 
