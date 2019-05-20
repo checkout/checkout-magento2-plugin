@@ -86,6 +86,9 @@ define([
                             Frames.submitCard();
                             Frames.unblockFields();
                         }
+                        else {
+                            Utilities.allowPlaceOrder(self.buttonId, false);
+                        }
                     },
                     cardTokenised: function(event) {
                         // Store the card token for later submission
