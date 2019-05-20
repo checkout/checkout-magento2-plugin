@@ -1,11 +1,12 @@
 <div data-role="collapsible" id="<?= $block->getData('apm_id')?>" class="cko-apm <?= $block->getData('apm_id')?>" tabindex="<?= $block->getData('tabIndex')?>">
-    <div data-role="trigger">
+	<div data-role="trigger">
+		<span class="bg-<?= $block->getData('apm_id')?> bg-apm"></span>
         <span><?= $block->getData('apm_id')?></span>
     </div>
 </div>
 <div data-role="content" class="apm-content">
 	<form id="cko-apm-form-<?= $block->getData('apm_id')?>">
 		<input type="hidden" name="source" value="<?= $block->getData('apm_id')?>">
-		<p align="center">You will be redirected to an external page.</p>
+		<p align="center"><?= __('You will be redirected to an external page.')?></p>
 	</form>
 </div>
