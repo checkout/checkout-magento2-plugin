@@ -27,9 +27,13 @@
     padding: 10px 0px 10px 0px;
 }
 
+div.cko-vault-card:focus,
+div.cko-vault-card:hover  {
+    background-color:  #f1f1f1;
+}
+
 .cko-vault-card {
     border-bottom: 1px solid #ccc;
-    padding: 10px;
     margin-bottom: 20px;
 }
 
