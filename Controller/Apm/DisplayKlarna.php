@@ -172,6 +172,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
      */
     public function getMandate() {
 
+        $response = array();
         $products = array();
         $tax = 0;
         foreach ($this->quote->getAllVisibleItems() as $item) {
@@ -186,8 +187,13 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
 
             $tax += $product->total_tax_amount;
             $products []= $product;
+            $response['products'] []= $product->getValues();
 
         }
+
+
+//file_put_contents('/tmp/asdad.json', $this->billingAddress->toJson());
+
 
         $klarna = new Klarna($this->billingAddress->getCountry(),
                              $this->quote->getQuoteCurrencyCode(),
@@ -197,10 +203,22 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
                              $products
                          );
 
+
+file_put_contents('/tmp/asdad.json', json_encode($klarna->getValues()));
+
 // handle error
 
+
         $source = $this->apiHandler->checkoutApi->sources()->add($klarna);
-        return $source->getValues();
+        $response['source'] = $source->getValues();
+
+        $response['purchase_country'] = $this->billingAddress->getCountry();
+        $response['currency'] = $this->quote->getQuoteCurrencyCode();
+        $response['locale'] = 'en-GB';
+        $response['amount'] = $this->quote->getGrandTotal() *100;
+        $response['tax_amount'] = $tax;
+
+        return $response;
 
     }
 
