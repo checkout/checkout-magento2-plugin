@@ -19,11 +19,6 @@ class Verify extends \Magento\Framework\App\Action\Action {
      */
     protected $apiHandler;
 
-    /**
-     * @var Utilities
-     */
-    protected $utilities;
-
 	/**
      * PlaceOrder constructor
      */
@@ -31,8 +26,7 @@ class Verify extends \Magento\Framework\App\Action\Action {
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\View\Result\PageFactory $pageFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler
     )
     {
         parent::__construct($context);
@@ -40,7 +34,6 @@ class Verify extends \Magento\Framework\App\Action\Action {
         $this->pageFactory = $pageFactory;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
-        $this->utilities = $utilities;
     }
 
     /**
@@ -63,6 +56,6 @@ class Verify extends \Magento\Framework\App\Action\Action {
     }
 
     protected function isValidRequest() {
-        return $this->utilities->isValidAuth();
+        return $this->config->isValidAuth();
     }
 }

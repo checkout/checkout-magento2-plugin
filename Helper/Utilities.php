@@ -13,37 +13,17 @@ class Utilities {
      */
     protected $customerSession;
 
-    /**
-     * @var Config
-     */
-    protected $config;
-
 	/**
      * Utilities constructor.
      */
     public function __construct(
         \Magento\Framework\UrlInterface $urlInterface,
-        \Magento\Customer\Model\Session $customerSession,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \Magento\Customer\Model\Session $customerSession
     )
     {
         $this->urlInterface = $urlInterface;
         $this->customerSession = $customerSession;
-        $this->config = $config;
 	}
-    
-	/**
-     * Checks if an external request is valid.
-     */
-    public function isValidAuth() {
-        // Get the authorization header
-        $authorization = $this->getRequest()->getHeader('Authorization');
-
-        // Get the secret key from config
-        $secretKey = $this->config->getValue('secret_key');
-        
-        return $authorization == $secretKey;
-    }
 
 	/**
      * Convert a date string to ISO8601 format.

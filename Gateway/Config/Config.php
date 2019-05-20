@@ -34,6 +34,19 @@ class Config
         $this->utilities = $utilities;
     }
 
+	/**
+     * Checks if an external request is valid.
+     */
+    public function isValidAuth() {
+        // Get the authorization header
+        $authorization = $this->getRequest()->getHeader('Authorization');
+
+        // Get the secret key from config
+        $secretKey = $this->getValue('secret_key');
+        
+        return $authorization == $secretKey;
+    }
+
     /**
      * Returns a module config value.
      *
