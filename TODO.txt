@@ -1,7 +1,7 @@
 - add web hook handling feature
 - add MADA payment card bin check
 - add order status actions for capture, refund, void, flagged
-- check issue with default button state
+- update button state for APM, Google Pay, Apple Pay
 - check after multiple failed requests (add idempotency?)
 - add  guest user email Retrieval for checkout
 - add MOTO partial capture feature?
