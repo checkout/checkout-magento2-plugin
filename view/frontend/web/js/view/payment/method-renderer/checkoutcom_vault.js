@@ -93,7 +93,7 @@ define([
                 // Allow order placement if a card is selected
                 container.find('.cko-vault-card').on('click', function() {
                     if ($('.cko-vault-card:focus').length > 0) {
-                        self.isPlaceOrderActionAllowed(true);
+                        $('#checkoutcom_vault_btn').prop('disabled', false);
                     }
                 });
             },
