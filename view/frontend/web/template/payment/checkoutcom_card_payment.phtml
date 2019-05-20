@@ -43,9 +43,8 @@
                         type="submit"
                         data-bind="
                         click: placeOrder,
-                        attr: {title: $t('Place Order'), 'id': buttonId},
-                        css: {disabled: !isPlaceOrderActionAllowed()}
-                        ">
+                        attr: {title: $t('Place Order'), 'id': buttonId}
+                        " disabled="disabled">
                     <span data-bind="i18n: 'Place Order'"></span>
                 </button>
             </div>

@@ -28,8 +28,6 @@ define([
              */
             initialize: function () {
                 this._super();
-                this.isPlaceOrderActionAllowed(false);
-
                 return this;
             },
 
@@ -84,7 +82,7 @@ define([
                     //localisation: 'EN-GB',
                     cardValidationChanged: function() {
                         if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
-                            self.isPlaceOrderActionAllowed(true);
+                            Utilities.allowPlaceOrder(self.buttonId, true);
                             Frames.submitCard();
                             Frames.unblockFields();
                         }
