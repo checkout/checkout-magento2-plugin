@@ -41,9 +41,13 @@ class Verify extends \Magento\Framework\App\Action\Action {
      */
     public function execute() {
         // $this->apiHandler->getPaymentDetails($paymentId)
-        $postData = $this->getRequest()->getPostValue();
+        $sessionId = $this->getRequest()->getParam('cko-session-id');
 
-        var_dump($postData);
+        if (!empty($sessionId)) {
+            $details = $this->apiHandler->getPaymentDetails($sessionId);
+            var_dump($details);
+        }
+        
         exit();
     }
 

@@ -120,6 +120,6 @@ class ApiHandlerService
      * Gets payment detauls.
      */
     public function getPaymentDetails($paymentId) {
-        return $this->payments()->details($paymentId);
+        return $this->checkoutApi->payments()->details($paymentId);
     }
 }
