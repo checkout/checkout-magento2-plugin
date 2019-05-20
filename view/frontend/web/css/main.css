@@ -11,6 +11,25 @@
 /**
  * Vault payment
  */
+#vault-container {
+    margin-bottom: 20px;
+}
+
+#vault-container div:last-child {
+    border-bottom: none !important;
+}
+
+div.cko-vault-card:focus,
+div.cko-vault-card:hover  {
+    background-color:  #f1f1f1;
+}
+
+.cko-vault-card {
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+    padding: 15px;
+}
+
 .cko-vault-card input[type=radio] { 
     position: absolute;
     opacity: 0;
@@ -18,12 +37,10 @@
     height: 0;
 }
   
-/* IMAGE STYLES */
 .cko-vault-card input[type=radio] + img {
     cursor: pointer;
 }
   
-/* CHECKED STYLES */
 .cko-vault-card input[type=radio]:checked + img {
     outline: 2px solid #f00;
 }
@@ -82,21 +99,21 @@ div.cko-alternative-form {
 
 /* Accordion */
 #apm-container {
-    border: 1px solid #ddd;
-    border-radius: 2px;
     margin-bottom: 20px;
 }
   
 #apm-container div[data-role="collapsible"] {
-    background: #eee;
-    padding: 1rem;
+    border-bottom: 1px solid #ccc;
     cursor: pointer;
-    font-size: .8rem;
-    font-weight: bold;
-    border-bottom: 1px solid #ddd;
+    padding: 15px;
 }
 
-#apm-container div:last-child[data-role="collapsible"]{
+#apm-container div[data-role="collapsible"]:focus,
+#apm-container div[data-role="collapsible"]:hover {
+    background-color:  #f1f1f1;
+}
+
+#apm-container div:last-child[data-role="collapsible"] {
     border-bottom: none !important;
 }
 
