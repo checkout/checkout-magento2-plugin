@@ -346,7 +346,7 @@ class VaultHandlerService {
 
         // Return the formatted token
         return sprintf(
-            '%s, %s: %s (%s: %s)',
+            '%s, %s: %s, %s: %s',
             $this->cardHandler->getCardScheme($details['type']),
             __('ending'),
             $details['maskedCC'],
