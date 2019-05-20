@@ -47,7 +47,7 @@ define([
                  * @returns {void}
                  */
                 initWidget: function () {
-console.log('here');
+
                     $.ajax({
                         type: "POST",
                         url: Utilities.getUrl('apm/display'),
