@@ -17,8 +17,7 @@ define([
             defaults: {
                 template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
                 buttonId: METHOD_ID + '_btn',
-                formId: METHOD_ID + '_frm',
-                cardToken: null,
+                containerId: 'vault-container',
                 redirectAfterPlaceOrder: false
             },
 
@@ -62,13 +61,21 @@ define([
              * @returns {void}
              */
             initWidget: function () {
+                // Prepare some variables
+                var self = this;
+                var container = $('#' + self.containerId);
+
+                // Send the content AJAX request
                 $.ajax({
                     type: "POST",
                     url: Utilities.getUrl('vault/display'),
+                    showLoader: true, 
                     success: function(data) {
-                        $('#vault-container')
-                        .append(data.html)
-                        .show();
+                        // Insert the HTML content
+                        container.append(data.html).show();
+
+                        // Stop the loader
+                        container.trigger('hide.loader');
                     },
                     error: function (request, status, error) {
                         console.log(error);
