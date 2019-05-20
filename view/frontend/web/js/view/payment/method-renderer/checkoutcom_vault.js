@@ -90,14 +90,16 @@ define([
                 var self = this;
                 var container = $('#' + self.containerId);
 
-                // Disable place order on click outside
+                // Disable place order on click outside       
                 $(document).click(function() {
                     Utilities.allowPlaceOrder(self.buttonId, false);
                 });
 
                 // Allow order placement if a card is selected
                 container.find('.cko-vault-card').on('click', function() {
-                    Utilities.allowPlaceOrder(self.buttonId, true);
+                    if ($('.cko-vault-card:focus').length > 0) {
+                        Utilities.allowPlaceOrder(self.buttonId, true);
+                    }
                 });
             },
 
