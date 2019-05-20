@@ -1,14 +1,12 @@
 - add web hook handling feature
 - add MADA payment card bin check
 - add order status actions for capture, refund, void, flagged
-- add APMs forms and payment requests
 - check issue with default button state
 - check after multiple failed requests (add idempotency?)
 - add  guest user email Retrieval for checkout
 - add MOTO partial capture feature?
 - update transaction id for MOTO void and refund using webhook
 - move common payment method functions to an abstract class
-- add save card feature in checkout process
 - filter/hide relevant parameters in frontend config
 - connect the remaining frames parameters (debug, layout...)
 - do CLR to LF normalisation
@@ -16,12 +14,10 @@
 - implement the verify and fail controllers
 - add the place order API (with MADA support)
 - fix js error on instant purchase button click without product options selected
-- check if configurable product is working with instant purchase - same for other prod types
 - check deleted vault cards not removed from db
 - add a screen loader to vault and apm display
 - improve the vault cards list display
 - replace the account vault card renderer by a custom one
 - add vault extra config parameter fields from config.xml + instant purchase control
 - Add instant purchase note in order somewhere
-- Add transaction handling to instant payment orders
-- Is the \Model\Ui\TokenUiComponentProvider class still useful?
+- Add charge request and transaction handling to instant payment orders
