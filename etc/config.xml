@@ -45,7 +45,6 @@
                 <instant_purchase>
                     <available>CheckoutCom\Magento2\Model\InstantPurchase\AvailabilityChecker</available>
                     <tokenFormat>CheckoutCom\Magento2\Model\InstantPurchase\TokenFormatter</tokenFormat>
-                    <additionalInformation>CheckoutCom\Magento2\Model\InstantPurchase\AdditionalInformation</additionalInformation>
                 </instant_purchase>
             </checkoutcom_vault>
             <checkoutcom_card_payment>
