@@ -19,10 +19,6 @@
     border-bottom: none !important;
 }
 
-#vault-container .cko-vault-card {
-    padding: 10px;
-}
-
 div.cko-vault-card:focus,
 div.cko-vault-card:hover  {
     background-color:  #f1f1f1;
@@ -31,6 +27,7 @@ div.cko-vault-card:hover  {
 .cko-vault-card {
     border-bottom: 1px solid #ccc;
     cursor: pointer;
+    padding: 15px;
 }
 
 .cko-vault-card input[type=radio] { 
