@@ -137,6 +137,10 @@ define([
                 return pattern.test(str);
             },
 
+            allowPlaceOrder: function (buttonId, yesNo) {
+                $('#' + buttonId).prop('disabled', yesNo);
+            },
+
             /**
              * HTTP handlers
              */
