@@ -22,3 +22,4 @@
 - Add instant purchase note in order somewhere
 - Add charge request and transaction handling to instant payment orders
 - check all translation strings
+- move amp list from cvv to php class
