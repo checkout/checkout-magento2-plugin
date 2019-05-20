@@ -75,12 +75,12 @@ define([
                     var id = $("#apm-container div[aria-selected=true]").attr('id'),
                         $form = $("#cko-apm-form-" + id),
                         data = {methodId: METHOD_ID};
-
+console.log('place');
                     // Start the loader
                     FullScreenLoader.startLoader();
 
                     // Validate before submission
-                    if (AdditionalValidators.validate()) {
+                    if (AdditionalValidators.validate() && this.custom(id)) {
 
                         // Serialize form.
                         $form.serializeArray().forEach(function (e) {
@@ -90,9 +90,73 @@ define([
                         Utilities.placeOrder(data, this.handleSuccess, this.handleFail);
 
                     } else {
-                        this.handleFail(data); //@todo: imrpove needed
+                        //this.handleFail(data); //@todo: imrpove needed
+
+                        console.log('fail');
                         FullScreenLoader.stopLoader();
                     }
+                },
+
+                /**
+                 * Custom "before place order" flows.
+                 */
+
+                 /**
+                  * Dynamic function handler.
+                  *
+                  * @param      {String}   id      The identifier
+                  * @return     {boolean}
+                  */
+                custom: function(id) {
+
+                    var result = true;
+                    if(typeof this[id] == 'function') {
+                        result = this[id]();
+                    }
+
+                    return result;
+
+                },
+
+                /**
+                 * @returns {void}
+                 */
+                klarna: function () {
+
+                    try {
+console.log('aqui');
+
+                        Klarna.Payments.authorize(
+                            {
+                                instance_id: "klarna-payments-instance",
+                                auto_finalize: true
+                            },
+                            {},
+                            function(response) {
+console.log(response);
+
+
+$form = $("#cko-apm-form-klarna"),
+data = {methodId: METHOD_ID};
+
+// Serialize form.
+$form.serializeArray().forEach(function (e) {
+    data[e.name] = e.value;
+});
+
+
+Utilities.placeOrder(data, this.handleSuccess, this.handleFail);
+
+
+
+                            });
+
+                    } catch(e) {
+console.log(e); //@todo: improve this
+                    }
+
+                    return false;
+
                 }
             }
         );
