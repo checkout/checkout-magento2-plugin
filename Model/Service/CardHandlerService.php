@@ -59,6 +59,8 @@ class CardHandlerService
      */
     public function getCardIcon($code) {
         return $this->assetRepository
-            ->getUrl('CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.png');
+            ->getUrl(
+                'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+            );
     }
 }
