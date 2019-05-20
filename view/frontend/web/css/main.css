@@ -104,6 +104,13 @@ div.cko-alternative-form {
   
 #apm-container div[data-role="collapsible"] {
     border-bottom: 1px solid #ccc;
+    cursor: pointer;
+    padding: 15px;
+}
+
+#apm-container div[data-role="collapsible"]:focus,
+#apm-container div[data-role="collapsible"]:hover {
+    background-color:  #f1f1f1;
 }
 
 #apm-container div:last-child[data-role="collapsible"] {

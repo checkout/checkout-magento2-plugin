@@ -1,10 +1,9 @@
 <?php
 $card = $block->getData('card');
 $details = json_decode($card->getTokenDetails() ?: '{}', true);
-$tabIndex = $block->getData('tabIndex');
 
 ?>
-<div id="cko-vault-card-<?= $card->getEntityId()?>" class="cko-vault-card" tabindex="<?= $tabIndex?>">
+<div id="cko-vault-card-<?= $card->getEntityId()?>" class="cko-vault-card" tabindex="<?= $block->getData('tabIndex')?>">
     <div>
         <label>
             <input type="radio" name="savedCard" value="<?= $card->getPublicHash()?>">
