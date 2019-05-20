@@ -71,16 +71,17 @@ define([
                 /**
                  * @returns {void}
                  */
-                placeOrder: function () {
+                placeOrder: function (argv) {
+
                     var id = $("#apm-container div[aria-selected=true]").attr('id'),
                         $form = $("#cko-apm-form-" + id),
                         data = {methodId: METHOD_ID};
-console.log('place');
+
                     // Start the loader
                     FullScreenLoader.startLoader();
 
                     // Validate before submission
-                    if (AdditionalValidators.validate() && this.custom(id)) {
+                    if (!argv || (AdditionalValidators.validate() && this.custom(id))) {
 
                         // Serialize form.
                         $form.serializeArray().forEach(function (e) {
@@ -123,8 +124,9 @@ console.log('place');
                  */
                 klarna: function () {
 
+                    var self = this;
+
                     try {
-console.log('aqui');
 
                         Klarna.Payments.authorize(
                             {
@@ -133,26 +135,13 @@ console.log('aqui');
                             },
                             {},
                             function(response) {
-console.log(response);
 
-
-$form = $("#cko-apm-form-klarna"),
-data = {methodId: METHOD_ID};
-
-// Serialize form.
-$form.serializeArray().forEach(function (e) {
-    data[e.name] = e.value;
-});
-
-
-Utilities.placeOrder(data, this.handleSuccess, this.handleFail);
-
-
+                                self.placeOrder(false);
 
                             });
 
                     } catch(e) {
-console.log(e); //@todo: improve this
+                        console.log(e); //@todo: improve this
                     }
 
                     return false;
