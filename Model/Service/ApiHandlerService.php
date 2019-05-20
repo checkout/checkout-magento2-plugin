@@ -115,4 +115,11 @@ class ApiHandlerService
 
         return false;
     }
+
+    /**
+     * Gets payment detauls.
+     */
+    public function getPaymentDetails($paymentId) {
+        return $this->payments()->details($paymentId);
+    }
 }
