@@ -92,9 +92,12 @@ define([
 
                 // Allow order placement if a card is selected
                 container.find('.cko-vault-card').on('click', function() {
-                    if ($('.cko-vault-card:focus').length > 0) {
-                        Utilities.allowPlaceOrder(self.buttonId, true);
-                    }
+                    Utilities.allowPlaceOrder(self.buttonId, true);
+                });
+
+                // Disable place order on click outside
+                $(document).click(function() {
+                    Utilities.allowPlaceOrder(self.buttonId, false);
                 });
             },
 
