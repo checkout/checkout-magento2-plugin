@@ -89,17 +89,18 @@ define([
                 // Prepare some variables
                 var self = this;
                 var container = $('#' + self.containerId);
+                var listIem = container.find('.cko-vault-card');
 
                 // Disable place order on click outside       
-                $(document).click(function() {
-                    Utilities.allowPlaceOrder(self.buttonId, false);
+                $(document).mouseup(function (e) {
+                    if (!listIem.is(e.target) && listIem.has(e.target).length === 0) {
+                        Utilities.allowPlaceOrder(self.buttonId, false);
+                    }
                 });
 
                 // Allow order placement if a card is selected
-                container.find('.cko-vault-card').on('click', function() {
-                    if ($('.cko-vault-card:focus').length > 0) {
-                        Utilities.allowPlaceOrder(self.buttonId, true);
-                    }
+                listIem.on('click', function() {
+                    Utilities.allowPlaceOrder(self.buttonId, true);
                 });
             },
 

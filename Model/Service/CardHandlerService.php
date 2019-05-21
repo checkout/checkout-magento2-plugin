@@ -63,4 +63,15 @@ class CardHandlerService
                 'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
             );
     }
+
+    /**
+     * Check if a card is active.
+     *
+     * @return bool
+     */
+    public function isCardActive($card) {
+        $card->getIsActive() == 1 
+        && $card->getIsVisible() == 1
+        && $card->getPaymentMethodCode() == 'checkoutcom_vault';
+    }
 }

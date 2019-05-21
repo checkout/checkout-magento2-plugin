@@ -15,6 +15,11 @@ class Config
     protected $scopeConfig;
 
     /**
+     * @var RequestInterface
+     */
+    protected $request;
+
+    /**
      * @var Loader
      */
     public $loader;
@@ -25,11 +30,13 @@ class Config
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\App\RequestInterface $request,
         \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         $this->storeManager = $storeManager;
         $this->scopeConfig = $scopeConfig;
+        $this->request = $request;
         $this->loader = $loader;
         $this->utilities = $utilities;
     }
@@ -39,7 +46,7 @@ class Config
      */
     public function isValidAuth() {
         // Get the authorization header
-        $authorization = $this->getRequest()->getHeader('Authorization');
+        $authorization = $this->request->getHeader('Authorization');
 
         // Get the secret key from config
         $secretKey = $this->getValue('secret_key');
