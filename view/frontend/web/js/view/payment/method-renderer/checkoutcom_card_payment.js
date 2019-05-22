@@ -28,6 +28,8 @@ define([
              */
             initialize: function () {
                 this._super();
+                Utilities.setEmail();
+
                 return this;
             },
 

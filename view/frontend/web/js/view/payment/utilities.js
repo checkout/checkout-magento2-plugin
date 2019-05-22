@@ -6,7 +6,7 @@ define([
         'mage/url',
         'Magento_Checkout/js/action/redirect-on-success',
         'Magento_Checkout/js/model/full-screen-loader',
-        'mage/cookies',
+        'mage/cookies'
     ],
     function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction, FullScreenLoader) {
         'use strict';
@@ -95,6 +95,16 @@ define([
              */
             getEmail: function () {
                 return window.checkoutConfig.customerData.email || Quote.guestEmail || CheckoutData.getValidatedEmailValue();
+            },
+
+            /**
+             * @returns {void}
+             */
+            setEmail: function() {
+                $.cookie(
+                    this.getValue('email_cookie_name'),
+                    this.getEmail()
+                );
             },
 
             /**
