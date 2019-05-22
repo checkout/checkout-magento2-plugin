@@ -74,7 +74,7 @@ define([
                         last_name: billingAddress.lastname
                     };
 
-                if(!obj) {
+                if (!obj) {
                     name = name.first_name + ' ' + name.last_name
                 }
 

@@ -82,6 +82,7 @@ define([
                     debugMode: self.getValue('debug'),
                     localisation: self.getValue('language_fallback'),
                     theme: self.getValue('form_theme'),
+                    customerName: Utilities.getCustomerName(),
                     cardValidationChanged: function() {
                         if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
                             Utilities.allowPlaceOrder(self.buttonId, true);
