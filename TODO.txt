@@ -5,7 +5,6 @@
 - add a screen loader to vault and apm display
 - add vault extra config parameter fields from config.xml + instant purchase control
 - replace the account vault card renderer by a custom one
-- add instant purchase settings to vault config
 
 - add MADA payment card bin check
 - update button state for APM, Google Pay, Apple Pay
