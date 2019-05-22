@@ -4,6 +4,14 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 class ShopperHandlerService
 {
+
+    /**
+     * Default locale code.
+     *
+     * @var        string
+     */
+    const DEFAULT_LOCALE = 'en_US';
+
     /**
      * @var Session
      */
@@ -11,17 +19,24 @@ class ShopperHandlerService
 
     /**
      * @var CustomerRepositoryInterface
-     */        
+     */
     protected $customerRepository;
+
+    /**
+     * @var Resolver
+     */
+    protected $localeResolver;
 
     /**
      * ShopperHandlerService constructor
      */
     public function __construct(
         \Magento\Customer\Model\Session $customerSession,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
+        \Magento\Framework\Locale\Resolver $localeResolver
     )
     {
+        $this->localeResolver  = $localeResolver;
         $this->customerSession = $customerSession;
         $this->customerRepository  = $customerRepository;
     }
@@ -40,5 +55,13 @@ class ShopperHandlerService
             $customerId = $this->customerSession->getCustomer()->getId();
             return $this->customerRepository->getById($customerId);
         }
+    }
+
+    /**
+     * Retrieves the customer language.
+     */
+    public function getCustomerLocale()
+    {
+        return $this->localeResolver->getLocale();
     }
 }

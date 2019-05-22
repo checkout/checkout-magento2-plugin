@@ -7,10 +7,10 @@
 <div data-role="content" class="apm-content <?= $block->getData('apm_id')?>">
     <form id="cko-apm-form-<?= $block->getData('apm_id')?>">
         <input type="hidden" name="source" value="<?= $block->getData('apm_id')?>">
-        <input type="hidden" name="task" value="mandate">
+        <input type="hidden" id="cko-apm-form-klarna-key" name="authorization_token" value="">
     </form>
     <div id="klarna_nav"></div>
-    <div id="klarna_container" align="center"></div>
+    <div id="klarna_container" align="center">Cound not load Klarna script.</div>
 
     <script type="text/javascript">
 
@@ -20,49 +20,52 @@
         require(['jquery', 'domReady!'], function ($) {
 
             // Prepare the form id
-            var klarnaForm = $('#' + 'cko-apm-form-<?= $block->getData('apm_id')?>');
+            var klarnaForm = $('#cko-apm-form-<?= $block->getData('apm_id')?>');
 
             /**
              * Wait for klarna to be ready
              */
             window.klarnaAsyncCallback = function () {
 
-
                 $.ajax({
                     type: 'POST',
                     url: '<?= $block->getUrl('checkout_com/apm/displayklarna')?>',
-                    data: { source: 'klarna',
-                            task: 'mandate'},
-
+                    data: {},
                     success: function (data) {
 
-                        //klarnaForm.html(data.html);
-
+                        $("#klarna_container").html("");
 
                         var methods = [];
-
                         data.source.payment_method_categories.forEach(function(el, index) {
-
-                            //$('#klarna_nav').prepend('<img id="' + el.identifier + '" src="' + el.asset_urls.standard + '" />');
                             methods.push(el.identifier);
-
-                        })
-
+                        });
 
                         try {
 
                             Klarna.Payments.init({client_token: data.source.client_token}); // Initialize Klarna
-
                             Klarna.Payments.load({  container:                  "#klarna_container",
-                                                    payment_method_categories:  methods, // @todo: update this with the data from the response
+                                                    payment_method_categories:  methods,
                                                     instance_id:                "klarna-payments-instance"},
                                 {
-                                    purchase_country:   data.purchase_country,
-                                    purchase_currency:  data.currency,
+                                    purchase_country:   data.billing.country,
+                                    purchase_currency:  data.quote.quote_currency_code,
                                     locale:             data.locale,
-                                    order_amount:       data.amount,
-                                    order_tax_amount:   data.tax_amount,
-                                    order_lines:        data.products
+                                    order_amount:       parseInt(data.quote.grand_total) *100,
+                                    order_tax_amount:   parseInt(data.tax_amount) *100,
+                                    order_lines:        data.products,
+                                    billing_address:    {   given_name:     data.billing.firstname,
+                                                            family_name:    data.billing.lastname,
+                                                            email:          data.billing.email,
+                                                            //title:          data.billing.email,
+                                                            street_address: data.billing.street,
+                                                            //street_address2:          data.billing.email,
+                                                            postal_code:    data.billing.postcode,
+                                                            city:           data.billing.city,
+                                                            region:         data.billing.region,
+                                                            phone:          data.billing.phone,
+                                                            country:        data.billing.country_id.toLowerCase()
+
+                                    }
                                 },
                                 function (response) {
 

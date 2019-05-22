@@ -160,6 +160,7 @@ define([
                     type: 'POST',
                     url: self.getUrl('payment/placeorder'),
                     data: payload,
+                    showLoader: true,
                     success: function (data) {
                         if (!data.success) {
                             FullScreenLoader.stopLoader();

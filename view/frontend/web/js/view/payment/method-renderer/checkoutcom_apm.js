@@ -51,6 +51,7 @@ define([
                     $.ajax({
                         type: "POST",
                         url: Utilities.getUrl('apm/display'),
+                        showLoader: true,
                         success: function(data) {
                             $('#apm-container')
                             .append(data.html)
@@ -71,32 +72,34 @@ define([
                 /**
                  * @returns {void}
                  */
-                placeOrder: function (argv) {
+                placeOrder: function () {
 
                     var id = $("#apm-container div[aria-selected=true]").attr('id'),
                         $form = $("#cko-apm-form-" + id),
                         data = {methodId: METHOD_ID};
 
                     // Start the loader
-                    FullScreenLoader.startLoader();
+                    FullScreenLoader.startLoader()
 
-                    // Validate before submission
-                    if (!argv || (AdditionalValidators.validate() && this.custom(id))) {
+                    $("#cko-apm-form-" + id).serializeArray().forEach(function (e) {
+                        data[e.name] = e.value;
+                    });
 
-                        // Serialize form.
-                        $form.serializeArray().forEach(function (e) {
-                            data[e.name] = e.value;
-                        });
 
-                        Utilities.placeOrder(data, this.handleSuccess, this.handleFail);
+                    if (AdditionalValidators.validate() && this.custom(data)) { //@todo: addtional validators are not working
+
+                        Utilities.placeOrder(data, function() {console.log('success');}, function() {console.log('fail');});
 
                     } else {
-                        //this.handleFail(data); //@todo: imrpove needed
 
-                        console.log('fail');
-                        FullScreenLoader.stopLoader();
+console.log('fail'); //@todo: handle error
+
                     }
+
+                    FullScreenLoader.stopLoader();
+
                 },
+
 
                 /**
                  * Custom "before place order" flows.
@@ -108,11 +111,11 @@ define([
                   * @param      {String}   id      The identifier
                   * @return     {boolean}
                   */
-                custom: function(id) {
+                custom: function(data) {
 
                     var result = true;
-                    if(typeof this[id] == 'function') {
-                        result = this[id]();
+                    if(typeof this[data.source] == 'function') {
+                        result = this[data.source](data);
                     }
 
                     return result;
@@ -122,21 +125,17 @@ define([
                 /**
                  * @returns {void}
                  */
-                klarna: function () {
-
-                    var self = this;
+                klarna: function (data) {
 
                     try {
 
-                        Klarna.Payments.authorize(
-                            {
-                                instance_id: "klarna-payments-instance",
-                                auto_finalize: true
-                            },
+                        Klarna.Payments.authorize({ instance_id: "klarna-payments-instance",
+                                                    auto_finalize: true     },
                             {},
                             function(response) {
 
-                                self.placeOrder(false);
+                                data.authorization_token = response.authorization_token;
+                                Utilities.placeOrder(data, function() {console.log('success');}, function() {console.log('fail');});
 
                             });
 

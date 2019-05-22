@@ -3,6 +3,8 @@
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use \Checkout\Library\HttpHandler;
+use Checkout\Models\Product;
+use Checkout\Models\Address;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\EpsSource;
@@ -132,11 +134,12 @@ class AlternativePaymentMethod extends Method
     public function sendPaymentRequest(array $data, $amount, $currency, $reference = '') {
 
         $method = $data['source'];
+        $response = null;
 
         if ($this->validateRequest($method, $currency)) {
 
              // Create source object
-            $source = call_user_func(array($this, $data['source']), $data);
+            $source = call_user_func(array($this, $method), $data);
             $payment = $this->createPayment($source, $amount, $currency, $reference);
 
             // Send the charge request
@@ -149,6 +152,8 @@ class AlternativePaymentMethod extends Method
 //@todo: improve this error
 \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->sendPaymentRequest:: Payment not supported');
         }
+
+        return $response;
 
     }
 
@@ -320,11 +325,53 @@ class AlternativePaymentMethod extends Method
      *
      * @param      $source  The source
      *
-     * @return     TokenSource
+     * @return     KlarnaSource
      */
     protected function klarna($data) {
-        \CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->klarna');
-        return new KlarnaSource();
+
+        $products = array();
+        $tax = 0;
+        $quote = $this->quoteHandler->getQuote();
+        foreach ($quote->getAllVisibleItems() as $item) {
+
+            $product = new Product();
+            $product->name = $item->getName();
+            $product->quantity = $item->getQty();
+            $product->unit_price = $item->getPriceInclTax() *100;
+            $product->tax_rate = $item->getTaxPercent() *100;
+            $product->total_amount = $item->getRowTotalInclTax() *100;
+            $product->total_tax_amount = $item->getTaxAmount() *100;
+
+            $tax += $product->total_tax_amount;
+            $products []= $product;
+
+        }
+
+        /* Billing */
+        $billingAddress = $this->quoteHandler->getBillingAddress();
+        $address = new Address();
+        $address->given_name = $billingAddress->getFirstname();
+        $address->family_name = $billingAddress->getLastname();
+        $address->email = $billingAddress->getEmail();
+        //$address->title = $billingAddress->getPrefix();
+        $address->street_address = $billingAddress->getStreetLine(1);
+        //$address->street_address2 = $billingAddress->getStreetLine(2);
+        $address->postal_code = $billingAddress->getPostcode();
+        $address->city = $billingAddress->getCity();
+        $address->region = $billingAddress->getRegion();
+        $address->phone = $billingAddress->getTelephone();
+        $address->country = strtolower($billingAddress->getCountry());
+
+
+        $klarna =  new KlarnaSource($data['authorization_token'],
+                                    strtolower($billingAddress->getCountry()),
+                                    'en-GB',
+                                    $address,
+                                    $tax,
+                                    $products);
+
+        return $klarna;
+
     }
 
     /**

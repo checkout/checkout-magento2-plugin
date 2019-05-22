@@ -9,17 +9,17 @@
     <div class="payment-method-content">
         <!-- Messages -->
         <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
-        
+
         <!-- Alternative Payments -->
         <div id="apm-container" data-bind="visible: initWidget()">
         </div>
 
         <!-- Billing -->
-        <div class="payment-method-billing-address">
+        <!-- <div class="payment-method-billing-address"> -->
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
-        </div>
+        <!-- </div> -->
 
         <!-- Agreements -->
         <div class="checkout-agreements-block">
