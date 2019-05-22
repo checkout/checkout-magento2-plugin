@@ -24,7 +24,7 @@
         </settings>
         <payment>
             <checkoutcom_vault>
-                <model>CheckoutComCreditCardVaultFacade</model>
+                <model>CheckoutCom\Magento2\Model\Methods\VaultMethod</model>
                 <title>Stored Cards with Checkout.com</title>
                 <active>0</active>
                 <payment_action>authorize_capture</payment_action>
