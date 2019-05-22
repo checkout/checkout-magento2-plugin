@@ -6,7 +6,6 @@ use Magento\Framework\Module\Dir;
 
 class Loader
 {
-
     const CONFIGURATION_FILE_NAME = 'config.xml';
     const KEY_MODULE_NAME = 'CheckoutCom_Magento2';
     const KEY_MODULE_ID = 'checkoutcom_magento2';
