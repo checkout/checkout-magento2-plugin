@@ -49,10 +49,6 @@
                     <tokenFormat>CheckoutCom\Magento2\Model\InstantPurchase\TokenFormatter</tokenFormat>
                 </instant_purchase>
             </checkoutcom_vault>
-            <checkoutcom_vault_facade>
-                <model>CheckoutComCreditCardVaultFacade</model>
-                <active>1</active>
-            </checkoutcom_vault_facade>
             <checkoutcom_card_payment>
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
                 <title>Pay by Card with Checkout.com</title>
