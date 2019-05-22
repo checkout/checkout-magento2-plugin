@@ -109,6 +109,13 @@
                         <comment>Select the language to use by default if the one used by the shopper is not supported by the integration.</comment>
                     </field>
 
+                    <field id="form_theme" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Form theme</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFormTheme</source_model>
+                        <config_path>payment/checkoutcom_card_payment/form_theme</config_path>
+                        <comment>Select the theme to use for the payment form.</comment>
+                    </field>
+
                     <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Action</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
