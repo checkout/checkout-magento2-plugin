@@ -26,3 +26,4 @@
 - Handle refund in verify as in place order if order creation fails
 - move billing address and other user retrieval functions to shopperhandler service class
 - APM model needs filter by currency
+- Add missing EPS and Klarna logos to convert to SVG
