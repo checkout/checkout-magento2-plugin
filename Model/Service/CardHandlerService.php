@@ -70,8 +70,8 @@ class CardHandlerService
      * @return bool
      */
     public function isCardActive($card) {
-        $card->getIsActive() == 1 
-        && $card->getIsVisible() == 1
+        return $card->getIsActive() 
+        && $card->getIsVisible()
         && $card->getPaymentMethodCode() == 'checkoutcom_vault';
     }
 }
