@@ -198,4 +198,28 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
         return $this;
     }
+
+    /**
+     * Check whether method is available
+     *
+     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @return bool
+     */
+    // Todo - move this method to abstract class as it's needed for all payment methods
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        // If the quote is valid
+        if (parent::isAvailable($quote) && null !== $quote) {
+            // Filter by quote currency
+            return in_array(
+                $quote->getQuoteCurrencyCode(),
+                explode(
+                    ',',
+                    $this->config->getValue('accepted_currencies')
+                )
+            );
+        }
+        
+        return false;
+    }
 }
