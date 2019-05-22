@@ -143,7 +143,10 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
             // Filter by quote currency
             return in_array(
                 $quote->getQuoteCurrencyCode(),
-                $this->config->getValue('accepted_currencies')
+                explode(
+                    ',',
+                    $this->config->getValue('accepted_currencies')
+                )
             );
         }
         
