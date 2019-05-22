@@ -1,11 +1,9 @@
 - add web hook handling feature
 - add order status actions for capture, refund, void, flagged
-- connect the remaining frames parameters (debug, layout...)
 - add a screen loader to vault and apm display
 - add vault extra config parameter fields from config.xml + instant purchase control
 - replace the account vault card renderer by a custom one
 - add instant purchase settings to vault config
-
 - add MADA payment card bin check
 - update button state for APM, Google Pay, Apple Pay
 - check after multiple failed requests (add idempotency?)
@@ -24,3 +22,4 @@
 - move apm list from cvv to php class
 - move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
 - Handle refund in verify as in place order if order creation fails
+- add Frames localisation and style parameters?
