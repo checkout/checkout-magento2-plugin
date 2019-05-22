@@ -23,7 +23,7 @@
         </settings>
         <payment>
             <checkoutcom_vault>
-                <model>CheckoutCom\Magento2\Model\Methods\VaultMethod</model>
+                <model>CheckoutComCreditCardVaultFacade</model>
                 <title>Stored Cards with Checkout.com</title>
                 <active>0</active>
                 <payment_action>authorize_capture</payment_action>
@@ -53,7 +53,8 @@
                 <title>Pay by Card with Checkout.com</title>
                 <active>1</active>
                 <payment_action>authorize_capture</payment_action>
-                <capture_time>0</capture_time>        
+                <capture_time>0</capture_time>    
+                <language_fallback>EN-EN</language_fallback>    
                 <sort_order>1</sort_order>
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>

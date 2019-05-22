@@ -78,8 +78,7 @@ define([
                     publicKey: self.getValue('public_key'),
                     containerSelector: '.frames-container',
                     debugMode: self.getValue('debug'),
-                    //localisation: self.getValue('localisation'),
-                    //localisation: 'EN-GB',
+                    localisation: self.getValue('language_fallback'),
                     cardValidationChanged: function() {
                         if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
                             Utilities.allowPlaceOrder(self.buttonId, true);

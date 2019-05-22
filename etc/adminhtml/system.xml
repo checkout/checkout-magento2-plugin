@@ -92,6 +92,13 @@
                         <config_path>payment/checkoutcom_card_payment/active</config_path>
                     </field>
 
+                    <field id="language_fallback" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Language Fallback</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigLanguageFallback</source_model>
+                        <config_path>payment/checkoutcom_card_payment/language_fallback</config_path>
+                        <comment>Select the language to use by default if the one used by the shopper is not supported by the integration.</comment>
+                    </field>
+
                     <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Action</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
