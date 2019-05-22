@@ -35,6 +35,11 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected $apiHandler;
 
+    /**
+     * @var Config
+     */
+    protected $config;
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -57,6 +62,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -88,6 +94,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->sessionQuote       = $sessionQuote;
 
         $this->apiHandler         = $apiHandler;
+        $this->config             = $config;
     }
 
     public function void(\Magento\Payment\Model\InfoInterface $payment)
@@ -120,5 +127,26 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         }
 
         return $this;
+    }
+
+    /**
+     * Check whether method is available
+     *
+     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @return bool
+     */
+    // Todo - move this method to abstract class as it's needed for all payment methods
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        // If the quote is valid
+        if (parent::isAvailable($quote) && null !== $quote) {
+            // Filter by quote currency
+            return in_array(
+                $quote->getQuoteCurrencyCode(),
+                $this->config->getValue('accepted_currencies')
+            );
+        }
+        
+        return false;
     }
 }
