@@ -10,7 +10,7 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-class LanguageFallback implements \Magento\Framework\Option\ArrayInterface {
+class ConfigLanguageFallback implements \Magento\Framework\Option\ArrayInterface {
 
     /**
      * Language fallback
