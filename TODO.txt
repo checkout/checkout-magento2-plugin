@@ -24,4 +24,5 @@
 - move apm list from cvv to php class
 - move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
 - Handle refund in verify as in place order if order creation fails
--  move billing address and other user retrieval functions to shopperhandler service class
+- move billing address and other user retrieval functions to shopperhandler service class
+- APM model needs filter by currency
