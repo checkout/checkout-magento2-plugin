@@ -13,6 +13,11 @@ namespace CheckoutCom\Magento2\Controller\Button;
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var UrlInterface
+     */
+    protected $urlInterface;
+
+    /**
      * @var JsonFactory
      */
     protected $jsonFactory;
@@ -41,27 +46,43 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      * @var QuoteHandlerService
      */
     protected $quoteHandler;
-    
+
+    /**
+     * @var MethodHandlerService
+     */
+    protected $methodHandler;
+   
+    /**
+     * @var Utilities
+     */
+    protected $utilities;
+
     /**
      * PlaceOrder constructor
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\UrlInterface $urlInterface,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Catalog\Model\Product $productModel,
         \Magento\InstantPurchase\Model\QuoteManagement\ShippingConfiguration $shippingConfiguration,
         \Magento\Customer\Model\Address $addressManager,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         parent::__construct($context);
 
+        $this->urlInterface = $urlInterface;
         $this->jsonFactory = $jsonFactory;
         $this->quoteManagement = $quoteManagement;
         $this->productModel = $productModel;
         $this->shippingConfiguration = $shippingConfiguration;
         $this->addressManager = $addressManager;
         $this->quoteHandler = $quoteHandler;
+        $this->methodHandler = $methodHandler;
+        $this->utilities = $utilities;
     }
 
     public function execute()
@@ -111,11 +132,35 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             // Save the quote
             $quote->collectTotals()->save();
 
-            // Create the order
-            $order = $this->quoteManagement->submit($quote);
+            // Process the response
+            $response = $this->methodHandler
+                ->get('checkoutcom_vault')
+                ->sendPaymentRequest(
+                    $this->data,
+                    $this->quote->getGrandTotal(),
+                    $this->quote->getQuoteCurrencyCode(),
+                    $this->quoteHandler->getReference($this->quote)
+                );
 
-            // Return the response
-            $message = __('Your order number is: %1.', $order->getIncrementId());
+                // Process a successful response
+                if ($response && $success = $response->isSuccessful()) {
+                    // Create the order
+                    $order = $this->quoteManagement->submit($quote);
+
+                    // Create the order details URL
+                    $url = $this->urlInterface->getUrl(
+                        'sales/order/view/order_id/' . $order->getId()
+                    );
+
+                    // Prepare the user response
+                    $message = __(
+                        'Your order number %1 has been created successfully.',
+                        $this->utilities->createLink(
+                            $url,
+                            $order->getIncrementId()
+                        )
+                    );
+                }
         } catch (\Exception $e) {
             return $this->createResponse(
                 $e->getMessage(),

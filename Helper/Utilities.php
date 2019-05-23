@@ -69,4 +69,8 @@ class Utilities {
             return false;
         }
     }
+
+    public function createLink($url, $text) {
+        return '<a href="' . $url . '">' .  $text . '</a>';
+    }
 }

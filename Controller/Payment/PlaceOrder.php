@@ -120,16 +120,14 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         if ($this->getRequest()->isAjax() && $this->quote) {
 
             $response = $this->requestPayment();
-            if($response && $success = $response->isSuccessful()) { // Payment requested successfully
-
+            $success = $response->isSuccessful();
+            if ($response && $success) {
                 $url = $response->getRedirection();
                 if (!$response->isPending()) {
-
                     if(!$this->placeOrder((array) $response)) {
                         // refund or void accordingly
-\CheckoutCom\Magento2\Helper\Logger::write('PlaceOrder->execute: should refund');
+                        \CheckoutCom\Magento2\Helper\Logger::write('PlaceOrder->execute: should refund');
                     }
-
                 }
 
                 $message = '';
@@ -155,15 +153,15 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      * @return     Response
      */
     protected function requestPayment() {
-
         // Send the charge request
-        return $this->methodHandler->get($this->methodId)
-                                    ->sendPaymentRequest($this->data,
-                                                         $this->quote->getGrandTotal(),
-                                                         $this->quote->getQuoteCurrencyCode(),
-                                                         $this->quoteHandler->getReference($this->quote));
-
-
+        return $this->methodHandler
+            ->get($this->methodId)
+            ->sendPaymentRequest(
+                $this->data,
+                $this->quote->getGrandTotal(),
+                $this->quote->getQuoteCurrencyCode(),
+                $this->quoteHandler->getReference($this->quote)
+            );
     }
 
     /**
