@@ -112,15 +112,18 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      * @return     JSON
      */
     public function execute() {
-
+        // Prepare some parameters
         $url = '';
         $message = __('Invalid request.');
         $success = false;
 
+        // Process the request
         if ($this->getRequest()->isAjax() && $this->quote) {
-
+            // Get response and success
             $response = $this->requestPayment();
             $success = $response->isSuccessful();
+
+            // Check success
             if ($response && $success) {
                 $url = $response->getRedirection();
                 if (!$response->isPending()) {
@@ -130,13 +133,13 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                     }
                 }
 
+                // Update the success message
                 $message = '';
-
-            } else { // Payment failed
+            } else {
+                // Payment failed
                 $success = false;
                 $message = __('The transaction could not be processed. Review payment method\'s conditions.');
             }
-
         }
 
         return $this->jsonFactory->create()->setData([
