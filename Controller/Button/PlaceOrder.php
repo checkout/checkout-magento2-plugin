@@ -141,26 +141,27 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                     $this->quote->getQuoteCurrencyCode(),
                     $this->quoteHandler->getReference($this->quote)
                 );
+            $success = $response->isSuccessful();
 
-                // Process a successful response
-                if ($response && $success = $response->isSuccessful()) {
-                    // Create the order
-                    $order = $this->quoteManagement->submit($quote);
+            // Process a successful response
+            if ($response && $success) {
+                // Create the order
+                $order = $this->quoteManagement->submit($quote);
 
-                    // Create the order details URL
-                    $url = $this->urlInterface->getUrl(
-                        'sales/order/view/order_id/' . $order->getId()
-                    );
+                // Create the order details URL
+                $url = $this->urlInterface->getUrl(
+                    'sales/order/view/order_id/' . $order->getId()
+                );
 
-                    // Prepare the user response
-                    $message = __(
-                        'Your order number %1 has been created successfully.',
-                        $this->utilities->createLink(
-                            $url,
-                            $order->getIncrementId()
-                        )
-                    );
-                }
+                // Prepare the user response
+                $message = __(
+                    'Your order number %1 has been created successfully.',
+                    $this->utilities->createLink(
+                        $url,
+                        $order->getIncrementId()
+                    )
+                );
+            }
         } catch (\Exception $e) {
             return $this->createResponse(
                 $e->getMessage(),
