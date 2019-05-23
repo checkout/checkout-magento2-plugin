@@ -1,4 +1,5 @@
-- add web hook handling feature
+- add web hook handling feature 
+- add capture, void, refund transactions for webhook
 - add order status actions for capture, refund, void, flagged
 - add a screen loader to vault and apm display
 - add vault extra config parameter fields from config.xml + instant purchase control
@@ -17,7 +18,6 @@
 - fix js error on instant purchase button click without product options selected
 - check deleted vault cards not removed from db
 - Add instant purchase note in order somewhere
-- Add charge request and transaction handling to instant payment orders
 - check all translation strings
 - move apm list from cvv to php class
 - move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
