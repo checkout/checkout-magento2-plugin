@@ -1,25 +1,27 @@
+TODO
 - add web hook handling feature 
-- add capture, void, refund transactions for webhook
-- add order status actions for capture, refund, void, flagged
+- add capture, void, refund transactions and order status for webhook
 - add a screen loader to vault and apm display
-- add vault extra config parameter fields from config.xml + instant purchase control
 - replace the account vault card renderer by a custom one
-- add instant purchase settings to vault config
 - add MADA payment card bin check
-- update button state for APM, Google Pay, Apple Pay
-- check after multiple failed requests (add idempotency?)
-- add MOTO partial capture feature?
 - update transaction id for MOTO void and refund using webhook
-- move common payment method functions to an abstract class
 - filter/hide relevant parameters in frontend config
-- do CLR to LF normalisation
-- update git ignore
 - add the place order API (with MADA support)
-- fix js error on instant purchase button click without product options selected
-- check deleted vault cards not removed from db
 - Add instant purchase note in order somewhere
-- check all translation strings
 - move apm list from cvv to php class
 - move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
 - Handle refund in verify as in place order if order creation fails
-- add Frames localisation and style parameters?
+
+TASKS
+- do CLR to LF normalisation
+- move common payment method functions to an abstract class
+- update git ignore
+- check deleted vault cards not removed from db
+- check all translation strings
+
+
+OPTIONAL
+- add advanced Frames localisation and style parameters?
+- check after multiple failed requests (add idempotency?)
+- add MOTO partial capture feature?
+- add vault extra config parameter fields from config.xml + instant purchase control
