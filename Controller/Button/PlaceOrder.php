@@ -107,13 +107,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         try {
-
-
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/data.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($this->data, 1));
-
             // Create the quote
             $quote = $this->quoteHandler->createQuote();
             $quote = $this->quoteHandler->addItems(
