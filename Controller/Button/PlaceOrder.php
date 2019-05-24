@@ -157,10 +157,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 // Prepare the user response
                 $message = __(
                     'Your order number %1 has been created successfully.',
-                    $this->utilities->createLink(
-                        $url,
-                        $order->getIncrementId()
-                    )
+                    $order->getIncrementId()
                 );
             }
         } catch (\Exception $e) {
