@@ -1,7 +1,6 @@
 TODO
 - add web hook handling feature 
 - add capture, void, refund transactions and order status for webhook
-- add a screen loader to vault and apm display
 - replace the account vault card renderer by a custom one
 - add MADA payment card bin check
 - update transaction id for MOTO void and refund using webhook
