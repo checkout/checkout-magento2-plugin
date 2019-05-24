@@ -83,18 +83,13 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->quoteHandler = $quoteHandler;
         $this->methodHandler = $methodHandler;
         $this->utilities = $utilities;
+
+        // Set some required properties
+        $this->data = $this->getRequest()->getParams();
     }
 
     public function execute()
     {
-        // Get the request parameters
-        $productId = (int) $this->getRequest()->getParam('product');
-        $quantity = (int) $this->getRequest()->getParam('qty');
-        $attributes = $this->getRequest()->getParam('super_attribute');
-        $billingId = (int) $this->getRequest()->getParam('instant_purchase_billing_address');
-        $shippingId = (int) $this->getRequest()->getParam('instant_purchase_shipping_address');
-        $publicHash = $this->getRequest()->getParam('instant_purchase_payment_token');
-
         try {
             // Create the quote
             $quote = $this->quoteHandler->createQuote();
@@ -102,19 +97,19 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 $quote,
                 [
                     [
-                        'product_id' => $productId,
-                        'qty' => $quantity,
-                        'super_attribute' => $attributes
+                        'product_id' => $this->data['product'],
+                        'qty' => $this->data['qty'],
+                        'super_attribute' => $this->data['super_attribute']
                     ]
                 ]
             );
         
             // Set the billing address
-            $billingAddress = $this->addressManager->load($billingId);
+            $billingAddress = $this->addressManager->load($this->data['instant_purchase_billing_address']);
             $quote->getBillingAddress()->addData($billingAddress->getData());
 
             // Set the shipping address and method
-            $shippingAddress = $this->addressManager->load($shippingId);
+            $shippingAddress = $this->addressManager->load($this->data['instant_purchase_shipping_address']);
             $quote->getShippingAddress()
             ->addData($shippingAddress->getData())
             ->setCollectShippingRates(true)
