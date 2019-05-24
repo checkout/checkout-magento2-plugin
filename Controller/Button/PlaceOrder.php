@@ -53,11 +53,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     protected $methodHandler;
 
     /**
-     * @var VaultHandlerService
-     */
-    protected $vaultHandler;
-
-    /**
      * @var Utilities
      */
     protected $utilities;
@@ -75,7 +70,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\Address $addressManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         parent::__construct($context);
@@ -88,7 +82,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->addressManager = $addressManager;
         $this->quoteHandler = $quoteHandler;
         $this->methodHandler = $methodHandler;
-        $this->vaultHandler = $vaultHandler;
         $this->utilities = $utilities;
 
         // Try to load a quote
@@ -97,11 +90,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         // Set some required properties
         $this->data = $this->getRequest()->getParams();
 
-        // Set the card token
-        $this->data['cardToken'] = $this->vaultHandler
-            ->getCardFromHash(
-                $this->data['instant_purchase_payment_token']
-            );
+        // Prepare the public hash
+        $this->data['publicHash'] = $this->data['instant_purchase_payment_token'];
     }
 
     public function execute()

@@ -119,7 +119,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public function sendPaymentRequest($data, $amount, $currency, $reference = '') {
         try {
             // Find the  card token
-            $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
+            $card = $this->vaultHandler->getCardFromHash($data['cardToken']);
 
             // Set the token source
             $idSource = new IdSource($card->getGatewayToken());
@@ -149,8 +149,9 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             if ($captureDate) {
                 $request->capture_time = $this->config->getCaptureTime($this->_code);
             }
-            // Todo - add the card BIN check
-            if ($madaEnabled) {
+            
+            // Mada BIN Check
+            if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
                 $request->metadata = ['udf1' => 'MADA'];
             }
 
