@@ -13,11 +13,6 @@ namespace CheckoutCom\Magento2\Controller\Button;
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
     /**
-     * @var UrlInterface
-     */
-    protected $urlInterface;
-
-    /**
      * @var JsonFactory
      */
     protected $jsonFactory;
@@ -62,7 +57,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\UrlInterface $urlInterface,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Catalog\Model\Product $productModel,
@@ -74,7 +68,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
-        $this->urlInterface = $urlInterface;
         $this->jsonFactory = $jsonFactory;
         $this->quoteManagement = $quoteManagement;
         $this->productModel = $productModel;
@@ -148,11 +141,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             if ($response && $success) {
                 // Create the order
                 $order = $this->quoteManagement->submit($quote);
-
-                // Create the order details URL
-                $url = $this->urlInterface->getUrl(
-                    'sales/order/view/order_id/' . $order->getId()
-                );
 
                 // Prepare the user response
                 $message = __(
