@@ -119,7 +119,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public function sendPaymentRequest($data, $amount, $currency, $reference = '') {
         try {
             // Find the  card token
-            $card = $this->vaultHandler->getCardFromHash($data['cardToken']);
+            $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
 
             // Set the token source
             $idSource = new IdSource($card->getGatewayToken());
