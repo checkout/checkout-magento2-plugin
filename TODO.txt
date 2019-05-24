@@ -9,6 +9,7 @@ TODO
 - move apm list from cvv to php class
 - move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
 - Handle refund in verify as in place order if order creation fails
+- add shipping handling for instant payment, currently flatrate_flatrate not good
 
 TASKS
 - do CLR to LF normalisation
