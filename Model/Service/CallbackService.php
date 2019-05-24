@@ -168,6 +168,11 @@ class CallbackService {
                 // Prepare the order comment
                 $msg = 'Order cancelled. The transaction has been ' . explode('.', $this->gatewayResponse['response']['eventType'])[1];
 
+                // Update the order status
+                $commandName == 'charge.refunded' 
+                ? $order->setStatus($this->gatewayConfig->getOrderStatusRefunded())
+                : $order->setStatus($this->gatewayConfig->getOrderStatusVoided());
+
                 // Add a comment to history
                 $order->addStatusToHistory($order->getStatus(), __($msg), $notify = true);
                 $order->save();
