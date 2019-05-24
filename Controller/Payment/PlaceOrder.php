@@ -138,7 +138,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             } else {
                 // Payment failed
                 $success = false;
-                $message = __('The transaction could not be processed. Review payment method\'s conditions.');
+                $message = __('The transaction could not be processed.');
             }
         }
 

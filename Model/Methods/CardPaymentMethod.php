@@ -45,6 +45,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected $apiHandler;
 
+    /**
+     * @var CardHandlerService
+     */
+    protected $cardHandler;
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -69,6 +74,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -102,6 +108,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
+        $this->cardHandler        = $cardHandler;
     }
 
 	/**
@@ -138,7 +145,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $request->capture_time = $this->config->getCaptureTime($this->_code);
             }
             // Todo - add the card BIN check
-            if ($madaEnabled) {
+            if ($this->cardHandler->isMadaBin($data['cardBin'])) {
                 $request->metadata = ['udf1' => 'MADA'];
             }
 

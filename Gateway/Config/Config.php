@@ -177,4 +177,15 @@ class Config
         return ($this->getValue('payment_action', $methodId) == 'authorize_capture'
         || (bool) $this->getValue('mada_enabled', $methodId) === true);
     }
+
+    /**
+     * Get the MADA BIN file.
+     *
+     * @return bool
+     */
+    public function getMadaBinFile() {
+        return (int) $this->getValue('environment') == 1
+        ? $this->getValue('mada_test_file') : $this->getValue('mada_live_file');
+    }
+
 }

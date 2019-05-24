@@ -21,14 +21,35 @@ class CardHandlerService
      */
     protected $assetRepository;
 
+    /**
+     * @var Reader
+     */
+    protected $directoryReader;
+
+    /**
+     * @var Csv
+     */
+    protected $csvParser;
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
 	/**
      * CardHandlerService constructor.
      */
     public function __construct(
-        \Magento\Framework\View\Asset\Repository $assetRepository
+        \Magento\Framework\View\Asset\Repository $assetRepository,
+        \Magento\Framework\Module\Dir\Reader $directoryReader,
+        \Magento\Framework\File\Csv $csvParser,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
     {
         $this->assetRepository = $assetRepository;
+        $this->directoryReader = $directoryReader;
+        $this->csvParser = $csvParser;
+        $this->config = $config;
     }
 
     /**
@@ -73,5 +94,32 @@ class CardHandlerService
         return $card->getIsActive() 
         && $card->getIsVisible()
         && $card->getPaymentMethodCode() == 'checkoutcom_vault';
+    }
+
+    /**
+     * Checks the MADA BIN
+     *
+     * @return bool
+     */
+    public function isMadaBin($bin) {
+        // Set the root path
+        $csvPath = $this->directoryReader->getModuleDir(
+            '',
+            'CheckoutCom_Magento2'
+        )  . '/' . $this->config->getMadaBinFile();
+
+        // Get the data
+        $csvData = $this->csvParser->getData($csvPath);
+
+        // Remove the first row of csv columns
+        unset($csvData[0]);
+
+        // Build the MADA BIN array
+        $binArray = [];
+        foreach ($csvData as $row) {
+            $binArray[] = $row[1];
+        }
+
+        return in_array($bin, $binArray);
     }
 }
