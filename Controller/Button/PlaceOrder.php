@@ -84,6 +84,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->methodHandler = $methodHandler;
         $this->utilities = $utilities;
 
+        // Try to load a quote
+        $this->quote = $this->quoteHandler->getQuote();
+        
         // Set some required properties
         $this->data = $this->getRequest()->getParams();
     }
