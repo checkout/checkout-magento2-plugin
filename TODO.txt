@@ -10,7 +10,6 @@ TODO
 - Handle refund in verify as in place order if order creation fails
 - add shipping handling for instant payment, currently flatrate_flatrate not good
 - add customer details to payment requests
-- add cvv check "require CVV for saved cards"
 
 TASKS
 - do CLR to LF normalisation
