@@ -26,7 +26,7 @@ define([
             /**
              * @returns {exports}
              */
-            initialize: function () {
+            initialize: function() {
                 this._super();
                 Utilities.setEmail();
 
@@ -40,7 +40,7 @@ define([
             /**
              * @returns {string}
              */
-            getCode: function () {
+            getCode: function() {
                 return METHOD_ID;
             },
 
@@ -65,6 +65,31 @@ define([
                 return $('#vault-container input[name="savedCard"]:checked')
                 .closest('.cko-vault-card')
                 .find('.vault-cvv input').val();
+            },
+
+            /**
+             * @returns {bool}
+             */
+            isCvvRequired(): function() {
+                return self.getValue('require_cvv');
+            },
+
+            /**
+             * @returns {bool}
+             */
+            canEnableButton: function(row) {
+               return !this.isCvvRequired() || 
+               (this.isCvvRequired() && (row.find('input').val().length !== 0));
+            },
+
+            /**
+             * @returns {bool}
+             */
+            buttonNeedsDisabling: function(event, row) {
+                return !row.is(event.target)
+                && row.has(event.target).length === 0
+                && event.target.localName != 'button'
+                && event.target.id != this.buttonId;
             },
 
             /**
@@ -108,15 +133,24 @@ define([
 
                 // Disable place order on click outside       
                 $(document).mouseup(function (e) {
-                    if (!listIem.is(e.target) && listIem.has(e.target).length === 0) {
+                    if (self.buttonNeedsDisabling(e, listIem)) {
                         Utilities.allowPlaceOrder(self.buttonId, false);
                     }
                 });
 
                 // Allow order placement if a card is selected
-                listIem.on('click', function() {
-                    Utilities.allowPlaceOrder(self.buttonId, true);
+                listIem.on('click touch', function() {
+                    if (self.canEnableButton($(this))) {
+                        Utilities.allowPlaceOrder(self.buttonId, true);
+                    }
                 });
+
+                // Select the parent row on CVV field focus
+                if (self.isCvvRequired()) {
+                    $('.vault-cvv input').on('focus', function() {
+                        $(this).closest('.cko-vault-card').trigger('click');
+                    });
+                }
             },
 
             /**
