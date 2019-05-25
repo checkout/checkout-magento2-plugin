@@ -4,8 +4,9 @@ define([
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/full-screen-loader',
+        'mage/translate'
     ],
-    function ($, Component, Utilities, AdditionalValidators, FullScreenLoader) {
+    function ($, Component, Utilities, AdditionalValidators, FullScreenLoader, __) {
 
         'use strict';
 
@@ -132,7 +133,18 @@ define([
 
                     // Add the CVV if needed
                     if (self.getValue('require_cvv')) {
-                        payload.cvv = self.getCvv();
+                        var cvv = self.getCvv();
+                        if ($.trim(cvv).length == 0) {
+                            Utilities.showMessage(
+                                'error',
+                                __('The CVV field is required.')
+                            );
+
+                            return;
+                        }
+                        else {
+                            payload.cvv = self.getCvv();
+                        }
                     }
 
                     // Place the order
