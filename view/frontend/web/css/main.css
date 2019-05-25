@@ -19,6 +19,7 @@
 }
 
 div.cko-vault-card:checked,
+div.cko-vault-card:focus,
 div.cko-vault-card:hover  {
     background-color:  #f1f1f1;
 }
