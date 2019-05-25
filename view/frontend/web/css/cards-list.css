@@ -57,8 +57,12 @@
     width: 90%;
 }
 
-.clr {
-    clear: both;
-    visibility: hidden;
-    height: 0px;
+td.card-type img {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+td.card-type span {
+    display: inline-block;
+    margin-left: 10px;
 }

@@ -24,9 +24,8 @@ $ccNumberView = $block->escapeHtml($block->getNumberLast4Digits());
         <?= $block->escapeHtml($block->getExpDate()); ?>
     </td>
     <td data-th="<?= $block->escapeHtml(__('Type')) ?>" class="col card-type">
-        <img src="<?= $block->cardHandler->getCardIcon($block->getCartType()); ?>"
-                style="display:inline-block; vertical-align:-50%"
-        > <?= $this->cardHandler->getCardScheme($block->getCartType()) ?>
+        <img src="<?= $block->cardHandler->getCardIcon($block->getCartType()); ?>">
+        <span><?= $this->cardHandler->getCardScheme($block->getCartType()) ?></span>
     </td>
     <td data-th="<?= $block->escapeHtml(__('Actions')) ?>" class="col actions">
         <form
