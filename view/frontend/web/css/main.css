@@ -57,6 +57,7 @@ div.cko-vault-card:hover  {
 
 .cko-vault-card .vault-cvv {
     float: right;
+    width: 55px;
 }
 
 .clr {
