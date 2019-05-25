@@ -1,39 +1,39 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
-    <apm>
+    <item>
         <id>alipay</id>	
         <title>Alipay</title>
-    </apm>
-    <apm>
+    </item>
+    <item>
         <id>boleto</id>
         <title>Boleto</title>
-    </apm>
-    <apm>
+    </item>
+    <item>
         <id>giropay</id>
         <title>Giropay</title>
-    </apm>
-    <apm>
+    </item>
+    <item>
         <id>ideal</id>
         <title>Ideal</title>
-    </apm>
-    <apm>
+    </item>
+    <item>
         <id>poli</id>
         <title>Poli</title>
-    </apm>
-    <apm>
+    </item>
+    <item>
         <id>sepa</id>
         <title>Sepa</title>
-    </apm>
-    <apm>
+    </item>
+    <item>
         <id>sofort</id>	
         <title>Sofort</title>
-    </apm>
-    <apm>
+    </item>
+    <item>
         <id>klarna</id>	
         <title>Klarna</title>
-    </apm>
-    <apm>
+    </item>
+    <item>
         <id>eps</id>
         <title>EPS</title>
-    </apm>
+    </item>
 </config>
