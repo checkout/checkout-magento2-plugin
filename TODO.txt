@@ -18,7 +18,7 @@ TASKS
 - check deleted vault cards not removed from db
 - check all translation strings
 - Add instant purchase note in order somewhere
-
+- move strings to constants and centralize definitions
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?
