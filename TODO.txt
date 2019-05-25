@@ -1,3 +1,6 @@
+ISSUES
+- Check cart not cleared after success page display?
+
 TODO
 - add web hook handling feature 
 - add capture, void, refund transactions and order status for webhook
