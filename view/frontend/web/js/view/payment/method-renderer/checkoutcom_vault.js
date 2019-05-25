@@ -3,8 +3,9 @@ define([
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/payment/additional-validators',
+        'Magento_Checkout/js/model/full-screen-loader',
     ],
-    function ($, Component, Utilities, AdditionalValidators) {
+    function ($, Component, Utilities, AdditionalValidators, FullScreenLoader) {
 
         'use strict';
 
@@ -64,20 +65,23 @@ define([
                 var self = this;
                 var container = $('#' + self.containerId);
 
+                // Start the loader
+                FullScreenLoader.startLoader();
+                
                 // Send the content AJAX request
                 $.ajax({
                     type: "POST",
                     url: Utilities.getUrl('vault/display'),
-                    showLoader: true, 
                     success: function(data) {
                         // Insert the HTML content
                         container.append(data.html).show();
                         self.initEvents();
 
                         // Stop the loader
-                        container.trigger('hide.loader');
+                        FullScreenLoader.stopLoader();
                     },
                     error: function (request, status, error) {
+                        FullScreenLoader.stopLoader();
                         console.log(error);
                     }
                 });

@@ -14,7 +14,12 @@
 </button>
 
 <script type="text/javascript">
-    require(['jquery', 'domReady!', 'framesjs'], function ($) {
+    require([
+        'jquery',
+        'Magento_Checkout/js/model/full-screen-loader',
+        'domReady!',
+        'framesjs'
+    ], function ($, FullScreenLoader) {
         // Prepare the elements
         var saveCardButton = $('#ckoSaveCard');
         var showFormButton = $('#ckoShowForm');
@@ -33,7 +38,6 @@
             containerSelector: cardFormContainerId,
             theme: ckoTheme,
             debugMode: ckoDebugMode,
-            showLoader: true,
             frameActivated: function () {
                 saveCardButton.attr("disabled", true);
             },
@@ -65,6 +69,9 @@
             // Disable the save button
             saveCardButton.attr("disabled", true);
 
+            // Start the loader
+            FullScreenLoader.startLoader();
+
             // Send the request
             $.ajax({
                 type: 'POST',
@@ -73,7 +80,7 @@
                 success: function (data) {
                     if (!data.success) {
                         // Todo - handle error message display
-                        //FullScreenLoader.stopLoader();
+                        FullScreenLoader.stopLoader();
                         //self.showMessage('error', data.message);
                     }
                     else if (data.success && data.url) {
@@ -83,7 +90,7 @@
                 },
                 error: function (request, status, error) {
                    // Todo - handle error message display
-                   //FullScreenLoader.stopLoader();
+                   FullScreenLoader.stopLoader();
                    // self.showMessage('error', error);
                 }
             });
