@@ -58,6 +58,15 @@ define([
             },
 
             /**
+             * @returns {string}
+             */
+            getCvv: function() {
+                return $('#vault-container input[name="savedCard"]:checked')
+                .closest('.cko-vault-card')
+                .find('.vault-cvv input').val();
+            },
+
+            /**
              * @returns {void}
              */
             initWidget: function () {
@@ -115,11 +124,19 @@ define([
             placeOrder: function () {
                 var self = this;
                 if (AdditionalValidators.validate()) {
-                    // Place the order
-                    Utilities.placeOrder({
+                    // Prepare the payload
+                    var payload = {
                         methodId: METHOD_ID,
                         publicHash: self.getPublicHash()
-                    });
+                    }
+
+                    // Add the CVV if needed
+                    if (self.getValue('require_cvv')) {
+                        payload.cvv = self.getCvv();
+                    }
+
+                    // Place the order
+                    Utilities.placeOrder(payload);
                 }
             }
         });
