@@ -10,6 +10,7 @@ TODO
 - Handle refund in verify as in place order if order creation fails
 - add shipping handling for instant payment, currently flatrate_flatrate not good
 - add customer details to payment requests
+- Replace APM id by title in list 
 
 TASKS
 - do CLR to LF normalisation
