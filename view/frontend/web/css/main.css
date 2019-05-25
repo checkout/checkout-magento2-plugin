@@ -51,6 +51,21 @@ div.cko-vault-card:hover  {
     margin-right: 10px;
 }
 
+.cko-vault-card .vault-details {
+    float: left;
+}
+
+.cko-vault-card .vault-cvv {
+    float: right;
+}
+
+.clr {
+    clear: both;
+    visibility: hidden;
+    height: 0px;
+    width: 0px;
+}
+
 /**
  * Alternatives
  */

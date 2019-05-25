@@ -4,7 +4,7 @@ $details = json_decode($card->getTokenDetails() ?: '{}', true);
 
 ?>
 <div id="cko-vault-card-<?= $card->getEntityId()?>" class="cko-vault-card" tabindex="<?= $block->getData('tabIndex')?>">
-    <div>
+    <div class="vault-details">
         <label>
             <input type="radio" name="savedCard" value="<?= $card->getPublicHash()?>">
             <img src="<?php /* @noEscape */ echo $block->cardHandler->getCardIcon($details['type']); ?>"
@@ -15,4 +15,10 @@ $details = json_decode($card->getTokenDetails() ?: '{}', true);
             <?= $block->vaultHandler->renderTokenData($card)?>
         </span>
     </div>
+    <?php if ($block->config->getValue('cvv_required')): ?>
+        <div class="vault-cvv">
+            <input type="text" name="cvv" maxlength="4">
+        </div>
+    <?php endif; ?>
+    <div class="clr"></div>
 </div>
