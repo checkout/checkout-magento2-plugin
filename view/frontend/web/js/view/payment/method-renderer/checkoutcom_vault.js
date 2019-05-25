@@ -70,8 +70,8 @@ define([
             /**
              * @returns {bool}
              */
-            isCvvRequired(): function() {
-                return self.getValue('require_cvv');
+            isCvvRequired: function() {
+                return this.getValue('require_cvv');
             },
 
             /**
