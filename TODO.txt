@@ -6,7 +6,6 @@ TODO
 - add capture, void, refund transactions and order status for webhook
 - update transaction id for MOTO void and refund using webhook
 - add the place order API (with MADA support)
-- Add instant purchase note in order somewhere
 - move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
 - Handle refund in verify as in place order if order creation fails
 - add shipping handling for instant payment, currently flatrate_flatrate not good
@@ -19,6 +18,7 @@ TASKS
 - update git ignore
 - check deleted vault cards not removed from db
 - check all translation strings
+- Add instant purchase note in order somewhere
 
 
 OPTIONAL
