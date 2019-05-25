@@ -76,7 +76,7 @@ define([
                 // Remove any existing event handlers
                 this.cleanEvents();
 
-                // Initialise the payment form
+                // Initialize the payment form
                 Frames.init({
                     publicKey: self.getValue('public_key'),
                     containerSelector: '.frames-container',
