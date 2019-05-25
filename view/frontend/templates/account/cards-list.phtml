@@ -24,12 +24,9 @@ $ccNumberView = $block->escapeHtml($block->getNumberLast4Digits());
         <?php echo $block->escapeHtml($block->getExpDate()); ?>
     </td>
     <td data-th="<?php echo $block->escapeHtml(__('Type')) ?>" class="col card-type">
-        <img src="<?php /* @noEscape */ echo $block->getIconUrl(); ?>"
-             width="<?php /* @noEscape */ echo $block->getIconWidth(); ?>"
-             height="<?php /* @noEscape */ echo $block->getIconHeight(); ?>"
-             style="display:inline-block; vertical-align:-50%"
+        <img src="<?php /* @noEscape */ echo $block->cardHandler->getCardIcon($block->getCartType()); ?>"
+                style="display:inline-block; vertical-align:-50%"
         >
-        by Checkout.com
     </td>
     <td data-th="<?php echo $block->escapeHtml(__('Actions')) ?>" class="col actions">
         <form

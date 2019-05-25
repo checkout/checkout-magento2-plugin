@@ -17,7 +17,7 @@ namespace CheckoutCom\Magento2\Block\Vault;
 class Form extends \Magento\Framework\View\Element\Template
 {
     /**
-     * @var CcConfigProvider
+     * @var CardHandlerService
      */
     public $cardHandler;
 
