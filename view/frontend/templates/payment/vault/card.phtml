@@ -15,7 +15,7 @@ $details = json_decode($card->getTokenDetails() ?: '{}', true);
             <?= $block->vaultHandler->renderTokenData($card)?>
         </span>
     </div>
-    <?php if ($block->config->getValue('cvv_required')): ?>
+    <?php if ($block->config->getValue('require_cvv')): ?>
         <div class="vault-cvv">
             <input type="text" name="cvv" maxlength="4">
         </div>
