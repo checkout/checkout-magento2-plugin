@@ -59,7 +59,7 @@
 
 td.card-type img {
     vertical-align: middle;
-    display: inline-block;
+    display: inline-block !important;
 }
 
 td.card-type span {
