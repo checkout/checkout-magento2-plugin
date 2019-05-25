@@ -5,7 +5,6 @@ TODO
 - add web hook handling feature 
 - add capture, void, refund transactions and order status for webhook
 - update transaction id for MOTO void and refund using webhook
-- filter/hide relevant parameters in frontend config
 - add the place order API (with MADA support)
 - Add instant purchase note in order somewhere
 - move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
