@@ -71,7 +71,7 @@ class Loader
         $this->data = $this->getConfigFileData();
     }
 
-    private function getConfigFileData() {
+    protected function getConfigFileData() {
         try {
             // Prepare the output array
             $dbData = [];
@@ -119,7 +119,7 @@ class Loader
         }
     }
 
-    private function loadApmList() {
+    protected function loadApmList() {
         // Get the CSV path
         $csvPath = $this->directoryReader->getModuleDir('', 
         'CheckoutCom_Magento2') . '/' . $this->getValue('apm_file');
@@ -142,20 +142,20 @@ class Loader
         return $apmArray;
     }
 
-    private function getConfigFilePath() {
+    protected function getConfigFilePath() {
         return $this->moduleDirReader->getModuleDir(
             Dir::MODULE_ETC_DIR,
             self::KEY_MODULE_NAME
         ) . '/' . self::CONFIGURATION_FILE_NAME;
     }
 
-    private function loadXmlData() {
+    protected function loadXmlData() {
         return $this->xmlParser
         ->load($this->getConfigFilePath())
         ->xmlToArray()['config']['_value']['default'];
     }
 
-    private function isHidden($field) {
+    protected function isHidden($field) {
         $hiddenFields = explode(
             ',',
             $this->scopeConfig->getValue(
@@ -167,7 +167,7 @@ class Loader
         return in_array($field, $hiddenFields);
     }
 
-    private function isEncrypted($field) {
+    protected function isEncrypted($field) {
         return in_array(
             $field,
             explode(
