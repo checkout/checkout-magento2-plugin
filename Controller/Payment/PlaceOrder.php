@@ -114,17 +114,17 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     public function execute() {
         // Prepare some parameters
         $url = '';
-        $message = __('Invalid request.');
+        $message = '';
         $success = false;
 
         // Process the request
         if ($this->getRequest()->isAjax() && $this->quote) {
             // Get response and success
             $response = $this->requestPayment();
-            $success = $response->isSuccessful();
 
             // Check success
-            if ($response && $success) {
+            if ($response && $response->isSuccessful()) {
+                $success = true;
                 $url = $response->getRedirection();
                 if (!$response->isPending()) {
                     if(!$this->placeOrder((array) $response)) {
@@ -132,14 +132,13 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                         \CheckoutCom\Magento2\Helper\Logger::write('PlaceOrder->execute: should refund');
                     }
                 }
-
-                // Update the success message
-                $message = '';
             } else {
                 // Payment failed
-                $success = false;
                 $message = __('The transaction could not be processed.');
             }
+        }
+        else {
+            $message = __('Invalid request.');
         }
 
         return $this->jsonFactory->create()->setData([
@@ -147,7 +146,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             'message' => $message,
             'url' => $url
         ]);
-
     }
 
     /**
