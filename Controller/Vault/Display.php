@@ -60,8 +60,8 @@ class Display extends \Magento\Framework\App\Action\Action {
             if ($vaultEnabled) {
                 // Get the uer cards
                 $cards = $this->vaultHandler->getUserCards();
-                foreach ($cards as $index => $card) {
-                    $html .= $this->loadBlock($index, $card);
+                foreach ($cards as $card) {
+                    $html .= $this->loadBlock($card);
                 }
             }
         }
@@ -71,12 +71,11 @@ class Display extends \Magento\Framework\App\Action\Action {
         );
     }
 
-    private function loadBlock($tabIndex, $card)
+    private function loadBlock($card)
     {
         return $this->pageFactory->create()->getLayout()
         ->createBlock('CheckoutCom\Magento2\Block\Vault\Form')
         ->setTemplate('CheckoutCom_Magento2::payment/vault/card.phtml')
-        ->setData('tabIndex', $tabIndex)
         ->setData('card', $card)
         ->toHtml();
     }

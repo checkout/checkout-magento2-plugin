@@ -74,12 +74,17 @@ define([
                 return this.getValue('require_cvv');
             },
 
+            isCvvValid: function(val) {
+                return /^\+?(0|[1-9]\d*)$/.test(val) && val.length > 3 ;
+            },
+
             /**
              * @returns {bool}
              */
             canEnableButton: function(row) {
                return !this.isCvvRequired() || 
-               (this.isCvvRequired() && (row.find('input').val().length !== 0));
+               (this.isCvvRequired()
+               && this.isCvvValid());
             },
 
             /**
@@ -89,7 +94,7 @@ define([
                 return !row.is(event.target)
                 && row.has(event.target).length === 0
                 && event.target.localName != 'button'
-                && event.target.id != this.buttonId;
+                && $(event.target).parents('.stored-cards').length !== 0;
             },
 
             /**
@@ -132,26 +137,47 @@ define([
                 var listIem = container.find('.cko-vault-card');
 
                 // Disable place order on click outside       
-                $(document).mouseup(function (e) {
+                $(document).mouseup(function(e) {
                     if (self.buttonNeedsDisabling(e, listIem)) {
                         Utilities.allowPlaceOrder(self.buttonId, false);
                     }
                 });
 
-                // Allow order placement if a card is selected
+                // Mouse over/out behaviour
+                listIem.mouseenter(function() {
+                    $(this).addClass('card-on');
+                }).mouseleave(function() {
+                    $(this).removeClass('card-on');
+                });
+                          
+                // Click behaviour
                 listIem.on('click touch', function() {
+                    // Items state
+                    listIem.removeClass('card-selected');
+                    $(this).addClass('card-selected');
+
+                    // Allow order placement if a card is selected
                     if (self.canEnableButton($(this))) {
                         Utilities.allowPlaceOrder(self.buttonId, true);
                     }
                 });
 
-                // Select the parent row on CVV field focus
+                // CVV field events
                 if (self.isCvvRequired()) {
+                    // Select the parent row on CVV field focus
                     $('.vault-cvv input').on('focus', function() {
                         $(this).closest('.cko-vault-card').trigger('click');
                     });
+
+                    // Check CVV provided
+                    $('.vault-cvv input').on('change', function() {
+                        if (self.isCvvValid($(this).val())) {
+                            Utilities.allowPlaceOrder(self.buttonId, true);
+                        }
+                    });                    
                 }
             },
+
 
             /**
              * @returns {void}
