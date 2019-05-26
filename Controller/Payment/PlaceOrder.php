@@ -123,7 +123,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             $response = $this->requestPayment();
 
             // Check success
-            if ($response && $response->isSuccessful()) {
+            if ($this->apiHandler->isValidResponse($response)) {
                 $success = true;
                 $url = $response->getRedirection();
                 if (!$response->isPending()) {

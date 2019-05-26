@@ -48,6 +48,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     protected $methodHandler;
 
     /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandler;
+
+    /**
      * @var Utilities
      */
     protected $utilities;
@@ -64,6 +69,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\Address $addressManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         parent::__construct($context);
@@ -75,6 +81,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->addressManager = $addressManager;
         $this->quoteHandler = $quoteHandler;
         $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
 
         // Try to load a quote
@@ -135,10 +142,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                     $this->quote->getQuoteCurrencyCode(),
                     $this->quoteHandler->getReference($this->quote)
                 );
-            $success = $response->isSuccessful();
 
             // Process a successful response
-            if ($response && $success) {
+            if ($this->apiHandler->isValidResponse($response)) {
                 // Create the order
                 $order = $this->quoteManagement->submit($quote);
 
