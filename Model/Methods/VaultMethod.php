@@ -118,11 +118,21 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function sendPaymentRequest($data, $amount, $currency, $reference = '') {
         try {
-            // Find the  card token
+            // Find the card token
             $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
 
             // Set the token source
             $idSource = new IdSource($card->getGatewayToken());
+
+            // Check CVV config
+            if ($this->getValue('require_cvv', $this->_code)) {
+                if (!isset($data['cvv']) || (int) $data['cvv'] == 0) {
+                    throw new \Magento\Framework\Exception\LocalizedException(__('The CVV value is required.'));
+                }
+                else {
+                    $idSource->cvv = $data['cvv'];
+                }
+            }
 
             // Set the payment
             $request = new Payment(
