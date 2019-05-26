@@ -15,4 +15,10 @@
     </type>
     <!-- END Method handler configurations -->
 
+    <!-- CSRF bypass from 2.3.x series -->
+    <type name="Magento\Framework\App\Request\CsrfValidator">
+        <plugin name="csrf_validator_skip" type="CheckoutCom\Magento2\Plugin\CsrfValidatorSkip" />
+    </type>
+    <!-- End CSRF bypass -->
+
 </config>

@@ -363,6 +363,12 @@
                         <config_path>payment/checkoutcom_vault/attempt_n3d</config_path>
                     </field>
 
+                    <field id="require_cvv" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Require CVV for saved cards</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_vault/require_cvv</config_path>
+                    </field>
+
                     <field id="instant_purchase_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Instant Purchase Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

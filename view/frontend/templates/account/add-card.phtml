@@ -14,7 +14,11 @@
 </button>
 
 <script type="text/javascript">
-    require(['jquery', 'domReady!', 'framesjs'], function ($) {
+    require([
+        'jquery',
+        'domReady!',
+        'framesjs'
+    ], function ($) {
         // Prepare the elements
         var saveCardButton = $('#ckoSaveCard');
         var showFormButton = $('#ckoShowForm');
@@ -64,6 +68,9 @@
             // Disable the save button
             saveCardButton.attr("disabled", true);
 
+            // Start the loader
+            $('body').trigger('processStart');
+
             // Send the request
             $.ajax({
                 type: 'POST',
@@ -72,7 +79,7 @@
                 success: function (data) {
                     if (!data.success) {
                         // Todo - handle error message display
-                        //FullScreenLoader.stopLoader();
+                        $('body').trigger('processStop');
                         //self.showMessage('error', data.message);
                     }
                     else if (data.success && data.url) {
@@ -82,7 +89,7 @@
                 },
                 error: function (request, status, error) {
                    // Todo - handle error message display
-                   //FullScreenLoader.stopLoader();
+                   $('body').trigger('processStop');
                    // self.showMessage('error', error);
                 }
             });

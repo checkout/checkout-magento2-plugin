@@ -118,11 +118,21 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function sendPaymentRequest($data, $amount, $currency, $reference = '') {
         try {
-            // Find the  card token
+            // Find the card token
             $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
 
             // Set the token source
             $idSource = new IdSource($card->getGatewayToken());
+
+            // Check CVV config
+            if ($this->getValue('require_cvv', $this->_code)) {
+                if (!isset($data['cvv']) || (int) $data['cvv'] == 0) {
+                    throw new \Magento\Framework\Exception\LocalizedException(__('The CVV value is required.'));
+                }
+                else {
+                    $idSource->cvv = $data['cvv'];
+                }
+            }
 
             // Set the payment
             $request = new Payment(
@@ -149,8 +159,9 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             if ($captureDate) {
                 $request->capture_time = $this->config->getCaptureTime($this->_code);
             }
-            // Todo - add the card BIN check
-            if ($madaEnabled) {
+            
+            // Mada BIN Check
+            if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
                 $request->metadata = ['udf1' => 'MADA'];
             }
 
@@ -176,7 +187,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
         // Process the void request
         $response = $this->apiHandler->voidTransaction($payment);
-        if (!$response || !$response->isSuccessful()) {
+        if (!$this->apiHandler->isValidResponse($response)) {
             throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
         }
 
@@ -192,7 +203,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
         // Process the refund request
         $response = $this->apiHandler->refundTransaction($payment, $amount);
-        if (!$response || !$response->isSuccessful()) {
+        if (!$this->apiHandler->isValidResponse($response)) {
             throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
         }
 

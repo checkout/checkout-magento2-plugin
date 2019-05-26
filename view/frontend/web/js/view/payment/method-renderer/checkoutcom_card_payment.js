@@ -20,6 +20,7 @@ define([
                 buttonId: METHOD_ID + '_btn',
                 formId: METHOD_ID + '_frm',
                 cardToken: null,
+                cardBin: null,
                 redirectAfterPlaceOrder: false
             },
 
@@ -75,7 +76,7 @@ define([
                 // Remove any existing event handlers
                 this.cleanEvents();
 
-                // Initialise the payment form
+                // Initialize the payment form
                 Frames.init({
                     publicKey: self.getValue('public_key'),
                     containerSelector: '.frames-container',
@@ -94,8 +95,9 @@ define([
                         }
                     },
                     cardTokenised: function(event) {
-                        // Store the card token for later submission
+                        // Store the card token and the card bin
                         self.cardToken = event.data.cardToken;
+                        self.cardBin =  event.data.card.bin;
 
                         // Add the card token to the form
                         Frames.addCardToken(
@@ -115,7 +117,8 @@ define([
                     // Place the order
                     Utilities.placeOrder({
                         methodId: METHOD_ID,
-                        cardToken: self.cardToken
+                        cardToken: self.cardToken,
+                        cardBin: self.cardBin
                     });
 
                     // Make sure the card form stays unblocked

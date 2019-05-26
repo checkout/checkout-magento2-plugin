@@ -60,7 +60,7 @@ class Verify extends \Magento\Framework\App\Action\Action {
                 $response = $this->apiHandler->getPaymentDetails($sessionId);
 
                 // Process the respoonse
-                if ($response && $success = $response->isSuccessful()) {
+                if ($this->apiHandler->isValidResponse($response)) {
 
                     if (!$this->placeOrder((array) $response)) {
                         // Todo - Handle the refund as in placeOrder if order creation fails

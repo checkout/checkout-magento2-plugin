@@ -3,7 +3,6 @@
 /**
  * Card payment
  */
-
 .frames-container {
     margin-bottom: 15px;
 }
@@ -19,15 +18,15 @@
     border-bottom: none !important;
 }
 
-div.cko-vault-card:focus,
-div.cko-vault-card:hover  {
+#vault-container .card-on,
+#vault-container .card-selected {
     background-color:  #f1f1f1;
 }
 
 .cko-vault-card {
     border-bottom: 1px solid #ccc;
-    cursor: pointer;
     padding: 15px;
+    cursor: pointer;
 }
 
 .cko-vault-card input[type=radio] { 
@@ -40,10 +39,6 @@ div.cko-vault-card:hover  {
 .cko-vault-card input[type=radio] + img {
     cursor: pointer;
 }
-  
-.cko-vault-card input[type=radio]:checked + img {
-    outline: 2px solid #f00;
-}
 
 .cko-vault-card label img {
     width: 45px;
@@ -51,11 +46,26 @@ div.cko-vault-card:hover  {
     margin-right: 10px;
 }
 
-/**
- * Alternatives
- */
+.cko-vault-card .vault-details {
+    float: left;
+}
 
-.alternative-selector input{
+.cko-vault-card .vault-cvv {
+    float: right;
+    width: 55px;
+}
+
+.clr {
+    clear: both;
+    visibility: hidden;
+    height: 0px;
+    width: 0px;
+}
+
+/**
+ * Alternative payments
+ */
+.alternative-selector input {
     /*display: none;*/
     margin:0;padding:0;
     -webkit-appearance:none;
@@ -63,13 +73,15 @@ div.cko-vault-card:hover  {
             appearance:none;
 }
 
-.alternative-selector input:active +label div.alternative-icon{opacity: .9;}
-.alternative-selector input:checked +label div.alternative-icon{
+.alternative-selector input:active +label div.alternative-icon {
+    opacity: .9;
+}
+
+.alternative-selector input:checked +label div.alternative-icon {
     -webkit-filter: none;
        -moz-filter: none;
             filter: none;
 }
-
 
 .alternative-selector label:hover * {
     -webkit-filter: brightness(1.2) grayscale(.5) opacity(.9);
@@ -94,16 +106,23 @@ div.cko-vault-card:hover  {
     vertical-align: middle;
 }
 
-div.alternative-selector label {    cursor:pointer;    }
-div.alternative-selector > div {    margin-bottom: 10px;    }
-div.alternative-selector > div:last-child {    margin-bottom: 0;    }
+div.alternative-selector label {
+    cursor:pointer;
+}
 
+div.alternative-selector > div {
+    margin-bottom: 10px;
+}
+
+div.alternative-selector > div:last-child {
+    margin-bottom: 0;
+}
 
 div.cko-alternative-form {
     padding-left: 2em;
 }
 
-/* Accordion */
+/* APM Accordion */
 #apm-container {
     margin-bottom: 20px;
 }
@@ -132,9 +151,8 @@ div.cko-alternative-form {
 }
   
 /**
- * Backgrounds
+ * APM icons
  */
-
 .bg-apm {
     background-repeat:no-repeat;
     background-position: center center;

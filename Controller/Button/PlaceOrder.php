@@ -13,11 +13,6 @@ namespace CheckoutCom\Magento2\Controller\Button;
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
     /**
-     * @var UrlInterface
-     */
-    protected $urlInterface;
-
-    /**
      * @var JsonFactory
      */
     protected $jsonFactory;
@@ -51,7 +46,12 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      * @var MethodHandlerService
      */
     protected $methodHandler;
-   
+
+    /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandler;
+
     /**
      * @var Utilities
      */
@@ -62,7 +62,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\UrlInterface $urlInterface,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Catalog\Model\Product $productModel,
@@ -70,11 +69,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\Address $addressManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         parent::__construct($context);
 
-        $this->urlInterface = $urlInterface;
         $this->jsonFactory = $jsonFactory;
         $this->quoteManagement = $quoteManagement;
         $this->productModel = $productModel;
@@ -82,19 +81,21 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->addressManager = $addressManager;
         $this->quoteHandler = $quoteHandler;
         $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
+
+        // Try to load a quote
+        $this->quote = $this->quoteHandler->getQuote();
+        
+        // Set some required properties
+        $this->data = $this->getRequest()->getParams();
+
+        // Prepare the public hash
+        $this->data['publicHash'] = $this->data['instant_purchase_payment_token'];
     }
 
     public function execute()
     {
-        // Get the request parameters
-        $productId = (int) $this->getRequest()->getParam('product');
-        $quantity = (int) $this->getRequest()->getParam('qty');
-        $attributes = $this->getRequest()->getParam('super_attribute');
-        $billingId = (int) $this->getRequest()->getParam('instant_purchase_billing_address');
-        $shippingId = (int) $this->getRequest()->getParam('instant_purchase_shipping_address');
-        $publicHash = $this->getRequest()->getParam('instant_purchase_payment_token');
-
         try {
             // Create the quote
             $quote = $this->quoteHandler->createQuote();
@@ -102,19 +103,19 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 $quote,
                 [
                     [
-                        'product_id' => $productId,
-                        'qty' => $quantity,
-                        'super_attribute' => $attributes
+                        'product_id' => $this->data['product'],
+                        'qty' => $this->data['qty'],
+                        'super_attribute' => $this->data['super_attribute']
                     ]
                 ]
             );
         
             // Set the billing address
-            $billingAddress = $this->addressManager->load($billingId);
+            $billingAddress = $this->addressManager->load($this->data['instant_purchase_billing_address']);
             $quote->getBillingAddress()->addData($billingAddress->getData());
 
             // Set the shipping address and method
-            $shippingAddress = $this->addressManager->load($shippingId);
+            $shippingAddress = $this->addressManager->load($this->data['instant_purchase_shipping_address']);
             $quote->getShippingAddress()
             ->addData($shippingAddress->getData())
             ->setCollectShippingRates(true)
@@ -141,25 +142,16 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                     $this->quote->getQuoteCurrencyCode(),
                     $this->quoteHandler->getReference($this->quote)
                 );
-            $success = $response->isSuccessful();
 
             // Process a successful response
-            if ($response && $success) {
+            if ($this->apiHandler->isValidResponse($response)) {
                 // Create the order
                 $order = $this->quoteManagement->submit($quote);
-
-                // Create the order details URL
-                $url = $this->urlInterface->getUrl(
-                    'sales/order/view/order_id/' . $order->getId()
-                );
 
                 // Prepare the user response
                 $message = __(
                     'Your order number %1 has been created successfully.',
-                    $this->utilities->createLink(
-                        $url,
-                        $order->getIncrementId()
-                    )
+                    $order->getIncrementId()
                 );
             }
         } catch (\Exception $e) {

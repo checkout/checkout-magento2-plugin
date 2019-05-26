@@ -17,7 +17,7 @@ namespace CheckoutCom\Magento2\Block\Vault;
 class Form extends \Magento\Framework\View\Element\Template
 {
     /**
-     * @var CcConfigProvider
+     * @var CardHandlerService
      */
     public $cardHandler;
 
@@ -27,17 +27,24 @@ class Form extends \Magento\Framework\View\Element\Template
     public $vaultHandler;
 
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
      * Form constructor.
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         array $data = []
     ) {
         parent::__construct($context, $data);
 
         $this->cardHandler = $cardHandler;
-        $this->vaultHandler = $vaultHandler;         
+        $this->vaultHandler = $vaultHandler;
+        $this->config = $config;     
     }
 }

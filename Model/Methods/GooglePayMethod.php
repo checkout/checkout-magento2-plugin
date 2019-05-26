@@ -106,7 +106,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
         // Process the void request
         $response = $this->apiHandler->voidTransaction($payment);
-        if (!$response || !$response->isSuccessful()) {
+        if (!$this->apiHandler->isValidResponse($response)) {
             throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
         }
 
@@ -122,7 +122,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
         // Process the refund request
         $response = $this->apiHandler->refundTransaction($payment, $amount);
-        if (!$response || !$response->isSuccessful()) {
+        if (!$this->apiHandler->isValidResponse($response)) {
             throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
         }
 

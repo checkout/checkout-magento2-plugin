@@ -4,7 +4,7 @@
         <settings>
             <checkoutcom_configuration>
                 <fields_encrypted>secret_key,public_key,private_shared_key</fields_encrypted>
-                <fields_hidden>secret_key,private_shared_key,email</fields_hidden>
+                <fields_hidden>secret_key,private_shared_key,email_cookie_name</fields_hidden>
                 <active>1</active>
                 <debug>0</debug>
                 <environment>1</environment>
@@ -13,7 +13,6 @@
                 <private_shared_key></private_shared_key>
                 <mada_test_file>Model/Files/Mada/mada_test.csv</mada_test_file>
                 <mada_live_file>Model/Files/Mada/mada_live.csv</mada_live_file>
-                <apm_file>Model/Files/Mada/apm_list.csv</apm_file>
                 <email_cookie_name>ckoUserEmail</email_cookie_name>
                 <order_status_authorized>pending_payment</order_status_authorized>
                 <order_status_captured>processing</order_status_captured>
@@ -44,6 +43,7 @@
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_capture_vault>1</can_capture_vault>
                 <auto_generate_invoice>1</auto_generate_invoice>
+                <require_cvv>0</require_cvv>
                 <instant_purchase>
                     <available>CheckoutCom\Magento2\Model\InstantPurchase\AvailabilityChecker</available>
                     <tokenFormat>CheckoutCom\Magento2\Model\InstantPurchase\TokenFormatter</tokenFormat>

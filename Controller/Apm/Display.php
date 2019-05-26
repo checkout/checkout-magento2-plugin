@@ -53,8 +53,8 @@ class Display extends \Magento\Framework\App\Action\Action {
 
             // Load block data for each APM
             if (count($apmEnabled) > 0) {
-                foreach ($apmEnabled as $index => $apmId) {
-                    $html .= $this->loadBlock($index, $apmId);
+                foreach ($apmEnabled as $apmId) {
+                    $html .= $this->loadBlock($apmId);
                 }
             }
         }
@@ -64,12 +64,11 @@ class Display extends \Magento\Framework\App\Action\Action {
         );
     }
 
-    private function loadBlock($tabIndex, $apmId)
+    private function loadBlock($apmId)
     {
         return $this->pageFactory->create()->getLayout()
         ->createBlock('CheckoutCom\Magento2\Block\Apm\Form')
         ->setTemplate('CheckoutCom_Magento2::payment/apm/' . $apmId . '.phtml')
-        ->setData('tabIndex', $tabIndex)
         ->setData('apm_id', $apmId)
         ->toHtml();
     }

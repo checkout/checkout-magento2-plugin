@@ -1,16 +1,18 @@
+ISSUES
+- Check cart not cleared after success page display?
+
 TODO
 - add web hook handling feature 
 - add capture, void, refund transactions and order status for webhook
-- add a screen loader to vault and apm display
-- replace the account vault card renderer by a custom one
-- add MADA payment card bin check
 - update transaction id for MOTO void and refund using webhook
-- filter/hide relevant parameters in frontend config
 - add the place order API (with MADA support)
-- Add instant purchase note in order somewhere
-- move apm list from cvv to php class
-- move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
 - Handle refund in verify as in place order if order creation fails
+- add shipping handling for instant payment, currently flatrate_flatrate not good
+- save card checkbox to options and save card if needed after payment
+
+- add customer details to payment requests
+- Replace APM id by title in list 
+- set the payment type in all requests "Regular" "Recurring" "MOTO"
 
 TASKS
 - do CLR to LF normalisation
@@ -18,10 +20,14 @@ TASKS
 - update git ignore
 - check deleted vault cards not removed from db
 - check all translation strings
-
+- Add instant purchase note in order somewhere
+- move strings to constants and centralize definitions
+- move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
+- delegate all response checks to API handler isValidResponse($respoonse), especially APM method
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?
 - check after multiple failed requests (add idempotency?)
 - add MOTO partial capture feature?
 - add vault extra config parameter fields from config.xml + instant purchase control
+- convert card icons to base 64 for account and vault list display

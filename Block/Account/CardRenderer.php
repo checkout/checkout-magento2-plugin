@@ -20,17 +20,24 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
     protected $config;
 
     /**
+     * @var CardHandlerService
+     */
+    public $cardHandler;
+
+    /**
      * CardRenderer constructor.
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Payment\Model\CcConfigProvider $iconsProvider,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         array $data
     ) {
         parent::__construct($context, $iconsProvider, $data);
 
         $this->config = $config;
+        $this->cardHandler = $cardHandler;
     }
 
     /**
@@ -49,6 +56,25 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      */
     public function getExpDate() {
         return $this->getTokenDetails()['expirationDate'];
+    }
+
+    /**
+     * Determines if can render the given token.
+     *
+     * @param PaymentTokenInterface $token
+     * @return boolean
+     */
+    public function canRender(PaymentTokenInterface $token) {
+        return $token->getPaymentMethodCode() === 'checkoutcom_vault';
+    }
+
+    /**
+     * Returns the credit card type.
+     *
+     * @return string
+     */
+    public function getCartType() {
+        return $this->getTokenDetails()['type'];
     }
 
     /**
@@ -76,24 +102,5 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      */
     public function getIconWidth() {
         return $this->getIconForType($this->getCartType())['width'];
-    }
-
-    /**
-     * Determines if can render the given token.
-     *
-     * @param PaymentTokenInterface $token
-     * @return boolean
-     */
-    public function canRender(PaymentTokenInterface $token) {
-        return $token->getPaymentMethodCode() === 'checkoutcom_vault';
-    }
-
-    /**
-     * Returns the credit card type.
-     *
-     * @return string
-     */
-    private function getCartType() {
-        return $this->getTokenDetails()['type'];
     }
 }

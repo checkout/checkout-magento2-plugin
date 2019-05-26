@@ -48,11 +48,13 @@ define([
                  * @returns {void}
                  */
                 initWidget: function () {
+                    // Start the loader
+                    FullScreenLoader.startLoader();
 
+                    // Send the AJAX request
                     $.ajax({
                         type: "POST",
                         url: Utilities.getUrl('apm/display'),
-                        showLoader: true,
                         success: function(data) {
                             $('#apm-container')
                             .append(data.html)
@@ -63,9 +65,15 @@ define([
                                 }
                             })
                             .show();
+                            
+                            // Stop the loader
+                            FullScreenLoader.stopLoader();
                         },
                         error: function (request, status, error) {
                             console.log(error);
+
+                            // Stop the loader
+                            FullScreenLoader.stopLoader();
                         }
                     });
                 },

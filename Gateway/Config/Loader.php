@@ -7,6 +7,7 @@ use Magento\Framework\Module\Dir;
 class Loader
 {
     const CONFIGURATION_FILE_NAME = 'config.xml';
+    const APM_FILE_NAME = 'apm.xml';
     const KEY_MODULE_NAME = 'CheckoutCom_Magento2';
     const KEY_MODULE_ID = 'checkoutcom_magento2';
     const KEY_PAYMENT = 'payment';
@@ -44,9 +45,9 @@ class Loader
     protected $directoryReader;
 
     /**
-     * @var Csv
+     * @var Array
      */
-    protected $csvParser;
+    protected $xmlData;
 
     /**
      * Loader constructor
@@ -57,8 +58,7 @@ class Loader
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
-        \Magento\Framework\Module\Dir\Reader $directoryReader,
-        \Magento\Framework\File\Csv $csvParser
+        \Magento\Framework\Module\Dir\Reader $directoryReader
     ) {
         $this->moduleDirReader = $moduleDirReader;
         $this->xmlParser = $xmlParser;
@@ -66,21 +66,20 @@ class Loader
         $this->storeManager = $storeManager;
         $this->encryptor = $encryptor;
     	$this->directoryReader = $directoryReader;
-    	$this->csvParser = $csvParser;
 
-        $this->data = $this->getConfigFileData();
+        $this->data = $this->loadConfig();
     }
 
-    private function getConfigFileData() {
+    protected function loadConfig() {
         try {
             // Prepare the output array
-            $dbData = [];
+            $output = [];
 
             // Load the xml data
-            $xmlData = $this->loadXmlData();
+            $this->xmlData = $this->loadXmlData();
     
-            // Loop through the xml data array
-            foreach ($xmlData as $parent => $child) {
+            // Build the config data array
+            foreach ($this->xmlData['config'] as $parent => $child) {
                 foreach ($child as $group => $arr) {
                     // Loop through values for the payment method
                     foreach ($arr as $key => $val) {
@@ -98,16 +97,16 @@ class Loader
                             } 
 
                             // Add the final value to the config array
-                            $dbData[$parent][$group][$key] = $value;
+                            $output[$parent][$group][$key] = $value;
                         }
                     }
                 }
             }
 
             // Load the APM list
-            $dbData['settings']['checkoutcom_configuration']['apm_list'] = $this->loadApmList();
+            $output['settings']['checkoutcom_configuration']['apm_list'] = $this->loadApmList();
 
-            return $dbData;
+            return $output;
         }
         catch(\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
@@ -119,43 +118,44 @@ class Loader
         }
     }
 
-    private function loadApmList() {
-        // Get the CSV path
-        $csvPath = $this->directoryReader->getModuleDir('', 
-        'CheckoutCom_Magento2') . '/' . $this->getValue('apm_file');
-
-        // Load the data
-        $csvData = $this->csvParser->getData($csvPath);
-
-        // Remove the first row of csv columns
-        unset($csvData[0]);
-
+    protected function loadApmList() {
         // Build the APM array
-        $apmArray = [];
-        foreach ($csvData as $row) {
-            $apmArray[] = [
-                'value' => $row[0],
-                'label' => __($row[1])
+        $output = [];
+        foreach ($this->xmlData['apm'] as $row) {
+            $output[] = [
+                'value' => $row['id'],
+                'label' => __($row['title'])
             ];
         }
 
-        return $apmArray;
+        return $output;
     }
 
-    private function getConfigFilePath() {
+    protected function getFilePath($fileName) {
         return $this->moduleDirReader->getModuleDir(
             Dir::MODULE_ETC_DIR,
             self::KEY_MODULE_NAME
-        ) . '/' . self::CONFIGURATION_FILE_NAME;
+        ) . '/' . $fileName;
     }
 
-    private function loadXmlData() {
-        return $this->xmlParser
-        ->load($this->getConfigFilePath())
+    protected function loadXmlData() {
+        // Prepare the output array
+        $output = [];
+
+        // Load config.xml
+        $output['config'] = $this->xmlParser
+        ->load($this->getFilePath(self::CONFIGURATION_FILE_NAME))
         ->xmlToArray()['config']['_value']['default'];
+
+        // Load apm.xml
+        $output['apm'] = $this->xmlParser
+        ->load($this->getFilePath(self::APM_FILE_NAME))
+        ->xmlToArray()['config']['_value']['item'];
+
+        return $output;
     }
 
-    private function isHidden($field) {
+    protected function isHidden($field) {
         $hiddenFields = explode(
             ',',
             $this->scopeConfig->getValue(
@@ -167,7 +167,7 @@ class Loader
         return in_array($field, $hiddenFields);
     }
 
-    private function isEncrypted($field) {
+    protected function isEncrypted($field) {
         return in_array(
             $field,
             explode(
