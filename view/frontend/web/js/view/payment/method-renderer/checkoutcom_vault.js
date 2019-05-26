@@ -19,6 +19,7 @@ define([
             defaults: {
                 template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
                 buttonId: METHOD_ID + '_btn',
+                cvvField: '.vault-cvv input',
                 containerId: 'vault-container',
                 redirectAfterPlaceOrder: false
             },
@@ -32,10 +33,6 @@ define([
 
                 return this;
             },
-
-            /**
-             * Getters and setters
-             */
 
             /**
              * @returns {string}
@@ -55,16 +52,16 @@ define([
              * @returns {string}
              */
             getPublicHash: function() {
-                return $('#vault-container input[name="savedCard"]:checked').val();
+                var row = this.getActiveRow();
+                return row.find('input[name="publicHash"]').val();
             },
 
             /**
              * @returns {string}
              */
-            getCvv: function() {
-                return $('#vault-container input[name="savedCard"]:checked')
-                .closest('.cko-vault-card')
-                .find('.vault-cvv input').val();
+            getCvvValue: function() {
+                var row = this.getActiveRow();
+                return $.trim(row.find(this.cvvField).val());
             },
 
             /**
@@ -74,27 +71,39 @@ define([
                 return this.getValue('require_cvv');
             },
 
-            isCvvValid: function(val) {
-                return /^\+?(0|[1-9]\d*)$/.test(val) && val.length > 3 ;
+            /**
+             * @returns {object}
+             */
+            getActiveRow: function() {
+                return $('#' + this.containerId).find('.card-selected');
             },
 
             /**
              * @returns {bool}
              */
-            canEnableButton: function(row) {
-               return !this.isCvvRequired() || 
-               (this.isCvvRequired()
-               && this.isCvvValid());
+            isCvvValid: function() {
+                // Get the active row
+                var row = this.getActiveRow();
+
+                if (row.length !== 0) {
+                    // Get the CVV string value
+                    var strVal = this.getCvvValue();
+
+                    // Get the CVV integer value
+                    var intVal = parseInt(strVal) || 0;
+
+                    // Check the validity
+                    return intVal > 0 && strVal.length >= 3 && strVal.length <= 4;
+                }
+
+                return false;
             },
 
             /**
              * @returns {bool}
              */
-            buttonNeedsDisabling: function(event, row) {
-                return !row.is(event.target)
-                && row.has(event.target).length === 0
-                && event.target.localName != 'button'
-                && $(event.target).parents('.stored-cards').length !== 0;
+            canEnableButton: function() {
+                return !this.isCvvRequired() || (this.isCvvRequired() && this.isCvvValid());
             },
 
             /**
@@ -137,10 +146,11 @@ define([
                 var listIem = container.find('.cko-vault-card');
 
                 // Disable place order on click outside       
-                $(document).mouseup(function(e) {
-                    if (self.buttonNeedsDisabling(e, listIem)) {
-                        Utilities.allowPlaceOrder(self.buttonId, false);
-                    }
+                $(document).mouseup(function() {
+                    Utilities.allowPlaceOrder(
+                        self.buttonId, 
+                        self.canEnableButton()
+                    );
                 });
 
                 // Mouse over/out behaviour
@@ -156,28 +166,29 @@ define([
                     listIem.removeClass('card-selected');
                     $(this).addClass('card-selected');
 
-                    // Allow order placement if a card is selected
-                    if (self.canEnableButton($(this))) {
-                        Utilities.allowPlaceOrder(self.buttonId, true);
-                    }
+                    // Allow order placement if conditions are matched
+                    Utilities.allowPlaceOrder(
+                        self.buttonId, 
+                        self.canEnableButton()
+                    );
                 });
 
                 // CVV field events
                 if (self.isCvvRequired()) {
                     // Select the parent row on CVV field focus
-                    $('.vault-cvv input').on('focus', function() {
+                    $(self.cvvField).on('focus', function() {
                         $(this).closest('.cko-vault-card').trigger('click');
                     });
 
                     // Check CVV provided
-                    $('.vault-cvv input').on('change', function() {
-                        if (self.isCvvValid($(this).val())) {
-                            Utilities.allowPlaceOrder(self.buttonId, true);
-                        }
+                    $(self.cvvField).on('change keyup', function() {
+                        Utilities.allowPlaceOrder(
+                            self.buttonId,
+                            self.canEnableButton()
+                        );
                     });                    
                 }
             },
-
 
             /**
              * @returns {void}
@@ -191,19 +202,18 @@ define([
                         publicHash: self.getPublicHash()
                     }
 
-                    // Add the CVV if needed
-                    if (self.getValue('require_cvv')) {
-                        var cvv = self.getCvv();
-                        if ($.trim(cvv).length == 0) {
+                    // Add the CVV to the payload if needed
+                    if (self.isCvvRequired()) {
+                        if (!self.isCvvValid()) {
                             Utilities.showMessage(
                                 'error',
-                                __('The CVV field is required.')
+                                __('The CVV field is invalid.')
                             );
 
                             return;
                         }
                         else {
-                            payload.cvv = self.getCvv();
+                            payload.cvv = self.getCvvValue();
                         }
                     }
 
