@@ -1,5 +1,6 @@
 ISSUES
 - Check cart not cleared after success page display?
+- how to make a payment with saved card and additional CVV?
 
 TODO
 - add web hook handling feature 
