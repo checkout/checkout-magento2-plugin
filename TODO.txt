@@ -23,7 +23,7 @@ TASKS
 - Add instant purchase note in order somewhere
 - move strings to constants and centralize definitions
 - move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
-
+- delegate all response checks to API handler isValidResponse($respoonse), especially APM method
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?
