@@ -109,6 +109,24 @@ define([
             /**
              * @returns {void}
              */
+            enableCvvHandling: function() {
+                // CVV focus event
+                $(self.cvvField).on('focus', function() {
+                    $(this).closest('.cko-vault-card').trigger('click');
+                });
+
+                // CVV change event
+                $(self.cvvField).on('change keyup', function() {
+                    Utilities.allowPlaceOrder(
+                        self.buttonId,
+                        self.canEnableButton()
+                    );
+                });      
+            },
+
+            /**
+             * @returns {void}
+             */
             initWidget: function () {
                 // Prepare some variables
                 var self = this;
@@ -175,18 +193,7 @@ define([
 
                 // CVV field events
                 if (self.isCvvRequired()) {
-                    // Select the parent row on CVV field focus
-                    $(self.cvvField).on('focus', function() {
-                        $(this).closest('.cko-vault-card').trigger('click');
-                    });
-
-                    // Check CVV provided
-                    $(self.cvvField).on('change keyup', function() {
-                        Utilities.allowPlaceOrder(
-                            self.buttonId,
-                            self.canEnableButton()
-                        );
-                    });                    
+                    self.enableCvvHandling();
                 }
             },
 
