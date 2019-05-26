@@ -11,6 +11,7 @@ TODO
 
 - add customer details to payment requests
 - Replace APM id by title in list 
+- set the payment type in all requests "Regular" "Recurring" "MOTO"
 
 TASKS
 - do CLR to LF normalisation
@@ -21,6 +22,7 @@ TASKS
 - Add instant purchase note in order somewhere
 - move strings to constants and centralize definitions
 - move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
+
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?
