@@ -20,7 +20,8 @@ define([
                 template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
                 buttonId: METHOD_ID + '_btn',
                 cvvField: '.vault-cvv input',
-                containerId: 'vault-container',
+                containerId: '#vault-container',
+                rowSelector: '.cko-vault-card',
                 redirectAfterPlaceOrder: false
             },
 
@@ -75,7 +76,7 @@ define([
              * @returns {object}
              */
             getActiveRow: function() {
-                return $('#' + this.containerId).find('.card-selected');
+                return $(this.containerId).find('.card-selected');
             },
 
             /**
@@ -110,9 +111,12 @@ define([
              * @returns {void}
              */
             enableCvvHandling: function() {
+                // Prepare some variables
+                var self = this;
+
                 // CVV focus event
                 $(self.cvvField).on('focus', function() {
-                    $(this).closest('.cko-vault-card').trigger('click');
+                    $(this).closest(self.rowSelector).trigger('click');
                 });
 
                 // CVV change event
@@ -130,7 +134,6 @@ define([
             initWidget: function () {
                 // Prepare some variables
                 var self = this;
-                var container = $('#' + self.containerId);
 
                 // Start the loader
                 FullScreenLoader.startLoader();
@@ -141,7 +144,7 @@ define([
                     url: Utilities.getUrl('vault/display'),
                     success: function(data) {
                         // Insert the HTML content
-                        container.append(data.html).show();
+                        $(self.containerId).append(data.html).show();
                         self.initEvents();
 
                         // Stop the loader
@@ -160,8 +163,7 @@ define([
             initEvents: function () {
                 // Prepare some variables
                 var self = this;
-                var container = $('#' + self.containerId);
-                var listIem = container.find('.cko-vault-card');
+                var listIem = $(self.containerId).find(self.rowSelector);
 
                 // Disable place order on click outside       
                 $(document).mouseup(function() {
