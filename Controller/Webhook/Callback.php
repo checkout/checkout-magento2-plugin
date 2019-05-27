@@ -82,7 +82,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
                         $this->transactionHandler->createTransaction(
                             $order,
                             Transaction::TYPE_AUTH,
-                            $paymentData
+                            $response
                         );
                     }
                 }
