@@ -5,7 +5,16 @@ namespace CheckoutCom\Magento2\Controller\Webhook;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
 class Callback extends \Magento\Framework\App\Action\Action {
-    
+    /**
+     * @var array
+     */
+    protected static $transactionMapper = [
+        'payment_approved' => Transaction::TYPE_AUTH,
+        'payment_captured' => Transaction::TYPE_CAPTURE,
+        'payment_refunded' => Transaction::TYPE_REFUND,
+        'payment_voided' => Transaction::TYPE_VOID
+    ];
+
     /**
      * @var JsonFactory
      */
@@ -94,7 +103,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
                         // Capture
                         $this->transactionHandler->createTransaction(
                             $order,
-                            $this->transactionHandler->getNeededTransaction(),
+                            $this->getNeededTransaction($payload->type),
                             $response
                         );
                     }
@@ -111,7 +120,12 @@ class Callback extends \Magento\Framework\App\Action\Action {
 
     }
 
-
-
-
+    /**
+     * Get a transaction type from name.
+     *
+     * @return string
+     */
+    public function getNeededTransaction($name) {
+        return self::$transactionMapper($name);
+    }
 }

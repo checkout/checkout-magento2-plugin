@@ -7,16 +7,6 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 class TransactionHandlerService
 {
     /**
-     * @var array
-     */
-    protected static $transactionMapper = [
-        'payment_approved' => Transaction::TYPE_AUTH,
-        'payment_captured' => Transaction::TYPE_CAPTURE,
-        'payment_refunded' => Transaction::TYPE_REFUND,
-        'payment_voided' => Transaction::TYPE_VOID
-    ];
-
-    /**
      * @var BuilderInterface
      */
     protected $transactionBuilder;
@@ -222,14 +212,4 @@ class TransactionHandlerService
             return false;
         }
     }
-
-    /**
-     * Get a transaction type from name.
-     *
-     * @return string
-     */
-    public function getNeededTransaction($name) {
-        return self::$transactionMapper($name);
-    }
-
 }
