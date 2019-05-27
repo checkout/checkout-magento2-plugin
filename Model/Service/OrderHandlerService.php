@@ -98,7 +98,7 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function placeOrder($reservedIncrementId = '', $paymentData = null)
+    public function processOrder($reservedIncrementId = '', $paymentData = null, $isWebhook = false)
     {
         if ($this->methodId) {
             try {
@@ -124,13 +124,15 @@ class OrderHandlerService
                             $paymentData
                         );
                     }
+
+                    // Return the saved order
+                    $order = $this->orderRepository->save($order);
                 }
 
-                // Return the saved order
-                $order = $this->orderRepository->save($order);
-
                 // Perform after place order tasks
-                $order = $this->afterPlaceOrder($quote, $order);
+                if (!$isWebhook) {
+                    $order = $this->afterPlaceOrder($quote, $order);
+                }
 
                 return $order;
 

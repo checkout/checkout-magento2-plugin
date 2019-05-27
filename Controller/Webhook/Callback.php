@@ -70,23 +70,21 @@ class Callback extends \Magento\Framework\App\Action\Action {
                 if (isset($payload->data->id)) {
                     // Get the payment details
                     $response = $this->apiHandler->getPaymentDetails($payload->data->id);
+                    if ($this->apiHandler->isValidResponse($response)) {
+                        // Process the order
+                        $order = $this->orderHandler->processOrder(
+                            $response->reference,
+                            (array) $response,
+                            true
+                        );
 
-                    // Get the order
-                    $order = $this->orderHandler->getOrder(
-                        ['reserved_order_id' => $response->reference]
-                    );
-
-                    // Process the webhook tasks
-                    if ($this->orderHandler->isOrder($order) && $this->apiHandler->isValidResponse($response)) {
                         // Capture
-                        $this->transactionHandler->createTransaction
-                        (
+                        $this->transactionHandler->createTransaction(
                             $order,
                             Transaction::TYPE_AUTH,
                             $paymentData
                         );
                     }
-
                 }
             }
    
