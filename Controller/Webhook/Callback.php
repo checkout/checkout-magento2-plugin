@@ -106,7 +106,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
 
                     if ($this->apiHandler->isValidResponse($response)) {
                         // Process the order
-                        $order = $this->orderHandler->processOrder(
+                        $order = $this->orderHandler->handleOrder(
                             $response->reference,
                             (array) $response,
                             true

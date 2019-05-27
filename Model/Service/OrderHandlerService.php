@@ -98,7 +98,7 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function processOrder($reservedIncrementId = '', $paymentData = null, $isWebhook = false)
+    public function handleOrder($reservedIncrementId = '', $paymentData = null, $isWebhook = false)
     {
         if ($this->methodId) {
             try {
