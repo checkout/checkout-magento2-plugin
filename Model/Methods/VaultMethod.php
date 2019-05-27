@@ -140,6 +140,9 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $currency
             );
 
+            // Prepare the metadata array
+            $request->metadata = ['methodId' => $this->_code];
+            
             // Prepare the capture date setting
             $captureDate = $this->config->getCaptureTime($this->_code);
 

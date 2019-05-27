@@ -125,6 +125,9 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $currency
             );
 
+            // Prepare the metadata array
+            $request->metadata = ['methodId' => $this->_code];
+
             // Prepare the capture date setting
             $captureDate = $this->config->getCaptureTime($this->_code);
 
@@ -147,7 +150,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             
             // Mada BIN Check
             if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
-                $request->metadata = ['udf1' => 'MADA'];
+                $request->metadata['udf1'] = 'MADA';
             }
 
             // Send the charge request
