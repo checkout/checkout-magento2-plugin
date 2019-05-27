@@ -74,17 +74,16 @@ class TransactionHandlerService
      */
     public function createTransaction($order, $transactionType, $data = null)
     {
-        // Get a transaction id
-        $paymentData = $data ? $data : $this->utilities->getPaymentData($order);
-        $tid = $paymentData['id'];
-
-        // Get a method id
-        $methodId = $order->getPayment()
-            ->getMethodInstance()
-            ->getCode();
-    
-        // Process the transaction
         try {
+            // Get a transaction id
+            $paymentData = $data ? $data : $this->utilities->getPaymentData($order);
+            $tid = $paymentData['id'];
+
+            // Get a method id
+            $methodId = $order->getPayment()
+                ->getMethodInstance()
+                ->getCode();
+    
             // Prepare payment object
             $payment = $order->getPayment();
             $payment->setMethod($methodId);
@@ -128,19 +127,46 @@ class TransactionHandlerService
                 );
             }
 
+            // Add an authorization transaction to the payment
+            if ($transactionType == Transaction::TYPE_CAPTURE) {
+                // Add order comments
+                $payment->addTransactionCommentsToOrder(
+                    $transaction,
+                    __('The captured amount is %1.', $formatedPrice)
+                );
+
+                // Set the parent transaction id
+                $payment->setParentTransactionId(null);
+                /*$parentTransaction = $this->getTransactions($order, $transactionType);
+                $payment->setParentTransactionId(
+                    $parentTransaction[0]->getTransactionId()
+                );*/
+
+                // Create the invoice
+                // Todo - check this setting, add parameter to config
+                if ($this->config->getValue('invoice_creation') == $transactionType) {
+                    $this->invoiceHandler->processInvoice($order);
+                }
+
+                // Set the order status
+                $order->setStatus(
+                    $this->config->getValue('order_status_captured')
+                );
+            }
+
             // Save payment, transaction and order
             $payment->save();
             $transaction->save();
             $order->save();
 
-            // Create the invoice
-            // Todo - check this setting, add parameter to config
-            if ($this->config->getValue('invoice_creation') == $transactionType) {
-                $this->invoiceHandler->processInvoice($order);
-            }
-
             return $transaction->getTransactionId();
         } catch (Exception $e) {
+
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/catch.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($e->getMessage(), 1));
+            
             return false;
         }
     }
