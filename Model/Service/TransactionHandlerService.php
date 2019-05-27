@@ -7,6 +7,16 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 class TransactionHandlerService
 {
     /**
+     * @var array
+     */
+    protected static $transactionMapper = [
+        'Authorization' => Transaction::TYPE_AUTH,
+        'Capture' => Transaction::TYPE_CAPTURE,
+        'Refund' => Transaction::TYPE_REFUND,
+        'Void' => Transaction::TYPE_VOID
+    ];
+
+    /**
      * @var BuilderInterface
      */
     protected $transactionBuilder;
