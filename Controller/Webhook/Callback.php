@@ -5,15 +5,6 @@ namespace CheckoutCom\Magento2\Controller\Webhook;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
 class Callback extends \Magento\Framework\App\Action\Action {
-    /**
-     * @var array
-     */
-    protected static $transactionMapper = [
-        'Authorization' => Transaction::TYPE_AUTH,
-        'Capture' => Transaction::TYPE_CAPTURE,
-        'Refund' => Transaction::TYPE_REFUND,
-        'Void' => Transaction::TYPE_VOID
-    ];
     
     /**
      * @var JsonFactory
@@ -73,12 +64,25 @@ class Callback extends \Magento\Framework\App\Action\Action {
      */
     public function execute() {
         try {
-            if ($this->config->isValidAuth()) {
+            //if ($this->config->isValidAuth()) {
+            if (true) {
                 // Get the post data
                 $payload = json_decode($this->getRequest()->getContent());
+
+                $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/payload.log');
+                $logger = new \Zend\Log\Logger();
+                $logger->addWriter($writer);
+                $logger->info(print_r($payload, 1));
+
                 if (isset($payload->data->id)) {
                     // Get the payment details
                     $response = $this->apiHandler->getPaymentDetails($payload->data->id);
+
+                    $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/response.log');
+                    $logger = new \Zend\Log\Logger();
+                    $logger->addWriter($writer);
+                    $logger->info(print_r($response, 1));
+
                     if ($this->apiHandler->isValidResponse($response)) {
                         // Process the order
                         $order = $this->orderHandler->processOrder(
@@ -90,7 +94,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
                         // Capture
                         $this->transactionHandler->createTransaction(
                             $order,
-                            $this->getNeededTransaction(),
+                            $this->transactionHandler->getNeededTransaction(),
                             $response
                         );
                     }
@@ -108,13 +112,6 @@ class Callback extends \Magento\Framework\App\Action\Action {
     }
 
 
-    /**
-     * Get a transaction type from name.
-     *
-     * @return string
-     */
-    public function getNeededTransaction($name) {
-        return self::$transactionMapper($name);
-    }
+
 
 }
