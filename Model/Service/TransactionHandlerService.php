@@ -80,9 +80,18 @@ class TransactionHandlerService
     }
 
     /**
+     * Get a transaction type from name.
+     *
+     * @return string
+     */
+    public function getNeededTransaction($name) {
+        return self::$transactionMapper($name);
+    }
+
+    /**
      * Create a transaction for an order.
      */
-    public function createTransaction($order, $transactionMode, $data = null)
+    public function createTransaction($order, $transactionType, $data = null)
     {
         // Get a transaction id
         $paymentData = $data ? $data : $this->utilities->getPaymentData($order);
@@ -119,10 +128,10 @@ class TransactionHandlerService
                     ]
                 )
                 ->setFailSafe(true)
-                ->build($transactionMode);
+                ->build($transactionType);
 
             // Add an authorization transaction to the payment
-            if ($transactionMode == Transaction::TYPE_AUTH) {
+            if ($transactionType == Transaction::TYPE_AUTH) {
                 // Add order comments
                 $payment->addTransactionCommentsToOrder(
                     $transaction,
@@ -145,7 +154,7 @@ class TransactionHandlerService
 
             // Create the invoice
             // Todo - check this setting, add parameter to config
-            if ($this->config->getValue('invoice_creation') == $transactionMode) {
+            if ($this->config->getValue('invoice_creation') == $transactionType) {
                 $this->invoiceHandler->processInvoice($order);
             }
 
