@@ -102,10 +102,11 @@ class OrderHandlerService
     {
         if ($this->methodId) {
             try {
+                //  Prepare a fields filter
+                $filters = ['reserved_order_id' => $reservedIncrementId];
+
                 // Check if the order exists
-                $order = $this->getOrder([
-                    'reserved_order_id' => $reservedIncrementId
-                ]);
+                $order = $this->getOrder($filters);
 
                 // Create the order
                 if (!$this->isOrder($order)) {
