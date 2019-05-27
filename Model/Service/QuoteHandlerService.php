@@ -147,7 +147,7 @@ class QuoteHandlerService
     /**
      * Prepares a quote for order placement
      */
-    public function prepareQuote($fields = [], $methodId)
+    public function prepareQuote($fields = [], $methodId, $isWebhook = false)
     {
         // Find quote and perform tasks
         $quote = $this->getQuote($fields);
@@ -156,7 +156,7 @@ class QuoteHandlerService
             $quote->setInventoryProcessed(false);
 
             // Check for guest user quote
-            if ($this->customerSession->isLoggedIn() === false) {
+            if (!$this->customerSession->isLoggedIn() && !$isWebhook) {
                 $quote = $this->prepareGuestQuote($quote);
             }
 

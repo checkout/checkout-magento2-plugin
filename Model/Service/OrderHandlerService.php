@@ -102,16 +102,21 @@ class OrderHandlerService
     {
         if ($this->methodId) {
             try {
-                //  Prepare a fields filter
-                $filters = ['reserved_order_id' => $reservedIncrementId];
-
                 // Check if the order exists
-                $order = $this->getOrder($filters);
+                $order = $this->getOrder(
+                    ['increment_id' => $reservedIncrementId]
+                );
 
                 // Create the order
                 if (!$this->isOrder($order)) {
                     // Prepare the quote
-                    $quote = $this->quoteHandler->prepareQuote($filters, $this->methodId);
+                    $quote = $this->quoteHandler->prepareQuote(
+                        ['reserved_order_id' => $reservedIncrementId],
+                        $this->methodId,
+                        $isWebhook
+                    );
+
+                    // Process the quote
                     if ($quote) {
                         // Create the order
                         $order = $this->quoteManagement->submit($quote);
@@ -137,6 +142,11 @@ class OrderHandlerService
                 return $order;
 
             } catch (\Exception $e) {
+                $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/orderError.log');
+                $logger = new \Zend\Log\Logger();
+                $logger->addWriter($writer);
+                $logger->info(print_r($e->getMessage(), 1));
+
                 return false;
             }
         }
