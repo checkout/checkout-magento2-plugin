@@ -120,14 +120,6 @@ class OrderHandlerService
                     if ($quote) {
                         // Create the order
                         $order = $this->quoteManagement->submit($quote);
-
-                        // Create the authorization transaction
-                        $this->transactionHandler->createTransaction
-                        (
-                            $order,
-                            Transaction::TYPE_AUTH,
-                            $paymentData
-                        );
                     }
 
                     // Return the saved order
