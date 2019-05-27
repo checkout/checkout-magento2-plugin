@@ -60,7 +60,7 @@ class CardHandlerService
     public function getCardCode($scheme) {
         return array_search(
             $scheme,
-            static::$cardMapper
+            self::$cardMapper
         );
     }
 
@@ -70,7 +70,7 @@ class CardHandlerService
      * @return string
      */
     public function getCardScheme($code) {
-        return static::$cardMapper[$code];
+        return self::$cardMapper[$code];
     }
 
     /**
