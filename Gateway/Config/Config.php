@@ -49,10 +49,10 @@ class Config
         $authorization = $this->request->getHeader('Authorization');
 
         // Get the secret key from config
-        $secretKey = $this->getValue('private_shared_key');
+        $privateSharedKey = $this->getValue('private_shared_key');
         
         // Return the validity check
-        return $authorization == $secretKey;
+        return $authorization == $privateSharedKey;
     }
 
     /**
