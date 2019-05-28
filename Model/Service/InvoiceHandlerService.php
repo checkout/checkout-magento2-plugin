@@ -39,39 +39,26 @@ class InvoiceHandlerService
         $this->config             = $config;
     }
 
-    public function processInvoice($order)
-    {
-        // Assign the order
+    /**
+     * Set the order instance.
+     */
+    public function setOrder($order) {
         $this->order = $order;
+    }
 
-        // Check invoicing available
-        if ($this->shouldInvoice()) {
+    /**
+     * Check if the invoice can be created.
+     */
+    public function processInvoice()
+    {
+        if ($this->order->canInvoice()) {
             $this->createInvoice();
         }
     }
 
-    public function shouldInvoice()
-    {
-        try {
-    
-            // Get the method id
-            $methodId = $this->order->getPayment()
-                ->getMethodInstance()
-                ->getCode();
-
-            // Get the auto generate invoice setting
-            $autoGenerateInvoice = $this->config->getValue(
-                'auto_generate_invoice',
-                $methodId
-            );    
-
-            // Return the test
-            return ($this->order->canInvoice() && $autoGenerateInvoice);
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
+    /**
+     * Create the invoice.
+     */
     public function createInvoice()
     {
         try {
