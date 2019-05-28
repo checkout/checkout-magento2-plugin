@@ -35,13 +35,9 @@ define([
             },
 
             /**
-             * Getters and setters
-             */
-
-            /**
              * @returns {string}
              */
-            getCode: function () {
+            getCode: function() {
                 return METHOD_ID;
             },
 
@@ -50,6 +46,20 @@ define([
              */
             getValue: function(field) {
                 return Utilities.getValue(METHOD_ID, field);
+            },
+
+            /**
+             * @returns {string}
+             */
+            isVaultEnabled: function() {
+                return this.getValue('active');
+            },
+
+            /**
+             * @returns {string}
+             */
+            isSaveCardEnabled: function() {
+                return this.getValue('save_card_option');
             },
 
             /**
