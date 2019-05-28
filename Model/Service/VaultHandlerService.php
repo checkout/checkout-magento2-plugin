@@ -154,6 +154,15 @@ class VaultHandlerService {
     }
 
     /**
+     * Sets a gateway response if no prior card authorization is needed.
+     */
+    public function setResponse($response) {
+        $this->response = $response;
+
+        return $this;
+    }
+
+    /**
      * Saves the credit card in the repository.
      *
      * @throws LocalizedException

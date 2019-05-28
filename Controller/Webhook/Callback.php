@@ -41,9 +41,19 @@ class Callback extends \Magento\Framework\App\Action\Action {
     protected $quoteHandler;
 
     /**
+     * @var ShopperHandlerService
+     */
+    protected $shopperHandler;
+
+    /**
      * @var TransactionHandlerService
      */
     protected $transactionHandler;
+
+    /**
+     * @var VaultHandlerService
+     */
+    protected $vaultHandler;
 
     /**
      * @var Config
@@ -60,7 +70,9 @@ class Callback extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     )
     {
@@ -71,8 +83,13 @@ class Callback extends \Magento\Framework\App\Action\Action {
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->quoteHandler = $quoteHandler;
+        $this->shopperHandler = $shopperHandler;
         $this->transactionHandler = $transactionHandler;
+        $this->vaultHandler = $vaultHandler;
         $this->config = $config;
+
+        // Set the payload data
+        $this->payload = $this->getPayload();
     }
 
     /**
@@ -81,15 +98,19 @@ class Callback extends \Magento\Framework\App\Action\Action {
     public function execute() {
         try {
             if ($this->config->isValidAuth()) {
-                // Get the post data
-                $payload = json_decode($this->getRequest()->getContent());
-                if (isset($payload->data->id)) {
+                // Process the request
+                if (isset($this->payload->data->id)) {
                     // Get the payment details
-                    $response = $this->apiHandler->getPaymentDetails($payload->data->id);
+                    $response = $this->apiHandler->getPaymentDetails($this->payload->data->id);
                     if ($this->apiHandler->isValidResponse($response)) {
+                        // Handle the save card request
+                        if ($this->cardNeedsSaving()) {
+                            $this->saveCard($response);
+                        }
+
                         // Process the order
                         $order = $this->orderHandler
-                            ->setMethodId($response->metadata['methodId'])
+                            ->setMethodId($payload->metadata->methodId)
                             ->handleOrder(
                                 $response->reference,
                                 true
@@ -113,9 +134,47 @@ class Callback extends \Magento\Framework\App\Action\Action {
 
         }     
 
+        // Todo - Implement a proper webhook controller response logic
         exit();
-        
         return $this->jsonFactory->create()->setData([]);
 
+    }
+
+    protected function getPayload() {
+        return json_decode($this->getRequest()->getContent());
+    }
+
+    protected function cardNeedsSaving() {
+        return isset($this->payload->metadata->saveCard)
+        && $this->payload->metadata->saveCard
+        && isset($this->payload->metadata->customerId)
+        && (int) $this->payload->metadata->customerId > 0
+        && isset($this->payload->data->source->id)
+        && !empty($this->payload->data->source->id);
+    }
+
+    protected function saveCard($response) {
+        try {
+            // Get the customer
+            $customer = $this->shopperHandler->getCustomerData(
+                ['id' => $this->payload->metadata->customerId]
+            );
+
+            // Save the card
+            $success = $this->vaultHandler
+            ->setCardToken($this->payload->data->source->id)
+            ->setCustomerId($customer->getId())
+            ->setCustomerEmail($customer->getEmail())
+            ->setResponse($response)
+            ->saveCard();
+    
+        } catch (\Exception $e) {
+
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/savecard.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($e->getMessage(), 1));
+
+        }     
     }
 }
