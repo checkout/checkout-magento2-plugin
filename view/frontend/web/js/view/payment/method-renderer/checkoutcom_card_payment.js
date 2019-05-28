@@ -3,9 +3,10 @@ define([
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/payment/additional-validators',
+        'Magento_Customer/js/model/customer',
         'framesjs'
     ],
-    function ($, Component, Utilities, AdditionalValidators) {
+    function ($, Component, Utilities, AdditionalValidators, Customer) {
 
         'use strict';
 
@@ -61,6 +62,13 @@ define([
              */
             isSaveCardEnabled: function() {
                 return this.getValue('save_card_option');
+            },
+
+            /**
+             * @returns {bool}
+             */
+            isLoggedIn: function() {
+                return Customer.isLoggedIn();
             },
 
             /**

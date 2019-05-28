@@ -29,7 +29,7 @@
             <!--/ko-->
         </div>
 
-        <!-- ko if: (isVaultEnabled() && isSaveCardEnabled()) -->
+        <!-- ko if: (isVaultEnabled() && isSaveCardEnabled() && isLoggedIn()) -->
         <div class="field choice">
             <input type="checkbox" name="saveCard" class="checkbox"/>
             <label class="label" for="save_card">
