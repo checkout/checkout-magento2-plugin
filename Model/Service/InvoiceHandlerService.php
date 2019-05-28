@@ -40,19 +40,13 @@ class InvoiceHandlerService
     }
 
     /**
-     * Set the order instance.
-     */
-    public function setOrder($order) {
-        $this->order = $order;
-    }
-
-    /**
      * Check if the invoice can be created.
      */
-    public function processInvoice()
+    public function processInvoice($order)
     {
+        $this->order = $order;
         if ($this->order->canInvoice()) {
-            $this->createInvoice();
+            return $this->createInvoice();
         }
     }
 

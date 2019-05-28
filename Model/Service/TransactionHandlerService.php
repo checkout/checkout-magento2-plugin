@@ -149,8 +149,7 @@ class TransactionHandlerService
                 // Create the invoice
                 // Todo - check this setting, add parameter to config
                 if ($this->config->getValue('auto_invoice')) {
-                    $this->invoiceHandler->setOrder($order)
-                    ->processInvoice();
+                    $this->invoiceHandler->processInvoice($order);
                 }
 
                 // Set the order status
@@ -166,6 +165,7 @@ class TransactionHandlerService
 
             return $transaction->getTransactionId();
         } catch (Exception $e) {
+
             return false;
         }
     }
