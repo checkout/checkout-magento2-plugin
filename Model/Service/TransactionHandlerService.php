@@ -165,12 +165,6 @@ class TransactionHandlerService
 
             return $transaction->getTransactionId();
         } catch (Exception $e) {
-
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/catch.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($e->getMessage(), 1));
-            
             return false;
         }
     }
