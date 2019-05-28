@@ -50,7 +50,7 @@ class Config
 
         // Get the secret key from config
         $privateSharedKey = $this->getValue('private_shared_key');
-        
+
         // Return the validity check
         return $authorization == $privateSharedKey;
     }
