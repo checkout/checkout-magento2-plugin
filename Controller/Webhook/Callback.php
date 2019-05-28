@@ -86,19 +86,12 @@ class Callback extends \Magento\Framework\App\Action\Action {
                 if (isset($payload->data->id)) {
                     // Get the payment details
                     $response = $this->apiHandler->getPaymentDetails($payload->data->id);
-
-                    $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/payload.log');
-                    $logger = new \Zend\Log\Logger();
-                    $logger->addWriter($writer);
-                    $logger->info(print_r($payload, 1));
-
                     if ($this->apiHandler->isValidResponse($response)) {
                         // Process the order
                         $order = $this->orderHandler
                             ->setMethodId($response->metadata['methodId'])
                             ->handleOrder(
                                 $response->reference,
-                                (array) $response,
                                 true
                             );
 
@@ -107,7 +100,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
                             $this->transactionHandler->createTransaction(
                                 $order,
                                 static::$transactionMapper[$payload->type],
-                                (array) $response
+                                $payload
                             );
 
                             // Save the order
