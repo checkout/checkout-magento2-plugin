@@ -75,9 +75,13 @@ class TransactionHandlerService
     public function createTransaction($order, $transactionType, $data = null)
     {
         try {
+            // Get the payment data
+            $paymentData = $data 
+            ? $this->utilities->objectToArray($data)
+            : $this->utilities->getPaymentData($order);
+
             // Get a transaction id
-            $paymentData = $data ? $data : $this->utilities->getPaymentData($order);
-            $tid = $paymentData['id'];
+            $tid = $paymentData['data']['action_id'];
 
             // Get a method id
             $methodId = $order->getPayment()
@@ -174,26 +178,18 @@ class TransactionHandlerService
     /**
      * Build a flat array from the gateway response.
      */
-    public function buildDataArray($gatewayResponse) {
-        // Prepare the output array
-        $output = [];
+    public function buildDataArray($data) {
+        // Prepare the fields to remove
+        $remove = [
+            '_links',
+            'risk',
+            'metadata',
+            'customer',
+            'source'
+        ];
 
-        // Remove the _links key
-        if (isset($gatewayResponse['_links'])) unset($gatewayResponse['_links']);
-
-        // Process the remaining data
-        foreach ($gatewayResponse as $key => $val) {
-            if (is_array($val)) {
-                foreach ($val as $k => $v) {
-                    $output[$key . '_' . $k] = $v;
-                }
-            }
-            else  {
-                $output[$key] = $val;
-            }
-        }
-
-        return $output;
+        // Return the clean array
+        return array_diff_key($data, array_flip($remove));
     }
 
     /**
