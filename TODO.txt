@@ -15,6 +15,7 @@ TODO
 - Replace APM id by title in list 
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
 - set metadata with method id in all method payment requests (needed for handleOrder)
+- check opened/closed transactions logic
 
 TASKS
 - do CLR to LF normalisation
