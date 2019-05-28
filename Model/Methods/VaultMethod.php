@@ -160,7 +160,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->description = __('Payment request from %1', $this->config->getStoreName());
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             if ($captureDate) {
-                $request->capture_time = $this->config->getCaptureTime($this->_code);
+                $request->capture_time = $this->config->getCaptureTime();
             }
             
             // Mada BIN Check

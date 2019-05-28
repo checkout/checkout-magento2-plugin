@@ -29,6 +29,31 @@
                             <config_path>settings/checkoutcom_configuration/environment</config_path>
                         </field>
 
+                        <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Payment Action</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
+                            <config_path>settings/checkoutcom_configuration/payment_action</config_path>
+                        </field>
+
+                        <field id="capture_time" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Capture Time</label>
+                            <depends>
+                                <field id="payment_action">authorize_capture</field>
+                            </depends>
+                            <config_path>settings/checkoutcom_configuration/capture_time</config_path>
+                            <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
+                        </field>
+
+                        <field id="auto_invoice" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Auto Invoice</label>
+                            <depends>
+                                <field id="payment_action">authorize_capture</field>
+                            </depends>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>settings/checkoutcom_configuration/auto_invoice</config_path>
+                            <comment>If enabled, an invoice is generated automatically when a payment is captured.</comment>
+                        </field>
+
                         <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Secret Key</label>
                             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
@@ -114,31 +139,6 @@
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFormTheme</source_model>
                         <config_path>payment/checkoutcom_card_payment/form_theme</config_path>
                         <comment>Select the theme to use for the payment form.</comment>
-                    </field>
-
-                    <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Action</label>
-                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
-                        <config_path>payment/checkoutcom_card_payment/payment_action</config_path>
-                    </field>
-
-                    <field id="capture_time" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Capture Time</label>
-                        <depends>
-                            <field id="payment_action">authorize_capture</field>
-                        </depends>
-                        <config_path>payment/checkoutcom_card_payment/capture_time</config_path>
-                        <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
-                    </field>
-
-                    <field id="auto_invoice" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Auto Invoice</label>
-                        <depends>
-                            <field id="payment_action">authorize_capture</field>
-                        </depends>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/auto_invoice</config_path>
-                        <comment>If enabled, an invoice is generated automatically when a payment is captured.</comment>
                     </field>
 
                     <field id="three_ds" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -406,31 +406,6 @@
                     <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_moto/title</config_path>
-                    </field>
-
-                    <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Action</label>
-                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
-                        <config_path>payment/checkoutcom_moto/payment_action</config_path>
-                    </field>
-
-                    <field id="capture_time" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Capture Time</label>
-                        <depends>
-                            <field id="payment_action">authorize_capture</field>
-                        </depends>
-                        <config_path>payment/checkoutcom_moto/capture_time</config_path>
-                        <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
-                    </field>
-
-                    <field id="auto_invoice" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Auto Invoice</label>
-                        <depends>
-                            <field id="payment_action">authorize_capture</field>
-                        </depends>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/auto_invoice</config_path>
-                        <comment>If enabled, an invoice is generated automatically when a payment is captured.</comment>
                     </field>
 
                     <field id="sort_order" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">

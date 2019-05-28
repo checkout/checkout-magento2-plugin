@@ -121,7 +121,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             $request->reference = $this->order->getIncrementId();
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             if ($captureDate) {
-                $request->capture_time = $this->config->getCaptureTime($this->methodId);
+                $request->capture_time = $this->config->getCaptureTime();
             }
 
             // Send the charge request
