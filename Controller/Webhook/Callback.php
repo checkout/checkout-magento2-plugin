@@ -80,16 +80,12 @@ class Callback extends \Magento\Framework\App\Action\Action {
      */
     public function execute() {
         try {
+            $this->config->isValidAuth();
+
             //if ($this->config->isValidAuth()) {
             if (true) {
                 // Get the post data
                 $payload = json_decode($this->getRequest()->getContent());
-
-                $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/payload.log');
-                $logger = new \Zend\Log\Logger();
-                $logger->addWriter($writer);
-                $logger->info(print_r($payload, 1));
-
                 if (isset($payload->data->id)) {
                     // Get the payment details
                     $response = $this->apiHandler->getPaymentDetails($payload->data->id);
@@ -97,58 +93,39 @@ class Callback extends \Magento\Framework\App\Action\Action {
                     $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/response.log');
                     $logger = new \Zend\Log\Logger();
                     $logger->addWriter($writer);
-                    $logger->info(print_r($response, 1));
-
-                    $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/isValid.log');
-                    $logger = new \Zend\Log\Logger();
-                    $logger->addWriter($writer);
-                    $logger->info(print_r($this->apiHandler->isValidResponse($response), 1));
+                    $logger->info(print_r($payload, 1));
 
                     if ($this->apiHandler->isValidResponse($response)) {
                         // Process the order
-                        $order = $this->orderHandler->handleOrder(
-                            $response->reference,
-                            (array) $response,
-                            true
-                        );
+                        $order = $this->orderHandler
+                            ->setMethodId($response->metadata['methodId'])
+                            ->handleOrder(
+                                $response->reference,
+                                (array) $response,
+                                true
+                            );
 
-                        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/orderid.log');
-                        $logger = new \Zend\Log\Logger();
-                        $logger->addWriter($writer);
-                        $logger->info(print_r($order->getId(), 1));
+                        if ($this->orderHandler->isOrder($order)) {
+                            // Handle the transaction
+                            $this->transactionHandler->createTransaction(
+                                $order,
+                                static::$transactionMapper[$payload->type],
+                                (array) $response
+                            );
 
-                        // Handle the transaction
-                        $this->transactionHandler->createTransaction(
-                            $order,
-                            $this->getNeededTransaction($payload->type),
-                            $response
-                        );
-
-                        // Save the order
-                        $order = $this->orderRepository->save($order);
+                            // Save the order
+                            $order = $this->orderRepository->save($order);
+                        }
                     }
                 }
             }
         } catch (\Exception $e) {
 
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/catch.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($e->getMessage(), 1));
         }     
 
         exit();
         
         return $this->jsonFactory->create()->setData([]);
 
-    }
-
-    /**
-     * Get a transaction type from name.
-     *
-     * @return string
-     */
-    public function getNeededTransaction($name) {
-        return self::$transactionMapper($name);
     }
 }
