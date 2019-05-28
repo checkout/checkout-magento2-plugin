@@ -1,13 +1,12 @@
 
 TODO
+- check void and refund from backend is working properly
 - update transaction id for MOTO void and refund using webhook
 - add the place order API (with MADA support)
 - Handle refund in verify as in place order if order creation fails (detect from previous transaction if it's void or refund needed)
 - add shipping handling for instant payment, currently flatrate_flatrate not good
 - save card checkbox to options and save card if needed after payment
-
-- check auto invoice, capture and other settings for all methods (compare confix.ml and system.xml)
-
+- check all config parameters are present (compare confix.ml and system.xml)
 - add customer details to payment requests
 - Replace APM id by title in list 
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
