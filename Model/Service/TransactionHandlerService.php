@@ -114,7 +114,7 @@ class TransactionHandlerService
                 ->setFailSafe(true)
                 ->build($transactionType);
 
-            // Add an authorization transaction to the payment
+            // Add an authorization transaction to the order
             if ($transactionType == Transaction::TYPE_AUTH) {
                 // Add order comments
                 $payment->addTransactionCommentsToOrder(
@@ -131,8 +131,8 @@ class TransactionHandlerService
                 );
             }
 
-            // Add an authorization transaction to the payment
-            if ($transactionType == Transaction::TYPE_CAPTURE) {
+            // Add a capture transaction to the order
+            else if ($transactionType == Transaction::TYPE_CAPTURE) {
                 // Set the parent transaction id
                 $payment->setParentTransactionId(null);
                 /*$parentTransaction = $this->getTransactions($order, $transactionType);
@@ -155,6 +155,39 @@ class TransactionHandlerService
                 // Set the order status
                 $order->setStatus(
                     $this->config->getValue('order_status_captured')
+                );
+            }
+
+            // Add a capture transaction to the payment
+            else if ($transactionType == Transaction::TYPE_VOID) {
+                // Add order comments
+                $payment->addTransactionCommentsToOrder(
+                    $transaction,
+                    __('The voided amount is %1.', $formatedPrice)
+                );
+
+                // Set the parent transaction id
+                $payment->setParentTransactionId(null);
+
+                // Set the order status
+                $order->setStatus(
+                    $this->config->getValue('order_status_voided')
+                );
+            }
+
+            else if ($transactionType == Transaction::TYPE_REFUND) {
+                // Add order comments
+                $payment->addTransactionCommentsToOrder(
+                    $transaction,
+                    __('The refunded amount is %1.', $formatedPrice)
+                );
+
+                // Set the parent transaction id
+                $payment->setParentTransactionId(null);
+
+                // Set the order status
+                $order->setStatus(
+                    $this->config->getValue('order_status_refunded')
                 );
             }
 
