@@ -11,6 +11,8 @@ TODO
 - add shipping handling for instant payment, currently flatrate_flatrate not good
 - save card checkbox to options and save card if needed after payment
 
+- check auto invoice, capture and other settings for all methods (compare confix.ml and system.xml)
+
 - add customer details to payment requests
 - Replace APM id by title in list 
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
