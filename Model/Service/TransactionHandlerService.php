@@ -144,7 +144,7 @@ class TransactionHandlerService
 
                 // Create the invoice
                 // Todo - check this setting, add parameter to config
-                if ($this->config->getValue('invoice_creation') == $transactionType) {
+                if ($this->config->getValue('auto_invoice')) {
                     $this->invoiceHandler->processInvoice($order);
                 }
 
