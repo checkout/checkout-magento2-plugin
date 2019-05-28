@@ -1,6 +1,5 @@
 
 TODO
-- add web hook handling feature 
 - add auto invoice generation setting
 - add capture, void, refund transactions and order status for webhook
 - update transaction id for MOTO void and refund using webhook
