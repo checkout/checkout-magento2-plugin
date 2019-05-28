@@ -1,6 +1,5 @@
 
 TODO
-- add auto invoice generation setting
 - add void, refund transactions for webhook with order status
 - update transaction id for MOTO void and refund using webhook
 - add the place order API (with MADA support)
@@ -28,6 +27,7 @@ TASKS
 - delegate all response checks to API handler isValidResponse($respoonse), especially APM method
 - check multiple transactions storage logic in order payment details
 - review the setPayment data in order save before and after ($response replaced py $payload)
+- split transaction handler code in smaller chunks
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?
