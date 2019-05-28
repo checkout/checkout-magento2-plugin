@@ -28,8 +28,17 @@ class Utilities {
 	/**
      * Convert a date string to ISO8601 format.
      */
-    public function formatDate($timestamp) {
+    public function formatDate($timestamp)
+    {
         return gmdate("Y-m-d\TH:i:s\Z", $timestamp); 
+    }
+
+	/**
+     * Convert an object to array.
+     */
+    public function objectToArray($object)
+    {
+        return json_decode(json_encode($object), true); 
     }
 
     /**
@@ -70,7 +79,8 @@ class Utilities {
         }
     }
 
-    public function createLink($url, $text) {
+    public function createLink($url, $text)
+    {
         return '<a href="' . $url . '">' .  $text . '</a>';
     }
 }

@@ -94,7 +94,7 @@ class Verify extends \Magento\Framework\App\Action\Action {
             // Create an order
             $order = $this->orderHandler
                 ->setMethodId($this->methodId)
-                ->handleOrder($reservedIncrementId, $response);
+                ->handleOrder($reservedIncrementId);
 
             // Add the payment info to the order
             $order = $this->utilities
