@@ -133,12 +133,6 @@ class TransactionHandlerService
 
             // Add an authorization transaction to the payment
             if ($transactionType == Transaction::TYPE_CAPTURE) {
-                // Add order comments
-                $payment->addTransactionCommentsToOrder(
-                    $transaction,
-                    __('The captured amount is %1.', $formatedPrice)
-                );
-
                 // Set the parent transaction id
                 $payment->setParentTransactionId(null);
                 /*$parentTransaction = $this->getTransactions($order, $transactionType);
@@ -146,10 +140,16 @@ class TransactionHandlerService
                     $parentTransaction[0]->getTransactionId()
                 );*/
 
-                // Create the invoice
-                // Todo - check this setting, add parameter to config
+                // Handle the invoice and capture comments
                 if ($this->config->getValue('auto_invoice')) {
                     $this->invoiceHandler->processInvoice($order);
+                }
+                else {
+                    // Add order comments
+                    $payment->addTransactionCommentsToOrder(
+                        $transaction,
+                        __('The captured amount is %1. No invoice was created.', $formatedPrice)
+                    );                    
                 }
 
                 // Set the order status
