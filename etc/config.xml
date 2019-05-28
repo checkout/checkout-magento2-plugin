@@ -42,7 +42,7 @@
                 <can_use_internal>0</can_use_internal>
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_capture_vault>1</can_capture_vault>
-                <auto_generate_invoice>1</auto_generate_invoice>
+                <auto_invoice>1</auto_invoice>
                 <require_cvv>0</require_cvv>
                 <instant_purchase>
                     <available>CheckoutCom\Magento2\Model\InstantPurchase\AvailabilityChecker</available>
@@ -75,7 +75,7 @@
                 <can_use_internal>0</can_use_internal>
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_capture_vault>1</can_capture_vault>
-                <auto_generate_invoice>1</auto_generate_invoice>
+                <auto_invoice>1</auto_invoice>
             </checkoutcom_card_payment>
             <checkoutcom_apm>
                 <model>CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</model>
@@ -90,7 +90,7 @@
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
                 <can_use_internal>0</can_use_internal>
-                <auto_generate_invoice>1</auto_generate_invoice>
+                <auto_invoice>1</auto_invoice>
                 <apm_enabled></apm_enabled>
             </checkoutcom_apm>
             <checkoutcom_google_pay>
@@ -106,7 +106,7 @@
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
                 <can_use_internal>0</can_use_internal>
-                <auto_generate_invoice>1</auto_generate_invoice>
+                <auto_invoice>1</auto_invoice>
                 <gateway_name>checkoutltd</gateway_name>
                 <allowed_card_networks>VISA,MASTERCARD</allowed_card_networks>
                 <merchant_id></merchant_id>
@@ -126,7 +126,7 @@
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
                 <can_use_internal>0</can_use_internal>
-                <auto_generate_invoice>1</auto_generate_invoice>
+                <auto_invoice>1</auto_invoice>
                 <processing_certificate>/path/to/cert</processing_certificate>
                 <processing_certificate_password></processing_certificate_password>
                 <merchant_id_certificate>/path/to/cert</merchant_id_certificate>
@@ -151,7 +151,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_charge_details>1</can_charge_details>
                 <can_use_checkout>0</can_use_checkout>
-                <auto_generate_invoice>1</auto_generate_invoice>
+                <auto_invoice>1</auto_invoice>
                 <environment>1</environment>
                 <secret_key></secret_key>
                 <public_key></public_key>
