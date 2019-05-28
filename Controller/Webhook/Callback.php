@@ -80,17 +80,14 @@ class Callback extends \Magento\Framework\App\Action\Action {
      */
     public function execute() {
         try {
-            $this->config->isValidAuth();
-
-            //if ($this->config->isValidAuth()) {
-            if (true) {
+            if ($this->config->isValidAuth()) {
                 // Get the post data
                 $payload = json_decode($this->getRequest()->getContent());
                 if (isset($payload->data->id)) {
                     // Get the payment details
                     $response = $this->apiHandler->getPaymentDetails($payload->data->id);
 
-                    $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/response.log');
+                    $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/payload.log');
                     $logger = new \Zend\Log\Logger();
                     $logger->addWriter($writer);
                     $logger->info(print_r($payload, 1));
