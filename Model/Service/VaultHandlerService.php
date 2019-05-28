@@ -122,7 +122,8 @@ class VaultHandlerService {
      * @return VaultHandlerService
      */
     public function setCustomerId($id = null) {
-        $this->customerId = (int) $id > 0 ? $id : $this->customerSession->getCustomer()->getId();
+        $this->customerId = (int) $id > 0
+        ? $id : $this->customerSession->getCustomer()->getId();
 
         return $this;
     }
@@ -133,8 +134,9 @@ class VaultHandlerService {
      * @param string $customerEmail
      * @return VaultHandlerService
      */
-    public function setCustomerEmail() {
-        $this->customerEmail = $this->customerSession->getCustomer()->getEmail();
+    public function setCustomerEmail($email = null) {
+        $this->customerEmail = ($email) 
+        ? $email : $this->customerSession->getCustomer()->getEmail();
 
         return $this;
     }
@@ -147,6 +149,15 @@ class VaultHandlerService {
      */
     public function setCardToken($cardToken) {
         $this->cardToken = $cardToken;
+
+        return $this;
+    }
+
+    /**
+     * Sets a gateway response if no prior card authorization is needed.
+     */
+    public function setResponse($response) {
+        $this->response = $response;
 
         return $this;
     }

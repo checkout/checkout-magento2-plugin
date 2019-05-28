@@ -132,7 +132,10 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $captureDate = $this->config->getCaptureTime($this->_code);
 
             // Prepare the MADA setting
-            $madaEnabled = (bool) $this->config->getValue('mada_enabled', $this->_code);
+            $madaEnabled = $this->config->getValue('mada_enabled', $this->_code);
+
+            // Prepare the save card setting
+            $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code);
 
             // Set the request parameters
             $request->capture = $this->config->needsAutoCapture($this->_code);
@@ -151,6 +154,12 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             // Mada BIN Check
             if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
                 $request->metadata['udf1'] = 'MADA';
+            }
+
+            // Save card check
+            if (isset($data['saveCard']) && $saveCardEnabled && $this->customerSession->isLoggedIn()) {
+                $request->metadata['saveCard'] = true;
+                $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
             }
 
             // Send the charge request

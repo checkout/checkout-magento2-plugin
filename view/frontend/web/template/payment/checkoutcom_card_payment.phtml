@@ -29,6 +29,15 @@
             <!--/ko-->
         </div>
 
+        <!-- ko if: (isVaultEnabled() && isSaveCardEnabled() && isLoggedIn()) -->
+        <div class="field choice">
+            <input type="checkbox" name="saveCard" class="checkbox"/>
+            <label class="label" for="saveCard">
+                <span><!-- ko i18n: 'Save this card for later use.'--><!-- /ko --></span>
+            </label>
+        </div>
+        <!-- /ko -->
+
         <!-- Agreements form -->
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->

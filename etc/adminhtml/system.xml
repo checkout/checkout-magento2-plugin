@@ -365,6 +365,13 @@
                         <config_path>payment/checkoutcom_vault/title</config_path>
                     </field>
 
+                    <field id="save_card_option" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Save card option</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_vault/save_card_option</config_path>
+                        <comment>Display an option (checkbox) to save a new card on the payment page.</comment>
+                    </field>
+
                     <field id="three_ds" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Use 3D Secure</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

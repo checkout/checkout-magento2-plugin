@@ -34,6 +34,7 @@
                 <request_currency>USD</request_currency>
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>
+                <save_card_option>1</save_card_option>
                 <instant_purchase_enabled>0</instant_purchase_enabled>
                 <is_gateway>1</is_gateway>
                 <can_use_checkout>1</can_use_checkout>
