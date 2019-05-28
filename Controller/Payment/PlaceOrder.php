@@ -127,7 +127,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                 $success = true;
                 $url = $response->getRedirection();
                 if (!$response->isPending()) {
-                    if(!$this->placeOrder((array) $response)) {
+                    if (!$this->placeOrder((array) $response)) {
                         // refund or void accordingly
                         \CheckoutCom\Magento2\Helper\Logger::write('PlaceOrder->execute: should refund');
                     }
@@ -181,7 +181,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             // Create an order
             $order = $this->orderHandler
                 ->setMethodId($this->methodId)
-                ->placeOrder($reservedIncrementId, $response);
+                ->handleOrder($reservedIncrementId);
 
             // Add the payment info to the order
             $order = $this->utilities

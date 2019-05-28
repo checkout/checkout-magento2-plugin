@@ -49,9 +49,10 @@ class Config
         $authorization = $this->request->getHeader('Authorization');
 
         // Get the secret key from config
-        $secretKey = $this->getValue('secret_key');
-        
-        return $authorization == $secretKey;
+        $privateSharedKey = $this->getValue('private_shared_key');
+
+        // Return the validity check
+        return $authorization == $privateSharedKey;
     }
 
     /**
@@ -117,12 +118,12 @@ class Config
 	/**
      * Checks and sets a capture time for the request.
      */
-    public function getCaptureTime($methodId) {
+    public function getCaptureTime() {
         // Get the capture time from config
-        $captureTime = $this->getValue('capture_time', $methodId);
+        $captureTime = $this->getValue('capture_time');
 
         // Check the setting
-        if ($this->needsAutoCapture($methodId) && !empty($captureTime)) {
+        if ($this->needsAutoCapture() && !empty($captureTime)) {
             // Calculate the capture date
             $captureDate = time() + $captureTime*60*60;
 
@@ -173,9 +174,9 @@ class Config
      *
      * @return bool
      */
-    public function needsAutoCapture($methodId) {
-        return ($this->getValue('payment_action', $methodId) == 'authorize_capture'
-        || (bool) $this->getValue('mada_enabled', $methodId) === true);
+    public function needsAutoCapture() {
+        return ($this->getValue('payment_action') == 'authorize_capture'
+        || (bool) $this->getValue('mada_enabled', 'checkoutcom_card_payment') === true);
     }
 
     /**

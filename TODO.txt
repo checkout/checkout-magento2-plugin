@@ -1,18 +1,19 @@
-ISSUES
-- Check cart not cleared after success page display?
 
 TODO
-- add web hook handling feature 
-- add capture, void, refund transactions and order status for webhook
+- add void, refund transactions for webhook with order status
 - update transaction id for MOTO void and refund using webhook
 - add the place order API (with MADA support)
 - Handle refund in verify as in place order if order creation fails
 - add shipping handling for instant payment, currently flatrate_flatrate not good
 - save card checkbox to options and save card if needed after payment
 
+- check auto invoice, capture and other settings for all methods (compare confix.ml and system.xml)
+
 - add customer details to payment requests
 - Replace APM id by title in list 
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
+- set metadata with method id in all method payment requests (needed for handleOrder)
+- check opened/closed transactions logic
 
 TASKS
 - do CLR to LF normalisation
@@ -24,6 +25,9 @@ TASKS
 - move strings to constants and centralize definitions
 - move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
 - delegate all response checks to API handler isValidResponse($respoonse), especially APM method
+- check multiple transactions storage logic in order payment details
+- review the setPayment data in order save before and after ($response replaced py $payload)
+- split transaction handler code in smaller chunks
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?

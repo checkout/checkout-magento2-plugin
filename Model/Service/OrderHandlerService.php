@@ -98,39 +98,38 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function placeOrder($reservedIncrementId = '', $paymentData = null)
+    public function handleOrder($reservedIncrementId = '', $isWebhook = false)
     {
         if ($this->methodId) {
             try {
-                //  Prepare a fields filter
-                $filters = ['reserved_order_id' => $reservedIncrementId];
-
                 // Check if the order exists
-                $order = $this->getOrder($filters);
+                $order = $this->getOrder(
+                    ['increment_id' => $reservedIncrementId]
+                );
 
                 // Create the order
                 if (!$this->isOrder($order)) {
                     // Prepare the quote
-                    $quote = $this->quoteHandler->prepareQuote($filters, $this->methodId);
+                    $quote = $this->quoteHandler->prepareQuote(
+                        ['reserved_order_id' => $reservedIncrementId],
+                        $this->methodId,
+                        $isWebhook
+                    );
+
+                    // Process the quote
                     if ($quote) {
                         // Create the order
                         $order = $this->quoteManagement->submit($quote);
-
-                        // Create the authorization transaction
-                        $this->transactionHandler->createTransaction
-                        (
-                            $order,
-                            Transaction::TYPE_AUTH,
-                            $paymentData
-                        );
                     }
+
+                    // Return the saved order
+                    $order = $this->orderRepository->save($order);
                 }
 
-                // Return the saved order
-                $order = $this->orderRepository->save($order);
-
                 // Perform after place order tasks
-                $order = $this->afterPlaceOrder($quote, $order);
+                if (!$isWebhook) {
+                    $order = $this->afterPlaceOrder($quote, $order);
+                }
 
                 return $order;
 

@@ -140,6 +140,9 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $currency
             );
 
+            // Prepare the metadata array
+            $request->metadata = ['methodId' => $this->_code];
+            
             // Prepare the capture date setting
             $captureDate = $this->config->getCaptureTime($this->_code);
 
@@ -157,7 +160,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->description = __('Payment request from %1', $this->config->getStoreName());
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             if ($captureDate) {
-                $request->capture_time = $this->config->getCaptureTime($this->_code);
+                $request->capture_time = $this->config->getCaptureTime();
             }
             
             // Mada BIN Check
