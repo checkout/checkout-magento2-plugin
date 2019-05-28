@@ -21,6 +21,7 @@ define([
                 formId: METHOD_ID + '_frm',
                 cardToken: null,
                 cardBin: null,
+                saveCard: false,
                 redirectAfterPlaceOrder: false
             },
 
@@ -63,7 +64,16 @@ define([
             },
 
             /**
-             * @returns {boolean}
+             * @returns {void}
+             */
+            initEvents: function () {
+                $('input[name="saveCard"]').on('click', function() {
+                    self.saveCard = this.checked;
+                });
+            },
+
+            /**
+             * @returns {void}
              */
             cleanEvents: function () {
                 Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
@@ -116,20 +126,30 @@ define([
                         );
                     }
                 });
+
+                // Initialize other events
+                self.initEvents();
             },
 
             /**
              * @returns {void}
              */
             placeOrder: function () {
+                // Prepare some variables
                 var self = this;
+
+                // Validate the order placement
                 if (AdditionalValidators.validate() && Frames.isCardValid()) {
-                    // Place the order
-                    Utilities.placeOrder({
+                    // Prepare the payload
+                    var payload = {
                         methodId: METHOD_ID,
                         cardToken: self.cardToken,
-                        cardBin: self.cardBin
-                    });
+                        cardBin: self.cardBin,
+                        saveCard: self.saveCard
+                    };
+
+                    // Place the order
+                    Utilities.placeOrder(payload);
 
                     // Make sure the card form stays unblocked
                     Frames.unblockFields();
