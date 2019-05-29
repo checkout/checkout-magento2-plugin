@@ -110,7 +110,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
 
                         // Process the order
                         $order = $this->orderHandler
-                            ->setMethodId($payload->metadata->methodId)
+                            ->setMethodId($this->payload->metadata->methodId)
                             ->handleOrder(
                                 $response->reference,
                                 true
@@ -120,8 +120,8 @@ class Callback extends \Magento\Framework\App\Action\Action {
                             // Handle the transaction
                             $this->transactionHandler->createTransaction(
                                 $order,
-                                static::$transactionMapper[$payload->type],
-                                $payload
+                                static::$transactionMapper[$this->payload->type],
+                                $this->payload
                             );
 
                             // Save the order
