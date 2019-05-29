@@ -75,6 +75,7 @@ define([
              * @returns {void}
              */
             initEvents: function () {
+                var self = this;
                 $('input[name="saveCard"]').on('click', function() {
                     self.saveCard = this.checked;
                 });
