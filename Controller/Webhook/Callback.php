@@ -103,6 +103,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
                     // Get the payment details
                     $response = $this->apiHandler->getPaymentDetails($this->payload->data->id);
                     if ($this->apiHandler->isValidResponse($response)) {
+
                         // Handle the save card request
                         if ($this->cardNeedsSaving()) {
                             $this->saveCard($response);
@@ -110,7 +111,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
 
                         // Process the order
                         $order = $this->orderHandler
-                            ->setMethodId($payload->metadata->methodId)
+                            ->setMethodId($this->payload->data->metadata->methodId)
                             ->handleOrder(
                                 $response->reference,
                                 true
@@ -120,8 +121,8 @@ class Callback extends \Magento\Framework\App\Action\Action {
                             // Handle the transaction
                             $this->transactionHandler->createTransaction(
                                 $order,
-                                static::$transactionMapper[$payload->type],
-                                $payload
+                                static::$transactionMapper[$this->payload->type],
+                                $this->payload
                             );
 
                             // Save the order
@@ -145,10 +146,10 @@ class Callback extends \Magento\Framework\App\Action\Action {
     }
 
     protected function cardNeedsSaving() {
-        return isset($this->payload->metadata->saveCard)
-        && $this->payload->metadata->saveCard
-        && isset($this->payload->metadata->customerId)
-        && (int) $this->payload->metadata->customerId > 0
+        return isset($this->payload->data->metadata->saveCard)
+        && $this->payload->data->metadata->saveCard
+        && isset($this->payload->data->metadata->customerId)
+        && (int) $this->payload->data->metadata->customerId > 0
         && isset($this->payload->data->source->id)
         && !empty($this->payload->data->source->id);
     }
@@ -157,7 +158,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
         try {
             // Get the customer
             $customer = $this->shopperHandler->getCustomerData(
-                ['id' => $this->payload->metadata->customerId]
+                ['id' => $this->payload->data->metadata->customerId]
             );
 
             // Save the card

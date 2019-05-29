@@ -7,6 +7,10 @@
     margin-bottom: 15px;
 }
 
+.save-card-option {
+    margin-bottom: 10px;
+}
+
 /**
  * Vault payment
  */
@@ -285,7 +289,7 @@ div.cko-alternative-form {
  */
 
 .checkout-agreement label {
-    background-image: url(../images/icon-.png);
+    background-image: url(../images/icon-link.png);
     background-repeat: no-repeat;
     background-position: top right;
     padding-right: 20px;
