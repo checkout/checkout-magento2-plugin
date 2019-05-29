@@ -158,7 +158,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
         try {
             // Get the customer
             $customer = $this->shopperHandler->getCustomerData(
-                ['id' => $this->payload->metadata->customerId]
+                ['id' => $this->payload->data->metadata->customerId]
             );
 
             // Save the card
