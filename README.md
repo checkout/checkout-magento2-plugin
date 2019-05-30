@@ -4,7 +4,7 @@
 
 [Checkout.com](https://www.checkout.com "Checkout.com") is a software platform that has integrated 100% of the value chain to create payment infrastructures that truly make a difference. Checkout.com is authorised and regulated as a Payment institution by the UK Financial Conduct Authority.
 
-The Checkout.com extension for Magento 2 allows shop owners to process online payments through the [Checkout.com Payment Gateway](https://docs.checkout.com/getting-started/introduction "Checkout.com Payment Gateway").
+The Checkout.com extension for Magento 2 allows shop owners to process online payments through the [Checkout.com Payment Gateway](https://docs.checkout.com/docs/integrate-with-checkoutcom "Checkout.com Payment Gateway").
 
 This extension is an integration of [Checkout.js](https://docs.checkout.com "Checkout.js") and offers 2 payment modes:
 
@@ -14,7 +14,7 @@ Shoppers are redirected from your website to Checkout.com servers to complete pa
 * Frames.js<br>
 The payment form is embedded and shoppers complete payments without leaving your website.
 
-Checkout.js Hosted and Frames.js are cross-browser and cross-device compatible, and can accept online payments from all major credit cards. Checkout.js Hosted offers in addition many of the most popular [Alternative Payment methods](https://docs.checkout.com/reference/checkout-js-reference/alternative-payments "Alternative Payment methods") used around the world.
+Checkout.js Hosted and Frames.js are cross-browser and cross-device compatible, and can accept online payments from all major credit cards. Checkout.js Hosted offers in addition many of the most popular [Alternative Payment methods](https://archive.docs.checkout.com/docs/checkoutjs-reference "Alternative Payment methods") used around the world.
 
 ## Supported payment methods
 The Checkout.com extension for Magento 2 supports VISA, Mastercard, American Express, Discover, Diners Club, JCB, in addition to the Alternative Payment options described above.
