@@ -184,6 +184,7 @@ class VaultHandlerService {
 
         // Check if card exists
         if ($foundPaymentToken) {
+            // Display a message if the card exists
             if ($foundPaymentToken->getIsActive() && $foundPaymentToken->getIsVisible()) {
                 $this->messageManager->addNoticeMessage(__('This card is already saved.'));
             }
