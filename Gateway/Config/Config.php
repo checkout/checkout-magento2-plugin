@@ -134,7 +134,6 @@ class Config
         ];
     }
 
-
     /**
      * Determines if 3DS should be enabled for a payment request.
      *
