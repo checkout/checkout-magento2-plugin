@@ -3,6 +3,9 @@
 namespace CheckoutCom\Magento2\Controller\Webhook;
 
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Webapi\Exception as WebException;
+use Magento\Framework\Webapi\Rest\Response as WebResponse;
 
 class Callback extends \Magento\Framework\App\Action\Action {
     /**
@@ -14,11 +17,6 @@ class Callback extends \Magento\Framework\App\Action\Action {
         'payment_refunded' => Transaction::TYPE_REFUND,
         'payment_voided' => Transaction::TYPE_VOID
     ];
-
-    /**
-     * @var JsonFactory
-     */
-    protected $jsonFactory;
 
     /**
      * @var OrderRepositoryInterface
@@ -65,7 +63,6 @@ class Callback extends \Magento\Framework\App\Action\Action {
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
@@ -78,7 +75,6 @@ class Callback extends \Magento\Framework\App\Action\Action {
     {
         parent::__construct($context);
 
-        $this->jsonFactory = $jsonFactory;
         $this->orderRepository = $orderRepository;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
@@ -97,6 +93,10 @@ class Callback extends \Magento\Framework\App\Action\Action {
      */
     public function execute() {
         try {
+            // Prepare the response handler
+            $response = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+
+            // Process the request
             if ($this->config->isValidAuth()) {
                 // Process the request
                 if (isset($this->payload->data->id)) {
@@ -130,15 +130,19 @@ class Callback extends \Magento\Framework\App\Action\Action {
                         }
                     }
                 }
+
+                // Set a valid response
+                $response->setHttpResponseCode(WebResponse::HTTP_OK);
+            }
+            else  {
+                $response->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
             }
         } catch (\Exception $e) {
-
-        }     
-
-        // Todo - Implement a proper webhook controller response logic
-        exit();
-        return $this->jsonFactory->create()->setData([]);
-
+            $response->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
+            $response->setData(['error_message' => $e->getMessage()]);
+        }   
+        
+        return $response;
     }
 
     protected function getPayload() {
