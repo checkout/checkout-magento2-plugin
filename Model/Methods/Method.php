@@ -50,6 +50,11 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
     protected $quoteHandler;
 
     /**
+     * @var ShopperHandlerService
+     */
+    protected $shopperHandler;
+
+    /**
      * Magic Methods
      */
 
@@ -78,6 +83,7 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -113,6 +119,7 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
         $this->apiHandler         = $apiHandler;
 
         $this->quoteHandler       = $quoteHandler;
+        $this->shopperHandler    = $shopperHandler;
     }
 
 

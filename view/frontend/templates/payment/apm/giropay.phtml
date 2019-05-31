@@ -1,16 +1,16 @@
 <div data-role="collapsible" id="<?= $block->getData('apm_id')?>" class="cko-apm <?= $block->getData('apm_id')?>">
     <div data-role="trigger">
 		<span class="bg-<?= $block->getData('apm_id')?> bg-apm"></span>
-        <span><?= $block->getData('apm_id')?></span>
+        <span><?= $block->getData('title')?></span>
     </div>
 </div>
 <div data-role="content" class="apm-content">
     <form id="cko-apm-form-<?= $block->getData('apm_id')?>">
-        <input type="hidden" name="source" value="<?= $block->getData('apm_id')?>">
+        <input type="hidden" name="source" value="<?= $block->getData('apm_id')?>" required>
         <div class="input-group">
             <label class="icon" for="bic">
             <span class="ckojs ckojs-card"></label>
-            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtml(__('BIC')); ?>" class="input-control" data-validate="{'required':true}" required>
+            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtml(__('BIC')); ?>" class="input-control" required>
         </div>
         <br>
         <p align="center"><?= __('You will be redirected to an external page.')?></p>

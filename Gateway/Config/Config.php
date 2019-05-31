@@ -85,7 +85,7 @@ class Config
         return [
             $this->loader::KEY_CONFIG => $this->loader
             ->data[$this->loader::KEY_SETTINGS][$this->loader::KEY_CONFIG]
-        ];        
+        ];
     }
 
     /**
@@ -111,7 +111,7 @@ class Config
      * @return string
      */
     public function needs3ds($methodId) {
-        return (((bool) $this->getValue('three_ds', $methodId) === true) 
+        return (((bool) $this->getValue('three_ds', $methodId) === true)
         || ((bool) $this->getValue('mada_enabled', $methodId) === true));
     }
 
@@ -159,7 +159,7 @@ class Config
     public function getStoreUrl() {
         return $this->storeManager->getStore()->getBaseUrl();
     }
-    
+
     /**
      * Determines if the module is in production mode.
      *
@@ -187,6 +187,15 @@ class Config
     public function getMadaBinFile() {
         return (int) $this->getValue('environment') == 1
         ? $this->getValue('mada_test_file') : $this->getValue('mada_live_file');
+    }
+
+    /**
+     * Gets the apms.
+     *
+     * @return     <array>  The apms.
+     */
+    public function getApms() {
+        return $this->loader->loadApmList();
     }
 
 }

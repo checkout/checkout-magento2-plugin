@@ -65,7 +65,7 @@ define([
                                 }
                             })
                             .show();
-                            
+
                             // Stop the loader
                             FullScreenLoader.stopLoader();
                         },
@@ -90,19 +90,14 @@ define([
                     // Start the loader
                     FullScreenLoader.startLoader()
 
+                    // Serialize data
                     $("#cko-apm-form-" + id).serializeArray().forEach(function (e) {
                         data[e.name] = e.value;
                     });
 
 
-                    if (AdditionalValidators.validate() && this.custom(data)) { //@todo: addtional validators are not working
-
+                    if (AdditionalValidators.validate() && $form.valid() && this.custom(data)) {
                         Utilities.placeOrder(data, function() {console.log('success');}, function() {console.log('fail');});
-
-                    } else {
-
-console.log('fail'); //@todo: handle error
-
                     }
 
                     FullScreenLoader.stopLoader();
@@ -132,7 +127,7 @@ console.log('fail'); //@todo: handle error
                 },
 
                 /**
-                 * @returns {void}
+                 * @returns {boolean}
                  */
                 klarna: function (data) {
 
@@ -144,17 +139,28 @@ console.log('fail'); //@todo: handle error
                             function(response) {
 
                                 data.authorization_token = response.authorization_token;
-                                Utilities.placeOrder(data, function() {console.log('success');}, function() {console.log('fail');});
+                                Utilities.placeOrder(data, function() {console.log('success');}, function() {Utilities.showMessage('error', 'Could not finalize the payment.');;});
 
                             });
 
                     } catch(e) {
-                        console.log(e); //@todo: improve this
+                        Utilities.showMessage('error', 'Could not finalize the payment.');
+                        console.log(e);
                     }
 
                     return false;
 
+                },
+
+                /**
+                 * @returns {boolean}
+                 */
+                sepa: function (data) {
+
+                    return data.hasOwnProperty('accepted');
+
                 }
+
             }
         );
     }

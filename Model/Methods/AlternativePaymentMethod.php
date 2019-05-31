@@ -145,7 +145,7 @@ class AlternativePaymentMethod extends Method
             // Send the charge request
             $response = $this->apiHandler->checkoutApi->payments()
                                                       ->request($payment);
-
+\CheckoutCom\Magento2\Helper\Logger::write($response);
             return $response;
 
         } else {
@@ -294,7 +294,8 @@ class AlternativePaymentMethod extends Method
     protected function ideal($data) {
         $source = new IdealSource($data['bic'],
                                   __('Payment request from %1', $this->config->getStoreName()));
-        $source->language = static::getValue('language', $data);
+        $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl'));
+        $source->language = $locale[0];
         return $source;
     }
 

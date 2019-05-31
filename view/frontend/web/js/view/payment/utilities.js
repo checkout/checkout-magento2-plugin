@@ -6,9 +6,10 @@ define([
         'mage/url',
         'Magento_Checkout/js/action/redirect-on-success',
         'Magento_Checkout/js/model/full-screen-loader',
+        'mage/translate',
         'mage/cookies'
     ],
-    function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction, FullScreenLoader) {
+    function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction, FullScreenLoader, __) {
         'use strict';
 
         const KEY_CONFIG = 'checkoutcom_configuration';
@@ -129,7 +130,7 @@ define([
                 this.clearMessages();
                 var messageContainer = $('.message');
                 messageContainer.addClass('message-' + type + ' ' + type);
-                messageContainer.append('<div>' + message + '</div>');
+                messageContainer.append('<div>' + __(message) + '</div>');
                 messageContainer.show();
             },
 

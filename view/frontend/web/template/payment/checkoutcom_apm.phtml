@@ -11,8 +11,9 @@
         <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
 
         <!-- Alternative Payments -->
-        <div id="apm-container" data-bind="visible: initWidget()">
-        </div>
+        <form id="apm-container" data-bind="visible: initWidget()">
+
+        </form>
 
         <!-- Billing -->
         <!-- <div class="payment-method-billing-address"> -->
@@ -33,11 +34,7 @@
             <div class="primary">
                 <button class="action primary checkout"
                         type="submit"
-                        data-bind="
-                        click: placeOrder,
-                        attr: {title: $t('Place Order'), 'id': (getCode()+'_btn')},
-                        css: {disabled: !isPlaceOrderActionAllowed()}
-                        ">
+                        data-bind="click: placeOrder, attr: {title: $t('Place Order'), 'id': (getCode()+'_btn')}">
                     <span data-bind="i18n: 'Place Order'"></span>
                 </button>
             </div>

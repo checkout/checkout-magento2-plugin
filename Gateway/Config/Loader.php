@@ -77,7 +77,7 @@ class Loader
 
             // Load the xml data
             $this->xmlData = $this->loadXmlData();
-    
+
             // Build the config data array
             foreach ($this->xmlData['config'] as $parent => $child) {
                 foreach ($child as $group => $arr) {
@@ -94,7 +94,7 @@ class Loader
                             // Process encrypted fields
                             if ($this->isEncrypted($key)) {
                                 $value = $this->encryptor->decrypt($value);
-                            } 
+                            }
 
                             // Add the final value to the config array
                             $output[$parent][$group][$key] = $value;
@@ -114,17 +114,18 @@ class Loader
                     "The module configuration file can't be loaded" . " - "
                     . $e->getMessage()
                 )
-            );          
+            );
         }
     }
 
-    protected function loadApmList() {
+    public function loadApmList() {
         // Build the APM array
         $output = [];
         foreach ($this->xmlData['apm'] as $row) {
             $output[] = [
                 'value' => $row['id'],
-                'label' => __($row['title'])
+                'label' => $row['title'],
+                'currencies' => $row['currencies']
             ];
         }
 
@@ -182,7 +183,7 @@ class Loader
 
     public function getValue($key, $methodId = null) {
         // Prepare the path
-        $path = ($methodId) 
+        $path = ($methodId)
         ? 'payment/' . $methodId  . '/' .  $key
         : 'settings/checkoutcom_configuration/' . $key;
 

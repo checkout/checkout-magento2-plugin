@@ -2,6 +2,9 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
+use \Checkout\Models\Payments\Refund;
+use \Checkout\Models\Payments\Voids;
+
 class PlaceOrder extends \Magento\Framework\App\Action\Action {
 
     /**
@@ -124,12 +127,18 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
 
             // Check success
             if ($this->apiHandler->isValidResponse($response)) {
-                $success = true;
+                $success = $response->isSuccessful();
                 $url = $response->getRedirection();
                 if (!$response->isPending()) {
                     if (!$this->placeOrder((array) $response)) {
                         // refund or void accordingly
-                        \CheckoutCom\Magento2\Helper\Logger::write('PlaceOrder->execute: should refund');
+                        if($this->config->needsAutoCapture($this->methodId)) {
+                            //refund
+                            $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
+                        } else {
+                            //void
+                            $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
+                        }
                     }
                 }
             } else {

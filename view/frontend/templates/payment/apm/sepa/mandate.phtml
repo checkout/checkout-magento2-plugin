@@ -1,4 +1,4 @@
-<input type="hidden" name="source" value="sepa">
+<input type="hidden" name="source" value="sepa" required>
 <div class="sepa-mandate-card">
     <div class="sepa-card-header">
         <div class="sepa-card-header-text">
@@ -40,13 +40,10 @@
         <div class="sepa-checkbox-container" id="sepa-checkbox-container">
             <label class="sepa-checkbox-layout" for="sepa-checkbox-input">
                 <div class="sepa-checkbox-inner-container">
-                    <input class="sepa-checkbox-input" type="checkbox" id="sepa-checkbox-input" data-validate="{'required':true}" required>
-                    <input type="hidden" style="display:none" name="url" data-validate="{'required':true}" value="<?= $block->getData('url') ?>"required>
+                    <input class="sepa-checkbox-input" type="checkbox" id="sepa-checkbox-input" name="accepted" value="1" required>
+                    <h4 style="font-size: 12px;display: inline;"><?= __('I accept the mandate for a single payment')?></h4>
+                    <input type="hidden" name="url" value="<?= $block->getData('url') ?>"required>
                 </div>
-                <span class="sepa-checkbox-layout">
-                    <span style="display:none">&nbsp;</span>
-                    <h4 style="font-size: 12px;"><?= __('I accept the mandate for a single payment')?></h4>
-                </span>
             </label>
         </div>
     </div>

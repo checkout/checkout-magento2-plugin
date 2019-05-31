@@ -60,8 +60,13 @@ class ShopperHandlerService
     /**
      * Retrieves the customer language.
      */
-    public function getCustomerLocale()
+    public function getCustomerLocale($dft = 'en_GB')
     {
-        return $this->localeResolver->getLocale();
+        $locale = $this->localeResolver->getLocale();
+        if(!$locale) {
+            $locale = $dft;
+        }
+
+        return $locale;
     }
 }
