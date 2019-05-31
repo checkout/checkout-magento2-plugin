@@ -413,6 +413,24 @@
                         <config_path>payment/checkoutcom_moto/title</config_path>
                     </field>
 
+                    <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Secret Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>settings/checkoutcom_moto/secret_key</config_path>
+                    </field>
+
+                    <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Public Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>settings/checkoutcom_moto/public_key</config_path>
+                    </field>
+
+                    <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Private Shared Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>settings/checkoutcom_moto/private_shared_key</config_path>
+                    </field>
+
                     <field id="sort_order" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Sort Order</label>
                         <validate>validate-number</validate>
