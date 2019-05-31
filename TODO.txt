@@ -29,4 +29,3 @@ OPTIONAL
 - add advanced Frames localisation and style parameters?
 - check after multiple failed requests (add idempotency?)
 - add MOTO partial capture feature?
-- convert card icons to base 64 for account and vault list display
