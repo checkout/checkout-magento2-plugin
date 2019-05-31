@@ -13,11 +13,11 @@ class ConfigEnvironment implements \Magento\Framework\Option\ArrayInterface
     {
         return [
             [
-                'value' => 0,
+                'value' => 1,
                 'label' => __('Test')
             ],
             [
-                'value' => 1,
+                'value' => 0,
                 'label' => __('Production')
             ]
         ];

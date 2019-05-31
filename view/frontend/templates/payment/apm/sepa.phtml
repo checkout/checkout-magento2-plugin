@@ -33,34 +33,39 @@
             // Form click event
             sepaForm.find('button').on('click touch', function() {
 
-                FullScreenLoader.startLoader();
+                if(sepaForm.valid()) {
 
-                // Prepare the data array
-                var formData = {};
-                sepaForm.serializeArray().forEach(function (elt) {
-                    formData[elt.name] = elt.value;
-                });
+                    FullScreenLoader.startLoader();
 
-                // Send the request
-                $.ajax({
-                    type: 'POST',
-                    url: '<?= $block->getUrl('checkout_com/apm/displaysepa')?>',
-                    data: formData,
-                    success: function (data) {
-                        if(data.html) {
-                            sepaForm.html(data.html);
-                            sepaForm.trigger('reset');
-                        } else {
+                    // Prepare the data array
+                    var formData = {};
+                    sepaForm.serializeArray().forEach(function (elt) {
+                        formData[elt.name] = elt.value;
+                    });
+
+                    // Send the request
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?= $block->getUrl('checkout_com/apm/displaysepa')?>',
+                        data: formData,
+                        success: function (data) {
+                            if(data.html) {
+                                sepaForm.html(data.html);
+                                sepaForm.trigger('reset');
+                            } else {
+                                Utilities.showMessage('error', 'Invalid details.');
+                            }
+
+                            FullScreenLoader.stopLoader();
+                        },
+                        error: function (request, status, error) {
                             Utilities.showMessage('error', 'Invalid details.');
+                            FullScreenLoader.stopLoader();
                         }
+                    });
 
-                        FullScreenLoader.stopLoader();
-                    },
-                    error: function (request, status, error) {
-                        Utilities.showMessage('error', 'Invalid details.');
-                        FullScreenLoader.stopLoader();
-                    }
-                });
+                }
+
             });
         });
     </script>

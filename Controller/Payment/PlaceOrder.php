@@ -129,7 +129,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             if ($this->apiHandler->isValidResponse($response)) {
                 $success = $response->isSuccessful();
                 $url = $response->getRedirection();
-                if (!$response->isPending()) {
+                if (!$response->isPending() || $this->data['source'] === 'sepa') {
                     if (!$this->placeOrder((array) $response)) {
                         // refund or void accordingly
                         if($this->config->needsAutoCapture($this->methodId)) {

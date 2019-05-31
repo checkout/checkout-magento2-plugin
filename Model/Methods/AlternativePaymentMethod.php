@@ -145,12 +145,9 @@ class AlternativePaymentMethod extends Method
             // Send the charge request
             $response = $this->apiHandler->checkoutApi->payments()
                                                       ->request($payment);
-\CheckoutCom\Magento2\Helper\Logger::write($response);
+
             return $response;
 
-        } else {
-//@todo: improve this error
-\CheckoutCom\Magento2\Helper\Logger::write('AlternativePaymentMethod->sendPaymentRequest:: Payment not supported');
         }
 
         return $response;
@@ -190,7 +187,6 @@ class AlternativePaymentMethod extends Method
         return isset(AlternativePaymentMethod::SUPPORTED_CURRENCIES[$currency]) && in_array($method, AlternativePaymentMethod::SUPPORTED_CURRENCIES[$currency]);
 
     }
-
 
 
 
