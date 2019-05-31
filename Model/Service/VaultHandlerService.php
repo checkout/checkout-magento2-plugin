@@ -343,7 +343,6 @@ class VaultHandlerService {
 
         // Find the customer cards
         if ((int) $customerId > 0) {
-            // Todo - return only active cards filtered by checkoutcom_vault code
             $cards = $this->paymentTokenManagement->getListByCustomerId($customerId);
             foreach ($cards as $card) {
                 if ($this->cardHandler->isCardActive($card)) {
