@@ -106,6 +106,36 @@ class Config
     }
 
     /**
+     * Gets the account keys fo MOTO payments.
+     *
+     * @return string
+     */
+    public function getMotoKeys() {
+        // Set the method id
+        $methodId = 'checkoutcom_moto';
+
+        // Get the account keys for MOTO
+        $publicKey = $this->getValue('public_key', $methodId);
+        $secretKey = $this->getValue('secret_key', $methodId);
+        $privateSharedKey = $this->getValue('private_shared_key', $methodId);
+        if (!empty($publicKey) && !empty($secretKey) && !empty($privateSharedKey)) {
+            return [
+                'public_key' => $publicKey,
+                'secretKey' => $secretKey,
+                'privateSharedKey' => $privateSharedKey
+            ];
+        }
+        
+        // Return the default account keys
+        return [
+            'public_key' => $this->getValue('public_key'),
+            'secretKey' => $this->getValue('secret_key'),
+            'privateSharedKey' => $this->getValue('private_shared_key')
+        ];
+    }
+
+
+    /**
      * Determines if 3DS should be enabled for a payment request.
      *
      * @return string
