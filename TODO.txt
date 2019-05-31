@@ -24,6 +24,7 @@ TASKS
 - check multiple transactions storage logic in order payment details
 - review the setPayment data in order save before and after ($response replaced py $payload)
 - split transaction handler code in smaller chunks
+- Test apple pay and google pay
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?
