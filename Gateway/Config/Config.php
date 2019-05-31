@@ -106,31 +106,31 @@ class Config
     }
 
     /**
-     * Gets the account keys fo MOTO payments.
+     * Gets the account keys.
      *
      * @return string
      */
-    public function getMotoKeys() {
-        // Set the method id
-        $methodId = 'checkoutcom_moto';
+    public function getAccountKeys($methodId = null) {
 
-        // Get the account keys for MOTO
-        $publicKey = $this->getValue('public_key', $methodId);
-        $secretKey = $this->getValue('secret_key', $methodId);
-        $privateSharedKey = $this->getValue('private_shared_key', $methodId);
-        if (!empty($publicKey) && !empty($secretKey) && !empty($privateSharedKey)) {
-            return [
-                'public_key' => $publicKey,
-                'secretKey' => $secretKey,
-                'privateSharedKey' => $privateSharedKey
-            ];
+        // Get the account keys for a method
+        if ($methodId) {
+            $publicKey = $this->getValue('public_key', $methodId);
+            $secretKey = $this->getValue('secret_key', $methodId);
+            $privateSharedKey = $this->getValue('private_shared_key', $methodId);
+            if (!empty($publicKey) && !empty($secretKey) && !empty($privateSharedKey)) {
+                return [
+                    'public_key' => $publicKey,
+                    'secretKey' => $secretKey,
+                    'privateSharedKey' => $privateSharedKey
+                ];
+            }
         }
         
         // Return the default account keys
         return [
             'public_key' => $this->getValue('public_key'),
-            'secretKey' => $this->getValue('secret_key'),
-            'privateSharedKey' => $this->getValue('private_shared_key')
+            'secret_key' => $this->getValue('secret_key'),
+            'private_shared_key' => $this->getValue('private_shared_key')
         ];
     }
 

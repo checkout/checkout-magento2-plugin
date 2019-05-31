@@ -22,7 +22,7 @@
             
         // Initialize the embedded form
         Frames.init({
-            publicKey: '<?= $block->config->getMotoKeys()['public_key'] ?>',
+            publicKey: '<?= $block->config->getAccountKeys('checkoutcom_moto')['public_key'] ?>',
             containerSelector: cardFormContainerId,
             theme: ckoTheme,
             debugMode: '<?= $block->config->getValue('debug') ?>',
