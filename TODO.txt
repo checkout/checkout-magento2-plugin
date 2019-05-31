@@ -10,7 +10,6 @@ TODO
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
 - set metadata with method id in all method payment requests (needed for handleOrder)
 - check opened/closed transactions logic
-- Implement a proper webhook controller response logic
 
 TASKS
 - do CLR to LF normalisation
