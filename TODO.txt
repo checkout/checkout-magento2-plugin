@@ -29,5 +29,4 @@ OPTIONAL
 - add advanced Frames localisation and style parameters?
 - check after multiple failed requests (add idempotency?)
 - add MOTO partial capture feature?
-- add vault extra config parameter fields from config.xml + instant purchase control
 - convert card icons to base 64 for account and vault list display
