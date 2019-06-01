@@ -81,7 +81,7 @@ class TransactionHandlerService
             : $this->utilities->getPaymentData($order);
 
             // Get a transaction id
-            $tid = $paymentData['data']['action_id'];
+            $tid = $this->getActionId($paymentData);
 
             // Get a method id
             $methodId = $order->getPayment()
@@ -201,6 +201,13 @@ class TransactionHandlerService
 
             return false;
         }
+    }
+
+    /**
+     * Get the action id from a gateway response.
+     */
+    public function getActionId($response) {
+        return $response['data']['action_id'] ?? $response['action_id'];
     }
 
     /**
