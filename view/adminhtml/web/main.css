@@ -1,3 +1,59 @@
+/**
+ * Vault payment
+ */
+#vault-container {
+    margin-bottom: 20px;
+}
+
+#vault-container div:last-child {
+    border-bottom: none !important;
+}
+
+#vault-container .card-on,
+#vault-container .card-selected {
+    background-color:  #f1f1f1;
+}
+
+.cko-vault-card {
+    border-bottom: 1px solid #ccc;
+    padding: 15px;
+    cursor: pointer;
+}
+
+.cko-vault-card input[type=radio] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cko-vault-card input[type=radio] + img {
+    cursor: pointer;
+}
+
+.cko-vault-card label img {
+    width: 45px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+.cko-vault-card .vault-details {
+    float: left;
+}
+
+.cko-vault-card .vault-cvv {
+    float: right;
+    width: 55px;
+}
+
+.clr {
+    clear: both;
+    visibility: hidden;
+    height: 0px;
+    width: 0px;
+}
+
+/* Config logo */
 .checkout-settings.checkout-payment-section .checkout-payment-logo {
 	display:inline-block;
 	vertical-align: middle;

@@ -1,5 +1,4 @@
 <fieldset class="admin__fieldset payment-method checkoutcom_moto" id="payment_form_checkoutcom_moto" style="display: none;">
-    <br>
     <?php 
         if ($block->canDisplayCards()):
             $cardsList = $block->getUserCards();
@@ -10,21 +9,26 @@
                     $details = json_decode($card->getTokenDetails() ?: '{}', true);
             ?>
                 <li>
-                    <div class="vault-details">
-                        <label>
-                            <input type="radio" name="publicHash" value="<?= $card->getPublicHash()?>">
-                            <img src="<?php /* @noEscape */ echo $block->cardHandler->getCardIcon($details['type']); ?>"
-                                style="display:inline-block; vertical-align:-50%"
-                            >
-                        </label>
-                        <span>
-                            <?= $block->vaultHandler->renderTokenData($card)?>
-                        </span>
+                    <div id="cko-vault-card-<?= $card->getEntityId()?>" class="cko-vault-card">
+                        <div class="vault-details">
+                            <label>
+                                <input type="radio" name="publicHash" value="<?= $card->getPublicHash()?>">
+                                <img src="<?php /* @noEscape */ echo $block->cardHandler->getCardIcon($details['type']); ?>"
+                                    style="display:inline-block; vertical-align:-50%"
+                                >
+                            </label>
+                            <span>
+                                <?= $block->vaultHandler->renderTokenData($card)?>
+                            </span>
+                        </div>
+                        <div class="vault-cvv">
+                            <input type="text" name="cvv" maxlength="4" placeholder="<?= __('CVV') ?>">
+                        </div>
+                        <div class="clr"></div>
                     </div>
                 </li>
             <?php endforeach; ?>
         </ul>
-        <br>
     <?php endif; ?>
 
     <div id="cko-form-holder">
