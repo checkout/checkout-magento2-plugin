@@ -48,6 +48,11 @@ class VaultHandlerService {
     protected $remoteAddress;
 
     /**
+     * @var ManagerInterface
+     */
+    protected $messageManager;
+
+    /**
      * @var ApiHandlerService
      */
     protected $apiHandlerService;
@@ -91,6 +96,7 @@ class VaultHandlerService {
         \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
@@ -100,6 +106,7 @@ class VaultHandlerService {
         $this->paymentTokenManagement = $paymentTokenManagement;
         $this->customerSession = $customerSession;
         $this->remoteAddress = $remoteAddress;
+        $this->messageManager = $messageManager;
         $this->apiHandler = $apiHandler;
         $this->cardHandler = $cardHandler;
         $this->config = $config;
@@ -177,9 +184,9 @@ class VaultHandlerService {
 
         // Check if card exists
         if ($foundPaymentToken) {
-            if ($foundPaymentToken->getIsActive()) {
-                //  Todo - Check if this snippet is necessary
-                //$this->messageManager->addNoticeMessage(__('The credit card has been stored already.'));
+            // Display a message if the card exists
+            if ($foundPaymentToken->getIsActive() && $foundPaymentToken->getIsVisible()) {
+                $this->messageManager->addNoticeMessage(__('This card is already saved.'));
             }
 
             // Activate or reactivate the card
@@ -336,7 +343,6 @@ class VaultHandlerService {
 
         // Find the customer cards
         if ((int) $customerId > 0) {
-            // Todo - return only active cards filtered by checkoutcom_vault code
             $cards = $this->paymentTokenManagement->getListByCustomerId($customerId);
             foreach ($cards as $card) {
                 if ($this->cardHandler->isCardActive($card)) {

@@ -1,18 +1,15 @@
 
 TODO
-- check void and refund from backend is working properly
 - update transaction id for MOTO void and refund using webhook
 - add the place order API (with MADA support)
-- Handle refund in verify as in place order if order creation fails (detect from previous transaction if it's void or refund needed)
 - add shipping handling for instant payment, currently flatrate_flatrate not good
-- save card checkbox to options and save card if needed after payment
-- check all config parameters are present (compare confix.ml and system.xml)
 - add customer details to payment requests
 - Replace APM id by title in list 
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
 - set metadata with method id in all method payment requests (needed for handleOrder)
 - check opened/closed transactions logic
-- Implement a proper webhook controller response logic
+- add dynamic descriptor handling
+- add MOTO payment with customer saved card
 
 TASKS
 - do CLR to LF normalisation
@@ -27,10 +24,9 @@ TASKS
 - check multiple transactions storage logic in order payment details
 - review the setPayment data in order save before and after ($response replaced py $payload)
 - split transaction handler code in smaller chunks
+- Test apple pay and google pay
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?
 - check after multiple failed requests (add idempotency?)
 - add MOTO partial capture feature?
-- add vault extra config parameter fields from config.xml + instant purchase control
-- convert card icons to base 64 for account and vault list display

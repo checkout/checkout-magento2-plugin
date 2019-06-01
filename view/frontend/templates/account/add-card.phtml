@@ -28,15 +28,12 @@
         var paymentForm = document.getElementById('saveCardForm');
         var ckoTheme = '';
         
-        // Todo - Connect the  debug mode to config
-        var ckoDebugMode = false;
-
         // Initialize the embedded form
         Frames.init({
             publicKey: ckoPublicKey,
             containerSelector: cardFormContainerId,
             theme: ckoTheme,
-            debugMode: ckoDebugMode,
+            debugMode: '<?= $block->config->getValue('debug'); ?>',
             frameActivated: function () {
                 saveCardButton.attr("disabled", true);
             },

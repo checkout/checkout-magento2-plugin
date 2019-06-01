@@ -12,13 +12,9 @@
         // Prepare the elements
         var cardTokenField = $('#ckoCardToken');
         var cardFormContainerId = '#cko-form-holder';
-        var ckoPublicKey = '<?= $block->config->getValue('public_key'); ?>';
         var paymentForm = document.getElementById('saveCardForm');
         var ckoTheme = '';
         
-        // Todo - Connect the  debug mode to config
-        var ckoDebugMode = true;
-
         // Remove any existing event handlers
         Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
         Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
@@ -26,10 +22,10 @@
             
         // Initialize the embedded form
         Frames.init({
-            publicKey: ckoPublicKey,
+            publicKey: '<?= $block->config->getAccountKeys('checkoutcom_moto')['public_key'] ?>',
             containerSelector: cardFormContainerId,
             theme: ckoTheme,
-            debugMode: ckoDebugMode,
+            debugMode: '<?= $block->config->getValue('debug') ?>',
             cardValidationChanged: function(event) {
                 if (Frames.isCardValid()) {
                     Frames.submitCard();

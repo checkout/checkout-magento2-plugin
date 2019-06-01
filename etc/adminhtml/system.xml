@@ -170,12 +170,6 @@
                         <comment>Display an option (checkbox) to save a new card on the payment page.</comment>
                     </field>
 
-                    <field id="cvv_optional" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>CVV Optional</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/cvv_optional</config_path>
-                    </field>
-
                     <field id="mada_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable MADA BIN Check</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -411,6 +405,24 @@
                     <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_moto/title</config_path>
+                    </field>
+
+                    <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Secret Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>settings/checkoutcom_moto/secret_key</config_path>
+                    </field>
+
+                    <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Public Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>settings/checkoutcom_moto/public_key</config_path>
+                    </field>
+
+                    <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Private Shared Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>settings/checkoutcom_moto/private_shared_key</config_path>
                     </field>
 
                     <field id="sort_order" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">

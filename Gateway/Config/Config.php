@@ -106,6 +106,35 @@ class Config
     }
 
     /**
+     * Gets the account keys.
+     *
+     * @return string
+     */
+    public function getAccountKeys($methodId = null) {
+
+        // Get the account keys for a method
+        if ($methodId) {
+            $publicKey = $this->getValue('public_key', $methodId);
+            $secretKey = $this->getValue('secret_key', $methodId);
+            $privateSharedKey = $this->getValue('private_shared_key', $methodId);
+            if (!empty($publicKey) && !empty($secretKey) && !empty($privateSharedKey)) {
+                return [
+                    'public_key' => $publicKey,
+                    'secretKey' => $secretKey,
+                    'privateSharedKey' => $privateSharedKey
+                ];
+            }
+        }
+        
+        // Return the default account keys
+        return [
+            'public_key' => $this->getValue('public_key'),
+            'secret_key' => $this->getValue('secret_key'),
+            'private_shared_key' => $this->getValue('private_shared_key')
+        ];
+    }
+
+    /**
      * Determines if 3DS should be enabled for a payment request.
      *
      * @return string
