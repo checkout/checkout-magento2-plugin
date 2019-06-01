@@ -6,7 +6,6 @@ TODO
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
 - check opened/closed transactions logic
 - add dynamic descriptor handling
-- add MOTO payment with customer saved card
 
 TASKS
 - do CLR to LF normalisation
