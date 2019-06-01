@@ -53,24 +53,6 @@
                             <config_path>settings/checkoutcom_configuration/auto_invoice</config_path>
                             <comment>If enabled, an invoice is generated automatically when a payment is captured.</comment>
                         </field>
-
-                        <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Secret Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_configuration/secret_key</config_path>
-                        </field>
-
-                        <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Public Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_configuration/public_key</config_path>
-                        </field>
-
-                        <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Private Shared Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
-                        </field>
                     </group>
                     <group id="order_settings" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Order Settings</label>
@@ -124,19 +106,19 @@
                         <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Secret Key</label>
                             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_moto/secret_key</config_path>
+                            <config_path>settings/checkoutcom_configuration/secret_key</config_path>
                         </field>
 
                         <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Public Key</label>
                             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_moto/public_key</config_path>
+                            <config_path>settings/checkoutcom_configuration/public_key</config_path>
                         </field>
 
                         <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Private Shared Key</label>
                             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_moto/private_shared_key</config_path>
+                            <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
                         </field>
                     </group>
                 </group>
