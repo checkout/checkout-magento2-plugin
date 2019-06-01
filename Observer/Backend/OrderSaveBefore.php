@@ -135,15 +135,27 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             $request->amount = $this->order->getGrandTotal()*100;
             $request->reference = $this->order->getIncrementId();
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
-            $request->customer = $this->apiHandler->createCustomerSource($this->order);
+            // Todo - add customer source
+            //$request->customer = $this->apiHandler->createCustomerSource($this->order);
             if ($captureDate) {
                 $request->capture_time = $this->config->getCaptureTime();
             }
+
+
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/orequest.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($request, 1));
 
             // Send the charge request
             $response = $this->apiHandler->checkoutApi
                 ->payments()
                 ->request($request);
+
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/oresponse.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($response, 1));
 
             // Add the response to the order
             if ($this->apiHandler->isValidResponse($response)) {
