@@ -163,7 +163,7 @@ define([
             initEvents: function () {
                 // Prepare some variables
                 var self = this;
-                var listIem = $(self.containerId).find(self.rowSelector);
+                var listItem = $(self.containerId).find(self.rowSelector);
 
                 // Disable place order on click outside       
                 $(document).mouseup(function() {
@@ -174,16 +174,17 @@ define([
                 });
 
                 // Mouse over/out behaviour
-                listIem.mouseenter(function() {
+                listItem.mouseenter(function() {
                     $(this).addClass('card-on');
                 }).mouseleave(function() {
                     $(this).removeClass('card-on');
                 });
                           
                 // Click behaviour
-                listIem.on('click touch', function() {
+                listItem.on('click touch', function() {
                     // Items state
-                    listIem.removeClass('card-selected');
+                    listItem.removeClass('card-selected');
+                    listItem.not(this).find('.vault-cvv input').val('');
                     $(this).addClass('card-selected');
 
                     // Allow order placement if conditions are matched
