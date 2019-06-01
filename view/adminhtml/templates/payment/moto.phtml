@@ -1,7 +1,7 @@
 <fieldset class="admin__fieldset payment-method checkoutcom_moto" id="payment_form_checkoutcom_moto" style="display: none;">
     <br>
     <div id="cko-form-holder">
-        <form id="saveCardForm" method="POST">
+        <form id="motoCardForm" method="POST">
             <input type="hidden" id="ckoCardToken" name="ckoCardToken">
         </form>
     </div>
@@ -12,7 +12,7 @@
         // Prepare the elements
         var cardTokenField = $('#ckoCardToken');
         var cardFormContainerId = '#cko-form-holder';
-        var paymentForm = document.getElementById('saveCardForm');
+        var paymentForm = document.getElementById('motoCardForm');
         var ckoTheme = '';
         
         // Remove any existing event handlers
