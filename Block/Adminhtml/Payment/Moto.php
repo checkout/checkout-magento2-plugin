@@ -86,11 +86,6 @@ class Moto extends \Magento\Payment\Block\Form\Cc
         // Get the customer id
         $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();
 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/cid.log');
-$logger = new \Zend\Log\Logger();
-$logger->addWriter($writer);
-$logger->info(print_r($customerId, 1));
-
         // Return the check result
         return $this->config->getValue('saved_cards_enabled', 'checkoutcom_moto')
         && $this->vaultHandler->userHasCards($customerId);
