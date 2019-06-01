@@ -1,5 +1,28 @@
 <fieldset class="admin__fieldset payment-method checkoutcom_moto" id="payment_form_checkoutcom_moto" style="display: none;">
     <br>
+    <?php if ($block->canDisplayCards()) {
+        $cardsList = $block->getUserCards();
+    ?>
+        <ul>
+            <?php foreach ($cardsList as $card) { ?>
+                <li>
+                    <div class="vault-details">
+                        <label>
+                            <input type="radio" name="publicHash" value="<?= $card->getPublicHash()?>">
+                            <img src="<?php /* @noEscape */ echo $block->cardHandler->getCardIcon($details['type']); ?>"
+                                style="display:inline-block; vertical-align:-50%"
+                            >
+                        </label>
+                        <span>
+                            <?= $block->vaultHandler->renderTokenData($card)?>
+                        </span>
+                    </div>
+                </li>
+            <?php } ?>
+        </ul>
+        <br>
+    <?php } ?>
+
     <div id="cko-form-holder">
         <form id="motoCardForm" method="POST">
             <input type="hidden" id="ckoCardToken" name="ckoCardToken">
