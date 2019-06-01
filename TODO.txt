@@ -4,9 +4,7 @@ TODO
 - add the place order API (with MADA support)
 - add shipping handling for instant payment, currently flatrate_flatrate not good
 - add customer details to payment requests
-- Replace APM id by title in list 
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
-- set metadata with method id in all method payment requests (needed for handleOrder)
 - check opened/closed transactions logic
 - add dynamic descriptor handling
 - add MOTO payment with customer saved card
