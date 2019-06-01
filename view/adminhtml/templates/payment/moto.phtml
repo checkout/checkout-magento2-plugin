@@ -43,7 +43,6 @@
         var cardTokenField = $('#ckoCardToken');
         var cardFormContainerId = '#cko-form-holder';
         var paymentForm = document.getElementById('motoCardForm');
-        var ckoTheme = '';
         
         // Remove any existing event handlers
         Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
@@ -54,7 +53,7 @@
         Frames.init({
             publicKey: '<?= $block->config->getAccountKeys('checkoutcom_moto')['public_key'] ?>',
             containerSelector: cardFormContainerId,
-            theme: ckoTheme,
+            theme: '<?= $block->config->getValue('form_theme') ?>',
             debugMode: '<?= $block->config->getValue('debug') ?>',
             cardValidationChanged: function(event) {
                 if (Frames.isCardValid()) {
