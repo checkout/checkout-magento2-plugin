@@ -1,19 +1,48 @@
 <fieldset class="admin__fieldset payment-method checkoutcom_moto" id="payment_form_checkoutcom_moto" style="display: none;">
-    <br>
     <div id="cko-form-holder">
-        <form id="saveCardForm" method="POST">
+        <form id="motoCardForm" method="POST">
+            <!-- Saved cards -->
+            <div id="vault-container">
+                <?php 
+                    if ($block->canDisplayCards()):
+                        $cardsList = $block->getUserCards();
+                        foreach ($cardsList as $card): 
+                            $details = json_decode($card->getTokenDetails() ?: '{}', true);
+                ?>
+                        <div id="cko-vault-card-<?= $card->getEntityId()?>" class="cko-vault-card">
+                            <div class="vault-details">
+                                <label>
+                                    <input type="radio" name="publicHash" value="<?= $card->getPublicHash()?>">
+                                    <img src="<?php /* @noEscape */ echo $block->cardHandler->getCardIcon($details['type']); ?>"
+                                        style="display:inline-block; vertical-align:-50%"
+                                    >
+                                </label>
+                                <span>
+                                    <?= $block->vaultHandler->renderTokenData($card)?>
+                                </span>
+                            </div>
+                            <div class="vault-cvv">
+                                <input type="text" name="cvv" maxlength="4" placeholder="<?= __('CVV') ?>">
+                            </div>
+                            <div class="clr"></div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+
+            <!-- Payment form -->
             <input type="hidden" id="ckoCardToken" name="ckoCardToken">
         </form>
     </div>
 </fieldset>
 
+<!-- Payment form JS -->
 <script type="text/javascript">
     require(['jquery', 'domReady!', 'framesjs'], function ($) {
         // Prepare the elements
         var cardTokenField = $('#ckoCardToken');
         var cardFormContainerId = '#cko-form-holder';
-        var paymentForm = document.getElementById('saveCardForm');
-        var ckoTheme = '';
+        var paymentForm = document.getElementById('motoCardForm');
         
         // Remove any existing event handlers
         Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
@@ -24,7 +53,7 @@
         Frames.init({
             publicKey: '<?= $block->config->getAccountKeys('checkoutcom_moto')['public_key'] ?>',
             containerSelector: cardFormContainerId,
-            theme: ckoTheme,
+            theme: '<?= $block->config->getValue('form_theme') ?>',
             debugMode: '<?= $block->config->getValue('debug') ?>',
             cardValidationChanged: function(event) {
                 if (Frames.isCardValid()) {
@@ -39,3 +68,33 @@
         });  
     });
 </script>
+
+<!-- Saved cards JS-->
+<?php if ($block->canDisplayCards()): ?>
+    <script type="text/javascript">
+        require(['jquery', 'domReady!'], function ($) {
+            // Prepare some variables
+            var listItem = $('.cko-vault-card');
+
+            // Mouse over/out behaviour
+            listItem.mouseenter(function() {
+                $(this).addClass('card-on');
+            }).mouseleave(function() {
+                $(this).removeClass('card-on');
+            });
+                          
+            // Click behaviour               
+            listItem.on('click touch', function() {
+                listItem.removeClass('card-selected');
+                listItem.not(this).find('.vault-cvv input').val('');
+                $(this).addClass('card-selected');
+                $(this).find('input[type="radio"]').attr('checked', true);
+            });        
+
+            // CVV focus event
+            $('.vault-cvv input').on('focus', function() {
+                $(this).closest(listItem).trigger('click');
+            });
+        });
+    </script>
+<?php endif; ?>

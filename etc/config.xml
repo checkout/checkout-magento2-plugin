@@ -146,6 +146,8 @@
                 <can_use_internal>1</can_use_internal>
                 <can_charge_details>1</can_charge_details>
                 <can_use_checkout>0</can_use_checkout>
+                <saved_cards_enabled>0</saved_cards_enabled>
+                <use_default_account>1</use_default_account>
                 <environment>1</environment>
                 <secret_key></secret_key>
                 <public_key></public_key>

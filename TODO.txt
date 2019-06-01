@@ -6,7 +6,7 @@ TODO
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
 - check opened/closed transactions logic
 - add dynamic descriptor handling
-- add MOTO payment with customer saved card
+- add customer source to vault payments in admin and frontend + check why current setup is rejected by gateway
 
 TASKS
 - do CLR to LF normalisation
@@ -22,6 +22,7 @@ TASKS
 - review the setPayment data in order save before and after ($response replaced py $payload)
 - split transaction handler code in smaller chunks
 - Test apple pay and google pay
+- format CSS files
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?

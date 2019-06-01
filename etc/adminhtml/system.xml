@@ -53,24 +53,6 @@
                             <config_path>settings/checkoutcom_configuration/auto_invoice</config_path>
                             <comment>If enabled, an invoice is generated automatically when a payment is captured.</comment>
                         </field>
-
-                        <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Secret Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_configuration/secret_key</config_path>
-                        </field>
-
-                        <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Public Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_configuration/public_key</config_path>
-                        </field>
-
-                        <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Private Shared Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
-                        </field>
                     </group>
                     <group id="order_settings" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Order Settings</label>
@@ -118,6 +100,26 @@
                                 <comment>The payment option will not be displayed if the shopper's order currency is not part of the currencies selected here.</comment>
                             </field>
                         </group>
+                    </group>
+                    <group id="account_settings" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Account Settings</label>
+                        <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Secret Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                            <config_path>settings/checkoutcom_configuration/secret_key</config_path>
+                        </field>
+
+                        <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Public Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                            <config_path>settings/checkoutcom_configuration/public_key</config_path>
+                        </field>
+
+                        <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Private Shared Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                            <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
+                        </field>
                     </group>
                 </group>
 
@@ -407,22 +409,44 @@
                         <config_path>payment/checkoutcom_moto/title</config_path>
                     </field>
 
+                    <field id="saved_cards_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Saved Cards Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_moto/saved_cards_enabled</config_path>
+                        <comment>Allows the use of customer saved cards for payment. Requires Vault Payments enabled.</comment>
+                    </field>
+
+                    <field id="use_default_account" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Use Default Account</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_moto/use_default_account</config_path>
+                    </field>
+
                     <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Secret Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_moto/secret_key</config_path>
+                        <depends>
+                            <field id="use_default_account">0</field>
+                        </depends>
                     </field>
 
                     <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Public Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_moto/public_key</config_path>
+                        <depends>
+                            <field id="use_default_account">0</field>
+                        </depends>
                     </field>
 
                     <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Private Shared Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_moto/private_shared_key</config_path>
+                        <depends>
+                            <field id="use_default_account">0</field>
+                        </depends>
                     </field>
 
                     <field id="sort_order" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">

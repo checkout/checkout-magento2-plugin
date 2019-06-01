@@ -284,9 +284,9 @@ class VaultHandlerService {
     /**
      * Checks if a user has saved cards.
      */
-    public function userHasCards() {
+    public function userHasCards($customerId = null) {
         // Get the card list
-        $cardList = $this->getUserCards();
+        $cardList = $this->getUserCards($customerId);
 
         // Check if the user has cards
         if (count($cardList) > 0) {
@@ -299,9 +299,9 @@ class VaultHandlerService {
     /**
      * Get a user's saved card from public hash.
      */
-    public function getCardFromHash($publicHash) {
+    public function getCardFromHash($publicHash, $customerId = null) {
         if ($publicHash) {
-            $cardList = $this->getUserCards();
+            $cardList = $this->getUserCards($customerId);
             foreach ($cardList as $card) {
                 if ($card->getPublicHash() == $publicHash) {
                     return $card;
@@ -334,12 +334,13 @@ class VaultHandlerService {
     /**
      * Get a user's saved cards.
      */
-    public function getUserCards() {
+    public function getUserCards($customerId = null) {
         // Output array
         $output = [];
 
         // Get the customer id (currently logged in user)
-        $customerId = $this->customerSession->getCustomer()->getId(); 
+        $customerId = ($customerId) ? $customerId 
+        : $this->customerSession->getCustomer()->getId(); 
 
         // Find the customer cards
         if ((int) $customerId > 0) {

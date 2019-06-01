@@ -117,7 +117,10 @@ class Config
             $publicKey = $this->getValue('public_key', $methodId);
             $secretKey = $this->getValue('secret_key', $methodId);
             $privateSharedKey = $this->getValue('private_shared_key', $methodId);
-            if (!empty($publicKey) && !empty($secretKey) && !empty($privateSharedKey)) {
+            if (!empty($publicKey)
+            && !empty($secretKey)
+            && !empty($privateSharedKey)
+            && !$this->getValue('use_default_account', $methodId)) {
                 return [
                     'public_key' => $publicKey,
                     'secretKey' => $secretKey,
