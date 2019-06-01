@@ -225,7 +225,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                     ',',
                     $this->config->getValue('accepted_currencies')
                 )
-            );
+            ) && $this->config->getValue('active', $this->_code);
         }
         
         return false;

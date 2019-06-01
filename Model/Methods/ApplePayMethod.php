@@ -134,7 +134,6 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
      * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
      * @return bool
      */
-    // Todo - move this method to abstract class as it's needed for all payment methods
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         // If the quote is valid
@@ -146,7 +145,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                     ',',
                     $this->config->getValue('accepted_currencies')
                 )
-            );
+            ) && $this->config->getValue('active', $this->_code);
         }
         
         return false;
