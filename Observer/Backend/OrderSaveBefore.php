@@ -134,7 +134,8 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $request->amount = $this->order->getGrandTotal()*100;
                 $request->reference = $this->order->getIncrementId();
                 $request->payment_ip = $this->remoteAddress->getRemoteAddress();
-                $request->customer = $this->apiHandler->createCustomer($this->order);
+                // Todo - add customer to the request
+                //$request->customer = $this->apiHandler->createCustomer($this->order);
                 if ($captureDate) {
                     $request->capture_time = $this->config->getCaptureTime();
                 }

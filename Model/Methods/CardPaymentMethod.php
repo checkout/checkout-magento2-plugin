@@ -153,7 +153,8 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
             $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
             $request->description = __('Payment request from %1', $this->config->getStoreName());
-            $request->customer = $this->apiHandler->createCustomer($this->quoteHandler->getQuote());
+            // Todo - add customer to the request
+            //$request->customer = $this->apiHandler->createCustomer($this->quoteHandler->getQuote());
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             if ($captureDate) {
                 $request->capture_time = $this->config->getCaptureTime();
