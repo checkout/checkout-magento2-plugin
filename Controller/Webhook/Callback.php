@@ -94,7 +94,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
     public function execute() {
         try {
             // Prepare the response handler
-            $response = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+            $resultFactory = $this->resultFactory->create(ResultFactory::TYPE_JSON);
 
             // Process the request
             if ($this->config->isValidAuth()) {
@@ -132,17 +132,17 @@ class Callback extends \Magento\Framework\App\Action\Action {
                 }
 
                 // Set a valid response
-                $response->setHttpResponseCode(WebResponse::HTTP_OK);
+                $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
             }
             else  {
-                $response->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
+                $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
             }
         } catch (\Exception $e) {
-            $response->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
-            $response->setData(['error_message' => $e->getMessage()]);
+            $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
+            $resultFactory->setData(['error_message' => $e->getMessage()]);
         }   
         
-        return $response;
+        return $resultFactory;
     }
 
     protected function getPayload() {
