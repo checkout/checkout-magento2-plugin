@@ -428,4 +428,21 @@ class AlternativePaymentMethod extends Method
         return $this;
     }
 
+
+    /**
+     * Check whether method is available
+     *
+     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @return bool
+     */
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        // If the quote is valid
+        if (parent::isAvailable($quote) && null !== $quote) {
+            return $this->config->getValue('active', $this->_code)
+            && count($this->config->getApms()) > 0;
+        }
+        
+        return false;
+    }
 }
