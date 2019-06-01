@@ -1,3 +1,12 @@
+/* Moto */
+#payment_form_checkoutcom_moto {
+	margin-left: 25px;
+}
+
+#cko-form-holder {
+	
+}
+
 /**
  * Vault payment
  */
@@ -17,18 +26,19 @@
 .cko-vault-card {
     border-bottom: 1px solid #ccc;
     padding: 15px;
-    cursor: pointer;
+	cursor: pointer;
+	margin-top: 15px;
 }
 
 .cko-vault-card input[type=radio] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .cko-vault-card input[type=radio] + img {
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 .cko-vault-card label img {
@@ -38,12 +48,12 @@
 }
 
 .cko-vault-card .vault-details {
-    float: left;
+    float: left !important;
 }
 
 .cko-vault-card .vault-cvv {
-    float: right;
-    width: 55px;
+    float: right !important;
+    width: 55px !important;
 }
 
 .clr {
