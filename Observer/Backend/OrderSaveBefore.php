@@ -13,7 +13,10 @@ namespace CheckoutCom\Magento2\Observer\Backend;
 use Magento\Framework\Event\Observer;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use \Checkout\Models\Payments\TokenSource;
+use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
+
+
 class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 {
     /**
@@ -40,6 +43,11 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      * @var OrderHandlerService
      */
     protected $orderHandler;
+
+    /**
+     * @var VaultHandlerService
+     */
+    protected $vaultHandler;
 
     /**
      * @var Config
@@ -75,6 +83,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
@@ -83,6 +92,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         $this->remoteAddress = $remoteAddress;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
+        $this->vaultHandler = $vaultHandler;
         $this->config = $config;
         $this->utilities = $utilities;
 
@@ -103,12 +113,12 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
         // Process the payment
         if ($this->needsMotoProcessing()) {
-            // Set the token source
-            $tokenSource = new TokenSource($this->params['ckoCardToken']);
+            // Set the source
+            $source = $this->getSource();
 
             // Set the payment
             $request = new Payment(
-                $tokenSource, 
+                $source, 
                 $this->order->getOrderCurrencyCode()
             );
 
@@ -152,5 +162,43 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         && isset($this->params['ckoCardToken'])
         && $this->methodId == 'checkoutcom_moto'
         && !$this->orderHandler->hasTransaction($this->order, Transaction::TYPE_AUTH);
+    }
+
+    /**
+     * Provide a source from request.
+     */
+    protected function getSource() {
+        if ($this->hasCardToken()) {
+            return new TokenSource($this->params['ckoCardToken']);
+        }
+        else if ($this->hasSavedCard()) {
+            $card = $this->vaultHandler->getCardFromHash($this->params['publicHash']);
+            $idSource = new IdSource($card->getGatewayToken());
+            $idSource->cvv = $this->params['cvv'];
+
+            return $idSource;
+        }
+
+        throw new \Magento\Framework\Exception\LocalizedException(
+            __('Please provide the required card information for payment.')
+        );
+    }
+
+    /**
+     * Checks if a card token is available.
+     */
+    protected function hasCardToken() {
+        return isset($this->params['ckoCardToken'])
+        && !empty($this->params['ckoCardToken']);
+    }
+
+    /**
+     * Checks if a public hash is available.
+     */
+    protected function hasSavedCard() {
+        return isset($this->params['publicHash'])
+        && !empty($this->params['publicHash'])
+        && isset($this->params['cvv'])
+        && !empty($this->params['cvv']);
     }
 }
