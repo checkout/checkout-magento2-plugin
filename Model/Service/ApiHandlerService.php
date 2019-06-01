@@ -5,7 +5,7 @@ namespace CheckoutCom\Magento2\Model\Service;
 use \Checkout\CheckoutApi;
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
-use \Checkout\Models\Payments\CustomerSource;
+use \Checkout\Models\Customer;
 
 /**
  * Class for API handler service.
@@ -126,14 +126,14 @@ class ApiHandlerService
     /**
      * Creates a customer source.
      */
-    public function createCustomerSource($entity) {
+    public function createCustomer($entity) {
         // Get the billing address
         $billingAddress = $entity->getBillingAddress();
 
         // Create the customer source
-        $customerSource = new CustomerSource($billingAddress->getEmail());
-        $customerSource->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
+        $customer = new Customer($billingAddress->getEmail());
+        $customer->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
 
-        return $customerSource;
+        return $customer;
     }
 }
