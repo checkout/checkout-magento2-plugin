@@ -198,7 +198,6 @@ class TransactionHandlerService
 
             return $transaction->getTransactionId();
         } catch (Exception $e) {
-
             return false;
         }
     }
