@@ -299,9 +299,9 @@ class VaultHandlerService {
     /**
      * Get a user's saved card from public hash.
      */
-    public function getCardFromHash($publicHash) {
+    public function getCardFromHash($publicHash, $customerId = null) {
         if ($publicHash) {
-            $cardList = $this->getUserCards();
+            $cardList = $this->getUserCards($customerId);
             foreach ($cardList as $card) {
                 if ($card->getPublicHash() == $publicHash) {
                     return $card;

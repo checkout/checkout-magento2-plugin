@@ -105,6 +105,11 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(Observer $observer)
     {
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/osave.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($this->params, 1));
+
         // Get the order
         $this->order = $observer->getEvent()->getOrder();
 
@@ -168,11 +173,14 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      * Provide a source from request.
      */
     protected function getSource() {
-        if ($this->hasCardToken()) {
+        if ($this->isCardToken()) {
             return new TokenSource($this->params['ckoCardToken']);
         }
-        else if ($this->hasSavedCard()) {
-            $card = $this->vaultHandler->getCardFromHash($this->params['publicHash']);
+        else if ($this->isSavedCard()) {
+            $card = $this->vaultHandler->getCardFromHash(
+                $this->params['publicHash'],
+                $this->order->getCustomerId()
+            );
             $idSource = new IdSource($card->getGatewayToken());
             $idSource->cvv = $this->params['cvv'];
 
@@ -187,7 +195,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     /**
      * Checks if a card token is available.
      */
-    protected function hasCardToken() {
+    protected function isCardToken() {
         return isset($this->params['ckoCardToken'])
         && !empty($this->params['ckoCardToken']);
     }
@@ -195,7 +203,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     /**
      * Checks if a public hash is available.
      */
-    protected function hasSavedCard() {
+    protected function isSavedCard() {
         return isset($this->params['publicHash'])
         && !empty($this->params['publicHash'])
         && isset($this->params['cvv'])
