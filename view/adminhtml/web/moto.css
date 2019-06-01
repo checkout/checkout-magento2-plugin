@@ -1,6 +1,6 @@
 /* Moto */
 #payment_form_checkoutcom_moto {
-	margin-left: 25px;
+	min-width: 600px;
 }
 
 #cko-form-holder {
@@ -27,7 +27,6 @@
     border-bottom: 1px solid #ccc;
     padding: 15px;
 	cursor: pointer;
-	margin-top: 15px;
 }
 
 .cko-vault-card input[type=radio] {
@@ -53,6 +52,9 @@
 
 .cko-vault-card .vault-cvv {
     float: right !important;
+}
+
+.cko-vault-card .vault-cvv input {
     width: 55px !important;
 }
 
