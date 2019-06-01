@@ -3,7 +3,6 @@ TODO
 - update transaction id for MOTO void and refund using webhook
 - add the place order API (with MADA support)
 - add shipping handling for instant payment, currently flatrate_flatrate not good
-- add customer details to payment requests
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
 - check opened/closed transactions logic
 - add dynamic descriptor handling
