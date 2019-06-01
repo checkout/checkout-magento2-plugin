@@ -5,6 +5,7 @@ namespace CheckoutCom\Magento2\Model\Service;
 use \Checkout\CheckoutApi;
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
+use \Checkout\Models\Payments\CustomerSource;
 
 /**
  * Class for API handler service.
@@ -31,6 +32,10 @@ class ApiHandlerService
      */
     protected $utilities;
 
+    /**
+     * @var QuoteHandlerService
+     */
+    protected $quoteHandler;
 
 	/**
      * Initialize the API client wrapper.
@@ -38,12 +43,14 @@ class ApiHandlerService
     public function __construct(
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     )
     {
         $this->encryptor = $encryptor;
         $this->config = $config;
         $this->utilities = $utilities;
+        $this->quoteHandler = $quoteHandler;
 
         // Load the API client with credentials.
         $this->checkoutApi = $this->loadClient();
@@ -121,5 +128,25 @@ class ApiHandlerService
      */
     public function getPaymentDetails($paymentId) {
         return $this->checkoutApi->payments()->details($paymentId);
+    }
+
+    /**
+     * Creates a customer source.
+     */
+    public function createCustomerSource() {
+        // Find the quote
+        $quote = $this->quoteHandler->getQuote();
+
+        // Get the customer email
+        $customerEmail = $this->quoteHandler->findEmail($quote);
+
+        // Get the billing address
+        $billingAddress = $this->quoteHandler->getBillingAddress();
+
+        // Create the customer source
+        $customerSource = new CustomerSource($customerEmail);
+        $customerSource->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
+
+        return $customerSource;
     }
 }
