@@ -105,11 +105,6 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/osave.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($this->params, 1));
-
         // Get the order
         $this->order = $observer->getEvent()->getOrder();
 
@@ -141,21 +136,10 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $request->capture_time = $this->config->getCaptureTime();
             }
 
-
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/orequest.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($request, 1));
-
             // Send the charge request
             $response = $this->apiHandler->checkoutApi
                 ->payments()
                 ->request($request);
-
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/oresponse.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($response, 1));
 
             // Add the response to the order
             if ($this->apiHandler->isValidResponse($response)) {
