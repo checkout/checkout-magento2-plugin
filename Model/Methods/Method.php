@@ -166,12 +166,15 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @return     Payment
      */
-    protected function createPayment(IdSource $source, int $amount, string $currency, string $reference) {
+    protected function createPayment(IdSource $source, int $amount, string $currency, string $reference, $methodId) {
 
         $payment = null;
 
         // Create payment object
         $payment = new Payment($source, $currency);
+
+        // Prepare the metadata array
+        $payment->metadata = ['methodId' => $methodId];
 
         // Set the payment specifications
         $payment->capture = $this->config->needsAutoCapture($this->_code);

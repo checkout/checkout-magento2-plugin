@@ -140,7 +140,7 @@ class AlternativePaymentMethod extends Method
 
              // Create source object
             $source = call_user_func(array($this, $method), $data);
-            $payment = $this->createPayment($source, $amount, $currency, $reference);
+            $payment = $this->createPayment($source, $amount, $currency, $reference, $this->_code);
 
             // Send the charge request
             $response = $this->apiHandler->checkoutApi->payments()
