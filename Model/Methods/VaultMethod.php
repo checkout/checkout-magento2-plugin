@@ -52,6 +52,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected $vaultHandler;
 
+    /**
+     * @var QuoteHandlerService
+     */
+    protected $quoteHandler;
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -77,6 +82,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -111,6 +117,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->vaultHandler       = $vaultHandler;
+        $this->quoteHandler       = $quoteHandler;
     }
 
 	/**
@@ -158,6 +165,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
             $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
             $request->description = __('Payment request from %1', $this->config->getStoreName());
+            $request->customer = $this->apiHandler->createCustomerSource($this->quoteHandler->getQuote());
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             if ($captureDate) {
                 $request->capture_time = $this->config->getCaptureTime();
