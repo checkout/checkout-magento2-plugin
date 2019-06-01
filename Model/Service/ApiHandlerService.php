@@ -32,25 +32,18 @@ class ApiHandlerService
      */
     protected $utilities;
 
-    /**
-     * @var QuoteHandlerService
-     */
-    protected $quoteHandler;
-
 	/**
      * Initialize the API client wrapper.
      */
     public function __construct(
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
+        \CheckoutCom\Magento2\Helper\Utilities $utilities
     )
     {
         $this->encryptor = $encryptor;
         $this->config = $config;
         $this->utilities = $utilities;
-        $this->quoteHandler = $quoteHandler;
 
         // Load the API client with credentials.
         $this->checkoutApi = $this->loadClient();
@@ -133,18 +126,12 @@ class ApiHandlerService
     /**
      * Creates a customer source.
      */
-    public function createCustomerSource() {
-        // Find the quote
-        $quote = $this->quoteHandler->getQuote();
-
-        // Get the customer email
-        $customerEmail = $this->quoteHandler->findEmail($quote);
-
+    public function createCustomerSource($entity) {
         // Get the billing address
-        $billingAddress = $this->quoteHandler->getBillingAddress();
+        $billingAddress = $entity->getBillingAddress();
 
         // Create the customer source
-        $customerSource = new CustomerSource($customerEmail);
+        $customerSource = new CustomerSource($billingAddress->getEmail());
         $customerSource->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
 
         return $customerSource;
