@@ -1,10 +1,14 @@
 <fieldset class="admin__fieldset payment-method checkoutcom_moto" id="payment_form_checkoutcom_moto" style="display: none;">
     <br>
-    <?php if ($block->canDisplayCards()) {
-        $cardsList = $block->getUserCards();
+    <?php 
+        if ($block->canDisplayCards()):
+            $cardsList = $block->getUserCards();
     ?>
         <ul>
-            <?php foreach ($cardsList as $card) { ?>
+            <?php 
+                foreach ($cardsList as $card): 
+                    $details = json_decode($card->getTokenDetails() ?: '{}', true);
+            ?>
                 <li>
                     <div class="vault-details">
                         <label>
@@ -18,10 +22,10 @@
                         </span>
                     </div>
                 </li>
-            <?php } ?>
+            <?php endforeach; ?>
         </ul>
         <br>
-    <?php } ?>
+    <?php endif; ?>
 
     <div id="cko-form-holder">
         <form id="motoCardForm" method="POST">
