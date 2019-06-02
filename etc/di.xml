@@ -21,4 +21,8 @@
     </type>
     <!-- End CSRF bypass -->
 
+    <!-- API payments interface -->
+    <preference for="CheckoutCom\Magento2\Api\PaymentInterface" type="CheckoutCom\Magento2\Model\Resource\Payment"/>
+    <!-- End API payments interface -->
+
 </config>

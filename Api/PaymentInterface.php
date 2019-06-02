@@ -8,7 +8,7 @@ interface PaymentInterface {
      *
      * @api
      * @param mixed $data.
-     * @return int
+     * @return int.
      */
     public function charge($data);
 }

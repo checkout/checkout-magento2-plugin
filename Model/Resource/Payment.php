@@ -1,5 +1,5 @@
 <?php
-namespace CheckoutCom\Magento2\Model\Api;
+namespace CheckoutCom\Magento2\Model\Resource;
  
 class Payment implements \CheckoutCom\Magento2\Api\PaymentInterface {
 
@@ -8,7 +8,7 @@ class Payment implements \CheckoutCom\Magento2\Api\PaymentInterface {
      *
      * @api
      * @param mixed $data.
-     * @return int
+     * @return int.
      */
     public function charge($data) {
 
@@ -16,6 +16,8 @@ class Payment implements \CheckoutCom\Magento2\Api\PaymentInterface {
         $logger = new \Zend\Log\Logger();
         $logger->addWriter($writer);
         $logger->info(print_r($data, 1));
+
+        return 333;
 
     }
 }
