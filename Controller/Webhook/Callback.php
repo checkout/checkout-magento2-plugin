@@ -175,10 +175,6 @@ class Callback extends \Magento\Framework\App\Action\Action {
     
         } catch (\Exception $e) {
 
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/savecard.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($e->getMessage(), 1));
 
         }     
     }
