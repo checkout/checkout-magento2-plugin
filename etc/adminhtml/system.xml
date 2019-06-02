@@ -53,6 +53,28 @@
                             <config_path>settings/checkoutcom_configuration/auto_invoice</config_path>
                             <comment>If enabled, an invoice is generated automatically when a payment is captured.</comment>
                         </field>
+
+                        <field id="dynamic_decriptor_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Enable Dynamic Descriptor</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>settings/checkoutcom_configuration/dynamic_decriptor_enabled</config_path>
+                        </field>
+
+                        <field id="decriptor_name" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Descriptor Name</label>
+                            <depends>
+                                <field id="dynamic_decriptor_enabled">1</field>
+                            </depends>
+                            <config_path>settings/checkoutcom_configuration/decriptor_name</config_path>
+                        </field>
+
+                        <field id="decriptor_city" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Descriptor City</label>
+                            <depends>
+                                <field id="dynamic_decriptor_enabled">1</field>
+                            </depends>
+                            <config_path>settings/checkoutcom_configuration/decriptor_city</config_path>
+                        </field>
                     </group>
                     <group id="order_settings" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Order Settings</label>
@@ -179,28 +201,6 @@
                         <comment>
                             Add a flag to the charge request if the payment card is MADA.
                         </comment>
-                    </field>
-
-                    <field id="dynamic_decriptor_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Enable Dynamic Descriptor</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/dynamic_decriptor_enabled</config_path>
-                    </field>
-
-                    <field id="decriptor_name" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Descriptor Name</label>
-                        <depends>
-                            <field id="dynamic_decriptor_enabled">1</field>
-                        </depends>
-                        <config_path>payment/checkoutcom_card_payment/decriptor_name</config_path>
-                    </field>
-
-                    <field id="decriptor_city" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Descriptor City</label>
-                        <depends>
-                            <field id="dynamic_decriptor_enabled">1</field>
-                        </depends>
-                        <config_path>payment/checkoutcom_card_payment/decriptor_city</config_path>
                     </field>
                 </group>
 
