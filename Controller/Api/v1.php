@@ -37,15 +37,15 @@ class v1 extends \Magento\Framework\App\Action\Action {
             $resultFactory = $this->resultFactory->create(ResultFactory::TYPE_JSON);
 
             // Process the request
-            //if ($this->config->isValidAuth()) {
+            if ($this->config->isValidAuth()) {
 
 
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
-            /*}
+            }
             else  {
                 $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
-            }*/
+            }
         } catch (\Exception $e) {
             $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
             $resultFactory->setData(['error_message' => $e->getMessage()]);
