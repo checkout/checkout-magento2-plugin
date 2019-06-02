@@ -172,13 +172,14 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Billing descriptor
+            /*
             if ($this->config->needsDynamicDescriptor()) {
                 $request->billing_descriptor = new BillingDescriptor(
                     $this->getValue('descriptor_name'),
                     $this->getValue('descriptor_city')
                 );
             }
-
+            */
 
             // Send the charge request
             $response = $this->apiHandler->checkoutApi
