@@ -38,17 +38,7 @@ class v1 extends \Magento\Framework\App\Action\Action {
 
             // Process the request
             //if ($this->config->isValidAuth()) {
-    
-                $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/api.log');
-                $logger = new \Zend\Log\Logger();
-                $logger->addWriter($writer);
-                $logger->info(print_r($this->payload, 1));
 
-
-                $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/ispost.log');
-                $logger = new \Zend\Log\Logger();
-                $logger->addWriter($writer);
-                $logger->info(print_r($this->request->isPost(), 1));
 
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
