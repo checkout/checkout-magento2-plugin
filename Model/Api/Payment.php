@@ -1,5 +1,5 @@
 <?php
-namespace CheckoutCom\Magento2\Model\Resource;
+namespace CheckoutCom\Magento2\Model\Api;
  
 class Payment implements \CheckoutCom\Magento2\Api\PaymentInterface {
 
