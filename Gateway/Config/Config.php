@@ -52,7 +52,8 @@ class Config
         $privateSharedKey = $this->getValue('private_shared_key');
 
         // Return the validity check
-        return $authorization == $privateSharedKey;
+        return $authorization == $privateSharedKey
+        && $this->request->isPost();
     }
 
     /**

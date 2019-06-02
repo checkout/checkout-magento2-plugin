@@ -20,5 +20,4 @@
         <plugin name="csrf_validator_skip" type="CheckoutCom\Magento2\Plugin\CsrfValidatorSkip" />
     </type>
     <!-- End CSRF bypass -->
-
 </config>
