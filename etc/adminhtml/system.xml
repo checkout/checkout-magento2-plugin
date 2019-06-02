@@ -54,26 +54,26 @@
                             <comment>If enabled, an invoice is generated automatically when a payment is captured.</comment>
                         </field>
 
-                        <field id="dynamic_decriptor_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="dynamic_descriptor_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Enable Dynamic Descriptor</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                            <config_path>settings/checkoutcom_configuration/dynamic_decriptor_enabled</config_path>
+                            <config_path>settings/checkoutcom_configuration/dynamic_descriptor_enabled</config_path>
                         </field>
 
-                        <field id="decriptor_name" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="descriptor_name" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Descriptor Name</label>
                             <depends>
-                                <field id="dynamic_decriptor_enabled">1</field>
+                                <field id="dynamic_descriptor_enabled">1</field>
                             </depends>
-                            <config_path>settings/checkoutcom_configuration/decriptor_name</config_path>
+                            <config_path>settings/checkoutcom_configuration/descriptor_name</config_path>
                         </field>
 
-                        <field id="decriptor_city" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="descriptor_city" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Descriptor City</label>
                             <depends>
-                                <field id="dynamic_decriptor_enabled">1</field>
+                                <field id="dynamic_descriptor_enabled">1</field>
                             </depends>
-                            <config_path>settings/checkoutcom_configuration/decriptor_city</config_path>
+                            <config_path>settings/checkoutcom_configuration/descriptor_city</config_path>
                         </field>
                     </group>
                     <group id="order_settings" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">

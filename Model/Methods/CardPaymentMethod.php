@@ -5,7 +5,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
-
+use \Checkout\Models\Payments\BillingDescriptor;
 class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
 	/**
@@ -170,6 +170,15 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $request->metadata['saveCard'] = true;
                 $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
             }
+
+            // Billing descriptor
+            if ($this->config->needsDynamicDescriptor()) {
+                $request->billing_descriptor = new BillingDescriptor(
+                    $this->getValue('descriptor_name'),
+                    $this->getValue('descriptor_city')
+                );
+            }
+
 
             // Send the charge request
             $response = $this->apiHandler->checkoutApi

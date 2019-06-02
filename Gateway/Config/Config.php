@@ -213,6 +213,17 @@ class Config
     }
 
     /**
+     * Determines if dynamic descriptors are available.
+     *
+     * @return bool
+     */
+    public function needsDynamicDescriptor() {
+        return $this->getValue('dynamic_descriptor_enabled')
+        && !empty($this->getValue('descriptor_name'))
+        && !empty($this->getValue('descriptor_city'));
+    }
+
+    /**
      * Get the MADA BIN file.
      *
      * @return bool
