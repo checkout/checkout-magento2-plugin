@@ -5,7 +5,6 @@ TODO
 - add shipping handling for instant payment, currently flatrate_flatrate not good
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
 - check opened/closed transactions logic
-- add dynamic descriptor handling
 - add customer source to vault payments in admin and frontend + card payments
 
 TASKS
