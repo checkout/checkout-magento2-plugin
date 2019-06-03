@@ -7,9 +7,9 @@
                 <fields_hidden>secret_key,private_shared_key,email_cookie_name</fields_hidden>
                 <active>1</active>
                 <debug>0</debug>
-                <file_logging>0<file_logging>
-                <console_logging>0<console_logging>
-                <gateway_responses>0<gateway_responses>
+                <file_logging>0</file_logging>
+                <console_logging>0</console_logging>
+                <gateway_responses>0</gateway_responses>
                 <environment>1</environment>
                 <secret_key></secret_key>
                 <public_key></public_key>
