@@ -56,7 +56,6 @@ define([
                         type: "POST",
                         url: Utilities.getUrl('apm/display'),
                         success: function(data) {
-                            Utilities.log(data);
                             $('#apm-container').append(data.html)
                             .accordion({
                                 heightStyle: 'content',
@@ -94,7 +93,7 @@ define([
                         data[e.name] = e.value;
                     });
 
-
+                    // Place the order
                     if (AdditionalValidators.validate() && $form.valid() && this.custom(data)) {
                         Utilities.placeOrder(
                             data,
