@@ -52,6 +52,11 @@ class OrderHandlerService
     protected $transactionHandler;
      
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * @var String
      */
     protected $methodId;
@@ -73,7 +78,8 @@ class OrderHandlerService
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     )
     {
         $this->checkoutSession = $checkoutSession;
@@ -85,6 +91,7 @@ class OrderHandlerService
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
         $this->transactionHandler = $transactionHandler;
+        $this->logger = $logger;
     }
 
     /**
@@ -98,44 +105,44 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function placeOrder($reservedIncrementId = '', $paymentData = null)
+    public function handleOrder($reservedIncrementId = '', $isWebhook = false)
     {
         if ($this->methodId) {
             try {
-                //  Prepare a fields filter
-                $filters = ['reserved_order_id' => $reservedIncrementId];
-
                 // Check if the order exists
-                $order = $this->getOrder($filters);
+                $order = $this->getOrder(
+                    ['increment_id' => $reservedIncrementId]
+                );
 
                 // Create the order
                 if (!$this->isOrder($order)) {
                     // Prepare the quote
-                    $quote = $this->quoteHandler->prepareQuote($filters, $this->methodId);
+                    $quote = $this->quoteHandler->prepareQuote(
+                        ['reserved_order_id' => $reservedIncrementId],
+                        $this->methodId,
+                        $isWebhook
+                    );
+
+                    // Process the quote
                     if ($quote) {
                         // Create the order
                         $order = $this->quoteManagement->submit($quote);
-
-                        // Create the authorization transaction
-                        $this->transactionHandler->createTransaction
-                        (
-                            $order,
-                            Transaction::TYPE_AUTH,
-                            $paymentData
-                        );
                     }
+
+                    // Return the saved order
+                    $order = $this->orderRepository->save($order);
                 }
 
-                // Return the saved order
-                $order = $this->orderRepository->save($order);
-
                 // Perform after place order tasks
-                $order = $this->afterPlaceOrder($quote, $order);
+                if (!$isWebhook) {
+                    $order = $this->afterPlaceOrder($quote, $order);
+                }
 
                 return $order;
 
             } catch (\Exception $e) {
-                return false;
+                $this->logger->write($e->getMessage());
+                return null;
             }
         }
         else {
@@ -150,10 +157,15 @@ class OrderHandlerService
      */
     public function isOrder($order)
     {
-        return $order
-        && is_object($order)
-        && method_exists($order, 'getId')
-        && $order->getId() > 0;
+        try {
+            return $order
+            && is_object($order)
+            && method_exists($order, 'getId')
+            && $order->getId() > 0;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -164,7 +176,8 @@ class OrderHandlerService
         try {
             return $this->findOrderByFields($fields);
         } catch (\Exception $e) {
-            return false;
+            $this->logger->write($e->getMessage());
+            return null;
         }
     }
 
@@ -192,7 +205,8 @@ class OrderHandlerService
             return $order;
         }
         catch (\Exception $e) {
-            return false;
+            $this->logger->write($e->getMessage());
+            return null;
         }
     }
 
@@ -215,7 +229,8 @@ class OrderHandlerService
 
             return $order;
         } catch (\Exception $e) {
-            return false;
+            $this->logger->write($e->getMessage());
+            return null;
         }
     }
 
@@ -224,12 +239,17 @@ class OrderHandlerService
      */
     public function hasTransaction($order, $transactionType)
     {
-        // Get the auth transactions
-        $transactions = $this->transactionHandler->getTransactions(
-            $order,
-            $transactionType
-        );
+        try {
+            // Get the auth transactions
+            $transactions = $this->transactionHandler->getTransactions(
+                $order,
+                $transactionType
+            );
 
-        return count($transactions) > 0 ? true : false;
+            return count($transactions) > 0 ? true : false;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }
     }
 }

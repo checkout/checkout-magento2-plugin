@@ -1,15 +1,34 @@
-- add web hook handling feature
-- add instant payments feature
-- add void, and refund to orders 
-- add MADA payment card bin check
-- add order status actions for capture, refund, void, flagged
-- add APMs forms and payment requests
-- check issue with default button state
 
+TODO
+- update transaction id for MOTO void and refund using webhook
+- add the place order API (with MADA support)
+- add shipping handling for instant payment, currently flatrate_flatrate not good
+- set the payment type in all requests "Regular" "Recurring" "MOTO"
+- check opened/closed transactions logic
+- add customer source to vault payments in admin and frontend + card payments
+- Payment methods need exception handling
+- Handle 3ds redirection for save card from account
+- Implement gateway responses display
+
+TASKS
+- do CLR to LF normalisation
+- move common payment method functions to an abstract class
+- update git ignore
+- check deleted vault cards not removed from db
+- check all translation strings
+- Add instant purchase note in order somewhere
+- move strings to constants and centralize definitions
+- move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
+- delegate all response checks to API handler isValidResponse($respoonse), especially APM method
+- check multiple transactions storage logic in order payment details
+- review the setPayment data in order save before and after ($response replaced py $payload)
+- split transaction handler code in smaller chunks
+- Test apple pay and google pay
+- format CSS files
+- update the apple pay fields with jon's suggestions
+- check todo tags in the code base
+
+OPTIONAL
+- add advanced Frames localisation and style parameters?
 - check after multiple failed requests (add idempotency?)
-- add  guest user email Retrieval for checkout
-- add vault feature
 - add MOTO partial capture feature?
-
-SDK
-- fix typo in sdk  => 'The endpoint did not accepted the request' 

@@ -27,9 +27,29 @@ class Moto extends \Magento\Payment\Block\Form\Cc
     protected $paymentModelConfig;
  
     /**
+     * @var Quote
+     */
+    protected $adminQuote;
+
+    /**
      * @var Config
      */
     public $config;
+
+    /**
+     * @var VaultHandlerService
+     */
+    public $vaultHandler;
+
+    /**
+     * @var CardHandlerService
+     */
+    public $cardHandler;
+
+    /**
+     * @var Logger
+     */
+    protected $logger;
 
     /**
      * Moto constructor.
@@ -37,12 +57,20 @@ class Moto extends \Magento\Payment\Block\Form\Cc
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Payment\Model\Config $paymentModelConfig,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \Magento\Backend\Model\Session\Quote $adminQuote,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context, $paymentModelConfig);
         
         $this->_template = 'CheckoutCom_Magento2::payment/moto.phtml';
+        $this->adminQuote = $adminQuote;
         $this->config = $config;
+        $this->vaultHandler = $vaultHandler;
+        $this->cardHandler = $cardHandler;
+        $this->logger = $logger;
     }
 
     /**
@@ -52,7 +80,49 @@ class Moto extends \Magento\Payment\Block\Form\Cc
      */
     protected function _toHtml()
     {
-        $this->_eventManager->dispatch('payment_form_block_to_html_before', ['block' => $this]);
-        return parent::_toHtml();
+        try {
+            $this->_eventManager->dispatch('payment_form_block_to_html_before', ['block' => $this]);
+            return parent::_toHtml();
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Checks if saved cards can be displayed.
+     *
+     * @return bool
+     */
+    public function canDisplayCards() {
+        try {
+            // Get the customer id
+            $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();
+
+            // Return the check result
+            return $this->config->getValue('saved_cards_enabled', 'checkoutcom_moto')
+            && $this->vaultHandler->userHasCards($customerId);
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get the saved cards for a customer.
+     *
+     * @return bool
+     */
+    public function getUserCards() {
+        try {
+            // Get the customer id
+            $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();
+
+            // Return the cards list
+            return $this->vaultHandler->getUserCards($customerId);
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return [];
+        }
     }
 }

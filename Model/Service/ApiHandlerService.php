@@ -3,6 +3,9 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use \Checkout\CheckoutApi;
+use \Checkout\Models\Payments\Refund;
+use \Checkout\Models\Payments\Voids;
+use \Checkout\Models\Customer;
 
 /**
  * Class for API handler service.
@@ -24,16 +27,30 @@ class ApiHandlerService
      */
     public $checkoutApi;
 
+    /**
+     * @var Utilities
+     */
+    protected $utilities;
+
+    /**
+     * @var Logger
+     */
+    protected $logger;
+
 	/**
      * Initialize the API client wrapper.
      */
     public function __construct(
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     )
     {
         $this->encryptor = $encryptor;
         $this->config = $config;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
 
         // Load the API client with credentials.
         $this->checkoutApi = $this->loadClient();
@@ -43,19 +60,114 @@ class ApiHandlerService
      * Load the API client.
      */
     private function loadClient() {
-        return new CheckoutApi(
-            $this->config->getValue('secret_key'),
-            $this->config->getValue('environment'),
-            $this->config->getValue('public_key')
-        );        
+        try {
+            return new CheckoutApi(
+                $this->config->getValue('secret_key'),
+                $this->config->getValue('environment'),
+                $this->config->getValue('public_key')
+            );        
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }   
     }
 
     /**
      * Checks if a response is valid.
      */
     public function isValidResponse($response) {
-        return is_object($response)
-        && method_exists($response, 'isSuccessful')
-        && $response->isSuccessful();
+        try {
+            return is_object($response)
+            && method_exists($response, 'isSuccessful')
+            && $response->isSuccessful();
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }   
+    }
+
+    /**
+     * Voids a transaction.
+     */
+    public function voidTransaction($payment) {
+        try {
+            // Get the order
+            $order = $payment->getOrder();
+
+            // Get the payment info
+            $paymentInfo = $this->utilities->getPaymentData($order);
+
+            // Process the void request
+            if (isset($paymentInfo['id'])) {
+                $request = new Voids($paymentInfo['id']);
+                $response = $this->checkoutApi
+                    ->payments()
+                    ->void($request);
+
+                return $response;
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }   
+    }
+
+    /**
+     * Refunds a transaction.
+     */
+    public function refundTransaction($payment, $amount) {
+        try {
+            // Get the order
+            $order = $payment->getOrder();
+
+            // Get the payment info
+            $paymentInfo = $this->utilities->getPaymentData($order);
+
+            // Process the void request
+            if (isset($paymentInfo['id'])) {
+                $request = new Refund($paymentInfo['id']);
+                $request->amount = $amount*100;
+                $response = $this->checkoutApi
+                    ->payments()
+                    ->refund($request);
+
+                return $response;
+            }
+
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }   
+    }
+
+    /**
+     * Gets payment details.
+     */
+    public function getPaymentDetails($paymentId) {
+        try {
+            return $this->checkoutApi->payments()->details($paymentId);
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }  
+    }
+
+    /**
+     * Creates a customer source.
+     */
+    public function createCustomer($entity) {
+        try {
+            // Get the billing address
+            $billingAddress = $entity->getBillingAddress();
+
+            // Create the customer source
+            $customer = new Customer($billingAddress->getEmail());
+            $customer->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
+
+            return $customer;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }  
     }
 }

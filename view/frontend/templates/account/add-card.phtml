@@ -14,7 +14,11 @@
 </button>
 
 <script type="text/javascript">
-    require(['jquery', 'domReady!', 'framesjs'], function ($) {
+    require([
+        'jquery',
+        'domReady!',
+        'framesjs'
+    ], function ($) {
         // Prepare the elements
         var saveCardButton = $('#ckoSaveCard');
         var showFormButton = $('#ckoShowForm');
@@ -24,15 +28,12 @@
         var paymentForm = document.getElementById('saveCardForm');
         var ckoTheme = '';
         
-        // Todo - Connect the  debug mode to config
-        var ckoDebugMode = false;
-
         // Initialize the embedded form
         Frames.init({
             publicKey: ckoPublicKey,
             containerSelector: cardFormContainerId,
             theme: ckoTheme,
-            debugMode: ckoDebugMode,
+            debugMode: '<?= ($block->config->getValue('debug') && $block->config->getValue('console_logging')); ?>',
             frameActivated: function () {
                 saveCardButton.attr("disabled", true);
             },
@@ -64,8 +65,8 @@
             // Disable the save button
             saveCardButton.attr("disabled", true);
 
-            // Prevent default events
-            event.preventDefault();
+            // Start the loader
+            $('body').trigger('processStart');
 
             // Send the request
             $.ajax({
@@ -74,20 +75,18 @@
                 data: {cardToken: cardTokenField.val()},
                 success: function (data) {
                     if (!data.success) {
-                        //FullScreenLoader.stopLoader();
+                        // Todo - handle error message display
+                        $('body').trigger('processStop');
                         //self.showMessage('error', data.message);
                     }
                     else if (data.success && data.url) {
-                        // Handle 3DS redirection
-                        //window.location.href = data.url
-                    }
-                    else {
-                        // Normal redirection
-                        //RedirectOnSuccessAction.execute();
+                        // Todo - handle3 DS redirection
+                        window.location.href = data.url
                     }
                 },
                 error: function (request, status, error) {
-                    //FullScreenLoader.stopLoader();
+                   // Todo - handle error message display
+                   $('body').trigger('processStop');
                    // self.showMessage('error', error);
                 }
             });

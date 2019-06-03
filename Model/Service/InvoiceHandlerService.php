@@ -27,51 +27,44 @@ class InvoiceHandlerService
     protected $order;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * InvoiceHandlerService constructor.
      */
     public function __construct(
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
-    	\CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->invoiceService     = $invoiceService;
         $this->invoiceRepository  = $invoiceRepository;
         $this->config             = $config;
+        $this->logger             = $logger;
     }
 
+    /**
+     * Check if the invoice can be created.
+     */
     public function processInvoice($order)
     {
-        // Assign the order
-        $this->order = $order;
-
-        // Check invoicing available
-        if ($this->shouldInvoice()) {
-            $this->createInvoice();
-        }
-    }
-
-    public function shouldInvoice()
-    {
         try {
-    
-            // Get the method id
-            $methodId = $this->order->getPayment()
-                ->getMethodInstance()
-                ->getCode();
-
-            // Get the auto generate invoice setting
-            $autoGenerateInvoice = $this->config->getValue(
-                'auto_generate_invoice',
-                $methodId
-            );    
-
-            // Return the test
-            return ($this->order->canInvoice() && $autoGenerateInvoice);
+            $this->order = $order;
+            if ($this->order->canInvoice()) {
+                return $this->createInvoice();
+            }
         } catch (\Exception $e) {
-            return false;
-        }
+            $this->logger->write($e->getMessage());
+            return null;
+        }   
     }
 
+    /**
+     * Create the invoice.
+     */
     public function createInvoice()
     {
         try {
@@ -83,7 +76,8 @@ class InvoiceHandlerService
             // Save the invoice
             $this->invoiceRepository->save($invoice);
         } catch (\Exception $e) {
-
+            $this->logger->write($e->getMessage());
+            return null;
         }
     }
 }

@@ -6,16 +6,16 @@ define([
         'mage/url',
         'Magento_Checkout/js/action/redirect-on-success',
         'Magento_Checkout/js/model/full-screen-loader',
-        'mage/cookies',
+        'mage/translate',
+        'mage/cookies'
     ],
-    function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction, FullScreenLoader) {
+    function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction, FullScreenLoader, __) {
         'use strict';
 
         const KEY_CONFIG = 'checkoutcom_configuration';
         const KEY_DATA = 'checkoutcom_data';
 
         return {
-
             /**
              * Gets a field value.
              *
@@ -23,9 +23,9 @@ define([
              * @param      {string}  field    The field
              * @return     {mixed}            The value
              */
-            getValue: function(methodId, field) { 
+            getValue: function(methodId, field) {
                 var val = null;
-                if (Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
+                if (methodId && Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
                     val = Config[methodId][field]
                 }
                 else if (Config.hasOwnProperty(KEY_CONFIG) && Config[KEY_CONFIG].hasOwnProperty(field)) {
@@ -74,7 +74,7 @@ define([
                         last_name: billingAddress.lastname
                     };
 
-                if(!obj) {
+                if (!obj) {
                     name = name.first_name + ' ' + name.last_name
                 }
 
@@ -98,6 +98,16 @@ define([
             },
 
             /**
+             * @returns {void}
+             */
+            setEmail: function() {
+                $.cookie(
+                    this.getValue('email_cookie_name'),
+                    this.getEmail()
+                );
+            },
+
+            /**
              * @returns {object}
              */
             getPhone: function () {
@@ -106,6 +116,16 @@ define([
                 return {
                     number: billingAddress.telephone
                 };
+            },
+
+            /**
+             * @returns {bool}
+             */
+            log: function (val) {
+                if (this.getValue(null, 'debug')
+                && this.getValue(null, 'console_logging')) {
+                    console.log(val);
+                }
             },
 
             /**
@@ -119,7 +139,7 @@ define([
                 this.clearMessages();
                 var messageContainer = $('.message');
                 messageContainer.addClass('message-' + type + ' ' + type);
-                messageContainer.append('<div>' + message + '</div>');
+                messageContainer.append('<div>' + __(message) + '</div>');
                 messageContainer.show();
             },
 
@@ -137,6 +157,10 @@ define([
                 return pattern.test(str);
             },
 
+            allowPlaceOrder: function (buttonId, yesNo) {
+                $('#' + buttonId).prop('disabled', !yesNo);
+            },
+
             /**
              * HTTP handlers
              */
@@ -150,7 +174,7 @@ define([
 
                 // Start the loader
                 FullScreenLoader.startLoader();
-                
+
                 // Send the request
                 $.ajax({
                     type: 'POST',
@@ -171,8 +195,8 @@ define([
                         }
                     },
                     error: function (request, status, error) {
-                        FullScreenLoader.stopLoader();
                         self.showMessage('error', error);
+                        FullScreenLoader.stopLoader();
                     }
                 });
             }

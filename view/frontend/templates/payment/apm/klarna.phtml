@@ -1,0 +1,108 @@
+<div data-role="collapsible" id="<?= $block->getData('apm_id')?>" class="cko-apm <?= $block->getData('apm_id')?>">
+    <div data-role="trigger">
+		<span class="bg-<?= $block->getData('apm_id')?> bg-apm"></span>
+        <span><?= $block->getData('title')?></span>
+    </div>
+</div>
+<div data-role="content" class="apm-content <?= $block->getData('apm_id')?>" id="body-<?= $block->getData('apm_id')?>">
+    <form id="cko-apm-form-<?= $block->getData('apm_id')?>">
+        <input type="hidden" name="source" value="<?= $block->getData('apm_id')?>" required>
+        <input type="hidden" id="cko-apm-form-klarna-key" name="authorization_token" value="" required>
+    </form>
+    <div id="klarna_container" align="center">Cound not load Klarna script.</div>
+
+    <script type="text/javascript">
+
+        /**
+         * Klarna controller
+         */
+        require(['jquery', 'domReady!'], function ($) {
+
+            // Prepare the form id
+            var klarnaForm = $('#cko-apm-form-<?= $block->getData('apm_id')?>');
+
+            /**
+             * Wait for klarna to be ready
+             */
+            window.klarnaAsyncCallback = function () {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '<?= $block->getUrl('checkout_com/apm/displayklarna')?>',
+                    data: {},
+                    success: function (data) {
+
+                        $("#klarna_container").html("");
+
+                        var methods = [];
+                        data.source.payment_method_categories.forEach(function(el, index) {
+                            methods.push(el.identifier);
+                        });
+
+                        if(methods.length) {
+
+                            try {
+
+                                Klarna.Payments.init({client_token: data.source.client_token}); // Initialize Klarna
+                                Klarna.Payments.load({  container:                  "#klarna_container",
+                                                        payment_method_categories:  methods,
+                                                        instance_id:                "klarna-payments-instance"},
+                                    {
+                                        purchase_country:   data.billing.country,
+                                        purchase_currency:  data.quote.quote_currency_code,
+                                        locale:             data.locale,
+                                        order_amount:       parseInt(data.quote.grand_total) *100,
+                                        order_tax_amount:   parseInt(data.tax_amount) *100,
+                                        order_lines:        data.products,
+                                        billing_address:    {   given_name:     data.billing.firstname,
+                                                                family_name:    data.billing.lastname,
+                                                                email:          data.billing.email,
+                                                                //title:          data.billing.email,
+                                                                street_address: data.billing.street,
+                                                                //street_address2:          data.billing.email,
+                                                                postal_code:    data.billing.postcode,
+                                                                city:           data.billing.city,
+                                                                region:         data.billing.region,
+                                                                phone:          data.billing.phone,
+                                                                country:        data.billing.country_id.toLowerCase()
+
+                                        }
+                                    },
+                                    function (response) {
+
+                                        console.log('success', response);
+
+                                        if(!response.show_form) {
+                                            $('#klarna').remove();
+                                            $('#body-klarna').remove();
+                                        }
+
+                                    }
+                                );
+
+                            } catch (e) {
+
+                                //@todo: handle error
+                                console.log('error', e);
+
+                            }
+
+                        } else {
+                            $('#klarna').remove();
+                            $('#body-klarna').remove();
+                        }
+
+
+                    },
+                    error: function (request, status, error) {
+                        //@todo: handle error
+                        console.log(error);
+                    }
+                });
+
+            };
+
+        });
+    </script>
+	<script src="https://x.klarnacdn.net/kp/lib/v1/api.js" async></script>
+</div>

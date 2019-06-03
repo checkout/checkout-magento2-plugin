@@ -2,7 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
     <router id="standard">
         <route id="checkoutcom" frontName="checkout_com">
-            <module name="CheckoutCom_Magento2" />
+            <module name="CheckoutCom_Magento2" before="Magento_InstantPurchase"/>
         </route>
     </router>
 </config>

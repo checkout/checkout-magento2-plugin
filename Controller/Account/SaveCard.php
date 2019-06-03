@@ -13,48 +13,77 @@ namespace CheckoutCom\Magento2\Controller\Account;
 class SaveCard extends \Magento\Framework\App\Action\Action {
 
     /**
+     * @var JsonFactory
+     */
+    protected $jsonFactory;
+
+    /**
+     * @var UrlInterface
+     */
+    protected $urlInterface;
+
+    /**
      * @var VaultHandlerService
      */
     protected $vaultHandler;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * SaveCard constructor.
-     * @param Context $context
-     * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
+        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
+        \Magento\Framework\UrlInterface $urlInterface,
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
+
+        $this->jsonFactory = $jsonFactory;
+        $this->urlInterface = $urlInterface;
         $this->vaultHandler = $vaultHandler;
+        $this->logger = $logger;
     }
 
     /**
      * Handles the controller method.
-     *
-     * Saves the credit card
-     * @return \Magento\Framework\App\ResponseInterface
      */
     public function execute() {
-        // Get the card token from request
+        // Prepare the parameters
+        $success = false;
+        $url = $this->urlInterface->getUrl('vault/cards/listaction');
+        $message = __('The card could not be saved.');
         $ckoCardToken = $this->getRequest()->getParam('cardToken');
 
-        // Save the card
+        // Process the request
         try {
-            $this->vaultHandler
-                 ->setCardToken($ckoCardToken)
-                 ->setCustomerId()
-                 ->setCustomerEmail()
-                 ->authorizeTransaction()
-                 ->saveCard();
+            if ($this->getRequest()->isAjax() && !empty($ckoCardToken)) {
+                // Save the card
 
-            $this->messageManager->addSuccessMessage(__('The payment card has been stored successfully.') );
+                    $success = $this->vaultHandler
+                    ->setCardToken($ckoCardToken)
+                    ->setCustomerId()
+                    ->setCustomerEmail()
+                    ->authorizeTransaction()
+                    ->saveCard();
+
+                    $this->messageManager->addSuccessMessage(__('The payment card has been stored successfully.'));
+
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            // Build the AJAX response
+            return $this->jsonFactory->create()->setData([
+                'success' => $success,
+                'message' => $message,
+                'url' => $url
+            ]);
         }
-        catch(\Exception $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
-        }
-        
-        return $this->_redirect('vault/cards/listAction');
     }
 }

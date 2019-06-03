@@ -2,11 +2,11 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Models\Payments\TokenSource;
+use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 
-class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
+class VaultMethod extends Method
 {
 
 	/**
@@ -20,33 +20,34 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected $_code = self::CODE;
 
-    protected $_isInitializeNeeded = true;
-    protected $_isGateway = true;
-    protected $_canAuthorize = true;
-    protected $_canCapture = true;
-    protected $_canCancel = true;
-    protected $_canCapturePartial = true;
-    protected $_canVoid = true;
-    protected $_canUseInternal = false;
-    protected $_canUseCheckout = true;
-    protected $_canRefund = true;
-    protected $_canRefundInvoicePartial = true;
+    /**
+     * @var VaultHandlerService
+     */
+    protected $vaultHandler;
 
     /**
-     * @var RemoteAddress
+     * Magic Methods.
      */
-    protected $remoteAddress;
 
     /**
-     * @var Config
+     * Constructor.
+     *
+     * @param      \Magento\Framework\Model\Context                         $context                 The context
+     * @param      \Magento\Framework\Registry                              $registry                The registry
+     * @param      \Magento\Framework\Api\ExtensionAttributesFactory        $extensionFactory        The extension factory
+     * @param      \Magento\Framework\Api\AttributeValueFactory             $customAttributeFactory  The custom attribute factory
+     * @param      \Magento\Payment\Helper\Data                             $paymentData             The payment data
+     * @param      \Magento\Framework\App\Config\ScopeConfigInterface       $scopeConfig             The scope configuration
+     * @param      \Magento\Payment\Model\Method\Logger                     $logger                  The logger
+     * @param      \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress     $remoteAddress           The remote address
+     * @param      \CheckoutCom\Magento2\Gateway\Config\Config              $config                  The configuration
+     * @param      \CheckoutCom\Magento2\Model\Service\ApiHandlerService    $apiHandler              The api handler
+     * @param      \CheckoutCom\Magento2\Model\Service\QuoteHandlerService  $quoteHandler            The quote handler
+     * @param      \CheckoutCom\Magento2\Model\Service\CardHandlerService   $cardHandler             The card handler
+     * @param      \Magento\Framework\Model\ResourceModel\AbstractResource  $resource                The resource
+     * @param      \Magento\Framework\Data\Collection\AbstractDb            $resourceCollection      The resource collection
+     * @param      array                                                    $data                    The data
      */
-    protected $config;
-
-    /**
-     * @var ApiHandlerService
-     */
-    protected $apiHandlerService;
-
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -55,26 +56,16 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Payment\Helper\Data $paymentData,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\ObjectManagerInterface $objectManager,
-        \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
-        \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Checkout\Helper\Data $checkoutData,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \Magento\Quote\Api\CartManagementInterface $quoteManagement,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Magento\Backend\Model\Session\Quote $sessionQuote,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
+
         parent::__construct(
             $context,
             $registry,
@@ -83,42 +74,62 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $paymentData,
             $scopeConfig,
             $logger,
+            $remoteAddress,
+            $config,
+            $apiHandler,
+            $quoteHandler,
             $resource,
             $resourceCollection,
             $data
         );
-        $this->urlBuilder         = $urlBuilder;
-        $this->backendAuthSession = $backendAuthSession;
-        $this->cart               = $cart;
-        $this->_objectManager     = $objectManager;
-        $this->invoiceSender      = $invoiceSender;
-        $this->transactionFactory = $transactionFactory;
-        $this->customerSession    = $customerSession;
-        $this->checkoutSession    = $checkoutSession;
-        $this->checkoutData       = $checkoutData;
-        $this->quoteRepository    = $quoteRepository;
-        $this->quoteManagement    = $quoteManagement;
-        $this->orderSender        = $orderSender;
-        $this->sessionQuote       = $sessionQuote;
 
-        $this->remoteAddress      = $remoteAddress;
-        $this->config             = $config;
-        $this->apiHandler         = $apiHandler;
+        $this->vaultHandler = $vaultHandler;
+
     }
 
-	/**
-     * Send a charge request.
+
+    /**
+     * Methods
      */
-    public function sendPaymentRequest($cardToken, $amount, $currency, $reference = '') {
+
+	/**
+     * Sends a payment request.
+     *
+     * @param      <type>                                           $data       The data
+     * @param      integer                                          $amount     The amount
+     * @param      <type>                                           $currency   The currency
+     * @param      string                                           $reference  The reference
+     *
+     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return     <type>                                           ( description_of_the_return_value )
+     */
+    public function sendPaymentRequest($data, $amount, $currency, $reference = '') {
         try {
+            // Find the card token
+            $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
+
             // Set the token source
-            $tokenSource = new TokenSource($cardToken);
+            $idSource = new IdSource($card->getGatewayToken());
+
+            // Check CVV config
+            if ($this->getValue('require_cvv', $this->_code)) {
+                if (!isset($data['cvv']) || (int) $data['cvv'] == 0) {
+                    throw new \Magento\Framework\Exception\LocalizedException(__('The CVV value is required.'));
+                }
+                else {
+                    $idSource->cvv = $data['cvv'];
+                }
+            }
 
             // Set the payment
             $request = new Payment(
-                $tokenSource, 
+                $idSource,
                 $currency
             );
+
+            // Prepare the metadata array
+            $request->metadata = ['methodId' => $this->_code];
 
             // Prepare the capture date setting
             $captureDate = $this->config->getCaptureTime($this->_code);
@@ -135,12 +146,15 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
             $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
             $request->description = __('Payment request from %1', $this->config->getStoreName());
+            // Todo - add customer to the request
+            //$request->customer = $this->apiHandler->createCustomer($this->quoteHandler->getQuote());
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             if ($captureDate) {
-                $request->capture_time = $this->config->getCaptureTime($this->_code);
+                $request->capture_time = $this->config->getCaptureTime();
             }
-            // Todo - add the card BIN check
-            if ($madaEnabled) {
+
+            // Mada BIN Check
+            if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
                 $request->metadata = ['udf1' => 'MADA'];
             }
 
@@ -149,22 +163,76 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 ->payments()
                 ->request($request);
 
-            // Todo - remove logging code
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/card_response.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($response, 1));
-
             return $response;
-        }   
+        }
 
         catch(\Exception $e) {
-            // Todo - remove logging code
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/card_error.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($e->getMessage(), 1));
+
         }
     }
 
+    /**
+     * { function_description }
+     *
+     * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
+     *
+     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return     self                                             ( description_of_the_return_value )
+     */
+    public function void(\Magento\Payment\Model\InfoInterface $payment)
+    {
+        // Check the status
+        if (!$this->canVoid()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
+        }
+
+        // Process the void request
+        $response = $this->apiHandler->voidTransaction($payment);
+        if (!$this->apiHandler->isValidResponse($response)) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
+        }
+
+        return $this;
+    }
+
+    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    {
+        // Check the status
+        if (!$this->canRefund()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
+        }
+
+        // Process the refund request
+        $response = $this->apiHandler->refundTransaction($payment, $amount);
+        if (!$this->apiHandler->isValidResponse($response)) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check whether method is available
+     *
+     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @return bool
+     */
+    // Todo - move this method to abstract class as it's needed for all payment methods
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        // If the quote is valid
+        if (parent::isAvailable($quote) && null !== $quote) {
+            // Filter by quote currency
+            return in_array(
+                $quote->getQuoteCurrencyCode(),
+                explode(
+                    ',',
+                    $this->config->getValue('accepted_currencies')
+                )
+            ) && $this->config->getValue('active', $this->_code);
+        }
+
+        return false;
+    }
 }

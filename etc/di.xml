@@ -9,24 +9,15 @@
                 <item name="checkoutcom_apm" xsi:type="object">CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</item>
                 <item name="checkoutcom_apple_pay" xsi:type="object">CheckoutCom\Magento2\Model\Methods\ApplePayMethod</item>
                 <item name="checkoutcom_google_pay" xsi:type="object">CheckoutCom\Magento2\Model\Methods\GooglePayMethod</item>
+                <item name="checkoutcom_vault" xsi:type="object">CheckoutCom\Magento2\Model\Methods\VaultMethod</item>
             </argument>
         </arguments>
     </type>
     <!-- END Method handler configurations -->
 
-    <!-- Configuration for Vault payment method -->
-    <virtualType name="CheckoutComCreditCardVaultFacade" type="Magento\Vault\Model\Method\Vault">
-        <arguments>
-            <argument name="config" xsi:type="object">CheckoutComVaultPaymentConfig</argument>
-            <argument name="code" xsi:type="const">CheckoutCom\Magento2\Model\Methods\VaultMethod::CODE</argument>
-            <argument name="vaultProvider" xsi:type="object">CheckoutCom\Magento2\Model\Methods\VaultMethod</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="CheckoutComVaultPaymentConfig" type="Magento\Payment\Gateway\Config\Config">
-        <arguments>
-            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Model\Methods\VaultMethod::CODE</argument>
-        </arguments>
-    </virtualType>
-    <!-- END Configuration for Vault payments -->
-
+    <!-- CSRF bypass from 2.3.x series -->
+    <type name="Magento\Framework\App\Request\CsrfValidator">
+        <plugin name="csrf_validator_skip" type="CheckoutCom\Magento2\Plugin\CsrfValidatorSkip" />
+    </type>
+    <!-- End CSRF bypass -->
 </config>

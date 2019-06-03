@@ -47,6 +47,11 @@ class TransactionHandlerService
     protected $utilities;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * TransactionHandlerService constructor.
      */
     public function __construct(
@@ -57,7 +62,8 @@ class TransactionHandlerService
         \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->transactionBuilder    = $transactionBuilder;
         $this->messageManager        = $messageManager;
@@ -67,29 +73,34 @@ class TransactionHandlerService
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
         $this->utilities             = $utilities;
+        $this->logger = $logger;
     }
 
     /**
      * Create a transaction for an order.
      */
-    public function createTransaction($order, $transactionMode, $data = null)
+    public function createTransaction($order, $transactionType, $data = null)
     {
-        // Get a transaction id
-        $paymentData = $data ? $data : $this->utilities->getPaymentData($order);
-        $tid = $paymentData['id'];
-
-        // Get a method id
-        $methodId = $order->getPayment()
-            ->getMethodInstance()
-            ->getCode();
-    
-        // Process the transaction
         try {
+            // Get the payment data
+            $paymentData = $data 
+            ? $this->utilities->objectToArray($data)
+            : $this->utilities->getPaymentData($order);
+
+            // Get a transaction id
+            $tid = $this->getActionId($paymentData);
+
+            // Get a method id
+            $methodId = $order->getPayment()
+                ->getMethodInstance()
+                ->getCode();
+    
             // Prepare payment object
             $payment = $order->getPayment();
             $payment->setMethod($methodId);
             $payment->setLastTransId($tid);
             $payment->setTransactionId($tid);
+            $payment->setIsTransactionClosed(false);
 
             // Formatted price
             $formatedPrice = $order->getBaseCurrency()
@@ -108,10 +119,10 @@ class TransactionHandlerService
                     ]
                 )
                 ->setFailSafe(true)
-                ->build($transactionMode);
+                ->build($transactionType);
 
-            // Add an authorization transaction to the payment
-            if ($transactionMode == Transaction::TYPE_AUTH) {
+            // Add an authorization transaction to the order
+            if ($transactionType == Transaction::TYPE_AUTH) {
                 // Add order comments
                 $payment->addTransactionCommentsToOrder(
                     $transaction,
@@ -127,46 +138,111 @@ class TransactionHandlerService
                 );
             }
 
+            // Add a capture transaction to the order
+            else if ($transactionType == Transaction::TYPE_CAPTURE) {
+                // Set the parent transaction id
+                $payment->setParentTransactionId(null);
+                /*$parentTransaction = $this->getTransactions($order, $transactionType);
+                $payment->setParentTransactionId(
+                    $parentTransaction[0]->getTransactionId()
+                );*/
+
+                // Handle the invoice and capture comments
+                if ($this->config->getValue('auto_invoice')) {
+                    $this->invoiceHandler->processInvoice($order);
+                }
+                else {
+                    // Add order comments
+                    $payment->addTransactionCommentsToOrder(
+                        $transaction,
+                        __('The captured amount is %1. No invoice was created.', $formatedPrice)
+                    );                    
+                }
+
+                // Set the order status
+                $order->setStatus(
+                    $this->config->getValue('order_status_captured')
+                );
+            }
+
+            // Add a capture transaction to the payment
+            else if ($transactionType == Transaction::TYPE_VOID) {
+                // Add order comments
+                $payment->addTransactionCommentsToOrder(
+                    $transaction,
+                    __('The voided amount is %1.', $formatedPrice)
+                );
+
+                // Set the parent transaction id
+                $payment->setParentTransactionId(null);
+
+                // Set the order status
+                $order->setStatus(
+                    $this->config->getValue('order_status_voided')
+                );
+            }
+
+            else if ($transactionType == Transaction::TYPE_REFUND) {
+                // Add order comments
+                $payment->addTransactionCommentsToOrder(
+                    $transaction,
+                    __('The refunded amount is %1.', $formatedPrice)
+                );
+
+                // Set the parent transaction id
+                $payment->setParentTransactionId(null);
+
+                // Set the order status
+                $order->setStatus(
+                    $this->config->getValue('order_status_refunded')
+                );
+            }
+
             // Save payment, transaction and order
             $payment->save();
             $transaction->save();
             $order->save();
 
-            // Create the invoice
-            // Todo - check this setting, add parameter to config
-            if ($this->config->getValue('invoice_creation') == $transactionMode) {
-                $this->invoiceHandler->processInvoice($order);
-            }
-
             return $transaction->getTransactionId();
         } catch (Exception $e) {
+            $this->logger->write($e->getMessage());
+
             return false;
+        }
+    }
+
+    /**
+     * Get the action id from a gateway response.
+     */
+    public function getActionId($response) {
+        try {
+            return $response['data']['action_id'] ?? $response['action_id'];
+        } catch (Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
         }
     }
 
     /**
      * Build a flat array from the gateway response.
      */
-    public function buildDataArray($gatewayResponse) {
-        // Prepare the output array
-        $output = [];
+    public function buildDataArray($data) {
+        try {
+            // Prepare the fields to remove
+            $remove = [
+                '_links',
+                'risk',
+                'metadata',
+                'customer',
+                'source'
+            ];
 
-        // Remove the _links key
-        if (isset($gatewayResponse['_links'])) unset($gatewayResponse['_links']);
-
-        // Process the remaining data
-        foreach ($gatewayResponse as $key => $val) {
-            if (is_array($val)) {
-                foreach ($val as $k => $v) {
-                    $output[$key . '_' . $k] = $v;
-                }
-            }
-            else  {
-                $output[$key] = $val;
-            }
+            // Return the clean array
+            return array_diff_key($data, array_flip($remove));
+        } catch (Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
         }
-
-        return $output;
     }
 
     /**
@@ -208,7 +284,8 @@ class TransactionHandlerService
             return $transactions;
 
         } catch (Exception $e) {
-            return false;
+            $this->logger->write($e->getMessage());
+            return null;
         }
     }
 }

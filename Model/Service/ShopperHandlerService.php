@@ -4,37 +4,86 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 class ShopperHandlerService
 {
-    /**
-     * @var CookieManagerInterface
-     */
-    protected $cookieManager;
 
     /**
-     * @var Config
+     * Default locale code.
+     *
+     * @var        string
      */
-    protected $config;
+    const DEFAULT_LOCALE = 'en_US';
+
+    /**
+     * @var Session
+     */
+    protected $customerSession;
+
+    /**
+     * @var CustomerRepositoryInterface
+     */
+    protected $customerRepository;
+
+    /**
+     * @var Resolver
+     */
+    protected $localeResolver;
+
+    /**
+     * @var Logger
+     */
+    protected $logger;
 
     /**
      * ShopperHandlerService constructor
      */
     public function __construct(
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
+        \Magento\Framework\Locale\Resolver $localeResolver,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     )
     {
-        $this->cookieManager = $cookieManager;
-        $this->config = $config;
+        $this->localeResolver  = $localeResolver;
+        $this->customerSession = $customerSession;
+        $this->customerRepository  = $customerRepository;
+        $this->logger = $logger;
+    }
+
+    public function getCustomerData($filters = []) {
+        try {
+            if (isset($filters['id'])) {
+                return $this->customerRepository->getById($filters['id']);
+            }
+            else if (isset($filters['email'])) {
+                return $this->customerRepository->get(
+                    filter_var($filters['email'],
+                    FILTER_SANITIZE_EMAIL)
+                );
+            }
+            else {
+                $customerId = $this->customerSession->getCustomer()->getId();
+                return $this->customerRepository->getById($customerId);
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
-     * Find a customer email
+     * Retrieves the customer language.
      */
-    public function findEmail($quote)
+    public function getCustomerLocale($default = 'en_GB')
     {
-        return $quote->getCustomerEmail()
-        ?? $quote->getBillingAddress()->getEmail()
-        ?? $this->cookieManager->getCookie(
-            $this->config->getValue('email_cookie_name')
-        );
+        try {
+            $locale = $this->localeResolver->getLocale();
+            if (!$locale) {
+                return $default;
+            }
+
+            return $locale;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return $default;
+        }
     }
 }

@@ -3,10 +3,10 @@ define([
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'Magento_Vault/js/view/payment/vault-enabler',
+        'Magento_Customer/js/model/customer',
         'framesjs'
     ],
-    function ($, Component, Utilities, AdditionalValidators, VaultEnabler) {
+    function ($, Component, Utilities, AdditionalValidators, Customer) {
 
         'use strict';
 
@@ -21,6 +21,8 @@ define([
                 buttonId: METHOD_ID + '_btn',
                 formId: METHOD_ID + '_frm',
                 cardToken: null,
+                cardBin: null,
+                saveCard: false,
                 redirectAfterPlaceOrder: false
             },
 
@@ -29,20 +31,15 @@ define([
              */
             initialize: function () {
                 this._super();
-                this.isPlaceOrderActionAllowed(false);
-                this.loadVault();
+                Utilities.setEmail();
 
-                return  this;
+                return this;
             },
-
-            /**
-             * Getters and setters
-             */
 
             /**
              * @returns {string}
              */
-            getCode: function () {
+            getCode: function() {
                 return METHOD_ID;
             },
 
@@ -54,15 +51,38 @@ define([
             },
 
             /**
-             * @returns {void}
+             * @returns {string}
              */
-            loadVault: function() {
-                this.vault = new VaultEnabler();
-                this.vault.setPaymentCode(METHOD_ID);
+            isVaultEnabled: function() {
+                return this.getValue('active');
             },
 
             /**
-             * @returns {boolean}
+             * @returns {string}
+             */
+            isSaveCardEnabled: function() {
+                return this.getValue('save_card_option');
+            },
+
+            /**
+             * @returns {bool}
+             */
+            isLoggedIn: function() {
+                return Customer.isLoggedIn();
+            },
+
+            /**
+             * @returns {void}
+             */
+            initEvents: function () {
+                var self = this;
+                $('input[name="saveCard"]').on('click', function() {
+                    self.saveCard = this.checked;
+                });
+            },
+
+            /**
+             * @returns {void}
              */
             cleanEvents: function () {
                 Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
@@ -85,23 +105,28 @@ define([
                 // Remove any existing event handlers
                 this.cleanEvents();
 
-                // Initialise the payment form
+                // Initialize the payment form
                 Frames.init({
                     publicKey: self.getValue('public_key'),
                     containerSelector: '.frames-container',
-                    debugMode: self.getValue('debug'),
-                    //localisation: self.getValue('localisation'),
-                    //localisation: 'EN-GB',
+                    debugMode: (self.getValue('debug') && self.getValue('console_logging')),
+                    localisation: self.getValue('language_fallback'),
+                    theme: self.getValue('form_theme'),
+                    customerName: Utilities.getCustomerName(),
                     cardValidationChanged: function() {
                         if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
-                            self.isPlaceOrderActionAllowed(true);
+                            Utilities.allowPlaceOrder(self.buttonId, true);
                             Frames.submitCard();
                             Frames.unblockFields();
                         }
+                        else {
+                            Utilities.allowPlaceOrder(self.buttonId, false);
+                        }
                     },
                     cardTokenised: function(event) {
-                        // Store the card token for later submission
+                        // Store the card token and the card bin
                         self.cardToken = event.data.cardToken;
+                        self.cardBin =  event.data.card.bin;
 
                         // Add the card token to the form
                         Frames.addCardToken(
@@ -110,19 +135,30 @@ define([
                         );
                     }
                 });
+
+                // Initialize other events
+                self.initEvents();
             },
 
             /**
              * @returns {void}
              */
             placeOrder: function () {
+                // Prepare some variables
                 var self = this;
+
+                // Validate the order placement
                 if (AdditionalValidators.validate() && Frames.isCardValid()) {
-                    // Place the order
-                    Utilities.placeOrder({
+                    // Prepare the payload
+                    var payload = {
                         methodId: METHOD_ID,
-                        cardToken: self.cardToken
-                    });
+                        cardToken: self.cardToken,
+                        cardBin: self.cardBin,
+                        saveCard: self.saveCard
+                    };
+
+                    // Place the order
+                    Utilities.placeOrder(payload);
 
                     // Make sure the card form stays unblocked
                     Frames.unblockFields();

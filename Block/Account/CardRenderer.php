@@ -15,9 +15,19 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
 class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
 
     /**
-     * @var GatewayConfig
+     * @var Config
      */
-    protected $gatewayConfig;
+    protected $config;
+
+    /**
+     * @var CardHandlerService
+     */
+    public $cardHandler;
+
+    /**
+     * @var Logger
+     */
+    protected $logger;
 
     /**
      * CardRenderer constructor.
@@ -26,11 +36,15 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Payment\Model\CcConfigProvider $iconsProvider,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        \CheckoutCom\Magento2\Helper\Logger $logger,
         array $data
     ) {
         parent::__construct($context, $iconsProvider, $data);
 
         $this->config = $config;
+        $this->cardHandler = $cardHandler;
+        $this->logger = $logger;
     }
 
     /**
@@ -39,7 +53,12 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return string
      */
     public function getNumberLast4Digits() {
-        return $this->getTokenDetails()['maskedCC'];
+        try {
+            return $this->getTokenDetails()['maskedCC'];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -48,34 +67,12 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return string
      */
     public function getExpDate() {
-        return $this->getTokenDetails()['expirationDate'];
-    }
-
-    /**
-     * Returns the url to the CC icon.
-     *
-     * @return string
-     */
-    public function getIconUrl() {
-        return $this->getIconForType($this->getCartType())['url'];
-    }
-
-    /**
-     * Returns the icon height in pixels.
-     *
-     * @return int
-     */
-    public function getIconHeight() {
-        return $this->getIconForType($this->getCartType())['height'];
-    }
-
-    /**
-     * Returns the icon width in pixels.
-     *
-     * @return int
-     */
-    public function getIconWidth() {
-        return $this->getIconForType($this->getCartType())['width'];
+        try {
+            return $this->getTokenDetails()['expirationDate'];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -85,7 +82,12 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return boolean
      */
     public function canRender(PaymentTokenInterface $token) {
-        return $token->getPaymentMethodCode() === 'checkoutcom_card_payment';
+        try {
+            return $token->getPaymentMethodCode() === 'checkoutcom_vault';
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -93,7 +95,54 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      *
      * @return string
      */
-    private function getCartType() {
-        return $this->getTokenDetails()['type'];
+    public function getCardType() {
+        try {
+            return $this->getTokenDetails()['type'];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Returns the url to the CC icon.
+     *
+     * @return string
+     */
+    public function getIconUrl() {
+        try {
+            return $this->getIconForType($this->getCardType())['url'];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Returns the icon height in pixels.
+     *
+     * @return int
+     */
+    public function getIconHeight() {
+        try {
+            return $this->getIconForType($this->getCardType())['height'];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Returns the icon width in pixels.
+     *
+     * @return int
+     */
+    public function getIconWidth() {
+        try {
+            return $this->getIconForType($this->getCardType())['width'];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 }

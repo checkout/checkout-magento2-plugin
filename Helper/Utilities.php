@@ -3,7 +3,6 @@
 namespace CheckoutCom\Magento2\Helper;
 
 class Utilities {
-
     /**
      * @var UrlInterface
      */
@@ -14,23 +13,39 @@ class Utilities {
      */
     protected $customerSession;
 
+    /**
+     * @var Logger
+     */
+    protected $logger;
+
 	/**
      * Utilities constructor.
      */
     public function __construct(
         \Magento\Framework\UrlInterface $urlInterface,
-        \Magento\Customer\Model\Session $customerSession
+        \Magento\Customer\Model\Session $customerSession,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     )
     {
-        $this->urlInterface      = $urlInterface;
-        $this->customerSession   = $customerSession;
+        $this->urlInterface = $urlInterface;
+        $this->customerSession = $customerSession;
+        $this->logger = $logger;
 	}
-	
+
 	/**
      * Convert a date string to ISO8601 format.
      */
-    public function formatDate($timestamp) {
+    public function formatDate($timestamp)
+    {
         return gmdate("Y-m-d\TH:i:s\Z", $timestamp); 
+    }
+
+	/**
+     * Convert an object to array.
+     */
+    public function objectToArray($object)
+    {
+        return json_decode(json_encode($object), true); 
     }
 
     /**
@@ -46,7 +61,8 @@ class Utilities {
 
             return $paymentData['additional_information']['transaction_info'];
         } catch (\Exception $e) {
-            return false;
+            $this->logger->write($e->getMessage());
+            return [];
         }
     }
 
@@ -67,7 +83,8 @@ class Utilities {
 
             return $order;
         } catch (\Exception $e) {
-            return false;
+            $this->logger->write($e->getMessage());
+            return null;
         }
     }
 }

@@ -4,54 +4,71 @@
         <settings>
             <checkoutcom_configuration>
                 <fields_encrypted>secret_key,public_key,private_shared_key</fields_encrypted>
-                <fields_hidden>secret_key,private_shared_key,email</fields_hidden>
+                <fields_hidden>secret_key,private_shared_key,email_cookie_name</fields_hidden>
                 <active>1</active>
                 <debug>0</debug>
+                <file_logging>0</file_logging>
+                <console_logging>0</console_logging>
+                <gateway_responses>0</gateway_responses>
                 <environment>1</environment>
                 <secret_key></secret_key>
                 <public_key></public_key>
                 <private_shared_key></private_shared_key>
                 <mada_test_file>Model/Files/Mada/mada_test.csv</mada_test_file>
                 <mada_live_file>Model/Files/Mada/mada_live.csv</mada_live_file>
-                <apm_file>Model/Files/Mada/apm_list.csv</apm_file>
-                <email_cookie_name>email</email_cookie_name>
+                <email_cookie_name>ckoUserEmail</email_cookie_name>
                 <order_status_authorized>pending_payment</order_status_authorized>
                 <order_status_captured>processing</order_status_captured>
+                <order_status_voided>canceled</order_status_voided>
                 <order_status_refunded>canceled</order_status_refunded>
                 <order_status_flagged>fraud</order_status_flagged>
+                <accepted_currencies>AFN,ALL,DZD,AOA,ARS,AMD,AWG,AUD,AZN,AZM,BSD,BHD,BDT,BBD,BYR,BZD,BMD,BTN,BOB,BAM,BWP,BRL,GBP,BND,BGN,BUK,BIF,XOF,XPF,KHR,CAD,CVE,KYD,CLP,CNY,COP,KMF,CDF,CRC,HRK,CUP,CZK,DKK,DJF,DOP,XCD,EGP,GQE,ERN,EEK,ETB,EUR,FKP,FJD,GMD,GEK,GEL,GHS,GIP,GTQ,GNF,GYD,HTG,HNL,HKD,HUF,ISK,INR,IDR,IRR,IQD,ILS,JMD,JPY,JOD,KZT,KES,KWD,KGS,LAK,LVL,LBP,LSL,LRD,LYD,LTL,MOP,MKD,MGA,MWK,MYR,MVR,MRO,MUR,MXN,MDL,MNT,MAD,MZN,MMK,NAD,NPR,ANG,TWD,NZD,NIC,NGN,KPW,NOK,OMR,PKR,PAB,PGK,PYG,PEN,PHP,PLN,QAR,RHD,RON,ROL,RUB,RWF,SHP,SVC,WST,SAR,RSD,SCR,SLL,SGD,SKK,SBD,SOS,ZAR,KRW,LKR,SDG,SRD,SZL,SEK,CHF,SYP,STD,TJS,TZS,THB,TOP,TTD,TND,TRY,TRL,TMM,USD,UGX,UAH,AED,UYU,UZS,VUV,VEF,VEB,VND,CHE,CHW,YER,ZMK,ZWD</accepted_currencies>
+                <payment_action>authorize_capture</payment_action>
+                <capture_time>0</capture_time> 
+                <auto_invoice>1</auto_invoice>
+                <dynamic_descriptor_enabled>0</dynamic_descriptor_enabled>
+                <descriptor_name></descriptor_name>
+                <descriptor_city></descriptor_city>
             </checkoutcom_configuration>
         </settings>
         <payment>
             <checkoutcom_vault>
-                <model>CheckoutComCreditCardVaultFacade</model>
+                <model>CheckoutCom\Magento2\Model\Methods\VaultMethod</model>
                 <title>Stored Cards with Checkout.com</title>
                 <active>0</active>
                 <sort_order>0</sort_order>
-                <can_authorize>1</can_authorize>
-                <can_capture>1</can_capture>
-                <can_authorize_vault>1</can_authorize_vault>
-                <can_capture_vault>1</can_capture_vault>
-                <can_use_internal>0</can_use_internal>
                 <request_currency>USD</request_currency>
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>
+                <instant_purchase_enabled>0</instant_purchase_enabled>
+                <is_gateway>1</is_gateway>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_use_internal>0</can_use_internal>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_capture_vault>1</can_capture_vault>
+                <require_cvv>0</require_cvv>
+                <instant_purchase>
+                    <available>CheckoutCom\Magento2\Model\InstantPurchase\AvailabilityChecker</available>
+                    <tokenFormat>CheckoutCom\Magento2\Model\InstantPurchase\TokenFormatter</tokenFormat>
+                </instant_purchase>
             </checkoutcom_vault>
             <checkoutcom_card_payment>
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
                 <title>Pay by Card with Checkout.com</title>
                 <active>1</active>
-                <payment_action>authorize_capture</payment_action>
-                <capture_time>0</capture_time>        
+                <form_theme>standard</form_theme>
+                <language_fallback>EN-EN</language_fallback>    
                 <sort_order>1</sort_order>
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>
-                <save_cards_enabled>0</save_cards_enabled>
-                <save_cards_title>Pay with saved card:</save_cards_title>
-                <dynamic_decriptor_enabled>0</dynamic_decriptor_enabled>
-                <decriptor_name></decriptor_name>
-                <decriptor_city></decriptor_city>
-                <cvv_optional>0</cvv_optional>
+                <save_card_option>1</save_card_option>
                 <mada_enabled>0</mada_enabled>
+                <is_gateway>1</is_gateway>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
@@ -59,14 +76,15 @@
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
                 <can_use_internal>0</can_use_internal>
-                <auto_generate_invoice>1</auto_generate_invoice>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_capture_vault>1</can_capture_vault>
             </checkoutcom_card_payment>
             <checkoutcom_apm>
                 <model>CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</model>
                 <title>Alternative Payments with Checkout.com</title>
                 <active>0</active>
-                <payment_action>authorize_capture</payment_action>                
                 <sort_order>2</sort_order>
+                <is_gateway>1</is_gateway>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
@@ -74,15 +92,14 @@
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
                 <can_use_internal>0</can_use_internal>
-                <auto_generate_invoice>1</auto_generate_invoice>
                 <apm_enabled></apm_enabled>
             </checkoutcom_apm>
             <checkoutcom_google_pay>
                 <model>CheckoutCom\Magento2\Model\Methods\GooglePayMethod</model>
                 <title>Google Pay with Checkout.com</title>
                 <active>0</active>
-                <payment_action>authorize_capture</payment_action>                
                 <sort_order>3</sort_order>
+                <is_gateway>1</is_gateway>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
@@ -90,7 +107,6 @@
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
                 <can_use_internal>0</can_use_internal>
-                <auto_generate_invoice>1</auto_generate_invoice>
                 <gateway_name>checkoutltd</gateway_name>
                 <allowed_card_networks>VISA,MASTERCARD</allowed_card_networks>
                 <merchant_id></merchant_id>
@@ -101,8 +117,8 @@
                 <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
                 <title>Apple Pay with Checkout.com</title>
                 <active>0</active>
-                <payment_action>authorize_capture</payment_action>                
                 <sort_order>4</sort_order>
+                <is_gateway>1</is_gateway>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
@@ -110,7 +126,6 @@
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
                 <can_use_internal>0</can_use_internal>
-                <auto_generate_invoice>1</auto_generate_invoice>
                 <processing_certificate>/path/to/cert</processing_certificate>
                 <processing_certificate_password></processing_certificate_password>
                 <merchant_id_certificate>/path/to/cert</merchant_id_certificate>
@@ -125,7 +140,6 @@
                 <active>0</active>
                 <sort_order>0</sort_order>
                 <is_gateway>1</is_gateway>
-                <payment_action>authorize_capture</payment_action>                
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
@@ -135,7 +149,8 @@
                 <can_use_internal>1</can_use_internal>
                 <can_charge_details>1</can_charge_details>
                 <can_use_checkout>0</can_use_checkout>
-                <auto_generate_invoice>1</auto_generate_invoice>
+                <saved_cards_enabled>0</saved_cards_enabled>
+                <use_default_account>1</use_default_account>
                 <environment>1</environment>
                 <secret_key></secret_key>
                 <public_key></public_key>

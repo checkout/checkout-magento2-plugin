@@ -53,7 +53,8 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
      *
      * @return array
      */
-    protected function getConfigArray() { 
+    protected function getConfigArray()
+    {
         return array_merge(
             $this->config->getModuleConfig(),
             $this->config->getMethodsConfig(),

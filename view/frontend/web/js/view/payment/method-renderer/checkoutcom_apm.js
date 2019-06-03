@@ -27,6 +27,7 @@ define([
                  */
                 initialize: function () {
                     this._super();
+                    Utilities.setEmail();
                 },
 
                 /**
@@ -47,12 +48,15 @@ define([
                  * @returns {void}
                  */
                 initWidget: function () {
+                    // Start the loader
+                    FullScreenLoader.startLoader();
+
+                    // Send the AJAX request
                     $.ajax({
                         type: "POST",
                         url: Utilities.getUrl('apm/display'),
                         success: function(data) {
-                            $('#apm-container')
-                            .append(data.html)
+                            $('#apm-container').append(data.html)
                             .accordion({
                                 heightStyle: 'content',
                                 animate: {
@@ -60,9 +64,15 @@ define([
                                 }
                             })
                             .show();
+
+                            // Stop the loader
+                            FullScreenLoader.stopLoader();
                         },
                         error: function (request, status, error) {
-                            console.log(error);
+                            Utilities.log(error);
+
+                            // Stop the loader
+                            FullScreenLoader.stopLoader();
                         }
                     });
                 },
@@ -71,26 +81,93 @@ define([
                  * @returns {void}
                  */
                 placeOrder: function () {
-                    var $form = $('#cko-apm-form'),
-                        data = {};
+                    var id = $("#apm-container div[aria-selected=true]").attr('id'),
+                        $form = $("#cko-apm-form-" + id),
+                        data = {methodId: METHOD_ID};
 
                     // Start the loader
-                    FullScreenLoader.startLoader();
+                    FullScreenLoader.startLoader()
 
-                    // Validate before submission
-                    if ($form.valid() && AdditionalValidators.validate()) {
+                    // Serialize data
+                    $("#cko-apm-form-" + id).serializeArray().forEach(function (e) {
+                        data[e.name] = e.value;
+                    });
 
-                        // Serialize form.
-                        $form.serializeArray().forEach(function (e) {
-                            data[e.name] = e.value;
-                        });
-
-                        Utilities.placeOrder(data, this.handleSuccess, this.handleFail);
-
-                    } else {
-                        this.handleFail(data); //@todo: imrpove needed
-                        FullScreenLoader.stopLoader();
+                    // Place the order
+                    if (AdditionalValidators.validate() && $form.valid() && this.custom(data)) {
+                        Utilities.placeOrder(
+                            data,
+                            // Todo - Improve response handling. Error should come from the controller
+                            function() {
+                                Utilities.log(__('Success'));
+                            },
+                            // Todo - Improve response handling. Error should come from the controller
+                            function() {
+                                Utilities.log(__('Fail'));
+                            }
+                        );
                     }
+
+                    FullScreenLoader.stopLoader();
+                },
+
+                /**
+                 * Custom "before place order" flows.
+                 */
+
+                 /**
+                  * Dynamic function handler.
+                  *
+                  * @param      {String}   id      The identifier
+                  * @return     {boolean}
+                  */
+                custom: function(data) {
+                    var result = true;
+                    if (typeof this[data.source] == 'function') {
+                        result = this[data.source](data);
+                    }
+
+                    return result;
+                },
+
+                /**
+                 * @returns {boolean}
+                 */
+                klarna: function (data) {
+                    try {
+                        Klarna.Payments.authorize(
+                            {
+                                instance_id: "klarna-payments-instance",
+                                auto_finalize: true
+                            },
+                            {},
+                            function(response) {
+                                data.authorization_token = response.authorization_token;
+                                Utilities.placeOrder(
+                                    data,
+                                    function() {
+                                        // Todo - Improve response handling. Error should come from the controller
+                                        Utilities.log(__('Success'));
+                                    }, function() {
+                                        Utilities.showMessage('error', 'Could not finalize the payment.');
+                                    }
+                                );
+                            }
+                        );
+
+                    } catch(e) {
+                        Utilities.showMessage('error', 'Could not finalize the payment.');
+                        Utilities.log(e);
+                    }
+
+                    return false;
+                },
+
+                /**
+                 * @returns {boolean}
+                 */
+                sepa: function (data) {
+                    return data.hasOwnProperty('accepted');
                 }
             }
         );

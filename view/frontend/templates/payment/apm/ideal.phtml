@@ -1,23 +1,22 @@
-
 <div data-role="collapsible" id="<?= $block->getData('apm_id')?>" class="cko-apm <?= $block->getData('apm_id')?>">
     <div data-role="trigger">
-        <span><?= $block->getData('apm_id')?></span>
+		<span class="bg-<?= $block->getData('apm_id')?> bg-apm"></span>
+        <span><?= $block->getData('title')?></span>
     </div>
 </div>
 <div data-role="content" class="apm-content">
-    <div class="input-group">
-        <label class="icon" for="bic">
-        <span class="ckojs ckojs-card"></label>
-        <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtml(__('BIC')); ?>" class="input-control" data-validate="{'required':true}">
-    </div>
-    <div class="input-group">
-        <label class="icon" for="description">
-        <span class="ckojs ckojs-card"></label>
-        <input type="text" id="description" name="description" placeholder="<?= $block->escapeHtml(__('Description')); ?>" class="input-control" data-validate="{'required':true}">
-    </div>
-    <div class="input-group">
-        <label class="icon" for="language">
-        <span class="ckojs ckojs-name"></label>
-        <input type="text" id="language" name="language" placeholder="<?= $block->escapeHtml(__('Language')); ?>" class="input-control" data-validate="{'required':true}">
-    </div>
+    <form id="cko-apm-form-<?= $block->getData('apm_id')?>">
+        <input type="hidden" name="source" value="<?= $block->getData('apm_id')?>" required>
+        <div class="input-group">
+            <label class="icon" for="bic">
+            <span class="ckojs ckojs-card"></label>
+            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtml(__('BIC')); ?>" class="input-control" required>
+        </div>
+        <div class="input-group">
+            <label class="icon" for="description">
+            <span class="ckojs ckojs-card"></label>
+            <input type="text" id="description" name="description" placeholder="<?= $block->escapeHtml(__('Description')); ?>" class="input-control" required>
+        </div>
+        <br>
+    </form>
 </div>

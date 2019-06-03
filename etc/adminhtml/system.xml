@@ -29,22 +29,51 @@
                             <config_path>settings/checkoutcom_configuration/environment</config_path>
                         </field>
 
-                        <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Secret Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_configuration/secret_key</config_path>
+                        <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Payment Action</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
+                            <config_path>settings/checkoutcom_configuration/payment_action</config_path>
                         </field>
 
-                        <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Public Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_configuration/public_key</config_path>
+                        <field id="capture_time" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Capture Time</label>
+                            <depends>
+                                <field id="payment_action">authorize_capture</field>
+                            </depends>
+                            <config_path>settings/checkoutcom_configuration/capture_time</config_path>
+                            <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
                         </field>
 
-                        <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Private Shared Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
+                        <field id="auto_invoice" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Auto Invoice</label>
+                            <depends>
+                                <field id="payment_action">authorize_capture</field>
+                            </depends>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>settings/checkoutcom_configuration/auto_invoice</config_path>
+                            <comment>If enabled, an invoice is generated automatically when a payment is captured.</comment>
+                        </field>
+
+                        <field id="dynamic_descriptor_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Enable Dynamic Descriptor</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>settings/checkoutcom_configuration/dynamic_descriptor_enabled</config_path>
+                        </field>
+
+                        <field id="descriptor_name" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Descriptor Name</label>
+                            <depends>
+                                <field id="dynamic_descriptor_enabled">1</field>
+                            </depends>
+                            <config_path>settings/checkoutcom_configuration/descriptor_name</config_path>
+                        </field>
+
+                        <field id="descriptor_city" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Descriptor City</label>
+                            <depends>
+                                <field id="dynamic_descriptor_enabled">1</field>
+                            </depends>
+                            <config_path>settings/checkoutcom_configuration/descriptor_city</config_path>
                         </field>
                     </group>
                     <group id="order_settings" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -63,6 +92,13 @@
                             <comment>Select the status that should be used for orders with successful payment capture.</comment>
                         </field>
 
+                        <field id="order_status_voided" translate="label comment" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Void order status</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
+                            <config_path>settings/checkoutcom_configuration/order_status_voided</config_path>
+                            <comment>Select the status that should be used for new orders with successful payment void.</comment>
+                        </field>
+
                         <field id="order_status_refunded" translate="label comment" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Refund order status</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
@@ -76,10 +112,76 @@
                             <config_path>settings/checkoutcom_configuration/order_status_flagged</config_path>
                             <comment>Select the status that should be used for flagged orders.</comment>
                         </field>
+
+                        <group id="currency_settings" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Currency Settings</label>
+                            <field id="accepted_currencies" translate="label comment"  type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                                <label>Accepted Currencies</label>
+                                <source_model>Magento\Config\Model\Config\Source\Locale\Currency</source_model>
+                                <config_path>payment/checkoutcom_configuration/accepted_currencies</config_path>
+                                <comment>The payment option will not be displayed if the shopper's order currency is not part of the currencies selected here.</comment>
+                            </field>
+                        </group>
+                    </group>
+                    <group id="account_settings" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Account Settings</label>
+                        <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Secret Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                            <config_path>settings/checkoutcom_configuration/secret_key</config_path>
+                        </field>
+
+                        <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Public Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                            <config_path>settings/checkoutcom_configuration/public_key</config_path>
+                        </field>
+
+                        <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Private Shared Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                            <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
+                        </field>
+                    </group>
+                    <group id="debug_settings" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Debug Settings</label>
+                        <field id="debug" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Debug mode enabled</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>settings/checkoutcom_configuration/debug</config_path>
+                        </field>
+
+                        <field id="file_logging" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>File logging enabled</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <depends>
+                                <field id="debug">1</field>
+                            </depends>
+                            <config_path>settings/checkoutcom_configuration/file_logging</config_path>
+                        </field>
+
+                        <field id="console_logging" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Console logging enabled</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <depends>
+                                <field id="debug">1</field>
+                            </depends>
+                            <config_path>settings/checkoutcom_configuration/console_logging</config_path>
+                        </field>
+
+                        <field id="gateway_responses" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Gateway responses enabled</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <depends>
+                                <field id="debug">1</field>
+                            </depends>
+                            <config_path>settings/checkoutcom_configuration/gateway_responses</config_path>
+                        </field>
+
                     </group>
                 </group>
 
-                <group id="checkoutcom_card_payments" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="checkoutcom_card_payment" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Card Payments</label>
                     <field id="title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Option Title</label>
@@ -92,21 +194,20 @@
                         <config_path>payment/checkoutcom_card_payment/active</config_path>
                     </field>
 
-                    <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Action</label>
-                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
-                        <config_path>payment/checkoutcom_card_payment/payment_action</config_path>
+                    <field id="language_fallback" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Language Fallback</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigLanguageFallback</source_model>
+                        <config_path>payment/checkoutcom_card_payment/language_fallback</config_path>
+                        <comment>Select the language to use by default if the one used by the shopper is not supported by the integration.</comment>
                     </field>
 
-                    <field id="capture_time" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Capture Time</label>
-                        <depends>
-                            <field id="payment_action">authorize_capture</field>
-                        </depends>
-                        <config_path>payment/checkoutcom_card_payment/capture_time</config_path>
-                        <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
+                    <field id="form_theme" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Form theme</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFormTheme</source_model>
+                        <config_path>payment/checkoutcom_card_payment/form_theme</config_path>
+                        <comment>Select the theme to use for the payment form.</comment>
                     </field>
-                    
+
                     <field id="three_ds" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Use 3D Secure</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -122,24 +223,11 @@
                         <config_path>payment/checkoutcom_card_payment/attempt_n3d</config_path>
                     </field>
 
-                    <field id="save_cards_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Enable Save Cards</label>
+                    <field id="save_card_option" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Save card option</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/save_cards_enabled</config_path>
-                    </field>
-
-                    <field id="save_cards_title" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Saved Cards Option Title</label>
-                        <depends>
-                            <field id="save_cards_enabled">1</field>
-                        </depends>
-                        <config_path>payment/checkoutcom_card_payment/save_cards_title</config_path>
-                    </field>
-
-                    <field id="cvv_optional" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>CVV Optional</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_card_payment/cvv_optional</config_path>
+                        <config_path>payment/checkoutcom_card_payment/save_card_option</config_path>
+                        <comment>Display an option (checkbox) to save a new card on the payment page.</comment>
                     </field>
 
                     <field id="mada_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -149,31 +237,6 @@
                         <comment>
                             Add a flag to the charge request if the payment card is MADA.
                         </comment>
-                    </field>
-
-                    <field id="dynamic_decriptor_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Enable Dynamic Descriptor</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <depends>
-                            <field id="save_cards_enabled">1</field>
-                        </depends>
-                        <config_path>payment/checkoutcom_card_payment/dynamic_decriptor_enabled</config_path>
-                    </field>
-
-                    <field id="decriptor_name" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Descriptor Name</label>
-                        <depends>
-                            <field id="dynamic_decriptor_enabled">1</field>
-                        </depends>
-                        <config_path>payment/checkoutcom_card_payment/decriptor_name</config_path>
-                    </field>
-
-                    <field id="decriptor_city" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Descriptor City</label>
-                        <depends>
-                            <field id="dynamic_decriptor_enabled">1</field>
-                        </depends>
-                        <config_path>payment/checkoutcom_card_payment/decriptor_city</config_path>
                     </field>
                 </group>
 
@@ -235,7 +298,7 @@
                         <config_path>payment/checkoutcom_apple_pay/processing_certificate_password</config_path>
                         <comment>Password for the payment processing certificate</comment>
                     </field>
-                    
+
                     <field id="merchant_id_certificate" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant Identity Certificate</label>
                         <config_path>payment/checkoutcom_apple_pay/merchant_id_certificate</config_path>
@@ -318,7 +381,7 @@
                         <comment>Select the Google Pay supported cards</comment>
                     </field>
                 </group>
-    
+
                 <group id="checkoutcom_vault" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Vault Cards</label>
                     <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -347,6 +410,21 @@
                         <config_path>payment/checkoutcom_vault/attempt_n3d</config_path>
                     </field>
 
+                    <field id="require_cvv" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Require CVV for saved cards</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_vault/require_cvv</config_path>
+                    </field>
+
+                    <field id="instant_purchase_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Instant Purchase Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_vault/instant_purchase_enabled</config_path>
+                    </field>
+
                     <field id="sort_order" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Sort Order</label>
                         <validate>validate-number</validate>
@@ -367,19 +445,44 @@
                         <config_path>payment/checkoutcom_moto/title</config_path>
                     </field>
 
-                    <field id="payment_action" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Action</label>
-                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
-                        <config_path>payment/checkoutcom_card_payment/payment_action</config_path>
+                    <field id="saved_cards_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Saved Cards Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_moto/saved_cards_enabled</config_path>
+                        <comment>Allows the use of customer saved cards for payment. Requires Vault Payments enabled.</comment>
                     </field>
 
-                    <field id="capture_time" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Capture Time</label>
+                    <field id="use_default_account" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Use Default Account</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_moto/use_default_account</config_path>
+                    </field>
+
+                    <field id="secret_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Secret Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>settings/checkoutcom_moto/secret_key</config_path>
                         <depends>
-                            <field id="payment_action">authorize_capture</field>
+                            <field id="use_default_account">0</field>
                         </depends>
-                        <config_path>payment/checkoutcom_card_payment/capture_time</config_path>
-                        <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
+                    </field>
+
+                    <field id="public_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Public Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>settings/checkoutcom_moto/public_key</config_path>
+                        <depends>
+                            <field id="use_default_account">0</field>
+                        </depends>
+                    </field>
+
+                    <field id="private_shared_key" translate="label" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Private Shared Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>settings/checkoutcom_moto/private_shared_key</config_path>
+                        <depends>
+                            <field id="use_default_account">0</field>
+                        </depends>
                     </field>
 
                     <field id="sort_order" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
