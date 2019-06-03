@@ -123,7 +123,6 @@ class AlternativePaymentMethod extends Method
      */
     protected $_code = self::CODE;
 
-
     /**
      * Methods
      */
