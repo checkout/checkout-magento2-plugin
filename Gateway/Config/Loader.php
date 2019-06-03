@@ -45,6 +45,11 @@ class Loader
     protected $directoryReader;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * @var Array
      */
     protected $xmlData;
@@ -58,14 +63,16 @@ class Loader
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
-        \Magento\Framework\Module\Dir\Reader $directoryReader
+        \Magento\Framework\Module\Dir\Reader $directoryReader,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->moduleDirReader = $moduleDirReader;
         $this->xmlParser = $xmlParser;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->encryptor = $encryptor;
-    	$this->directoryReader = $directoryReader;
+        $this->directoryReader = $directoryReader;
+        $this->logger = $logger;
 
         $this->data = $this->loadConfig();
     }
@@ -107,13 +114,11 @@ class Loader
             $output['settings']['checkoutcom_configuration']['apm_list'] = $this->loadApmList();
 
             return $output;
-        }
-        catch(\Exception $e) {
+        } catch(\Exception $e) {
+            $this->logger->write($e->getMessage());
+
             throw new \Magento\Framework\Exception\LocalizedException(
-                __(
-                    "The module configuration file can't be loaded" . " - "
-                    . $e->getMessage()
-                )
+                __('The module configuration file could not be loaded.')
             );
         }
     }
@@ -121,84 +126,113 @@ class Loader
     public function loadApmList() {
         // Build the APM array
         $output = [];
-        foreach ($this->xmlData['apm'] as $row) {
-            $output[] = [
-                'value' => $row['id'],
-                'label' => $row['title'],
-                'currencies' => $row['currencies']
-            ];
-        }
 
-        return $output;
+        try {
+            foreach ($this->xmlData['apm'] as $row) {
+                $output[] = [
+                    'value' => $row['id'],
+                    'label' => $row['title'],
+                    'currencies' => $row['currencies']
+                ];
+            }
+        } catch(\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            return $output;
+        }
     }
 
     protected function getFilePath($fileName) {
-        return $this->moduleDirReader->getModuleDir(
-            Dir::MODULE_ETC_DIR,
-            self::KEY_MODULE_NAME
-        ) . '/' . $fileName;
+        try {
+            return $this->moduleDirReader->getModuleDir(
+                Dir::MODULE_ETC_DIR,
+                self::KEY_MODULE_NAME
+            ) . '/' . $fileName;
+        } catch(\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return '';
+        }
     }
 
     protected function loadXmlData() {
         // Prepare the output array
         $output = [];
 
-        // Load config.xml
-        $output['config'] = $this->xmlParser
-        ->load($this->getFilePath(self::CONFIGURATION_FILE_NAME))
-        ->xmlToArray()['config']['_value']['default'];
+        try {
+            // Load config.xml
+            $output['config'] = $this->xmlParser
+            ->load($this->getFilePath(self::CONFIGURATION_FILE_NAME))
+            ->xmlToArray()['config']['_value']['default'];
 
-        // Load apm.xml
-        $output['apm'] = $this->xmlParser
-        ->load($this->getFilePath(self::APM_FILE_NAME))
-        ->xmlToArray()['config']['_value']['item'];
-
-        return $output;
+            // Load apm.xml
+            $output['apm'] = $this->xmlParser
+            ->load($this->getFilePath(self::APM_FILE_NAME))
+            ->xmlToArray()['config']['_value']['item'];
+        } catch(\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            return $output;
+        }
     }
 
     protected function isHidden($field) {
-        $hiddenFields = explode(
-            ',',
-            $this->scopeConfig->getValue(
-                'settings/checkoutcom_configuration/fields_hidden',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-            )
-        );
+        try {
+            $hiddenFields = explode(
+                ',',
+                $this->scopeConfig->getValue(
+                    'settings/checkoutcom_configuration/fields_hidden',
+                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                )
+            );
 
-        return in_array($field, $hiddenFields);
+            return in_array($field, $hiddenFields);
+        } catch(\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        } 
     }
 
     protected function isEncrypted($field) {
-        return in_array(
-            $field,
-            explode(
-                ',',
-                $this->scopeConfig->getValue(
-                    'settings/checkoutcom_configuration/fields_encrypted',
-                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        try {
+            return in_array(
+                $field,
+                explode(
+                    ',',
+                    $this->scopeConfig->getValue(
+                        'settings/checkoutcom_configuration/fields_encrypted',
+                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                    )
                 )
-            )
-        );
+            );
+        } catch(\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }
     }
 
     public function getValue($key, $methodId = null) {
-        // Prepare the path
-        $path = ($methodId)
-        ? 'payment/' . $methodId  . '/' .  $key
-        : 'settings/checkoutcom_configuration/' . $key;
+        try {
+            // Prepare the path
+            $path = ($methodId)
+            ? 'payment/' . $methodId  . '/' .  $key
+            : 'settings/checkoutcom_configuration/' . $key;
 
-        // Get field value in database
-        $value = $this->scopeConfig->getValue(
-            $path,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+            // Get field value in database
+            $value = $this->scopeConfig->getValue(
+                $path,
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
 
-        // Return a decrypted value for encrypted fields
-        if ($this->isEncrypted($key)) {
-            return $this->encryptor->decrypt($value);
+            // Return a decrypted value for encrypted fields
+            if ($this->isEncrypted($key)) {
+                return $this->encryptor->decrypt($value);
+            }
+
+            // Return a normal value
+            return $value;
+        } catch(\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
         }
-
-        // Return a normal value
-        return $value;
     }
 }

@@ -241,5 +241,4 @@ class Config
     public function getApms() {
         return $this->loader->loadApmList();
     }
-
 }
