@@ -7,8 +7,7 @@ class Logger {
 
 	public static function write($msg) {
 
-		#write log file
-		$writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
+		$writer = new \Zend\Log\Writer\Stream(BP . '/var/log/checkoutcom_magento2.log');
 		$logger = new \Zend\Log\Logger();
 		$logger->addWriter($writer);
 		$logger->info(print_r($msg, 1));
