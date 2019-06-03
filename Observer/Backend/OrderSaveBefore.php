@@ -60,6 +60,11 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     protected $utilities;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * @var Array
      */
     protected $params;
@@ -85,7 +90,8 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
@@ -95,6 +101,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         $this->vaultHandler = $vaultHandler;
         $this->config = $config;
         $this->utilities = $utilities;
+        $this->logger = $logger;
 
         // Get the request parameters
         $this->params = $this->request->getParams();
@@ -156,43 +163,58 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             }
         }
         catch (\Exception $e) {
-
+            $this->logger->write($e->getMessage());
+        } finally {
+            return $this;
         }
-
-        return $this;
     }
 
     /**
      * Checks if the MOTO logic should be triggered.
      */
     protected function needsMotoProcessing() {
-        return $this->backendAuthSession->isLoggedIn()
-        && isset($this->params['ckoCardToken'])
-        && $this->methodId == 'checkoutcom_moto'
-        && !$this->orderHandler->hasTransaction($this->order, Transaction::TYPE_AUTH);
+        try {
+            return $this->backendAuthSession->isLoggedIn()
+            && isset($this->params['ckoCardToken'])
+            && $this->methodId == 'checkoutcom_moto'
+            && !$this->orderHandler->hasTransaction(
+                $this->order,
+                Transaction::TYPE_AUTH
+            );
+        }
+        catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }
     }
 
     /**
      * Provide a source from request.
      */
     protected function getSource() {
-        if ($this->isCardToken()) {
-            return new TokenSource($this->params['ckoCardToken']);
-        }
-        else if ($this->isSavedCard()) {
-            $card = $this->vaultHandler->getCardFromHash(
-                $this->params['publicHash'],
-                $this->order->getCustomerId()
+        try {
+            if ($this->isCardToken()) {
+                return new TokenSource($this->params['ckoCardToken']);
+            }
+            else if ($this->isSavedCard()) {
+                $card = $this->vaultHandler->getCardFromHash(
+                    $this->params['publicHash'],
+                    $this->order->getCustomerId()
+                );
+                $idSource = new IdSource($card->getGatewayToken());
+                $idSource->cvv = $this->params['cvv'];
+
+                return $idSource;
+            }
+
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Please provide the required card information for payment.')
             );
-            $idSource = new IdSource($card->getGatewayToken());
-            $idSource->cvv = $this->params['cvv'];
-
-            return $idSource;
         }
-
-        throw new \Magento\Framework\Exception\LocalizedException(
-            __('Please provide the required card information for payment.')
-        );
+        catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**

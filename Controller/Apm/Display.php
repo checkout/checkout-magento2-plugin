@@ -30,6 +30,11 @@ class Display extends \Magento\Framework\App\Action\Action {
     protected $quoteHandler;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * Display constructor
      */
     public function __construct(
@@ -37,7 +42,8 @@ class Display extends \Magento\Framework\App\Action\Action {
         \Magento\Framework\View\Result\PageFactory $pageFactory,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
 
@@ -45,46 +51,55 @@ class Display extends \Magento\Framework\App\Action\Action {
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
-
-
+        $this->logger = $logger;
     }
 
     /**
      * Handles the controller method.
      */
     public function execute() {
+        // Prepare the output
         $html = '';
-        if ($this->getRequest()->isAjax()) {
-            // Get the list of APM
-            $apmEnabled = explode(',',
-                $this->config->getValue('apm_enabled', 'checkoutcom_apm')
-            );
 
-            $apms = $this->config->getApms();
+        // Process the request
+        try {
+            if ($this->getRequest()->isAjax()) {
+                // Get the list of APM
+                $apmEnabled = explode(
+                    ',',
+                    $this->config->getValue('apm_enabled', 'checkoutcom_apm')
+                );
 
-            // Load block data for each APM
-            foreach ($apms as $amp) {
+                $apms = $this->config->getApms();
 
-                if(in_array($amp['value'], $apmEnabled) && strpos($amp['currencies'], $this->quoteHandler->getQuoteCurrency()) !== false) {
-                    $html .= $this->loadBlock($amp['value'], $amp['label']);
+                // Load block data for each APM
+                foreach ($apms as $amp) {
+                    if (in_array($amp['value'], $apmEnabled) && strpos($amp['currencies'], $this->quoteHandler->getQuoteCurrency()) !== false) {
+                        $html .= $this->loadBlock($amp['value'], $amp['label']);
+                    }
                 }
-
             }
-
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            return $this->jsonFactory->create()->setData(
+                ['html' => $html]
+            );
         }
-
-        return $this->jsonFactory->create()->setData(
-            ['html' => $html]
-        );
     }
 
     private function loadBlock($apmId, $title)
     {
-        return $this->pageFactory->create()->getLayout()
-        ->createBlock('CheckoutCom\Magento2\Block\Apm\Form')
-        ->setTemplate('CheckoutCom_Magento2::payment/apm/' . $apmId . '.phtml')
-        ->setData('apm_id', $apmId)
-        ->setData('title', $title)
-        ->toHtml();
+        try {
+            return $this->pageFactory->create()->getLayout()
+            ->createBlock('CheckoutCom\Magento2\Block\Apm\Form')
+            ->setTemplate('CheckoutCom_Magento2::payment/apm/' . $apmId . '.phtml')
+            ->setData('apm_id', $apmId)
+            ->setData('title', $title)
+            ->toHtml();
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return '';
+        }
     }
 }

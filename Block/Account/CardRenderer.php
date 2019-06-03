@@ -25,6 +25,11 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
     public $cardHandler;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * CardRenderer constructor.
      */
     public function __construct(
@@ -32,12 +37,14 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
         \Magento\Payment\Model\CcConfigProvider $iconsProvider,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        \CheckoutCom\Magento2\Helper\Logger $logger,
         array $data
     ) {
         parent::__construct($context, $iconsProvider, $data);
 
         $this->config = $config;
         $this->cardHandler = $cardHandler;
+        $this->logger = $logger;
     }
 
     /**
@@ -46,7 +53,12 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return string
      */
     public function getNumberLast4Digits() {
-        return $this->getTokenDetails()['maskedCC'];
+        try {
+            return $this->getTokenDetails()['maskedCC'];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -55,7 +67,12 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return string
      */
     public function getExpDate() {
-        return $this->getTokenDetails()['expirationDate'];
+        try {
+            return $this->getTokenDetails()['expirationDate'];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -65,7 +82,12 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return boolean
      */
     public function canRender(PaymentTokenInterface $token) {
-        return $token->getPaymentMethodCode() === 'checkoutcom_vault';
+        try {
+            return $token->getPaymentMethodCode() === 'checkoutcom_vault';
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -73,8 +95,13 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      *
      * @return string
      */
-    public function getCartType() {
-        return $this->getTokenDetails()['type'];
+    public function getCardType() {
+        try {
+            return $this->getTokenDetails()['type'];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -83,7 +110,12 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return string
      */
     public function getIconUrl() {
-        return $this->getIconForType($this->getCartType())['url'];
+        try {
+            return $this->getIconForType($this->getCardType())['url'];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -92,7 +124,12 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return int
      */
     public function getIconHeight() {
-        return $this->getIconForType($this->getCartType())['height'];
+        try {
+            return $this->getIconForType($this->getCardType())['height'];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -101,6 +138,11 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return int
      */
     public function getIconWidth() {
-        return $this->getIconForType($this->getCartType())['width'];
+        try {
+            return $this->getIconForType($this->getCardType())['width'];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 }

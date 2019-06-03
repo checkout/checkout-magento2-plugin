@@ -43,6 +43,11 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     private $paymentTokenFormatter;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * InstantPurchase constructor.
      * @param StoreManagerInterface $storeManager
      * @param InstantPurchaseInterface $instantPurchase
@@ -59,7 +64,8 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
         \CheckoutCom\Magento2\Model\InstantPurchase\TokenFormatter $paymentTokenFormatter,
         \Magento\InstantPurchase\Model\Ui\CustomerAddressesFormatter $customerAddressesFormatter,
         \Magento\InstantPurchase\Model\Ui\ShippingMethodFormatter $shippingMethodFormatter,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->storeManager = $storeManager;
         $this->instantPurchase = $instantPurchase;
@@ -68,6 +74,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
         $this->shippingMethodFormatter = $shippingMethodFormatter;
         $this->vaultHandler = $vaultHandler;
         $this->paymentTokenFormatter = $paymentTokenFormatter;
+        $this->logger = $logger;
 
         // Prepare the required data
         $this->prepareData();
@@ -77,17 +84,21 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
      * Prepare the data needed for instant purchase
      */  
     protected function prepareData() {
-        // Get the  payment token
-        $this->paymentToken = $this->vaultHandler->getLastSavedCard();
+        try {
+            // Get the  payment token
+            $this->paymentToken = $this->vaultHandler->getLastSavedCard();
 
-        // Get the instant purchase option
-        $this->instantPurchaseOption = $this->loadOption();
+            // Get the instant purchase option
+            $this->instantPurchaseOption = $this->loadOption();
 
-        // Get the shipping and billing data
-        if ($this->instantPurchaseOption) {
-            $this->shippingAddress = $this->instantPurchaseOption->getShippingAddress();
-            $this->billingAddress = $this->instantPurchaseOption->getBillingAddress();
-            $this->shippingMethod = $this->instantPurchaseOption->getShippingMethod();
+            // Get the shipping and billing data
+            if ($this->instantPurchaseOption) {
+                $this->shippingAddress = $this->instantPurchaseOption->getShippingAddress();
+                $this->billingAddress = $this->instantPurchaseOption->getBillingAddress();
+                $this->shippingMethod = $this->instantPurchaseOption->getShippingMethod();
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
         }
     }
 
@@ -95,10 +106,15 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
      * Load the instant purchase option
      */  
     protected function loadOption() {
-        return $this->instantPurchase->getOption(
-            $this->storeManager->getStore(),
-            $this->customerSession->getCustomer()
-        );
+        try {
+            return $this->instantPurchase->getOption(
+                $this->storeManager->getStore(),
+                $this->customerSession->getCustomer()
+            );
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -110,28 +126,33 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
         $data = ['available' => $this->isAvailable()];
         if (!$data['available']) return $data;
 
-        // Build the instant purchase data
-        $data += [
-            'paymentToken' => [
-                'publicHash' => $this->paymentToken->getPublicHash(),
-                'summary' => $this->paymentTokenFormatter->formatPaymentToken($this->paymentToken),
-            ],
-            'shippingAddress' => [
-                'id' => $this->shippingAddress->getId(),
-                'summary' => $this->customerAddressesFormatter->format($this->shippingAddress),
-            ],
-            'billingAddress' => [
-                'id' => $this->billingAddress->getId(),
-                'summary' => $this->customerAddressesFormatter->format($this->billingAddress),
-            ],
-            'shippingMethod' => [
-                'carrier' => $this->shippingMethod->getCarrierCode(),
-                'method' => $this->shippingMethod->getMethodCode(),
-                'summary' => $this->shippingMethodFormatter->format($this->shippingMethod),
-            ]
-        ];
+        try {
+            // Build the instant purchase data
+            $data += [
+                'paymentToken' => [
+                    'publicHash' => $this->paymentToken->getPublicHash(),
+                    'summary' => $this->paymentTokenFormatter->formatPaymentToken($this->paymentToken),
+                ],
+                'shippingAddress' => [
+                    'id' => $this->shippingAddress->getId(),
+                    'summary' => $this->customerAddressesFormatter->format($this->shippingAddress),
+                ],
+                'billingAddress' => [
+                    'id' => $this->billingAddress->getId(),
+                    'summary' => $this->customerAddressesFormatter->format($this->billingAddress),
+                ],
+                'shippingMethod' => [
+                    'carrier' => $this->shippingMethod->getCarrierCode(),
+                    'method' => $this->shippingMethod->getMethodCode(),
+                    'summary' => $this->shippingMethodFormatter->format($this->shippingMethod),
+                ]
+            ];
 
-        return $data;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            return $data;
+        }
     }
 
     /**

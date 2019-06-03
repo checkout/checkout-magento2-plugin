@@ -13,16 +13,23 @@ class Utilities {
      */
     protected $customerSession;
 
+    /**
+     * @var Logger
+     */
+    protected $logger;
+
 	/**
      * Utilities constructor.
      */
     public function __construct(
         \Magento\Framework\UrlInterface $urlInterface,
-        \Magento\Customer\Model\Session $customerSession
+        \Magento\Customer\Model\Session $customerSession,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     )
     {
         $this->urlInterface = $urlInterface;
         $this->customerSession = $customerSession;
+        $this->logger = $logger;
 	}
 
 	/**
@@ -54,7 +61,8 @@ class Utilities {
 
             return $paymentData['additional_information']['transaction_info'];
         } catch (\Exception $e) {
-            return false;
+            $this->logger->write($e->getMessage());
+            return [];
         }
     }
 
@@ -75,12 +83,8 @@ class Utilities {
 
             return $order;
         } catch (\Exception $e) {
-            return false;
+            $this->logger->write($e->getMessage());
+            return null;
         }
-    }
-
-    public function createLink($url, $text)
-    {
-        return '<a href="' . $url . '">' .  $text . '</a>';
     }
 }

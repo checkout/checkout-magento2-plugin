@@ -48,6 +48,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     protected $config;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * @var String
      */
     protected $methodId;
@@ -67,10 +72,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      */
     protected $quote;
 
-    /**
-     * Magic Methods
-     */
-
 	/**
      * PlaceOrder constructor
      */
@@ -83,7 +84,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     )
     {
         parent::__construct($context);
@@ -96,6 +98,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         $this->checkoutSession = $checkoutSession;
         $this->utilities = $utilities;
         $this->config = $config;
+        $this->logger = $logger;
 
         // Try to load a quote
         $this->quote = $this->quoteHandler->getQuote();
@@ -104,10 +107,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         $this->data = $this->getRequest()->getParams();
         $this->methodId = $this->data['methodId'];
     }
-
-    /**
-     * Methods
-     */
 
     /**
      * Main controller function.
@@ -120,41 +119,45 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         $message = '';
         $success = false;
 
-        // Process the request
-        if ($this->getRequest()->isAjax() && $this->quote) {
-            // Get response and success
-            $response = $this->requestPayment();
+        try {
+            // Process the request
+            if ($this->getRequest()->isAjax() && $this->quote) {
+                // Get response and success
+                $response = $this->requestPayment();
 
-            // Check success
-            if ($this->apiHandler->isValidResponse($response)) {
-                $success = $response->isSuccessful();
-                $url = $response->getRedirection();
-                if (!$response->isPending() || $this->data['source'] === 'sepa') {
-                    if (!$this->placeOrder((array) $response)) {
-                        // refund or void accordingly
-                        if($this->config->needsAutoCapture($this->methodId)) {
-                            //refund
-                            $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
-                        } else {
-                            //void
-                            $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
+                // Check success
+                if ($this->apiHandler->isValidResponse($response)) {
+                    $success = $response->isSuccessful();
+                    $url = $response->getRedirection();
+                    if (!$response->isPending() || $this->data['source'] === 'sepa') {
+                        if (!$this->placeOrder((array) $response)) {
+                            // refund or void accordingly
+                            if ($this->config->needsAutoCapture($this->methodId)) {
+                                //refund
+                                $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
+                            } else {
+                                //void
+                                $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
+                            }
                         }
                     }
+                } else {
+                    // Payment failed
+                    $message = __('The transaction could not be processed.');
                 }
             } else {
-                // Payment failed
-                $message = __('The transaction could not be processed.');
+                $message = __('The request is invalid.');
             }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } 
+        finally {
+            return $this->jsonFactory->create()->setData([
+                'success' => $success,
+                'message' => $message,
+                'url' => $url
+            ]);
         }
-        else {
-            $message = __('Invalid request.');
-        }
-
-        return $this->jsonFactory->create()->setData([
-            'success' => $success,
-            'message' => $message,
-            'url' => $url
-        ]);
     }
 
     /**
@@ -163,15 +166,20 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      * @return     Response
      */
     protected function requestPayment() {
-        // Send the charge request
-        return $this->methodHandler
-            ->get($this->methodId)
-            ->sendPaymentRequest(
-                $this->data,
-                $this->quote->getGrandTotal(),
-                $this->quote->getQuoteCurrencyCode(),
-                $this->quoteHandler->getReference($this->quote)
-            );
+        try {
+            // Send the charge request
+            return $this->methodHandler
+                ->get($this->methodId)
+                ->sendPaymentRequest(
+                    $this->data,
+                    $this->quote->getGrandTotal(),
+                    $this->quote->getQuoteCurrencyCode(),
+                    $this->quoteHandler->getReference($this->quote)
+                );
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        } 
     }
 
     /**
@@ -199,7 +207,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             return $order;
         }
         catch(\Exception $e) {
-            return false;
+            $this->logger->write($e->getMessage());
+            return null;
         }
     }
 }

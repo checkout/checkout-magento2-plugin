@@ -4,7 +4,6 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 class MethodHandlerService
 {
-
     /**
      * @var Array
      */

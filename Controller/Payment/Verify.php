@@ -23,6 +23,11 @@ class Verify extends \Magento\Framework\App\Action\Action {
      */
     protected $utilities;
 
+    /**
+     * @var Logger
+     */
+    protected $logger;
+
 	/**
      * PlaceOrder constructor
      */
@@ -31,7 +36,8 @@ class Verify extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     )
     {
         parent::__construct($context);
@@ -40,6 +46,7 @@ class Verify extends \Magento\Framework\App\Action\Action {
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
         $this->utilities = $utilities;
+        $this->logger = $logger;
     
         // Try to load a quote
         $this->quote = $this->quoteHandler->getQuote();
@@ -70,12 +77,14 @@ class Verify extends \Magento\Framework\App\Action\Action {
                 }
             }
         } catch (\Exception $e) {
-            // Add and error message
-            $this->messageManager->addErrorMessage(__('The transaction could not be processed or has been cancelled.'));  
-
-            // Return to the cart
-            return $this->_redirect('checkout/cart', ['_secure' => true]);
+            $this->logger->write($e->getMessage());
         }        
+
+        // Add and error message
+        $this->messageManager->addErrorMessage(__('The transaction could not be processed or has been cancelled.'));  
+
+        // Return to the cart
+        return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 
     /**
@@ -103,7 +112,8 @@ class Verify extends \Magento\Framework\App\Action\Action {
             return $order;
         }
         catch(\Exception $e) {
-            return false;
+            $this->logger->write($e->getMessage());
+            return null;
         }
     }
 }

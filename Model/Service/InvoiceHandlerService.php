@@ -27,16 +27,23 @@ class InvoiceHandlerService
     protected $order;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * InvoiceHandlerService constructor.
      */
     public function __construct(
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
-    	\CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->invoiceService     = $invoiceService;
         $this->invoiceRepository  = $invoiceRepository;
         $this->config             = $config;
+        $this->logger             = $logger;
     }
 
     /**
@@ -44,10 +51,15 @@ class InvoiceHandlerService
      */
     public function processInvoice($order)
     {
-        $this->order = $order;
-        if ($this->order->canInvoice()) {
-            return $this->createInvoice();
-        }
+        try {
+            $this->order = $order;
+            if ($this->order->canInvoice()) {
+                return $this->createInvoice();
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }   
     }
 
     /**
@@ -64,7 +76,8 @@ class InvoiceHandlerService
             // Save the invoice
             $this->invoiceRepository->save($invoice);
         } catch (\Exception $e) {
-
+            $this->logger->write($e->getMessage());
+            return null;
         }
     }
 }

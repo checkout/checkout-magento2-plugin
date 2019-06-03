@@ -97,7 +97,6 @@ class AlternativePaymentMethod extends Method
 
     }
 
-
     /**
      * Methods
      */

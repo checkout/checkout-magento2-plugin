@@ -28,19 +28,26 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
     protected $vaultHandler;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * SaveCard constructor.
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\UrlInterface $urlInterface,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
 
         $this->jsonFactory = $jsonFactory;
         $this->urlInterface = $urlInterface;
         $this->vaultHandler = $vaultHandler;
+        $this->logger = $logger;
     }
 
     /**
@@ -54,27 +61,29 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
         $ckoCardToken = $this->getRequest()->getParam('cardToken');
 
         // Process the request
-        if ($this->getRequest()->isAjax() && !empty($ckoCardToken)) {
-            // Save the card
-            try {
-                $success = $this->vaultHandler
-                 ->setCardToken($ckoCardToken)
-                 ->setCustomerId()
-                 ->setCustomerEmail()
-                 ->authorizeTransaction()
-                 ->saveCard();
+        try {
+            if ($this->getRequest()->isAjax() && !empty($ckoCardToken)) {
+                // Save the card
 
-                $this->messageManager->addSuccessMessage(__('The payment card has been stored successfully.'));
-            } catch (\Exception $e) {
-                $message = $e->getMessage();
+                    $success = $this->vaultHandler
+                    ->setCardToken($ckoCardToken)
+                    ->setCustomerId()
+                    ->setCustomerEmail()
+                    ->authorizeTransaction()
+                    ->saveCard();
+
+                    $this->messageManager->addSuccessMessage(__('The payment card has been stored successfully.'));
+
             }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            // Build the AJAX response
+            return $this->jsonFactory->create()->setData([
+                'success' => $success,
+                'message' => $message,
+                'url' => $url
+            ]);
         }
-
-        // Build the AJAX response
-        return $this->jsonFactory->create()->setData([
-            'success' => $success,
-            'message' => $message,
-            'url' => $url
-        ]);
     }
 }
