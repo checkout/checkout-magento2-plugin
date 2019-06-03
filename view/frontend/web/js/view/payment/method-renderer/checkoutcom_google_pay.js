@@ -102,8 +102,8 @@ define([
                             // handle the response
                             processPayment(paymentData);
                         })
-                        .catch(function (err) {
-                            //self.logEvent(err);
+                        .catch(function (error) {
+                            Utilities.log(error);
                         });
 
                         /**
