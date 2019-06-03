@@ -16,7 +16,6 @@ define([
         const KEY_DATA = 'checkoutcom_data';
 
         return {
-
             /**
              * Gets a field value.
              *
@@ -26,7 +25,7 @@ define([
              */
             getValue: function(methodId, field) {
                 var val = null;
-                if (Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
+                if (methodId && Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
                     val = Config[methodId][field]
                 }
                 else if (Config.hasOwnProperty(KEY_CONFIG) && Config[KEY_CONFIG].hasOwnProperty(field)) {
@@ -117,6 +116,16 @@ define([
                 return {
                     number: billingAddress.telephone
                 };
+            },
+
+            /**
+             * @returns {bool}
+             */
+            log: function (val) {
+                if (this.getValue(null, 'debug')
+                && this.getValue(null, 'console_logging')) {
+                    console.log(val);
+                }
             },
 
             /**
