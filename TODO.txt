@@ -6,6 +6,7 @@ TODO
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
 - check opened/closed transactions logic
 - add customer source to vault payments in admin and frontend + card payments
+- Payment methods need exception handling
 
 TASKS
 - do CLR to LF normalisation
