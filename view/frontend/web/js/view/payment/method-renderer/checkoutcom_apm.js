@@ -56,8 +56,8 @@ define([
                         type: "POST",
                         url: Utilities.getUrl('apm/display'),
                         success: function(data) {
-                            $('#apm-container')
-                            .append(data.html)
+                            Utilities.log(data);
+                            $('#apm-container').append(data.html)
                             .accordion({
                                 heightStyle: 'content',
                                 animate: {
@@ -70,7 +70,7 @@ define([
                             FullScreenLoader.stopLoader();
                         },
                         error: function (request, status, error) {
-                            console.log(error);
+                            Utilities.log(error);
 
                             // Stop the loader
                             FullScreenLoader.stopLoader();
@@ -82,7 +82,6 @@ define([
                  * @returns {void}
                  */
                 placeOrder: function () {
-
                     var id = $("#apm-container div[aria-selected=true]").attr('id'),
                         $form = $("#cko-apm-form-" + id),
                         data = {methodId: METHOD_ID};
@@ -97,13 +96,21 @@ define([
 
 
                     if (AdditionalValidators.validate() && $form.valid() && this.custom(data)) {
-                        Utilities.placeOrder(data, function() {console.log('success');}, function() {console.log('fail');});
+                        Utilities.placeOrder(
+                            data,
+                            // Todo - Improve response handling. Error should come from the controller
+                            function() {
+                                Utilities.log(__('Success'));
+                            },
+                            // Todo - Improve response handling. Error should come from the controller
+                            function() {
+                                Utilities.log(__('Fail'));
+                            }
+                        );
                     }
 
                     FullScreenLoader.stopLoader();
-
                 },
-
 
                 /**
                  * Custom "before place order" flows.
@@ -116,51 +123,53 @@ define([
                   * @return     {boolean}
                   */
                 custom: function(data) {
-
                     var result = true;
-                    if(typeof this[data.source] == 'function') {
+                    if (typeof this[data.source] == 'function') {
                         result = this[data.source](data);
                     }
 
                     return result;
-
                 },
 
                 /**
                  * @returns {boolean}
                  */
                 klarna: function (data) {
-
                     try {
-
-                        Klarna.Payments.authorize({ instance_id: "klarna-payments-instance",
-                                                    auto_finalize: true     },
+                        Klarna.Payments.authorize(
+                            {
+                                instance_id: "klarna-payments-instance",
+                                auto_finalize: true
+                            },
                             {},
                             function(response) {
-
                                 data.authorization_token = response.authorization_token;
-                                Utilities.placeOrder(data, function() {console.log('success');}, function() {Utilities.showMessage('error', 'Could not finalize the payment.');;});
-
-                            });
+                                Utilities.placeOrder(
+                                    data,
+                                    function() {
+                                        // Todo - Improve response handling. Error should come from the controller
+                                        Utilities.log(__('Success'));
+                                    }, function() {
+                                        Utilities.showMessage('error', 'Could not finalize the payment.');
+                                    }
+                                );
+                            }
+                        );
 
                     } catch(e) {
                         Utilities.showMessage('error', 'Could not finalize the payment.');
-                        console.log(e);
+                        Utilities.log(e);
                     }
 
                     return false;
-
                 },
 
                 /**
                  * @returns {boolean}
                  */
                 sepa: function (data) {
-
                     return data.hasOwnProperty('accepted');
-
                 }
-
             }
         );
     }
