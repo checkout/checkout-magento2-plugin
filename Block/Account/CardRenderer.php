@@ -73,7 +73,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      *
      * @return string
      */
-    public function getCartType() {
+    public function getCardType() {
         return $this->getTokenDetails()['type'];
     }
 
@@ -83,7 +83,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return string
      */
     public function getIconUrl() {
-        return $this->getIconForType($this->getCartType())['url'];
+        return $this->getIconForType($this->getCardType())['url'];
     }
 
     /**
@@ -92,7 +92,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return int
      */
     public function getIconHeight() {
-        return $this->getIconForType($this->getCartType())['height'];
+        return $this->getIconForType($this->getCardType())['height'];
     }
 
     /**
@@ -101,6 +101,6 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      * @return int
      */
     public function getIconWidth() {
-        return $this->getIconForType($this->getCartType())['width'];
+        return $this->getIconForType($this->getCardType())['width'];
     }
 }
