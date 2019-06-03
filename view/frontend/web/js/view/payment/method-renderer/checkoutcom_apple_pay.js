@@ -121,6 +121,7 @@ define([
                                 }
                             },
                             error: function(xhr, textStatus, error) {
+                                Utilities.log(error);
                                 reject;
                             } 
                         });
@@ -151,6 +152,8 @@ define([
                             } else {   
                                 $('#got_notactive').css('display', 'block');
                             }
+                        }).catch(function (error) {
+                            Utilities.log(error);
                         });
                     } else {
                         $('#notgot').css('display', 'block');
@@ -188,6 +191,8 @@ define([
                             var promise = self.performValidation(event.validationURL);
                             promise.then(function (merchantSession) {
                                 session.completeMerchantValidation(merchantSession);
+                            }).catch(function (error) {
+                                Utilities.log(error);
                             }); 
                         }
 
@@ -248,12 +253,14 @@ define([
                                     FullScreenLoader.startLoader();
                                     redirectOnSuccessAction.execute(); 
                                 }
+                            }).catch(function (error) {
+                                Utilities.log(error);
                             });
                         }
 
                         // Session cancellation
                         session.oncancel = function(event) {
-                            self.logEvent(event);
+                            Utilities.log(event);
                         }
 
                         // Begin session

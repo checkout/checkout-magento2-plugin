@@ -152,7 +152,7 @@ define([
                     },
                     error: function (request, status, error) {
                         FullScreenLoader.stopLoader();
-                        console.log(error);
+                        Utilities.log(error);
                     }
                 });
             },

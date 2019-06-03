@@ -33,7 +33,7 @@
             publicKey: ckoPublicKey,
             containerSelector: cardFormContainerId,
             theme: ckoTheme,
-            debugMode: '<?= $block->config->getValue('debug'); ?>',
+            debugMode: '<?= ($block->config->getValue('debug') && $block->config->getValue('console_logging')); ?>',
             frameActivated: function () {
                 saveCardButton.attr("disabled", true);
             },

@@ -109,7 +109,7 @@ define([
                 Frames.init({
                     publicKey: self.getValue('public_key'),
                     containerSelector: '.frames-container',
-                    debugMode: self.getValue('debug'),
+                    debugMode: (self.getValue('debug') && self.getValue('console_logging')),
                     localisation: self.getValue('language_fallback'),
                     theme: self.getValue('form_theme'),
                     customerName: Utilities.getCustomerName(),

@@ -7,6 +7,7 @@ TODO
 - check opened/closed transactions logic
 - add customer source to vault payments in admin and frontend + card payments
 - Payment methods need exception handling
+- Handle 3ds redirection for save card from account
 
 TASKS
 - do CLR to LF normalisation
@@ -24,6 +25,7 @@ TASKS
 - Test apple pay and google pay
 - format CSS files
 - update the apple pay fields with jon's suggestions
+- check todo tags in the code base
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?
