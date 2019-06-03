@@ -108,12 +108,13 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
         $klarna = new Klarna(strtolower($this->billingAddress->getCountry()),
                              $this->quote->getQuoteCurrencyCode(),
                              $this->locale,
-                             $this->quote->getGrandTotal() *100,
+                             $this->quote->getGrandTotal() *100 ,
                              $response['tax_amount'],
                              $products
                          );
 
         $source = $this->apiHandler->checkoutApi->sources()->add($klarna);
+
         if($source->isSuccessful()) {
             $response['source'] = $source->getValues();
             $response['billing'] = $this->billingAddress->toArray();
@@ -152,7 +153,36 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
 
         }
 
+        $this->getShipping($response, $products);
+
         return $products;
+
+    }
+
+    /**
+     * Gets the products.
+     *
+     * @param      array   $response  The response
+     *
+     * @return     array  The products.
+     */
+    protected function getShipping(array &$response, array &$products) {
+
+        $response['tax_amount'] = 0;
+        $shipping = $this->quote->getShippingAddress();
+
+        $product = new Product();
+        $product->name = $shipping->getShippingDescription();
+        $product->quantity = 1;
+        $product->unit_price = $shipping->getShippingInclTax() *100;
+        $product->tax_rate = $shipping->getTaxPercent() *100;
+        $product->total_amount = $shipping->getShippingAmount() *100;
+        $product->total_tax_amount = $shipping->getTaxAmount() *100;
+        $product->type = 'shipping_fee';
+
+        $response['tax_amount']  += $product->total_tax_amount;
+        $products []= $product;
+        $response['products'] []= $product->getValues();
 
     }
 
