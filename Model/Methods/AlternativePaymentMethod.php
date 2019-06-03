@@ -3,8 +3,8 @@
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use \Checkout\Library\HttpHandler;
-use Checkout\Models\Product;
-use Checkout\Models\Address;
+use \Checkout\Models\Product;
+use \Checkout\Models\Address;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\EpsSource;
@@ -14,7 +14,6 @@ use \Checkout\Models\Payments\BoletoSource;
 use \Checkout\Models\Payments\KlarnaSource;
 use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
-use CheckoutCom\Magento2\Gateway\Config\Config;
 
 class AlternativePaymentMethod extends Method
 {
@@ -26,102 +25,77 @@ class AlternativePaymentMethod extends Method
 
     /**
      * @var string
-     */
-    const PAYMENT_SEPA = 'sepa';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_ALIPAY = 'alipay';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_BOLETO = 'boleto';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_GIROPAY = 'giropay';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_IDEAL = 'ideal';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_POLI = 'poli';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_QIWI = 'qiwi';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_SAFETYPAY = 'safetypay';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_KLARNA = 'klarna';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_SOFORT = 'sofort';
-
-    /**
-     * @var string
-     */
-    const PAYMENT_EPS = 'eps';
-
-    /**
-     * @var array
-     */
-    const PAYMENT_LIST = array(
-        AlternativePaymentMethod::PAYMENT_SEPA => 'SEPA',
-        AlternativePaymentMethod::PAYMENT_ALIPAY => 'Alipay',
-        AlternativePaymentMethod::PAYMENT_BOLETO => 'Boleto',
-        AlternativePaymentMethod::PAYMENT_GIROPAY => 'Giropay',
-        AlternativePaymentMethod::PAYMENT_IDEAL => 'iDEAL',
-        AlternativePaymentMethod::PAYMENT_POLI => 'Poli',
-        //AlternativePaymentMethod::PAYMENT_QIWI => 'Qiwi',
-        //AlternativePaymentMethod::PAYMENT_SAFETYPAY => 'SafetyPay',
-        AlternativePaymentMethod::PAYMENT_KLARNA => 'Klarna',
-        AlternativePaymentMethod::PAYMENT_SOFORT => 'Sofort',
-        AlternativePaymentMethod::PAYMENT_EPS => 'EPS'
-    );
-
-    /**
-     * @var array
-     */
-    const SUPPORTED_CURRENCIES = array(
-        'EUR' => array(AlternativePaymentMethod::PAYMENT_SEPA,
-                        AlternativePaymentMethod::PAYMENT_GIROPAY,
-                        AlternativePaymentMethod::PAYMENT_IDEAL,
-                        AlternativePaymentMethod::PAYMENT_KLARNA,
-                        AlternativePaymentMethod::PAYMENT_SOFORT,
-                        AlternativePaymentMethod::PAYMENT_EPS),
-        'USD' => array(AlternativePaymentMethod::PAYMENT_ALIPAY,
-                        AlternativePaymentMethod::PAYMENT_BOLETO),
-        'BRL' => array(AlternativePaymentMethod::PAYMENT_BOLETO),
-        'AUD' => array(AlternativePaymentMethod::PAYMENT_POLI),
-        'NZD' => array(AlternativePaymentMethod::PAYMENT_POLI),
-        'DKK' => array(AlternativePaymentMethod::PAYMENT_KLARNA),
-        'GBP' => array(AlternativePaymentMethod::PAYMENT_KLARNA),
-        'NOK' => array(AlternativePaymentMethod::PAYMENT_KLARNA),
-        'SEK' => array(AlternativePaymentMethod::PAYMENT_KLARNA)
-    );
-
-    /**
-     * @var string
      * @overriden
      */
     protected $_code = self::CODE;
+
+    /**
+     * @var ShopperHandlerService
+     */
+    protected $shopperHandler;
+
+
+    /**
+     * Magic Methods
+     */
+
+    /**
+     * Constructor.
+     *
+     * @param      \Magento\Framework\Model\Context                         $context                 The context
+     * @param      \Magento\Framework\Registry                              $registry                The registry
+     * @param      \Magento\Framework\Api\ExtensionAttributesFactory        $extensionFactory        The extension factory
+     * @param      \Magento\Framework\Api\AttributeValueFactory             $customAttributeFactory  The custom attribute factory
+     * @param      \Magento\Payment\Helper\Data                             $paymentData             The payment data
+     * @param      \Magento\Framework\App\Config\ScopeConfigInterface       $scopeConfig             The scope configuration
+     * @param      \Magento\Payment\Model\Method\Logger                     $logger                  The logger
+     * @param      \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress     $remoteAddress           The remote address
+     * @param      \CheckoutCom\Magento2\Gateway\Config\Config              $config                  The configuration
+     * @param      \CheckoutCom\Magento2\Model\Service\ApiHandlerService    $apiHandler              The api handler
+     * @param      \CheckoutCom\Magento2\Model\Service\QuoteHandlerService  $quoteHandler            The quote handler
+     * @param      \CheckoutCom\Magento2\Model\Service\ShopperHandlerService   $shopperHandler             The card handler
+     * @param      \Magento\Framework\Model\ResourceModel\AbstractResource  $resource                The resource
+     * @param      \Magento\Framework\Data\Collection\AbstractDb            $resourceCollection      The resource collection
+     * @param      array                                                    $data                    The data
+     */
+    public function __construct(
+        \Magento\Framework\Model\Context $context,
+        \Magento\Framework\Registry $registry,
+        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
+        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
+        \Magento\Payment\Helper\Data $paymentData,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Payment\Model\Method\Logger $logger,
+        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
+        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        array $data = []
+    ) {
+
+        parent::__construct(
+            $context,
+            $registry,
+            $extensionFactory,
+            $customAttributeFactory,
+            $paymentData,
+            $scopeConfig,
+            $logger,
+            $remoteAddress,
+            $config,
+            $apiHandler,
+            $quoteHandler,
+            $resource,
+            $resourceCollection,
+            $data
+        );
+
+        $this->shopperHandler = $shopperHandler;
+
+    }
 
     /**
      * Methods
@@ -135,7 +109,7 @@ class AlternativePaymentMethod extends Method
         $method = $data['source'];
         $response = null;
 
-        if ($this->validateRequest($method, $currency)) {
+        if ($this->validateCurrency($method, $currency)) {
 
              // Create source object
             $source = call_user_func(array($this, $method), $data);
@@ -154,26 +128,6 @@ class AlternativePaymentMethod extends Method
     }
 
     /**
-     * Methods
-     */
-
-    /**
-     * Verify if country and currency are supported by the payment method.
-     *
-     * @param      string  $method    The method
-     * @param      string  $currency  The currency
-     *
-     * @return     bool
-     * @todo       validateCountry($method, $country)!
-     */
-    protected function validateRequest(string $method, string $currency) {
-
-        return $this->validateCurrency($method, $currency); // && $this->validateCountry();
-
-    }
-
-
-    /**
      * Verify if currency is supported.
      *
      * @param      string  $method    The method
@@ -183,7 +137,16 @@ class AlternativePaymentMethod extends Method
      */
     protected function validateCurrency(string $method, string $currency) {
 
-        return isset(AlternativePaymentMethod::SUPPORTED_CURRENCIES[$currency]) && in_array($method, AlternativePaymentMethod::SUPPORTED_CURRENCIES[$currency]);
+        $apms = $this->config->getApms();
+        $valid = false;
+
+        foreach ($apms as $apm) {
+            if($apm['value'] === $method) {
+                $valid = strpos($apm['currencies'], $currency) !== false;
+            }
+        }
+
+        return $valid;
 
     }
 
@@ -236,12 +199,6 @@ class AlternativePaymentMethod extends Method
         return json_decode($content, true);
 
     }
-
-
-
-
-
-
 
     /**
      * Create source.
@@ -343,6 +300,21 @@ class AlternativePaymentMethod extends Method
 
         }
 
+        // Shipping fee
+        $shipping = $quote->getShippingAddress();
+
+        $product = new Product();
+        $product->name = $shipping->getShippingDescription();
+        $product->quantity = 1;
+        $product->unit_price = $shipping->getShippingInclTax() *100;
+        $product->tax_rate = $shipping->getTaxPercent() *100;
+        $product->total_amount = $shipping->getShippingAmount() *100;
+        $product->total_tax_amount = $shipping->getTaxAmount() *100;
+        $product->type = 'shipping_fee';
+
+        $tax  += $product->total_tax_amount;
+        $products []= $product;
+
         /* Billing */
         $billingAddress = $this->quoteHandler->getBillingAddress();
         $address = new Address();
@@ -357,7 +329,6 @@ class AlternativePaymentMethod extends Method
         $address->region = $billingAddress->getRegion();
         $address->phone = $billingAddress->getTelephone();
         $address->country = strtolower($billingAddress->getCountry());
-
 
         $klarna =  new KlarnaSource($data['authorization_token'],
                                     strtolower($billingAddress->getCountry()),
@@ -382,10 +353,12 @@ class AlternativePaymentMethod extends Method
     }
 
 
-
+    /**
+     * Magento related.
+     */
 
     /**
-     * Methods
+     * Void
      *
      * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
      *
@@ -393,8 +366,6 @@ class AlternativePaymentMethod extends Method
      *
      * @return     self                                             ( description_of_the_return_value )
      */
-
-
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
         // Check the status
@@ -411,6 +382,16 @@ class AlternativePaymentMethod extends Method
         return $this;
     }
 
+    /**
+     * Refund
+     *
+     * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
+     * @param      <type>                                           $amount   The amount
+     *
+     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return     self                                             ( description_of_the_return_value )
+     */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         // Check the status
@@ -427,7 +408,6 @@ class AlternativePaymentMethod extends Method
         return $this;
     }
 
-
     /**
      * Check whether method is available
      *
@@ -441,7 +421,8 @@ class AlternativePaymentMethod extends Method
             return $this->config->getValue('active', $this->_code)
             && count($this->config->getApms()) > 0;
         }
-        
+
         return false;
     }
+
 }
