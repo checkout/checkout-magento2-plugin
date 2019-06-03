@@ -2,11 +2,12 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Models\Payments\TokenSource;
+use \Checkout\Library\HttpHandler;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
+use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\BillingDescriptor;
-class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
+class CardPaymentMethod extends Method
 {
 	/**
      * @var string
@@ -18,43 +19,35 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected $_code = self::CODE;
 
-    protected $_isInitializeNeeded = true;
-    protected $_isGateway = true;
-    protected $_canAuthorize = true;
-    protected $_canCapture = true;
-    protected $_canCancel = true;
-    protected $_canCapturePartial = true;
-    protected $_canVoid = true;
-    protected $_canUseInternal = false;
-    protected $_canUseCheckout = true;
-    protected $_canRefund = true;
-    protected $_canRefundInvoicePartial = true;
-
-    /**
-     * @var RemoteAddress
-     */
-    protected $remoteAddress;
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * @var ApiHandlerService
-     */
-    protected $apiHandler;
-
     /**
      * @var CardHandlerService
      */
     protected $cardHandler;
 
     /**
-     * @var QuoteHandlerService
+     * @var Session
      */
-    protected $quoteHandler;
+    protected $customerSession;
 
+    /**
+     * Constructor.
+     *
+     * @param      \Magento\Framework\Model\Context                         $context                 The context
+     * @param      \Magento\Framework\Registry                              $registry                The registry
+     * @param      \Magento\Framework\Api\ExtensionAttributesFactory        $extensionFactory        The extension factory
+     * @param      \Magento\Framework\Api\AttributeValueFactory             $customAttributeFactory  The custom attribute factory
+     * @param      \Magento\Payment\Helper\Data                             $paymentData             The payment data
+     * @param      \Magento\Framework\App\Config\ScopeConfigInterface       $scopeConfig             The scope configuration
+     * @param      \Magento\Payment\Model\Method\Logger                     $logger                  The logger
+     * @param      \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress     $remoteAddress           The remote address
+     * @param      \CheckoutCom\Magento2\Gateway\Config\Config              $config                  The configuration
+     * @param      \CheckoutCom\Magento2\Model\Service\ApiHandlerService    $apiHandler              The api handler
+     * @param      \CheckoutCom\Magento2\Model\Service\QuoteHandlerService  $quoteHandler            The quote handler
+     * @param      \CheckoutCom\Magento2\Model\Service\CardHandlerService   $cardHandler             The card handler
+     * @param      \Magento\Framework\Model\ResourceModel\AbstractResource  $resource                The resource
+     * @param      \Magento\Framework\Data\Collection\AbstractDb            $resourceCollection      The resource collection
+     * @param      array                                                    $data                    The data
+     */
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -63,28 +56,17 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Payment\Helper\Data $paymentData,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\ObjectManagerInterface $objectManager,
-        \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
-        \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Checkout\Helper\Data $checkoutData,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \Magento\Quote\Api\CartManagementInterface $quoteManagement,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
+
         parent::__construct(
             $context,
             $registry,
@@ -93,105 +75,90 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $paymentData,
             $scopeConfig,
             $logger,
+            $remoteAddress,
+            $config,
+            $apiHandler,
+            $quoteHandler,
             $resource,
             $resourceCollection,
             $data
         );
-        $this->urlBuilder         = $urlBuilder;
-        $this->backendAuthSession = $backendAuthSession;
-        $this->cart               = $cart;
-        $this->_objectManager     = $objectManager;
-        $this->invoiceSender      = $invoiceSender;
-        $this->transactionFactory = $transactionFactory;
-        $this->customerSession    = $customerSession;
-        $this->checkoutSession    = $checkoutSession;
-        $this->checkoutData       = $checkoutData;
-        $this->quoteRepository    = $quoteRepository;
-        $this->quoteManagement    = $quoteManagement;
-        $this->orderSender        = $orderSender;
-        $this->sessionQuote       = $sessionQuote;
 
-        $this->remoteAddress      = $remoteAddress;
-        $this->config             = $config;
-        $this->apiHandler         = $apiHandler;
-        $this->cardHandler        = $cardHandler;
-        $this->quoteHandler       = $quoteHandler;
+        $this->cardHandler = $cardHandler;
+        $this->customerSession = $customerSession;
+
     }
 
 	/**
      * Send a charge request.
      */
     public function sendPaymentRequest($data, $amount, $currency, $reference = '') {
-        try {
-            // Set the token source
-            $tokenSource = new TokenSource($data['cardToken']);
 
-            // Set the payment
-            $request = new Payment(
-                $tokenSource,
-                $currency
+        // Set the token source
+        $tokenSource = new TokenSource($data['cardToken']);
+
+        // Set the payment
+        $request = new Payment(
+            $tokenSource,
+            $currency
+        );
+
+        // Prepare the metadata array
+        $request->metadata = ['methodId' => $this->_code];
+
+        // Prepare the capture date setting
+        $captureDate = $this->config->getCaptureTime($this->_code);
+
+        // Prepare the MADA setting
+        $madaEnabled = $this->config->getValue('mada_enabled', $this->_code);
+
+        // Prepare the save card setting
+        $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code);
+
+        // Set the request parameters
+        $request->capture = $this->config->needsAutoCapture($this->_code);
+        $request->amount = $amount*100;
+        $request->reference = $reference;
+        $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+        $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+        $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
+        $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
+        $request->description = __('Payment request from %1', $this->config->getStoreName());
+        // Todo - add customer to the request
+        //$request->customer = $this->apiHandler->createCustomer($this->quoteHandler->getQuote());
+        $request->payment_ip = $this->remoteAddress->getRemoteAddress();
+        if ($captureDate) {
+            $request->capture_time = $this->config->getCaptureTime();
+        }
+
+        // Mada BIN Check
+        if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
+            $request->metadata['udf1'] = 'MADA';
+        }
+
+        // Save card check
+        if (isset($data['saveCard']) && $saveCardEnabled && $this->customerSession->isLoggedIn()) {
+            $request->metadata['saveCard'] = true;
+            $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
+        }
+
+        // Billing descriptor
+        /*
+        if ($this->config->needsDynamicDescriptor()) {
+            $request->billing_descriptor = new BillingDescriptor(
+                $this->getValue('descriptor_name'),
+                $this->getValue('descriptor_city')
             );
-
-            // Prepare the metadata array
-            $request->metadata = ['methodId' => $this->_code];
-
-            // Prepare the capture date setting
-            $captureDate = $this->config->getCaptureTime($this->_code);
-
-            // Prepare the MADA setting
-            $madaEnabled = $this->config->getValue('mada_enabled', $this->_code);
-
-            // Prepare the save card setting
-            $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code);
-
-            // Set the request parameters
-            $request->capture = $this->config->needsAutoCapture($this->_code);
-            $request->amount = $amount*100;
-            $request->reference = $reference;
-            $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
-            $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-            $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
-            $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
-            $request->description = __('Payment request from %1', $this->config->getStoreName());
-            // Todo - add customer to the request
-            //$request->customer = $this->apiHandler->createCustomer($this->quoteHandler->getQuote());
-            $request->payment_ip = $this->remoteAddress->getRemoteAddress();
-            if ($captureDate) {
-                $request->capture_time = $this->config->getCaptureTime();
-            }
-            
-            // Mada BIN Check
-            if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
-                $request->metadata['udf1'] = 'MADA';
-            }
-
-            // Save card check
-            if (isset($data['saveCard']) && $saveCardEnabled && $this->customerSession->isLoggedIn()) {
-                $request->metadata['saveCard'] = true;
-                $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
-            }
-
-            // Billing descriptor
-            /*
-            if ($this->config->needsDynamicDescriptor()) {
-                $request->billing_descriptor = new BillingDescriptor(
-                    $this->getValue('descriptor_name'),
-                    $this->getValue('descriptor_city')
-                );
-            }
-            */
-
-            // Send the charge request
-            $response = $this->apiHandler->checkoutApi
-                ->payments()
-                ->request($request);
-
-            return $response;
         }
+        */
 
-        catch(\Exception $e) {
+        // Send the charge request
+        $response = $this->apiHandler->checkoutApi
+            ->payments()
+            ->request($request);
 
-        }
+        return $response;
+
     }
 
     public function void(\Magento\Payment\Model\InfoInterface $payment)
@@ -246,7 +213,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 )
             ) && $this->config->getValue('active', $this->_code);
         }
-        
+
         return false;
     }
 }
