@@ -56,6 +56,11 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
     protected $store;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * Display constructor
      */
     public function __construct(
@@ -66,13 +71,17 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Store\Model\Information $storeManager,
-        \Magento\Store\Model\Store $store
+        \Magento\Store\Model\Store $store,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
 
         $this->pageFactory = $pageFactory;
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
+        $this->apiHandler = $apiHandler;
+        $this->quoteHandler = $quoteHandler;
+        $this->logger = $logger;
 
         // Get the request parameters
         $this->source = $this->getRequest()->getParam('source');
@@ -81,13 +90,10 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
         $this->account_iban = $this->getRequest()->getParam('account_iban');
 
         // Try to load a quote
-        $this->quoteHandler = $quoteHandler;
         $this->quote = $this->quoteHandler->getQuote();
         $this->billingAddress = $quoteHandler->getBillingAddress();
         $this->store = $storeManager->getStoreInformationObject($store);
 
-        // SDK related
-        $this->apiHandler = $apiHandler;
     }
 
     /**
@@ -97,58 +103,87 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
         // Prepare the output container
         $html = '';
 
-        // Run the requested task
-        if ($this->isValidRequest()) {
-            $html = $this->runTask();
+        try {
+            // Run the requested task
+            if ($this->isValidRequest()) {
+                $html = $this->runTask();
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            return $this->jsonFactory->create()->setData(
+                ['html' => $html]
+            );
         }
-
-        return $this->jsonFactory->create()->setData(
-            ['html' => $html]
-        );
     }
 
     /**
      * Checks if the request is valid.
      */
     protected function isValidRequest() {
-        return $this->getRequest()->isAjax()
-        && $this->isValidApm()
-        && $this->isValidTask();
+        try {
+            return $this->getRequest()->isAjax()
+            && $this->isValidApm()
+            && $this->isValidTask();
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }
     }
 
     /**
      * Checks if the task is valid.
      */
     protected function isValidTask() {
-        return method_exists($this, $this->buildMethodName());
+        try {
+            return method_exists($this, $this->buildMethodName());
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }
     }
 
     /**
      * Runs the requested task.
      */
     protected function runTask() {
-        $methodName = $this->buildMethodName();
-        return $this->$methodName();
+        try {
+            $methodName = $this->buildMethodName();
+            return $this->$methodName();
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return '';
+        }
     }
 
     /**
      * Builds a method name from request.
      */
     protected function buildMethodName() {
-        return 'get' . ucfirst($this->task);
+        try {
+            return 'get' . ucfirst($this->task);
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return '';
+        }
     }
 
     /**
      * Checks if the requested APM is valid.
      */
     protected function isValidApm() {
-        // Get the list of APM
-        $apmEnabled = explode(',',
-            $this->config->getValue('apm_enabled', 'checkoutcom_apm')
-        );
+        try {
+            // Get the list of APM
+            $apmEnabled = explode(',',
+                $this->config->getValue('apm_enabled', 'checkoutcom_apm')
+            );
 
-        // Load block data for each APM
-       return in_array($this->source, $apmEnabled) ? true : false;
+            // Load block data for each APM
+            return in_array($this->source, $apmEnabled) ? true : false;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -156,14 +191,19 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
      */
     protected function loadBlock($reference, $url)
     {
-        return $this->pageFactory->create()->getLayout()
-        ->createBlock('CheckoutCom\Magento2\Block\Apm\Sepa\Mandate')
-        ->setTemplate('CheckoutCom_Magento2::payment/apm/sepa/mandate.phtml')
-        ->setData('billingAddress', $this->billingAddress)
-        ->setData('store', $this->store)
-        ->setData('reference', $reference)
-        ->setData('url', $url)
-        ->toHtml();
+        try {
+            return $this->pageFactory->create()->getLayout()
+            ->createBlock('CheckoutCom\Magento2\Block\Apm\Sepa\Mandate')
+            ->setTemplate('CheckoutCom_Magento2::payment/apm/sepa/mandate.phtml')
+            ->setData('billingAddress', $this->billingAddress)
+            ->setData('store', $this->store)
+            ->setData('reference', $reference)
+            ->setData('url', $url)
+            ->toHtml();
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return '';
+        }
     }
 
     /**
@@ -172,23 +212,19 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
      * @return     <type>  The mandate.
      */
     public function getMandate() {
+        $html = ''; // @todo: return error message in HTML
 
-        $html = null; // @todo: return error message in HTML
-        $mandate = null;
-        $sepa = $this->requestSepa();
-        if($sepa && $sepa->isSuccessful()) {
-            $html = $this->loadBlock($sepa->response_data['mandate_reference'], $sepa->getSepaMandateGet());
+        try {
+            $sepa = $this->requestSepa();
+            if ($sepa && $sepa->isSuccessful()) {
+                $html = $this->loadBlock($sepa->response_data['mandate_reference'], $sepa->getSepaMandateGet());
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            return $html;
         }
-
-        return $html;
-
     }
-
-
-
-    /**
-     * Methods
-     */
 
     /**
      * Request gateway to add new source.
@@ -196,34 +232,38 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
      * @return     Sepa
      */
     protected function requestSepa() {
-
-        $address = new SepaAddress( $this->billingAddress->getStreetLine(1),
-                                    $this->billingAddress->getCity(),
-                                    $this->billingAddress->getPostcode(),
-                                    $this->billingAddress->getCountryId());
-        $address->address_line2 = $this->billingAddress->getStreetLine(2);
-
-        $data = new SepaData(   $this->billingAddress->getFirstname(),
-                                $this->billingAddress->getLastname(),
-                                $this->account_iban,
-                                $this->bic,
-                                $this->config->getStoreName(),
-                                'single');
-
-        $source = new Sepa($address, $data);
-
+        $sepa = null;
         try {
+            // Build the address
+            $address = new SepaAddress(
+                $this->billingAddress->getStreetLine(1),
+                $this->billingAddress->getCity(),
+                $this->billingAddress->getPostcode(),
+                $this->billingAddress->getCountryId()
+            );
 
-            $sepa = $this->apiHandler->checkoutApi->sources()
-                                                  ->add($source);
-        //} catch(Checkout\Library\Exceptions\CheckoutHttpException $ex) {
-        } catch(\Exception $ex) {
-            // @todo: debug error
-            $sepa =  null;
+            // Address line 2
+            $address->address_line2 = $this->billingAddress->getStreetLine(2);
+
+            // Build the SEPA data
+            $data = new SepaData(
+                $this->billingAddress->getFirstname(),
+                $this->billingAddress->getLastname(),
+                $this->account_iban,
+                $this->bic,
+                $this->config->getStoreName(),
+                'single'
+            );
+
+            // Build and addthe source
+            $source = new Sepa($address, $data);
+            $sepa = $this->apiHandler->checkoutApi
+                ->sources()
+                ->add($source);
+        } catch(\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            return $sepa;
         }
-
-        return $sepa;
-
     }
-
 }

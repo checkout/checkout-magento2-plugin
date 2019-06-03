@@ -58,6 +58,11 @@ class Callback extends \Magento\Framework\App\Action\Action {
      */
     protected $config;
 
+    /**
+     * @var Logger
+     */
+    protected $logger;
+
 	/**
      * Callback constructor
      */
@@ -70,7 +75,8 @@ class Callback extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     )
     {
         parent::__construct($context);
@@ -83,6 +89,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
         $this->transactionHandler = $transactionHandler;
         $this->vaultHandler = $vaultHandler;
         $this->config = $config;
+        $this->logger = $logger;
 
         // Set the payload data
         $this->payload = $this->getPayload();
@@ -133,29 +140,40 @@ class Callback extends \Magento\Framework\App\Action\Action {
 
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
+                return $resultFactory->setData(['result' => _('Success')]);
             }
             else  {
                 $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
+                return $resultFactory->setData(['error_message' => _('Unauthorized request')]);
             }
         } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
             $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
-            $resultFactory->setData(['error_message' => $e->getMessage()]);
+            return $resultFactory->setData(['error_message' => $e->getMessage()]);
         }   
-        
-        return $resultFactory;
     }
 
     protected function getPayload() {
-        return json_decode($this->getRequest()->getContent());
+        try {
+            return json_decode($this->getRequest()->getContent());
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     protected function cardNeedsSaving() {
-        return isset($this->payload->data->metadata->saveCard)
-        && $this->payload->data->metadata->saveCard
-        && isset($this->payload->data->metadata->customerId)
-        && (int) $this->payload->data->metadata->customerId > 0
-        && isset($this->payload->data->source->id)
-        && !empty($this->payload->data->source->id);
+        try {
+            return isset($this->payload->data->metadata->saveCard)
+            && $this->payload->data->metadata->saveCard
+            && isset($this->payload->data->metadata->customerId)
+            && (int) $this->payload->data->metadata->customerId > 0
+            && isset($this->payload->data->source->id)
+            && !empty($this->payload->data->source->id);
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }
     }
 
     protected function saveCard($response) {
@@ -172,10 +190,11 @@ class Callback extends \Magento\Framework\App\Action\Action {
             ->setCustomerEmail($customer->getEmail())
             ->setResponse($response)
             ->saveCard();
-    
+
+            return $success;
         } catch (\Exception $e) {
-
-
+            $this->logger->write($e->getMessage());
+            return false;
         }     
     }
 }

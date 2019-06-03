@@ -58,6 +58,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     protected $utilities;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * PlaceOrder constructor
      */
     public function __construct(
@@ -70,7 +75,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
 
@@ -83,6 +89,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
+        $this->logger = $logger;
 
         // Try to load a quote
         $this->quote = $this->quoteHandler->getQuote();
@@ -96,6 +103,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
     public function execute()
     {
+        // Prepare a default error message
+        $message = _('An error occurred and the order could not be created.');
+
+        // Try to place the order
         try {
             // Create the quote
             $quote = $this->quoteHandler->createQuote();
@@ -155,13 +166,14 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 );
             }
         } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
             return $this->createResponse(
-                $e->getMessage(),
+                $message,
                 false
             );
+        } finally {
+            return $this->createResponse($message, true);
         }
-
-        return $this->createResponse($message, true);
     }
 
     /**
@@ -183,5 +195,4 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
         return $result;
     }
-
 }

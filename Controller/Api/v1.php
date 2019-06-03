@@ -13,16 +13,23 @@ class v1 extends \Magento\Framework\App\Action\Action {
      */
     protected $config;
 
+    /**
+     * @var Logger
+     */
+    protected $logger;
+
 	/**
      * Callback constructor
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     )
     {
         parent::__construct($context);
         $this->config = $config;
+        $this->logger = $logger;
 
         // Set the payload data
         $this->payload = $this->getPayload();
@@ -48,14 +55,12 @@ class v1 extends \Magento\Framework\App\Action\Action {
             }
         } catch (\Exception $e) {
             $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
-            $resultFactory->setData(['error_message' => $e->getMessage()]);
-        }   
-        
-        return $resultFactory;
+            $this->logger->write($e->getMessage());
+            return $resultFactory->setData(['error_message' => $e->getMessage()]);
+        } 
     }
 
     protected function getPayload() {
         return json_decode($this->getRequest()->getContent());
     }
-
 }

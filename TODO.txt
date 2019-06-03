@@ -22,6 +22,7 @@ TASKS
 - split transaction handler code in smaller chunks
 - Test apple pay and google pay
 - format CSS files
+- update the apple pay fields with jon's suggestions
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?

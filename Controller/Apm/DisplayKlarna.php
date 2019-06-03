@@ -41,6 +41,16 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
     protected $quoteHandler;
 
     /**
+     * @var ShopperHandlerService
+     */
+    protected $shopperHandler;
+
+    /**
+     * @var Logger
+     */
+    protected $logger;
+    
+    /**
      * @var Quote
      */
     protected $quote;
@@ -65,34 +75,40 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
 
         parent::__construct($context);
 
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
+        $this->apiHandler = $apiHandler;
+        $this->quoteHandler = $quoteHandler;
+        $this->shopperHandler = $shopperHandler;
+        $this->logger = $logger;
 
         // Try to load a quote
-        $this->quoteHandler = $quoteHandler;
         $this->quote = $this->quoteHandler->getQuote();
         $this->billingAddress = $quoteHandler->getBillingAddress();
-
-        $this->apiHandler = $apiHandler;
         $this->locale = str_replace('_', '-', $shopperHandler->getCustomerLocale());
-
     }
 
     /**
      * Handles the controller method.
      */
     public function execute() {
+        try {
+            $klarna = $this->getKlarna();
 
-        $klarna = $this->getKlarna();
+            return $this->jsonFactory->create()
+                ->setData($klarna);
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
 
-        return $this->jsonFactory->create()
-                                 ->setData($klarna);
-
+            return $this->jsonFactory->create()
+            ->setData([]);        
+        }
     }
 
     /**
@@ -101,29 +117,34 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
      * @return     array  The klarna.
      */
     protected function getKlarna() {
+        // Prepare the output array
+        $response = [];
 
-        $response = array();
-        $products = $this->getProducts($response);
+        try {
+            $products = $this->getProducts($response);
 
-        $klarna = new Klarna(strtolower($this->billingAddress->getCountry()),
-                             $this->quote->getQuoteCurrencyCode(),
-                             $this->locale,
-                             $this->quote->getGrandTotal() *100,
-                             $response['tax_amount'],
-                             $products
-                         );
+            $klarna = new Klarna(strtolower($this->billingAddress->getCountry()),
+                                $this->quote->getQuoteCurrencyCode(),
+                                $this->locale,
+                                $this->quote->getGrandTotal() *100,
+                                $response['tax_amount'],
+                                $products
+                            );
 
-        $source = $this->apiHandler->checkoutApi->sources()->add($klarna);
-        if($source->isSuccessful()) {
-            $response['source'] = $source->getValues();
-            $response['billing'] = $this->billingAddress->toArray();
-            $response['quote'] = $this->quote->toArray();
-        } else {
-            $response = array('source' => false);
+            $source = $this->apiHandler->checkoutApi->sources()->add($klarna);
+            if($source->isSuccessful()) {
+                $response['source'] = $source->getValues();
+                $response['billing'] = $this->billingAddress->toArray();
+                $response['quote'] = $this->quote->toArray();
+            } else {
+                $response = array('source' => false);
+            }
+
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            return $response;
         }
-
-        return $response;
-
     }
 
     /**
@@ -134,26 +155,27 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
      * @return     array  The products.
      */
     protected function getProducts(array &$response) {
+        try {
+            $response['tax_amount'] = 0;
+            foreach ($this->quote->getAllVisibleItems() as $item) {
+                $product = new Product();
+                $product->name = $item->getName();
+                $product->quantity = $item->getQty();
+                $product->unit_price = $item->getPriceInclTax() *100;
+                $product->tax_rate = $item->getTaxPercent() *100;
+                $product->total_amount = $item->getRowTotalInclTax() *100;
+                $product->total_tax_amount = $item->getTaxAmount() *100;
 
-        $response['tax_amount'] = 0;
-        foreach ($this->quote->getAllVisibleItems() as $item) {
+                $response['tax_amount'] += $product->total_tax_amount;
+                $products[]= $product;
+                $response['products'][] = $product->getValues();
+            }
 
-            $product = new Product();
-            $product->name = $item->getName();
-            $product->quantity = $item->getQty();
-            $product->unit_price = $item->getPriceInclTax() *100;
-            $product->tax_rate = $item->getTaxPercent() *100;
-            $product->total_amount = $item->getRowTotalInclTax() *100;
-            $product->total_tax_amount = $item->getTaxAmount() *100;
+            return $products;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
 
-            $response['tax_amount']  += $product->total_tax_amount;
-            $products []= $product;
-            $response['products'] []= $product->getValues();
-
+            return null;
         }
-
-        return $products;
-
     }
-
 }
