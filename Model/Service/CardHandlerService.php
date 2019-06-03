@@ -36,6 +36,11 @@ class CardHandlerService
      */
     protected $config;
 
+    /**
+     * @var Logger
+     */
+    protected $logger;
+
 	/**
      * CardHandlerService constructor.
      */
@@ -43,13 +48,15 @@ class CardHandlerService
         \Magento\Framework\View\Asset\Repository $assetRepository,
         \Magento\Framework\Module\Dir\Reader $directoryReader,
         \Magento\Framework\File\Csv $csvParser,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     )
     {
         $this->assetRepository = $assetRepository;
         $this->directoryReader = $directoryReader;
         $this->csvParser = $csvParser;
         $this->config = $config;
+        $this->logger = $logger;
     }
 
     /**
@@ -58,10 +65,15 @@ class CardHandlerService
      * @return string
      */
     public function getCardCode($scheme) {
-        return array_search(
-            $scheme,
-            self::$cardMapper
-        );
+        try {
+            return array_search(
+                $scheme,
+                self::$cardMapper
+            );
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return '';
+        }   
     }
 
     /**
@@ -70,7 +82,12 @@ class CardHandlerService
      * @return string
      */
     public function getCardScheme($code) {
-        return self::$cardMapper[$code];
+        try {
+            return self::$cardMapper[$code];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return '';
+        }             
     }
 
     /**
@@ -79,10 +96,15 @@ class CardHandlerService
      * @return string
      */
     public function getCardIcon($code) {
-        return $this->assetRepository
-            ->getUrl(
-                'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
-            );
+        try {
+            return $this->assetRepository
+                ->getUrl(
+                    'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+                );
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return '';
+        }         
     }
 
     /**
@@ -91,9 +113,14 @@ class CardHandlerService
      * @return bool
      */
     public function isCardActive($card) {
-        return $card->getIsActive() 
-        && $card->getIsVisible()
-        && $card->getPaymentMethodCode() == 'checkoutcom_vault';
+        try {
+            return $card->getIsActive() 
+            && $card->getIsVisible()
+            && $card->getPaymentMethodCode() == 'checkoutcom_vault';
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }         
     }
 
     /**
@@ -102,24 +129,29 @@ class CardHandlerService
      * @return bool
      */
     public function isMadaBin($bin) {
-        // Set the root path
-        $csvPath = $this->directoryReader->getModuleDir(
-            '',
-            'CheckoutCom_Magento2'
-        )  . '/' . $this->config->getMadaBinFile();
+        try {
+            // Set the root path
+            $csvPath = $this->directoryReader->getModuleDir(
+                '',
+                'CheckoutCom_Magento2'
+            )  . '/' . $this->config->getMadaBinFile();
 
-        // Get the data
-        $csvData = $this->csvParser->getData($csvPath);
+            // Get the data
+            $csvData = $this->csvParser->getData($csvPath);
 
-        // Remove the first row of csv columns
-        unset($csvData[0]);
+            // Remove the first row of csv columns
+            unset($csvData[0]);
 
-        // Build the MADA BIN array
-        $binArray = [];
-        foreach ($csvData as $row) {
-            $binArray[] = $row[1];
-        }
+            // Build the MADA BIN array
+            $binArray = [];
+            foreach ($csvData as $row) {
+                $binArray[] = $row[1];
+            }
 
-        return in_array($bin, $binArray);
+            return in_array($bin, $binArray);
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }       
     }
 }

@@ -63,6 +63,11 @@ class VaultHandlerService {
     protected $cardHandler;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * @var string
      */
     protected $customerEmail;
@@ -99,7 +104,8 @@ class VaultHandlerService {
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->vaultTokenFactory = $vaultTokenFactory;
         $this->paymentTokenRepository = $paymentTokenRepository;
@@ -110,6 +116,7 @@ class VaultHandlerService {
         $this->apiHandler = $apiHandler;
         $this->cardHandler = $cardHandler;
         $this->config = $config;
+        $this->logger = $logger;
     }
 
     /**
@@ -119,7 +126,15 @@ class VaultHandlerService {
      * @return PaymentTokenInterface|null
      */
     private function foundExistedPaymentToken(PaymentTokenInterface $paymentToken) {
-        return $this->paymentTokenManagement->getByPublicHash($paymentToken->getPublicHash(), $paymentToken->getCustomerId() );
+        try {
+            return $this->paymentTokenManagement->getByPublicHash(
+                $paymentToken->getPublicHash(),
+                $paymentToken->getCustomerId()
+            );
+        } catch (Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -129,10 +144,15 @@ class VaultHandlerService {
      * @return VaultHandlerService
      */
     public function setCustomerId($id = null) {
-        $this->customerId = (int) $id > 0
-        ? $id : $this->customerSession->getCustomer()->getId();
-
-        return $this;
+        try {
+            $this->customerId = (int) $id > 0
+            ? $id : $this->customerSession->getCustomer()->getId();
+        } catch (Exception $e) {
+            $this->logger->write($e->getMessage());
+        }
+        finally {
+            return $this;
+        }
     }
 
     /**
@@ -142,10 +162,15 @@ class VaultHandlerService {
      * @return VaultHandlerService
      */
     public function setCustomerEmail($email = null) {
-        $this->customerEmail = ($email) 
-        ? $email : $this->customerSession->getCustomer()->getEmail();
-
-        return $this;
+        try {
+            $this->customerEmail = ($email) 
+            ? $email : $this->customerSession->getCustomer()->getEmail();
+        } catch (Exception $e) {
+            $this->logger->write($e->getMessage());
+        }
+        finally {
+            return $this;
+        }
     }
 
     /**
@@ -178,29 +203,36 @@ class VaultHandlerService {
      * @throws \Exception
      */
     public function save() {
-        // Create the payment token from response
-        $paymentToken = $this->vaultTokenFactory->create($this->cardData, $this->customerId);
-        $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
+        try {
+            // Create the payment token from response
+            $paymentToken = $this->vaultTokenFactory->create(
+                $this->cardData,
+                $this->customerId
+            );
+            $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
 
-        // Check if card exists
-        if ($foundPaymentToken) {
-            // Display a message if the card exists
-            if ($foundPaymentToken->getIsActive() && $foundPaymentToken->getIsVisible()) {
-                $this->messageManager->addNoticeMessage(__('This card is already saved.'));
+            // Check if card exists
+            if ($foundPaymentToken) {
+                // Display a message if the card exists
+                if ($foundPaymentToken->getIsActive() && $foundPaymentToken->getIsVisible()) {
+                    $this->messageManager->addNoticeMessage(__('This card is already saved.'));
+                }
+
+                // Activate or reactivate the card
+                $foundPaymentToken->setIsActive(true);
+                $foundPaymentToken->setIsVisible(true);
+                $this->paymentTokenRepository->save($foundPaymentToken);
             }
 
-            // Activate or reactivate the card
-            $foundPaymentToken->setIsActive(true);
-            $foundPaymentToken->setIsVisible(true);
-            $this->paymentTokenRepository->save($foundPaymentToken);
-        }
-
-        // Otherwise save the card
-        else {
-            $gatewayToken = $this->response['card']['id'];
-            $paymentToken->setGatewayToken($gatewayToken);
-            $paymentToken->setIsVisible(true);
-            $this->paymentTokenRepository->save($paymentToken);
+            // Otherwise save the card
+            else {
+                $gatewayToken = $this->response['card']['id'];
+                $paymentToken->setGatewayToken($gatewayToken);
+                $paymentToken->setIsVisible(true);
+                $this->paymentTokenRepository->save($paymentToken);
+            }
+        } catch (Exception $e) {
+            $this->logger->write($e->getMessage());
         }
     }
 
@@ -237,7 +269,9 @@ class VaultHandlerService {
             return $this;
         }
         catch (\Exception $e) {
-
+            $this->logger->write($e->getMessage());
+        } finally {
+            return $this;
         }
     }
 
@@ -247,88 +281,109 @@ class VaultHandlerService {
      * @throws LocalizedException
      */
     public function saveCard() {
-        // Check if the response is success
-        $success = $this->apiHandler->isValidResponse($this->response);
-        if ($success) {
-            // Get the response array
-            $values = $this->response->getValues();
-            if (isset($values['source'])) {
-                // Get the card data
-                $cardData = $values['source'];
+        try {
+            // Check if the response is success
+            $success = $this->apiHandler->isValidResponse($this->response);
+            if ($success) {
+                // Get the response array
+                $values = $this->response->getValues();
+                if (isset($values['source'])) {
+                    // Get the card data
+                    $cardData = $values['source'];
 
-                // Create the payment token
-                $paymentToken = $this->vaultTokenFactory->create($cardData, 'checkoutcom_vault', $this->customerId);
-                $foundPaymentToken = $this->foundExistedPaymentToken($paymentToken);
+                    // Create the payment token
+                    $paymentToken = $this->vaultTokenFactory->create($cardData, 'checkoutcom_vault', $this->customerId);
+                    $foundPaymentToken = $this->foundExistedPaymentToken($paymentToken);
 
-                // Check if card exists
-                if ($foundPaymentToken) {
-                    // Activate or reactivate the card
-                    $foundPaymentToken->setIsActive(true);
-                    $foundPaymentToken->setIsVisible(true);
-                    $this->paymentTokenRepository->save($foundPaymentToken);
-                }
+                    // Check if card exists
+                    if ($foundPaymentToken) {
+                        // Activate or reactivate the card
+                        $foundPaymentToken->setIsActive(true);
+                        $foundPaymentToken->setIsVisible(true);
+                        $this->paymentTokenRepository->save($foundPaymentToken);
+                    }
 
-                // Otherwise save the card
-                else {
-                    $gatewayToken = $cardData['id'];
-                    $paymentToken->setGatewayToken($gatewayToken);
-                    $paymentToken->setIsVisible(true);
-                    $this->paymentTokenRepository->save($paymentToken);
+                    // Otherwise save the card
+                    else {
+                        $gatewayToken = $cardData['id'];
+                        $paymentToken->setGatewayToken($gatewayToken);
+                        $paymentToken->setIsVisible(true);
+                        $this->paymentTokenRepository->save($paymentToken);
+                    }
                 }
             }
-        }
 
-        return $success;
+            return $success;
+        }
+        catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        } 
     }
     
     /**
      * Checks if a user has saved cards.
      */
     public function userHasCards($customerId = null) {
-        // Get the card list
-        $cardList = $this->getUserCards($customerId);
+        try {
+            // Get the card list
+            $cardList = $this->getUserCards($customerId);
 
-        // Check if the user has cards
-        if (count($cardList) > 0) {
-            return  true;
+            // Check if the user has cards
+            if (count($cardList) > 0) {
+                return  true;
+            }
         }
-
-        return false;
+        catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        } 
     }
 
     /**
      * Get a user's saved card from public hash.
      */
     public function getCardFromHash($publicHash, $customerId = null) {
-        if ($publicHash) {
-            $cardList = $this->getUserCards($customerId);
-            foreach ($cardList as $card) {
-                if ($card->getPublicHash() == $publicHash) {
-                    return $card;
+        try {
+            if ($publicHash) {
+                $cardList = $this->getUserCards($customerId);
+                foreach ($cardList as $card) {
+                    if ($card->getPublicHash() == $publicHash) {
+                        return $card;
+                    }
                 }
             }
-        }
 
-        return null;
+            return null;
+        }
+        catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        } 
     }
 
     /**
      * Get a user's last saved card.
      */
     public function getLastSavedCard() {
-        // Get the cards list
-        $cardList = $this->getUserCards();
-        if (count($cardList) > 0) {
-            // Sort the array by date
-            usort($cardList, function ($a, $b) {
-                return new \DateTime($a->getCreatedAt()) <=> new \DateTime($b->getCreatedAt());
-            });
+        try {
+            // Get the cards list
+            $cardList = $this->getUserCards();
+            if (count($cardList) > 0) {
+                // Sort the array by date
+                usort($cardList, function ($a, $b) {
+                    return new \DateTime($a->getCreatedAt()) <=> new \DateTime($b->getCreatedAt());
+                });
 
-            // Return the most recent
-            return $cardList[0];
-        }
+                // Return the most recent
+                return $cardList[0];
+            }
 
-        return [];
+            return [];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return [];
+        } 
     }
 
     /**
@@ -338,38 +393,47 @@ class VaultHandlerService {
         // Output array
         $output = [];
 
-        // Get the customer id (currently logged in user)
-        $customerId = ($customerId) ? $customerId 
-        : $this->customerSession->getCustomer()->getId(); 
+        try {
+            // Get the customer id (currently logged in user)
+            $customerId = ($customerId) ? $customerId 
+            : $this->customerSession->getCustomer()->getId(); 
 
-        // Find the customer cards
-        if ((int) $customerId > 0) {
-            $cards = $this->paymentTokenManagement->getListByCustomerId($customerId);
-            foreach ($cards as $card) {
-                if ($this->cardHandler->isCardActive($card)) {
-                    $output[] = $card;
+            // Find the customer cards
+            if ((int) $customerId > 0) {
+                $cards = $this->paymentTokenManagement->getListByCustomerId($customerId);
+                foreach ($cards as $card) {
+                    if ($this->cardHandler->isCardActive($card)) {
+                        $output[] = $card;
+                    }
                 }
             }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            return $output;
         }
-
-        return $output;
     }
 
     /**
      * Render a payment token.
      */
     public function renderTokenData(PaymentTokenInterface $paymentToken) {
-        // Get the card details
-        $details = json_decode($paymentToken->getTokenDetails() ?: '{}', true);
+        try {
+            // Get the card details
+            $details = json_decode($paymentToken->getTokenDetails() ?: '{}', true);
 
-        // Return the formatted token
-        return sprintf(
-            '%s, %s: %s, %s: %s',
-            $this->cardHandler->getCardScheme($details['type']),
-            __('ending'),
-            $details['maskedCC'],
-            __('expires'),
-            $details['expirationDate']
-        );        
+            // Return the formatted token
+            return sprintf(
+                '%s, %s: %s, %s: %s',
+                $this->cardHandler->getCardScheme($details['type']),
+                __('ending'),
+                $details['maskedCC'],
+                __('expires'),
+                $details['expirationDate']
+            );    
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return '';
+        }     
     }
 }

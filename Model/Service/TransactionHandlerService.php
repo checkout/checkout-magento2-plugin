@@ -47,6 +47,11 @@ class TransactionHandlerService
     protected $utilities;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * TransactionHandlerService constructor.
      */
     public function __construct(
@@ -57,7 +62,8 @@ class TransactionHandlerService
         \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->transactionBuilder    = $transactionBuilder;
         $this->messageManager        = $messageManager;
@@ -67,6 +73,7 @@ class TransactionHandlerService
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
         $this->utilities             = $utilities;
+        $this->logger = $logger;
     }
 
     /**
@@ -198,6 +205,8 @@ class TransactionHandlerService
 
             return $transaction->getTransactionId();
         } catch (Exception $e) {
+            $this->logger->write($e->getMessage());
+
             return false;
         }
     }
@@ -206,24 +215,34 @@ class TransactionHandlerService
      * Get the action id from a gateway response.
      */
     public function getActionId($response) {
-        return $response['data']['action_id'] ?? $response['action_id'];
+        try {
+            return $response['data']['action_id'] ?? $response['action_id'];
+        } catch (Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
      * Build a flat array from the gateway response.
      */
     public function buildDataArray($data) {
-        // Prepare the fields to remove
-        $remove = [
-            '_links',
-            'risk',
-            'metadata',
-            'customer',
-            'source'
-        ];
+        try {
+            // Prepare the fields to remove
+            $remove = [
+                '_links',
+                'risk',
+                'metadata',
+                'customer',
+                'source'
+            ];
 
-        // Return the clean array
-        return array_diff_key($data, array_flip($remove));
+            // Return the clean array
+            return array_diff_key($data, array_flip($remove));
+        } catch (Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -265,7 +284,8 @@ class TransactionHandlerService
             return $transactions;
 
         } catch (Exception $e) {
-            return false;
+            $this->logger->write($e->getMessage());
+            return null;
         }
     }
 }
