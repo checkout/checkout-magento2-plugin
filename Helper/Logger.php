@@ -27,12 +27,7 @@ class Logger {
     /**
      * @var Config
      */
-    protected $config;
-
-    /**
-     * @var CheckoutApi
-     */
-    protected $apiHandler;
+    //protected $config;
 
     /**
      * Constructor.
@@ -42,13 +37,12 @@ class Logger {
      * @param      \CheckoutCom\Magento2\Model\Service\ApiHandlerService  $apiHandler      The api handler
      */
     public function __construct(
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler
+        \Magento\Framework\Message\ManagerInterface $messageManager
+        //\CheckoutCom\Magento2\Gateway\Config\Config $config,
+        //\CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler
     ) {
         $this->messageManager = $messageManager;
-        $this->config = $config;
-        $this->apiHandler = $apiHandler;
+        //$this->config = $config;
 	}
 
     /**
@@ -57,12 +51,12 @@ class Logger {
      * @param      mixed  $msg    The message
      */
 	public function write($msg) {
-        if ($this->config->getValue('debug') && $this->config->getValue('file_logging')) {
+        //if ($this->config->getValue('debug') && $this->config->getValue('file_logging')) {
             $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/checkoutcom_magento2.log');
             $logger = new \Zend\Log\Logger();
             $logger->addWriter($writer);
             $logger->info(print_r($msg, 1));
-        }
+        //}
 	}
 
     /**
@@ -71,10 +65,10 @@ class Logger {
      * @param      mixed  $response  The response
      */
 	public function display($response) {
-        if ($this->config->getValue('debug') && $this->config->getValue('gateway_responses')) {
-            $paymentId = $this->apiHandler->getPaymentId();
-            $this->ggetPaymentDetails($paymentId);
-            $this->messageManager->addSuccessMessage($msg);
-        }
+        //if ($this->config->getValue('debug') && $this->config->getValue('gateway_responses')) {
+            //$paymentId = $this->apiHandler->getPaymentId();
+            //$this->ggetPaymentDetails($paymentId);
+            //$this->messageManager->addSuccessMessage($msg);
+        //}
 	}
 }
