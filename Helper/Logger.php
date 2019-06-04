@@ -12,14 +12,21 @@ class Logger {
     /**
      * @var Config
      */
-	protected $config;
+    protected $config;
+    
+    /**
+     * @var CheckoutApi
+     */
+    protected $apiHandler;
 	
     public function __construct(
         \Magento\Framework\Message\ManagerInterface $messageManager,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler
     ) {
         $this->messageManager = $messageManager;
         $this->config = $config;
+        $this->apiHandler = $apiHandler;
 	}
 	
 	public function write($msg) {
@@ -31,8 +38,10 @@ class Logger {
         }
 	}
 
-	public function display($msg) {
+	public function display($response) {
         if ($this->config->getValue('debug') && $this->config->getValue('gateway_responses')) {
+            $paymentId = $this->apiHandler->getPaymentId();
+            $this->ggetPaymentDetails($paymentId);
             $this->messageManager->addSuccessMessage($msg);
         }
 	}
