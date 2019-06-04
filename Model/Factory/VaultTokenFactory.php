@@ -1,11 +1,18 @@
 <?php
+
 /**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ * Checkout.com
+ * Authorised and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
+ * PHP version 7
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Model\Factory;
@@ -33,7 +40,7 @@ class VaultTokenFactory {
      * @var Logger
      */
     protected $logger;
-    
+
     /**
      * VaultTokenFactory constructor.
      */
@@ -91,7 +98,7 @@ class VaultTokenFactory {
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
-        }   
+        }
     }
 
     /**
@@ -118,7 +125,7 @@ class VaultTokenFactory {
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return '';
-        }   
+        }
     }
 
     /**
@@ -143,7 +150,7 @@ class VaultTokenFactory {
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return '';
-        }   
+        }
     }
 
     /**

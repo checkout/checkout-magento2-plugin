@@ -1,5 +1,20 @@
 <?php
 
+/**
+ * Checkout.com
+ * Authorised and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
 namespace CheckoutCom\Magento2\Model\Service;
 
 class CardHandlerService
@@ -73,7 +88,7 @@ class CardHandlerService
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return '';
-        }   
+        }
     }
 
     /**
@@ -87,7 +102,7 @@ class CardHandlerService
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return '';
-        }             
+        }
     }
 
     /**
@@ -104,7 +119,7 @@ class CardHandlerService
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return '';
-        }         
+        }
     }
 
     /**
@@ -114,13 +129,13 @@ class CardHandlerService
      */
     public function isCardActive($card) {
         try {
-            return $card->getIsActive() 
+            return $card->getIsActive()
             && $card->getIsVisible()
             && $card->getPaymentMethodCode() == 'checkoutcom_vault';
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return false;
-        }         
+        }
     }
 
     /**
@@ -152,6 +167,6 @@ class CardHandlerService
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return false;
-        }       
+        }
     }
 }

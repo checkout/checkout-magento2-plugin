@@ -1,4 +1,20 @@
 <?php
+
+/**
+ * Checkout.com
+ * Authorised and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
 /**
  * Checkout.com Magento 2 Payment module (https://www.checkout.com)
  *
@@ -93,7 +109,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
         // Try to load a quote
         $this->quote = $this->quoteHandler->getQuote();
-        
+
         // Set some required properties
         $this->data = $this->getRequest()->getParams();
 
@@ -120,7 +136,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                     ]
                 ]
             );
-        
+
             // Set the billing address
             $billingAddress = $this->addressManager->load($this->data['instant_purchase_billing_address']);
             $quote->getBillingAddress()->addData($billingAddress->getData());

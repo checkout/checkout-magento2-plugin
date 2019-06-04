@@ -1,5 +1,20 @@
 <?php
 
+/**
+ * Checkout.com
+ * Authorised and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
 namespace CheckoutCom\Magento2\Controller\Apm;
 
 use Checkout\CheckoutApi;
@@ -49,7 +64,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
      * @var Logger
      */
     protected $logger;
-    
+
     /**
      * @var Quote
      */
@@ -107,7 +122,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
             $this->logger->write($e->getMessage());
 
             return $this->jsonFactory->create()
-            ->setData([]);        
+            ->setData([]);
         }
     }
 
@@ -173,10 +188,10 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
 
             // Get the shipping
             $this->getShipping($response, $products);
-          
+
             // Return the products
             return $products;
-        
+
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
 

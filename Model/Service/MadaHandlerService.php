@@ -1,5 +1,20 @@
 <?php
 
+/**
+ * Checkout.com
+ * Authorised and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
 namespace CheckoutCom\Magento2\Model\Service;
 
 class MadaHandlerService
@@ -55,13 +70,13 @@ class MadaHandlerService
             // Get the MADA file path
             $path = $this->config->getValue($file);
 
-            return $this->directoryReader->getModuleDir('', 
+            return $this->directoryReader->getModuleDir('',
                 'CheckoutCom_Magento2'
             ) . '/' . $path;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return '';
-        }   
+        }
     }
 
     /**
@@ -85,11 +100,11 @@ class MadaHandlerService
             foreach ($csvData as $row) {
                 $binArray[] = $row[1];
             }
-            
+
             return in_array($bin, $binArray);
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return false;
-        }   
+        }
     }
 }

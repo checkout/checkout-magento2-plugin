@@ -1,15 +1,18 @@
 <?php
+
 /**
- * Checkout.com Magento 2 Magento2 Payment.
+ * Checkout.com
+ * Authorised and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
  * PHP version 7
  *
- * @category  Checkout.com
- * @package   Magento2
- * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
- * @link      https://www.checkout.com
+ * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Block\Apm;

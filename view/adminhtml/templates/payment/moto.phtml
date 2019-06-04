@@ -3,10 +3,11 @@
         <form id="motoCardForm" method="POST">
             <!-- Saved cards -->
             <div id="vault-container">
-                <?php 
+                <?php
+
                     if ($block->canDisplayCards()):
                         $cardsList = $block->getUserCards();
-                        foreach ($cardsList as $card): 
+                        foreach ($cardsList as $card):
                             $details = json_decode($card->getTokenDetails() ?: '{}', true);
                 ?>
                         <div id="cko-vault-card-<?= $card->getEntityId()?>" class="cko-vault-card">
@@ -43,12 +44,12 @@
         var cardTokenField = $('#ckoCardToken');
         var cardFormContainerId = '#cko-form-holder';
         var paymentForm = document.getElementById('motoCardForm');
-        
+
         // Remove any existing event handlers
         Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
         Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
         Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
-            
+
         // Initialize the embedded form
         Frames.init({
             publicKey: '<?= $block->config->getAccountKeys('checkoutcom_moto')['public_key'] ?>',
@@ -61,16 +62,18 @@
                     Frames.unblockFields();
                 }
             },
-            cardTokenised: function(event) {                        
+            cardTokenised: function(event) {
                 // Add the card token to the hidden input field
                 cardTokenField.val(event.data.cardToken);
             }
-        });  
+        });
     });
 </script>
 
 <!-- Saved cards JS-->
-<?php if ($block->canDisplayCards()): ?>
+<?php
+
+ if ($block->canDisplayCards()): ?>
     <script type="text/javascript">
         require(['jquery', 'domReady!'], function ($) {
             // Prepare some variables
@@ -82,14 +85,14 @@
             }).mouseleave(function() {
                 $(this).removeClass('card-on');
             });
-                          
-            // Click behaviour               
+
+            // Click behaviour
             listItem.on('click touch', function() {
                 listItem.removeClass('card-selected');
                 listItem.not(this).find('.vault-cvv input').val('');
                 $(this).addClass('card-selected');
                 $(this).find('input[type="radio"]').attr('checked', true);
-            });        
+            });
 
             // CVV focus event
             $('.vault-cvv input').on('focus', function() {

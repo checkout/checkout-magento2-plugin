@@ -1,11 +1,18 @@
 <?php
+
 /**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ * Checkout.com
+ * Authorised and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
+ * PHP version 7
  *
- * MIT License
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Observer\Backend;
@@ -106,7 +113,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         // Get the request parameters
         $this->params = $this->request->getParams();
     }
- 
+
     /**
      * OrderSaveBefore constructor.
      */
@@ -135,7 +142,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
                 // Prepare the capture date setting
                 $captureDate = $this->config->getCaptureTime($this->methodId);
-                
+
                 // Set the request parameters
                 $request->capture = $this->config->needsAutoCapture($this->methodId);
                 $request->amount = $this->order->getGrandTotal()*100;

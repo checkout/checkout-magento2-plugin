@@ -1,8 +1,20 @@
 <?php
+
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * Checkout.com
+ * Authorised and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
  */
+
 namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
 class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterface
@@ -82,7 +94,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
 
     /**
      * Prepare the data needed for instant purchase
-     */  
+     */
     protected function prepareData() {
         try {
             // Get the  payment token
@@ -104,7 +116,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
 
     /**
      * Load the instant purchase option
-     */  
+     */
     protected function loadOption() {
         try {
             return $this->instantPurchase->getOption(
@@ -157,7 +169,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
 
     /**
      * Checks if the instant purchase option is available
-     */    
+     */
     protected function isAvailable() {
         return $this->customerSession->isLoggedIn()
         && !empty($this->paymentToken)

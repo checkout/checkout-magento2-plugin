@@ -1,5 +1,20 @@
 <?php
 
+/**
+ * Checkout.com
+ * Authorised and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
 namespace CheckoutCom\Magento2\Controller\Payment;
 
 class Fail extends \Magento\Framework\App\Action\Action {
@@ -39,9 +54,9 @@ class Fail extends \Magento\Framework\App\Action\Action {
                 // Get the payment details
                 // Todo - Display the gateway error message from $response if debug mode is on
                 $response = $this->apiHandler->getPaymentDetails($sessionId);
-                
+
                 // Display the message
-                $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));  
+                $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
