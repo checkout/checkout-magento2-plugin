@@ -31,6 +31,9 @@ use CheckoutCom\Magento2\Observer\DataAssignObserver;
 use CheckoutCom\Magento2\Helper\Watchdog;
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
 use CheckoutCom\Magento2\Helper\Helper;
+use Magento\Sales\Model\Order\CreditmemoFactory;
+use Magento\Sales\Model\Service\CreditmemoService;
+use Magento\Sales\Model\Order\Invoice;
 
 class OrderService {
 
@@ -100,6 +103,21 @@ class OrderService {
     protected $transactionBuilder;
 
     /**
+     * @var CreditMemoService
+     */
+    protected $creditMemoService;
+
+    /**
+     * @var CreditMemoFactory
+     */
+    protected $creditMemoFactory;
+
+    /**
+     * @var Invoice
+     */
+    protected $invoiceManager;
+
+    /**
      * OrderService constructor.
      * @param CartManagementInterface $cartManagement
      * @param AgreementsValidatorInterface $agreementsValidator
@@ -122,7 +140,10 @@ class OrderService {
         GatewayConfig $gatewayConfig,
         Watchdog $watchdog,
         Helper $helper,
-        BuilderInterface $transactionBuilder
+        BuilderInterface $transactionBuilder,
+        CreditMemoService $creditMemoService,
+        CreditMemoFactory $creditMemoFactory,
+        Invoice $invoiceManager
     ) {
         $this->cartManagement        = $cartManagement;
         $this->agreementsValidator   = $agreementsValidator;
@@ -137,6 +158,9 @@ class OrderService {
         $this->watchdog              = $watchdog;
         $this->helper                = $helper;
         $this->transactionBuilder    = $transactionBuilder;
+        $this->invoiceManager        = $invoiceManager;
+        $this->creditMemoService     = $creditMemoService;
+        $this->creditMemoFactory     = $creditMemoFactory;
     }
 
     /**
@@ -208,15 +232,41 @@ class OrderService {
         }
     }
 
-    public function cancelTransactionFromRemote(Order $order) {
-        if ($order->canCancel()) {
-            try {
-                // Cancel the order
-                $order->cancel()->save();
+    public function voidTransactionFromRemote(Order $order) {
+        try {
+            // Cancel the order
+            $order->cancel()->save();
+        }
+        catch (Zend_Http_Client_Exception $e) {
+            throw new ClientException(__($e->getMessage()));
+        }
+    }
+
+    public function refundTransactionFromRemote(Order $order, $value) {
+        try {
+            // Prepare the amount
+            $amount = $value/100;
+
+            // Load the invoice
+            $invoices = $order->getInvoiceCollection();
+            foreach ($invoices as $item) {
+                $invoiceIncrementId = $item->getIncrementId();
             }
-            catch (Zend_Http_Client_Exception $e) {
-                throw new ClientException(__($e->getMessage()));
-            }
+            $invoice = $this->invoiceManager->loadByIncrementId($invoiceIncrementId);
+
+            // Create a credit memo
+            $creditMemo = $this->creditMemoFactory->createByOrder($order);
+            $creditMemo->setInvoice($invoice);
+            $creditMemo->setBaseGrandTotal($amount);
+
+            // Refund
+            $this->creditMemoService->refund($creditMemo);
+
+            // Cancel the order
+            $order->setTotalRefunded($amount);
+        }
+        catch (Zend_Http_Client_Exception $e) {
+            throw new ClientException(__($e->getMessage()));
         }
     }
 

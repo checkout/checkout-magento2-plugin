@@ -286,13 +286,6 @@
                         <comment>Select the status that should be used for new orders with successful payment void.</comment>
                     </field>
 
-                    <field id="order_status_refunded" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Refund order status</label>
-                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
-                        <config_path>payment/checkout_com/order_status_refunded</config_path>
-                        <comment>Select the status that should be used for new orders with successful payment refund.</comment>
-                    </field>
-
                     <field id="order_status_flagged" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Flagged order status</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>

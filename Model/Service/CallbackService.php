@@ -163,7 +163,7 @@ class CallbackService {
 
             // Test the command name
             if ($commandName == 'charge.voided') {
-                $this->orderService->cancelTransactionFromRemote($order);
+                $this->orderService->voidTransactionFromRemote($order);
 
                 // Prepare the order comment
                 $msg = 'Order cancelled. The transaction has been ' . explode('.', $this->gatewayResponse['response']['eventType'])[1];
@@ -177,17 +177,7 @@ class CallbackService {
             }
             
             else if ($commandName == 'charge.refunded') {
-                $this->orderService->cancelTransactionFromRemote($order);
-
-                // Prepare the order comment
-                $msg = 'Order cancelled. The transaction has been ' . explode('.', $this->gatewayResponse['response']['eventType'])[1];
-
-                // Update the order status
-                $order->setStatus($this->gatewayConfig->getOrderStatusRefunded());
-
-                // Add a comment to history
-                $order->addStatusToHistory($order->getStatus(), __($msg), $notify = true);
-                $order->save();
+                $this->orderService->refundTransactionFromRemote($order,  $this->gatewayResponse['response']['message']['value']);
             }
 
             // Perform authorize complementary actions
