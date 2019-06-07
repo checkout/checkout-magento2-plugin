@@ -232,8 +232,11 @@ class OrderService {
         }
     }
 
-    public function cancelTransactionFromRemote(Order $order) {
+    public function cancelTransactionFromRemote(Order $order, $value) {
         try {
+            // Prepare the amount
+            $amount = $value/100;
+
             // Load the invoice
             $invoices = $order->getInvoiceCollection();
             foreach ($invoices as $item) {
@@ -244,12 +247,13 @@ class OrderService {
             // Create a credit memo
             $creditMemo = $this->creditMemoFactory->createByOrder($order);
             $creditMemo->setInvoice($invoice);
-            
+            $creditMemo->setBaseGrandTotal($amount);
+
             // Refund
             $this->creditMemoService->refund($creditMemo);
 
             // Cancel the order
-            $order->cancel()->save();
+            $order->setTotalRefunded($amount);
         }
         catch (Zend_Http_Client_Exception $e) {
             throw new ClientException(__($e->getMessage()));
