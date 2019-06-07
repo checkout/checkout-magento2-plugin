@@ -232,7 +232,17 @@ class OrderService {
         }
     }
 
-    public function cancelTransactionFromRemote(Order $order, $value) {
+    public function voidTransactionFromRemote(Order $order) {
+        try {
+            // Cancel the order
+            $order->cancel()->save();
+        }
+        catch (Zend_Http_Client_Exception $e) {
+            throw new ClientException(__($e->getMessage()));
+        }
+    }
+
+    public function refundTransactionFromRemote(Order $order, $value) {
         try {
             // Prepare the amount
             $amount = $value/100;
