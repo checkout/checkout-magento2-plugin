@@ -57,7 +57,6 @@ class Config extends BaseConfig {
     const KEY_NEW_ORDER_STATUS = 'new_order_status';
     const KEY_ORDER_STATUS_AUTHORIZED = 'order_status_authorized';
     const KEY_ORDER_STATUS_CAPTURED = 'order_status_captured';
-    const KEY_ORDER_STATUS_REFUNDED = 'order_status_refunded';
     const KEY_ORDER_STATUS_VOIDED = 'order_status_voided';
     const KEY_ORDER_STATUS_FLAGGED = 'order_status_flagged';
     const KEY_ACCEPTED_CURRENCIES = 'accepted_currencies';
@@ -290,18 +289,6 @@ class Config extends BaseConfig {
     public function getOrderStatusCaptured() {
         return (string) $this->getValue(
             self::KEY_ORDER_STATUS_CAPTURED,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the refunded order status.
-     *
-     * @return string
-     */
-    public function getOrderStatusRefunded() {
-        return (string) $this->getValue(
-            self::KEY_ORDER_STATUS_REFUNDED,
             $this->storeManager->getStore()
         );
     }
