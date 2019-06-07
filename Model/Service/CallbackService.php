@@ -177,7 +177,7 @@ class CallbackService {
             }
             
             else if ($commandName == 'charge.refunded') {
-                $this->orderService->cancelTransactionFromRemote($order,  $this->gatewayResponse['response']['message']['value']);
+                $this->orderService->refundTransactionFromRemote($order,  $this->gatewayResponse['response']['message']['value']);
             }
 
             // Perform authorize complementary actions
