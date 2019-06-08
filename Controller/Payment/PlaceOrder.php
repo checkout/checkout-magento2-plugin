@@ -140,6 +140,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                 // Get response and success
                 $response = $this->requestPayment();
 
+                // Logging
+                $this->logger->display($response);
+
                 // Check success
                 if ($this->apiHandler->isValidResponse($response)) {
                     $success = $response->isSuccessful();
