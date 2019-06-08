@@ -88,11 +88,10 @@ class Logger {
         );
 
         if ($debug && $gatewayResponses) {
+            $output = print_r($response, 1);
             $this->messageManager->addComplexSuccessMessage(
                 'ckoMessages',
-                [
-                    'output' => print_r($response, 1)
-                ]
+                ['output' => $output]
             );
         }
 	}
