@@ -17,32 +17,29 @@
 
 namespace CheckoutCom\Magento2\Helper;
 
+use \Magento\Store\Model\ScopeInterface;
+
 class Logger {
 
     /**
      * @var ManagerInterface
      */
 	protected $messageManager;
-
+    
     /**
-     * @var Config
+     * @var ScopeConfigInterface
      */
-    //protected $config;
+    protected $scopeConfig;
 
     /**
-     * Constructor.
-     *
-     * @param      \Magento\Framework\Message\ManagerInterface            $messageManager  The message manager
-     * @param      \CheckoutCom\Magento2\Gateway\Config\Config            $config          The configuration
-     * @param      \CheckoutCom\Magento2\Model\Service\ApiHandlerService  $apiHandler      The api handler
+     * Logger Constructor.
      */
     public function __construct(
-        \Magento\Framework\Message\ManagerInterface $messageManager
-        //\CheckoutCom\Magento2\Gateway\Config\Config $config,
-        //\CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler
+        \Magento\Framework\Message\ManagerInterface $messageManager,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         $this->messageManager = $messageManager;
-        //$this->config = $config;
+        $this->scopeConfig = $scopeConfig;
 	}
 
     /**
@@ -51,12 +48,25 @@ class Logger {
      * @param      mixed  $msg    The message
      */
 	public function write($msg) {
-        //if ($this->config->getValue('debug') && $this->config->getValue('file_logging')) {
+        // Get the debug config value
+        $debug = $this->scopeConfig->getValue(
+            'settings/checkoutcom_configuration/debug',
+            ScopeInterface::SCOPE_STORE
+        );
+
+        // Get the file logging config value
+        $fileLogging = $this->scopeConfig->getValue(
+            'settings/checkoutcom_configuration/file_logging',
+            ScopeInterface::SCOPE_STORE
+        );
+
+        // Handle the file logging
+        if ($debug && $fileLogging) {
             $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/checkoutcom_magento2.log');
             $logger = new \Zend\Log\Logger();
             $logger->addWriter($writer);
             $logger->info(print_r($msg, 1));
-        //}
+        }
 	}
 
     /**
@@ -65,10 +75,20 @@ class Logger {
      * @param      mixed  $response  The response
      */
 	public function display($response) {
-        //if ($this->config->getValue('debug') && $this->config->getValue('gateway_responses')) {
-            //$paymentId = $this->apiHandler->getPaymentId();
-            //$this->ggetPaymentDetails($paymentId);
-            //$this->messageManager->addSuccessMessage($msg);
-        //}
+        // Get the debug config value
+        $debug = $this->scopeConfig->getValue(
+            'settings/checkoutcom_configuration/debug',
+            ScopeInterface::SCOPE_STORE
+        );
+
+        // Get the gateway response config value
+        $gatewayResponses = $this->scopeConfig->getValue(
+            'settings/checkoutcom_configuration/gateway_responses',
+            ScopeInterface::SCOPE_STORE
+        );
+
+        if ($debug && $gatewayResponses) {
+            $this->messageManager->addSuccessMessage(print_r($response, 1));
+        }
 	}
 }

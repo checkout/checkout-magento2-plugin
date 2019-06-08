@@ -60,11 +60,6 @@ class Loader
     protected $directoryReader;
 
     /**
-     * @var Logger
-     */
-    protected $logger;
-
-    /**
      * @var Array
      */
     protected $xmlData;
@@ -78,8 +73,7 @@ class Loader
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
-        \Magento\Framework\Module\Dir\Reader $directoryReader,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \Magento\Framework\Module\Dir\Reader $directoryReader
     ) {
         $this->moduleDirReader = $moduleDirReader;
         $this->xmlParser = $xmlParser;
@@ -87,7 +81,6 @@ class Loader
         $this->storeManager = $storeManager;
         $this->encryptor = $encryptor;
         $this->directoryReader = $directoryReader;
-        $this->logger = $logger;
 
         $this->data = $this->loadConfig();
     }
@@ -130,10 +123,8 @@ class Loader
 
             return $output;
         } catch(\Exception $e) {
-            $this->logger->write($e->getMessage());
-
             throw new \Magento\Framework\Exception\LocalizedException(
-                __('The module configuration file could not be loaded.')
+                __($e->getMessage())
             );
         }
     }
@@ -151,7 +142,9 @@ class Loader
                 ];
             }
         } catch(\Exception $e) {
-            $this->logger->write($e->getMessage());
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __($e->getMessage())
+            );
         } finally {
             return $output;
         }
@@ -164,8 +157,9 @@ class Loader
                 self::KEY_MODULE_NAME
             ) . '/' . $fileName;
         } catch(\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return '';
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __($e->getMessage())
+            );
         }
     }
 
@@ -184,7 +178,9 @@ class Loader
             ->load($this->getFilePath(self::APM_FILE_NAME))
             ->xmlToArray()['config']['_value']['item'];
         } catch(\Exception $e) {
-            $this->logger->write($e->getMessage());
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __($e->getMessage())
+            );
         } finally {
             return $output;
         }
@@ -202,8 +198,9 @@ class Loader
 
             return in_array($field, $hiddenFields);
         } catch(\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __($e->getMessage())
+            );
         }
     }
 
@@ -220,8 +217,9 @@ class Loader
                 )
             );
         } catch(\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __($e->getMessage())
+            );
         }
     }
 
@@ -246,8 +244,9 @@ class Loader
             // Return a normal value
             return $value;
         } catch(\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __($e->getMessage())
+            );
         }
     }
 }
