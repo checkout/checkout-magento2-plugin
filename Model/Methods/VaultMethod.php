@@ -21,7 +21,7 @@ use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 
-class VaultMethod extends Method
+class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
 
 	/**
@@ -41,28 +41,10 @@ class VaultMethod extends Method
     protected $vaultHandler;
 
     /**
-     * Magic Methods.
+     * @var Session
      */
+    protected $backendAuthSession;
 
-    /**
-     * Constructor.
-     *
-     * @param      \Magento\Framework\Model\Context                         $context                 The context
-     * @param      \Magento\Framework\Registry                              $registry                The registry
-     * @param      \Magento\Framework\Api\ExtensionAttributesFactory        $extensionFactory        The extension factory
-     * @param      \Magento\Framework\Api\AttributeValueFactory             $customAttributeFactory  The custom attribute factory
-     * @param      \Magento\Payment\Helper\Data                             $paymentData             The payment data
-     * @param      \Magento\Framework\App\Config\ScopeConfigInterface       $scopeConfig             The scope configuration
-     * @param      \Magento\Payment\Model\Method\Logger                     $logger                  The logger
-     * @param      \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress     $remoteAddress           The remote address
-     * @param      \CheckoutCom\Magento2\Gateway\Config\Config              $config                  The configuration
-     * @param      \CheckoutCom\Magento2\Model\Service\ApiHandlerService    $apiHandler              The api handler
-     * @param      \CheckoutCom\Magento2\Model\Service\QuoteHandlerService  $quoteHandler            The quote handler
-     * @param      \CheckoutCom\Magento2\Model\Service\CardHandlerService   $cardHandler             The card handler
-     * @param      \Magento\Framework\Model\ResourceModel\AbstractResource  $resource                The resource
-     * @param      \Magento\Framework\Data\Collection\AbstractDb            $resourceCollection      The resource collection
-     * @param      array                                                    $data                    The data
-     */
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -71,16 +53,28 @@ class VaultMethod extends Method
         \Magento\Payment\Helper\Data $paymentData,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
+        \Magento\Backend\Model\Auth\Session $backendAuthSession,
+        \Magento\Checkout\Model\Cart $cart,
+        \Magento\Framework\UrlInterface $urlBuilder,
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
+        \Magento\Framework\DB\TransactionFactory $transactionFactory,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Checkout\Helper\Data $checkoutData,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        \Magento\Quote\Api\CartManagementInterface $quoteManagement,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-
         parent::__construct(
             $context,
             $registry,
@@ -89,19 +83,30 @@ class VaultMethod extends Method
             $paymentData,
             $scopeConfig,
             $logger,
-            $remoteAddress,
-            $config,
-            $apiHandler,
-            $quoteHandler,
             $resource,
             $resourceCollection,
             $data
         );
 
-        $this->vaultHandler = $vaultHandler;
-
+        $this->urlBuilder         = $urlBuilder;
+        $this->backendAuthSession = $backendAuthSession;
+        $this->cart               = $cart;
+        $this->_objectManager     = $objectManager;
+        $this->invoiceSender      = $invoiceSender;
+        $this->transactionFactory = $transactionFactory;
+        $this->customerSession    = $customerSession;
+        $this->checkoutSession    = $checkoutSession;
+        $this->checkoutData       = $checkoutData;
+        $this->quoteRepository    = $quoteRepository;
+        $this->quoteManagement    = $quoteManagement;
+        $this->orderSender        = $orderSender;
+        $this->sessionQuote       = $sessionQuote;
+        $this->remoteAddress      = $remoteAddress;
+        $this->config             = $config;
+        $this->apiHandler         = $apiHandler;
+        $this->vaultHandler       = $vaultHandler;
+        $this->quoteHandler       = $quoteHandler;
     }
-
 
     /**
      * Methods
@@ -128,7 +133,7 @@ class VaultMethod extends Method
             $idSource = new IdSource($card->getGatewayToken());
 
             // Check CVV config
-            if ($this->getValue('require_cvv', $this->_code)) {
+            if ($this->config->getValue('require_cvv', $this->_code)) {
                 if (!isset($data['cvv']) || (int) $data['cvv'] == 0) {
                     throw new \Magento\Framework\Exception\LocalizedException(__('The CVV value is required.'));
                 }
