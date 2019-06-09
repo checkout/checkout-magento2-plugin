@@ -60,7 +60,6 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -94,7 +93,6 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
-        $this->quoteHandler       = $quoteHandler;
     }
 
     /**
