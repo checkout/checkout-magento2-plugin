@@ -50,6 +50,11 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
     protected $remoteAddress;
 
     /**
+     * @var Session
+     */
+    protected $backendAuthSession;
+
+    /**
      * @var Config
      */
     protected $config;
@@ -95,6 +100,7 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
+        \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
@@ -116,10 +122,10 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
         );
 
         $this->remoteAddress      = $remoteAddress;
+        $this->backendAuthSession = $backendAuthSession;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->quoteHandler       = $quoteHandler;
-
     }
 
     /**

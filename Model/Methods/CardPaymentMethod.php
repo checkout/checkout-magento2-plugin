@@ -173,9 +173,53 @@ class CardPaymentMethod extends Method
             ->request($request);
 
         return $response;
-
     }
 
+    /**
+     * { function_description }
+     *
+     * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
+     *
+     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return     self                                             ( description_of_the_return_value )
+     */
+    public function void(\Magento\Payment\Model\InfoInterface $payment)
+    {
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Check the status
+            if (!$this->canVoid()) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
+            }
+
+            // Process the void request
+            $response = $this->apiHandler->voidTransaction($payment);
+            if (!$this->apiHandler->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
+            }
+        }
+
+        return $this;
+    }
+
+    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    {
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Check the status
+            if (!$this->canRefund()) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
+            }
+
+            // Process the refund request
+            $response = $this->apiHandler->refundTransaction($payment, $amount);
+            if (!$this->apiHandler->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
+            }
+        }
+
+        return $this;
+    }
+    
     /**
      * Check whether method is available
      *
