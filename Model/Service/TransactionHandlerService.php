@@ -180,7 +180,7 @@ class TransactionHandlerService
                 );
             }
 
-            // Add a capture transaction to the payment
+            // Add a void transaction to the payment
             else if ($transactionType == Transaction::TYPE_VOID) {
                 // Add order comments
                 $payment->addTransactionCommentsToOrder(
@@ -197,6 +197,7 @@ class TransactionHandlerService
                 );
             }
 
+            // Add a refund transaction to the payment
             else if ($transactionType == Transaction::TYPE_REFUND) {
                 // Add order comments
                 $payment->addTransactionCommentsToOrder(
