@@ -238,14 +238,7 @@ class VaultMethod extends Method
     {
         // If the quote is valid
         if (parent::isAvailable($quote) && null !== $quote) {
-            // Filter by quote currency
-            return in_array(
-                $quote->getQuoteCurrencyCode(),
-                explode(
-                    ',',
-                    $this->config->getValue('accepted_currencies')
-                )
-            ) && $this->config->getValue('active', $this->_code);
+            return $this->config->getValue('active', $this->_code);
         }
 
         return false;
