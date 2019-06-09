@@ -24,7 +24,17 @@ class MotoMethod extends Method
     const CODE = 'checkoutcom_moto';
     protected $_code = self::CODE;
     protected $_formBlockType = Moto::class;
+    protected $_isInitializeNeeded = true;
+    protected $_isGateway = true;
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
+    protected $_canCancel = true;
+    protected $_canCapturePartial = true;
+    protected $_canVoid = true;
+    protected $_canUseInternal = true;
     protected $_canUseCheckout = false;
+    protected $_canRefund = true;
+    protected $_canRefundInvoicePartial = true;
 
     /**
      * Check whether method is enabled in config
@@ -70,7 +80,7 @@ class MotoMethod extends Method
     }
 
     /**
-     * Check whether method is available
+     * Check whether the method is available
      *
      * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
      * @return bool
