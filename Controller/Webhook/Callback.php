@@ -125,7 +125,6 @@ class Callback extends \Magento\Framework\App\Action\Action {
                     // Get the payment details
                     $response = $this->apiHandler->getPaymentDetails($this->payload->data->id);
                     if ($this->apiHandler->isValidResponse($response)) {
-
                         // Handle the save card request
                         if ($this->cardNeedsSaving()) {
                             $this->saveCard($response);
