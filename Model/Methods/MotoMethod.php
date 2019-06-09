@@ -152,13 +152,17 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
-     * Check whether the method is available
+     * Check whether method is available
      *
      * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
      * @return bool
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        return $this->config->getValue('active', $this->_code);
+        if (parent::isAvailable($quote) && null !== $quote) {
+            return $this->config->getValue('active', $this->_code);
+        }
+
+        return false;
     }
 }
