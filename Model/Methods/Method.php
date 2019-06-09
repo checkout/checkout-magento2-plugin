@@ -102,7 +102,6 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-
         parent::__construct(
             $context,
             $registry,
@@ -122,7 +121,6 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
         $this->quoteHandler       = $quoteHandler;
 
     }
-
 
     /**
      * Methods

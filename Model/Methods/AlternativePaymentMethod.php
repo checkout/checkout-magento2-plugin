@@ -179,13 +179,11 @@ class AlternativePaymentMethod extends Method
      * @return     IdSource
      */
     protected function sepa($data) {
-
         $mandate = $this->activateMandate($data['url']);
         $pos = strripos($data['url'], '/');
         $id = substr($data['url'], $pos +1);
 
         return new IdSource($id);
-
     }
 
     /**
@@ -195,7 +193,6 @@ class AlternativePaymentMethod extends Method
      * @return     array
      */
     protected function activateMandate(string $url) {
-
         $secret = $this->config->getValue('secret_key');
         $options = array(
             CURLOPT_FAILONERROR => false,
@@ -212,7 +209,6 @@ class AlternativePaymentMethod extends Method
         curl_close($curl);
 
         return json_decode($content, true);
-
     }
 
     /**
@@ -296,7 +292,6 @@ class AlternativePaymentMethod extends Method
      * @return     KlarnaSource
      */
     protected function klarna($data) {
-
         $products = array();
         $tax = 0;
         $quote = $this->quoteHandler->getQuote();
@@ -383,5 +378,4 @@ class AlternativePaymentMethod extends Method
 
         return false;
     }
-
 }
