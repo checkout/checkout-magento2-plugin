@@ -8,7 +8,6 @@ TODO
 - add customer source to vault payments in admin and frontend + card payments
 - Payment methods need exception handling
 - Handle 3ds redirection for save card from account
-- Implement gateway responses display
 
 TASKS
 - do CLR to LF normalisation
