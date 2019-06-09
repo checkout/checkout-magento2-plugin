@@ -193,21 +193,28 @@ class AlternativePaymentMethod extends Method
      * @return     array
      */
     protected function activateMandate(string $url) {
+        // Get the secret key
         $secret = $this->config->getValue('secret_key');
+
+        // Prepare the options
         $options = array(
             CURLOPT_FAILONERROR => false,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => array('Content-type: ' . HttpHandler::MIME_TYPE_JSON,
-                                        'Accept: ' . HttpHandler::MIME_TYPE_JSON,
-                                        'Authorization: ' . $secret,
-                                        'User-Agent: checkout-magento2-plugin/1.0.0') //@todo: finish this
+            CURLOPT_HTTPHEADER => array(
+                'Content-type: ' . HttpHandler::MIME_TYPE_JSON,
+                'Accept: ' . HttpHandler::MIME_TYPE_JSON,
+                'Authorization: ' . $secret,
+                'User-Agent: checkout-magento2-plugin/1.0.0'
+            ) //@todo: finish this
         );
 
+        // Send the CURL request
         $curl = curl_init($url);
         curl_setopt_array($curl, $options);
         $content = curl_exec($curl);
         curl_close($curl);
 
+        // Return the content
         return json_decode($content, true);
     }
 
