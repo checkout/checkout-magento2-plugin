@@ -52,9 +52,11 @@ class Fail extends \Magento\Framework\App\Action\Action {
             $sessionId = $this->getRequest()->getParam('cko-session-id', null);
             if ($sessionId) {
                 // Get the payment details
-                // Todo - Display the gateway error message from $response if debug mode is on
                 $response = $this->apiHandler->getPaymentDetails($sessionId);
 
+                // Logging
+                $this->logger->display($response);
+                
                 // Display the message
                 $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
             }

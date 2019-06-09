@@ -81,6 +81,9 @@ class Verify extends \Magento\Framework\App\Action\Action {
                 // Get the payment details
                 $response = $this->apiHandler->getPaymentDetails($sessionId);
 
+                // Logging
+                $this->logger->display($response);
+                
                 // Process the response
                 if ($this->apiHandler->isValidResponse($response)) {
 
