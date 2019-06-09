@@ -52,6 +52,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     protected $vaultHandler;
 
     /**
+     * @var CardHandlerService
+     */
+    protected $cardHandler;
+
+    /**
      * @var Session
      */
     protected $backendAuthSession;
@@ -81,6 +86,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -116,6 +122,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->vaultHandler       = $vaultHandler;
+        $this->cardHandler        = $cardHandler;
         $this->quoteHandler       = $quoteHandler;
     }
 
