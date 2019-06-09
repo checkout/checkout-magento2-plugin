@@ -187,31 +187,6 @@ class VaultMethod extends Method
     }
 
     /**
-     * { function_description }
-     *
-     * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
-     *
-     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return     self                                             ( description_of_the_return_value )
-     */
-    public function void(\Magento\Payment\Model\InfoInterface $payment)
-    {
-        // Check the status
-        if (!$this->canVoid()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
-        }
-
-        // Process the void request
-        $response = $this->apiHandler->voidTransaction($payment);
-        if (!$this->apiHandler->isValidResponse($response)) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
-        }
-
-        return $this;
-    }
-
-    /**
      * Check whether method is available
      *
      * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote

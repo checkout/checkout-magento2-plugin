@@ -47,22 +47,6 @@ class MotoMethod extends Method
         return parent::isAvailable($quote);
     }
 
-    public function void(\Magento\Payment\Model\InfoInterface $payment)
-    {
-        // Check the status
-        if (!$this->canVoid()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
-        }
-
-        // Process the void request
-        $response = $this->apiHandler->voidTransaction($payment);
-        if (!$this->apiHandler->isValidResponse($response)) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
-        }
-
-        return $this;
-    }
-
     /**
      * Check whether the method is available
      *

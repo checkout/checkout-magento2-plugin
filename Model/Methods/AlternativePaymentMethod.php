@@ -367,36 +367,6 @@ class AlternativePaymentMethod extends Method
         return new EpsSource(__('Payment request from %1', $this->config->getStoreName()));
     }
 
-
-    /**
-     * Magento related.
-     */
-
-    /**
-     * Void
-     *
-     * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
-     *
-     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return     self                                             ( description_of_the_return_value )
-     */
-    public function void(\Magento\Payment\Model\InfoInterface $payment)
-    {
-        // Check the status
-        if (!$this->canVoid()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
-        }
-
-        // Process the void request
-        $response = $this->apiHandler->voidTransaction($payment);
-        if (!$response || !$response->isSuccessful()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
-        }
-
-        return $this;
-    }
-
     /**
      * Check whether method is available
      *
