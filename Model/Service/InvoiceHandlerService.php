@@ -17,8 +17,6 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Sales\Model\Order\Invoice;
-
 class InvoiceHandlerService
 {
     /**
@@ -30,6 +28,11 @@ class InvoiceHandlerService
      * @var InvoiceRepositoryInterface
      */
     protected $invoiceRepository;
+
+    /**
+     * @var Invoice
+     */
+    protected $invoiceModel;
 
     /**
      * @var Config
@@ -52,11 +55,13 @@ class InvoiceHandlerService
     public function __construct(
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
+        \Magento\Sales\Model\Order\Invoice $invoiceModel,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->invoiceService     = $invoiceService;
         $this->invoiceRepository  = $invoiceRepository;
+        $this->invoiceModel       = $invoiceModel;
         $this->config             = $config;
         $this->logger             = $logger;
     }
@@ -85,11 +90,34 @@ class InvoiceHandlerService
         try {
             // Prepare the invoice
             $invoice = $this->invoiceService->prepareInvoice($this->order);
-            $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+            $invoice->setRequestedCaptureCase($this->invoiceModel::CAPTURE_ONLINE);
             $invoice->register();
 
             // Save the invoice
             $this->invoiceRepository->save($invoice);
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Load order invoices.
+     */
+    public function getInvoice($order)
+    {
+        try {
+            // Get the invoices collection
+            $invoices = $order->getInvoiceCollection();
+
+            // Retrieve the invoice increment id
+            foreach ($invoices as $item) {
+                $invoiceIncrementId = $item->getIncrementId();
+            }
+
+            // Load an invoice
+            return $this->invoiceModel->loadByIncrementId($invoiceIncrementId); 
+
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
