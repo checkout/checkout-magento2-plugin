@@ -188,7 +188,5 @@ abstract class Method extends \Magento\Payment\Model\Method\AbstractMethod
         $payment->payment_ip = $this->remoteAddress->getRemoteAddress();
 
         return $payment;
-
     }
-
 }
