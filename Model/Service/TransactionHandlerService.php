@@ -228,7 +228,7 @@ class TransactionHandlerService
                 $this->creditMemoService->refund($creditMemo);
 
                 // Update the order
-                $order->setTotalRefunded($amount);
+                $order->setTotalRefunded($amount + $order->getTotalRefunded());
             }
 
             // Save payment, transaction and order

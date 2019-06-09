@@ -398,32 +398,6 @@ class AlternativePaymentMethod extends Method
     }
 
     /**
-     * Refund
-     *
-     * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
-     * @param      <type>                                           $amount   The amount
-     *
-     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return     self                                             ( description_of_the_return_value )
-     */
-    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
-    {
-        // Check the status
-        if (!$this->canRefund()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
-        }
-
-        // Process the refund request
-        $response = $this->apiHandler->refundTransaction($payment, $amount);
-        if (!$response || !$response->isSuccessful()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
-        }
-
-        return $this;
-    }
-
-    /**
      * Check whether method is available
      *
      * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote

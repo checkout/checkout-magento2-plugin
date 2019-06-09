@@ -176,38 +176,6 @@ class CardPaymentMethod extends Method
 
     }
 
-    public function void(\Magento\Payment\Model\InfoInterface $payment)
-    {
-        // Check the status
-        if (!$this->canVoid()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
-        }
-
-        // Process the void request
-        $response = $this->apiHandler->voidTransaction($payment);
-        if (!$this->apiHandler->isValidResponse($response)) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
-        }
-
-        return $this;
-    }
-
-    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
-    {
-        // Check the status
-        if (!$this->canRefund()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
-        }
-
-        // Process the refund request
-        $response = $this->apiHandler->refundTransaction($payment, $amount);
-        if (!$this->apiHandler->isValidResponse($response)) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
-        }
-
-        return $this;
-    }
-
     /**
      * Check whether method is available
      *
