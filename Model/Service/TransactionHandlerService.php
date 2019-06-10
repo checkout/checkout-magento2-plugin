@@ -2,7 +2,7 @@
 
 /**
  * Checkout.com
- * Authorised and regulated as an electronic money institution
+ * Authorized and regulated as an electronic money institution
  * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
  * PHP version 7
@@ -47,6 +47,16 @@ class TransactionHandlerService
     private $transactionRepository;
 
     /**
+     * @var CreditmemoFactory
+     */
+    private $creditMemoFactory;
+
+    /**
+     * @var CreditmemoService
+     */
+    private $creditMemoService;
+
+    /**
      * @var InvoiceHandlerService
      */
     protected $invoiceHandler;
@@ -75,6 +85,8 @@ class TransactionHandlerService
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Framework\Api\FilterBuilder $filterBuilder,
         \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository,
+        \Magento\Sales\Model\Order\CreditmemoFactory $creditMemoFactory,
+        \Magento\Sales\Model\Service\CreditmemoService $creditMemoService,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
@@ -85,10 +97,12 @@ class TransactionHandlerService
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder         = $filterBuilder;
         $this->transactionRepository = $transactionRepository;
+        $this->creditMemoFactory     = $creditMemoFactory;
+        $this->creditMemoService     = $creditMemoService;
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
         $this->utilities             = $utilities;
-        $this->logger = $logger;
+        $this->logger                = $logger;
     }
 
     /**
@@ -180,7 +194,7 @@ class TransactionHandlerService
                 );
             }
 
-            // Add a capture transaction to the payment
+            // Add a void transaction to the payment
             else if ($transactionType == Transaction::TYPE_VOID) {
                 // Add order comments
                 $payment->addTransactionCommentsToOrder(
@@ -197,20 +211,24 @@ class TransactionHandlerService
                 );
             }
 
+            // Add a refund transaction to the payment
             else if ($transactionType == Transaction::TYPE_REFUND) {
-                // Add order comments
-                $payment->addTransactionCommentsToOrder(
-                    $transaction,
-                    __('The refunded amount is %1.', $formatedPrice)
-                );
+                // Prepare the refunded amount
+                $amount = $paymentData['data']['amount']/100;
 
-                // Set the parent transaction id
-                $payment->setParentTransactionId(null);
+                // Load the invoice
+                $invoice = $this->invoiceHandler->getInvoice($order);
 
-                // Set the order status
-                $order->setStatus(
-                    $this->config->getValue('order_status_refunded')
-                );
+                // Create a credit memo
+                $creditMemo = $this->creditMemoFactory->createByOrder($order);
+                $creditMemo->setInvoice($invoice);
+                $creditMemo->setBaseGrandTotal($amount);
+
+                // Refund
+                $this->creditMemoService->refund($creditMemo);
+
+                // Update the order
+                $order->setTotalRefunded($amount + $order->getTotalRefunded());
             }
 
             // Save payment, transaction and order
@@ -218,11 +236,8 @@ class TransactionHandlerService
             $transaction->save();
             $order->save();
 
-            return $transaction->getTransactionId();
         } catch (Exception $e) {
             $this->logger->write($e->getMessage());
-
-            return false;
         }
     }
 

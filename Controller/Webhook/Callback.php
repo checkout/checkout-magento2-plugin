@@ -2,7 +2,7 @@
 
 /**
  * Checkout.com
- * Authorised and regulated as an electronic money institution
+ * Authorized and regulated as an electronic money institution
  * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
  * PHP version 7
@@ -125,7 +125,6 @@ class Callback extends \Magento\Framework\App\Action\Action {
                     // Get the payment details
                     $response = $this->apiHandler->getPaymentDetails($this->payload->data->id);
                     if ($this->apiHandler->isValidResponse($response)) {
-
                         // Handle the save card request
                         if ($this->cardNeedsSaving()) {
                             $this->saveCard($response);

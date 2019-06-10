@@ -8,6 +8,7 @@ TODO
 - add customer source to vault payments in admin and frontend + card payments
 - Payment methods need exception handling
 - Handle 3ds redirection for save card from account
+- Add comment for failed transactions
 
 TASKS
 - do CLR to LF normalisation
@@ -26,6 +27,7 @@ TASKS
 - format CSS files
 - update the apple pay fields with jon's suggestions
 - check todo tags in the code base
+- check how to handle refund for multiple invoices
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?

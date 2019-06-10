@@ -20,7 +20,6 @@
                 <order_status_authorized>pending_payment</order_status_authorized>
                 <order_status_captured>processing</order_status_captured>
                 <order_status_voided>canceled</order_status_voided>
-                <order_status_refunded>canceled</order_status_refunded>
                 <order_status_flagged>fraud</order_status_flagged>
                 <payment_action>authorize_capture</payment_action>
                 <capture_time>0</capture_time> 

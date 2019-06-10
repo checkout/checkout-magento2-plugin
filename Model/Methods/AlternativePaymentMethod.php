@@ -2,7 +2,7 @@
 
 /**
  * Checkout.com
- * Authorised and regulated as an electronic money institution
+ * Authorized and regulated as an electronic money institution
  * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
  * PHP version 7
@@ -30,9 +30,21 @@ use \Checkout\Models\Payments\KlarnaSource;
 use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
 
-class AlternativePaymentMethod extends Method
+class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
 
+    protected $_isInitializeNeeded = true;
+    protected $_isGateway = true;
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
+    protected $_canCancel = true;
+    protected $_canCapturePartial = true;
+    protected $_canVoid = true;
+    protected $_canUseInternal = false;
+    protected $_canUseCheckout = true;
+    protected $_canRefund = true;
+    protected $_canRefundInvoicePartial = true;
+    
     /**
      * @var string
      */
@@ -49,30 +61,11 @@ class AlternativePaymentMethod extends Method
      */
     protected $shopperHandler;
 
-
     /**
-     * Magic Methods
+     * @var Session
      */
+    protected $backendAuthSession;
 
-    /**
-     * Constructor.
-     *
-     * @param      \Magento\Framework\Model\Context                         $context                 The context
-     * @param      \Magento\Framework\Registry                              $registry                The registry
-     * @param      \Magento\Framework\Api\ExtensionAttributesFactory        $extensionFactory        The extension factory
-     * @param      \Magento\Framework\Api\AttributeValueFactory             $customAttributeFactory  The custom attribute factory
-     * @param      \Magento\Payment\Helper\Data                             $paymentData             The payment data
-     * @param      \Magento\Framework\App\Config\ScopeConfigInterface       $scopeConfig             The scope configuration
-     * @param      \Magento\Payment\Model\Method\Logger                     $logger                  The logger
-     * @param      \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress     $remoteAddress           The remote address
-     * @param      \CheckoutCom\Magento2\Gateway\Config\Config              $config                  The configuration
-     * @param      \CheckoutCom\Magento2\Model\Service\ApiHandlerService    $apiHandler              The api handler
-     * @param      \CheckoutCom\Magento2\Model\Service\QuoteHandlerService  $quoteHandler            The quote handler
-     * @param      \CheckoutCom\Magento2\Model\Service\ShopperHandlerService   $shopperHandler             The card handler
-     * @param      \Magento\Framework\Model\ResourceModel\AbstractResource  $resource                The resource
-     * @param      \Magento\Framework\Data\Collection\AbstractDb            $resourceCollection      The resource collection
-     * @param      array                                                    $data                    The data
-     */
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -81,16 +74,27 @@ class AlternativePaymentMethod extends Method
         \Magento\Payment\Helper\Data $paymentData,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
+        \Magento\Backend\Model\Auth\Session $backendAuthSession,
+        \Magento\Checkout\Model\Cart $cart,
+        \Magento\Framework\UrlInterface $urlBuilder,
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
+        \Magento\Framework\DB\TransactionFactory $transactionFactory,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Checkout\Helper\Data $checkoutData,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        \Magento\Quote\Api\CartManagementInterface $quoteManagement,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-
         parent::__construct(
             $context,
             $registry,
@@ -99,17 +103,28 @@ class AlternativePaymentMethod extends Method
             $paymentData,
             $scopeConfig,
             $logger,
-            $remoteAddress,
-            $config,
-            $apiHandler,
-            $quoteHandler,
             $resource,
             $resourceCollection,
             $data
         );
 
-        $this->shopperHandler = $shopperHandler;
-
+        $this->urlBuilder         = $urlBuilder;
+        $this->backendAuthSession = $backendAuthSession;
+        $this->cart               = $cart;
+        $this->_objectManager     = $objectManager;
+        $this->invoiceSender      = $invoiceSender;
+        $this->transactionFactory = $transactionFactory;
+        $this->customerSession    = $customerSession;
+        $this->checkoutSession    = $checkoutSession;
+        $this->checkoutData       = $checkoutData;
+        $this->quoteRepository    = $quoteRepository;
+        $this->quoteManagement    = $quoteManagement;
+        $this->orderSender        = $orderSender;
+        $this->sessionQuote       = $sessionQuote;
+        $this->remoteAddress      = $remoteAddress;
+        $this->config             = $config;
+        $this->apiHandler         = $apiHandler;
+        $this->quoteHandler       = $quoteHandler;
     }
 
     /**
@@ -143,6 +158,36 @@ class AlternativePaymentMethod extends Method
     }
 
     /**
+     * Create a payment object based on the body.
+     *
+     * @param      array  $array  The value
+     *
+     * @return     Payment
+     */
+    protected function createPayment(IdSource $source, int $amount, string $currency, string $reference, $methodId) {
+
+        $payment = null;
+
+        // Create payment object
+        $payment = new Payment($source, $currency);
+
+        // Prepare the metadata array
+        $payment->metadata = ['methodId' => $methodId];
+
+        // Set the payment specifications
+        $payment->capture = $this->config->needsAutoCapture($this->_code);
+        $payment->amount = $amount * 100;
+        $payment->reference = $reference;
+        $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+        $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+
+        $payment->description = __('Payment request from %1', $this->config->getStoreName());
+        $payment->payment_ip = $this->remoteAddress->getRemoteAddress();
+
+        return $payment;
+    }
+
+    /**
      * Verify if currency is supported.
      *
      * @param      string  $method    The method
@@ -165,8 +210,6 @@ class AlternativePaymentMethod extends Method
 
     }
 
-
-
     /**
      * API related.
      */
@@ -179,13 +222,11 @@ class AlternativePaymentMethod extends Method
      * @return     IdSource
      */
     protected function sepa($data) {
-
         $mandate = $this->activateMandate($data['url']);
         $pos = strripos($data['url'], '/');
         $id = substr($data['url'], $pos +1);
 
         return new IdSource($id);
-
     }
 
     /**
@@ -195,24 +236,29 @@ class AlternativePaymentMethod extends Method
      * @return     array
      */
     protected function activateMandate(string $url) {
-
+        // Get the secret key
         $secret = $this->config->getValue('secret_key');
+
+        // Prepare the options
         $options = array(
             CURLOPT_FAILONERROR => false,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => array('Content-type: ' . HttpHandler::MIME_TYPE_JSON,
-                                        'Accept: ' . HttpHandler::MIME_TYPE_JSON,
-                                        'Authorization: ' . $secret,
-                                        'User-Agent: checkout-magento2-plugin/1.0.0') //@todo: finish this
+            CURLOPT_HTTPHEADER => array(
+                'Content-type: ' . HttpHandler::MIME_TYPE_JSON,
+                'Accept: ' . HttpHandler::MIME_TYPE_JSON,
+                'Authorization: ' . $secret,
+                'User-Agent: checkout-magento2-plugin/1.0.0'
+            ) //@todo: finish this
         );
 
+        // Send the CURL request
         $curl = curl_init($url);
         curl_setopt_array($curl, $options);
         $content = curl_exec($curl);
         curl_close($curl);
 
+        // Return the content
         return json_decode($content, true);
-
     }
 
     /**
@@ -246,8 +292,8 @@ class AlternativePaymentMethod extends Method
      */
     protected function giropay(array $data) {
         $source = new GiropaySource(__('Payment request from %1', $this->config->getStoreName()),
-                                    static::getValue('bic', $data));
-        $source->iban = static::getValue('iban', $data);
+                                    $this->getValue('bic', $data));
+        $source->iban = $this->getValue('iban', $data);
         return $source;
     }
 
@@ -296,7 +342,6 @@ class AlternativePaymentMethod extends Method
      * @return     KlarnaSource
      */
     protected function klarna($data) {
-
         $products = array();
         $tax = 0;
         $quote = $this->quoteHandler->getQuote();
@@ -367,13 +412,8 @@ class AlternativePaymentMethod extends Method
         return new EpsSource(__('Payment request from %1', $this->config->getStoreName()));
     }
 
-
     /**
-     * Magento related.
-     */
-
-    /**
-     * Void
+     * { function_description }
      *
      * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
      *
@@ -383,41 +423,35 @@ class AlternativePaymentMethod extends Method
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
-        // Check the status
-        if (!$this->canVoid()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
-        }
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Check the status
+            if (!$this->canVoid()) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
+            }
 
-        // Process the void request
-        $response = $this->apiHandler->voidTransaction($payment);
-        if (!$response || !$response->isSuccessful()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
+            // Process the void request
+            $response = $this->apiHandler->voidTransaction($payment);
+            if (!$this->apiHandler->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
+            }
         }
 
         return $this;
     }
 
-    /**
-     * Refund
-     *
-     * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
-     * @param      <type>                                           $amount   The amount
-     *
-     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return     self                                             ( description_of_the_return_value )
-     */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
-        // Check the status
-        if (!$this->canRefund()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
-        }
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Check the status
+            if (!$this->canRefund()) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
+            }
 
-        // Process the refund request
-        $response = $this->apiHandler->refundTransaction($payment, $amount);
-        if (!$response || !$response->isSuccessful()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
+            // Process the refund request
+            $response = $this->apiHandler->refundTransaction($payment, $amount);
+            if (!$this->apiHandler->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
+            }
         }
 
         return $this;
@@ -440,4 +474,31 @@ class AlternativePaymentMethod extends Method
         return false;
     }
 
+    /**
+     * Safely get value from a multidimentional array.
+     *
+     * @param      array  $array  The value
+     *
+     * @return     Payment
+     */
+    public function getValue($field, $array, $dft = null) {
+
+        $value = null;
+        $field = (array) $field;
+
+        foreach ($field as $key) {
+
+            if(isset($array[$key])) {
+                $value = $array[$key];
+                $array = $array[$key];
+            } else {
+                $value = $dft;
+                break;
+            }
+
+        }
+
+        return $value;
+
+    }
 }

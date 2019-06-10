@@ -2,7 +2,7 @@
 
 /**
  * Checkout.com
- * Authorised and regulated as an electronic money institution
+ * Authorized and regulated as an electronic money institution
  * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
  * PHP version 7
@@ -22,8 +22,21 @@ use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\BillingDescriptor;
-class CardPaymentMethod extends Method
+class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
+
+    protected $_isInitializeNeeded = true;
+    protected $_isGateway = true;
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
+    protected $_canCancel = true;
+    protected $_canCapturePartial = true;
+    protected $_canVoid = true;
+    protected $_canUseInternal = false;
+    protected $_canUseCheckout = true;
+    protected $_canRefund = true;
+    protected $_canRefundInvoicePartial = true;
+    
 	/**
      * @var string
      */
@@ -45,24 +58,10 @@ class CardPaymentMethod extends Method
     protected $customerSession;
 
     /**
-     * Constructor.
-     *
-     * @param      \Magento\Framework\Model\Context                         $context                 The context
-     * @param      \Magento\Framework\Registry                              $registry                The registry
-     * @param      \Magento\Framework\Api\ExtensionAttributesFactory        $extensionFactory        The extension factory
-     * @param      \Magento\Framework\Api\AttributeValueFactory             $customAttributeFactory  The custom attribute factory
-     * @param      \Magento\Payment\Helper\Data                             $paymentData             The payment data
-     * @param      \Magento\Framework\App\Config\ScopeConfigInterface       $scopeConfig             The scope configuration
-     * @param      \Magento\Payment\Model\Method\Logger                     $logger                  The logger
-     * @param      \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress     $remoteAddress           The remote address
-     * @param      \CheckoutCom\Magento2\Gateway\Config\Config              $config                  The configuration
-     * @param      \CheckoutCom\Magento2\Model\Service\ApiHandlerService    $apiHandler              The api handler
-     * @param      \CheckoutCom\Magento2\Model\Service\QuoteHandlerService  $quoteHandler            The quote handler
-     * @param      \CheckoutCom\Magento2\Model\Service\CardHandlerService   $cardHandler             The card handler
-     * @param      \Magento\Framework\Model\ResourceModel\AbstractResource  $resource                The resource
-     * @param      \Magento\Framework\Data\Collection\AbstractDb            $resourceCollection      The resource collection
-     * @param      array                                                    $data                    The data
+     * @var Session
      */
+    protected $backendAuthSession;
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -71,17 +70,28 @@ class CardPaymentMethod extends Method
         \Magento\Payment\Helper\Data $paymentData,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
+        \Magento\Backend\Model\Auth\Session $backendAuthSession,
+        \Magento\Checkout\Model\Cart $cart,
+        \Magento\Framework\UrlInterface $urlBuilder,
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
+        \Magento\Framework\DB\TransactionFactory $transactionFactory,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Checkout\Helper\Data $checkoutData,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        \Magento\Quote\Api\CartManagementInterface $quoteManagement,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-
         parent::__construct(
             $context,
             $registry,
@@ -90,18 +100,29 @@ class CardPaymentMethod extends Method
             $paymentData,
             $scopeConfig,
             $logger,
-            $remoteAddress,
-            $config,
-            $apiHandler,
-            $quoteHandler,
             $resource,
             $resourceCollection,
             $data
         );
 
-        $this->cardHandler = $cardHandler;
-        $this->customerSession = $customerSession;
-
+        $this->urlBuilder         = $urlBuilder;
+        $this->backendAuthSession = $backendAuthSession;
+        $this->cart               = $cart;
+        $this->_objectManager     = $objectManager;
+        $this->invoiceSender      = $invoiceSender;
+        $this->transactionFactory = $transactionFactory;
+        $this->customerSession    = $customerSession;
+        $this->checkoutSession    = $checkoutSession;
+        $this->checkoutData       = $checkoutData;
+        $this->quoteRepository    = $quoteRepository;
+        $this->quoteManagement    = $quoteManagement;
+        $this->orderSender        = $orderSender;
+        $this->sessionQuote       = $sessionQuote;
+        $this->remoteAddress      = $remoteAddress;
+        $this->config             = $config;
+        $this->apiHandler         = $apiHandler;
+        $this->quoteHandler       = $quoteHandler;
+        $this->cardHandler        = $cardHandler;
     }
 
 	/**
@@ -173,20 +194,30 @@ class CardPaymentMethod extends Method
             ->request($request);
 
         return $response;
-
     }
 
+    /**
+     * { function_description }
+     *
+     * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
+     *
+     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return     self                                             ( description_of_the_return_value )
+     */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
-        // Check the status
-        if (!$this->canVoid()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
-        }
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Check the status
+            if (!$this->canVoid()) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
+            }
 
-        // Process the void request
-        $response = $this->apiHandler->voidTransaction($payment);
-        if (!$this->apiHandler->isValidResponse($response)) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
+            // Process the void request
+            $response = $this->apiHandler->voidTransaction($payment);
+            if (!$this->apiHandler->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
+            }
         }
 
         return $this;
@@ -194,15 +225,17 @@ class CardPaymentMethod extends Method
 
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
-        // Check the status
-        if (!$this->canRefund()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
-        }
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Check the status
+            if (!$this->canRefund()) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
+            }
 
-        // Process the refund request
-        $response = $this->apiHandler->refundTransaction($payment, $amount);
-        if (!$this->apiHandler->isValidResponse($response)) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
+            // Process the refund request
+            $response = $this->apiHandler->refundTransaction($payment, $amount);
+            if (!$this->apiHandler->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
+            }
         }
 
         return $this;
