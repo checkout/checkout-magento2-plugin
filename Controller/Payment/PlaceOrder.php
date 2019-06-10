@@ -148,7 +148,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
                     $success = $response->isSuccessful();
                     $url = $response->getRedirection();
                     if (!$response->isPending() || $this->data['source'] === 'sepa') {
-                        if (!$this->placeOrder((array) $response)) {
+                        if (!$this->placeOrder($response)) {
                             // refund or void accordingly
                             if ($this->config->needsAutoCapture($this->methodId)) {
                                 //refund
@@ -208,7 +208,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      *
      * @return     mixed
      */
-    protected function placeOrder(array $response = null) {
+    protected function placeOrder($response = null) {
         try {
             // Get the reserved order increment id
             $reservedIncrementId = $this->quoteHandler
@@ -222,6 +222,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             // Add the payment info to the order
             $order = $this->utilities
                 ->setPaymentData($order, $response);
+
+            // Save the order
+            $order->save();
 
             return $order;
         }
