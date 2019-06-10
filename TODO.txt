@@ -9,6 +9,7 @@ TODO
 - Payment methods need exception handling
 - Handle 3ds redirection for save card from account
 - Check the void process
+- Add comment for failed transactions
 
 TASKS
 - do CLR to LF normalisation
@@ -27,6 +28,7 @@ TASKS
 - format CSS files
 - update the apple pay fields with jon's suggestions
 - check todo tags in the code base
+- check how to handle refund for multiple invoices
 
 OPTIONAL
 - add advanced Frames localisation and style parameters?
