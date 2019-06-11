@@ -1,30 +1,31 @@
 
 TODO
-- update transaction id for MOTO void and refund using webhook
 - add the place order API (with MADA support)
+- add customer source to payment methods
+- add billing descriptor
+
+- fix transaction id for MOTO
 - add shipping handling for instant payment, currently flatrate_flatrate not good
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
 - check opened/closed transactions logic
-- add customer source to vault payments in admin and frontend + card payments
 - Payment methods need exception handling
 - Handle 3ds redirection for save card from account
 - Check the void process
 - Add comment for failed transactions
 
 TASKS
-- do CLR to LF normalisation
+- Test apple pay and google pay
+- do CLR to LF normalization
 - move common payment method functions to an abstract class
 - update git ignore
 - check deleted vault cards not removed from db
 - check all translation strings
 - Add instant purchase note in order somewhere
 - move strings to constants and centralize definitions
-- move the placeOrder calls in controllers to a centralised processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
-- delegate all response checks to API handler isValidResponse($respoonse), especially APM method
+- move the placeOrder calls in controllers to a centralized processOrder call in orderHandlerService (duplicated code in placeOrder and verify controllers)
+- delegate all response checks to API handler isValidResponse($response), especially APM method
 - check multiple transactions storage logic in order payment details
-- review the setPayment data in order save before and after ($response replaced py $payload)
 - split transaction handler code in smaller chunks
-- Test apple pay and google pay
 - format CSS files
 - update the apple pay fields with jon's suggestions
 - check todo tags in the code base
