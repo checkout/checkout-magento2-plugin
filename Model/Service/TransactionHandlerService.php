@@ -129,7 +129,6 @@ class TransactionHandlerService
             $payment->setMethod($methodId);
             $payment->setLastTransId($tid);
             $payment->setTransactionId($tid);
-            //$payment->setIsTransactionClosed(false);
 
             // Formatted price
             $formatedPrice = $order->getBaseCurrency()
