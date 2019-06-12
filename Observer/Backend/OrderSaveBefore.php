@@ -57,6 +57,11 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     protected $vaultHandler;
 
     /**
+     * @var TransactionHandlerService
+     */
+    protected $transactionHandler;
+
+    /**
      * @var Config
      */
     protected $config;
@@ -96,6 +101,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
@@ -106,6 +112,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->vaultHandler = $vaultHandler;
+        $this->transactionHandler = $transactionHandler;
         $this->config = $config;
         $this->utilities = $utilities;
         $this->logger = $logger;
@@ -187,7 +194,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             return $this->backendAuthSession->isLoggedIn()
             && isset($this->params['ckoCardToken'])
             && $this->methodId == 'checkoutcom_moto'
-            && !$this->orderHandler->hasTransaction(
+            && !$this->transactionHandler->hasTransaction(
                 $this->order,
                 Transaction::TYPE_AUTH
             );

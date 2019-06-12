@@ -248,23 +248,4 @@ class OrderHandlerService
             return null;
         }
     }
-
-    /**
-     * Checks if an order has a transaction type.
-     */
-    public function hasTransaction($order, $transactionType)
-    {
-        try {
-            // Get the auth transactions
-            $transactions = $this->transactionHandler->getTransactions(
-                $order,
-                $transactionType
-            );
-
-            return count($transactions) > 0 ? true : false;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
-        }
-    }
 }

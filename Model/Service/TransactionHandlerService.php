@@ -129,7 +129,7 @@ class TransactionHandlerService
             $payment->setMethod($methodId);
             $payment->setLastTransId($tid);
             $payment->setTransactionId($tid);
-            $payment->setIsTransactionClosed(false);
+            //$payment->setIsTransactionClosed(false);
 
             // Formatted price
             $formatedPrice = $order->getBaseCurrency()
@@ -161,6 +161,9 @@ class TransactionHandlerService
                 // Set the parent transaction id
                 $payment->setParentTransactionId(null);
 
+                // Allow void
+                $payment->setIsTransactionClosed(false);
+
                 // Set the order status
                 $order->setStatus(
                     $this->config->getValue('order_status_authorized')
@@ -169,12 +172,17 @@ class TransactionHandlerService
 
             // Add a capture transaction to the order
             else if ($transactionType == Transaction::TYPE_CAPTURE) {
-                // Set the parent transaction id
-                $payment->setParentTransactionId(null);
-                /*$parentTransaction = $this->getTransactions($order, $transactionType);
-                $payment->setParentTransactionId(
-                    $parentTransaction[0]->getTransactionId()
-                );*/
+                // Lock the previous auth
+                $authTransaction = $this->hasTransaction($order, Transaction::TYPE_AUTH);
+                if (isset($authTransaction[0])) {
+                    $authTransaction[0]->close();
+                    $payment->setParentTransactionId(
+                        $authTransaction->getTransactionId()
+                    );
+                }
+
+                // Allow refund
+                $payment->setIsTransactionClosed(false);
 
                 // Handle the invoice and capture comments
                 if ($this->config->getValue('auto_invoice')) {
@@ -196,6 +204,15 @@ class TransactionHandlerService
 
             // Add a void transaction to the payment
             else if ($transactionType == Transaction::TYPE_VOID) {
+                // Lock the previous auth
+                $authTransaction = $this->hasTransaction($order, Transaction::TYPE_AUTH);
+                if (isset($authTransaction[0])) {
+                    $authTransaction[0]->close();
+                    $payment->setParentTransactionId(
+                        $authTransaction->getTransactionId()
+                    );
+                }
+
                 // Add order comments
                 $payment->addTransactionCommentsToOrder(
                     $transaction,
@@ -229,6 +246,15 @@ class TransactionHandlerService
 
                 // Update the order
                 $order->setTotalRefunded($amount + $order->getTotalRefunded());
+
+                // Lock the previous capture
+                $captTransaction = $this->hasTransaction($order, Transaction::TYPE_CAPTURE);
+                if (isset($captTransaction[0])) {
+                    $captTransaction[0]->close();
+                    $payment->setParentTransactionId(
+                        $captTransaction->getTransactionId()
+                    );
+                }
             }
 
             // Save payment, transaction and order
@@ -238,6 +264,25 @@ class TransactionHandlerService
 
         } catch (Exception $e) {
             $this->logger->write($e->getMessage());
+        }
+    }
+
+    /**
+     * Checks if an order has a transactions.
+     */
+    public function hasTransaction($order, $transactionType)
+    {
+        try {
+            // Get the auth transactions
+            $transactions = $this->transactionHandler->getTransactions(
+                $order,
+                $transactionType
+            );
+
+            return count($transactions) > 0 ? $transactions : false;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
         }
     }
 
