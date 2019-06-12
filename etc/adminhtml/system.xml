@@ -2,7 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="payment">
-            <group id="checkout_com" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="checkout_com" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Checkout.com</label>
 
                 <group id="checkout_com_logo" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="1">
@@ -137,7 +137,7 @@
 
                 </group>
 
-                <group id="checkout_com_advanced_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="3">
+                <group id="checkout_com_advanced_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="3">
                     <label>Advanced Settings</label>
 
                     <field id="debug" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -237,7 +237,7 @@
 
                 </group>
 
-                <group id="checkout_com_order_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="4">
+                <group id="checkout_com_order_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="4">
                     <label>Order Settings</label>
 
                     <field id="order_creation" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -303,7 +303,7 @@
                     </field>
                 </group>
 
-                <group id="checkout_com_currency_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="5">
+                <group id="checkout_com_currency_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="5">
                     <label>Currency Settings</label>
                     <field id="payment_currency" translate="label" sortOrder="0" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Currency</label>
@@ -329,7 +329,7 @@
                    </field>
                 </group>
 
-                <group id="checkout_com_country_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="6">
+                <group id="checkout_com_country_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="6">
                     <label>Country Settings</label>
 
                     <field id="allowspecific" translate="label" sortOrder="0" type="allowspecific" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -343,7 +343,7 @@
                     </field>
                 </group>
 
-                <group id="checkout_com_account_keys" translate="label" showInDefault="1" showInWebsite="1" sortOrder="7">
+                <group id="checkout_com_account_keys" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="7">
                     <label>Account keys</label>
                     <field id="public_key" translate="label" sortOrder="0" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Public Key</label>
@@ -365,7 +365,7 @@
                     </field>
                 </group>
 
-                <group id="checkout_com_callback_urls" translate="label" showInDefault="1" showInWebsite="1" sortOrder="8">
+                <group id="checkout_com_callback_urls" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="8">
                     <label>Callbacks URLs</label>
 
                     <field id="webhook_url" translate="label" sortOrder="0" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -385,7 +385,7 @@
                     -->
                 </group>
 
-                <group id="checkout_com_descriptor" translate="label" showInDefault="1" showInWebsite="1" sortOrder="9">
+                <group id="checkout_com_descriptor" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="9">
                     <label>Dynamic Descriptor</label>
 
                     <field id="descriptor_enable" translate="label comment" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
