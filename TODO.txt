@@ -1,20 +1,22 @@
 
 TODO
 - add the place order API (with MADA support)
-- add customer source to payment methods
-- add billing descriptor
+- add customer source and billing descriptor to payment methods
 
 - fix transaction id for MOTO
 - add shipping handling for instant payment, currently flatrate_flatrate not good
 - set the payment type in all requests "Regular" "Recurring" "MOTO"
+
 - check opened/closed transactions logic
+- Check the void process
+
+
 - Payment methods need exception handling
 - Handle 3ds redirection for save card from account
-- Check the void process
-- Add comment for failed transactions
 
 TASKS
 - Test apple pay and google pay
+- Add comment for failed transactions
 - do CLR to LF normalization
 - move common payment method functions to an abstract class
 - update git ignore
