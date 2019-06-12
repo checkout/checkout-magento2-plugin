@@ -430,7 +430,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             }
 
             // Process the void request
-            $response = $this->apiHandler->voidTransaction($payment);
+            $response = $this->apiHandler->voidOrder($payment);
             if (!$this->apiHandler->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
             }
@@ -448,7 +448,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             }
 
             // Process the refund request
-            $response = $this->apiHandler->refundTransaction($payment, $amount);
+            $response = $this->apiHandler->refundOrder($payment, $amount);
             if (!$this->apiHandler->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
             }

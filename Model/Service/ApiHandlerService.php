@@ -104,7 +104,7 @@ class ApiHandlerService
     /**
      * Voids a transaction.
      */
-    public function voidTransaction($payment) {
+    public function voidOrder($payment) {
         try {
             // Get the order
             $order = $payment->getOrder();
@@ -130,7 +130,7 @@ class ApiHandlerService
     /**
      * Refunds a transaction.
      */
-    public function refundTransaction($payment, $amount) {
+    public function refundOrder($payment, $amount) {
         try {
             // Get the order
             $order = $payment->getOrder();

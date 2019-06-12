@@ -121,7 +121,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Process the void request
-            $response = $this->apiHandler->voidTransaction($payment);
+            $response = $this->apiHandler->voidOrder($payment);
             if (!$this->apiHandler->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
             }
@@ -139,7 +139,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Process the refund request
-            $response = $this->apiHandler->refundTransaction($payment, $amount);
+            $response = $this->apiHandler->refundOrder($payment, $amount);
             if (!$this->apiHandler->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
             }
