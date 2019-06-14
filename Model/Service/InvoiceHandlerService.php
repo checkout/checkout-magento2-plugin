@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Sales\Model\Order\Invoice;
+
 class InvoiceHandlerService
 {
     /**
@@ -40,14 +43,19 @@ class InvoiceHandlerService
     protected $config;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * @var Order
      */
     protected $order;
 
     /**
-     * @var Logger
+     * @var Transaction
      */
-    protected $logger;
+    protected $transaction;
 
     /**
      * InvoiceHandlerService constructor.
@@ -69,10 +77,11 @@ class InvoiceHandlerService
     /**
      * Check if the invoice can be created.
      */
-    public function processInvoice($order)
+    public function processInvoice($order, $transaction = null)
     {
         try {
             $this->order = $order;
+            $this->transaction = $transaction;
             if ($this->order->canInvoice()) {
                 return $this->createInvoice();
             }
@@ -90,7 +99,20 @@ class InvoiceHandlerService
         try {
             // Prepare the invoice
             $invoice = $this->invoiceService->prepareInvoice($this->order);
+
+            // Set the invoice transaction ID
+            if ($this->transaction) {
+                $invoice->setTransactionId($this->transaction->getTxnId());
+            }
+
+            // Set the invoice status
+            if ($this->transaction && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE) {
+                $invoice->setState(Invoice::STATE_PAID);
+            }
+
+            // Finalize the invoice
             $invoice->setRequestedCaptureCase($this->invoiceModel::CAPTURE_ONLINE);
+            $invoice->setBaseGrandTotal($this->order->getGrandTotal());
             $invoice->register();
 
             // Save the invoice

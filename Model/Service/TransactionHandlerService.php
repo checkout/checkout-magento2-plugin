@@ -190,7 +190,10 @@ class TransactionHandlerService
                 // Auto invoice
                 if ($this->config->getValue('auto_invoice')) {
                     // Process the invoice
-                    $this->invoiceHandler->processInvoice($order);
+                    $this->invoiceHandler->processInvoice(
+                        $order,
+                        $transaction
+                    );
     
                     // Add order comments
                     $payment->addTransactionCommentsToOrder(
