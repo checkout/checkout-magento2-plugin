@@ -79,10 +79,53 @@ class InvoiceHandlerService
     public function processInvoice($order, $transaction = null)
     {
         try {
+            // Set required properties
             $this->order = $order;
             $this->transaction = $transaction;
+
+            // Handle the invoice
+            if ($this->needsInvoicing()) {
+                $this->createInvoice();
+            }
+            else {
+                $this->cancelInvoice();
+            }
+
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Create an invoice.
+     */
+    public function createInvoice()
+    {
+        try {
             if ($this->order->canInvoice()) {
-                return $this->createInvoice();
+                // Prepare the invoice
+                $invoice = $this->invoiceService->prepareInvoice($this->order);
+
+                // Set the invoice transaction ID
+                if ($this->transaction) {
+                    $invoice->setTransactionId($this->transaction->getTxnId());
+                }
+
+                // Set the invoice state
+                $invoice = $this->setInvoiceState($invoice);
+
+                // Finalize the invoice
+                $invoice->setBaseGrandTotal($this->order->getGrandTotal());
+                $invoice->register();
+
+                // Save the invoice
+                $this->invoiceRepository->save($invoice);
+            }
+            else {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('Invoicing is not allowed for this order.')
+                );
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
@@ -91,38 +134,58 @@ class InvoiceHandlerService
     }
 
     /**
-     * Create the invoice.
+     * Cancel an invoice for void or refund.
      */
-    public function createInvoice()
+    public function cancelInvoice()
+    {
+        $invoice = $this->getInvoice($this->order);
+        $invoice->setState($this->invoiceModel::STATE_CANCELED);
+        $this->invoiceRepository->save($invoice);
+    }
+
+    /**
+     * Check if invoicing is needed.
+     */
+    public function needsInvoicing()
+    {
+        return $this->isCapture() || $this->isAuthorization();
+    }
+
+    /**
+     * Check if a transaction is capture type.
+     */
+    public function isCapture()
+    {
+        return $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+    }
+
+    /**
+     * Check if a transaction is authorization type.
+     */
+    public function isAuthorization()
+    {
+        return $this->transaction->getTxnType() == Transaction::TYPE_AUTH;
+    }
+
+    /**
+     * Set the invoice state.
+     */
+    public function setInvoiceState($invoice)
     {
         try {
-            // Prepare the invoice
-            $invoice = $this->invoiceService->prepareInvoice($this->order);
-
-            // Set the invoice transaction ID
-            if ($this->transaction) {
-                $invoice->setTransactionId($this->transaction->getTxnId());
-            }
-
-            // Set the invoice status
-            if ($this->transaction && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE) {
+            if ($this->isCapture()) {
                 $invoice->setState($this->invoiceModel::STATE_PAID);
                 $invoice->setRequestedCaptureCase($this->invoiceModel::CAPTURE_ONLINE);
             }
-            else {
+            else if ($this->isAuthorization()) {
                 $invoice->setState($this->invoiceModel::STATE_OPEN);
                 $invoice->setRequestedCaptureCase($this->invoiceModel::NOT_CAPTURE);                
             }
-
-            // Finalize the invoice
-            $invoice->setBaseGrandTotal($this->order->getGrandTotal());
-            $invoice->register();
-
-            // Save the invoice
-            $this->invoiceRepository->save($invoice);
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
-            return null;
+        }
+        finally {
+            return $invoice;
         }
     }
 

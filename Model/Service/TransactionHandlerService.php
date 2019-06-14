@@ -177,6 +177,7 @@ class TransactionHandlerService
                 // Lock the previous auth
                 $authTransaction = $this->hasTransaction($order, Transaction::TYPE_AUTH);
 
+                // Set the parent transaction id
                 if (isset($authTransaction[0])) {
                     $authTransaction[0]->close();
                     $transaction->setParentTxnId(
@@ -184,26 +185,17 @@ class TransactionHandlerService
                     );
                 }
 
+                // Add order comments
+                $payment->addTransactionCommentsToOrder(
+                    $transaction,
+                    __(
+                        'The captured amount is %1.',
+                        $formatedPrice
+                    )
+                );
+
                 // Allow refund
                 $payment->setIsTransactionClosed(false);
-
-                // Auto invoice
-                if ($this->config->getValue('auto_invoice')) {
-                    // Process the invoice
-                    $this->invoiceHandler->processInvoice(
-                        $order,
-                        $transaction
-                    );
-    
-                    // Add order comments
-                    $payment->addTransactionCommentsToOrder(
-                        $transaction,
-                        __(
-                            'The captured amount is %1.',
-                            $formatedPrice
-                        )
-                    );
-                }
 
                 // Set the order status
                 $order->setStatus(
@@ -215,6 +207,8 @@ class TransactionHandlerService
             else if ($transactionType == Transaction::TYPE_VOID) {
                 // Lock the previous auth
                 $authTransaction = $this->hasTransaction($order, Transaction::TYPE_AUTH);
+
+                // Set the parent transaction id
                 if (isset($authTransaction[0])) {
                     $authTransaction[0]->close();
                     $transaction->setParentTxnId(
@@ -261,12 +255,24 @@ class TransactionHandlerService
 
                 // Lock the previous capture
                 $captTransaction = $this->hasTransaction($order, Transaction::TYPE_CAPTURE);
+
+                // Set the parent transaction id
                 if (isset($captTransaction[0])) {
                     $captTransaction[0]->close();
                     $transaction->setParentTxnId(
                         $captTransaction[0]->getTxnId()
                     );
                 }
+            }
+
+            // Invoice handling
+            $this->invoiceHandler->processInvoice(
+                $order,
+                $transaction
+            );
+            
+            if ($this->config->getValue('auto_invoice')) {
+
             }
 
             // Save payment, transaction and order
