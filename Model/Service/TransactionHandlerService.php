@@ -154,7 +154,10 @@ class TransactionHandlerService
                 // Add order comments
                 $payment->addTransactionCommentsToOrder(
                     $transaction,
-                    __('The authorized amount is %1.', $formatedPrice)
+                    __(
+                        'The authorized amount is %1.',
+                        $formatedPrice
+                    )
                 );
 
                 // Set the parent transaction id
@@ -184,15 +187,18 @@ class TransactionHandlerService
                 // Allow refund
                 $payment->setIsTransactionClosed(false);
 
-                // Handle the invoice and capture comments
+                // Auto invoice
                 if ($this->config->getValue('auto_invoice')) {
+                    // Process the invoice
                     $this->invoiceHandler->processInvoice($order);
-                }
-                else {
+    
                     // Add order comments
                     $payment->addTransactionCommentsToOrder(
                         $transaction,
-                        __('The captured amount is %1. No invoice was created.', $formatedPrice)
+                        __(
+                            'The captured amount is %1.',
+                            $formatedPrice
+                        )
                     );
                 }
 
@@ -216,7 +222,10 @@ class TransactionHandlerService
                 // Add order comments
                 $payment->addTransactionCommentsToOrder(
                     $transaction,
-                    __('The voided amount is %1.', $formatedPrice)
+                    __(
+                        'The voided amount is %1.',
+                        $formatedPrice
+                    )
                 );
 
                 // Set the parent transaction id
