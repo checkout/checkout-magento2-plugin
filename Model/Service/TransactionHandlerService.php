@@ -273,7 +273,7 @@ class TransactionHandlerService
     {
         try {
             // Get the auth transactions
-            $transactions = $this->transactionHandler->getTransactions(
+            $transactions = $this->getTransactions(
                 $order,
                 $transactionType
             );
