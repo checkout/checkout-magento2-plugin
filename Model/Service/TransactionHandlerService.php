@@ -158,7 +158,7 @@ class TransactionHandlerService
                 );
 
                 // Set the parent transaction id
-                $payment->setParentTransactionId(null);
+                $transaction->setParentTxnId(null);
 
                 // Allow void
                 $payment->setIsTransactionClosed(false);
@@ -173,10 +173,11 @@ class TransactionHandlerService
             else if ($transactionType == Transaction::TYPE_CAPTURE) {
                 // Lock the previous auth
                 $authTransaction = $this->hasTransaction($order, Transaction::TYPE_AUTH);
+
                 if (isset($authTransaction[0])) {
                     $authTransaction[0]->close();
-                    $payment->setParentTransactionId(
-                        $authTransaction[0]->getTransactionId()
+                    $transaction->setParentTxnId(
+                        $authTransaction[0]->getTxnId()
                     );
                 }
 
@@ -207,8 +208,8 @@ class TransactionHandlerService
                 $authTransaction = $this->hasTransaction($order, Transaction::TYPE_AUTH);
                 if (isset($authTransaction[0])) {
                     $authTransaction[0]->close();
-                    $payment->setParentTransactionId(
-                        $authTransaction[0]->getTransactionId()
+                    $transaction->setParentTxnId(
+                        $authTransaction[0]->getTxnId()
                     );
                 }
 
@@ -250,8 +251,8 @@ class TransactionHandlerService
                 $captTransaction = $this->hasTransaction($order, Transaction::TYPE_CAPTURE);
                 if (isset($captTransaction[0])) {
                     $captTransaction[0]->close();
-                    $payment->setParentTransactionId(
-                        $captTransaction[0]->getTransactionId()
+                    $transaction->setParentTxnId(
+                        $captTransaction[0]->getTxnId()
                     );
                 }
             }
