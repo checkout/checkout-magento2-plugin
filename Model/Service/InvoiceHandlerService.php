@@ -18,7 +18,6 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Sales\Model\Order\Payment\Transaction;
-use Magento\Sales\Model\Order\Invoice;
 
 class InvoiceHandlerService
 {
@@ -107,11 +106,15 @@ class InvoiceHandlerService
 
             // Set the invoice status
             if ($this->transaction && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE) {
-                $invoice->setState(Invoice::STATE_PAID);
+                $invoice->setState($this->invoiceModel::STATE_PAID);
+                $invoice->setRequestedCaptureCase($this->invoiceModel::CAPTURE_ONLINE);
+            }
+            else {
+                $invoice->setState($this->invoiceModel::STATE_OPEN);
+                $invoice->setRequestedCaptureCase($this->invoiceModel::NOT_CAPTURE);                
             }
 
             // Finalize the invoice
-            $invoice->setRequestedCaptureCase($this->invoiceModel::CAPTURE_ONLINE);
             $invoice->setBaseGrandTotal($this->order->getGrandTotal());
             $invoice->register();
 
