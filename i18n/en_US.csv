@@ -1,0 +1,66 @@
+"The card could not be saved.","The card could not be saved."
+"The payment card has been stored successfully.","The payment card has been stored successfully."
+"Your order number %1 has been created successfully.","Your order number %1 has been created successfully."
+"The transaction could not be processed.","The transaction could not be processed."
+"The request is invalid.","The request is invalid."
+"The transaction could not be processed or has been cancelled.","The transaction could not be processed or has been cancelled."
+Black,Black
+White,White
+"White with line","White with line"
+"Credit cards","Credit cards"
+"Debit cards","Debit cards"
+Visa,Visa
+Mastercard,Mastercard
+"American Express","American Express"
+Test,Test
+Production,Production
+Standard,Standard
+Simple,Simple
+JCB,JCB
+Discover,Discover
+English,English
+Spanish,Spanish
+German,German
+Korean,Korean
+French,French
+Italian,Italian
+Dutch,Dutch
+Authorise,Authorise
+"Authorise and Capture","Authorise and Capture"
+"Payment request from %1","Payment request from %1"
+"The void action is not available.","The void action is not available."
+"The void request could not be processed.","The void request could not be processed."
+"The refund action is not available.","The refund action is not available."
+"The refund request could not be processed.","The refund request could not be processed."
+"The CVV value is required.","The CVV value is required."
+"A payment method ID is required to place an order.","A payment method ID is required to place an order."
+"The authorized amount is %1.","The authorized amount is %1."
+"The captured amount is %1. No invoice was created.","The captured amount is %1. No invoice was created."
+"The voided amount is %1.","The voided amount is %1."
+"This card is already saved.","This card is already saved."
+ending,ending
+expires,expires
+"Please provide the required card information for payment.","Please provide the required card information for payment."
+CVV,CVV
+"Save the card","Save the card"
+"Card Number","Card Number"
+"Expiration Date","Expiration Date"
+Type,Type
+Actions,Actions
+Delete,Delete
+Name,Name
+"Cadastro de Pessoas Físicas","Cadastro de Pessoas Físicas"
+Birthdate,Birthdate
+BIC,BIC
+Description,Description
+"Account IBAN","Account IBAN"
+Continue,Continue
+"SEPA Direct Debit Mandate for single payment","SEPA Direct Debit Mandate for single payment"
+Creditor,Creditor
+"Creditor ID","Creditor ID"
+Debitor,Debitor
+"By accepting this mandate form, you authorise (A) b4payment GmbH to send instructions to your bank to debit your account (B) your bank to debit your account in accordance with the instructions from b4payment GmbH.","By accepting this mandate form, you authorise (A) b4payment GmbH to send instructions to your bank to debit your account (B) your bank to debit your account in accordance with the instructions from b4payment GmbH."
+"As part of your rights, you are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.","As part of your rights, you are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited."
+"I accept the mandate for a single payment","I accept the mandate for a single payment"
+"Your rights regarding the above mandate are explained in a statement that you can obtain from your bank.","Your rights regarding the above mandate are explained in a statement that you can obtain from your bank."
+"Place Order","Place Order"
