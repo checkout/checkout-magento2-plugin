@@ -176,7 +176,7 @@ class TransactionHandlerService
                 if (isset($authTransaction[0])) {
                     $authTransaction[0]->close();
                     $payment->setParentTransactionId(
-                        $authTransaction->getTransactionId()
+                        $authTransaction[0]->getTransactionId()
                     );
                 }
 
@@ -208,7 +208,7 @@ class TransactionHandlerService
                 if (isset($authTransaction[0])) {
                     $authTransaction[0]->close();
                     $payment->setParentTransactionId(
-                        $authTransaction->getTransactionId()
+                        $authTransaction[0]->getTransactionId()
                     );
                 }
 
@@ -251,7 +251,7 @@ class TransactionHandlerService
                 if (isset($captTransaction[0])) {
                     $captTransaction[0]->close();
                     $payment->setParentTransactionId(
-                        $captTransaction->getTransactionId()
+                        $captTransaction[0]->getTransactionId()
                     );
                 }
             }
