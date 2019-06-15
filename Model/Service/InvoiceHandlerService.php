@@ -187,7 +187,6 @@ class InvoiceHandlerService
     {
         try {
             if ($this->needsCaptureInvoice()) {
-                $invoice->setState($this->invoiceModel::STATE_PAID);
                 $invoice->setRequestedCaptureCase($this->invoiceModel::CAPTURE_ONLINE);
             }
             else if ($this->needsAuthorizationInvoice()) {
