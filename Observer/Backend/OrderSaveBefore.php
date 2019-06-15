@@ -205,8 +205,8 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             && isset($this->params['ckoCardToken'])
             && $this->methodId == 'checkoutcom_moto'
             && !$this->transactionHandler->hasTransaction(
-                $this->order,
-                Transaction::TYPE_AUTH
+                Transaction::TYPE_AUTH,
+                $this->order
             );
         }
         catch (\Exception $e) {

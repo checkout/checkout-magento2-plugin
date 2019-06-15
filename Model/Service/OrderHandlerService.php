@@ -17,8 +17,6 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Sales\Model\Order\Payment\Transaction;
-
 class OrderHandlerService
 {
     /**
@@ -62,11 +60,6 @@ class OrderHandlerService
     protected $quoteHandler;
 
     /**
-     * @var TransactionHandlerService
-     */
-    protected $transactionHandler;
-
-    /**
      * @var Logger
      */
     protected $logger;
@@ -93,7 +86,6 @@ class OrderHandlerService
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger
     )
     {
@@ -105,7 +97,6 @@ class OrderHandlerService
         $this->searchBuilder = $searchBuilder;
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
-        $this->transactionHandler = $transactionHandler;
         $this->logger = $logger;
     }
 
