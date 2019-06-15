@@ -17,6 +17,8 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Sales\Model\Order\Payment\Transaction;
+
 class InvoiceHandlerService
 {
     /**
@@ -40,14 +42,19 @@ class InvoiceHandlerService
     protected $config;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * @var Order
      */
     protected $order;
 
     /**
-     * @var Logger
+     * @var Transaction
      */
-    protected $logger;
+    protected $transaction;
 
     /**
      * InvoiceHandlerService constructor.
@@ -69,12 +76,56 @@ class InvoiceHandlerService
     /**
      * Check if the invoice can be created.
      */
-    public function processInvoice($order)
+    public function processInvoice($order, $transaction = null)
     {
         try {
+            // Set required properties
             $this->order = $order;
+            $this->transaction = $transaction;
+
+            // Handle the invoice
+            if ($this->needsInvoicing()) {
+                $this->createInvoice();
+            }
+            else if ($this->needsCancelling()) {
+                $this->cancelInvoice();
+            }
+
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Create an invoice.
+     */
+    public function createInvoice()
+    {
+        try {
             if ($this->order->canInvoice()) {
-                return $this->createInvoice();
+                // Prepare the invoice
+                $invoice = $this->invoiceService->prepareInvoice($this->order);
+
+                // Set the invoice transaction ID
+                if ($this->transaction) {
+                    $invoice->setTransactionId($this->transaction->getTxnId());
+                }
+
+                // Set the invoice state
+                $invoice = $this->setInvoiceState($invoice);
+
+                // Finalize the invoice
+                $invoice->setBaseGrandTotal($this->order->getGrandTotal());
+                $invoice->register();
+
+                // Save the invoice
+                $this->invoiceRepository->save($invoice);
+            }
+            else {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('Invoicing is not allowed for this order.')
+                );
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
@@ -83,21 +134,69 @@ class InvoiceHandlerService
     }
 
     /**
-     * Create the invoice.
+     * Cancel an invoice for void or refund.
      */
-    public function createInvoice()
+    public function cancelInvoice()
+    {
+        $invoice = $this->getInvoice($this->order);
+        $invoice->setState($this->invoiceModel::STATE_CANCELED);
+        $this->invoiceRepository->save($invoice);
+    }
+
+    /**
+     * Check if invoicing is needed.
+     */
+    public function needsInvoicing()
+    {
+        return $this->needsCaptureInvoice() || $this->needsAuthorizationInvoice();
+    }
+
+    /**
+     * Check invoice cancelling is needed.
+     */
+    public function needsCancelling()
+    {
+        return $this->transaction->getTxnType() == Transaction::TYPE_VOID
+        || $this->transaction->getTxnType() == Transaction::TYPE_REFUND;
+    }
+
+    /**
+     * Check if a transaction is capture type.
+     */
+    public function needsCaptureInvoice()
+    {
+        return $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE
+        && $this->config->getValue('invoice_generation') == 'authorize_capture';
+    }
+
+    /**
+     * Check if a transaction is authorization type.
+     */
+    public function needsAuthorizationInvoice()
+    {
+        return $this->transaction->getTxnType() == Transaction::TYPE_AUTH
+        && $this->config->getValue('invoice_generation') == 'authorize';
+    }
+
+    /**
+     * Set the invoice state.
+     */
+    public function setInvoiceState($invoice)
     {
         try {
-            // Prepare the invoice
-            $invoice = $this->invoiceService->prepareInvoice($this->order);
-            $invoice->setRequestedCaptureCase($this->invoiceModel::CAPTURE_ONLINE);
-            $invoice->register();
-
-            // Save the invoice
-            $this->invoiceRepository->save($invoice);
+            if ($this->needsCaptureInvoice()) {
+                $invoice->setState($this->invoiceModel::STATE_PAID);
+                $invoice->setRequestedCaptureCase($this->invoiceModel::CAPTURE_ONLINE);
+            }
+            else if ($this->needsAuthorizationInvoice()) {
+                $invoice->setState($this->invoiceModel::STATE_OPEN);
+                $invoice->setRequestedCaptureCase($this->invoiceModel::NOT_CAPTURE);                
+            }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
-            return null;
+        }
+        finally {
+            return $invoice;
         }
     }
 
@@ -111,8 +210,10 @@ class InvoiceHandlerService
             $invoices = $order->getInvoiceCollection();
 
             // Retrieve the invoice increment id
-            foreach ($invoices as $item) {
-                $invoiceIncrementId = $item->getIncrementId();
+            if (count($invoices > 0)) {
+                foreach ($invoices as $item) {
+                    $invoiceIncrementId = $item->getIncrementId();
+                }
             }
 
             // Load an invoice

@@ -18,6 +18,9 @@ Standard,Standard
 Simple,Simple
 JCB,JCB
 Discover,Discover
+Disable,Disable
+"Payment authorized","Payment authorized"
+"Payment captured","Payment captured"
 English,English
 Spanish,Spanish
 German,German
@@ -25,22 +28,27 @@ Korean,Korean
 French,French
 Italian,Italian
 Dutch,Dutch
-Authorise,Authorise
-"Authorise and Capture","Authorise and Capture"
+Authorize,Authorize
+"Authorize and Capture","Authorize and Capture"
 "Payment request from %1","Payment request from %1"
 "The void action is not available.","The void action is not available."
 "The void request could not be processed.","The void request could not be processed."
 "The refund action is not available.","The refund action is not available."
 "The refund request could not be processed.","The refund request could not be processed."
 "The CVV value is required.","The CVV value is required."
+"Invoicing is not allowed for this order.","Invoicing is not allowed for this order."
 "A payment method ID is required to place an order.","A payment method ID is required to place an order."
 "The authorized amount is %1.","The authorized amount is %1."
-"The captured amount is %1. No invoice was created.","The captured amount is %1. No invoice was created."
+"The captured amount is %1.","The captured amount is %1."
 "The voided amount is %1.","The voided amount is %1."
 "This card is already saved.","This card is already saved."
 ending,ending
 expires,expires
-"Please provide the required card information for payment.","Please provide the required card information for payment."
+"The payment request was successfully processed.","The payment request was successfully processed."
+"The transaction could not be processed. Please check the payment details.","The transaction could not be processed. Please check the payment details."
+"The gateway declined a MOTO payment request.","The gateway declined a MOTO payment request."
+"Please provide the required card information for the MOTO payment.","Please provide the required card information for the MOTO payment."
+"Missing required card information for the MOTO payment.","Missing required card information for the MOTO payment."
 CVV,CVV
 "Save the card","Save the card"
 "Card Number","Card Number"

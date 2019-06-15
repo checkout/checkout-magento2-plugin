@@ -42,6 +42,11 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     protected $remoteAddress;
 
     /**
+     * @var ManagerInterface
+     */
+	protected $messageManager;
+
+    /**
      * @var ApiHandlerService
      */
     protected $apiHandler;
@@ -98,6 +103,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\App\Request\Http $request,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
@@ -109,6 +115,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
         $this->remoteAddress = $remoteAddress;
+        $this->messageManager = $messageManager;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->vaultHandler = $vaultHandler;
@@ -155,6 +162,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $request->amount = $this->order->getGrandTotal()*100;
                 $request->reference = $this->order->getIncrementId();
                 $request->payment_ip = $this->remoteAddress->getRemoteAddress();
+                $request->payment_type = 'MOTO';
                 // Todo - add customer to the request
                 //$request->customer = $this->apiHandler->createCustomer($this->order);
                 if ($captureDate) {
@@ -172,9 +180,11 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 // Add the response to the order
                 if ($this->apiHandler->isValidResponse($response)) {
                     $this->utilities->setPaymentData($this->order, $response);
+                    $this->messageManager->addSuccessMessage(__('The payment request was successfully processed.'));
                 } else {
+                    $this->messageManager->addErrorMessage(__('The transaction could not be processed. Please check the payment details.'));
                     throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The transaction could not be processed.')
+                        __('The gateway declined a MOTO payment request.')
                     );
                 }
             }
@@ -223,10 +233,12 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
                 return $idSource;
             }
-
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __('Please provide the required card information for payment.')
-            );
+            else {
+                $this->messageManager->addErrorMessage(__('Please provide the required card information for the MOTO payment.'));
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('Missing required card information for the MOTO payment.')
+                );         
+            }
         }
         catch (\Exception $e) {
             $this->logger->write($e->getMessage());

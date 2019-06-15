@@ -154,14 +154,17 @@ class TransactionHandlerService
                 // Add order comments
                 $payment->addTransactionCommentsToOrder(
                     $transaction,
-                    __('The authorized amount is %1.', $formatedPrice)
+                    __(
+                        'The authorized amount is %1.',
+                        $formatedPrice
+                    )
                 );
 
                 // Set the parent transaction id
-                $payment->setParentTransactionId(null);
+                $transaction->setParentTxnId(null);
 
                 // Allow void
-                $payment->setIsTransactionClosed(false);
+                $transaction->setIsClosed(false);
 
                 // Set the order status
                 $order->setStatus(
@@ -173,27 +176,26 @@ class TransactionHandlerService
             else if ($transactionType == Transaction::TYPE_CAPTURE) {
                 // Lock the previous auth
                 $authTransaction = $this->hasTransaction($order, Transaction::TYPE_AUTH);
+
+                // Set the parent transaction id
                 if (isset($authTransaction[0])) {
                     $authTransaction[0]->close();
-                    $payment->setParentTransactionId(
-                        $authTransaction[0]->getTransactionId()
+                    $transaction->setParentTxnId(
+                        $authTransaction[0]->getTxnId()
                     );
                 }
+
+                // Add order comments
+                $payment->addTransactionCommentsToOrder(
+                    $transaction,
+                    __(
+                        'The captured amount is %1.',
+                        $formatedPrice
+                    )
+                );
 
                 // Allow refund
-                $payment->setIsTransactionClosed(false);
-
-                // Handle the invoice and capture comments
-                if ($this->config->getValue('auto_invoice')) {
-                    $this->invoiceHandler->processInvoice($order);
-                }
-                else {
-                    // Add order comments
-                    $payment->addTransactionCommentsToOrder(
-                        $transaction,
-                        __('The captured amount is %1. No invoice was created.', $formatedPrice)
-                    );
-                }
+                $transaction->setIsClosed(false);
 
                 // Set the order status
                 $order->setStatus(
@@ -205,21 +207,26 @@ class TransactionHandlerService
             else if ($transactionType == Transaction::TYPE_VOID) {
                 // Lock the previous auth
                 $authTransaction = $this->hasTransaction($order, Transaction::TYPE_AUTH);
+
+                // Set the parent transaction id
                 if (isset($authTransaction[0])) {
                     $authTransaction[0]->close();
-                    $payment->setParentTransactionId(
-                        $authTransaction[0]->getTransactionId()
+                    $transaction->setParentTxnId(
+                        $authTransaction[0]->getTxnId()
                     );
                 }
 
                 // Add order comments
                 $payment->addTransactionCommentsToOrder(
                     $transaction,
-                    __('The voided amount is %1.', $formatedPrice)
+                    __(
+                        'The voided amount is %1.',
+                        $formatedPrice
+                    )
                 );
 
-                // Set the parent transaction id
-                $payment->setParentTransactionId(null);
+                // Lock the transaction
+                $transaction->setIsClosed(true);
 
                 // Set the order status
                 $order->setStatus(
@@ -248,13 +255,24 @@ class TransactionHandlerService
 
                 // Lock the previous capture
                 $captTransaction = $this->hasTransaction($order, Transaction::TYPE_CAPTURE);
+
+                // Set the parent transaction id
                 if (isset($captTransaction[0])) {
                     $captTransaction[0]->close();
-                    $payment->setParentTransactionId(
-                        $captTransaction[0]->getTransactionId()
+                    $transaction->setParentTxnId(
+                        $captTransaction[0]->getTxnId()
                     );
                 }
+
+                // Lock the transaction
+                $transaction->setIsClosed(true);
             }
+
+            // Invoice handling
+            $this->invoiceHandler->processInvoice(
+                $order,
+                $transaction
+            );
 
             // Save payment, transaction and order
             $payment->save();

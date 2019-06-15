@@ -183,6 +183,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
         $payment->description = __('Payment request from %1', $this->config->getStoreName());
         $payment->payment_ip = $this->remoteAddress->getRemoteAddress();
+        $payment->payment_type = 'Regular';
 
         return $payment;
     }

@@ -17,7 +17,7 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-class ConfigPaymentAction implements \Magento\Framework\Option\ArrayInterface
+class ConfigInvoiceGeneration implements \Magento\Framework\Option\ArrayInterface
 {
     /**
      * Options getter
@@ -28,12 +28,16 @@ class ConfigPaymentAction implements \Magento\Framework\Option\ArrayInterface
     {
         return [
             [
+                'value' => 0,
+                'label' => __('Disable')
+            ],
+            [
                 'value' => 'authorize',
-                'label' => __('Authorize')
+                'label' => __('Payment authorized')
             ],
             [
                 'value' => 'authorize_capture',
-                'label' => __('Authorize and Capture')
+                'label' => __('Payment captured')
             ]
         ];
     }
