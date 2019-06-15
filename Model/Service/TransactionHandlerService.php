@@ -164,7 +164,7 @@ class TransactionHandlerService
                 $transaction->setParentTxnId(null);
 
                 // Allow void
-                $transaction->setIsClosed(false);
+                $transaction->setIsClosed(0);
 
                 // Set the order status
                 $order->setStatus(
@@ -195,7 +195,7 @@ class TransactionHandlerService
                 );
 
                 // Allow refund
-                $transaction->setIsClosed(false);
+                $transaction->setIsClosed(0);
 
                 // Set the order status
                 $order->setStatus(
@@ -226,7 +226,7 @@ class TransactionHandlerService
                 );
 
                 // Lock the transaction
-                $transaction->setIsClosed(true);
+                $transaction->setIsClosed(1);
 
                 // Set the order status
                 $order->setStatus(
@@ -265,7 +265,7 @@ class TransactionHandlerService
                 }
 
                 // Lock the transaction
-                $transaction->setIsClosed(true);
+                $transaction->setIsClosed(1);
             }
 
             // Invoice handling
