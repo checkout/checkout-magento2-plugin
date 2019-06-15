@@ -187,6 +187,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             // Todo - add customer to the request
             //$request->customer = $this->apiHandler->createCustomer($this->quoteHandler->getQuote());
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
+            $request->payment_type = 'Regular';
             if ($captureDate) {
                 $request->capture_time = $this->config->getCaptureTime();
             }
