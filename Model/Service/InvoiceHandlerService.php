@@ -139,8 +139,10 @@ class InvoiceHandlerService
     public function cancelInvoice()
     {
         $invoice = $this->getInvoice($this->order);
-        $invoice->setState($this->invoiceModel::STATE_CANCELED);
-        $this->invoiceRepository->save($invoice);
+        if ($invoice) {
+            $invoice->setState($this->invoiceModel::STATE_CANCELED);
+            $this->invoiceRepository->save($invoice);
+        }
     }
 
     /**
@@ -214,10 +216,12 @@ class InvoiceHandlerService
                 foreach ($invoices as $item) {
                     $invoiceIncrementId = $item->getIncrementId();
                 }
+
+                // Load an invoice
+                return $this->invoiceModel->loadByIncrementId($invoiceIncrementId);
             }
 
-            // Load an invoice
-            return $this->invoiceModel->loadByIncrementId($invoiceIncrementId); 
+            return null;
 
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
