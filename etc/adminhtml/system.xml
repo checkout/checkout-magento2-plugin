@@ -44,14 +44,11 @@
                             <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
                         </field>
 
-                        <field id="auto_invoice" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Auto Invoice</label>
-                            <depends>
-                                <field id="payment_action">authorize_capture</field>
-                            </depends>
-                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                            <config_path>settings/checkoutcom_configuration/auto_invoice</config_path>
-                            <comment>If enabled, an invoice is generated automatically when a payment is captured.</comment>
+                        <field id="invoice_generation" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Invoice Generation</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigInvoiceGeneration</source_model>
+                            <config_path>settings/checkoutcom_configuration/invoice_generation</config_path>
+                            <comment>Determines when the invoice should be generated.</comment>
                         </field>
 
                         <field id="dynamic_descriptor_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">

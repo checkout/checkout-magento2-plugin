@@ -270,10 +270,6 @@ class TransactionHandlerService
                 $order,
                 $transaction
             );
-            
-            if ($this->config->getValue('auto_invoice')) {
-
-            }
 
             // Save payment, transaction and order
             $payment->save();

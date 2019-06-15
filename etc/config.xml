@@ -23,7 +23,7 @@
                 <order_status_flagged>fraud</order_status_flagged>
                 <payment_action>authorize_capture</payment_action>
                 <capture_time>0</capture_time> 
-                <auto_invoice>1</auto_invoice>
+                <invoice_generation>authorize_capture</invoice_generation>
                 <dynamic_descriptor_enabled>0</dynamic_descriptor_enabled>
                 <descriptor_name></descriptor_name>
                 <descriptor_city></descriptor_city>
