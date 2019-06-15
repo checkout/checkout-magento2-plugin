@@ -148,7 +148,6 @@ class ApiHandlerService
 
                 return $response;
             }
-
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return false;
