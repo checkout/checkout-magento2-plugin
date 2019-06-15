@@ -210,7 +210,7 @@ class InvoiceHandlerService
             $invoices = $order->getInvoiceCollection();
 
             // Retrieve the invoice increment id
-            if (count($invoices > 0)) {
+            if (count($invoices) > 0) {
                 foreach ($invoices as $item) {
                     $invoiceIncrementId = $item->getIncrementId();
                 }
