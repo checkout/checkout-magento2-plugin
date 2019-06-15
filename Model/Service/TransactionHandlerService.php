@@ -106,7 +106,49 @@ class TransactionHandlerService
     }
 
     /**
-     * Prepare the required elements.
+     * Create a transaction for an order.
+     */
+    public function createTransaction($order, $transactionType, $data = null)
+    {
+        try {
+            // Prepare the needed elements
+            $this->prepareData($order, $transactionType, $data);
+
+            // Process the transaction
+            switch ($this->transactionType) {
+                case Transaction::TYPE_AUTH:
+                    $this->handleAuthorization();
+                    break;
+
+                case Transaction::TYPE_CAPTURE:
+                    $this->handleCapture();
+                    break;
+
+                case Transaction::TYPE_VOID:
+                    $this->handleVoid();
+                    break;
+
+                case Transaction::TYPE_REFUND:
+                    $this->handleRefund();
+                    break;
+            }
+
+            // Invoice handling
+            $this->invoiceHandler->processInvoice(
+                $order,
+                $transaction
+            );
+
+            // Save the processed elements
+            $this->save();
+
+        } catch (Exception $e) {
+            $this->logger->write($e->getMessage());
+        }
+    }
+
+    /**
+     * Prepare the required instance properties.
      */
     public function prepareData($order, $transactionType, $data) {
         try {
@@ -134,49 +176,6 @@ class TransactionHandlerService
         }
         finally {
             return $this;
-        }
-    }
-
-    /**
-     * Create a transaction for an order.
-     */
-    public function createTransaction($order, $transactionType, $data = null)
-    {
-        try {
-            // Prepare the needed elements
-            $this->prepareData($order, $transactionType, $data);
-
-            // Add an authorization transaction to the order
-            if ($transactionType == Transaction::TYPE_AUTH) {
-                $this->handleAuthorization();
-            }
-
-            // Add a capture transaction to the order
-            else if ($transactionType == Transaction::TYPE_CAPTURE) {
-                $this->handleCapture();
-            }
-
-            // Add a void transaction to the payment
-            else if ($this->transactionType == Transaction::TYPE_VOID) {
-                $this->handleVoid();
-            }
-
-            // Add a refund transaction to the payment
-            else if ($transactionType == Transaction::TYPE_REFUND) {
-                $this->handleRefund();
-            }
-
-            // Invoice handling
-            $this->invoiceHandler->processInvoice(
-                $order,
-                $transaction
-            );
-
-            // Save the processed elements
-            $this->save();
-
-        } catch (Exception $e) {
-            $this->logger->write($e->getMessage());
         }
     }
 
