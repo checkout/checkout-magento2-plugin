@@ -232,6 +232,9 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             if (!$this->apiHandler->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
             }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
         }
 
         return $this;
@@ -250,6 +253,9 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             if (!$this->apiHandler->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
             }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
         }
 
         return $this;

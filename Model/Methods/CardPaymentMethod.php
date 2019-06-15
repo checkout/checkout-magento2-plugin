@@ -22,6 +22,7 @@ use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\BillingDescriptor;
+
 class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
 
@@ -219,6 +220,9 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             if (!$this->apiHandler->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
             }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
         }
 
         return $this;
@@ -237,6 +241,9 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             if (!$this->apiHandler->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
             }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
         }
 
         return $this;
