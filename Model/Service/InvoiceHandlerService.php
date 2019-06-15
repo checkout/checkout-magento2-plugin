@@ -148,24 +148,25 @@ class InvoiceHandlerService
      */
     public function needsInvoicing()
     {
-        return ($this->needsCapture() || $this->needsAuthorization())
-        && $this->config->getValue('invoice_generation') == $this->transaction->getTxnType();
+        return ($this->needsCaptureInvoice() || $this->needsAuthorizationInvoice());
     }
 
     /**
      * Check if a transaction is capture type.
      */
-    public function needsCapture()
+    public function needsCaptureInvoice()
     {
-        return $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+        return $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE
+        && $this->config->getValue('invoice_generation') == 'authorize_capture';
     }
 
     /**
      * Check if a transaction is authorization type.
      */
-    public function needsAuthorization()
+    public function needsAuthorizationInvoice()
     {
-        return $this->transaction->getTxnType() == Transaction::TYPE_AUTH;
+        return $this->transaction->getTxnType() == Transaction::TYPE_AUTH
+        && $this->config->getValue('invoice_generation') == 'authorize';
     }
 
     /**
@@ -174,11 +175,11 @@ class InvoiceHandlerService
     public function setInvoiceState($invoice)
     {
         try {
-            if ($this->needsCapture()) {
+            if ($this->needsCaptureInvoice()) {
                 $invoice->setState($this->invoiceModel::STATE_PAID);
                 $invoice->setRequestedCaptureCase($this->invoiceModel::CAPTURE_ONLINE);
             }
-            else if ($this->needsAuthorization()) {
+            else if ($this->needsAuthorizationInvoice()) {
                 $invoice->setState($this->invoiceModel::STATE_OPEN);
                 $invoice->setRequestedCaptureCase($this->invoiceModel::NOT_CAPTURE);                
             }
