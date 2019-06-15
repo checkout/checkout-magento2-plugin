@@ -93,7 +93,14 @@
                             <label>Void order status</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
                             <config_path>settings/checkoutcom_configuration/order_status_voided</config_path>
-                            <comment>Select the status that should be used for new orders with successful payment void.</comment>
+                            <comment>Select the status that should be used for orders with successful payment void.</comment>
+                        </field>
+
+                        <field id="order_status_refunded" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Refund order status</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
+                            <config_path>settings/checkoutcom_configuration/order_status_refunded</config_path>
+                            <comment>Select the status that should be used for orders with successful payment refund.</comment>
                         </field>
 
                         <field id="order_status_flagged" type="select" showInDefault="1" showInWebsite="1" showInStore="1">

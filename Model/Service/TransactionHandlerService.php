@@ -284,6 +284,9 @@ class TransactionHandlerService
 
                 // Lock the transaction
                 $this->transaction->setIsClosed(1);
+
+                // Set the order status
+                $this->setOrderStatus('order_status_refunded');
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
