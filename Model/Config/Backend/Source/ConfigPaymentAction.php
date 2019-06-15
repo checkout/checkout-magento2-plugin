@@ -37,5 +37,4 @@ class ConfigPaymentAction implements \Magento\Framework\Option\ArrayInterface
             ]
         ];
     }
-
 }
