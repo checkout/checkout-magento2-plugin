@@ -140,7 +140,7 @@ class TransactionHandlerService
             );
 
             // Save the processed elements
-            $this->save();
+            $this->saveData();
 
         } catch (Exception $e) {
             $this->logger->write($e->getMessage());
