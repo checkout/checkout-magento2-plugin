@@ -33,7 +33,7 @@ class ConfigPaymentAction implements \Magento\Framework\Option\ArrayInterface
             ],
             [
                 'value' => 'authorize_capture',
-                'label' => __('Authorise and Capture')
+                'label' => __('Authorize and Capture')
             ]
         ];
     }
