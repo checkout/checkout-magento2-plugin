@@ -225,8 +225,8 @@ class TransactionHandlerService
                     )
                 );
 
-                // Set the parent transaction id
-                $transaction->setParentTxnId(null);
+                // Set the transaction id
+                $transaction->setTxnId($tid);
 
                 // Lock the transaction
                 $transaction->setIsClosed(true);
@@ -267,6 +267,9 @@ class TransactionHandlerService
                     );
                 }
 
+                // Set the transaction id
+                $transaction->setTxnId($tid);
+                
                 // Lock the transaction
                 $transaction->setIsClosed(true);
             }
