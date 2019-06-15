@@ -325,7 +325,7 @@ class TransactionHandlerService
     /**
      * Checks if an order has a transactions.
      */
-    public function hasTransaction($transactionType, $order = null)
+    public function hasTransaction($transactionType, $order = null, $isClosed = 0)
     {
         try {
             // Prepare the order
@@ -334,7 +334,8 @@ class TransactionHandlerService
             // Get the auth transactions
             $transactions = $this->getTransactions(
                 $transactionType,
-                $order
+                $order,
+                $isClosed
             );
 
             return count($transactions) > 0 ? $transactions : false;
@@ -460,7 +461,7 @@ class TransactionHandlerService
     /**
      * Get transactions for an order.
      */
-    public function getTransactions($transactionType = null, $order = null)
+    public function getTransactions($transactionType = null, $order = null, $isClosed = 0)
     {
         try {
             // Prepare the order
@@ -488,7 +489,7 @@ class TransactionHandlerService
             if ($transactionType && count($transactions) > 0) {
                 $filteredResult = [];
                 foreach ($transactions as $transaction) {
-                    if ($transaction->getTxnType() == $transactionType) {
+                    if ($transaction->getTxnType() == $transactionType && $transaction->getIsClosed() == $isClosed) {
                         $filteredResult[] = $transaction;
                     }
                 }
