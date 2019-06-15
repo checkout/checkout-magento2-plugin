@@ -87,7 +87,7 @@ class InvoiceHandlerService
             if ($this->needsInvoicing()) {
                 $this->createInvoice();
             }
-            else {
+            else if ($this->needsCancelling()) {
                 $this->cancelInvoice();
             }
 
@@ -148,7 +148,16 @@ class InvoiceHandlerService
      */
     public function needsInvoicing()
     {
-        return ($this->needsCaptureInvoice() || $this->needsAuthorizationInvoice());
+        return $this->needsCaptureInvoice() || $this->needsAuthorizationInvoice();
+    }
+
+    /**
+     * Check invoice cancelling is needed.
+     */
+    public function needsCancelling()
+    {
+        return $this->transaction->getTxnType() == Transaction::TYPE_VOID
+        || $this->transaction->getTxnType() == Transaction::TYPE_REFUND;
     }
 
     /**
