@@ -188,6 +188,7 @@ class InvoiceHandlerService
         try {
             if ($this->needsCaptureInvoice()) {
                 $invoice->setRequestedCaptureCase($this->invoiceModel::CAPTURE_ONLINE);
+                $invoice->setCanVoidFlag(false);
             }
             else if ($this->needsAuthorizationInvoice()) {
                 $invoice->setState($this->invoiceModel::STATE_OPEN);
