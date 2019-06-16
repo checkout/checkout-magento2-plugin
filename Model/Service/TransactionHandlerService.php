@@ -108,11 +108,11 @@ class TransactionHandlerService
     /**
      * Create a transaction for an order.
      */
-    public function createTransaction($order, $transactionType, $data = null)
+    public function createTransaction($order, $transactionType, $data = null, $isWebhook = true)
     {
         try {
             // Prepare the needed elements
-            $this->prepareData($order, $transactionType, $data);
+            $this->prepareData($order, $transactionType, $data, $isWebhook);
 
             // Process the transaction
             switch ($this->transactionType) {
@@ -149,9 +149,12 @@ class TransactionHandlerService
     /**
      * Prepare the required instance properties.
      */
-    public function prepareData($order, $transactionType, $data)
+    public function prepareData($order, $transactionType, $data, $isWebhook)
     {
         try {
+            // Assign the request type
+            $this->isWebhook = $isWebhook;
+
             // Assign the order
             $this->order = $order;
 
@@ -185,7 +188,7 @@ class TransactionHandlerService
     {
         try {
             $authTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
-            if (!$authTransaction) {
+            if (!$authTransaction && !$this->isWebhook) {
                 // Add order comment
                 $this->addOrderComment('The authorized amount is %1.');
 

@@ -148,7 +148,8 @@ class OrderHandlerService
                         (
                             $order,
                             Transaction::TYPE_AUTH,
-                            $paymentData
+                            $paymentData,
+                            $isWebhook
                         );
                     }
 
