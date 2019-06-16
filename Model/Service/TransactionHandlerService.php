@@ -184,17 +184,20 @@ class TransactionHandlerService
     public function handleAuthorization()
     {
         try {
-            // Add order comment
-            $this->addOrderComment('The authorized amount is %1.');
+            $authTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
+            if (!$authTransaction) {
+                // Add order comment
+                $this->addOrderComment('The authorized amount is %1.');
 
-            // Set the parent transaction id
-            $this->transaction->setParentTxnId(null);
+                // Set the parent transaction id
+                $this->transaction->setParentTxnId(null);
 
-            // Allow void
-            $this->transaction->setIsClosed(0);
+                // Allow void
+                $this->transaction->setIsClosed(0);
 
-            // Set the order status
-            $this->setOrderStatus('order_status_authorized');
+                // Set the order status
+                $this->setOrderStatus('order_status_authorized');
+            }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
@@ -215,6 +218,9 @@ class TransactionHandlerService
 
                 // Add order comment
                 $this->addOrderComment('The captured amount is %1.');
+
+                // Set the total paid
+                $this->order->setTotalPaid($this->order->getGrandTotal());
 
                 // Allow refund
                 $this->transaction->setIsClosed(0);

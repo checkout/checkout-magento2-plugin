@@ -102,29 +102,23 @@ class InvoiceHandlerService
     public function createInvoice()
     {
         try {
-            if ($this->order->canInvoice()) {
-                // Prepare the invoice
-                $invoice = $this->invoiceService->prepareInvoice($this->order);
+            // Prepare the invoice
+            $invoice = $this->invoiceService->prepareInvoice($this->order);
 
-                // Set the invoice transaction ID
-                if ($this->transaction) {
-                    $invoice->setTransactionId($this->transaction->getTxnId());
-                }
-
-                // Set the invoice state
-                $invoice = $this->setInvoiceState($invoice);
-
-                // Finalize the invoice
-                $invoice->setBaseGrandTotal($this->order->getGrandTotal());
-                $invoice->register();
-
-                // Save the invoice
-                $this->invoiceRepository->save($invoice);
-            } else {
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('Invoicing is not allowed for this order.')
-                );
+            // Set the invoice transaction ID
+            if ($this->transaction) {
+                $invoice->setTransactionId($this->transaction->getTxnId());
             }
+
+            // Set the invoice state
+            $invoice = $this->setInvoiceState($invoice);
+
+            // Finalize the invoice
+            $invoice->setBaseGrandTotal($this->order->getGrandTotal());
+            $invoice->register();
+
+            // Save the invoice
+            $this->invoiceRepository->save($invoice);
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;

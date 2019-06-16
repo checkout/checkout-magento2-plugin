@@ -88,7 +88,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                 // Process the response
                 if ($this->apiHandler->isValidResponse($response)) {
 
-                    if (!$this->placeOrder((array) $response)) {
+                    if (!$this->placeOrder($response)) {
                         // Todo - Handle the refund as in placeOrder if order creation fails
                     }
 
@@ -123,7 +123,7 @@ class Verify extends \Magento\Framework\App\Action\Action
             // Create an order
             $order = $this->orderHandler
                 ->setMethodId($this->methodId)
-                ->handleOrder($reservedIncrementId);
+                ->handleOrder($reservedIncrementId, $response);
 
             // Add the payment info to the order
             $order = $this->utilities
