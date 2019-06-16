@@ -20,7 +20,8 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
 
-class PlaceOrder extends \Magento\Framework\App\Action\Action {
+class PlaceOrder extends \Magento\Framework\App\Action\Action
+{
 
     /**
      * @var QuoteHandlerService
@@ -87,7 +88,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
      */
     protected $quote;
 
-	/**
+    /**
      * PlaceOrder constructor
      */
     public function __construct(
@@ -101,8 +102,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+    ) {
         parent::__construct($context);
 
         $this->jsonFactory = $jsonFactory;
@@ -126,9 +126,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     /**
      * Main controller function.
      *
-     * @return     JSON
+     * @return JSON
      */
-    public function execute() {
+    public function execute()
+    {
         // Prepare some parameters
         $url = '';
         $message = '';
@@ -171,20 +172,23 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
             $message = __($e->getMessage());
         }
         finally {
-            return $this->jsonFactory->create()->setData([
+            return $this->jsonFactory->create()->setData(
+                [
                 'success' => $success,
                 'message' => $message,
                 'url' => $url
-            ]);
+                ]
+            );
         }
     }
 
     /**
      * Request payment to API handler.
      *
-     * @return     Response
+     * @return Response
      */
-    protected function requestPayment() {
+    protected function requestPayment()
+    {
         try {
             // Send the charge request
             return $this->methodHandler
@@ -204,11 +208,12 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action {
     /**
      * Handles the order placing process.
      *
-     * @param      array    $response  The response
+     * @param array $response The response
      *
-     * @return     mixed
+     * @return mixed
      */
-    protected function placeOrder($response = null) {
+    protected function placeOrder($response = null)
+    {
         try {
             // Get the reserved order increment id
             $reservedIncrementId = $this->quoteHandler

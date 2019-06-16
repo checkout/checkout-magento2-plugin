@@ -17,7 +17,8 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-class ConfigGooglePayEnvironment implements \Magento\Framework\Option\ArrayInterface {
+class ConfigGooglePayEnvironment implements \Magento\Framework\Option\ArrayInterface
+{
 
     const ENVIRONMENT_TEST = 'TEST';
     const ENVIRONMENT_PRODUCTION = 'PRODUCTION';
@@ -27,7 +28,8 @@ class ConfigGooglePayEnvironment implements \Magento\Framework\Option\ArrayInter
      *
      * @return array
      */
-    public function toOptionArray() {
+    public function toOptionArray()
+    {
         return [
             [
                 'value' => self::ENVIRONMENT_TEST,

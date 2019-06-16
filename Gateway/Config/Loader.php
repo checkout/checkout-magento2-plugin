@@ -85,7 +85,8 @@ class Loader
         $this->data = $this->loadConfig();
     }
 
-    protected function loadConfig() {
+    protected function loadConfig()
+    {
         try {
             // Prepare the output array
             $output = [];
@@ -129,7 +130,8 @@ class Loader
         }
     }
 
-    public function loadApmList() {
+    public function loadApmList()
+    {
         // Build the APM array
         $output = [];
 
@@ -150,7 +152,8 @@ class Loader
         }
     }
 
-    protected function getFilePath($fileName) {
+    protected function getFilePath($fileName)
+    {
         try {
             return $this->moduleDirReader->getModuleDir(
                 Dir::MODULE_ETC_DIR,
@@ -163,20 +166,21 @@ class Loader
         }
     }
 
-    protected function loadXmlData() {
+    protected function loadXmlData()
+    {
         // Prepare the output array
         $output = [];
 
         try {
             // Load config.xml
             $output['config'] = $this->xmlParser
-            ->load($this->getFilePath(self::CONFIGURATION_FILE_NAME))
-            ->xmlToArray()['config']['_value']['default'];
+                ->load($this->getFilePath(self::CONFIGURATION_FILE_NAME))
+                ->xmlToArray()['config']['_value']['default'];
 
             // Load apm.xml
             $output['apm'] = $this->xmlParser
-            ->load($this->getFilePath(self::APM_FILE_NAME))
-            ->xmlToArray()['config']['_value']['item'];
+                ->load($this->getFilePath(self::APM_FILE_NAME))
+                ->xmlToArray()['config']['_value']['item'];
         } catch(\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
@@ -186,7 +190,8 @@ class Loader
         }
     }
 
-    protected function isHidden($field) {
+    protected function isHidden($field)
+    {
         try {
             $hiddenFields = explode(
                 ',',
@@ -204,7 +209,8 @@ class Loader
         }
     }
 
-    protected function isEncrypted($field) {
+    protected function isEncrypted($field)
+    {
         try {
             return in_array(
                 $field,
@@ -223,7 +229,8 @@ class Loader
         }
     }
 
-    public function getValue($key, $methodId = null) {
+    public function getValue($key, $methodId = null)
+    {
         try {
             // Prepare the path
             $path = ($methodId)

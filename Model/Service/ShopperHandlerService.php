@@ -23,7 +23,7 @@ class ShopperHandlerService
     /**
      * Default locale code.
      *
-     * @var        string
+     * @var string
      */
     const DEFAULT_LOCALE = 'en_US';
 
@@ -55,23 +55,25 @@ class ShopperHandlerService
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
         \Magento\Framework\Locale\Resolver $localeResolver,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+    ) {
         $this->localeResolver  = $localeResolver;
         $this->customerSession = $customerSession;
         $this->customerRepository  = $customerRepository;
         $this->logger = $logger;
     }
 
-    public function getCustomerData($filters = []) {
+    public function getCustomerData($filters = [])
+    {
         try {
             if (isset($filters['id'])) {
                 return $this->customerRepository->getById($filters['id']);
             }
             else if (isset($filters['email'])) {
                 return $this->customerRepository->get(
-                    filter_var($filters['email'],
-                    FILTER_SANITIZE_EMAIL)
+                    filter_var(
+                        $filters['email'],
+                        FILTER_SANITIZE_EMAIL
+                    )
                 );
             }
             else {

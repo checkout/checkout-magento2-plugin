@@ -17,7 +17,8 @@
 
 namespace CheckoutCom\Magento2\Helper;
 
-class Utilities {
+class Utilities
+{
     /**
      * @var UrlInterface
      */
@@ -33,21 +34,20 @@ class Utilities {
      */
     protected $logger;
 
-	/**
+    /**
      * Utilities constructor.
      */
     public function __construct(
         \Magento\Framework\UrlInterface $urlInterface,
         \Magento\Customer\Model\Session $customerSession,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+    ) {
         $this->urlInterface = $urlInterface;
         $this->customerSession = $customerSession;
         $this->logger = $logger;
-	}
+    }
 
-	/**
+    /**
      * Convert a date string to ISO8601 format.
      */
     public function formatDate($timestamp)
@@ -55,7 +55,7 @@ class Utilities {
         return gmdate("Y-m-d\TH:i:s\Z", $timestamp);
     }
 
-	/**
+    /**
      * Convert an object to array.
      */
     public function objectToArray($object)
@@ -70,9 +70,9 @@ class Utilities {
     {
         try {
             $paymentData = $order->getPayment()
-            ->getMethodInstance()
-            ->getInfoInstance()
-            ->getData();
+                ->getMethodInstance()
+                ->getInfoInstance()
+                ->getData();
 
             return $paymentData['additional_information']['transaction_info'];
         } catch (\Exception $e) {

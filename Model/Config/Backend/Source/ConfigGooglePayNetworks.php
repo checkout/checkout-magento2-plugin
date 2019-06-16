@@ -17,7 +17,8 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-class ConfigGooglePayNetworks implements \Magento\Framework\Option\ArrayInterface {
+class ConfigGooglePayNetworks implements \Magento\Framework\Option\ArrayInterface
+{
 
     const CARD_VISA = 'VISA';
     const CARD_MASTERCARD = 'MASTERCARD';
@@ -30,7 +31,8 @@ class ConfigGooglePayNetworks implements \Magento\Framework\Option\ArrayInterfac
      *
      * @return array
      */
-    public function toOptionArray() {
+    public function toOptionArray()
+    {
         return [
             [
                 'value' => self::CARD_VISA,

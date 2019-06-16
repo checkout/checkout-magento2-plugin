@@ -19,7 +19,8 @@ namespace CheckoutCom\Magento2\Model\Factory;
 
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 
-class VaultTokenFactory {
+class VaultTokenFactory
+{
 
     /**
      * @var CreditCardTokenFactory
@@ -59,18 +60,21 @@ class VaultTokenFactory {
     /**
      * Returns the prepared payment token.
      *
-     * @param array $card
-     * @param int|null $customerId
+     * @param  array    $card
+     * @param  int|null $customerId
      * @return PaymentTokenInterface
      */
-    public function create(array $card, $methodId, $customerId = null) {
+    public function create(array $card, $methodId, $customerId = null)
+    {
         try {
             $expiryMonth    = str_pad($card['expiry_month'], 2, '0', STR_PAD_LEFT);
             $expiryYear     = $card['expiry_year'];
             $expiresAt      = $this->getExpirationDate($expiryMonth, $expiryYear);
             $cardScheme      = $card['scheme'];
 
-            /** @var PaymentTokenInterface $paymentToken */
+            /**
+ * @var PaymentTokenInterface $paymentToken 
+*/
             $paymentToken = $this->creditCardTokenFactory->create();
             $paymentToken->setExpiresAt($expiresAt);
 
@@ -104,11 +108,12 @@ class VaultTokenFactory {
     /**
      * Returns the date time object with the given expiration month and year.
      *
-     * @param string $expiryMonth
-     * @param string $expiryYear
+     * @param  string $expiryMonth
+     * @param  string $expiryYear
      * @return string
      */
-    private function getExpirationDate($expiryMonth, $expiryYear) {
+    private function getExpirationDate($expiryMonth, $expiryYear)
+    {
         try {
             $expDate = new \DateTime(
                 $expiryYear
@@ -129,12 +134,13 @@ class VaultTokenFactory {
     }
 
     /**
-    * Generate vault payment public hash
-    *
-    * @param PaymentTokenInterface $paymentToken
-    * @return string
-    */
-    private function generatePublicHash(PaymentTokenInterface $paymentToken) {
+     * Generate vault payment public hash
+     *
+     * @param  PaymentTokenInterface $paymentToken
+     * @return string
+     */
+    private function generatePublicHash(PaymentTokenInterface $paymentToken)
+    {
         try {
             $hashKey = $paymentToken->getGatewayToken();
 
@@ -157,10 +163,12 @@ class VaultTokenFactory {
      * Returns the JSON object of the given data.
      *
      * Convert payment token details to JSON
-     * @param array $details
+     *
+     * @param  array $details
      * @return string
      */
-    private function convertDetailsToJSON(array $details) {
+    private function convertDetailsToJSON(array $details)
+    {
         $json = \Zend_Json::encode($details);
         return $json ?: '{}';
     }

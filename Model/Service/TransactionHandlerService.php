@@ -116,21 +116,21 @@ class TransactionHandlerService
 
             // Process the transaction
             switch ($this->transactionType) {
-                case Transaction::TYPE_AUTH:
-                    $this->handleAuthorization();
-                    break;
+            case Transaction::TYPE_AUTH:
+                $this->handleAuthorization();
+                break;
 
-                case Transaction::TYPE_CAPTURE:
-                    $this->handleCapture();
-                    break;
+            case Transaction::TYPE_CAPTURE:
+                $this->handleCapture();
+                break;
 
-                case Transaction::TYPE_VOID:
-                    $this->handleVoid();
-                    break;
+            case Transaction::TYPE_VOID:
+                $this->handleVoid();
+                break;
 
-                case Transaction::TYPE_REFUND:
-                    $this->handleRefund();
-                    break;
+            case Transaction::TYPE_REFUND:
+                $this->handleRefund();
+                break;
             }
 
             // Invoice handling
@@ -149,7 +149,8 @@ class TransactionHandlerService
     /**
      * Prepare the required instance properties.
      */
-    public function prepareData($order, $transactionType, $data) {
+    public function prepareData($order, $transactionType, $data)
+    {
         try {
             // Assign the order
             $this->order = $order;
@@ -181,7 +182,8 @@ class TransactionHandlerService
     /**
      * Process an authorization request.
      */
-    public function handleAuthorization() {
+    public function handleAuthorization()
+    {
         try {
             // Add order comment
             $this->addOrderComment('The authorized amount is %1.');
@@ -202,7 +204,8 @@ class TransactionHandlerService
     /**
      * Process a capture request.
      */
-    public function handleCapture() {
+    public function handleCapture()
+    {
         try {
             $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
             if ($parentTransaction) {
@@ -228,7 +231,8 @@ class TransactionHandlerService
     /**
      * Process a void request.
      */
-    public function handleVoid() {
+    public function handleVoid()
+    {
         try {
             $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
             if ($parentTransaction) {
@@ -255,7 +259,8 @@ class TransactionHandlerService
     /**
      * Process a refund request.
      */
-    public function handleRefund() {
+    public function handleRefund()
+    {
         try {
             $parentTransaction = $this->getParentTransaction(Transaction::TYPE_CAPTURE);
             if ($parentTransaction) {
@@ -361,11 +366,12 @@ class TransactionHandlerService
     /**
      * Get the order method ID.
      */
-    public function getMethodId() {
+    public function getMethodId()
+    {
         try {
             return $this->order->getPayment()
-            ->getMethodInstance()
-            ->getCode();
+                ->getMethodInstance()
+                ->getCode();
         } catch (Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
@@ -375,12 +381,13 @@ class TransactionHandlerService
     /**
      * Get the order amount.
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         try {
             return $this->order->getBaseCurrency()
-            ->formatTxt(
-                $this->order->getGrandTotal()
-            );
+                ->formatTxt(
+                    $this->order->getGrandTotal()
+                );
         } catch (Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
@@ -390,7 +397,8 @@ class TransactionHandlerService
     /**
      * Save the required data.
      */
-    public function saveData() {
+    public function saveData()
+    {
         try {
             $this->payment->save();
             $this->transaction->save();
@@ -403,7 +411,8 @@ class TransactionHandlerService
     /**
      * Get the action id from a gateway response.
      */
-    public function getActionId() {
+    public function getActionId()
+    {
         try {
             return $this->paymentData['data']['action_id'] ?? $this->paymentData['action_id'];
         } catch (Exception $e) {
@@ -415,7 +424,8 @@ class TransactionHandlerService
     /**
      * Build a transaction.
      */
-    public function buildTransaction() {
+    public function buildTransaction()
+    {
         try {
             return $this->transactionBuilder
                 ->setPayment($this->payment)
@@ -437,7 +447,8 @@ class TransactionHandlerService
     /**
      * Build a payment.
      */
-    public function buildPayment() {
+    public function buildPayment()
+    {
         try {
             return $this->order->getPayment()
                 ->setMethod($this->methodId)
@@ -452,7 +463,8 @@ class TransactionHandlerService
     /**
      * Build a flat array from the gateway response.
      */
-    public function buildDataArray($data) {
+    public function buildDataArray($data)
+    {
         try {
             // Prepare the fields to remove
             $remove = [

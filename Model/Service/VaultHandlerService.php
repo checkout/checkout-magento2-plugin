@@ -22,7 +22,8 @@ use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 
-class VaultHandlerService {
+class VaultHandlerService
+{
 
     /**
      * @var VaultTokenFactory
@@ -129,10 +130,11 @@ class VaultHandlerService {
     /**
      * Returns the payment token instance if exists.
      *
-     * @param PaymentTokenInterface $paymentToken
+     * @param  PaymentTokenInterface $paymentToken
      * @return PaymentTokenInterface|null
      */
-    private function foundExistedPaymentToken(PaymentTokenInterface $paymentToken) {
+    private function foundExistedPaymentToken(PaymentTokenInterface $paymentToken)
+    {
         try {
             return $this->paymentTokenManagement->getByPublicHash(
                 $paymentToken->getPublicHash(),
@@ -147,10 +149,11 @@ class VaultHandlerService {
     /**
      * Sets the customer ID.
      *
-     * @param int $customerId
+     * @param  int $customerId
      * @return VaultHandlerService
      */
-    public function setCustomerId($id = null) {
+    public function setCustomerId($id = null)
+    {
         try {
             $this->customerId = (int) $id > 0
             ? $id : $this->customerSession->getCustomer()->getId();
@@ -165,10 +168,11 @@ class VaultHandlerService {
     /**
      * Sets the customer email address.
      *
-     * @param string $customerEmail
+     * @param  string $customerEmail
      * @return VaultHandlerService
      */
-    public function setCustomerEmail($email = null) {
+    public function setCustomerEmail($email = null)
+    {
         try {
             $this->customerEmail = ($email)
             ? $email : $this->customerSession->getCustomer()->getEmail();
@@ -183,10 +187,11 @@ class VaultHandlerService {
     /**
      * Sets the card token.
      *
-     * @param string $cardToken
+     * @param  string $cardToken
      * @return VaultHandlerService
      */
-    public function setCardToken($cardToken) {
+    public function setCardToken($cardToken)
+    {
         $this->cardToken = $cardToken;
 
         return $this;
@@ -195,7 +200,8 @@ class VaultHandlerService {
     /**
      * Sets a gateway response if no prior card authorization is needed.
      */
-    public function setResponse($response) {
+    public function setResponse($response)
+    {
         $this->response = $response;
 
         return $this;
@@ -209,7 +215,8 @@ class VaultHandlerService {
      * @throws ClientException
      * @throws \Exception
      */
-    public function save() {
+    public function save()
+    {
         try {
             // Create the payment token from response
             $paymentToken = $this->vaultTokenFactory->create(
@@ -250,7 +257,8 @@ class VaultHandlerService {
      * @throws ClientException
      * @throws \Exception
      */
-    public function authorizeTransaction() {
+    public function authorizeTransaction()
+    {
         try {
             // Set the token source
             $tokenSource = new TokenSource($this->cardToken);
@@ -287,7 +295,8 @@ class VaultHandlerService {
      *
      * @throws LocalizedException
      */
-    public function saveCard() {
+    public function saveCard()
+    {
         try {
             // Check if the response is success
             $success = $this->apiHandler->isValidResponse($this->response);
@@ -331,7 +340,8 @@ class VaultHandlerService {
     /**
      * Checks if a user has saved cards.
      */
-    public function userHasCards($customerId = null) {
+    public function userHasCards($customerId = null)
+    {
         try {
             // Get the card list
             $cardList = $this->getUserCards($customerId);
@@ -350,7 +360,8 @@ class VaultHandlerService {
     /**
      * Get a user's saved card from public hash.
      */
-    public function getCardFromHash($publicHash, $customerId = null) {
+    public function getCardFromHash($publicHash, $customerId = null)
+    {
         try {
             if ($publicHash) {
                 $cardList = $this->getUserCards($customerId);
@@ -372,15 +383,18 @@ class VaultHandlerService {
     /**
      * Get a user's last saved card.
      */
-    public function getLastSavedCard() {
+    public function getLastSavedCard()
+    {
         try {
             // Get the cards list
             $cardList = $this->getUserCards();
             if (count($cardList) > 0) {
                 // Sort the array by date
-                usort($cardList, function ($a, $b) {
-                    return new \DateTime($a->getCreatedAt()) <=> new \DateTime($b->getCreatedAt());
-                });
+                usort(
+                    $cardList, function ($a, $b) {
+                        return new \DateTime($a->getCreatedAt()) <=> new \DateTime($b->getCreatedAt());
+                    }
+                );
 
                 // Return the most recent
                 return $cardList[0];
@@ -396,7 +410,8 @@ class VaultHandlerService {
     /**
      * Get a user's saved cards.
      */
-    public function getUserCards($customerId = null) {
+    public function getUserCards($customerId = null)
+    {
         // Output array
         $output = [];
 
@@ -424,7 +439,8 @@ class VaultHandlerService {
     /**
      * Render a payment token.
      */
-    public function renderTokenData(PaymentTokenInterface $paymentToken) {
+    public function renderTokenData(PaymentTokenInterface $paymentToken)
+    {
         try {
             // Get the card details
             $details = json_decode($paymentToken->getTokenDetails() ?: '{}', true);

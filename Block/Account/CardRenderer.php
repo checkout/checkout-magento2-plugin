@@ -19,7 +19,8 @@ namespace CheckoutCom\Magento2\Block\Account;
 
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 
-class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
+class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
+{
 
     /**
      * @var Config
@@ -59,7 +60,8 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      *
      * @return string
      */
-    public function getNumberLast4Digits() {
+    public function getNumberLast4Digits()
+    {
         try {
             return $this->getTokenDetails()['maskedCC'];
         } catch (\Exception $e) {
@@ -73,7 +75,8 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      *
      * @return string
      */
-    public function getExpDate() {
+    public function getExpDate()
+    {
         try {
             return $this->getTokenDetails()['expirationDate'];
         } catch (\Exception $e) {
@@ -85,10 +88,11 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
     /**
      * Determines if can render the given token.
      *
-     * @param PaymentTokenInterface $token
+     * @param  PaymentTokenInterface $token
      * @return boolean
      */
-    public function canRender(PaymentTokenInterface $token) {
+    public function canRender(PaymentTokenInterface $token)
+    {
         try {
             return $token->getPaymentMethodCode() === 'checkoutcom_vault';
         } catch (\Exception $e) {
@@ -102,7 +106,8 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      *
      * @return string
      */
-    public function getCardType() {
+    public function getCardType()
+    {
         try {
             return $this->getTokenDetails()['type'];
         } catch (\Exception $e) {
@@ -116,7 +121,8 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      *
      * @return string
      */
-    public function getIconUrl() {
+    public function getIconUrl()
+    {
         try {
             return $this->getIconForType($this->getCardType())['url'];
         } catch (\Exception $e) {
@@ -130,7 +136,8 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      *
      * @return int
      */
-    public function getIconHeight() {
+    public function getIconHeight()
+    {
         try {
             return $this->getIconForType($this->getCardType())['height'];
         } catch (\Exception $e) {
@@ -144,7 +151,8 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer {
      *
      * @return int
      */
-    public function getIconWidth() {
+    public function getIconWidth()
+    {
         try {
             return $this->getIconForType($this->getCardType())['width'];
         } catch (\Exception $e) {

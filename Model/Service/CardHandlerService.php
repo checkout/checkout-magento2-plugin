@@ -56,7 +56,7 @@ class CardHandlerService
      */
     protected $logger;
 
-	/**
+    /**
      * CardHandlerService constructor.
      */
     public function __construct(
@@ -65,8 +65,7 @@ class CardHandlerService
         \Magento\Framework\File\Csv $csvParser,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+    ) {
         $this->assetRepository = $assetRepository;
         $this->directoryReader = $directoryReader;
         $this->csvParser = $csvParser;
@@ -79,7 +78,8 @@ class CardHandlerService
      *
      * @return string
      */
-    public function getCardCode($scheme) {
+    public function getCardCode($scheme)
+    {
         try {
             return array_search(
                 $scheme,
@@ -96,7 +96,8 @@ class CardHandlerService
      *
      * @return string
      */
-    public function getCardScheme($code) {
+    public function getCardScheme($code)
+    {
         try {
             return self::$cardMapper[$code];
         } catch (\Exception $e) {
@@ -110,7 +111,8 @@ class CardHandlerService
      *
      * @return string
      */
-    public function getCardIcon($code) {
+    public function getCardIcon($code)
+    {
         try {
             return $this->assetRepository
                 ->getUrl(
@@ -127,7 +129,8 @@ class CardHandlerService
      *
      * @return bool
      */
-    public function isCardActive($card) {
+    public function isCardActive($card)
+    {
         try {
             return $card->getIsActive()
             && $card->getIsVisible()
@@ -143,7 +146,8 @@ class CardHandlerService
      *
      * @return bool
      */
-    public function isMadaBin($bin) {
+    public function isMadaBin($bin)
+    {
         try {
             // Set the root path
             $csvPath = $this->directoryReader->getModuleDir(

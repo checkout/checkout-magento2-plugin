@@ -30,8 +30,7 @@ class AvailabilityChecker implements \Magento\InstantPurchase\PaymentMethodInteg
      */
     public function __construct(
         \CheckoutCom\Magento2\Gateway\Config\Config $config
-    )
-    {
+    ) {
         $this->configLoader = $config;
     }
 

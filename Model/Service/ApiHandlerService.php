@@ -52,7 +52,7 @@ class ApiHandlerService
      */
     protected $logger;
 
-	/**
+    /**
      * Initialize the API client wrapper.
      */
     public function __construct(
@@ -60,8 +60,7 @@ class ApiHandlerService
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+    ) {
         $this->encryptor = $encryptor;
         $this->config = $config;
         $this->utilities = $utilities;
@@ -71,10 +70,11 @@ class ApiHandlerService
         $this->checkoutApi = $this->loadClient();
     }
 
-	/**
+    /**
      * Load the API client.
      */
-    private function loadClient() {
+    private function loadClient()
+    {
         try {
             return new CheckoutApi(
                 $this->config->getValue('secret_key'),
@@ -90,7 +90,8 @@ class ApiHandlerService
     /**
      * Checks if a response is valid.
      */
-    public function isValidResponse($response) {
+    public function isValidResponse($response)
+    {
         try {
             return is_object($response)
             && method_exists($response, 'isSuccessful')
@@ -104,7 +105,8 @@ class ApiHandlerService
     /**
      * Voids a transaction.
      */
-    public function voidOrder($payment) {
+    public function voidOrder($payment)
+    {
         try {
             // Get the order
             $order = $payment->getOrder();
@@ -130,7 +132,8 @@ class ApiHandlerService
     /**
      * Refunds a transaction.
      */
-    public function refundOrder($payment, $amount) {
+    public function refundOrder($payment, $amount)
+    {
         try {
             // Get the order
             $order = $payment->getOrder();
@@ -157,7 +160,8 @@ class ApiHandlerService
     /**
      * Gets payment details.
      */
-    public function getPaymentDetails($paymentId) {
+    public function getPaymentDetails($paymentId)
+    {
         try {
             return $this->checkoutApi->payments()->details($paymentId);
         } catch (\Exception $e) {
@@ -169,7 +173,8 @@ class ApiHandlerService
     /**
      * Creates a customer source.
      */
-    public function createCustomer($entity) {
+    public function createCustomer($entity)
+    {
         try {
             // Get the billing address
             $billingAddress = $entity->getBillingAddress();

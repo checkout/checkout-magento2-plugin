@@ -21,7 +21,8 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
 
-class v1 extends \Magento\Framework\App\Action\Action {
+class v1 extends \Magento\Framework\App\Action\Action
+{
 
     /**
      * @var Config
@@ -33,15 +34,14 @@ class v1 extends \Magento\Framework\App\Action\Action {
      */
     protected $logger;
 
-	/**
+    /**
      * Callback constructor
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->config = $config;
         $this->logger = $logger;
@@ -53,7 +53,8 @@ class v1 extends \Magento\Framework\App\Action\Action {
     /**
      * Handles the controller method.
      */
-    public function execute() {
+    public function execute()
+    {
         try {
             // Prepare the response handler
             $resultFactory = $this->resultFactory->create(ResultFactory::TYPE_JSON);
@@ -75,7 +76,8 @@ class v1 extends \Magento\Framework\App\Action\Action {
         }
     }
 
-    protected function getPayload() {
+    protected function getPayload()
+    {
         return json_decode($this->getRequest()->getContent());
     }
 }

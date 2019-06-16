@@ -17,7 +17,8 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-class Fail extends \Magento\Framework\App\Action\Action {
+class Fail extends \Magento\Framework\App\Action\Action
+{
     /**
      * @var CheckoutApi
      */
@@ -28,15 +29,14 @@ class Fail extends \Magento\Framework\App\Action\Action {
      */
     protected $logger;
 
-	/**
+    /**
      * PlaceOrder constructor
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+    ) {
         parent::__construct($context);
 
         $this->apiHandler = $apiHandler;
@@ -46,7 +46,8 @@ class Fail extends \Magento\Framework\App\Action\Action {
     /**
      * Handles the controller method.
      */
-    public function execute() {
+    public function execute()
+    {
         try {
             // Get the session id
             $sessionId = $this->getRequest()->getParam('cko-session-id', null);

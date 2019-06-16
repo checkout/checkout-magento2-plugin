@@ -87,8 +87,7 @@ class OrderHandlerService
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+    ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
         $this->orderInterface  = $orderInterface;
@@ -103,7 +102,8 @@ class OrderHandlerService
     /**
      * Set the payment method id
      */
-    public function setMethodId($methodId) {
+    public function setMethodId($methodId)
+    {
         $this->methodId = $methodId;
         return $this;
     }
@@ -190,7 +190,8 @@ class OrderHandlerService
     /**
      * Find an order by fields
      */
-    public function findOrderByFields($fields) {
+    public function findOrderByFields($fields)
+    {
         try {
             // Add each field as filter
             foreach ($fields as $key => $value) {

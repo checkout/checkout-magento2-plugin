@@ -17,7 +17,8 @@
 
 namespace CheckoutCom\Magento2\Controller\Account;
 
-class SaveCard extends \Magento\Framework\App\Action\Action {
+class SaveCard extends \Magento\Framework\App\Action\Action
+{
 
     /**
      * @var JsonFactory
@@ -60,7 +61,8 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
     /**
      * Handles the controller method.
      */
-    public function execute() {
+    public function execute()
+    {
         // Prepare the parameters
         $success = false;
         $url = $this->urlInterface->getUrl('vault/cards/listaction');
@@ -73,11 +75,11 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
                 // Save the card
 
                     $success = $this->vaultHandler
-                    ->setCardToken($ckoCardToken)
-                    ->setCustomerId()
-                    ->setCustomerEmail()
-                    ->authorizeTransaction()
-                    ->saveCard();
+                        ->setCardToken($ckoCardToken)
+                        ->setCustomerId()
+                        ->setCustomerEmail()
+                        ->authorizeTransaction()
+                        ->saveCard();
 
                     $this->messageManager->addSuccessMessage(__('The payment card has been stored successfully.'));
 
@@ -86,11 +88,13 @@ class SaveCard extends \Magento\Framework\App\Action\Action {
             $this->logger->write($e->getMessage());
         } finally {
             // Build the AJAX response
-            return $this->jsonFactory->create()->setData([
+            return $this->jsonFactory->create()->setData(
+                [
                 'success' => $success,
                 'message' => $message,
                 'url' => $url
-            ]);
+                ]
+            );
         }
     }
 }

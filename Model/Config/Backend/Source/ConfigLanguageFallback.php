@@ -17,14 +17,16 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-class ConfigLanguageFallback implements \Magento\Framework\Option\ArrayInterface {
+class ConfigLanguageFallback implements \Magento\Framework\Option\ArrayInterface
+{
 
     /**
      * Language fallback
      *
      * @return array
      */
-    public function toOptionArray() {
+    public function toOptionArray()
+    {
         return [
             [
                 'value' => 'EN-GB',

@@ -1,4 +1,5 @@
-define([
+define(
+    [
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
@@ -40,7 +41,7 @@ define([
                 /**
                  * @returns {string}
                  */
-                getValue: function(field) {
+                getValue: function (field) {
                     return Utilities.getValue(METHOD_ID, field);
                 },
 
@@ -52,29 +53,33 @@ define([
                     FullScreenLoader.startLoader();
 
                     // Send the AJAX request
-                    $.ajax({
-                        type: "POST",
-                        url: Utilities.getUrl('apm/display'),
-                        success: function(data) {
-                            $('#apm-container').append(data.html)
-                            .accordion({
-                                heightStyle: 'content',
-                                animate: {
-                                    duration: 200
-                                }
-                            })
-                            .show();
+                    $.ajax(
+                        {
+                            type: "POST",
+                            url: Utilities.getUrl('apm/display'),
+                            success: function (data) {
+                                $('#apm-container').append(data.html)
+                                .accordion(
+                                    {
+                                        heightStyle: 'content',
+                                        animate: {
+                                            duration: 200
+                                        }
+                                    }
+                                )
+                                .show();
 
-                            // Stop the loader
-                            FullScreenLoader.stopLoader();
-                        },
-                        error: function (request, status, error) {
-                            Utilities.log(error);
+                                // Stop the loader
+                                FullScreenLoader.stopLoader();
+                            },
+                            error: function (request, status, error) {
+                                Utilities.log(error);
 
-                            // Stop the loader
-                            FullScreenLoader.stopLoader();
+                                // Stop the loader
+                                FullScreenLoader.stopLoader();
+                            }
                         }
-                    });
+                    );
                 },
 
                 /**
@@ -89,20 +94,22 @@ define([
                     FullScreenLoader.startLoader()
 
                     // Serialize data
-                    $("#cko-apm-form-" + id).serializeArray().forEach(function (e) {
-                        data[e.name] = e.value;
-                    });
+                    $("#cko-apm-form-" + id).serializeArray().forEach(
+                        function (e) {
+                            data[e.name] = e.value;
+                        }
+                    );
 
                     // Place the order
                     if (AdditionalValidators.validate() && $form.valid() && this.custom(data)) {
                         Utilities.placeOrder(
                             data,
                             // Todo - Improve response handling. Error should come from the controller
-                            function() {
+                            function () {
                                 Utilities.log(__('Success'));
                             },
                             // Todo - Improve response handling. Error should come from the controller
-                            function() {
+                            function () {
                                 Utilities.log(__('Fail'));
                             }
                         );
@@ -118,10 +125,10 @@ define([
                  /**
                   * Dynamic function handler.
                   *
-                  * @param      {String}   id      The identifier
-                  * @return     {boolean}
+                  * @param  {String}   id      The identifier
+                  * @return {boolean}
                   */
-                custom: function(data) {
+                custom: function (data) {
                     var result = true;
                     if (typeof this[data.source] == 'function') {
                         result = this[data.source](data);
@@ -141,14 +148,14 @@ define([
                                 auto_finalize: true
                             },
                             {},
-                            function(response) {
+                            function (response) {
                                 data.authorization_token = response.authorization_token;
                                 Utilities.placeOrder(
                                     data,
-                                    function() {
+                                    function () {
                                         // Todo - Improve response handling. Error should come from the controller
                                         Utilities.log(__('Success'));
-                                    }, function() {
+                                    }, function () {
                                         Utilities.showMessage('error', 'Could not finalize the payment.');
                                     }
                                 );

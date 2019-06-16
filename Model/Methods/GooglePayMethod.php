@@ -40,7 +40,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     const CODE = 'checkoutcom_google_pay';
 
     /**
-     * @var string
+     * @var       string
      * @overriden
      */
     protected $_code = self::CODE;
@@ -107,11 +107,11 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * { function_description }
      *
-     * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
      *
-     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
      *
-     * @return     self                                             ( description_of_the_return_value )
+     * @return self                                             ( description_of_the_return_value )
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
@@ -158,7 +158,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * Check whether method is available
      *
-     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @param  \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
      * @return bool
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)

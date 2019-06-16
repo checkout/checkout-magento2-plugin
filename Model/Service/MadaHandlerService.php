@@ -48,10 +48,9 @@ class MadaHandlerService
         \Magento\Framework\File\Csv $csvParser,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
-    	$this->directoryReader = $directoryReader;
-    	$this->csvParser = $csvParser;
+    ) {
+        $this->directoryReader = $directoryReader;
+        $this->csvParser = $csvParser;
         $this->config = $config;
         $this->logger = $logger;
 
@@ -62,7 +61,8 @@ class MadaHandlerService
      *
      * @return string
      */
-    private function getCsvPath() {
+    private function getCsvPath()
+    {
         try {
             // Get the MADA file name
             $file = ($this->config->isLive()) ? 'mada_live_file' : 'mada_test_file';
@@ -70,7 +70,8 @@ class MadaHandlerService
             // Get the MADA file path
             $path = $this->config->getValue($file);
 
-            return $this->directoryReader->getModuleDir('',
+            return $this->directoryReader->getModuleDir(
+                '',
                 'CheckoutCom_Magento2'
             ) . '/' . $path;
         } catch (\Exception $e) {
@@ -84,7 +85,8 @@ class MadaHandlerService
      *
      * @return bool
      */
-    public function isMadaBin($bin) {
+    public function isMadaBin($bin)
+    {
         try {
             // Set the root path
             $csvPath = $this->getCsvPath();

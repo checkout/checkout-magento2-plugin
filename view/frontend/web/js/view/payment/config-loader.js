@@ -1,4 +1,5 @@
-define([
+define(
+    [
         'jquery'
     ],
     function ($) {

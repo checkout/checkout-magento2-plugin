@@ -32,7 +32,8 @@ class MethodHandlerService
         $this->instances = $instances;
     }
 
-    public function get($methodId) {
+    public function get($methodId)
+    {
         return $this->instances[$methodId];
     }
 }

@@ -19,12 +19,13 @@ namespace CheckoutCom\Magento2\Helper;
 
 use \Magento\Store\Model\ScopeInterface;
 
-class Logger {
+class Logger
+{
 
     /**
      * @var ManagerInterface
      */
-	protected $messageManager;
+    protected $messageManager;
     
     /**
      * @var ScopeConfigInterface
@@ -40,14 +41,15 @@ class Logger {
     ) {
         $this->messageManager = $messageManager;
         $this->scopeConfig = $scopeConfig;
-	}
+    }
 
     /**
      * Write to log file.
      *
-     * @param      mixed  $msg    The message
+     * @param mixed $msg The message
      */
-	public function write($msg) {
+    public function write($msg)
+    {
         // Get the debug config value
         $debug = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/debug',
@@ -67,14 +69,15 @@ class Logger {
             $logger->addWriter($writer);
             $logger->info(print_r($msg, 1));
         }
-	}
+    }
 
     /**
      * Display the debug information on the front end.
      *
-     * @param      mixed  $response  The response
+     * @param mixed $response The response
      */
-	public function display($response) {
+    public function display($response)
+    {
         // Get the debug config value
         $debug = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/debug',
@@ -94,5 +97,5 @@ class Logger {
                 ['output' => $output]
             );
         }
-	}
+    }
 }

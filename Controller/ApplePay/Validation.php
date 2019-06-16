@@ -17,7 +17,8 @@
 
 namespace CheckoutCom\Magento2\Controller\ApplePay;
 
-class Validation extends \Magento\Framework\App\Action\Action {
+class Validation extends \Magento\Framework\App\Action\Action
+{
 
     /**
      * @var JsonFactory
@@ -47,9 +48,10 @@ class Validation extends \Magento\Framework\App\Action\Action {
         $this->url = $this->getRequest()->getParam('u');
     }
 
-    protected function isValidRequest() {
+    protected function isValidRequest()
+    {
         return "https" == parse_url($this->url, PHP_URL_SCHEME)
-        && substr(parse_url($this->url, PHP_URL_HOST), -10 )  == ".apple.com";
+        && substr(parse_url($this->url, PHP_URL_HOST), -10)  == ".apple.com";
     }
 
     /**
@@ -57,7 +59,8 @@ class Validation extends \Magento\Framework\App\Action\Action {
      *
      * @return \Magento\Framework\Controller\Result\Redirect
      */
-    public function execute() {
+    public function execute()
+    {
         try {
             // Process the call after check
             if ($this->isValidRequest()) {
@@ -95,7 +98,8 @@ class Validation extends \Magento\Framework\App\Action\Action {
         }
     }
 
-    public function getParams() {
+    public function getParams()
+    {
         try {
             return [
                 'merchantId' => $this->config->getValue('merchant_id', $this->methodId),

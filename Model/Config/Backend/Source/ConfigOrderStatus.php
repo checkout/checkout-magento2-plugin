@@ -17,7 +17,8 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-class ConfigOrderStatus implements \Magento\Framework\Option\ArrayInterface {
+class ConfigOrderStatus implements \Magento\Framework\Option\ArrayInterface
+{
 
     /**
      * @var Collection
@@ -26,11 +27,12 @@ class ConfigOrderStatus implements \Magento\Framework\Option\ArrayInterface {
 
     /**
      * OrderStatus constructor.
+     *
      * @param Collection $statusCollection
      */
     public function __construct(
         \Magento\Sales\Model\ResourceModel\Order\Status\Collection $orderStatusCollection
-    ){
+    ) {
         $this->orderStatusCollection = $orderStatusCollection;
     }
 
@@ -39,7 +41,8 @@ class ConfigOrderStatus implements \Magento\Framework\Option\ArrayInterface {
      *
      * @return array
      */
-    public function toOptionArray() {
+    public function toOptionArray()
+    {
         return $this->getStatusOptions();
     }
 

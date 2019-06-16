@@ -51,7 +51,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     const CODE = 'checkoutcom_apm';
 
     /**
-     * @var string
+     * @var       string
      * @overriden
      */
     protected $_code = self::CODE;
@@ -134,7 +134,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * Send a charge request.
      */
-    public function sendPaymentRequest(array $data, $amount, $currency, $reference = '') {
+    public function sendPaymentRequest(array $data, $amount, $currency, $reference = '')
+    {
 
         $method = $data['source'];
         $response = null;
@@ -147,7 +148,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
             // Send the charge request
             $response = $this->apiHandler->checkoutApi->payments()
-                                                      ->request($payment);
+                ->request($payment);
 
             return $response;
 
@@ -160,11 +161,12 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * Create a payment object based on the body.
      *
-     * @param      array  $array  The value
+     * @param array $array The value
      *
-     * @return     Payment
+     * @return Payment
      */
-    protected function createPayment(IdSource $source, int $amount, string $currency, string $reference, $methodId) {
+    protected function createPayment(IdSource $source, int $amount, string $currency, string $reference, $methodId)
+    {
 
         $payment = null;
 
@@ -191,12 +193,13 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * Verify if currency is supported.
      *
-     * @param      string  $method    The method
-     * @param      string  $currency  The currency
+     * @param string $method   The method
+     * @param string $currency The currency
      *
-     * @return     bool
+     * @return bool
      */
-    protected function validateCurrency(string $method, string $currency) {
+    protected function validateCurrency(string $method, string $currency)
+    {
 
         $apms = $this->config->getApms();
         $valid = false;
@@ -218,11 +221,12 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * Create source.
      *
-     * @param      $source  The source
+     * @param $source  The source
      *
-     * @return     IdSource
+     * @return IdSource
      */
-    protected function sepa($data) {
+    protected function sepa($data)
+    {
         $mandate = $this->activateMandate($data['url']);
         $pos = strripos($data['url'], '/');
         $id = substr($data['url'], $pos +1);
@@ -233,10 +237,11 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * Activate the mandate.
      *
-     * @param      string   $url
-     * @return     array
+     * @param  string $url
+     * @return array
      */
-    protected function activateMandate(string $url) {
+    protected function activateMandate(string $url)
+    {
         // Get the secret key
         $secret = $this->config->getValue('secret_key');
 
@@ -265,35 +270,40 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * Create source.
      *
-     * @param      $source  The source
+     * @param $source  The source
      *
-     * @return     TokenSource
+     * @return TokenSource
      */
-    protected function alipay($data) {
+    protected function alipay($data)
+    {
         return new AlipaySource();
     }
 
     /**
      * Create source.
      *
-     * @param      $source  The source
+     * @param $source  The source
      *
-     * @return     BoletoSource
+     * @return BoletoSource
      */
-    protected function boleto($data) {
+    protected function boleto($data)
+    {
         return new BoletoSource($data['name'], $data['birthDate'], $data['cpf']);
     }
 
     /**
      * Create source.
      *
-     * @param      $data  The source
+     * @param $data  The source
      *
-     * @return     GiropaySource
+     * @return GiropaySource
      */
-    protected function giropay(array $data) {
-        $source = new GiropaySource(__('Payment request from %1', $this->config->getStoreName()),
-                                    $this->getValue('bic', $data));
+    protected function giropay(array $data)
+    {
+        $source = new GiropaySource(
+            __('Payment request from %1', $this->config->getStoreName()),
+            $this->getValue('bic', $data)
+        );
         $source->iban = $this->getValue('iban', $data);
         return $source;
     }
@@ -301,13 +311,16 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * Create source.
      *
-     * @param      $source  The source
+     * @param $source  The source
      *
-     * @return     TokenSource
+     * @return TokenSource
      */
-    protected function ideal($data) {
-        $source = new IdealSource($data['bic'],
-                                  __('Payment request from %1', $this->config->getStoreName()));
+    protected function ideal($data)
+    {
+        $source = new IdealSource(
+            $data['bic'],
+            __('Payment request from %1', $this->config->getStoreName())
+        );
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl'));
         $source->language = $locale[0];
         return $source;
@@ -316,33 +329,36 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * Create source.
      *
-     * @param      $source  The source
+     * @param $source  The source
      *
-     * @return     TokenSource
+     * @return TokenSource
      */
-    protected function poli($data) {
+    protected function poli($data)
+    {
         return new PoliSource();
     }
 
     /**
      * Create source.
      *
-     * @param      $source  The source
+     * @param $source  The source
      *
-     * @return     TokenSource
+     * @return TokenSource
      */
-    protected function sofort($data) {
+    protected function sofort($data)
+    {
         return new SofortSource();
     }
 
     /**
      * Create source.
      *
-     * @param      $source  The source
+     * @param $source  The source
      *
-     * @return     KlarnaSource
+     * @return KlarnaSource
      */
-    protected function klarna($data) {
+    protected function klarna($data)
+    {
         $products = array();
         $tax = 0;
         $quote = $this->quoteHandler->getQuote();
@@ -391,12 +407,14 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $address->phone = $billingAddress->getTelephone();
         $address->country = strtolower($billingAddress->getCountry());
 
-        $klarna =  new KlarnaSource($data['authorization_token'],
-                                    strtolower($billingAddress->getCountry()),
-                                    'en-GB',
-                                    $address,
-                                    $tax,
-                                    $products);
+        $klarna =  new KlarnaSource(
+            $data['authorization_token'],
+            strtolower($billingAddress->getCountry()),
+            'en-GB',
+            $address,
+            $tax,
+            $products
+        );
 
         return $klarna;
 
@@ -405,22 +423,23 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * Create source.
      *
-     * @param      $source  The source
+     * @param $source  The source
      *
-     * @return     TokenSource
+     * @return TokenSource
      */
-    protected function eps($data) {
+    protected function eps($data)
+    {
         return new EpsSource(__('Payment request from %1', $this->config->getStoreName()));
     }
 
     /**
      * { function_description }
      *
-     * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
      *
-     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
      *
-     * @return     self                                             ( description_of_the_return_value )
+     * @return self                                             ( description_of_the_return_value )
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
@@ -461,7 +480,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * Check whether method is available
      *
-     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @param  \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
      * @return bool
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
@@ -478,11 +497,12 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * Safely get value from a multidimentional array.
      *
-     * @param      array  $array  The value
+     * @param array $array The value
      *
-     * @return     Payment
+     * @return Payment
      */
-    public function getValue($field, $array, $dft = null) {
+    public function getValue($field, $array, $dft = null)
+    {
 
         $value = null;
         $field = (array) $field;

@@ -23,9 +23,10 @@ use Checkout\Library\HttpHandler;
 use Checkout\Models\Sources\Sepa;
 use Checkout\Models\Sources\Klarna;
 
-class DisplayKlarna extends \Magento\Framework\App\Action\Action {
+class DisplayKlarna extends \Magento\Framework\App\Action\Action
+{
 
-	/**
+    /**
      * @var Context
      */
     protected $context;
@@ -77,6 +78,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
 
     /**
      * Locale code.
+     *
      * @var string
      */
     protected $locale;
@@ -112,7 +114,8 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
     /**
      * Handles the controller method.
      */
-    public function execute() {
+    public function execute()
+    {
         try {
             $klarna = $this->getKlarna();
 
@@ -122,29 +125,31 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
             $this->logger->write($e->getMessage());
 
             return $this->jsonFactory->create()
-            ->setData([]);
+                ->setData([]);
         }
     }
 
     /**
      * Gets the klarna.
      *
-     * @return     array  The klarna.
+     * @return array  The klarna.
      */
-    protected function getKlarna() {
+    protected function getKlarna()
+    {
         // Prepare the output array
         $response = [];
 
         try {
             $products = $this->getProducts($response);
 
-            $klarna = new Klarna(strtolower($this->billingAddress->getCountry()),
-                                $this->quote->getQuoteCurrencyCode(),
-                                $this->locale,
-                                $this->quote->getGrandTotal() *100,
-                                $response['tax_amount'],
-                                $products
-                            );
+            $klarna = new Klarna(
+                strtolower($this->billingAddress->getCountry()),
+                $this->quote->getQuoteCurrencyCode(),
+                $this->locale,
+                $this->quote->getGrandTotal() *100,
+                $response['tax_amount'],
+                $products
+            );
 
             $source = $this->apiHandler->checkoutApi->sources()->add($klarna);
             if ($source->isSuccessful()) {
@@ -165,11 +170,12 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
     /**
      * Gets the products.
      *
-     * @param      array   $response  The response
+     * @param array $response The response
      *
-     * @return     array  The products.
+     * @return array  The products.
      */
-    protected function getProducts(array &$response) {
+    protected function getProducts(array &$response)
+    {
         try {
             $response['tax_amount'] = 0;
             foreach ($this->quote->getAllVisibleItems() as $item) {
@@ -202,11 +208,12 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action {
     /**
      * Gets the shipping.
      *
-     * @param      array   $response  The response
+     * @param array $response The response
      *
-     * @return     array  The products.
+     * @return array  The products.
      */
-    protected function getShipping(array &$response, array &$products) {
+    protected function getShipping(array &$response, array &$products)
+    {
         $response['tax_amount'] = 0;
         $shipping = $this->quote->getShippingAddress();
 
