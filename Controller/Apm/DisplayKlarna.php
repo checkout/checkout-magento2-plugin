@@ -157,7 +157,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
                 $response['billing'] = $this->billingAddress->toArray();
                 $response['quote'] = $this->quote->toArray();
             } else {
-                $response = array('source' => false);
+                $response = ['source' => false];
             }
 
         } catch (\Exception $e) {

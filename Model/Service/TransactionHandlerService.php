@@ -116,21 +116,21 @@ class TransactionHandlerService
 
             // Process the transaction
             switch ($this->transactionType) {
-            case Transaction::TYPE_AUTH:
-                $this->handleAuthorization();
-                break;
+                case Transaction::TYPE_AUTH:
+                    $this->handleAuthorization();
+                    break;
 
-            case Transaction::TYPE_CAPTURE:
-                $this->handleCapture();
-                break;
+                case Transaction::TYPE_CAPTURE:
+                    $this->handleCapture();
+                    break;
 
-            case Transaction::TYPE_VOID:
-                $this->handleVoid();
-                break;
+                case Transaction::TYPE_VOID:
+                    $this->handleVoid();
+                    break;
 
-            case Transaction::TYPE_REFUND:
-                $this->handleRefund();
-                break;
+                case Transaction::TYPE_REFUND:
+                    $this->handleRefund();
+                    break;
             }
 
             // Invoice handling
@@ -173,8 +173,7 @@ class TransactionHandlerService
             $this->transaction = $this->buildTransaction();
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
-        }
-        finally {
+        } finally {
             return $this;
         }
     }

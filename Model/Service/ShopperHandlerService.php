@@ -67,16 +67,14 @@ class ShopperHandlerService
         try {
             if (isset($filters['id'])) {
                 return $this->customerRepository->getById($filters['id']);
-            }
-            else if (isset($filters['email'])) {
+            } elseif (isset($filters['email'])) {
                 return $this->customerRepository->get(
                     filter_var(
                         $filters['email'],
                         FILTER_SANITIZE_EMAIL
                     )
                 );
-            }
-            else {
+            } else {
                 $customerId = $this->customerSession->getCustomer()->getId();
                 return $this->customerRepository->getById($customerId);
             }

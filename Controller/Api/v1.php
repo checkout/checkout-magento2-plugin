@@ -65,8 +65,7 @@ class v1 extends \Magento\Framework\App\Action\Action
 
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
-            }
-            else  {
+            } else {
                 $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
             }
         } catch (\Exception $e) {

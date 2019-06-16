@@ -113,8 +113,7 @@ class QuoteHandlerService
 
                 // Return the first result found
                 return $quoteFactory->getFirstItem();
-            }
-            else {
+            } else {
                 // Try to find the quote in session
                 return $this->checkoutSession->getQuote();
             }
@@ -315,8 +314,7 @@ class QuoteHandlerService
                     if (!empty($item['super_attribute'])) {
                         $buyRequest = new \Magento\Framework\DataObject($item);
                         $quote->addProduct($product, $buyRequest);
-                    }
-                    else {
+                    } else {
                         $quote->addProduct($product, $quantity);
                     }
                 }

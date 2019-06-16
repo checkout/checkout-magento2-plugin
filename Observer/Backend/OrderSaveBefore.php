@@ -23,7 +23,6 @@ use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 
-
 class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 {
     /**
@@ -188,8 +187,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                     );
                 }
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         } finally {
             return $this;
@@ -209,8 +207,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 Transaction::TYPE_AUTH,
                 $this->order
             );
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return false;
         }
@@ -224,8 +221,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         try {
             if ($this->isCardToken()) {
                 return new TokenSource($this->params['ckoCardToken']);
-            }
-            else if ($this->isSavedCard()) {
+            } elseif ($this->isSavedCard()) {
                 $card = $this->vaultHandler->getCardFromHash(
                     $this->params['publicHash'],
                     $this->order->getCustomerId()
@@ -234,15 +230,13 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $idSource->cvv = $this->params['cvv'];
 
                 return $idSource;
-            }
-            else {
+            } else {
                 $this->messageManager->addErrorMessage(__('Please provide the required card information for the MOTO payment.'));
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('Missing required card information for the MOTO payment.')
-                );         
+                );
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }

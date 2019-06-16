@@ -109,7 +109,6 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         $this->quote = $this->quoteHandler->getQuote();
         $this->billingAddress = $quoteHandler->getBillingAddress();
         $this->store = $storeManager->getStoreInformationObject($store);
-
     }
 
     /**
@@ -285,7 +284,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
             $sepa = $this->apiHandler->checkoutApi
                 ->sources()
                 ->add($source);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         } finally {
             return $sepa;

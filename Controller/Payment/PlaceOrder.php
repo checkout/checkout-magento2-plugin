@@ -170,8 +170,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             $message = __($e->getMessage());
-        }
-        finally {
+        } finally {
             return $this->jsonFactory->create()->setData(
                 [
                 'success' => $success,
@@ -232,8 +231,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $order->save();
 
             return $order;
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }

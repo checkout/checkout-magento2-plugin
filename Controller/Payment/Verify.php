@@ -130,8 +130,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                 ->setPaymentData($order, $response);
 
             return $order;
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }

@@ -53,7 +53,6 @@ class MadaHandlerService
         $this->csvParser = $csvParser;
         $this->config = $config;
         $this->logger = $logger;
-
     }
 
     /**

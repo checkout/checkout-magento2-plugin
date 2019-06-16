@@ -123,7 +123,7 @@ class Loader
             $output['settings']['checkoutcom_configuration']['apm_list'] = $this->loadApmList();
 
             return $output;
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );
@@ -143,7 +143,7 @@ class Loader
                     'currencies' => $row['currencies']
                 ];
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );
@@ -159,7 +159,7 @@ class Loader
                 Dir::MODULE_ETC_DIR,
                 self::KEY_MODULE_NAME
             ) . '/' . $fileName;
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );
@@ -181,7 +181,7 @@ class Loader
             $output['apm'] = $this->xmlParser
                 ->load($this->getFilePath(self::APM_FILE_NAME))
                 ->xmlToArray()['config']['_value']['item'];
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );
@@ -202,7 +202,7 @@ class Loader
             );
 
             return in_array($field, $hiddenFields);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );
@@ -222,7 +222,7 @@ class Loader
                     )
                 )
             );
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );
@@ -250,7 +250,7 @@ class Loader
 
             // Return a normal value
             return $value;
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );

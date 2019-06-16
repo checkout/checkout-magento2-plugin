@@ -107,8 +107,7 @@ class Display extends \Magento\Framework\App\Action\Action
                 ->setTemplate('CheckoutCom_Magento2::payment/vault/card.phtml')
                 ->setData('card', $card)
                 ->toHtml();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return '';
         }

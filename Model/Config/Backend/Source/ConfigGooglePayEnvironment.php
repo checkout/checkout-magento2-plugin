@@ -41,5 +41,4 @@ class ConfigGooglePayEnvironment implements \Magento\Framework\Option\ArrayInter
             ]
         ];
     }
-
 }

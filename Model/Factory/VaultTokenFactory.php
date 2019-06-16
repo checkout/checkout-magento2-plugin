@@ -73,12 +73,12 @@ class VaultTokenFactory
             $cardScheme      = $card['scheme'];
 
             /**
- * @var PaymentTokenInterface $paymentToken 
+ * @var PaymentTokenInterface $paymentToken
 */
             $paymentToken = $this->creditCardTokenFactory->create();
             $paymentToken->setExpiresAt($expiresAt);
 
-            if (array_key_exists('id', $card) ) {
+            if (array_key_exists('id', $card)) {
                 $paymentToken->setGatewayToken($card['id']);
             }
 

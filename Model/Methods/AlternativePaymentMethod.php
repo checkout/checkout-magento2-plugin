@@ -143,7 +143,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         if ($this->validateCurrency($method, $currency)) {
 
              // Create source object
-            $source = call_user_func(array($this, $method), $data);
+            $source = call_user_func([$this, $method], $data);
             $payment = $this->createPayment($source, $amount, $currency, $reference, $this->_code);
 
             // Send the charge request
@@ -155,7 +155,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         }
 
         return $response;
-
     }
 
     /**
@@ -205,13 +204,12 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $valid = false;
 
         foreach ($apms as $apm) {
-            if($apm['value'] === $method) {
+            if ($apm['value'] === $method) {
                 $valid = strpos($apm['currencies'], $currency) !== false;
             }
         }
 
         return $valid;
-
     }
 
     /**
@@ -246,16 +244,16 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $secret = $this->config->getValue('secret_key');
 
         // Prepare the options
-        $options = array(
+        $options = [
             CURLOPT_FAILONERROR => false,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => array(
+            CURLOPT_HTTPHEADER => [
                 'Content-type: ' . HttpHandler::MIME_TYPE_JSON,
                 'Accept: ' . HttpHandler::MIME_TYPE_JSON,
                 'Authorization: ' . $secret,
                 'User-Agent: checkout-magento2-plugin/1.0.0'
-            ) //@todo: finish this
-        );
+            ] //@todo: finish this
+        ];
 
         // Send the CURL request
         $curl = curl_init($url);
@@ -359,7 +357,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     protected function klarna($data)
     {
-        $products = array();
+        $products = [];
         $tax = 0;
         $quote = $this->quoteHandler->getQuote();
         foreach ($quote->getAllVisibleItems() as $item) {
@@ -417,7 +415,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         );
 
         return $klarna;
-
     }
 
     /**
@@ -509,7 +506,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
         foreach ($field as $key) {
 
-            if(isset($array[$key])) {
+            if (isset($array[$key])) {
                 $value = $array[$key];
                 $array = $array[$key];
             } else {
@@ -520,6 +517,5 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         }
 
         return $value;
-
     }
 }

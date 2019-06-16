@@ -86,8 +86,7 @@ class InvoiceHandlerService
             // Handle the invoice
             if ($this->needsInvoicing()) {
                 $this->createInvoice();
-            }
-            else if ($this->needsCancelling()) {
+            } elseif ($this->needsCancelling()) {
                 $this->cancelInvoice();
             }
 
@@ -121,8 +120,7 @@ class InvoiceHandlerService
 
                 // Save the invoice
                 $this->invoiceRepository->save($invoice);
-            }
-            else {
+            } else {
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('Invoicing is not allowed for this order.')
                 );
@@ -190,15 +188,13 @@ class InvoiceHandlerService
                 $invoice->setRequestedCaptureCase($this->invoiceModel::CAPTURE_ONLINE);
                 $invoice->setState($this->invoiceModel::STATE_PAID);
                 $invoice->setCanVoidFlag(false);
-            }
-            else if ($this->needsAuthorizationInvoice()) {
+            } elseif ($this->needsAuthorizationInvoice()) {
                 $invoice->setState($this->invoiceModel::STATE_OPEN);
-                $invoice->setRequestedCaptureCase($this->invoiceModel::NOT_CAPTURE);                
+                $invoice->setRequestedCaptureCase($this->invoiceModel::NOT_CAPTURE);
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
-        }
-        finally {
+        } finally {
             return $invoice;
         }
     }

@@ -22,9 +22,9 @@ class ConfigGooglePayNetworks implements \Magento\Framework\Option\ArrayInterfac
 
     const CARD_VISA = 'VISA';
     const CARD_MASTERCARD = 'MASTERCARD';
-    consT CARD_AMEX = 'AMEX';
-    consT CARD_JCB = 'JCB';
-    consT CARD_DISCOVER = 'DISCOVER';
+    const CARD_AMEX = 'AMEX';
+    const CARD_JCB = 'JCB';
+    const CARD_DISCOVER = 'DISCOVER';
 
     /**
      * Possible Google Pay Cards
@@ -56,5 +56,4 @@ class ConfigGooglePayNetworks implements \Magento\Framework\Option\ArrayInterfac
             ],
         ];
     }
-
 }

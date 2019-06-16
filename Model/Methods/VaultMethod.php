@@ -155,8 +155,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             if ($this->config->getValue('require_cvv', $this->_code)) {
                 if (!isset($data['cvv']) || (int) $data['cvv'] == 0) {
                     throw new \Magento\Framework\Exception\LocalizedException(__('The CVV value is required.'));
-                }
-                else {
+                } else {
                     $idSource->cvv = $data['cvv'];
                 }
             }
@@ -204,9 +203,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 ->request($request);
 
             return $response;
-        }
-
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
 
         }
     }

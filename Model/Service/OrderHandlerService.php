@@ -150,8 +150,7 @@ class OrderHandlerService
                 $this->logger->write($e->getMessage());
                 return null;
             }
-        }
-        else {
+        } else {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('A payment method ID is required to place an order.')
             );
@@ -210,8 +209,7 @@ class OrderHandlerService
                 ->getFirstItem();
 
             return $order;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }

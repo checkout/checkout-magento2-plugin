@@ -41,5 +41,4 @@ class ConfigGooglePayButton implements \Magento\Framework\Option\ArrayInterface
             ],
         ];
     }
-
 }

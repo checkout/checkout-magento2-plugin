@@ -159,8 +159,7 @@ class VaultHandlerService
             ? $id : $this->customerSession->getCustomer()->getId();
         } catch (Exception $e) {
             $this->logger->write($e->getMessage());
-        }
-        finally {
+        } finally {
             return $this;
         }
     }
@@ -178,8 +177,7 @@ class VaultHandlerService
             ? $email : $this->customerSession->getCustomer()->getEmail();
         } catch (Exception $e) {
             $this->logger->write($e->getMessage());
-        }
-        finally {
+        } finally {
             return $this;
         }
     }
@@ -282,8 +280,7 @@ class VaultHandlerService
                 ->request($request);
 
             return $this;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         } finally {
             return $this;
@@ -330,8 +327,7 @@ class VaultHandlerService
             }
 
             return $success;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return false;
         }
@@ -350,8 +346,7 @@ class VaultHandlerService
             if (count($cardList) > 0) {
                 return  true;
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return false;
         }
@@ -373,8 +368,7 @@ class VaultHandlerService
             }
 
             return null;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }
@@ -391,7 +385,8 @@ class VaultHandlerService
             if (count($cardList) > 0) {
                 // Sort the array by date
                 usort(
-                    $cardList, function ($a, $b) {
+                    $cardList,
+                    function ($a, $b) {
                         return new \DateTime($a->getCreatedAt()) <=> new \DateTime($b->getCreatedAt());
                     }
                 );

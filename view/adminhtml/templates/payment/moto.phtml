@@ -5,11 +5,11 @@
             <div id="vault-container">
                 <?php
 
-                    if ($block->canDisplayCards()):
-                        $cardsList = $block->getUserCards();
-                        foreach ($cardsList as $card):
-                            $details = json_decode($card->getTokenDetails() ?: '{}', true);
-                ?>
+                if ($block->canDisplayCards()) :
+                    $cardsList = $block->getUserCards();
+                    foreach ($cardsList as $card) :
+                        $details = json_decode($card->getTokenDetails() ?: '{}', true);
+                        ?>
                         <div id="cko-vault-card-<?= $card->getEntityId()?>" class="cko-vault-card">
                             <div class="vault-details">
                                 <label>
@@ -19,7 +19,7 @@
                                     >
                                 </label>
                                 <span>
-                                    <?= $block->vaultHandler->renderTokenData($card)?>
+                                <?= $block->vaultHandler->renderTokenData($card)?>
                                 </span>
                             </div>
                             <div class="vault-cvv">
@@ -73,7 +73,7 @@
 <!-- Saved cards JS-->
 <?php
 
- if ($block->canDisplayCards()): ?>
+if ($block->canDisplayCards()) : ?>
     <script type="text/javascript">
         require(['jquery', 'domReady!'], function ($) {
             // Prepare some variables

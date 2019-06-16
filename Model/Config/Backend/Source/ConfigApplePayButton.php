@@ -46,5 +46,4 @@ class ConfigApplePayButton implements \Magento\Framework\Option\ArrayInterface
             ],
         ];
     }
-
 }

@@ -156,8 +156,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
                 return $resultFactory->setData(['result' => _('Success')]);
-            }
-            else  {
+            } else {
                 $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
                 return $resultFactory->setData(['error_message' => _('Unauthorized request')]);
             }
