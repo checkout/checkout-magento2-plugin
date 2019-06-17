@@ -17,7 +17,7 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + MODULE_ID + '.phtml',
+                    template: 'CheckoutCom_Magento2/payment/' + MODULE_ID + '.html',
                     button_target: '#ckoGooglePayButton',
                 },
 

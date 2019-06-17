@@ -135,6 +135,8 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
 
     /**
      * Checks if the request is valid.
+     *
+     * @return boolean
      */
     protected function isValidRequest()
     {
@@ -150,6 +152,8 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
 
     /**
      * Checks if the task is valid.
+     *
+     * @return boolean
      */
     protected function isValidTask()
     {
@@ -163,6 +167,8 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
 
     /**
      * Runs the requested task.
+     *
+     * @return string
      */
     protected function runTask()
     {
@@ -177,6 +183,8 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
 
     /**
      * Builds a method name from request.
+     *
+     * @return string
      */
     protected function buildMethodName()
     {
@@ -190,6 +198,8 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
 
     /**
      * Checks if the requested APM is valid.
+     *
+     * @return boolean
      */
     protected function isValidApm()
     {
@@ -210,6 +220,8 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
 
     /**
      * Returns the SEPA mandate block.
+     * 
+     * @return string
      */
     protected function loadBlock($reference, $url)
     {
@@ -231,7 +243,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
     /**
      * Gets the mandate.
      *
-     * @return <type>  The mandate.
+     * @return string
      */
     public function getMandate()
     {

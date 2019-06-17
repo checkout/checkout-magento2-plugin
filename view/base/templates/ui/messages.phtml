@@ -17,5 +17,5 @@
 ?>
 
 <pre>
-<?= $block->getData('output') ?>
+<?= $block->escapeHtml($block->getData('output')) ?>
 </pre>

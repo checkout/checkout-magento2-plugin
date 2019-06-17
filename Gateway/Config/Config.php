@@ -173,6 +173,8 @@ class Config
 
     /**
      * Checks and sets a capture time for the request.
+     *
+     * @return string
      */
     public function getCaptureTime()
     {

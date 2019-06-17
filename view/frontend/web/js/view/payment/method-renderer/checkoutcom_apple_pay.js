@@ -18,7 +18,7 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.phtml',
+                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     button_target: '#ckoApplePayButton',
                 },
 

@@ -1,33 +1,33 @@
-<div data-role="collapsible" id="<?= $block->getData('apm_id')?>" class="cko-apm <?= $block->getData('apm_id')?>">
+<div data-role="collapsible" id="<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" class="cko-apm <?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
     <div data-role="trigger">
-		<span class="bg-<?= $block->getData('apm_id')?> bg-apm"></span>
-        <span><?= $block->getData('title')?></span>
+		<span class="bg-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?> bg-apm"></span>
+        <span><?= $block->escapeHtml($block->getData('title'))?></span>
     </div>
 </div>
-<div data-role="content" class="apm-content <?= $block->getData('apm_id')?>">
-    <form id="cko-apm-form-<?= $block->getData('apm_id')?>">
-        <input type="hidden" name="source" value="<?= $block->getData('apm_id')?>" required>
+<div data-role="content" class="apm-content <?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
+    <form id="cko-apm-form-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
+        <input type="hidden" name="source" value="<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" required>
         <input type="hidden" name="task" value="mandate">
         <div class="input-group">
             <label class="icon" for="bic">
             <span class="ckojs ckojs-card"></label>
-            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtml(__('BIC')); ?>" class="input-control">
+            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtmlAttr(__('BIC')); ?>" class="input-control">
         </div>
         <div class="input-group">
             <label class="icon" for="account_iban">
             <span class="ckojs ckojs-card"></label>
-            <input type="text" id="account_iban" name="account_iban" placeholder="<?= $block->escapeHtml(__('Account IBAN')); ?>" class="input-control" required>
+            <input type="text" id="account_iban" name="account_iban" placeholder="<?= $block->escapeHtmlAttr(__('Account IBAN')); ?>" class="input-control" required>
         </div>
         <br>
         <p align="center">
-            <button type="button"><?= __('Continue')?></button>
+            <button type="button"><?= $block->escapeHtml(__('Continue')) ?></button>
         </p>
     </form>
 
     <script type="text/javascript">
         require(['jquery', 'CheckoutCom_Magento2/js/view/payment/utilities', 'Magento_Checkout/js/model/full-screen-loader', 'domReady!'], function ($, Utilities, FullScreenLoader) {
             // Prepare the form id
-            var sepaForm = $('#' + 'cko-apm-form-<?= $block->getData('apm_id')?>');
+            var sepaForm = $('#' + 'cko-apm-form-<?= $block->escapeHtml($block->getData('apm_id')) ?>');
 
             // Form click event
             sepaForm.find('button').on('click touch', function() {
@@ -45,7 +45,7 @@
                     // Send the request
                     $.ajax({
                         type: 'POST',
-                        url: '<?= $block->getUrl('checkout_com/apm/displaysepa')?>',
+                        url: '<?= $block->escapeUrl($block->getUrl('checkout_com/apm/displaysepa'))?>',
                         data: formData,
                         success: function (data) {
                             if(data.html) {

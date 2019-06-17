@@ -117,6 +117,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->data['publicHash'] = $this->data['instant_purchase_payment_token'];
     }
 
+    /**
+     * Handles the controller method.
+     *
+     * @return array
+     */
     public function execute()
     {
         // Prepare a default error message
@@ -194,6 +199,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
     /**
      * Creates response with the operation status message.
+     * 
+     * @return array
      */
     private function createResponse(string $message, bool $successMessage)
     {

@@ -21,9 +21,8 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
 
-class v1 extends \Magento\Framework\App\Action\Action
+class V1 extends \Magento\Framework\App\Action\Action
 {
-
     /**
      * @var Config
      */
@@ -61,8 +60,6 @@ class v1 extends \Magento\Framework\App\Action\Action
 
             // Process the request
             if ($this->config->isValidAuth()) {
-
-
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
             } else {
@@ -75,6 +72,11 @@ class v1 extends \Magento\Framework\App\Action\Action
         }
     }
 
+    /**
+     * Returns a JSON payload from request.
+     *
+     * @return string
+     */
     protected function getPayload()
     {
         return json_decode($this->getRequest()->getContent());

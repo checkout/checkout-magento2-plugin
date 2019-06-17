@@ -90,9 +90,9 @@ class Display extends \Magento\Framework\App\Action\Action
                 $apms = $this->config->getApms();
 
                 // Load block data for each APM
-                foreach ($apms as $amp) {
-                    if (in_array($amp['value'], $apmEnabled) && strpos($amp['currencies'], $this->quoteHandler->getQuoteCurrency()) !== false) {
-                        $html .= $this->loadBlock($amp['value'], $amp['label']);
+                foreach ($apms as $apm) {
+                    if ($this->isValidApm($apm, $apmEnabled)) {
+                        $html .= $this->loadBlock($apm['value'], $apm['label']);
                     }
                 }
             }
@@ -105,7 +105,29 @@ class Display extends \Magento\Framework\App\Action\Action
         }
     }
 
-    private function loadBlock($apmId, $title)
+    /**
+     * Check if an APM is valid for display.
+     *
+     * @param string $apm
+     * @param array $apmEnabled
+     * @return boolean
+     */
+    protected function isValidApm($apm, $apmEnabled) {
+        return in_array($apm['value'], $apmEnabled)
+        && strpos(
+            $apm['currencies'],
+            $this->quoteHandler->getQuoteCurrency()
+        ) !== false;
+    }
+
+    /**
+     * Generate and APM block.
+     *
+     * @param string $apmId
+     * @param string $title
+     * @return string
+     */
+    protected function loadBlock($apmId, $title)
     {
         try {
             return $this->pageFactory->create()->getLayout()

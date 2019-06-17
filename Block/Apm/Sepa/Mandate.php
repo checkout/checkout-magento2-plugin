@@ -20,7 +20,7 @@ namespace CheckoutCom\Magento2\Block\Apm\Sepa;
 class Mandate extends \Magento\Framework\View\Element\Template
 {
     /**
-     * Form constructor.
+     * Mandate constructor.
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
