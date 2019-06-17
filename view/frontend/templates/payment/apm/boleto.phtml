@@ -1,26 +1,26 @@
-<div data-role="collapsible" id="<?= $block->getData('apm_id')?>" class="cko-apm <?= $block->getData('apm_id')?>">
+<div data-role="collapsible" id="<?= $block->escapeHtmlAttr($block->getData('apm_id')) ?>" class="cko-apm <?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
     <div data-role="trigger">
-		<span class="bg-<?= $block->getData('apm_id')?> bg-apm"></span>
-        <span><?= $block->getData('title')?></span>
+		<span class="bg-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?> bg-apm"></span>
+        <span><?= $block->escapeHtml($block->getData('title'))?></span>
     </div>
 </div>
 <div data-role="content" class="apm-content">
-    <form id="cko-apm-form-<?= $block->getData('apm_id')?>">
-        <input type="hidden" name="source" value="<?= $block->getData('apm_id')?>" required>
+    <form id="cko-apm-form-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
+        <input type="hidden" name="source" value="<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" required>
         <div class="input-group">
             <label class="icon" for="name">
             <span class="ckojs ckojs-card"></label>
-            <input type="text" id="name" name="name" placeholder="<?= $block->escapeHtml(__('Name')); ?>" class="input-control" pattern=".{11,11}" required>
+            <input type="text" id="name" name="name" placeholder="<?= $block->escapeHtmlAttr(__('Name')); ?>" class="input-control" pattern=".{11,11}" required>
         </div>
         <div class="input-group">
             <label class="icon" for="cpf">
             <span class="ckojs ckojs-card"></label>
-            <input type="text" id="cpf" name="cpf" placeholder="<?= $block->escapeHtml(__('Cadastro de Pessoas Físicas')); ?>" class="input-control" pattern=".{11,11}" required>
+            <input type="text" id="cpf" name="cpf" placeholder="<?= $block->escapeHtmlAttr(__('Cadastro de Pessoas Físicas')); ?>" class="input-control" pattern=".{11,11}" required>
         </div>
         <div class="input-group">
             <label class="icon" for="birthDate">
             <span class="ckojs ckojs-calendar"></label>
-            <input type="text" id="birthDate" name="birthDate" placeholder="<?= $block->escapeHtml(__('Birthdate')); ?>" class="input-control" pattern="\\d{1,2}/\\d{1,2}/\\d{4}" required>
+            <input type="text" id="birthDate" name="birthDate" placeholder="<?= $block->escapeHtmlAttr(__('Birth date')); ?>" class="input-control" pattern="\\d{1,2}/\\d{1,2}/\\d{4}" required>
         </div>
     </form>
 </div>

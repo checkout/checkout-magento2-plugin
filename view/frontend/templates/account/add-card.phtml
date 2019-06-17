@@ -24,7 +24,7 @@
         var showFormButton = $('#ckoShowForm');
         var cardTokenField = $('#ckoCardToken');
         var cardFormContainerId = '#cko-form-holder';
-        var ckoPublicKey = '<?= $block->config->getValue('public_key'); ?>';
+        var ckoPublicKey = '<?= $block->escapeHtml($block->config->getValue('public_key')); ?>';
         var paymentForm = document.getElementById('saveCardForm');
         var ckoTheme = '';
 
@@ -33,7 +33,7 @@
             publicKey: ckoPublicKey,
             containerSelector: cardFormContainerId,
             theme: ckoTheme,
-            debugMode: '<?= ($block->config->getValue('debug') && $block->config->getValue('console_logging')); ?>',
+            debugMode: '<?= $block->escapeHtml(($block->config->getValue('debug') && $block->config->getValue('console_logging'))); ?>',
             frameActivated: function () {
                 saveCardButton.attr("disabled", true);
             },
@@ -71,7 +71,7 @@
             // Send the request
             $.ajax({
                 type: 'POST',
-                url: '<?= $block->getUrl('checkout_com/account/savecard'); ?>',
+                url: '<?= $block->escapeHtml($block->getUrl('checkout_com/account/savecard')); ?>',
                 data: {cardToken: cardTokenField.val()},
                 success: function (data) {
                     if (!data.success) {
