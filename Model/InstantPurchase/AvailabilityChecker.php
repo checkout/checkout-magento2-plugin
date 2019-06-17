@@ -24,7 +24,6 @@ class AvailabilityChecker implements \Magento\InstantPurchase\PaymentMethodInteg
      */
     protected $config;
 
-
     /**
      * AvailabilityChecker constructor
      */

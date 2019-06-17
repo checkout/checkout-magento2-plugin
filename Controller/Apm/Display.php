@@ -90,9 +90,9 @@ class Display extends \Magento\Framework\App\Action\Action
                 $apms = $this->config->getApms();
 
                 // Load block data for each APM
-                foreach ($apms as $amp) {
-                    if (in_array($amp['value'], $apmEnabled) && strpos($amp['currencies'], $this->quoteHandler->getQuoteCurrency()) !== false) {
-                        $html .= $this->loadBlock($amp['value'], $amp['label']);
+                foreach ($apms as $apm) {
+                    if ($this->isValidApm($apm, $apmEnabled)) {
+                        $html .= $this->loadBlock($apm['value'], $apm['label']);
                     }
                 }
             }
@@ -103,6 +103,14 @@ class Display extends \Magento\Framework\App\Action\Action
                 ['html' => $html]
             );
         }
+    }
+
+    private function isValidApm($apm, $apmEnabled) {
+        return in_array($apm['value'], $apmEnabled)
+        && strpos(
+            $apm['currencies'],
+            $this->quoteHandler->getQuoteCurrency()
+        ) !== false;
     }
 
     private function loadBlock($apmId, $title)

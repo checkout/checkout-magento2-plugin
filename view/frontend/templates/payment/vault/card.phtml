@@ -23,7 +23,7 @@ $details = json_decode($card->getTokenDetails() ?: '{}', true);
     <div class="vault-details">
         <label>
             <input type="radio" name="publicHash" value="<?= $card->getPublicHash()?>">
-            <img src="<?php /* @noEscape */ echo $block->cardHandler->getCardIcon($details['type']); ?>"
+            <img src="<?= $block->cardHandler->getCardIcon($details['type']); ?>"
                 style="display:inline-block; vertical-align:-50%"
             >
         </label>
