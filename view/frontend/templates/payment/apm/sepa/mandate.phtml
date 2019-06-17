@@ -34,8 +34,8 @@
     </div>
     <div class="sepa-par">
         <hr style="opacity: 0.3;">
-        <p><?= __('By accepting this mandate form, you authorise (A) b4payment GmbH to send instructions to your bank to debit your account (B) your bank to debit your account in accordance with the instructions from b4payment GmbH.')?></p>
-        <p><?= __('As part of your rights, you are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.')?>
+        <p><?= $block->escapeHtml(__('By accepting this mandate form, you authorise (A) b4payment GmbH to send instructions to your bank to debit your account (B) your bank to debit your account in accordance with the instructions from b4payment GmbH.'))?></p>
+        <p><?= $block->escapeHtml(__('As part of your rights, you are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.'))?>
         </p>
         <div class="sepa-checkbox-container" id="sepa-checkbox-container">
             <label class="sepa-checkbox-layout" for="sepa-checkbox-input">

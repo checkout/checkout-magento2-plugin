@@ -20,14 +20,14 @@
         </div>
         <br>
         <p align="center">
-            <button type="button"><?= __('Continue')?></button>
+            <button type="button"><?= $block->escapeHtml(__('Continue')) ?></button>
         </p>
     </form>
 
     <script type="text/javascript">
         require(['jquery', 'CheckoutCom_Magento2/js/view/payment/utilities', 'Magento_Checkout/js/model/full-screen-loader', 'domReady!'], function ($, Utilities, FullScreenLoader) {
             // Prepare the form id
-            var sepaForm = $('#' + 'cko-apm-form-<?= $block->getData('apm_id')?>');
+            var sepaForm = $('#' + 'cko-apm-form-<?= $block->escapeHtml($block->getData('apm_id')) ?>');
 
             // Form click event
             sepaForm.find('button').on('click touch', function() {
@@ -45,7 +45,7 @@
                     // Send the request
                     $.ajax({
                         type: 'POST',
-                        url: '<?= $block->getUrl('checkout_com/apm/displaysepa')?>',
+                        url: '<?= $block->escapeUrl($block->getUrl('checkout_com/apm/displaysepa'))?>',
                         data: formData,
                         success: function (data) {
                             if(data.html) {

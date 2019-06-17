@@ -21,18 +21,18 @@ use Magento\Vault\Block\CardRendererInterface;
 
 /** @var CardRendererInterface|Template $block */
 
-$ccNumberView = $block->escapeHtml($block->getNumberLast4Digits());
+$ccNumberView = $block->getNumberLast4Digits();
 ?>
 <tr>
     <td data-th="<?= $block->escapeHtmlAttr(__('Card Number')) ?>" class="col card-number">
-        <span><?= $block->escapeHtml(__('ending')); ?></span> <?= $ccNumberView ?>
+        <span><?= $block->escapeHtml(__('ending')); ?></span> <?= $block->escapeHtml($ccNumberView) ?>
     </td>
     <td data-th="<?= $block->escapeHtmlAttr(__('Expiration Date')) ?>" class="col card-expire">
         <?= $block->escapeHtml($block->getExpDate()); ?>
     </td>
     <td data-th="<?= $block->escapeHtmlAttr(__('Type')) ?>" class="col card-type">
         <img src="<?= $block->cardHandler->getCardIcon($block->getCardType()); ?>">
-        <span><?= $this->cardHandler->getCardScheme($block->getCardType()) ?></span>
+        <span><?= $block->escapeHtml($block->cardHandler->getCardScheme($block->getCardType())) ?></span>
     </td>
     <td data-th="<?= $block->escapeHtmlAttr(__('Actions')) ?>" class="col actions">
         <form
@@ -40,7 +40,7 @@ $ccNumberView = $block->escapeHtml($block->getNumberLast4Digits());
             action="<?= $block->escapeUrl($block->getUrl('vault/cards/deleteaction')); ?>"
             method="post"
         >
-            <?= $block->getBlockHtml('formkey')?>
+            <?= $block->escapeHtml($block->getBlockHtml('formkey'))?>
             <input
                 name="<?= $block->escapeHtmlAttr(PaymentTokenInterface::PUBLIC_HASH) ?>"
                 value="<?= $block->escapeHtmlAttr($block->getToken()->getPublicHash()) ?>"
@@ -53,7 +53,8 @@ $ccNumberView = $block->escapeHtml($block->getNumberLast4Digits());
                                         "modalClass": "my-credit-cards-popup",
                                         "toggleEvent": "click",
                                         "title": "<?= $block->escapeHtmlAttr(__('Delete')) ?>",
-                                        "content": "Are you sure you want to delete this card: XXXX XXXX XXXX <?= $ccNumberView ?>?"
+                                        "content": "Are you sure you want to delete this card: XXXX XXXX XXXX
+                                        <?= $block->escapeHtmlAttr($ccNumberView) ?>?"
                                     }
                                 }'>
                 <span><?= $block->escapeHtml(__('Delete')) ?></span>
