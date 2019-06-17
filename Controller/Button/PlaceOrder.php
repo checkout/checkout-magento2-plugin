@@ -144,10 +144,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             // Set the shipping address and method
             $shippingAddress = $this->addressManager->load($this->data['instant_purchase_shipping_address']);
             $quote->getShippingAddress()
-            ->addData($shippingAddress->getData())
-            ->setCollectShippingRates(true)
-            ->collectShippingRates()
-            ->setShippingMethod('flatrate_flatrate');
+                ->addData($shippingAddress->getData())
+                ->setCollectShippingRates(true)
+                ->collectShippingRates()
+                ->setShippingMethod('flatrate_flatrate');
 
             // Set payment
             $quote->setPaymentMethod('checkoutcom_vault');

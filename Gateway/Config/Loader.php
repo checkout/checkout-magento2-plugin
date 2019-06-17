@@ -85,7 +85,8 @@ class Loader
         $this->data = $this->loadConfig();
     }
 
-    protected function loadConfig() {
+    protected function loadConfig()
+    {
         try {
             // Prepare the output array
             $output = [];
@@ -122,14 +123,15 @@ class Loader
             $output['settings']['checkoutcom_configuration']['apm_list'] = $this->loadApmList();
 
             return $output;
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );
         }
     }
 
-    public function loadApmList() {
+    public function loadApmList()
+    {
         // Build the APM array
         $output = [];
 
@@ -141,7 +143,7 @@ class Loader
                     'currencies' => $row['currencies']
                 ];
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );
@@ -150,34 +152,36 @@ class Loader
         }
     }
 
-    protected function getFilePath($fileName) {
+    protected function getFilePath($fileName)
+    {
         try {
             return $this->moduleDirReader->getModuleDir(
                 Dir::MODULE_ETC_DIR,
                 self::KEY_MODULE_NAME
             ) . '/' . $fileName;
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );
         }
     }
 
-    protected function loadXmlData() {
+    protected function loadXmlData()
+    {
         // Prepare the output array
         $output = [];
 
         try {
             // Load config.xml
             $output['config'] = $this->xmlParser
-            ->load($this->getFilePath(self::CONFIGURATION_FILE_NAME))
-            ->xmlToArray()['config']['_value']['default'];
+                ->load($this->getFilePath(self::CONFIGURATION_FILE_NAME))
+                ->xmlToArray()['config']['_value']['default'];
 
             // Load apm.xml
             $output['apm'] = $this->xmlParser
-            ->load($this->getFilePath(self::APM_FILE_NAME))
-            ->xmlToArray()['config']['_value']['item'];
-        } catch(\Exception $e) {
+                ->load($this->getFilePath(self::APM_FILE_NAME))
+                ->xmlToArray()['config']['_value']['item'];
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );
@@ -186,7 +190,8 @@ class Loader
         }
     }
 
-    protected function isHidden($field) {
+    protected function isHidden($field)
+    {
         try {
             $hiddenFields = explode(
                 ',',
@@ -197,14 +202,15 @@ class Loader
             );
 
             return in_array($field, $hiddenFields);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );
         }
     }
 
-    protected function isEncrypted($field) {
+    protected function isEncrypted($field)
+    {
         try {
             return in_array(
                 $field,
@@ -216,14 +222,15 @@ class Loader
                     )
                 )
             );
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );
         }
     }
 
-    public function getValue($key, $methodId = null) {
+    public function getValue($key, $methodId = null)
+    {
         try {
             // Prepare the path
             $path = ($methodId)
@@ -243,7 +250,7 @@ class Loader
 
             // Return a normal value
             return $value;
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __($e->getMessage())
             );

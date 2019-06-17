@@ -97,7 +97,8 @@ class Moto extends \Magento\Payment\Block\Form\Cc
      *
      * @return bool
      */
-    public function canDisplayCards() {
+    public function canDisplayCards()
+    {
         try {
             // Get the customer id
             $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();
@@ -116,7 +117,8 @@ class Moto extends \Magento\Payment\Block\Form\Cc
      *
      * @return bool
      */
-    public function getUserCards() {
+    public function getUserCards()
+    {
         try {
             // Get the customer id
             $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();

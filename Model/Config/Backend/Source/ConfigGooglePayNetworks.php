@@ -17,20 +17,22 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-class ConfigGooglePayNetworks implements \Magento\Framework\Option\ArrayInterface {
+class ConfigGooglePayNetworks implements \Magento\Framework\Option\ArrayInterface
+{
 
     const CARD_VISA = 'VISA';
     const CARD_MASTERCARD = 'MASTERCARD';
-    consT CARD_AMEX = 'AMEX';
-    consT CARD_JCB = 'JCB';
-    consT CARD_DISCOVER = 'DISCOVER';
+    const CARD_AMEX = 'AMEX';
+    const CARD_JCB = 'JCB';
+    const CARD_DISCOVER = 'DISCOVER';
 
     /**
      * Possible Google Pay Cards
      *
      * @return array
      */
-    public function toOptionArray() {
+    public function toOptionArray()
+    {
         return [
             [
                 'value' => self::CARD_VISA,
@@ -54,5 +56,4 @@ class ConfigGooglePayNetworks implements \Magento\Framework\Option\ArrayInterfac
             ],
         ];
     }
-
 }

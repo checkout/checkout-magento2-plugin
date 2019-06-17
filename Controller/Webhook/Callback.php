@@ -22,7 +22,8 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
 
-class Callback extends \Magento\Framework\App\Action\Action {
+class Callback extends \Magento\Framework\App\Action\Action
+{
     /**
      * @var array
      */
@@ -78,7 +79,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
      */
     protected $logger;
 
-	/**
+    /**
      * Callback constructor
      */
     public function __construct(
@@ -92,8 +93,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+    ) {
         parent::__construct($context);
 
         $this->orderRepository = $orderRepository;
@@ -113,7 +113,8 @@ class Callback extends \Magento\Framework\App\Action\Action {
     /**
      * Handles the controller method.
      */
-    public function execute() {
+    public function execute()
+    {
         try {
             // Prepare the response handler
             $resultFactory = $this->resultFactory->create(ResultFactory::TYPE_JSON);
@@ -135,6 +136,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
                             ->setMethodId($this->payload->data->metadata->methodId)
                             ->handleOrder(
                                 $response->reference,
+                                $response,
                                 true
                             );
 
@@ -155,8 +157,7 @@ class Callback extends \Magento\Framework\App\Action\Action {
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
                 return $resultFactory->setData(['result' => _('Success')]);
-            }
-            else  {
+            } else {
                 $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
                 return $resultFactory->setData(['error_message' => _('Unauthorized request')]);
             }
@@ -167,7 +168,8 @@ class Callback extends \Magento\Framework\App\Action\Action {
         }
     }
 
-    protected function getPayload() {
+    protected function getPayload()
+    {
         try {
             return json_decode($this->getRequest()->getContent());
         } catch (\Exception $e) {
@@ -176,7 +178,8 @@ class Callback extends \Magento\Framework\App\Action\Action {
         }
     }
 
-    protected function cardNeedsSaving() {
+    protected function cardNeedsSaving()
+    {
         try {
             return isset($this->payload->data->metadata->saveCard)
             && $this->payload->data->metadata->saveCard
@@ -190,7 +193,8 @@ class Callback extends \Magento\Framework\App\Action\Action {
         }
     }
 
-    protected function saveCard($response) {
+    protected function saveCard($response)
+    {
         try {
             // Get the customer
             $customer = $this->shopperHandler->getCustomerData(
@@ -199,11 +203,11 @@ class Callback extends \Magento\Framework\App\Action\Action {
 
             // Save the card
             $success = $this->vaultHandler
-            ->setCardToken($this->payload->data->source->id)
-            ->setCustomerId($customer->getId())
-            ->setCustomerEmail($customer->getEmail())
-            ->setResponse($response)
-            ->saveCard();
+                ->setCardToken($this->payload->data->source->id)
+                ->setCustomerId($customer->getId())
+                ->setCustomerEmail($customer->getEmail())
+                ->setResponse($response)
+                ->saveCard();
 
             return $success;
         } catch (\Exception $e) {

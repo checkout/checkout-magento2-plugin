@@ -79,8 +79,7 @@ class QuoteHandlerService
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+    ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
         $this->cookieManager = $cookieManager;
@@ -95,7 +94,8 @@ class QuoteHandlerService
     /**
      * Find a quote
      */
-    public function getQuote($fields = []) {
+    public function getQuote($fields = [])
+    {
         try {
             if (count($fields) > 0) {
                 // Get the quote factory
@@ -113,8 +113,7 @@ class QuoteHandlerService
 
                 // Return the first result found
                 return $quoteFactory->getFirstItem();
-            }
-            else {
+            } else {
                 // Try to find the quote in session
                 return $this->checkoutSession->getQuote();
             }
@@ -253,7 +252,8 @@ class QuoteHandlerService
     /**
      * Gets an array of quote parameters
      */
-    public function getQuoteData() {
+    public function getQuoteData()
+    {
         try {
             return [
                 'value' => $this->getQuoteValue(),
@@ -268,7 +268,8 @@ class QuoteHandlerService
     /**
      * Gets a quote currency
      */
-    public function getQuoteCurrency() {
+    public function getQuoteCurrency()
+    {
         try {
             return $this->getQuote()->getQuoteCurrencyCode()
             ?? $this->storeManager->getStore()->getCurrentCurrency()->getCode();
@@ -281,12 +282,13 @@ class QuoteHandlerService
     /**
      * Gets a quote value
      */
-    public function getQuoteValue() {
+    public function getQuoteValue()
+    {
         try {
             return $this->getQuote()
-            ->collectTotals()
-            ->save()
-            ->getGrandTotal();
+                ->collectTotals()
+                ->save()
+                ->getGrandTotal();
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
@@ -296,7 +298,8 @@ class QuoteHandlerService
     /**
      * Add product items to a quote
      */
-    public function addItems($quote, $items) {
+    public function addItems($quote, $items)
+    {
         try {
             foreach ($items as $item) {
                 if (isset($item['product_id']) && (int) $item['product_id'] > 0) {
@@ -311,8 +314,7 @@ class QuoteHandlerService
                     if (!empty($item['super_attribute'])) {
                         $buyRequest = new \Magento\Framework\DataObject($item);
                         $quote->addProduct($product, $buyRequest);
-                    }
-                    else {
+                    } else {
                         $quote->addProduct($product, $quantity);
                     }
                 }
@@ -328,7 +330,8 @@ class QuoteHandlerService
      *
      * @return     Address  The billing address.
      */
-    public function getBillingAddress() {
+    public function getBillingAddress()
+    {
         try {
             return $this->getQuote()->getBillingAddress();
         } catch (\Exception $e) {

@@ -17,6 +17,8 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Sales\Model\Order\Payment\Transaction;
+
 class OrderHandlerService
 {
     /**
@@ -60,6 +62,11 @@ class OrderHandlerService
     protected $quoteHandler;
 
     /**
+     * @var TransactionHandlerService
+     */
+    protected $transactionHandler;
+
+    /**
      * @var Logger
      */
     protected $logger;
@@ -86,9 +93,9 @@ class OrderHandlerService
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+    ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
         $this->orderInterface  = $orderInterface;
@@ -97,13 +104,15 @@ class OrderHandlerService
         $this->searchBuilder = $searchBuilder;
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
+        $this->transactionHandler = $transactionHandler;
         $this->logger = $logger;
     }
 
     /**
      * Set the payment method id
      */
-    public function setMethodId($methodId) {
+    public function setMethodId($methodId)
+    {
         $this->methodId = $methodId;
         return $this;
     }
@@ -111,7 +120,7 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function handleOrder($reservedIncrementId = '', $isWebhook = false)
+    public function handleOrder($reservedIncrementId = '', $paymentData, $isWebhook = false)
     {
         if ($this->methodId) {
             try {
@@ -133,6 +142,15 @@ class OrderHandlerService
                     if ($quote) {
                         // Create the order
                         $order = $this->quoteManagement->submit($quote);
+
+                        // Create the authorization transaction
+                        $this->transactionHandler->createTransaction
+                        (
+                            $order,
+                            Transaction::TYPE_AUTH,
+                            $paymentData,
+                            $isWebhook
+                        );
                     }
 
                     // Return the saved order
@@ -150,8 +168,7 @@ class OrderHandlerService
                 $this->logger->write($e->getMessage());
                 return null;
             }
-        }
-        else {
+        } else {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('A payment method ID is required to place an order.')
             );
@@ -190,7 +207,8 @@ class OrderHandlerService
     /**
      * Find an order by fields
      */
-    public function findOrderByFields($fields) {
+    public function findOrderByFields($fields)
+    {
         try {
             // Add each field as filter
             foreach ($fields as $key => $value) {
@@ -209,8 +227,7 @@ class OrderHandlerService
                 ->getFirstItem();
 
             return $order;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }

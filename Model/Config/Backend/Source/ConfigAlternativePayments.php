@@ -33,8 +33,7 @@ class ConfigAlternativePayments implements \Magento\Framework\Option\ArrayInterf
      */
     public function __construct(
         \CheckoutCom\Magento2\Gateway\Config\Loader $configLoader
-    )
-    {
+    ) {
         $this->configLoader = $configLoader;
     }
 

@@ -17,9 +17,10 @@
 
 namespace CheckoutCom\Magento2\Controller\Vault;
 
-class Display extends \Magento\Framework\App\Action\Action {
+class Display extends \Magento\Framework\App\Action\Action
+{
 
-	/**
+    /**
      * @var Context
      */
     protected $context;
@@ -72,7 +73,8 @@ class Display extends \Magento\Framework\App\Action\Action {
     /**
      * Handles the controller method.
      */
-    public function execute() {
+    public function execute()
+    {
         $html = '';
         try {
             if ($this->getRequest()->isAjax()) {
@@ -105,8 +107,7 @@ class Display extends \Magento\Framework\App\Action\Action {
                 ->setTemplate('CheckoutCom_Magento2::payment/vault/card.phtml')
                 ->setData('card', $card)
                 ->toHtml();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return '';
         }

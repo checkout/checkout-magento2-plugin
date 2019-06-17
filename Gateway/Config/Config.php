@@ -56,10 +56,11 @@ class Config
         $this->utilities = $utilities;
     }
 
-	/**
+    /**
      * Checks if an external request is valid.
      */
-    public function isValidAuth() {
+    public function isValidAuth()
+    {
         // Get the authorization header
         $authorization = $this->request->getHeader('Authorization');
 
@@ -76,7 +77,8 @@ class Config
      *
      * @return string
      */
-    public function getValue($field, $methodId = null) {
+    public function getValue($field, $methodId = null)
+    {
         return $this->loader->getValue($field, $methodId);
     }
 
@@ -85,7 +87,8 @@ class Config
      *
      * @return string
      */
-    public function getCoreValue($path) {
+    public function getCoreValue($path)
+    {
         return $this->scopeConfig->getValue(
             $path,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
@@ -97,10 +100,11 @@ class Config
      *
      * @return array
      */
-    public function getModuleConfig() {
+    public function getModuleConfig()
+    {
         return [
             $this->loader::KEY_CONFIG => $this->loader
-            ->data[$this->loader::KEY_SETTINGS][$this->loader::KEY_CONFIG]
+                ->data[$this->loader::KEY_SETTINGS][$this->loader::KEY_CONFIG]
         ];
     }
 
@@ -109,7 +113,8 @@ class Config
      *
      * @return array
      */
-    public function getMethodsConfig() {
+    public function getMethodsConfig()
+    {
         $methods = [];
         foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodId => $data) {
             // Check if the method is active
@@ -126,7 +131,8 @@ class Config
      *
      * @return string
      */
-    public function getAccountKeys($methodId = null) {
+    public function getAccountKeys($methodId = null)
+    {
 
         // Get the account keys for a method
         if ($methodId) {
@@ -134,9 +140,10 @@ class Config
             $secretKey = $this->getValue('secret_key', $methodId);
             $privateSharedKey = $this->getValue('private_shared_key', $methodId);
             if (!empty($publicKey)
-            && !empty($secretKey)
-            && !empty($privateSharedKey)
-            && !$this->getValue('use_default_account', $methodId)) {
+                && !empty($secretKey)
+                && !empty($privateSharedKey)
+                && !$this->getValue('use_default_account', $methodId)
+            ) {
                 return [
                     'public_key' => $publicKey,
                     'secretKey' => $secretKey,
@@ -158,15 +165,17 @@ class Config
      *
      * @return string
      */
-    public function needs3ds($methodId) {
+    public function needs3ds($methodId)
+    {
         return (((bool) $this->getValue('three_ds', $methodId) === true)
         || ((bool) $this->getValue('mada_enabled', $methodId) === true));
     }
 
-	/**
+    /**
      * Checks and sets a capture time for the request.
      */
-    public function getCaptureTime() {
+    public function getCaptureTime()
+    {
         // Get the capture time from config
         $captureTime = $this->getValue('capture_time');
 
@@ -186,7 +195,8 @@ class Config
      *
      * @return string
      */
-    public function getStoreName() {
+    public function getStoreName()
+    {
         $storeName = $this->getCoreValue('general/store_information/name');
 
         trim($storeName);
@@ -204,7 +214,8 @@ class Config
      *
      * @return string
      */
-    public function getStoreUrl() {
+    public function getStoreUrl()
+    {
         return $this->storeManager->getStore()->getBaseUrl();
     }
 
@@ -213,7 +224,8 @@ class Config
      *
      * @return bool
      */
-    public function isLive() {
+    public function isLive()
+    {
         return $this->getValue('environment') == 1;
     }
 
@@ -222,7 +234,8 @@ class Config
      *
      * @return bool
      */
-    public function needsAutoCapture() {
+    public function needsAutoCapture()
+    {
         return ($this->getValue('payment_action') == 'authorize_capture'
         || (bool) $this->getValue('mada_enabled', 'checkoutcom_card_payment') === true);
     }
@@ -232,7 +245,8 @@ class Config
      *
      * @return bool
      */
-    public function needsDynamicDescriptor() {
+    public function needsDynamicDescriptor()
+    {
         return $this->getValue('dynamic_descriptor_enabled')
         && !empty($this->getValue('descriptor_name'))
         && !empty($this->getValue('descriptor_city'));
@@ -243,7 +257,8 @@ class Config
      *
      * @return bool
      */
-    public function getMadaBinFile() {
+    public function getMadaBinFile()
+    {
         return (int) $this->getValue('environment') == 1
         ? $this->getValue('mada_test_file') : $this->getValue('mada_live_file');
     }
@@ -251,9 +266,10 @@ class Config
     /**
      * Gets the apms.
      *
-     * @return     <array>  The apms.
+     * @return <array>  The apms.
      */
-    public function getApms() {
+    public function getApms()
+    {
         return $this->loader->loadApmList();
     }
 }

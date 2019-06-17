@@ -23,9 +23,10 @@ use Checkout\Models\Sources\Sepa;
 use Checkout\Models\Sources\SepaData;
 use Checkout\Models\Sources\SepaAddress;
 
-class DisplaySepa extends \Magento\Framework\App\Action\Action {
+class DisplaySepa extends \Magento\Framework\App\Action\Action
+{
 
-	/**
+    /**
      * @var Context
      */
     protected $context;
@@ -108,13 +109,13 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
         $this->quote = $this->quoteHandler->getQuote();
         $this->billingAddress = $quoteHandler->getBillingAddress();
         $this->store = $storeManager->getStoreInformationObject($store);
-
     }
 
     /**
      * Handles the controller method.
      */
-    public function execute() {
+    public function execute()
+    {
         // Prepare the output container
         $html = '';
 
@@ -135,7 +136,8 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
     /**
      * Checks if the request is valid.
      */
-    protected function isValidRequest() {
+    protected function isValidRequest()
+    {
         try {
             return $this->getRequest()->isAjax()
             && $this->isValidApm()
@@ -149,7 +151,8 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
     /**
      * Checks if the task is valid.
      */
-    protected function isValidTask() {
+    protected function isValidTask()
+    {
         try {
             return method_exists($this, $this->buildMethodName());
         } catch (\Exception $e) {
@@ -161,7 +164,8 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
     /**
      * Runs the requested task.
      */
-    protected function runTask() {
+    protected function runTask()
+    {
         try {
             $methodName = $this->buildMethodName();
             return $this->$methodName();
@@ -174,7 +178,8 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
     /**
      * Builds a method name from request.
      */
-    protected function buildMethodName() {
+    protected function buildMethodName()
+    {
         try {
             return 'get' . ucfirst($this->task);
         } catch (\Exception $e) {
@@ -186,10 +191,12 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
     /**
      * Checks if the requested APM is valid.
      */
-    protected function isValidApm() {
+    protected function isValidApm()
+    {
         try {
             // Get the list of APM
-            $apmEnabled = explode(',',
+            $apmEnabled = explode(
+                ',',
                 $this->config->getValue('apm_enabled', 'checkoutcom_apm')
             );
 
@@ -208,13 +215,13 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
     {
         try {
             return $this->pageFactory->create()->getLayout()
-            ->createBlock('CheckoutCom\Magento2\Block\Apm\Sepa\Mandate')
-            ->setTemplate('CheckoutCom_Magento2::payment/apm/sepa/mandate.phtml')
-            ->setData('billingAddress', $this->billingAddress)
-            ->setData('store', $this->store)
-            ->setData('reference', $reference)
-            ->setData('url', $url)
-            ->toHtml();
+                ->createBlock('CheckoutCom\Magento2\Block\Apm\Sepa\Mandate')
+                ->setTemplate('CheckoutCom_Magento2::payment/apm/sepa/mandate.phtml')
+                ->setData('billingAddress', $this->billingAddress)
+                ->setData('store', $this->store)
+                ->setData('reference', $reference)
+                ->setData('url', $url)
+                ->toHtml();
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return '';
@@ -224,9 +231,10 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
     /**
      * Gets the mandate.
      *
-     * @return     <type>  The mandate.
+     * @return <type>  The mandate.
      */
-    public function getMandate() {
+    public function getMandate()
+    {
         $html = ''; // @todo: return error message in HTML
 
         try {
@@ -244,9 +252,10 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
     /**
      * Request gateway to add new source.
      *
-     * @return     Sepa
+     * @return Sepa
      */
-    protected function requestSepa() {
+    protected function requestSepa()
+    {
         $sepa = null;
         try {
             // Build the address
@@ -275,7 +284,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action {
             $sepa = $this->apiHandler->checkoutApi
                 ->sources()
                 ->add($source);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         } finally {
             return $sepa;

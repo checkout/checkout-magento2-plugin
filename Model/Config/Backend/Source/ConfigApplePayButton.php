@@ -17,7 +17,8 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-class ConfigApplePayButton implements \Magento\Framework\Option\ArrayInterface {
+class ConfigApplePayButton implements \Magento\Framework\Option\ArrayInterface
+{
 
     const BUTTON_BLACK = 'black';
     const BUTTON_WHITE = 'white';
@@ -28,7 +29,8 @@ class ConfigApplePayButton implements \Magento\Framework\Option\ArrayInterface {
      *
      * @return array
      */
-    public function toOptionArray() {
+    public function toOptionArray()
+    {
         return [
             [
                 'value' => self::BUTTON_BLACK,
@@ -44,5 +46,4 @@ class ConfigApplePayButton implements \Magento\Framework\Option\ArrayInterface {
             ],
         ];
     }
-
 }

@@ -17,9 +17,10 @@
 
 namespace CheckoutCom\Magento2\Controller\Apm;
 
-class Display extends \Magento\Framework\App\Action\Action {
+class Display extends \Magento\Framework\App\Action\Action
+{
 
-	/**
+    /**
      * @var Context
      */
     protected $context;
@@ -72,7 +73,8 @@ class Display extends \Magento\Framework\App\Action\Action {
     /**
      * Handles the controller method.
      */
-    public function execute() {
+    public function execute()
+    {
         // Prepare the output
         $html = '';
 
@@ -107,11 +109,11 @@ class Display extends \Magento\Framework\App\Action\Action {
     {
         try {
             return $this->pageFactory->create()->getLayout()
-            ->createBlock('CheckoutCom\Magento2\Block\Apm\Form')
-            ->setTemplate('CheckoutCom_Magento2::payment/apm/' . $apmId . '.phtml')
-            ->setData('apm_id', $apmId)
-            ->setData('title', $title)
-            ->toHtml();
+                ->createBlock('CheckoutCom\Magento2\Block\Apm\Form')
+                ->setTemplate('CheckoutCom_Magento2::payment/apm/' . $apmId . '.phtml')
+                ->setData('apm_id', $apmId)
+                ->setData('title', $title)
+                ->toHtml();
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return '';

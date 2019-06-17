@@ -17,14 +17,16 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
-class ConfigFormTheme implements \Magento\Framework\Option\ArrayInterface {
+class ConfigFormTheme implements \Magento\Framework\Option\ArrayInterface
+{
 
     /**
      * Language fallback
      *
      * @return array
      */
-    public function toOptionArray() {
+    public function toOptionArray()
+    {
         return [
             [
                 'value' => 'standard',

@@ -61,13 +61,14 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
 
     /**
      * InstantPurchase constructor.
-     * @param StoreManagerInterface $storeManager
-     * @param InstantPurchaseInterface $instantPurchase
-     * @param Session $customerSession
+     *
+     * @param StoreManagerInterface      $storeManager
+     * @param InstantPurchaseInterface   $instantPurchase
+     * @param Session                    $customerSession
      * @param CustomerAddressesFormatter $customerAddressesFormatter
-     * @param ShippingMethodFormatter $shippingMethodFormatter
-     * @param VaultHandlerService $vaultHandler
-     * @param PaymentTokenFormatter $paymentTokenFormatter
+     * @param ShippingMethodFormatter    $shippingMethodFormatter
+     * @param VaultHandlerService        $vaultHandler
+     * @param PaymentTokenFormatter      $paymentTokenFormatter
      */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -95,7 +96,8 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * Prepare the data needed for instant purchase
      */
-    protected function prepareData() {
+    protected function prepareData()
+    {
         try {
             // Get the  payment token
             $this->paymentToken = $this->vaultHandler->getLastSavedCard();
@@ -117,7 +119,8 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * Load the instant purchase option
      */
-    protected function loadOption() {
+    protected function loadOption()
+    {
         try {
             return $this->instantPurchase->getOption(
                 $this->storeManager->getStore(),
@@ -136,7 +139,9 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     {
         // Set the instant purchase availability
         $data = ['available' => $this->isAvailable()];
-        if (!$data['available']) return $data;
+        if (!$data['available']) {
+            return $data;
+        }
 
         try {
             // Build the instant purchase data
@@ -170,7 +175,8 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * Checks if the instant purchase option is available
      */
-    protected function isAvailable() {
+    protected function isAvailable()
+    {
         return $this->customerSession->isLoggedIn()
         && !empty($this->paymentToken)
         && $this->instantPurchaseOption

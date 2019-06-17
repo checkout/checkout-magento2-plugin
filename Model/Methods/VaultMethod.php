@@ -35,13 +35,13 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     protected $_canRefund = true;
     protected $_canRefundInvoicePartial = true;
 
-	/**
-     * @var string
-     */
+    /**
+        * @var string
+        */
     const CODE = 'checkoutcom_vault';
 
     /**
-     * @var string
+     * @var       string
      * @overriden
      */
     protected $_code = self::CODE;
@@ -130,19 +130,20 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      * Methods
      */
 
-	/**
+    /**
      * Sends a payment request.
      *
-     * @param      <type>                                           $data       The data
-     * @param      integer                                          $amount     The amount
-     * @param      <type>                                           $currency   The currency
-     * @param      string                                           $reference  The reference
+     * @param <type>  $data      The data
+     * @param integer $amount    The amount
+     * @param <type>  $currency  The currency
+     * @param string  $reference The reference
      *
-     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
      *
-     * @return     <type>                                           ( description_of_the_return_value )
+     * @return <type>                                           ( description_of_the_return_value )
      */
-    public function sendPaymentRequest($data, $amount, $currency, $reference = '') {
+    public function sendPaymentRequest($data, $amount, $currency, $reference = '')
+    {
         try {
             // Find the card token
             $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
@@ -154,8 +155,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             if ($this->config->getValue('require_cvv', $this->_code)) {
                 if (!isset($data['cvv']) || (int) $data['cvv'] == 0) {
                     throw new \Magento\Framework\Exception\LocalizedException(__('The CVV value is required.'));
-                }
-                else {
+                } else {
                     $idSource->cvv = $data['cvv'];
                 }
             }
@@ -203,9 +203,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 ->request($request);
 
             return $response;
-        }
-
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
 
         }
     }
@@ -213,11 +211,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * { function_description }
      *
-     * @param      \Magento\Payment\Model\InfoInterface             $payment  The payment
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
      *
-     * @throws     \Magento\Framework\Exception\LocalizedException  (description)
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
      *
-     * @return     self                                             ( description_of_the_return_value )
+     * @return self                                             ( description_of_the_return_value )
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
@@ -264,7 +262,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * Check whether method is available
      *
-     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @param  \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
      * @return bool
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
