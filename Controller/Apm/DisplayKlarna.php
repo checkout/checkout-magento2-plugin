@@ -130,9 +130,9 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Gets the klarna.
+     * Gets the Klarna response.
      *
-     * @return array  The klarna.
+     * @return array
      */
     protected function getKlarna()
     {
@@ -209,7 +209,6 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      * Gets the shipping.
      *
      * @param array $response The response
-     *
      * @return array  The products.
      */
     protected function getShipping(array &$response, array &$products)

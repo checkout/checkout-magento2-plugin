@@ -152,6 +152,12 @@ class Loader
         }
     }
 
+    /**
+     * Finds a file path from file name.
+     *
+     * @param string $fileName
+     * @return string
+     */
     protected function getFilePath($fileName)
     {
         try {
@@ -166,6 +172,11 @@ class Loader
         }
     }
 
+    /**
+     * Reads the XML config files.
+     *
+     * @return array
+     */
     protected function loadXmlData()
     {
         // Prepare the output array
@@ -190,6 +201,12 @@ class Loader
         }
     }
 
+    /**
+     * Checks if a filed value should be hidden in front end.
+     *
+     * @param string $field
+     * @return boolean
+     */
     protected function isHidden($field)
     {
         try {
@@ -209,6 +226,12 @@ class Loader
         }
     }
 
+    /**
+     * Checks if a field value is encrypted.
+     *
+     * @param string $field
+     * @return boolean
+     */
     protected function isEncrypted($field)
     {
         try {
@@ -229,6 +252,13 @@ class Loader
         }
     }
 
+    /**
+     * Get a field value.
+     *
+     * @param string $key
+     * @param string $methodId
+     * @return string
+     */
     public function getValue($key, $methodId = null)
     {
         try {

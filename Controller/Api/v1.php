@@ -72,6 +72,11 @@ class V1 extends \Magento\Framework\App\Action\Action
         }
     }
 
+    /**
+     * Returns a JSON payload from request.
+     *
+     * @return string
+     */
     protected function getPayload()
     {
         return json_decode($this->getRequest()->getContent());

@@ -48,12 +48,6 @@ class Validation extends \Magento\Framework\App\Action\Action
         $this->url = $this->getRequest()->getParam('u');
     }
 
-    protected function isValidRequest()
-    {
-        return "https" == parse_url($this->url, PHP_URL_SCHEME)
-        && substr(parse_url($this->url, PHP_URL_HOST), -10)  == ".apple.com";
-    }
-
     /**
      * Handles the controller method.
      *
@@ -98,6 +92,22 @@ class Validation extends \Magento\Framework\App\Action\Action
         }
     }
 
+    /**
+     * Checks if the request is valid.
+     *
+     * @return boolean
+     */
+    protected function isValidRequest()
+    {
+        return "https" == parse_url($this->url, PHP_URL_SCHEME)
+        && substr(parse_url($this->url, PHP_URL_HOST), -10)  == ".apple.com";
+    }
+
+    /**
+     * Prepare the Apple Pay request parameters.
+     *
+     * @return array
+     */
     public function getParams()
     {
         try {

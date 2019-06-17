@@ -105,7 +105,14 @@ class Display extends \Magento\Framework\App\Action\Action
         }
     }
 
-    private function isValidApm($apm, $apmEnabled) {
+    /**
+     * Check if an APM is valid for display.
+     *
+     * @param string $apm
+     * @param array $apmEnabled
+     * @return boolean
+     */
+    protected function isValidApm($apm, $apmEnabled) {
         return in_array($apm['value'], $apmEnabled)
         && strpos(
             $apm['currencies'],
@@ -113,7 +120,14 @@ class Display extends \Magento\Framework\App\Action\Action
         ) !== false;
     }
 
-    private function loadBlock($apmId, $title)
+    /**
+     * Generate and APM block.
+     *
+     * @param string $apmId
+     * @param string $title
+     * @return string
+     */
+    protected function loadBlock($apmId, $title)
     {
         try {
             return $this->pageFactory->create()->getLayout()
