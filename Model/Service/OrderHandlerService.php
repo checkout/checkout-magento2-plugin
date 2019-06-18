@@ -123,7 +123,7 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function handleOrder($reservedIncrementId = '', $paymentData, $isWebhook = false)
+    public function handleOrder($paymentData, $reservedIncrementId = '', $isWebhook = false)
     {
         if ($this->methodId) {
             try {
@@ -136,8 +136,8 @@ class OrderHandlerService
                 if (!$this->isOrder($order)) {
                     // Prepare the quote
                     $quote = $this->quoteHandler->prepareQuote(
-                        ['reserved_order_id' => $reservedIncrementId],
                         $this->methodId,
+                        ['reserved_order_id' => $reservedIncrementId],
                         $isWebhook
                     );
 

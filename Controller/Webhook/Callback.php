@@ -138,8 +138,8 @@ class Callback extends \Magento\Framework\App\Action\Action
                         $order = $this->orderHandler
                             ->setMethodId($this->payload->data->metadata->methodId)
                             ->handleOrder(
-                                $response->reference,
                                 $response,
+                                $response->reference,
                                 true
                             );
 

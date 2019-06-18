@@ -181,7 +181,7 @@ class QuoteHandlerService
     /**
      * Prepares a quote for order placement
      */
-    public function prepareQuote($fields = [], $methodId, $isWebhook = false)
+    public function prepareQuote($methodId, $fields = [], $isWebhook = false)
     {
         try {
             // Find quote and perform tasks
