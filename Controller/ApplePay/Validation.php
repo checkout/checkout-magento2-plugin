@@ -119,12 +119,24 @@ class Validation extends \Magento\Framework\App\Action\Action
     {
         try {
             return [
-                'merchantId' => $this->config->getValue('merchant_id', $this->methodId),
+                'merchantId' => $this->config->getValue(
+                    'merchant_id',
+                    $this->methodId
+                ),
                 'domainName' => $_SERVER["HTTP_HOST"],
                 'displayName' => $this->config->getStoreName(),
-                'processingCertificate' => $this->config->getValue('processing_certificate', $this->methodId),
-                'processingCertificatePass' => $this->config->getValue('processing_certificate_password', $this->methodId),
-                'merchantCertificate' => $this->config->getValue('merchant_id_certificate', $this->methodId)
+                'processingCertificate' => $this->config->getValue(
+                    'processing_certificate',
+                    $this->methodId
+                ),
+                'processingCertificatePass' => $this->config->getValue(
+                    'processing_certificate_password',
+                    $this->methodId
+                ),
+                'merchantCertificate' => $this->config->getValue(
+                    'merchant_id_certificate',
+                    $this->methodId
+                )
             ];
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
