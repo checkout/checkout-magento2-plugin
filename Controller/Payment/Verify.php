@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
+/**
+ * Class Verify
+ */
 class Verify extends \Magento\Framework\App\Action\Action
 {
     /**

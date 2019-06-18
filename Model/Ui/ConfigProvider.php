@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Model\Ui;
 
+/**
+ * Class ConfigProvider.
+ */
 class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
 {
 

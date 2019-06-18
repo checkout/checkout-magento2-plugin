@@ -20,9 +20,11 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
 
+/**
+ * Class PlaceOrder
+ */
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
-
     /**
      * @var QuoteHandlerService
      */

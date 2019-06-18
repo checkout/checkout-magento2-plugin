@@ -19,6 +19,9 @@ namespace CheckoutCom\Magento2\Block\Account;
 
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 
+/**
+ * Class CardRenderer
+ */
 class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
 {
 

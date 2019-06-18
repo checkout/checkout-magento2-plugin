@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Block;
 
+/**
+ * Class Info
+ */
 class Info extends \Magento\Payment\Block\ConfigurableInfo
 {
     /**

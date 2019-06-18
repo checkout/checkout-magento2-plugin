@@ -19,6 +19,9 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Customer\Api\Data\GroupInterface;
 
+/**
+ * Class QuoteHandlerService.
+ */
 class QuoteHandlerService
 {
     /**

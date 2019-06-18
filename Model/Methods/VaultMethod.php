@@ -21,6 +21,9 @@ use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 
+/**
+ * Class VaultMethod.
+ */
 class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
     protected $_isInitializeNeeded = true;

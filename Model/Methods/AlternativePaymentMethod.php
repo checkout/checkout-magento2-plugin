@@ -30,6 +30,9 @@ use \Checkout\Models\Payments\KlarnaSource;
 use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
 
+/**
+ * Class AlternativePaymentMethod
+ */
 class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
 

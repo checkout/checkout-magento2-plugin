@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Controller\Account;
 
+/**
+ * Class SaveCard
+ */
 class SaveCard extends \Magento\Framework\App\Action\Action
 {
 

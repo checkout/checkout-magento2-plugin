@@ -17,9 +17,11 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+/**
+ * Class ShopperHandlerService.
+ */
 class ShopperHandlerService
 {
-
     /**
      * Default locale code.
      *

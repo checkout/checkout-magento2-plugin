@@ -22,9 +22,11 @@ use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 
+/**
+ * Class VaultHandlerService.
+ */
 class VaultHandlerService
 {
-
     /**
      * @var VaultTokenFactory
      */

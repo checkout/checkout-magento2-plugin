@@ -19,6 +19,9 @@ namespace CheckoutCom\Magento2\Gateway\Config;
 
 use Magento\Framework\Module\Dir;
 
+/**
+ * Class Loader
+ */
 class Loader
 {
     const CONFIGURATION_FILE_NAME = 'config.xml';

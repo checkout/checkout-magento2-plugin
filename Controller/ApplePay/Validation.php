@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Controller\ApplePay;
 
+/**
+ * Class Validation
+ */
 class Validation extends \Magento\Framework\App\Action\Action
 {
 

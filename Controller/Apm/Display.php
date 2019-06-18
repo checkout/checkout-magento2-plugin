@@ -17,9 +17,11 @@
 
 namespace CheckoutCom\Magento2\Controller\Apm;
 
+/**
+ * Class Display
+ */
 class Display extends \Magento\Framework\App\Action\Action
 {
-
     /**
      * @var Context
      */

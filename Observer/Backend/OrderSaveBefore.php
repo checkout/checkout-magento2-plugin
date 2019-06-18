@@ -22,6 +22,9 @@ use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 
+/**
+ * Class OrderSaveBefore.
+ */
 class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 {
     /**

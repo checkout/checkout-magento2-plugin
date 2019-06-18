@@ -22,6 +22,9 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
 
+/**
+ * Class Callback
+ */
 class Callback extends \Magento\Framework\App\Action\Action
 {
     /**

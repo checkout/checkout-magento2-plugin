@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Controller\Vault;
 
+/**
+ * Class Display
+ */
 class Display extends \Magento\Framework\App\Action\Action
 {
 

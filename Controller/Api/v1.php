@@ -21,6 +21,9 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
 
+/**
+ * Class V1
+ */
 class V1 extends \Magento\Framework\App\Action\Action
 {
     /**

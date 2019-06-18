@@ -26,6 +26,9 @@
 
 namespace CheckoutCom\Magento2\Controller\Button;
 
+/**
+ * Class PlaceOrder
+ */
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
     /**

@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\Payment;
 
+/**
+ * Class Moto
+ */
 class Moto extends \Magento\Payment\Block\Form\Cc
 {
     /**
