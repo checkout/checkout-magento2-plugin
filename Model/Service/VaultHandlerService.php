@@ -236,7 +236,7 @@ class VaultHandlerService
                 $foundPaymentToken->setIsActive(true);
                 $foundPaymentToken->setIsVisible(true);
                 $this->paymentTokenRepository->save($foundPaymentToken);
-            }  else {
+            } else {
                 // Otherwise save the card
                 $gatewayToken = $this->response['card']['id'];
                 $paymentToken->setGatewayToken($gatewayToken);

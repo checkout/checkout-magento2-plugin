@@ -19,6 +19,7 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
+
 /**
  * Class Verify
  */
