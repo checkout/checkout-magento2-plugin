@@ -16,9 +16,9 @@
                                 <label>
                                     <input type="radio" name="publicHash"
                                            value="<?= $block->escapeHtmlAttr($card->getPublicHash())?>">
-                                    <img src="<?= $block->escapeHtmlAttr($block->cardHandler->getCardIcon($details['type'])); ?>"
-                                        style="display:inline-block; vertical-align:-50%"
-                                    >
+                                    <img src="<?= $block->escapeHtmlAttr(
+                                            $block->cardHandler->getCardIcon($details['type'])
+                                        ); ?>" style="display:inline-block; vertical-align:-50%">
                                 </label>
                                 <span>
                                 <?= $block->escapeHtml($block->vaultHandler->renderTokenData($card))?>
