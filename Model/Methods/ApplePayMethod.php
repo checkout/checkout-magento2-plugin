@@ -19,7 +19,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
 /**
- * Class AlternativePaymentMethod
+ * Class ApplePayMethod
  */
 class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
