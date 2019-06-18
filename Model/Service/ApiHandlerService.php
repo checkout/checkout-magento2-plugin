@@ -23,7 +23,7 @@ use \Checkout\Models\Payments\Voids;
 use \Checkout\Models\Customer;
 
 /**
- * Class for API handler service.
+ * Class ApiHandlerService.
  */
 class ApiHandlerService
 {

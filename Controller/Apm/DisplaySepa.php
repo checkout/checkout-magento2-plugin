@@ -23,6 +23,9 @@ use Checkout\Models\Sources\Sepa;
 use Checkout\Models\Sources\SepaData;
 use Checkout\Models\Sources\SepaAddress;
 
+/**
+ * Class DisplaySepa
+ */
 class DisplaySepa extends \Magento\Framework\App\Action\Action
 {
 
@@ -220,7 +223,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
 
     /**
      * Returns the SEPA mandate block.
-     * 
+     *
      * @return string
      */
     protected function loadBlock($reference, $url)

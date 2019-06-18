@@ -21,6 +21,9 @@ use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 
+/**
+ * Class VaultMethod.
+ */
 class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
     protected $_isInitializeNeeded = true;
@@ -57,6 +60,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     protected $cardHandler;
 
     /**
+     * @var Logger
+     */
+    protected $ckoLogger;
+
+    /**
      * @var Session
      */
     protected $backendAuthSession;
@@ -87,6 +95,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -121,6 +130,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
+        $this->ckoLogger          = $ckoLogger;
         $this->vaultHandler       = $vaultHandler;
         $this->cardHandler        = $cardHandler;
         $this->quoteHandler       = $quoteHandler;
@@ -204,7 +214,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             return $response;
         } catch (\Exception $e) {
-
+            $this->ckoLogger->write($e->getMessage());
         }
     }
 

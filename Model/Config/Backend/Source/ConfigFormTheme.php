@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+/**
+ * Class ConfigFormTheme
+ */
 class ConfigFormTheme implements \Magento\Framework\Option\ArrayInterface
 {
 

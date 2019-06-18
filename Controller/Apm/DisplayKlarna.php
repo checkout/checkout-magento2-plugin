@@ -23,6 +23,9 @@ use Checkout\Library\HttpHandler;
 use Checkout\Models\Sources\Sepa;
 use Checkout\Models\Sources\Klarna;
 
+/**
+ * Class DisplayKlarna
+ */
 class DisplayKlarna extends \Magento\Framework\App\Action\Action
 {
 

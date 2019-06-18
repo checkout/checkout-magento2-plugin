@@ -23,6 +23,9 @@ use \Checkout\Models\Payments\ThreeDs;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\BillingDescriptor;
 
+/**
+ * Class CardPaymentMethod
+ */
 class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
 

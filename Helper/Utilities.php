@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Helper;
 
+/**
+ * Class Utilities
+ */
 class Utilities
 {
     /**

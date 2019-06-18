@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Plugin;
 
+/**
+ * Class CsrfValidatorSkip.
+ */
 class CsrfValidatorSkip
 {
     /**

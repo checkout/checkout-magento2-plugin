@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Gateway\Config;
 
+/**
+ * Class Config
+ */
 class Config
 {
     /**

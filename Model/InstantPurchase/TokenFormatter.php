@@ -19,6 +19,9 @@ namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 
+/**
+ * Class TokenFormatter
+ */
 class TokenFormatter implements \Magento\InstantPurchase\PaymentMethodIntegration\PaymentTokenFormatterInterface
 {
     /**

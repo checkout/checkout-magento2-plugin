@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+/**
+ * Class ConfigGooglePayNetworks
+ */
 class ConfigGooglePayNetworks implements \Magento\Framework\Option\ArrayInterface
 {
 

@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+/**
+ * Class MadaHandlerService.
+ */
 class MadaHandlerService
 {
 

@@ -17,9 +17,11 @@
 
 namespace CheckoutCom\Magento2\Block\Account;
 
+/**
+ * Class AddCard
+ */
 class AddCard extends \Magento\Framework\View\Element\Template
 {
-
     /**
      * @var Config
      */

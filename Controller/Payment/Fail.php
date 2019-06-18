@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
+/**
+ * Class Fail
+ */
 class Fail extends \Magento\Framework\App\Action\Action
 {
     /**

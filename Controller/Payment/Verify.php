@@ -17,8 +17,19 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
+use \Checkout\Models\Payments\Refund;
+use \Checkout\Models\Payments\Voids;
+
+/**
+ * Class Verify
+ */
 class Verify extends \Magento\Framework\App\Action\Action
 {
+    /**
+     * @var Config
+     */
+    protected $config;
+
     /**
      * @var CheckoutApi
      */
@@ -49,6 +60,7 @@ class Verify extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
@@ -57,6 +69,7 @@ class Verify extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
+        $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
@@ -89,7 +102,14 @@ class Verify extends \Magento\Framework\App\Action\Action
                 if ($this->apiHandler->isValidResponse($response)) {
 
                     if (!$this->placeOrder($response)) {
-                        // Todo - Handle the refund as in placeOrder if order creation fails
+                        // refund or void accordingly
+                        if ($this->config->needsAutoCapture($this->methodId)) {
+                            //refund
+                            $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
+                        } else {
+                            //void
+                            $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
+                        }
                     }
 
                     return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
@@ -123,7 +143,7 @@ class Verify extends \Magento\Framework\App\Action\Action
             // Create an order
             $order = $this->orderHandler
                 ->setMethodId($this->methodId)
-                ->handleOrder($reservedIncrementId, $response);
+                ->handleOrder($response, $reservedIncrementId);
 
             // Add the payment info to the order
             $order = $this->utilities

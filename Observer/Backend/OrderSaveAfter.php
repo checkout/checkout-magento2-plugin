@@ -19,6 +19,9 @@ namespace CheckoutCom\Magento2\Observer\Backend;
 use Magento\Framework\Event\Observer;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
+/**
+ * Class OrderSaveAfter.
+ */
 class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
 {
     /**
@@ -79,8 +82,7 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
 
         // Create the authorization transaction
         if ($this->needsMotoProcessing()) {
-            $this->transactionHandler->createTransaction
-            (
+            $this->transactionHandler->createTransaction(
                 $this->order,
                 Transaction::TYPE_AUTH,
                 $this->utilities->getPaymentData($this->order)
@@ -93,7 +95,8 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
     /**
      * Checks if the MOTO logic should be triggered.
      */
-    protected function needsMotoProcessing() {
+    protected function needsMotoProcessing()
+    {
         return $this->backendAuthSession->isLoggedIn()
         && $this->methodId == 'checkoutcom_moto'
         && !$this->orderHandler->hasTransaction($this->order, Transaction::TYPE_AUTH);

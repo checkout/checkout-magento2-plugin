@@ -26,6 +26,9 @@
 
 namespace CheckoutCom\Magento2\Controller\Button;
 
+/**
+ * Class PlaceOrder
+ */
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
     /**
@@ -199,7 +202,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
     /**
      * Creates response with the operation status message.
-     * 
+     *
      * @return array
      */
     private function createResponse(string $message, bool $successMessage)

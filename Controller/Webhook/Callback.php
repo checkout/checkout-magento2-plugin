@@ -22,6 +22,9 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
 
+/**
+ * Class Callback
+ */
 class Callback extends \Magento\Framework\App\Action\Action
 {
     /**
@@ -135,8 +138,8 @@ class Callback extends \Magento\Framework\App\Action\Action
                         $order = $this->orderHandler
                             ->setMethodId($this->payload->data->metadata->methodId)
                             ->handleOrder(
-                                $response->reference,
                                 $response,
+                                $response->reference,
                                 true
                             );
 

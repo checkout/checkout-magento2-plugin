@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
+/**
+ * Class CustomerData
+ */
 class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterface
 {
     /**

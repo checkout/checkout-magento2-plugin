@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+/**
+ * Class ConfigPaymentAction
+ */
 class ConfigPaymentAction implements \Magento\Framework\Option\ArrayInterface
 {
     /**

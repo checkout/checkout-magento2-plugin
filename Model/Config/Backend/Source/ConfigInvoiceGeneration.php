@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+/**
+ * Class ConfigInvoiceGeneration
+ */
 class ConfigInvoiceGeneration implements \Magento\Framework\Option\ArrayInterface
 {
     /**

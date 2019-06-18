@@ -19,6 +19,9 @@ namespace CheckoutCom\Magento2\Model\Factory;
 
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 
+/**
+ * Class VaultTokenFactory
+ */
 class VaultTokenFactory
 {
 

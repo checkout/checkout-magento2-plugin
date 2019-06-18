@@ -22,9 +22,11 @@ use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 
+/**
+ * Class VaultHandlerService.
+ */
 class VaultHandlerService
 {
-
     /**
      * @var VaultTokenFactory
      */
@@ -234,10 +236,8 @@ class VaultHandlerService
                 $foundPaymentToken->setIsActive(true);
                 $foundPaymentToken->setIsVisible(true);
                 $this->paymentTokenRepository->save($foundPaymentToken);
-            }
-
-            // Otherwise save the card
-            else {
+            } else {
+                // Otherwise save the card
                 $gatewayToken = $this->response['card']['id'];
                 $paymentToken->setGatewayToken($gatewayToken);
                 $paymentToken->setIsVisible(true);
@@ -314,10 +314,8 @@ class VaultHandlerService
                         $foundPaymentToken->setIsActive(true);
                         $foundPaymentToken->setIsVisible(true);
                         $this->paymentTokenRepository->save($foundPaymentToken);
-                    }
-
-                    // Otherwise save the card
-                    else {
+                    } else {
+                        // Otherwise save the card
                         $gatewayToken = $cardData['id'];
                         $paymentToken->setGatewayToken($gatewayToken);
                         $paymentToken->setIsVisible(true);

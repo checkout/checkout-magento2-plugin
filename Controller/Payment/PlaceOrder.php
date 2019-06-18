@@ -20,9 +20,11 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
 
+/**
+ * Class PlaceOrder
+ */
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
-
     /**
      * @var QuoteHandlerService
      */
@@ -221,7 +223,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             // Create an order
             $order = $this->orderHandler
                 ->setMethodId($this->methodId)
-                ->handleOrder($reservedIncrementId, $response);
+                ->handleOrder($response, $reservedIncrementId);
 
             // Add the payment info to the order
             $order = $this->utilities

@@ -19,6 +19,9 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Customer\Api\Data\GroupInterface;
 
+/**
+ * Class QuoteHandlerService.
+ */
 class QuoteHandlerService
 {
     /**
@@ -178,7 +181,7 @@ class QuoteHandlerService
     /**
      * Prepares a quote for order placement
      */
-    public function prepareQuote($fields = [], $methodId, $isWebhook = false)
+    public function prepareQuote($methodId, $fields = [], $isWebhook = false)
     {
         try {
             // Find quote and perform tasks

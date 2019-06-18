@@ -30,9 +30,11 @@ use \Checkout\Models\Payments\KlarnaSource;
 use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
 
+/**
+ * Class AlternativePaymentMethod
+ */
 class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
-
     protected $_isInitializeNeeded = true;
     protected $_isGateway = true;
     protected $_canAuthorize = true;
@@ -62,6 +64,21 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     protected $shopperHandler;
 
     /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandler;
+
+    /**
+     * @var QuoteHandlerService
+     */
+    protected $quoteHandler;
+
+    /**
+     * @var Curl
+     */
+    protected $curl;
+
+    /**
      * @var Session
      */
     protected $backendAuthSession;
@@ -89,8 +106,10 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\shopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -123,20 +142,17 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->sessionQuote       = $sessionQuote;
         $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
+        $this->shopperHandler     = $shopperHandler;
         $this->apiHandler         = $apiHandler;
         $this->quoteHandler       = $quoteHandler;
+        $this->curl               = $curl;
     }
-
-    /**
-     * Methods
-     */
 
     /**
      * Send a charge request.
      */
     public function sendPaymentRequest(array $data, $amount, $currency, $reference = '')
     {
-
         $method = $data['source'];
         $response = null;
 
@@ -199,7 +215,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     protected function validateCurrency(string $method, string $currency)
     {
-
         $apms = $this->config->getApms();
         $valid = false;
 
@@ -244,22 +259,23 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $secret = $this->config->getValue('secret_key');
 
         // Prepare the options
-        $options = [
-            CURLOPT_FAILONERROR => false,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => [
-                'Content-type: ' . HttpHandler::MIME_TYPE_JSON,
-                'Accept: ' . HttpHandler::MIME_TYPE_JSON,
-                'Authorization: ' . $secret,
-                'User-Agent: checkout-magento2-plugin/1.0.0'
-            ] //@todo: finish this
-        ];
+        // Set the CURL headers
+        $this->curl->setHeaders([
+            'Content-type: ' . HttpHandler::MIME_TYPE_JSON,
+            'Accept: ' . HttpHandler::MIME_TYPE_JSON,
+            'Authorization: ' . $secret,
+            'User-Agent: checkout-magento2-plugin/1.0.0'
+        ]);
+        
+        // Set extra CURL parameters
+        $this->curl->curlOption(CURLOPT_FAILONERROR, false);
+        $this->curl->curlOption(CURLOPT_RETURNTRANSFER, true);
 
-        // Send the CURL request
-        $curl = curl_init($url);
-        curl_setopt_array($curl, $options);
-        $content = curl_exec($curl);
-        curl_close($curl);
+        // Send the request
+        $this->curl->post($url, []);
+
+        // Get the response
+        $content = $this->curl->getBody();
 
         // Return the content
         return json_decode($content, true);

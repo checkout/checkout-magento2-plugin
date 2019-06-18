@@ -19,6 +19,9 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Sales\Model\Order\Payment\Transaction;
 
+/**
+ * Class OrderHandlerService.
+ */
 class OrderHandlerService
 {
     /**
@@ -120,7 +123,7 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function handleOrder($reservedIncrementId = '', $paymentData, $isWebhook = false)
+    public function handleOrder($paymentData, $reservedIncrementId = '', $isWebhook = false)
     {
         if ($this->methodId) {
             try {
@@ -133,8 +136,8 @@ class OrderHandlerService
                 if (!$this->isOrder($order)) {
                     // Prepare the quote
                     $quote = $this->quoteHandler->prepareQuote(
-                        ['reserved_order_id' => $reservedIncrementId],
                         $this->methodId,
+                        ['reserved_order_id' => $reservedIncrementId],
                         $isWebhook
                     );
 
@@ -144,8 +147,7 @@ class OrderHandlerService
                         $order = $this->quoteManagement->submit($quote);
 
                         // Create the authorization transaction
-                        $this->transactionHandler->createTransaction
-                        (
+                        $this->transactionHandler->createTransaction(
                             $order,
                             Transaction::TYPE_AUTH,
                             $paymentData,
