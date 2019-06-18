@@ -147,8 +147,7 @@ class OrderHandlerService
                         $order = $this->quoteManagement->submit($quote);
 
                         // Create the authorization transaction
-                        $this->transactionHandler->createTransaction
-                        (
+                        $this->transactionHandler->createTransaction(
                             $order,
                             Transaction::TYPE_AUTH,
                             $paymentData,

@@ -202,7 +202,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
     /**
      * Creates response with the operation status message.
-     * 
+     *
      * @return array
      */
     private function createResponse(string $message, bool $successMessage)

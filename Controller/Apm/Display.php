@@ -114,7 +114,8 @@ class Display extends \Magento\Framework\App\Action\Action
      * @param array $apmEnabled
      * @return boolean
      */
-    protected function isValidApm($apm, $apmEnabled) {
+    protected function isValidApm($apm, $apmEnabled)
+    {
         return in_array($apm['value'], $apmEnabled)
         && strpos(
             $apm['currencies'],

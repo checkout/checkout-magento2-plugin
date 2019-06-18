@@ -223,7 +223,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
 
     /**
      * Returns the SEPA mandate block.
-     * 
+     *
      * @return string
      */
     protected function loadBlock($reference, $url)
