@@ -22,13 +22,5 @@ namespace CheckoutCom\Magento2\Block\Apm;
  */
 class Form extends \Magento\Framework\View\Element\Template
 {
-    /**
-     * Form constructor.
-     */
-    public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        array $data = []
-    ) {
-        parent::__construct($context, $data);
-    }
+
 }
