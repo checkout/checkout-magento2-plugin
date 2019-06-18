@@ -22,11 +22,15 @@ namespace CheckoutCom\Magento2\Controller\ApplePay;
  */
 class Validation extends \Magento\Framework\App\Action\Action
 {
-
     /**
      * @var JsonFactory
      */
     protected $jsonFactory;
+
+    /**
+     * @var Curl
+     */
+    protected $curl;
 
     /**
      * @var Logger
@@ -39,12 +43,14 @@ class Validation extends \Magento\Framework\App\Action\Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
+        \Magento\Framework\HTTP\Client\Curl $curl,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
 
         $this->jsonFactory = $jsonFactory;
         $this->logger = $logger;
+        $this->curl = $curl;
 
         // Get request parameters
         $this->methodId = $this->getRequest()->getParam('method_id');
@@ -64,9 +70,6 @@ class Validation extends \Magento\Framework\App\Action\Action
                 // Prepare the configuration parameters
                 $params = $this->getParams();
 
-                // create a new cURL resource
-                $ch = curl_init();
-
                 // Prepare the data
                 $data = '{"merchantIdentifier":"'
                 . $params['merchantId']
@@ -77,18 +80,19 @@ class Validation extends \Magento\Framework\App\Action\Action
                 .'"}';
 
                 // Initialize the request
-                curl_setopt($ch, CURLOPT_URL, $this->url);
-                curl_setopt($ch, CURLOPT_SSLCERT, $params['merchantCertificate']);
-                curl_setopt($ch, CURLOPT_SSLKEY, $params['processingCertificate']);
-                curl_setopt($ch, CURLOPT_SSLKEYPASSWD, $params['processingCertificatePass']);
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-                if (curl_exec($ch) === false) {
-                    echo '{"curlError":"' . curl_error($ch) . '"}';
-                }
+                $this->curl->curlOptions([
+                    CURLOPT_SSLCERT => $params['merchantCertificate'],
+                    CURLOPT_SSLKEY => $params['processingCertificate'],
+                    CURLOPT_SSLKEYPASSWD => $params['processingCertificatePass'],
+                    CURLOPT_POSTFIELDS => $data,
+                    CURLOPT_RETURNTRANSFER => true
+                ]);
 
-                // close cURL resource, and free up system resources
-                curl_close($ch);
+                // Send the request
+                $this->curl->post($this->url, []);
+
+                // Return the response
+                return $this->curl->getBody();
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
