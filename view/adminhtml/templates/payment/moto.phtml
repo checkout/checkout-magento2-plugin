@@ -10,10 +10,12 @@
                     foreach ($cardsList as $card) :
                         $details = json_decode($card->getTokenDetails() ?: '{}', true);
                         ?>
-                        <div id="cko-vault-card-<?= $block->escapeHtmlAttr($card->getEntityId())?>" class="cko-vault-card">
+                        <div id="cko-vault-card-<?= $block->escapeHtmlAttr($card->getEntityId())?>"
+                             class="cko-vault-card">
                             <div class="vault-details">
                                 <label>
-                                    <input type="radio" name="publicHash" value="<?= $block->escapeHtmlAttr($card->getPublicHash())?>">
+                                    <input type="radio" name="publicHash"
+                                           value="<?= $block->escapeHtmlAttr($card->getPublicHash())?>">
                                     <img src="<?= $block->escapeHtmlAttr($block->cardHandler->getCardIcon($details['type'])); ?>"
                                         style="display:inline-block; vertical-align:-50%"
                                     >
@@ -23,7 +25,8 @@
                                 </span>
                             </div>
                             <div class="vault-cvv">
-                                <input type="text" name="cvv" maxlength="4" placeholder="<?= $block->escapeHtmlAttr(__('CVV')) ?>">
+                                <input type="text" name="cvv" maxlength="4"
+                                       placeholder="<?= $block->escapeHtmlAttr(__('CVV')) ?>">
                             </div>
                             <div class="clr"></div>
                         </div>
@@ -52,10 +55,10 @@
 
         // Initialize the embedded form
         Frames.init({
-            publicKey: '<?= $block->config->getAccountKeys('checkoutcom_moto')['public_key'] ?>',
+            publicKey: '<?= $block->escapeHtml($block->config->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
             containerSelector: cardFormContainerId,
-            theme: '<?= $block->config->getValue('form_theme') ?>',
-            debugMode: '<?= $block->config->getValue('debug') ?>',
+            theme: '<?= $block->escapeHtml($block->config->getValue('form_theme')) ?>',
+            debugMode: '<?= $block->escapeHtml($block->config->getValue('debug')) ?>',
             cardValidationChanged: function(event) {
                 if (Frames.isCardValid()) {
                     Frames.submitCard();
