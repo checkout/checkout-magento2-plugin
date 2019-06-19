@@ -120,7 +120,8 @@ class Loader
      *
      * @return void
      */
-    public function processGroupValues($output, $arr, $parent, $group) {
+    public function processGroupValues($output, $arr, $parent, $group)
+    {
         // Loop through values for the payment method
         foreach ($arr as $key => $val) {
             if (!$this->isHidden($key)) {
