@@ -121,7 +121,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function sendPaymentRequest($data, $amount, $currency, $reference = '')
     {
-
         // Set the token source
         $tokenSource = new TokenSource($data['cardToken']);
 
@@ -161,12 +160,18 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         }
 
         // Mada BIN Check
-        if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
+        if (isset($data['cardBin'])
+            && $this->cardHandler->isMadaBin($data['cardBin'])
+            && $madaEnabled
+        ) {
             $request->metadata['udf1'] = 'MADA';
         }
 
         // Save card check
-        if (isset($data['saveCard']) && $saveCardEnabled && $this->customerSession->isLoggedIn()) {
+        if (isset($data['saveCard'])
+            && $saveCardEnabled 
+            && $this->customerSession->isLoggedIn()
+        ) {
             $request->metadata['saveCard'] = true;
             $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
         }
@@ -196,20 +201,24 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @throws \Magento\Framework\Exception\LocalizedException  (description)
      *
-     * @return self                                             ( description_of_the_return_value )
+     * @return self                                           
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Check the status
             if (!$this->canVoid()) {
-                throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void action is not available.')
+                );
             }
 
             // Process the void request
             $response = $this->apiHandler->voidOrder($payment);
             if (!$this->apiHandler->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void request could not be processed.')
+                );
             }
 
             // Set the transaction id from response
@@ -224,13 +233,17 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         if ($this->backendAuthSession->isLoggedIn()) {
             // Check the status
             if (!$this->canRefund()) {
-                throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The refund action is not available.')
+                );
             }
 
             // Process the refund request
             $response = $this->apiHandler->refundOrder($payment, $amount);
             if (!$this->apiHandler->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The refund request could not be processed.')
+                );
             }
 
             // Set the transaction id from response
