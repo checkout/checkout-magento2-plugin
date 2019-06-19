@@ -66,7 +66,7 @@ class Validation extends \Magento\Framework\App\Action\Action
     {
         try {
             // Process the call after check
-            if ($this->isValidRequest()) {
+            if ($this->getRequest()->isAjax()) {
                 // Prepare the configuration parameters
                 $params = $this->getParams();
 
@@ -97,17 +97,6 @@ class Validation extends \Magento\Framework\App\Action\Action
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
-    }
-
-    /**
-     * Checks if the request is valid.
-     *
-     * @return boolean
-     */
-    protected function isValidRequest()
-    {
-        return "https" == parse_url($this->url, PHP_URL_SCHEME)
-        && substr(parse_url($this->url, PHP_URL_HOST), -10)  == ".apple.com";
     }
 
     /**
