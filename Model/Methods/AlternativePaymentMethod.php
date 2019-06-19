@@ -159,7 +159,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         if ($this->validateCurrency($method, $currency)) {
 
              // Create source object
-            $source = call_user_func([$this, $method], $data);
+            $source = $this->{$method}($data);
             $payment = $this->createPayment($source, $amount, $currency, $reference, $this->_code);
 
             // Send the charge request
