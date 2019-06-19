@@ -100,25 +100,7 @@ class Loader
             // Build the config data array
             foreach ($this->xmlData['config'] as $parent => $child) {
                 foreach ($child as $group => $arr) {
-                    // Loop through values for the payment method
-                    foreach ($arr as $key => $val) {
-                        if (!$this->isHidden($key)) {
-                            // Get the field  value in db
-                            $path = $parent . '/' . $group . '/' . $key;
-                            $value = $this->scopeConfig->getValue(
-                                $path,
-                                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                            );
-
-                            // Process encrypted fields
-                            if ($this->isEncrypted($key)) {
-                                $value = $this->encryptor->decrypt($value);
-                            }
-
-                            // Add the final value to the config array
-                            $output[$parent][$group][$key] = $value;
-                        }
-                    }
+                    $output = $this->processGroupValues($output, $arr, $parent, $group);
                 }
             }
 
@@ -133,6 +115,40 @@ class Loader
         }
     }
 
+    /**
+     * Builds the config data array for an XML section.
+     *
+     * @return void
+     */
+    public function processGroupValues($output, $arr, $parent, $group) {
+        // Loop through values for the payment method
+        foreach ($arr as $key => $val) {
+            if (!$this->isHidden($key)) {
+                // Get the field  value in db
+                $path = $parent . '/' . $group . '/' . $key;
+                $value = $this->scopeConfig->getValue(
+                    $path,
+                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                );
+
+                // Process encrypted fields
+                if ($this->isEncrypted($key)) {
+                    $value = $this->encryptor->decrypt($value);
+                }
+
+                // Add the final value to the config array
+                $output[$parent][$group][$key] = $value;
+            }
+        }
+
+        return $output;
+    }
+
+    /**
+     * Load the list of Alternative Payments.
+     *
+     * @return array
+     */
     public function loadApmList()
     {
         // Build the APM array
