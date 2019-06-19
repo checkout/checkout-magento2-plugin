@@ -27,17 +27,6 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
     const CODE = 'checkoutcom_moto';
     protected $_code = self::CODE;
     protected $_formBlockType = Moto::class;
-    protected $_isInitializeNeeded = true;
-    protected $_isGateway = true;
-    protected $_canAuthorize = true;
-    protected $_canCapture = true;
-    protected $_canCancel = true;
-    protected $_canCapturePartial = true;
-    protected $_canVoid = true;
-    protected $_canUseInternal = true;
-    protected $_canUseCheckout = false;
-    protected $_canRefund = true;
-    protected $_canRefundInvoicePartial = true;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,

@@ -26,18 +26,6 @@ use \Checkout\Models\Payments\ThreeDs;
  */
 class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
-    protected $_isInitializeNeeded = true;
-    protected $_isGateway = true;
-    protected $_canAuthorize = true;
-    protected $_canCapture = true;
-    protected $_canCancel = true;
-    protected $_canCapturePartial = true;
-    protected $_canVoid = true;
-    protected $_canUseInternal = false;
-    protected $_canUseCheckout = true;
-    protected $_canRefund = true;
-    protected $_canRefundInvoicePartial = true;
-
     /**
         * @var string
         */

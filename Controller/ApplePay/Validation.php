@@ -112,7 +112,7 @@ class Validation extends \Magento\Framework\App\Action\Action
                     'merchant_id',
                     $this->methodId
                 ),
-                'domainName' => $_SERVER["HTTP_HOST"],
+                'domainName' => $this->getRequest()->getServer('HTTP_HOST'),
                 'displayName' => $this->config->getStoreName(),
                 'processingCertificate' => $this->config->getValue(
                     'processing_certificate',
