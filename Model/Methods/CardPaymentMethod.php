@@ -28,22 +28,9 @@ use \Checkout\Models\Payments\BillingDescriptor;
  */
 class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
-
-    protected $_isInitializeNeeded = true;
-    protected $_isGateway = true;
-    protected $_canAuthorize = true;
-    protected $_canCapture = true;
-    protected $_canCancel = true;
-    protected $_canCapturePartial = true;
-    protected $_canVoid = true;
-    protected $_canUseInternal = false;
-    protected $_canUseCheckout = true;
-    protected $_canRefund = true;
-    protected $_canRefundInvoicePartial = true;
-    
     /**
-        * @var string
-        */
+     * @var string
+     */
     const CODE = 'checkoutcom_card_payment';
 
     /**
@@ -57,15 +44,23 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     protected $cardHandler;
 
     /**
+     * @var Logger
+     */
+    protected $ckoLogger;
+
+    /**
      * @var Session
      */
     protected $customerSession;
-
+    
     /**
      * @var Session
      */
     protected $backendAuthSession;
 
+    /**
+     * CardPaymentMethod constructor.
+     */
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -90,6 +85,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -127,6 +123,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->apiHandler         = $apiHandler;
         $this->quoteHandler       = $quoteHandler;
         $this->cardHandler        = $cardHandler;
+        $this->ckoLogger          = $ckoLogger;
     }
 
     /**
@@ -134,123 +131,159 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function sendPaymentRequest($data, $amount, $currency, $reference = '')
     {
+        try {
+            // Set the token source
+            $tokenSource = new TokenSource($data['cardToken']);
 
-        // Set the token source
-        $tokenSource = new TokenSource($data['cardToken']);
-
-        // Set the payment
-        $request = new Payment(
-            $tokenSource,
-            $currency
-        );
-
-        // Prepare the metadata array
-        $request->metadata = ['methodId' => $this->_code];
-
-        // Prepare the capture date setting
-        $captureDate = $this->config->getCaptureTime($this->_code);
-
-        // Prepare the MADA setting
-        $madaEnabled = $this->config->getValue('mada_enabled', $this->_code);
-
-        // Prepare the save card setting
-        $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code);
-
-        // Set the request parameters
-        $request->capture = $this->config->needsAutoCapture($this->_code);
-        $request->amount = $amount*100;
-        $request->reference = $reference;
-        $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
-        $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-        $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
-        $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
-        $request->description = __('Payment request from %1', $this->config->getStoreName());
-        // Todo - add customer to the request
-        //$request->customer = $this->apiHandler->createCustomer($this->quoteHandler->getQuote());
-        $request->payment_ip = $this->remoteAddress->getRemoteAddress();
-        $request->payment_type = 'Regular';
-        if ($captureDate) {
-            $request->capture_time = $this->config->getCaptureTime();
-        }
-
-        // Mada BIN Check
-        if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
-            $request->metadata['udf1'] = 'MADA';
-        }
-
-        // Save card check
-        if (isset($data['saveCard']) && $saveCardEnabled && $this->customerSession->isLoggedIn()) {
-            $request->metadata['saveCard'] = true;
-            $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
-        }
-
-        // Billing descriptor
-        /*
-        if ($this->config->needsDynamicDescriptor()) {
-            $request->billing_descriptor = new BillingDescriptor(
-                $this->getValue('descriptor_name'),
-                $this->getValue('descriptor_city')
+            // Set the payment
+            $request = new Payment(
+                $tokenSource,
+                $currency
             );
+
+            // Prepare the metadata array
+            $request->metadata = ['methodId' => $this->_code];
+
+            // Prepare the capture date setting
+            $captureDate = $this->config->getCaptureTime($this->_code);
+
+            // Prepare the MADA setting
+            $madaEnabled = $this->config->getValue('mada_enabled', $this->_code);
+
+            // Prepare the save card setting
+            $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code);
+
+            // Set the request parameters
+            $request->capture = $this->config->needsAutoCapture($this->_code);
+            $request->amount = $amount*100;
+            $request->reference = $reference;
+            $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+            $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+            $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
+            $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
+            $request->description = __('Payment request from %1', $this->config->getStoreName());
+            // Todo - add customer to the request
+            //$request->customer = $this->apiHandler->createCustomer($this->quoteHandler->getQuote());
+            $request->payment_ip = $this->remoteAddress->getRemoteAddress();
+            $request->payment_type = 'Regular';
+            if ($captureDate) {
+                $request->capture_time = $this->config->getCaptureTime();
+            }
+
+            // Mada BIN Check
+            if (isset($data['cardBin'])
+                && $this->cardHandler->isMadaBin($data['cardBin'])
+                && $madaEnabled
+            ) {
+                $request->metadata['udf1'] = 'MADA';
+            }
+
+            // Save card check
+            if (isset($data['saveCard'])
+                && $saveCardEnabled 
+                && $this->customerSession->isLoggedIn()
+            ) {
+                $request->metadata['saveCard'] = true;
+                $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
+            }
+
+            // Billing descriptor
+            /*
+            if ($this->config->needsDynamicDescriptor()) {
+                $request->billing_descriptor = new BillingDescriptor(
+                    $this->getValue('descriptor_name'),
+                    $this->getValue('descriptor_city')
+                );
+            }
+            */
+
+            // Send the charge request
+            $response = $this->apiHandler->checkoutApi
+                ->payments()
+                ->request($request);
+
+            return $response;
+        } catch (\Exception $e) {
+            $this->ckoLogger->write($e->getMessage());
+            return null;
         }
-        */
-
-        // Send the charge request
-        $response = $this->apiHandler->checkoutApi
-            ->payments()
-            ->request($request);
-
-        return $response;
     }
 
     /**
-     * { function_description }
+     * Perform a void request.
      *
      * @param \Magento\Payment\Model\InfoInterface $payment The payment
      *
      * @throws \Magento\Framework\Exception\LocalizedException  (description)
      *
-     * @return self                                             ( description_of_the_return_value )
+     * @return self                                           
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
-            // Check the status
-            if (!$this->canVoid()) {
-                throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
-            }
+        try {
+            if ($this->backendAuthSession->isLoggedIn()) {
+                // Check the status
+                if (!$this->canVoid()) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('The void action is not available.')
+                    );
+                }
 
-            // Process the void request
-            $response = $this->apiHandler->voidOrder($payment);
-            if (!$this->apiHandler->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(__('The void request could not be processed.'));
-            }
+                // Process the void request
+                $response = $this->apiHandler->voidOrder($payment);
+                if (!$this->apiHandler->isValidResponse($response)) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('The void request could not be processed.')
+                    );
+                }
 
-            // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+                // Set the transaction id from response
+                $payment->setTransactionId($response->action_id);
+            }
+        } catch (\Exception $e) {
+            $this->ckoLogger->write($e->getMessage());
+        } finally {
+            return $this;
         }
-
-        return $this;
     }
 
+    /**
+     * Perform a refund request.
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param float $amount The amount
+     * 
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return self                                      
+     */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
-            // Check the status
-            if (!$this->canRefund()) {
-                throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
-            }
+        try {
+            if ($this->backendAuthSession->isLoggedIn()) {
+                // Check the status
+                if (!$this->canRefund()) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('The refund action is not available.')
+                    );
+                }
 
-            // Process the refund request
-            $response = $this->apiHandler->refundOrder($payment, $amount);
-            if (!$this->apiHandler->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(__('The refund request could not be processed.'));
-            }
+                // Process the refund request
+                $response = $this->apiHandler->refundOrder($payment, $amount);
+                if (!$this->apiHandler->isValidResponse($response)) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('The refund request could not be processed.')
+                    );
+                }
 
-            // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+                // Set the transaction id from response
+                $payment->setTransactionId($response->action_id);
+            }
+        } catch (\Exception $e) {
+            $this->ckoLogger->write($e->getMessage());
+        } finally {
+            return $this;
         }
-
-        return $this;
     }
 
     /**
@@ -261,10 +294,13 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        if (parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code);
+        try {
+            if (parent::isAvailable($quote) && null !== $quote) {
+                return $this->config->getValue('active', $this->_code);
+            }
+        } catch (\Exception $e) {
+            $this->ckoLogger->write($e->getMessage());
+            return false;
         }
-
-        return false;
     }
 }

@@ -203,15 +203,9 @@ class Config
     public function getStoreName()
     {
         $storeName = $this->getCoreValue('general/store_information/name');
-
         trim($storeName);
-        if (empty($storeName)) {
-            $storeName = parse_url(
-                $this->storeManager->getStore()->getBaseUrl()
-            )['host'] ;
-        }
-
-        return (string) $storeName;
+        return !empty($storeName) ? $storeName
+        : $this->storeManager->getStore()->getBaseUrl();
     }
 
     /**

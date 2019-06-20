@@ -21,7 +21,6 @@
     .apple-pay-button-white-with-line {
         -apple-pay-button-style: white-outline;
     }
-
 }
 
 @supports not (-webkit-appearance: -apple-pay-button) {

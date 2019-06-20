@@ -181,9 +181,13 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 // Add the response to the order
                 if ($this->apiHandler->isValidResponse($response)) {
                     $this->utilities->setPaymentData($this->order, $response);
-                    $this->messageManager->addSuccessMessage(__('The payment request was successfully processed.'));
+                    $this->messageManager->addSuccessMessage(
+                        __('The payment request was successfully processed.')
+                    );
                 } else {
-                    $this->messageManager->addErrorMessage(__('The transaction could not be processed. Please check the payment details.'));
+                    $this->messageManager->addErrorMessage(
+                        __('The transaction could not be processed. Please check the payment details.')
+                    );
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The gateway declined a MOTO payment request.')
                     );
@@ -233,7 +237,9 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
                 return $idSource;
             } else {
-                $this->messageManager->addErrorMessage(__('Please provide the required card information for the MOTO payment.'));
+                $this->messageManager->addErrorMessage(
+                    __('Please provide the required card information for the MOTO payment.')
+                );
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('Missing required card information for the MOTO payment.')
                 );

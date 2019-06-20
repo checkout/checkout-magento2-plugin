@@ -150,17 +150,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 if ($this->apiHandler->isValidResponse($response)) {
                     $success = $response->isSuccessful();
                     $url = $response->getRedirection();
-                    if (!$response->isPending() || $this->data['source'] === 'sepa') {
-                        if (!$this->placeOrder($response)) {
-                            // refund or void accordingly
-                            if ($this->config->needsAutoCapture($this->methodId)) {
-                                //refund
-                                $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
-                            } else {
-                                //void
-                                $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
-                            }
-                        }
+                    if ($this->canPlaceOrder($response)) {
+                        $this->placeOrder($response);
                     }
                 } else {
                     // Payment failed
@@ -207,11 +198,23 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     }
 
     /**
+     * Checks if an order can be placed.
+     *
+     * @param array $response The response
+     *
+     * @return boolean
+     */
+    protected function canPlaceOrder($response)
+    {
+        return !$response->isPending() || $this->data['source'] === 'sepa';
+    }
+
+    /**
      * Handles the order placing process.
      *
      * @param array $response The response
      *
-     * @return mixed
+     * @return void
      */
     protected function placeOrder($response = null)
     {
@@ -232,10 +235,35 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             // Save the order
             $order->save();
 
-            return $order;
+            // Check if the order is valid
+            if (!$this->orderHandler->isOrder($order)) {
+                $this->cancelPayment($response);
+            }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
-            return null;
+        }
+    }
+
+    /**
+     * Cancels a payment.
+     *
+     * @param array $response The response
+     *
+     * @return void
+     */
+    protected function cancelPayment($response)
+    {
+        try {
+            // refund or void accordingly
+            if ($this->config->needsAutoCapture($this->methodId)) {
+                //refund
+                $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
+            } else {
+                //void
+                $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
         }
     }
 }

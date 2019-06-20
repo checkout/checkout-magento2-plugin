@@ -9,24 +9,26 @@
                     $cardsList = $block->getUserCards();
                     foreach ($cardsList as $card) :
                         $details = json_decode($card->getTokenDetails() ?: '{}', true);
+                        $iconUrl = $block->cardHandler->getCardIcon($details['type']);
+                        $publicHash = $card->getPublicHash();
+                        $tokenData = $block->vaultHandler->renderTokenData($card);
                         ?>
                         <div id="cko-vault-card-<?= $block->escapeHtmlAttr($card->getEntityId())?>"
-                             class="cko-vault-card">
+                        class="cko-vault-card">
                             <div class="vault-details">
                                 <label>
                                     <input type="radio" name="publicHash"
-                                           value="<?= $block->escapeHtmlAttr($card->getPublicHash())?>">
-                                    <img src="<?= $block->escapeHtmlAttr(
-                                            $block->cardHandler->getCardIcon($details['type'])
-                                        ); ?>" style="display:inline-block; vertical-align:-50%">
+                                    value="<?= $block->escapeHtmlAttr($publicHash)?>">
+                                    <img src="<?= $block->escapeHtmlAttr($iconUrl) ?>"
+                                    style="display:inline-block; vertical-align:-50%">
                                 </label>
                                 <span>
-                                <?= $block->escapeHtml($block->vaultHandler->renderTokenData($card))?>
+                                <?= $block->escapeHtml($tokenData)?>
                                 </span>
                             </div>
                             <div class="vault-cvv">
                                 <input type="text" name="cvv" maxlength="4"
-                                       placeholder="<?= $block->escapeHtmlAttr(__('CVV')) ?>">
+                                placeholder="<?= $block->escapeHtmlAttr(__('CVV')) ?>">
                             </div>
                             <div class="clr"></div>
                         </div>

@@ -66,7 +66,7 @@ class Validation extends \Magento\Framework\App\Action\Action
     {
         try {
             // Process the call after check
-            if ($this->isValidRequest()) {
+            if ($this->getRequest()->isAjax()) {
                 // Prepare the configuration parameters
                 $params = $this->getParams();
 
@@ -100,17 +100,6 @@ class Validation extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Checks if the request is valid.
-     *
-     * @return boolean
-     */
-    protected function isValidRequest()
-    {
-        return "https" == parse_url($this->url, PHP_URL_SCHEME)
-        && substr(parse_url($this->url, PHP_URL_HOST), -10)  == ".apple.com";
-    }
-
-    /**
      * Prepare the Apple Pay request parameters.
      *
      * @return array
@@ -123,7 +112,7 @@ class Validation extends \Magento\Framework\App\Action\Action
                     'merchant_id',
                     $this->methodId
                 ),
-                'domainName' => $_SERVER["HTTP_HOST"],
+                'domainName' => $this->getRequest()->getServer('HTTP_HOST'),
                 'displayName' => $this->config->getStoreName(),
                 'processingCertificate' => $this->config->getValue(
                     'processing_certificate',
