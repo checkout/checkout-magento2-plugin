@@ -195,7 +195,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
-     * { function_description }
+     * Perform a void request.
      *
      * @param \Magento\Payment\Model\InfoInterface $payment The payment
      *
@@ -227,7 +227,17 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
         return $this;
     }
-
+    
+    /**
+     * Perform a refund request.
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param float $amount The amount
+     * 
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return self                                      
+     */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         if ($this->backendAuthSession->isLoggedIn()) {

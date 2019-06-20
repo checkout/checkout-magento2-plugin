@@ -125,20 +125,16 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
-     * Methods
-     */
-
-    /**
      * Sends a payment request.
      *
-     * @param <type>  $data      The data
+     * @param array   $data      The data
      * @param integer $amount    The amount
-     * @param <type>  $currency  The currency
+     * @param string  $currency  The currency
      * @param string  $reference The reference
      *
      * @throws \Magento\Framework\Exception\LocalizedException  (description)
      *
-     * @return <type>                                           ( description_of_the_return_value )
+     * @return self
      */
     public function sendPaymentRequest($data, $amount, $currency, $reference = '')
     {
@@ -213,7 +209,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
-     * { function_description }
+     * Perform a void request.
      *
      * @param \Magento\Payment\Model\InfoInterface $payment The payment
      *
@@ -246,6 +242,16 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         return $this;
     }
 
+    /**
+     * Perform a refund request.
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param float $amount The amount
+     * 
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return self                                      
+     */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
