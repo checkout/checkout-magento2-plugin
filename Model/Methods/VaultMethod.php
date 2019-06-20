@@ -57,6 +57,9 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected $backendAuthSession;
 
+    /**
+     * VaultMethod constructor.
+     */
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -205,6 +208,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             return $response;
         } catch (\Exception $e) {
             $this->ckoLogger->write($e->getMessage());
+            return null;
         }
     }
 
@@ -219,27 +223,31 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
-            // Check the status
-            if (!$this->canVoid()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('The void action is not available.')
-                );
-            }
+        try {
+            if ($this->backendAuthSession->isLoggedIn()) {
+                // Check the status
+                if (!$this->canVoid()) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('The void action is not available.')
+                    );
+                }
 
-            // Process the void request
-            $response = $this->apiHandler->voidOrder($payment);
-            if (!$this->apiHandler->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('The void request could not be processed.')
-                );
-            }
+                // Process the void request
+                $response = $this->apiHandler->voidOrder($payment);
+                if (!$this->apiHandler->isValidResponse($response)) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('The void request could not be processed.')
+                    );
+                }
 
-            // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+                // Set the transaction id from response
+                $payment->setTransactionId($response->action_id);
+            }
+        } catch (\Exception $e) {
+            $this->ckoLogger->write($e->getMessage());
+        } finally {
+            return $this;
         }
-
-        return $this;
     }
 
     /**
@@ -254,27 +262,31 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
-            // Check the status
-            if (!$this->canRefund()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('The refund action is not available.')
-                );
-            }
+        try {
+            if ($this->backendAuthSession->isLoggedIn()) {
+                // Check the status
+                if (!$this->canRefund()) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('The refund action is not available.')
+                    );
+                }
 
-            // Process the refund request
-            $response = $this->apiHandler->refundOrder($payment, $amount);
-            if (!$this->apiHandler->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('The refund request could not be processed.')
-                );
-            }
+                // Process the refund request
+                $response = $this->apiHandler->refundOrder($payment, $amount);
+                if (!$this->apiHandler->isValidResponse($response)) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('The refund request could not be processed.')
+                    );
+                }
 
-            // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+                // Set the transaction id from response
+                $payment->setTransactionId($response->action_id);
+            }
+        } catch (\Exception $e) {
+            $this->ckoLogger->write($e->getMessage());
+        } finally {
+            return $this;
         }
-
-        return $this;
     }
 
     /**
@@ -285,10 +297,13 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        if (parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code);
+        try {
+            if (parent::isAvailable($quote) && null !== $quote) {
+                return $this->config->getValue('active', $this->_code);
+            }
+        } catch (\Exception $e) {
+            $this->ckoLogger->write($e->getMessage());
+            return false;
         }
-
-        return false;
     }
 }
