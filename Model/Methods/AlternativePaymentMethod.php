@@ -161,7 +161,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 ->request($payment);
 
             return $response;
-
         }
 
         return $response;
@@ -176,7 +175,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     protected function createPayment(IdSource $source, int $amount, string $currency, string $reference, $methodId)
     {
-
         $payment = null;
 
         // Create payment object
@@ -214,7 +212,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     {
         $apms = $this->config->getApms();
         $valid = false;
-
         foreach ($apms as $apm) {
             if ($apm['value'] === $method) {
                 $valid = strpos($apm['currencies'], $currency) !== false;
