@@ -12,7 +12,7 @@ define(
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
-        const METHOD_ID = 'checkoutcom_googlepay';
+        const METHOD_ID = 'checkoutcom_google_pay';
 
         return Component.extend(
             {

@@ -13,7 +13,7 @@ define(
 
         window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
 
-        const METHOD_ID = 'checkoutcom_applepay';
+        const METHOD_ID = 'checkoutcom_apple_pay';
 
         return Component.extend(
             {
