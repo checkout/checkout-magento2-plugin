@@ -12,12 +12,12 @@ define(
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
-        const MODULE_ID = 'checkoutcom_googlepay';
+        const METHOD_ID = 'checkoutcom_googlepay';
 
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + MODULE_ID + '.html',
+                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     button_target: '#ckoGooglePayButton',
                 },
 
