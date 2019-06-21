@@ -174,7 +174,7 @@ define(
                     $(self.button_target).click(
                         function (evt) {
                             // Validate T&C submission
-                            if (!additionalValidators.validate()) {
+                            if (!AdditionalValidators.validate()) {
                                 return;
                             }
 
