@@ -100,7 +100,6 @@ class Verify extends \Magento\Framework\App\Action\Action
                 
                 // Process the response
                 if ($this->apiHandler->isValidResponse($response)) {
-
                     if (!$this->placeOrder($response)) {
                         // refund or void accordingly
                         if ($this->config->needsAutoCapture($this->methodId)) {

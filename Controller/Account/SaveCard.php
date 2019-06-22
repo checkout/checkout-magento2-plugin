@@ -85,7 +85,6 @@ class SaveCard extends \Magento\Framework\App\Action\Action
                         ->saveCard();
 
                     $this->messageManager->addSuccessMessage(__('The payment card has been stored successfully.'));
-
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

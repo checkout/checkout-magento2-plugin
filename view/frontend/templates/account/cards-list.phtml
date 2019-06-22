@@ -40,7 +40,7 @@ $ccNumberView = $block->getNumberLast4Digits();
             action="<?= $block->escapeUrl($block->getUrl('vault/cards/deleteaction')); ?>"
             method="post"
         >
-            <?= $block->escapeHtml($block->getBlockHtml('formkey'))?>
+            <?= $block->getBlockHtml('formkey')?>
             <input
                 name="<?= $block->escapeHtmlAttr(PaymentTokenInterface::PUBLIC_HASH) ?>"
                 value="<?= $block->escapeHtmlAttr($block->getToken()->getPublicHash()) ?>"
@@ -53,11 +53,10 @@ $ccNumberView = $block->getNumberLast4Digits();
                                         "modalClass": "my-credit-cards-popup",
                                         "toggleEvent": "click",
                                         "title": "<?= $block->escapeHtmlAttr(__('Delete')) ?>",
-                                        "content": "Are you sure you want to delete this card: XXXX XXXX XXXX
-                                        <?= $block->escapeHtmlAttr($ccNumberView) ?>?"
+                                        "content": "<?= $block->escapeHtml(__('The card ending with %1 will be deleted.', $ccNumberView)) ?>"
                                     }
                                 }'>
-                <span><?= $block->escapeHtml(__('Delete')) ?></span>
+                <span><?= $block->escapeHtml(__('Delete a card')) ?></span>
             </button>
         </form>
     </td>

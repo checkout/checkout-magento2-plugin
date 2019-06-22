@@ -34,7 +34,8 @@ use \Checkout\Models\Payments\GiropaySource;
  * Class AlternativePaymentMethod
  */
 class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
-{ 
+{
+
     /**
      * @var string
      */
@@ -156,7 +157,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $response = null;
 
             if ($this->validateCurrency($method, $currency)) {
-
                 // Create source object
                 $source = $this->{$method}($data);
                 $payment = $this->createPayment(
@@ -407,7 +407,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $tax = 0;
             $quote = $this->quoteHandler->getQuote();
             foreach ($quote->getAllVisibleItems() as $item) {
-
                 $product = new Product();
                 $product->name = $item->getName();
                 $product->quantity = $item->getQty();
@@ -418,7 +417,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
                 $tax += $product->total_tax_amount;
                 $products []= $product;
-
             }
 
             // Shipping fee
@@ -486,7 +484,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @throws \Magento\Framework\Exception\LocalizedException  (description)
      *
-     * @return self                                          
+     * @return self
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
@@ -572,7 +570,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $field = (array) $field;
 
         foreach ($field as $key) {
-
             if (isset($array[$key])) {
                 $value = $array[$key];
                 $array = $array[$key];
@@ -580,7 +577,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 $value = $dft;
                 break;
             }
-
         }
 
         return $value;

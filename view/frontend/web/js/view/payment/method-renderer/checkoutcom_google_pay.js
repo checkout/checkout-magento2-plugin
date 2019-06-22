@@ -220,9 +220,8 @@ define(
                                         if (data.status === true) {
                                             // redirect to success page
                                             FullScreenLoader.startLoader();
-                                            redirectOnSuccessAction.execute();                                     
-                                        }
-                                        else {
+                                            redirectOnSuccessAction.execute();
+                                        } else {
                                             alert(__('An error has occurred. Please try again.'));
                                         }
                                     }
@@ -246,7 +245,6 @@ define(
                     // Validate before submission
                     if (AdditionalValidators.validate()) {
                         // Submission logic
-
                     } else {
                         FullScreenLoader.stopLoader();
                     }

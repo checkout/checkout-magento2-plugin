@@ -28,8 +28,7 @@ define(
                 var val = null;
                 if (methodId && Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
                     val = Config[methodId][field]
-                }
-                else if (Config.hasOwnProperty(KEY_CONFIG) && Config[KEY_CONFIG].hasOwnProperty(field)) {
+                } else if (Config.hasOwnProperty(KEY_CONFIG) && Config[KEY_CONFIG].hasOwnProperty(field)) {
                     val = Config[KEY_CONFIG][field];
                 }
 
@@ -193,12 +192,10 @@ define(
                             if (!data.success) {
                                 FullScreenLoader.stopLoader();
                                 self.showMessage('error', data.message, methodId);
-                            }
-                            else if (data.success && data.url) {
+                            } else if (data.success && data.url) {
                                 // Handle 3DS redirection
                                 window.location.href = data.url
-                            }
-                            else {
+                            } else {
                                 // Normal redirection
                                 RedirectOnSuccessAction.execute();
                             }

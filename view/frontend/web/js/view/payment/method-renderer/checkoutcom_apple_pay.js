@@ -112,8 +112,7 @@ define(
                                 success: function (data, textStatus, xhr) {
                                     if (data.status === true) {
                                         resolve(data.status);
-                                    }
-                                    else {
+                                    } else {
                                         reject;
                                     }
                                 },
@@ -148,9 +147,9 @@ define(
                             function (canMakePayments) {
                                 if (canMakePayments) {
                                     $(self.button_target).css('display', 'block');
-                                } else {   
+                                } else {
                                     Utilities.showMessage(
-                                        'warning', 
+                                        'warning',
                                         __('Apple Pay is available but not currently active.'),
                                         METHOD_ID
                                     );
@@ -164,7 +163,7 @@ define(
                     } else {
                         $(self.button_target).css('display', 'none');
                         Utilities.showMessage(
-                            'warning', 
+                            'warning',
                             __('Apple Pay is not available for this browser.'),
                             METHOD_ID
                         );
@@ -208,15 +207,15 @@ define(
                                     function (error) {
                                         Utilities.log(error);
                                     }
-                                ); 
+                                );
                             }
 
                             // Shipping contact
-                            session.onshippingcontactselected = function (event) {  
+                            session.onshippingcontactselected = function (event) {
                                 var status = ApplePaySession.STATUS_SUCCESS;
 
                                 // Shipping info
-                                var shippingOptions = [];                   
+                                var shippingOptions = [];
                             
                                 var newTotal = {
                                     type: 'final',
@@ -228,7 +227,7 @@ define(
                             }
 
                             // Shipping method selection
-                            session.onshippingmethodselected = function (event) {   
+                            session.onshippingmethodselected = function (event) {
                                 var status = ApplePaySession.STATUS_SUCCESS;
                                 var newTotal = {
                                     type: 'final',
@@ -254,7 +253,7 @@ define(
                             session.onpaymentauthorized = function (event) {
                                 var promise = self.sendPaymentRequest(event.payment.token);
                                 promise.then(
-                                    function (success) {    
+                                    function (success) {
                                         var status;
                                         if (success) {
                                             status = ApplePaySession.STATUS_SUCCESS;
@@ -267,7 +266,7 @@ define(
                                         if (success) {
                                             // redirect to success page
                                             FullScreenLoader.startLoader();
-                                            redirectOnSuccessAction.execute(); 
+                                            redirectOnSuccessAction.execute();
                                         }
                                     }
                                 ).catch(
@@ -302,7 +301,6 @@ define(
                     // Validate before submission
                     if (AdditionalValidators.validate()) {
                         // Submission logic
-
                     } else {
                         FullScreenLoader.stopLoader();
                     }
