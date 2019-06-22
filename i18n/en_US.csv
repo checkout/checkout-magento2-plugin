@@ -36,11 +36,7 @@ Authorize,Authorize
 "The refund action is not available.","The refund action is not available."
 "The refund request could not be processed.","The refund request could not be processed."
 "The CVV value is required.","The CVV value is required."
-"Invoicing is not allowed for this order.","Invoicing is not allowed for this order."
 "A payment method ID is required to place an order.","A payment method ID is required to place an order."
-"The authorized amount is %1.","The authorized amount is %1."
-"The captured amount is %1.","The captured amount is %1."
-"The voided amount is %1.","The voided amount is %1."
 "This card is already saved.","This card is already saved."
 ending,ending
 expires,expires
@@ -50,15 +46,19 @@ expires,expires
 "Please provide the required card information for the MOTO payment.","Please provide the required card information for the MOTO payment."
 "Missing required card information for the MOTO payment.","Missing required card information for the MOTO payment."
 CVV,CVV
+"Get your credentials <a href=""https://www.checkout.com/"">here</a>.","Get your credentials <a href=""https://www.checkout.com/"">here</a>."
+"Add a card","Add a card"
 "Save the card","Save the card"
 "Card Number","Card Number"
 "Expiration Date","Expiration Date"
 Type,Type
 Actions,Actions
 Delete,Delete
+"The card ending with %1 will be deleted.","The card ending with %1 will be deleted."
+"Delete a card","Delete a card"
 Name,Name
 "Cadastro de Pessoas Físicas","Cadastro de Pessoas Físicas"
-Birthdate,Birthdate
+"Birth date","Birth date"
 BIC,BIC
 Description,Description
 "Account IBAN","Account IBAN"
@@ -72,3 +72,4 @@ Debitor,Debitor
 "I accept the mandate for a single payment","I accept the mandate for a single payment"
 "Your rights regarding the above mandate are explained in a statement that you can obtain from your bank.","Your rights regarding the above mandate are explained in a statement that you can obtain from your bank."
 "Place Order","Place Order"
+"Save this card for later use.","Save this card for later use."
