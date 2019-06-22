@@ -157,14 +157,14 @@ define(
                                     function () {
                                         // Todo - Improve response handling. Error should come from the controller
                                         Utilities.log(__('Success'));
-                                    }, function () {
+                                    },
+                                    function () {
                                         Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
                                     }
                                 );
                             }
                         );
-
-                    } catch(e) {
+                    } catch (e) {
                         Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
                         Utilities.log(e);
                     }

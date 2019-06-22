@@ -180,7 +180,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Save card check
             if (isset($data['saveCard'])
-                && $saveCardEnabled 
+                && $saveCardEnabled
                 && $this->customerSession->isLoggedIn()
             ) {
                 $request->metadata['saveCard'] = true;
@@ -216,7 +216,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @throws \Magento\Framework\Exception\LocalizedException  (description)
      *
-     * @return self                                           
+     * @return self
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
@@ -252,10 +252,10 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @param \Magento\Payment\Model\InfoInterface $payment The payment
      * @param float $amount The amount
-     * 
+     *
      * @throws \Magento\Framework\Exception\LocalizedException  (description)
      *
-     * @return self                                      
+     * @return self
      */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {

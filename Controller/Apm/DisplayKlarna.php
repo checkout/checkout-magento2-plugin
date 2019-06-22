@@ -162,7 +162,6 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
             } else {
                 $response = ['source' => false];
             }
-
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         } finally {
@@ -200,7 +199,6 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
 
             // Return the products
             return $products;
-
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
 

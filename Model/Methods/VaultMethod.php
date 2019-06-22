@@ -219,7 +219,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @throws \Magento\Framework\Exception\LocalizedException  (description)
      *
-     * @return self                                      
+     * @return self
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
@@ -255,10 +255,10 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @param \Magento\Payment\Model\InfoInterface $payment The payment
      * @param float $amount The amount
-     * 
+     *
      * @throws \Magento\Framework\Exception\LocalizedException  (description)
      *
-     * @return self                                      
+     * @return self
      */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {

@@ -227,7 +227,6 @@ class QuoteHandlerService
             $this->cookieManager->deleteCookie(
                 $this->config->getValue('email_cookie_name')
             );
-
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         } finally {
