@@ -151,7 +151,8 @@ define(
                                 } else {   
                                     Utilities.showMessage(
                                         'warning', 
-                                        __('Apple Pay is available but not currently active.')
+                                        __('Apple Pay is available but not currently active.'),
+                                        METHOD_ID
                                     );
                                 }
                             }
@@ -164,7 +165,8 @@ define(
                         $(self.button_target).css('display', 'none');
                         Utilities.showMessage(
                             'warning', 
-                            __('Apple Pay is not available for this browser.')
+                            __('Apple Pay is not available for this browser.'),
+                            METHOD_ID
                         );
                     }
 

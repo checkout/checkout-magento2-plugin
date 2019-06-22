@@ -26,6 +26,9 @@
 
     <script type="text/javascript">
         require(['jquery', 'CheckoutCom_Magento2/js/view/payment/utilities', 'Magento_Checkout/js/model/full-screen-loader', 'domReady!'], function ($, Utilities, FullScreenLoader) {
+            
+            const METHOD_ID = 'checkoutcom_apm';
+
             // Prepare the form id
             var sepaForm = $('#' + 'cko-apm-form-<?= $block->escapeHtml($block->getData('apm_id')) ?>');
 
@@ -52,13 +55,13 @@
                                 sepaForm.html(data.html);
                                 sepaForm.trigger('reset');
                             } else {
-                                Utilities.showMessage('error', 'Invalid details.');
+                                Utilities.showMessage('error', 'Invalid details.', METHOD_ID);
                             }
 
                             FullScreenLoader.stopLoader();
                         },
                         error: function (request, status, error) {
-                            Utilities.showMessage('error', 'Invalid details.');
+                            Utilities.showMessage('error', 'Invalid details.', METHOD_ID);
                             FullScreenLoader.stopLoader();
                         }
                     });
