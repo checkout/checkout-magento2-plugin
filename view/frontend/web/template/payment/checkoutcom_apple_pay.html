@@ -23,6 +23,9 @@
         <!-- /ko -->
         <!--/ko-->
 
+        <!-- Messages -->
+        <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
             <!-- ko template: getTemplate() -->
@@ -33,8 +36,6 @@
         <div class="actions-toolbar">
             <div class="primary">
                     <button id="ckoApplePayButton" type="button" class="apple-pay-button action primary checkout"></button>
-                    <p style="display:none" id="got_notactive">ApplePay is possible on this browser, but not currently activated.</p>
-                    <p style="display:none" id="notgot">ApplePay is not available on this browser</p>
                     <div data-bind="visible: launchApplePay()"></div>
             </div>
         </div>

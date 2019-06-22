@@ -151,7 +151,10 @@ define(
                                 if (canMakePayments) {
                                     $(self.button_target).css('display', 'block');
                                 } else {   
-                                    $('#got_notactive').css('display', 'block');
+                                    Utilities.showMessage(
+                                        'error', 
+                                        __('Apple Pay is available with this browser but not currently active.')
+                                    );
                                 }
                             }
                         ).catch(
@@ -160,7 +163,10 @@ define(
                             }
                         );
                     } else {
-                        $('#notgot').css('display', 'block');
+                        Utilities.showMessage(
+                            'error', 
+                            __('Apple Pay is not available with this browser.')
+                        );
                     }
 
                     // Handle the events

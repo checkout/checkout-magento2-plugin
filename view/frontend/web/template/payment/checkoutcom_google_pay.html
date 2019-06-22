@@ -23,6 +23,9 @@
         <!-- /ko -->
         <!--/ko-->
 
+        <!-- Messages -->
+        <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+        
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
             <!-- ko template: getTemplate() -->
