@@ -40,7 +40,7 @@ $ccNumberView = $block->getNumberLast4Digits();
             action="<?= $block->escapeUrl($block->getUrl('vault/cards/deleteaction')); ?>"
             method="post"
         >
-            <?= $block->escapeHtml($block->getBlockHtml('formkey'))?>
+            <?= $block->getBlockHtml('formkey')?>
             <input
                 name="<?= $block->escapeHtmlAttr(PaymentTokenInterface::PUBLIC_HASH) ?>"
                 value="<?= $block->escapeHtmlAttr($block->getToken()->getPublicHash()) ?>"
