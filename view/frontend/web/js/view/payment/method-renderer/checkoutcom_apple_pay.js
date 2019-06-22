@@ -152,19 +152,20 @@ define(
                                     $(self.button_target).css('display', 'block');
                                 } else {   
                                     Utilities.showMessage(
-                                        'error', 
+                                        'warning', 
                                         __('Apple Pay is available with this browser but not currently active.')
                                     );
                                 }
                             }
                         ).catch(
                             function (error) {
-                                    Utilities.log(error);
+                                Utilities.log(error);
                             }
                         );
                     } else {
+                        $(self.button_target).css('display', 'none');
                         Utilities.showMessage(
-                            'error', 
+                            'warning', 
                             __('Apple Pay is not available with this browser.')
                         );
                     }
