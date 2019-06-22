@@ -53,7 +53,7 @@ $ccNumberView = $block->getNumberLast4Digits();
                                         "modalClass": "my-credit-cards-popup",
                                         "toggleEvent": "click",
                                         "title": "<?= $block->escapeHtmlAttr(__('Delete')) ?>",
-                                        "content": "<?= __('The card ending with %1 will be deleted.', $block->escapeHtmlAttr($ccNumberView)) ?>"
+                                        "content": "<?= $block->escapeHtml(__('The card ending with %1 will be deleted.', $ccNumberView)) ?>"
                                     }
                                 }'>
                 <span><?= $block->escapeHtml(__('Delete a card')) ?></span>
