@@ -5,7 +5,8 @@ define(
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'mage/translate'
+        'mage/translate',
+        'googlepayjs'
     ],
     function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, __) {
 
