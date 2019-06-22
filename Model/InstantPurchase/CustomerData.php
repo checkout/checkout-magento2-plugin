@@ -167,7 +167,6 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
                     'summary' => $this->shippingMethodFormatter->format($this->shippingMethod),
                 ]
             ];
-
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         } finally {
