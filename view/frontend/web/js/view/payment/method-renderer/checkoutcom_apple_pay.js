@@ -71,16 +71,9 @@ define(
                 /**
                  * @returns {array}
                  */
-                getSupportedCountries: function () {
-                    return this.getValue('supportedCountries').split(',');
-                },
-
-                /**
-                 * @returns {array}
-                 */
                 getMerchantCapabilities: function () {
                     var output = ['supports3DS'];
-                    var capabilities = this.getValue('merchantCapabilities').split(',');
+                    var capabilities = this.getValue('merchant_capabilities').split(',');
                     
                     return output.concat(capabilities);
                 },
