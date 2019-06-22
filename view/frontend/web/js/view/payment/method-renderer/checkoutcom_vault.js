@@ -233,7 +233,8 @@ define(
                             if (!self.isCvvValid()) {
                                 Utilities.showMessage(
                                     'error',
-                                    __('The CVV field is invalid.')
+                                    __('The CVV field is invalid.'),
+                                    METHOD_ID
                                 );
 
                                 return;
@@ -244,7 +245,7 @@ define(
                         }
 
                         // Place the order
-                        Utilities.placeOrder(payload);
+                        Utilities.placeOrder(payload, METHOD_ID);
                     }
                 }
             }

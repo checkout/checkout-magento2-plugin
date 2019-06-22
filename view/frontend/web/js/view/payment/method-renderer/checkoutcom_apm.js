@@ -104,6 +104,7 @@ define(
                     if (AdditionalValidators.validate() && $form.valid() && this.custom(data)) {
                         Utilities.placeOrder(
                             data,
+                            METHOD_ID,
                             // Todo - Improve response handling. Error should come from the controller
                             function () {
                                 Utilities.log(__('Success'));
@@ -152,18 +153,19 @@ define(
                                 data.authorization_token = response.authorization_token;
                                 Utilities.placeOrder(
                                     data,
+                                    METHOD_ID,
                                     function () {
                                         // Todo - Improve response handling. Error should come from the controller
                                         Utilities.log(__('Success'));
                                     }, function () {
-                                        Utilities.showMessage('error', 'Could not finalize the payment.');
+                                        Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
                                     }
                                 );
                             }
                         );
 
                     } catch(e) {
-                        Utilities.showMessage('error', 'Could not finalize the payment.');
+                        Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
                         Utilities.log(e);
                     }
 

@@ -164,7 +164,7 @@ define(
                         };
 
                         // Place the order
-                        Utilities.placeOrder(payload);
+                        Utilities.placeOrder(payload, METHOD_ID);
 
                         // Make sure the card form stays unblocked
                         Frames.unblockFields();
