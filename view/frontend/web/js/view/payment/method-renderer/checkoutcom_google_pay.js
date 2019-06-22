@@ -56,7 +56,7 @@ define(
                  * @returns {array}
                  */
                 getAllowedNetworks: function () {
-                    return this.getValue('allowedNetworks').split(',');
+                    return this.getValue('allowed_card_networks').split(',');
                 },
 
                 /**
@@ -73,7 +73,7 @@ define(
                     $(self.button_target).click(
                         function (evt) {
                             // Validate T&C submission
-                            if (!additionalValidators.validate()) {
+                            if (!AdditionalValidators.validate()) {
                                 return;
                             }
 
