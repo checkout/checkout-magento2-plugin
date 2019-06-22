@@ -65,7 +65,7 @@ define(
                  * @returns {array}
                  */
                 getSupportedNetworks: function () {
-                    return this.getValue('supportedNetworks').split(',');
+                    return this.getValue('supported_networks').split(',');
                 },
 
                 /**
@@ -191,8 +191,7 @@ define(
                                     amount: runningTotal
                                 },
                                 supportedNetworks: self.getSupportedNetworks(),
-                                merchantCapabilities: self.getMerchantCapabilities(),
-                                supportedCountries: self.getSupportedCountries()
+                                merchantCapabilities: self.getMerchantCapabilities()
                             };
 
                             // Start the payment session
