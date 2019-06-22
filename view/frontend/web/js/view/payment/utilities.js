@@ -37,7 +37,7 @@ define(
             },
 
             getStoreName: function () {
-                return Config[KEY_CONFIG].store.name;
+                return Config[KEY_DATA].store.name;
             },
 
             getQuoteValue: function () {
