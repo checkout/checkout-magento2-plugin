@@ -105,25 +105,23 @@ define(
                 sendPaymentRequest: function (paymentData) {
                     return new Promise(
                         function (resolve, reject) {
-                            $.ajax(
-                                {
-                                    url: url.build('payment/placeorder'),
-                                    type: "POST",
-                                    data: paymentData,
-                                    success: function (data, textStatus, xhr) {
-                                        if (data.status === true) {
-                                            resolve(data.status);
-                                        }
-                                        else {
-                                            reject;
-                                        }
-                                    },
-                                    error: function (xhr, textStatus, error) {
-                                        Utilities.log(error);
+                            $.ajax({
+                                url: url.build('payment/placeorder'),
+                                type: "POST",
+                                data: paymentData,
+                                success: function (data, textStatus, xhr) {
+                                    if (data.status === true) {
+                                        resolve(data.status);
+                                    }
+                                    else {
                                         reject;
-                                    } 
+                                    }
+                                },
+                                error: function (xhr, textStatus, error) {
+                                    Utilities.log(error);
+                                    reject;
                                 }
-                            );
+                            });
                         }
                     );
                 },
