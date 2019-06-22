@@ -210,7 +210,7 @@ define(
                             {
                                 //self.logEvent(JSON.parse(paymentData.paymentMethodToken.token));
                                 $.post(
-                                    utilities.getUrl('payment/placeorder'),
+                                    Utilities.getUrl('payment/placeorder'),
                                     {
                                         signature: JSON.parse(paymentData.paymentMethodToken.token).signature,
                                         protocolVersion: JSON.parse(paymentData.paymentMethodToken.token).protocolVersion,
