@@ -13,7 +13,7 @@ define(
 
         window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
 
-        const METHOD_ID = 'checkoutcom_applepay';
+        const METHOD_ID = 'checkoutcom_apple_pay';
 
         return Component.extend(
             {
@@ -65,14 +65,7 @@ define(
                  * @returns {array}
                  */
                 getSupportedNetworks: function () {
-                    return this.getValue('supportedNetworks').split(',');
-                },
-
-                /**
-                 * @returns {array}
-                 */
-                getSupportedCountries: function () {
-                    return this.getValue('supportedCountries').split(',');
+                    return this.getValue('supported_networks').split(',');
                 },
 
                 /**
@@ -80,7 +73,7 @@ define(
                  */
                 getMerchantCapabilities: function () {
                     var output = ['supports3DS'];
-                    var capabilities = this.getValue('merchantCapabilities').split(',');
+                    var capabilities = this.getValue('merchant_capabilities').split(',');
                     
                     return output.concat(capabilities);
                 },
@@ -112,25 +105,23 @@ define(
                 sendPaymentRequest: function (paymentData) {
                     return new Promise(
                         function (resolve, reject) {
-                            $.ajax(
-                                {
-                                    url: url.build('payment/placeorder'),
-                                    type: "POST",
-                                    data: paymentData,
-                                    success: function (data, textStatus, xhr) {
-                                        if (data.status === true) {
-                                            resolve(data.status);
-                                        }
-                                        else {
-                                            reject;
-                                        }
-                                    },
-                                    error: function (xhr, textStatus, error) {
-                                        Utilities.log(error);
+                            $.ajax({
+                                url: url.build('payment/placeorder'),
+                                type: "POST",
+                                data: paymentData,
+                                success: function (data, textStatus, xhr) {
+                                    if (data.status === true) {
+                                        resolve(data.status);
+                                    }
+                                    else {
                                         reject;
-                                    } 
+                                    }
+                                },
+                                error: function (xhr, textStatus, error) {
+                                    Utilities.log(error);
+                                    reject;
                                 }
-                            );
+                            });
                         }
                     );
                 },
@@ -158,23 +149,32 @@ define(
                                 if (canMakePayments) {
                                     $(self.button_target).css('display', 'block');
                                 } else {   
-                                    $('#got_notactive').css('display', 'block');
+                                    Utilities.showMessage(
+                                        'warning', 
+                                        __('Apple Pay is available but not currently active.'),
+                                        METHOD_ID
+                                    );
                                 }
                             }
                         ).catch(
                             function (error) {
-                                    Utilities.log(error);
+                                Utilities.log(error);
                             }
                         );
                     } else {
-                        $('#notgot').css('display', 'block');
+                        $(self.button_target).css('display', 'none');
+                        Utilities.showMessage(
+                            'warning', 
+                            __('Apple Pay is not available for this browser.'),
+                            METHOD_ID
+                        );
                     }
 
                     // Handle the events
                     $(self.button_target).click(
                         function (evt) {
                             // Validate T&C submission
-                            if (!additionalValidators.validate()) {
+                            if (!AdditionalValidators.validate()) {
                                 return;
                             }
 
@@ -191,8 +191,7 @@ define(
                                     amount: runningTotal
                                 },
                                 supportedNetworks: self.getSupportedNetworks(),
-                                merchantCapabilities: self.getMerchantCapabilities(),
-                                supportedCountries: self.getSupportedCountries()
+                                merchantCapabilities: self.getMerchantCapabilities()
                             };
 
                             // Start the payment session
