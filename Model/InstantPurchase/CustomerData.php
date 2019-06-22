@@ -142,9 +142,6 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     {
         // Set the instant purchase availability
         $data = ['available' => $this->isAvailable()];
-        if (!$data['available']) {
-            return $data;
-        }
 
         try {
             // Build the instant purchase data
