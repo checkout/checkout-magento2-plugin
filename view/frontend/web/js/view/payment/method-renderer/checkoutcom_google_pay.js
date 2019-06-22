@@ -177,7 +177,7 @@ define(
                             function getGoogleTransactionInfo()
                             {
                                 return {
-                                    currencyCode: CheckoutCom.getPaymentConfig()['quote_currency'],
+                                    currencyCode: Utilities.getQuoteCurrency(),
                                     totalPriceStatus: 'FINAL',
                                     totalPrice: Utilities.getQuoteValue()
                                 };
