@@ -85,7 +85,7 @@ define(
                                 tokenizationType: 'PAYMENT_GATEWAY',
                                 parameters: {
                                     'gateway':  self.getValue('gateway_name'),
-                                    'gatewayMerchantId': Utilities.getPublicKey()
+                                    'gatewayMerchantId': Utilities.getValue('public_key')
                                 }
                             }
 
