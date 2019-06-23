@@ -82,6 +82,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     protected $logger;
 
     /**
+     * @var CustomerData
+     */
+    protected $customerData;
+
+    /**
      * PlaceOrder constructor
      */
     public function __construct(
@@ -95,7 +100,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \CheckoutCom\Magento2\Model\InstantPurchase\CustomerData $customerData
     ) {
         parent::__construct($context);
 
@@ -109,6 +115,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
+        $this->customerData = $customerData;
 
         // Try to load a quote
         $this->quote = $this->quoteHandler->getQuote();
@@ -149,13 +156,16 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $billingAddress = $this->addressManager->load($this->data['instant_purchase_billing_address']);
             $quote->getBillingAddress()->addData($billingAddress->getData());
 
+            // Get the shipping method
+            $shippingMethod = $this->customerData->shippingMethod;
+
             // Set the shipping address and method
             $shippingAddress = $this->addressManager->load($this->data['instant_purchase_shipping_address']);
             $quote->getShippingAddress()
                 ->addData($shippingAddress->getData())
                 ->setCollectShippingRates(true)
                 ->collectShippingRates()
-                ->setShippingMethod('flatrate_flatrate');
+                ->setShippingMethod($this->customerData->shippingMethod->getCode());
 
             // Set payment
             $quote->setPaymentMethod('checkoutcom_vault');
