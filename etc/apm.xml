@@ -45,4 +45,24 @@
         <title>EPS</title>
         <currencies>EUR</currencies>
     </item>
+    <item>
+        <id>fawry</id>
+        <title>fawry</title>
+        <currencies>EGP</currencies>
+    </item>
+    <item>
+        <id>fawry</id>
+        <title>fawry</title>
+        <currencies>EGP</currencies>
+    </item>
+    <item>
+        <id>bancontact</id>
+        <title>Bancontact</title>
+        <currencies>EUR</currencies>
+    </item>
+    <item>
+        <id>knet</id>
+        <title>KNet</title>
+        <currencies>KWD</currencies>
+    </item>
 </config>

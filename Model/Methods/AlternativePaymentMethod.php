@@ -46,7 +46,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     protected $_canUseCheckout = true;
     protected $_canRefund = true;
     protected $_canRefundInvoicePartial = true;
-    
+
     /**
      * @var string
      */
@@ -163,8 +163,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $payment = $this->createPayment($source, $amount, $currency, $reference, $this->_code);
 
             // Send the charge request
-            $response = $this->apiHandler->checkoutApi->payments()
-                ->request($payment);
+            $response = $this->apiHandler
+                             ->checkoutApi
+                             ->payments()->request($payment);
 
             return $response;
 
@@ -227,6 +228,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         return $valid;
     }
 
+
     /**
      * API related.
      */
@@ -266,7 +268,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             'Authorization: ' . $secret,
             'User-Agent: checkout-magento2-plugin/1.0.0'
         ]);
-        
+
         // Set extra CURL parameters
         $this->curl->curlOption(CURLOPT_FAILONERROR, false);
         $this->curl->curlOption(CURLOPT_RETURNTRANSFER, true);
@@ -394,17 +396,22 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         // Shipping fee
         $shipping = $quote->getShippingAddress();
 
-        $product = new Product();
-        $product->name = $shipping->getShippingDescription();
-        $product->quantity = 1;
-        $product->unit_price = $shipping->getShippingInclTax() *100;
-        $product->tax_rate = $shipping->getTaxPercent() *100;
-        $product->total_amount = $shipping->getShippingAmount() *100;
-        $product->total_tax_amount = $shipping->getTaxAmount() *100;
-        $product->type = 'shipping_fee';
+        if($shipping->getShippingDescription()) {
 
-        $tax  += $product->total_tax_amount;
-        $products []= $product;
+            $product = new Product();
+            $product->name = $shipping->getShippingDescription();
+            $product->quantity = 1;
+            $product->unit_price = $shipping->getShippingInclTax() *100;
+            $product->tax_rate = $shipping->getTaxPercent() *100;
+            $product->total_amount = $shipping->getShippingAmount() *100;
+            $product->total_tax_amount = $shipping->getTaxAmount() *100;
+            $product->type = 'shipping_fee';
+
+            $tax  += $product->total_tax_amount;
+            $products []= $product;
+
+        }
+
 
         /* Billing */
         $billingAddress = $this->quoteHandler->getBillingAddress();
@@ -444,6 +451,46 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     {
         return new EpsSource(__('Payment request from %1', $this->config->getStoreName()));
     }
+
+    /**
+     * Create source.
+     *
+     * @param $source  The source
+     *
+     * @return TokenSource
+     */
+    protected function fawry($data)
+    {
+        return new SofortSource(); // @todo aqui
+    }
+
+    /**
+     * Create source.
+     *
+     * @param $source  The source
+     *
+     * @return TokenSource
+     */
+    protected function knet($data)
+    {
+        return new SofortSource();
+    }
+
+    /**
+     * Create source.
+     *
+     * @param $source  The source
+     *
+     * @return TokenSource
+     */
+    protected function bancontact($data)
+    {
+        return new SofortSource();
+    }
+
+    /**
+     * Magento
+     */
 
     /**
      * { function_description }

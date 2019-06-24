@@ -16,86 +16,114 @@
     <script type="text/javascript">
 
         /**
-         * Klarna controller
+         * Klarna controller.
          */
-        require(['jquery', 'domReady!'], function ($) {
+        require([
+            "jquery",
+            "domReady!",
+            "Klarna"
+            ], function ($) {
 
-            // Prepare the form id
-            var klarnaForm = $('#cko-apm-form-<?= $block->escapeHtml($block->getData('apm_id'))?>');
-
-            /**
-             * Wait for klarna to be ready
-             */
-            window.klarnaAsyncCallback = function () {
-                $.ajax({
-                    type: 'POST',
-                    url: '<?= $block->escapeUrl($block->getUrl('checkout_com/apm/displayklarna'))?>',
-                    data: {},
-                    success: function (data) {
-
-                        $("#klarna_container").html("");
-
-                        var methods = [];
-                        data.source.payment_method_categories.forEach(function(el, index) {
-                            methods.push(el.identifier);
-                        });
-
-                        if(methods.length) {
-                            try {
-                                Klarna.Payments.init({client_token: data.source.client_token}); // Initialize Klarna
-                                Klarna.Payments.load({  
-                                    container: "#klarna_container",
-                                    payment_method_categories: methods,
-                                    instance_id: "klarna-payments-instance"
-                                },
-                                {
-                                    purchase_country:   data.billing.country,
-                                    purchase_currency:  data.quote.quote_currency_code,
-                                    locale:             data.locale,
-                                    order_amount:       parseInt(data.quote.grand_total) *100,
-                                    order_tax_amount:   parseInt(data.tax_amount) *100,
-                                    order_lines:        data.products,
-                                    billing_address:    {   
-                                        given_name:     data.billing.firstname,
-                                        family_name:    data.billing.lastname,
-                                        email:          data.billing.email,
-                                        //title:          data.billing.email,
-                                        street_address: data.billing.street,
-                                        //street_address2:          data.billing.email,
-                                        postal_code:    data.billing.postcode,
-                                        city:           data.billing.city,
-                                        region:         data.billing.region,
-                                        phone:          data.billing.phone,
-                                        country:        data.billing.country_id.toLowerCase()
-                                    }
-                                },
-                                function (response) {
-                                    console.log('success', response);
-                                    if (!response.show_form) {
-                                        $('#klarna').remove();
-                                        $('#body-klarna').remove();
-                                    }
-                                });
-                            } catch (e) {
-                                //@todo: handle error
-                                console.log('error', e);
-
-                            }
-                        } else {
-                            $('#klarna').remove();
-                            $('#body-klarna').remove();
-                        }
+                var k = {
+                    /**
+                     * Remove Klarna elements.
+                     */
+                    remove: function() {
+                        $("#klarna").remove();
+                        $("#body-klarna").remove();
                     },
-                    error: function (request, status, error) {
-                        //@todo: handle error
-                        console.log(error);
+                    /**
+                     * Load Klarna object.
+                     *
+                     * @param      {Obj}  data     The data
+                     * @param      {Array}  methods  The methods
+                     */
+                    load: function(data, methods) {
+
+                        var self = this;
+                        try {
+                            Klarna.Payments.init({client_token: data.source.client_token}); // Initialize Klarna
+                            Klarna.Payments.load({
+                                container: "#klarna_container",
+                                payment_method_categories: methods,
+                                instance_id: "klarna-payments-instance"
+                            },
+                            {
+                                purchase_country:   data.billing.country,
+                                purchase_currency:  data.quote.quote_currency_code,
+                                locale:             data.locale,
+                                order_amount:       parseInt(data.quote.grand_total) *100,
+                                order_tax_amount:   parseInt(data.tax_amount) *100,
+                                order_lines:        data.products,
+                                billing_address:    {
+                                    given_name:     data.billing.firstname,
+                                    family_name:    data.billing.lastname,
+                                    email:          data.billing.email,
+                                    //title:          data.billing.email,
+                                    street_address: data.billing.street,
+                                    //street_address2:          data.billing.email,
+                                    postal_code:    data.billing.postcode,
+                                    city:           data.billing.city,
+                                    region:         data.billing.region,
+                                    phone:          data.billing.phone,
+                                    country:        data.billing.country_id.toLowerCase()
+                                }
+                            },
+                            function (response) {
+                                if (!response.show_form) {
+                                    self.remove();
+                                }
+                            });
+
+                        } catch(er) {
+                            this.remove();
+                        }
+
+                    },
+                    /**
+                     * Get methods from source.
+                     *
+                     * @param      {Array}  [methods=[]]  The methods
+                     * @return     {Array}   The methods.
+                     */
+                    getMethods: function(methods = []) {
+
+                        var list = [];
+                            methods.forEach(function(el) {
+                                list.push(el.identifier);
+                            });
+
+                        return list;
+
                     }
-                });
+                }
 
-            };
+                /**
+                 * Verify if Klarna is available.
+                 */
+                if(Klarna != undefined) {
 
+                    $.ajax({type: 'POST',
+                            url: '<?= $block->escapeUrl($block->getUrl('checkout_com/apm/displayklarna'))?>',
+                            data: {},
+                            success: function (data) {
+
+                            if(data.source) {
+                                $("#klarna_container").html("");
+                                k.load( data,
+                                        k.getMethods(data.source.payment_method_categories));
+                                return;
+                            }
+
+                            k.remove();
+                        },
+                        error: k.remove
+                    });
+
+                } else {
+                    k.remove();
+                }
         });
+
     </script>
-    <!-- @todo - Move this URL to config .xml -->
-	<script src="https://x.klarnacdn.net/kp/lib/v1/api.js" async></script>
 </div>

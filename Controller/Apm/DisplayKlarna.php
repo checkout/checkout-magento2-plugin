@@ -19,8 +19,6 @@ namespace CheckoutCom\Magento2\Controller\Apm;
 
 use Checkout\CheckoutApi;
 use Checkout\Models\Product;
-use Checkout\Library\HttpHandler;
-use Checkout\Models\Sources\Sepa;
 use Checkout\Models\Sources\Klarna;
 
 /**
@@ -140,11 +138,10 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     protected function getKlarna()
     {
         // Prepare the output array
-        $response = [];
+        $response = array('source' => false);
 
         try {
             $products = $this->getProducts($response);
-
             $klarna = new Klarna(
                 strtolower($this->billingAddress->getCountry()),
                 $this->quote->getQuoteCurrencyCode(),
@@ -155,16 +152,15 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
             );
 
             $source = $this->apiHandler->checkoutApi->sources()->add($klarna);
+
             if ($source->isSuccessful()) {
                 $response['source'] = $source->getValues();
                 $response['billing'] = $this->billingAddress->toArray();
                 $response['quote'] = $this->quote->toArray();
-            } else {
-                $response = ['source' => false];
             }
 
         } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
+            $this->logger->write($e->getBody());
         } finally {
             return $response;
         }
@@ -179,57 +175,58 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      */
     protected function getProducts(array &$response)
     {
-        try {
-            $response['tax_amount'] = 0;
-            foreach ($this->quote->getAllVisibleItems() as $item) {
-                $product = new Product();
-                $product->name = $item->getName();
-                $product->quantity = $item->getQty();
-                $product->unit_price = $item->getPriceInclTax() *100;
-                $product->tax_rate = $item->getTaxPercent() *100;
-                $product->total_amount = $item->getRowTotalInclTax() *100;
-                $product->total_tax_amount = $item->getTaxAmount() *100;
 
-                $response['tax_amount'] += $product->total_tax_amount;
-                $products[]= $product;
-                $response['products'][] = $product->getValues();
-            }
+        $products = array();
+        $response['tax_amount'] = 0;
+        foreach ($this->quote->getAllVisibleItems() as $item) {
+            $product = new Product();
+            $product->name = $item->getName();
+            $product->quantity = $item->getQty();
+            $product->unit_price = $item->getPriceInclTax() *100;
+            $product->tax_rate = $item->getTaxPercent() *100;
+            $product->total_amount = $item->getRowTotalInclTax() *100;
+            $product->total_tax_amount = $item->getTaxAmount() *100;
 
-            // Get the shipping
-            $this->getShipping($response, $products);
-
-            // Return the products
-            return $products;
-
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-
-            return null;
+            $response['tax_amount'] += $product->total_tax_amount;
+            $products[]= $product;
+            $response['products'][] = $product->getValues();
         }
+
+        // Get the shipping
+        $this->getShipping($response, $products);
+
+        // Return the products
+        return $products;
     }
 
     /**
      * Gets the shipping.
      *
      * @param array $response The response
-     * @return array  The products.
+     * @param array $products The products.
+     * @return void
      */
     protected function getShipping(array &$response, array &$products)
     {
-        $response['tax_amount'] = 0;
+
         $shipping = $this->quote->getShippingAddress();
 
-        $product = new Product();
-        $product->name = $shipping->getShippingDescription();
-        $product->quantity = 1;
-        $product->unit_price = $shipping->getShippingInclTax() *100;
-        $product->tax_rate = $shipping->getTaxPercent() *100;
-        $product->total_amount = $shipping->getShippingAmount() *100;
-        $product->total_tax_amount = $shipping->getTaxAmount() *100;
-        $product->type = 'shipping_fee';
+        if($shipping->getShippingDescription()) {
 
-        $response['tax_amount']  += $product->total_tax_amount;
-        $products []= $product;
-        $response['products'] []= $product->getValues();
+            $product = new Product();
+            $product->name = $shipping->getShippingDescription();
+            $product->quantity = 1;
+            $product->unit_price = $shipping->getShippingInclTax() *100;
+            $product->tax_rate = $shipping->getTaxPercent() *100;
+            $product->total_amount = $shipping->getShippingAmount() *100;
+            $product->total_tax_amount = $shipping->getTaxAmount() *100;
+            $product->type = 'shipping_fee';
+
+            $response['tax_amount']  += $product->total_tax_amount;
+            $products []= $product;
+            $response['products'] []= $product->getValues();
+
+        }
+
     }
 }
