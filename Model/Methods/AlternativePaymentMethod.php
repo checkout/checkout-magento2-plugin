@@ -423,7 +423,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 $products []= $product;
             }
 
-            // Shipping
+            // Shipping fee
+            $shipping = $quote->getShippingAddress();
+
             if($shipping->getShippingDescription()) {
 
                 $product = new Product();
