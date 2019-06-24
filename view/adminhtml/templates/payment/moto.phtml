@@ -5,7 +5,7 @@
             <!-- Saved cards -->
             <div id="vault-container">
                 <?php
-                if ($block->canDisplayCards()) :
+                if ($block->canDisplayAdminCards()) :
                     $cardsList = $block->getUserCards();
                     foreach ($cardsList as $card) :
                         $details = json_decode($card->getTokenDetails() ?: '{}', true);
@@ -78,7 +78,7 @@
 <!-- Saved cards JS-->
 <?php
 
-if ($block->canDisplayCards()) : ?>
+if ($block->canDisplayAdminCards()) : ?>
     <script type="text/javascript">
         require(['jquery', 'domReady!'], function ($) {
             // Prepare some variables

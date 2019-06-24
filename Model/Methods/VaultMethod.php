@@ -53,6 +53,16 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     protected $ckoLogger;
 
     /**
+     * @var QuoteHandlerService
+     */
+    protected $quoteHandler;
+
+    /**
+     * @var Moto
+     */
+    protected $motoBlock;
+
+    /**
      * @var Session
      */
     protected $backendAuthSession;
@@ -88,6 +98,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto $motoBlock,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -125,6 +136,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->vaultHandler       = $vaultHandler;
         $this->cardHandler        = $cardHandler;
         $this->quoteHandler       = $quoteHandler;
+        $this->motoBlock          = $motoBlock;
     }
 
     /**
@@ -299,8 +311,10 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if (parent::isAvailable($quote) && null !== $quote) {
-                return $this->config->getValue('active', $this->_code)
-                && $this->config->getValue('can_use_internal', $this->_code);
+                return ($this->config->getValue('active', $this->_code) 
+                && !$this->backendAuthSession->isLoggedIn())
+                || ($this->backendAuthSession->isLoggedIn() && 
+                $this->config->getValue('saved_cards_enabled', $this->_code));
             }
         } catch (\Exception $e) {
             $this->ckoLogger->write($e->getMessage());
