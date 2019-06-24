@@ -103,6 +103,9 @@ if ($block->canDisplayAdminCards()) : ?>
             $('.vault-cvv input').on('focus', function() {
                 $(this).closest(listItem).trigger('click');
             });
+
+            // Move the shipping selection
+            $('#order-shipping_method').css('cssText', 'float: none !important');
         });
     </script>
 <?php endif; ?>
