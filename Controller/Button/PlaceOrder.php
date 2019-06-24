@@ -143,13 +143,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $quote = $this->quoteHandler->createQuote();
             $quote = $this->quoteHandler->addItems(
                 $quote,
-                [
-                    [
-                        'product_id' => $this->data['product'],
-                        'qty' => $this->data['qty'],
-                        'super_attribute' => $this->data['super_attribute']
-                    ]
-                ]
+                $this->buildProductData()
             );
 
             // Set the billing address
@@ -157,7 +151,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $quote->getBillingAddress()->addData($billingAddress->getData());
 
             // Get the shipping method
-            $shippingMethod = $this->customerData->shippingMethod;
+            $shippingMethod = $this->customerData->loadOption()->getShippingMethod();
 
             // Set the shipping address and method
             $shippingAddress = $this->addressManager->load($this->data['instant_purchase_shipping_address']);
@@ -165,7 +159,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 ->addData($shippingAddress->getData())
                 ->setCollectShippingRates(true)
                 ->collectShippingRates()
-                ->setShippingMethod($this->customerData->shippingMethod->getCode());
+                ->setShippingMethod($shippingMethod->getCode());
 
             // Set payment
             $quote->setPaymentMethod('checkoutcom_vault');
@@ -211,11 +205,38 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     }
 
     /**
+     * Creates a formatted array with the purchased product data.
+     *
+     * @return array
+     */
+    protected function buildProductData() {
+        try {
+            // Prepare the base array
+            $output = [
+                [
+                    'product_id' => $this->data['product'],
+                    'qty' => $this->data['qty'],
+                ]
+            ];
+
+            // Add product variations
+            if (isset($this->data['super_attribute']) && !empty($this->data['super_attribute'])) {
+                $output['super_attribute'] = $this->data['super_attribute'];
+            }
+
+            return $output;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return [];
+        } 
+    }
+
+    /**
      * Creates response with the operation status message.
      *
      * @return array
      */
-    private function createResponse(string $message, bool $successMessage)
+    protected function createResponse(string $message, bool $successMessage)
     {
         // Prepare the result
         $result = $this->jsonFactory->create()->setData(
