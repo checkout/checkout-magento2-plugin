@@ -165,7 +165,6 @@ class OrderHandlerService
                 }
 
                 return $order;
-
             } catch (\Exception $e) {
                 $this->logger->write($e->getMessage());
                 return null;

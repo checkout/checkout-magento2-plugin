@@ -2,7 +2,6 @@
     "name": "checkoutcom/magento2",
     "description": "Checkout.com Payment Gateway for Magento 2",
     "require": {
-        "php": ">=7.0",
         "checkout/checkout-sdk-php": "^1.0"
     },
     "type": "magento2-module",

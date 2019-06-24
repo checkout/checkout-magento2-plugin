@@ -7,7 +7,7 @@
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
 
- @supports (-webkit-appearance: -apple-pay-button) { 
+ @supports (-webkit-appearance: -apple-pay-button) {
     .apple-pay-button {
         display: inline-block;
         -webkit-appearance: -apple-pay-button;
@@ -21,7 +21,6 @@
     .apple-pay-button-white-with-line {
         -apple-pay-button-style: white-outline;
     }
-
 }
 
 @supports not (-webkit-appearance: -apple-pay-button) {
@@ -49,7 +48,7 @@
         background-image: -webkit-named-image(apple-pay-logo-black);
         background-color: white;
         border: .5px solid black;
-    } 
+    }
 }
 
 /* make ApplePay button larger*/

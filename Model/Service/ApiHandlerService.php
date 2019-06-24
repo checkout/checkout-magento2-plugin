@@ -53,7 +53,7 @@ class ApiHandlerService
     protected $logger;
 
     /**
-     * Initialize the API client wrapper.
+     * ApiHandlerService constructor.
      */
     public function __construct(
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,

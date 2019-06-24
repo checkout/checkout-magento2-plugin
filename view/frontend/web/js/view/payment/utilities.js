@@ -28,8 +28,7 @@ define(
                 var val = null;
                 if (methodId && Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
                     val = Config[methodId][field]
-                }
-                else if (Config.hasOwnProperty(KEY_CONFIG) && Config[KEY_CONFIG].hasOwnProperty(field)) {
+                } else if (Config.hasOwnProperty(KEY_CONFIG) && Config[KEY_CONFIG].hasOwnProperty(field)) {
                     val = Config[KEY_CONFIG][field];
                 }
 
@@ -37,7 +36,7 @@ define(
             },
 
             getStoreName: function () {
-                return Config[KEY_CONFIG].store.name;
+                return Config[KEY_DATA].store.name;
             },
 
             getQuoteValue: function () {
@@ -120,7 +119,7 @@ define(
             },
 
             /**
-             * @returns {bool}
+             * Handle error logging.
              */
             log: function (val) {
                 if (this.getValue(null, 'debug')
@@ -131,48 +130,53 @@ define(
             },
 
             /**
-             * Methods
+             * Show a message.
              */
-
-            /**
-             * Show a message
-             */
-            showMessage: function (type, message) {
-                this.clearMessages();
-                var messageContainer = $('.message');
+            showMessage: function (type, message, methodId) {
+                this.clearMessages(methodId);
+                var messageContainer = this.getMethodContainer(methodId).find('.message');
                 messageContainer.addClass('message-' + type + ' ' + type);
                 messageContainer.append('<div>' + __(message) + '</div>');
                 messageContainer.show();
             },
 
             /**
-             * Clear all messages
+             * Clear all messages.
              */
-            clearMessages: function () {
-                var messageContainer = $('.message');
+            clearMessages: function (methodId) {
+                var messageContainer = this.getMethodContainer(methodId).find('.message');
                 messageContainer.hide();
                 messageContainer.empty();
             },
 
+            /**
+             * Get a payment method container instance.
+             */
+            getMethodContainer: function (methodId) {
+                return $('#' + methodId + '_container');
+            },
+
+            /**
+             * Check if an URL is valid.
+             */
             isUrl: function (str) {
                 var pattern = /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/;
                 return pattern.test(str);
             },
 
+            /**
+             * Handle the place order button state.
+             */
             allowPlaceOrder: function (buttonId, yesNo) {
                 $('#' + buttonId).prop('disabled', !yesNo);
             },
-
-            /**
-             * HTTP handlers
-             */
 
             /**
              * Place a new order.
              *
              * @returns {void}
              */
-            placeOrder: function (payload) {
+            placeOrder: function (payload, methodId) {
                 var self = this;
 
                 // Start the loader
@@ -187,19 +191,17 @@ define(
                         success: function (data) {
                             if (!data.success) {
                                 FullScreenLoader.stopLoader();
-                                self.showMessage('error', data.message);
-                            }
-                            else if (data.success && data.url) {
+                                self.showMessage('error', data.message, methodId);
+                            } else if (data.success && data.url) {
                                 // Handle 3DS redirection
                                 window.location.href = data.url
-                            }
-                            else {
+                            } else {
                                 // Normal redirection
                                 RedirectOnSuccessAction.execute();
                             }
                         },
                         error: function (request, status, error) {
-                            self.showMessage('error', error);
+                            self.showMessage('error', error, methodId);
                             FullScreenLoader.stopLoader();
                         }
                     }

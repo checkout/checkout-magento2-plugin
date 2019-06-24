@@ -118,20 +118,22 @@ define(
 
                     // CVV focus event
                     $(self.cvvField).on(
-                        'focus', function () {
+                        'focus',
+                        function () {
                             $(this).closest(self.rowSelector).trigger('click');
                         }
                     );
 
                     // CVV change event
                     $(self.cvvField).on(
-                        'change keyup', function () {
+                        'change keyup',
+                        function () {
                             Utilities.allowPlaceOrder(
                                 self.buttonId,
                                 self.canEnableButton()
                             );
                         }
-                    );      
+                    );
                 },
 
                 /**
@@ -173,11 +175,11 @@ define(
                     var self = this;
                     var listItem = $(self.containerId).find(self.rowSelector);
 
-                    // Disable place order on click outside       
+                    // Disable place order on click outside
                     $(document).mouseup(
                         function () {
                             Utilities.allowPlaceOrder(
-                                self.buttonId, 
+                                self.buttonId,
                                 self.canEnableButton()
                             );
                         }
@@ -196,7 +198,8 @@ define(
                           
                     // Click behaviour
                     listItem.on(
-                        'click touch', function () {
+                        'click touch',
+                        function () {
                             // Items state
                             listItem.removeClass('card-selected');
                             listItem.not(this).find('.vault-cvv input').val('');
@@ -204,7 +207,7 @@ define(
 
                             // Allow order placement if conditions are matched
                             Utilities.allowPlaceOrder(
-                                self.buttonId, 
+                                self.buttonId,
                                 self.canEnableButton()
                             );
                         }
@@ -233,18 +236,18 @@ define(
                             if (!self.isCvvValid()) {
                                 Utilities.showMessage(
                                     'error',
-                                    __('The CVV field is invalid.')
+                                    __('The CVV field is invalid.'),
+                                    METHOD_ID
                                 );
 
                                 return;
-                            }
-                            else {
+                            } else {
                                 payload.cvv = self.getCvvValue();
                             }
                         }
 
                         // Place the order
-                        Utilities.placeOrder(payload);
+                        Utilities.placeOrder(payload, METHOD_ID);
                     }
                 }
             }

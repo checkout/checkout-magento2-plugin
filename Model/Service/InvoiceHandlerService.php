@@ -92,7 +92,6 @@ class InvoiceHandlerService
             } elseif ($this->needsCancelling()) {
                 $this->cancelInvoice();
             }
-
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
@@ -216,7 +215,6 @@ class InvoiceHandlerService
             }
 
             return null;
-
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;

@@ -79,7 +79,8 @@ define(
                 initEvents: function () {
                     var self = this;
                     $('input[name="saveCard"]').on(
-                        'click', function () {
+                        'click',
+                        function () {
                             self.saveCard = this.checked;
                         }
                     );
@@ -103,7 +104,7 @@ define(
                  *
                  * @return {void}
                  */
-                getPaymentForm: function () {                    
+                getPaymentForm: function () {
                     var self = this;
 
                     // Remove any existing event handlers
@@ -123,8 +124,7 @@ define(
                                     Utilities.allowPlaceOrder(self.buttonId, true);
                                     Frames.submitCard();
                                     Frames.unblockFields();
-                                }
-                                else {
+                                } else {
                                     Utilities.allowPlaceOrder(self.buttonId, false);
                                 }
                             },
@@ -164,7 +164,7 @@ define(
                         };
 
                         // Place the order
-                        Utilities.placeOrder(payload);
+                        Utilities.placeOrder(payload, METHOD_ID);
 
                         // Make sure the card form stays unblocked
                         Frames.unblockFields();

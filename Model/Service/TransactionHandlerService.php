@@ -534,7 +534,6 @@ class TransactionHandlerService
             }
 
             return $transactions;
-
         } catch (Exception $e) {
             $this->logger->write($e->getMessage());
             return null;

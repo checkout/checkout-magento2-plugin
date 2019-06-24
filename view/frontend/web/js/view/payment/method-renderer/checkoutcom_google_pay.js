@@ -5,19 +5,20 @@ define(
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'mage/translate'
+        'mage/translate',
+        'googlepayjs'
     ],
     function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, __) {
 
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
-        const MODULE_ID = 'checkoutcom_googlepay';
+        const METHOD_ID = 'checkoutcom_google_pay';
 
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + MODULE_ID + '.html',
+                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     button_target: '#ckoGooglePayButton',
                 },
 
@@ -56,7 +57,7 @@ define(
                  * @returns {array}
                  */
                 getAllowedNetworks: function () {
-                    return this.getValue('allowedNetworks').split(',');
+                    return this.getValue('allowed_card_networks').split(',');
                 },
 
                 /**
@@ -73,7 +74,7 @@ define(
                     $(self.button_target).click(
                         function (evt) {
                             // Validate T&C submission
-                            if (!additionalValidators.validate()) {
+                            if (!AdditionalValidators.validate()) {
                                 return;
                             }
 
@@ -85,7 +86,7 @@ define(
                                 tokenizationType: 'PAYMENT_GATEWAY',
                                 parameters: {
                                     'gateway':  self.getValue('gateway_name'),
-                                    'gatewayMerchantId': Utilities.getPublicKey()
+                                    'gatewayMerchantId': Utilities.getValue('public_key')
                                 }
                             }
 
@@ -176,7 +177,7 @@ define(
                             function getGoogleTransactionInfo()
                             {
                                 return {
-                                    currencyCode: CheckoutCom.getPaymentConfig()['quote_currency'],
+                                    currencyCode: Utilities.getQuoteCurrency(),
                                     totalPriceStatus: 'FINAL',
                                     totalPrice: Utilities.getQuoteValue()
                                 };
@@ -209,7 +210,7 @@ define(
                             {
                                 //self.logEvent(JSON.parse(paymentData.paymentMethodToken.token));
                                 $.post(
-                                    utilities.getUrl('payment/placeorder'),
+                                    Utilities.getUrl('payment/placeorder'),
                                     {
                                         signature: JSON.parse(paymentData.paymentMethodToken.token).signature,
                                         protocolVersion: JSON.parse(paymentData.paymentMethodToken.token).protocolVersion,
@@ -219,9 +220,8 @@ define(
                                         if (data.status === true) {
                                             // redirect to success page
                                             FullScreenLoader.startLoader();
-                                            redirectOnSuccessAction.execute();                                     
-                                        }
-                                        else {
+                                            redirectOnSuccessAction.execute();
+                                        } else {
                                             alert(__('An error has occurred. Please try again.'));
                                         }
                                     }
@@ -245,7 +245,6 @@ define(
                     // Validate before submission
                     if (AdditionalValidators.validate()) {
                         // Submission logic
-
                     } else {
                         FullScreenLoader.stopLoader();
                     }
