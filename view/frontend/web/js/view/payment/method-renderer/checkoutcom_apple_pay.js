@@ -89,6 +89,7 @@ define(
                         function (resolve, reject) {
                             var xhr = new XMLHttpRequest();
                             xhr.onload = function () {
+                                Utilities.log(this.responseText);
                                 var data = JSON.parse(this.responseText);
                                 resolve(data);
                             };
