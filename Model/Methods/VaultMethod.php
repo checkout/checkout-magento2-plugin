@@ -299,7 +299,8 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if (parent::isAvailable($quote) && null !== $quote) {
-                return $this->config->getValue('active', $this->_code);
+                return $this->config->getValue('active', $this->_code)
+                && $this->config->getValue('can_use_internal', $this->_code);
             }
         } catch (\Exception $e) {
             $this->ckoLogger->write($e->getMessage());
