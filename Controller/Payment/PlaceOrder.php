@@ -238,7 +238,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             // Check if the order is valid
             if (!$this->orderHandler->isOrder($order)) {
                 $this->cancelPayment($response);
+                return null;
             }
+
+            return $order;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }

@@ -26,6 +26,9 @@
 
 namespace CheckoutCom\Magento2\Controller\Button;
 
+use \Checkout\Models\Payments\Refund;
+use \Checkout\Models\Payments\Voids;
+
 /**
  * Class PlaceOrder
  */
@@ -35,11 +38,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      * @var JsonFactory
      */
     protected $jsonFactory;
-
-    /**
-     * @var QuoteManagement
-     */
-    protected $quoteManagement;
 
     /**
      * @var Product
@@ -60,6 +58,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      * @var QuoteHandlerService
      */
     protected $quoteHandler;
+
+    /**
+     * @var OrderHandlerService
+     */
+    protected $orderHandler;
 
     /**
      * @var MethodHandlerService
@@ -92,11 +95,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Catalog\Model\Product $productModel,
         \Magento\InstantPurchase\Model\QuoteManagement\ShippingConfiguration $shippingConfiguration,
         \Magento\Customer\Model\Address $addressManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
@@ -106,11 +109,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
 
         $this->jsonFactory = $jsonFactory;
-        $this->quoteManagement = $quoteManagement;
         $this->productModel = $productModel;
         $this->shippingConfiguration = $shippingConfiguration;
         $this->addressManager = $addressManager;
         $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
@@ -125,6 +128,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
         // Prepare the public hash
         $this->data['publicHash'] = $this->data['instant_purchase_payment_token'];
+
+        // Set some required properties
+        $this->methodId = 'checkoutcom_vault';
     }
 
     /**
@@ -151,7 +157,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $quote->getBillingAddress()->addData($billingAddress->getData());
 
             // Get the shipping method
-            $shippingMethod = $this->customerData->loadOption()->getShippingMethod();
+            //$shippingMethod = $this->customerData->loadOption()->getShippingMethod();
 
             // Set the shipping address and method
             $shippingAddress = $this->addressManager->load($this->data['instant_purchase_shipping_address']);
@@ -159,14 +165,14 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 ->addData($shippingAddress->getData())
                 ->setCollectShippingRates(true)
                 ->collectShippingRates()
-                ->setShippingMethod($shippingMethod->getCode());
+                ->setShippingMethod('flatrate_flatrate');
 
             // Set payment
-            $quote->setPaymentMethod('checkoutcom_vault');
+            $quote->setPaymentMethod($this->methodId);
             $quote->setInventoryProcessed(false);
             $quote->save();
             $quote->getPayment()->importData(
-                ['method' => 'checkoutcom_vault']
+                ['method' => $this->methodId]
             );
 
             // Save the quote
@@ -174,18 +180,18 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
             // Process the response
             $response = $this->methodHandler
-                ->get('checkoutcom_vault')
+                ->get($this->methodId)
                 ->sendPaymentRequest(
                     $this->data,
-                    $this->quote->getGrandTotal(),
-                    $this->quote->getQuoteCurrencyCode(),
-                    $this->quoteHandler->getReference($this->quote)
+                    $quote->getGrandTotal(),
+                    $quote->getQuoteCurrencyCode(),
+                    $this->quoteHandler->getReference($quote)
                 );
 
             // Process a successful response
             if ($this->apiHandler->isValidResponse($response)) {
                 // Create the order
-                $order = $this->quoteManagement->submit($quote);
+                $order = $this->placeOrder($quote, $response);
 
                 // Prepare the user response
                 $message = __(
@@ -201,6 +207,44 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             );
         } finally {
             return $this->createResponse($message, true);
+        }
+    }
+
+    /**
+     * Handles the order placing process.
+     *
+     * @param array $response The response
+     *
+     * @return void
+     */
+    protected function placeOrder($quote, $response = null)
+    {
+        try {
+            // Get the reserved order increment id
+            $reservedIncrementId = $this->quoteHandler
+                ->getReference($quote);
+
+            // Create an order
+            $order = $this->orderHandler
+                ->setMethodId($this->methodId)
+                ->handleOrder($response, $reservedIncrementId);
+
+            // Add the payment info to the order
+            $order = $this->utilities
+                ->setPaymentData($order, $response);
+
+            // Save the order
+            $order->save();
+
+            // Check if the order is valid
+            if (!$this->orderHandler->isOrder($order)) {
+                $this->cancelPayment($response);
+                return null;
+            }
+
+            return $order;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
         }
     }
 
@@ -251,5 +295,28 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         }
 
         return $result;
+    }
+
+    /**
+     * Cancels a payment.
+     *
+     * @param array $response The response
+     *
+     * @return void
+     */
+    protected function cancelPayment($response)
+    {
+        try {
+            // refund or void accordingly
+            if ($this->config->needsAutoCapture($this->methodId)) {
+                //refund
+                $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
+            } else {
+                //void
+                $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        }
     }
 }
