@@ -85,9 +85,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     protected $logger;
 
     /**
-     * @var CustomerData
+     * @var ShippingSelector
      */
-    protected $customerData;
+    protected $shippingSelector;
 
     /**
      * PlaceOrder constructor
@@ -104,7 +104,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger,
-        \CheckoutCom\Magento2\Model\InstantPurchase\CustomerData $customerData
+        \CheckoutCom\Magento2\Model\InstantPurchase\ShippingSelector $shippingSelector
     ) {
         parent::__construct($context);
 
@@ -118,7 +118,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
-        $this->customerData = $customerData;
+        $this->shippingSelector = $shippingSelector;
 
         // Try to load a quote
         $this->quote = $this->quoteHandler->getQuote();
@@ -156,16 +156,17 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $billingAddress = $this->addressManager->load($this->data['instant_purchase_billing_address']);
             $quote->getBillingAddress()->addData($billingAddress->getData());
 
-            // Get the shipping method
-            //$shippingMethod = $this->customerData->loadOption()->getShippingMethod();
-
-            // Set the shipping address and method
+            // Get the shipping address
             $shippingAddress = $this->addressManager->load($this->data['instant_purchase_shipping_address']);
-            $quote->getShippingAddress()
-                ->addData($shippingAddress->getData())
+
+            // Prepare the quote
+            $quote->getShippingAddress()->addData($shippingAddress->getData());
+
+            // Set the shipping method
+            $shippingMethodCode = $this->shippingSelector->getShippingMethod($quote->getShippingAddress());
+            $quote->getShippingAddress()->setShippingMethod($shippingMethodCode)
                 ->setCollectShippingRates(true)
-                ->collectShippingRates()
-                ->setShippingMethod('flatrate_flatrate');
+                ->collectShippingRates();
 
             // Set payment
             $quote->setPaymentMethod($this->methodId);
