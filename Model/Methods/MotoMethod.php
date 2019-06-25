@@ -198,6 +198,8 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 return $this->config->getValue('active', $this->_code) 
                 && $this->backendAuthSession->isLoggedIn();
             }
+
+            return false;
         } catch (\Exception $e) {
             $this->ckoLogger->write($e->getMessage());
             return false;

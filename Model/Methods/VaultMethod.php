@@ -316,6 +316,8 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 || ($this->backendAuthSession->isLoggedIn() && 
                 $this->config->getValue('saved_cards_enabled', $this->_code));
             }
+        
+            return false;
         } catch (\Exception $e) {
             $this->ckoLogger->write($e->getMessage());
             return false;
