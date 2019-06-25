@@ -26,6 +26,9 @@ use \Checkout\Models\Payments\EpsSource;
 use \Checkout\Models\Payments\IdealSource;
 use \Checkout\Models\Payments\AlipaySource;
 use \Checkout\Models\Payments\BoletoSource;
+use \Checkout\Models\Payments\KnetSource;
+use \Checkout\Models\Payments\FawrySource;
+use \Checkout\Models\Payments\BancontactSource;
 use \Checkout\Models\Payments\KlarnaSource;
 use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
@@ -152,6 +155,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function sendPaymentRequest(array $data, $amount, $currency, $reference = '')
     {
+
         try {
             $method = $data['source'];
             $response = null;
@@ -159,20 +163,20 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             if ($this->validateCurrency($method, $currency)) {
                 // Create source object
                 $source = $this->{$method}($data);
-                $payment = $this->createPayment(
-                    $source,
-                    $amount,
-                    $currency,
-                    $reference,
-                    $this->_code
-                );
+                $payment = $this->createPayment($source,
+                                                $amount,
+                                                $currency,
+                                                $reference,
+                                                $this->_code);
 
                 // Send the charge request
-                $response = $this->apiHandler->checkoutApi->payments()
-                    ->request($payment);
+                $response = $this->apiHandler
+                                 ->checkoutApi
+                                 ->payments()->request($payment);
 
                 return $response;
             }
+
 
             return $response;
         } catch (\Exception $e) {
@@ -246,6 +250,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         }
     }
 
+
     /**
      * API related.
      */
@@ -279,6 +284,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     protected function activateMandate(string $url)
     {
+
         try {
             // Get the secret key
             $secret = $this->config->getValue('secret_key');
@@ -291,7 +297,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 'Authorization: ' . $secret,
                 'User-Agent: checkout-magento2-plugin/1.0.0'
             ]);
-            
+
             // Set extra CURL parameters
             $this->curl->curlOption(CURLOPT_FAILONERROR, false);
             $this->curl->curlOption(CURLOPT_RETURNTRANSFER, true);
@@ -308,6 +314,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $this->ckoLogger->write($e->getMessage());
             return null;
         }
+
     }
 
     /**
@@ -422,17 +429,21 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             // Shipping fee
             $shipping = $quote->getShippingAddress();
 
-            $product = new Product();
-            $product->name = $shipping->getShippingDescription();
-            $product->quantity = 1;
-            $product->unit_price = $shipping->getShippingInclTax() *100;
-            $product->tax_rate = $shipping->getTaxPercent() *100;
-            $product->total_amount = $shipping->getShippingAmount() *100;
-            $product->total_tax_amount = $shipping->getTaxAmount() *100;
-            $product->type = 'shipping_fee';
+            if($shipping->getShippingDescription()) {
 
-            $tax  += $product->total_tax_amount;
-            $products []= $product;
+                $product = new Product();
+                $product->name = $shipping->getShippingDescription();
+                $product->quantity = 1;
+                $product->unit_price = $shipping->getShippingInclTax() *100;
+                $product->tax_rate = $shipping->getTaxPercent() *100;
+                $product->total_amount = $shipping->getShippingAmount() *100;
+                $product->total_tax_amount = $shipping->getTaxAmount() *100;
+                $product->type = 'shipping_fee';
+
+                $tax  += $product->total_tax_amount;
+                $products []= $product;
+
+            }
 
             /* Billing */
             $billingAddress = $this->quoteHandler->getBillingAddress();
@@ -452,7 +463,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $klarna =  new KlarnaSource(
                 $data['authorization_token'],
                 strtolower($billingAddress->getCountry()),
-                'en-GB',
+                str_replace('_', '-', $this->shopperHandler->getCustomerLocale('en_GB')),
                 $address,
                 $tax,
                 $products
@@ -463,6 +474,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $this->ckoLogger->write($e->getMessage());
             return null;
         }
+
     }
 
     /**
@@ -476,6 +488,93 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     {
         return new EpsSource(__('Payment request from %1', $this->config->getStoreName()));
     }
+
+    /**
+     * Create source.
+     *
+     * @param $source  The source
+     *
+     * @return TokenSource
+     */
+    protected function fawry($data)
+    {
+
+        $products = [];
+        $quote = $this->quoteHandler->getQuote();
+        foreach ($quote->getAllVisibleItems() as $item) {
+            $product = new Product();
+            $product->description = $item->getName();
+            $product->quantity = $item->getQty();
+            $product->price = $item->getPriceInclTax() *100;
+            $product->product_id = $item->getId();
+            $products []= $product;
+
+        }
+
+        // Shipping fee
+        $shipping = $quote->getShippingAddress();
+
+        if($shipping->getShippingDescription()) {
+
+            $product = new Product();
+            $product->description = $shipping->getShippingDescription();
+            $product->quantity = 1;
+            $product->price = $shipping->getShippingInclTax() *100;
+            $product->product_id = 0;
+
+            $products []= $product;
+
+        }
+
+        /* Billing */
+        $billingAddress = $this->quoteHandler->getBillingAddress();
+        $email = $billingAddress->getEmail();
+        $phone = $billingAddress->getTelephone();
+        $description = __('Payment request from %1', $this->config->getStoreName());
+
+        return new FawrySource($email, $phone, $description, $products);
+    }
+
+    /**
+     * Create source.
+     *
+     * @param $source  The source
+     *
+     * @return TokenSource
+     */
+    protected function knet($data)
+    {
+
+        $locale = explode('_', $this->shopperHandler->getCustomerLocale('en'));
+        return new KnetSource($locale[0]);
+    }
+
+    /**
+     * Create source.
+     *
+     * @param $source  The source
+     *
+     * @return TokenSource
+     */
+    protected function bancontact($data)
+    {
+
+        $billingAddress = $this->quoteHandler->getBillingAddress();
+
+        $name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
+        $country = $billingAddress->getCountry();
+        $desciptor = __(
+                'Payment request from %1',
+                $this->config->getStoreName()
+            );
+
+        return new BancontactSource($name,$country, $desciptor);;
+
+    }
+
+    /**
+     * Magento
+     */
 
     /**
      * { function_description }
