@@ -93,7 +93,8 @@ class ApiHandlerService
     public function isValidResponse($response)
     {
         try {
-            return is_object($response)
+            return $response != null
+            && is_object($response)
             && method_exists($response, 'isSuccessful')
             && $response->isSuccessful();
         } catch (\Exception $e) {

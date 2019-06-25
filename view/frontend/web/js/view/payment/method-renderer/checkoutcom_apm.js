@@ -20,7 +20,8 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html'
+                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
+                    redirectAfterPlaceOrder: false
                 },
 
                 /**
