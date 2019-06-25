@@ -95,7 +95,7 @@ class Logger
 
         if ($debug && $gatewayResponses) {
             $output = print_r($response, 1);
-            $this->messageManager->addSuccessMessage(
+            $this->messageManager->addComplexSuccessMessage(
                 $output
             );
         }
