@@ -138,7 +138,7 @@ class TransactionHandlerService
 
             // Invoice handling
             $this->invoiceHandler->processInvoice(
-                $order,
+                $this->order,
                 $this->transaction
             );
 
