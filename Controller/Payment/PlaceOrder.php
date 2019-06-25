@@ -206,7 +206,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     protected function canPlaceOrder($response)
     {
-        return !$response->isPending() || $this->data['source'] === 'sepa';
+        return !$response->isPending() || $this->data['source'] === 'sepa' || $this->data['source'] === 'fawry';
     }
 
     /**
