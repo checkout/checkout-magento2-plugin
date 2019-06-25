@@ -4,7 +4,7 @@
         <settings>
             <checkoutcom_configuration>
                 <fields_encrypted>secret_key,public_key,private_shared_key</fields_encrypted>
-                <fields_hidden>secret_key,private_shared_key,email_cookie_name</fields_hidden>
+                <fields_hidden>secret_key,private_shared_key</fields_hidden>
                 <active>1</active>
                 <debug>0</debug>
                 <file_logging>0</file_logging>
