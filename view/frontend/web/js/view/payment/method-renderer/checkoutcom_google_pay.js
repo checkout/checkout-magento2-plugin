@@ -20,6 +20,7 @@ define(
                 defaults: {
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     button_target: '#ckoGooglePayButton',
+                    redirectAfterPlaceOrder: false
                 },
 
                 /**
