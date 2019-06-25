@@ -192,6 +192,9 @@ class TransactionHandlerService
         try {
             $authTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
             if (!$authTransaction && !$this->isWebhook) {
+                // Set the order status
+                $this->setOrderStatus('order_status_authorized');
+
                 // Add order comment
                 $this->addOrderComment('The authorized amount is %1.');
 
@@ -200,9 +203,6 @@ class TransactionHandlerService
 
                 // Allow void
                 $this->transaction->setIsClosed(0);
-
-                // Set the order status
-                $this->setOrderStatus('order_status_authorized');
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
@@ -221,6 +221,9 @@ class TransactionHandlerService
                 $this->transaction->setParentTxnId(
                     $parentTransaction->getTxnId()
                 );
+            
+                // Set the order status
+                $this->setOrderStatus('order_status_captured');
 
                 // Add order comment
                 $this->addOrderComment('The captured amount is %1.');
@@ -231,9 +234,6 @@ class TransactionHandlerService
                 // Allow refund
                 $this->transaction->setIsClosed(0);
             }
-
-            // Set the order status
-            $this->setOrderStatus('order_status_captured');
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
@@ -280,7 +280,10 @@ class TransactionHandlerService
                 $this->transaction->setParentTxnId(
                     $parentTransaction->getTxnId()
                 );
-            
+
+                // Set the order status
+                $this->setOrderStatus('order_status_refunded');
+                
                 // Prepare the refunded amount
                 $amount = $this->paymentData['data']['amount']/100;
 
@@ -300,9 +303,6 @@ class TransactionHandlerService
 
                 // Lock the transaction
                 $this->transaction->setIsClosed(1);
-
-                // Set the order status
-                $this->setOrderStatus('order_status_refunded');
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
