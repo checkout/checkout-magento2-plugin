@@ -100,7 +100,7 @@ class Moto extends \Magento\Payment\Block\Form\Cc
      *
      * @return bool
      */
-    public function canDisplayCards()
+    public function canDisplayAdminCards()
     {
         try {
             // Get the customer id
@@ -108,6 +108,7 @@ class Moto extends \Magento\Payment\Block\Form\Cc
 
             // Return the check result
             return $this->config->getValue('saved_cards_enabled', 'checkoutcom_moto')
+            && $this->config->getValue('active', 'checkoutcom_moto')
             && $this->vaultHandler->userHasCards($customerId);
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

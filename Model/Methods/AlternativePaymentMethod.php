@@ -648,7 +648,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         try {
             if (parent::isAvailable($quote) && null !== $quote) {
                 return $this->config->getValue('active', $this->_code)
-                && count($this->config->getApms()) > 0;
+                && count($this->config->getApms()) > 0
+                && $this->config->getValue('can_use_internal', $this->_code);
             }
         } catch (\Exception $e) {
             $this->ckoLogger->write($e->getMessage());
