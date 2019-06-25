@@ -102,7 +102,7 @@ define(
              */
             setEmail: function () {
                 $.cookie(
-                    this.getValue('email_cookie_name'),
+                    this.getValue(null, 'email_cookie_name'),
                     this.getEmail()
                 );
             },
