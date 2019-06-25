@@ -91,49 +91,9 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
         $this->vaultHandler = $vaultHandler;
         $this->paymentTokenFormatter = $paymentTokenFormatter;
         $this->logger = $logger;
-    }
 
-    /**
-     * @inheritdoc
-     */
-    public function getSectionData(): array
-    {
-        try {
-            // Handle availability
-            $isAvailable = $this->isAvailable();
-            if ($isAvailable) {
-                $data = ['available' => true];
-                $this->prepareData();
-            }
-            else {
-                return $data = ['available' => false];
-            }
-
-            // Build the instant purchase data
-            $data += [
-                'paymentToken' => [
-                    'publicHash' => $this->paymentToken->getPublicHash(),
-                    'summary' => $this->paymentTokenFormatter->formatPaymentToken($this->paymentToken),
-                ],
-                'shippingAddress' => [
-                    'id' => $this->shippingAddress->getId(),
-                    'summary' => $this->customerAddressesFormatter->format($this->shippingAddress),
-                ],
-                'billingAddress' => [
-                    'id' => $this->billingAddress->getId(),
-                    'summary' => $this->customerAddressesFormatter->format($this->billingAddress),
-                ],
-                'shippingMethod' => [
-                    'carrier' => $this->shippingMethod->getCarrierCode(),
-                    'method' => $this->shippingMethod->getMethodCode(),
-                    'summary' => $this->shippingMethodFormatter->format($this->shippingMethod),
-                ]
-            ];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        } finally {
-            return $data;
-        }
+        // Prepare the required data
+        $this->prepareData();
     }
 
     /**
@@ -172,6 +132,42 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSectionData(): array
+    {
+        // Set the instant purchase availability
+        $data = ['available' => $this->isAvailable()];
+
+        try {
+            // Build the instant purchase data
+            $data += [
+                'paymentToken' => [
+                    'publicHash' => $this->paymentToken->getPublicHash(),
+                    'summary' => $this->paymentTokenFormatter->formatPaymentToken($this->paymentToken),
+                ],
+                'shippingAddress' => [
+                    'id' => $this->shippingAddress->getId(),
+                    'summary' => $this->customerAddressesFormatter->format($this->shippingAddress),
+                ],
+                'billingAddress' => [
+                    'id' => $this->billingAddress->getId(),
+                    'summary' => $this->customerAddressesFormatter->format($this->billingAddress),
+                ],
+                'shippingMethod' => [
+                    'carrier' => $this->shippingMethod->getCarrierCode(),
+                    'method' => $this->shippingMethod->getMethodCode(),
+                    'summary' => $this->shippingMethodFormatter->format($this->shippingMethod),
+                ]
+            ];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            return $data;
         }
     }
 
