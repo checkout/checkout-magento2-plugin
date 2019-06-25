@@ -78,7 +78,8 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
             $this->transactionHandler->createTransaction(
                 $this->order,
                 Transaction::TYPE_AUTH,
-                $this->utilities->getPaymentData($this->order)
+                $this->utilities->getPaymentData($this->order),
+                false
             );
         }
         
