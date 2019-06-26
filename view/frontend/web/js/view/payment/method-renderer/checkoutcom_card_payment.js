@@ -160,7 +160,8 @@ define(
                             methodId: METHOD_ID,
                             cardToken: self.cardToken,
                             cardBin: self.cardBin,
-                            saveCard: self.saveCard
+                            saveCard: self.saveCard,
+                            source: METHOD_ID
                         };
 
                         // Place the order
