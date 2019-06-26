@@ -132,7 +132,7 @@ class Verify extends \Magento\Framework\App\Action\Action
      *
      * @return mixed
      */
-    protected function placeOrder(array $response = null)
+    protected function placeOrder($response = null)
     {
         try {
             // Get the reserved order increment id
