@@ -102,7 +102,9 @@ class Verify extends \Magento\Framework\App\Action\Action
                 if ($this->apiHandler->isValidResponse($response)) {
                     if (!$this->placeOrder($response)) {
                         // Add and error message
-                        $this->messageManager->addErrorMessage(__('The transaction could not be processed or has been cancelled.'));
+                        $this->messageManager->addErrorMessage(
+                            __('The transaction could not be processed or has been cancelled.')
+                        );
 
                         // Return to the cart
                         return $this->_redirect('checkout/cart', ['_secure' => true]);
