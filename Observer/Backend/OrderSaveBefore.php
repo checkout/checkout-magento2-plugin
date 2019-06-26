@@ -167,7 +167,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 // Todo - add customer to the request
                 //$request->customer = $this->apiHandler->createCustomer($this->order);
                 if ($captureDate) {
-                    $request->capture_time = $this->config->getCaptureTime();
+                    $request->capture_on = $this->config->getCaptureTime();
                 }
 
                 // Send the charge request

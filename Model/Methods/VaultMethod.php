@@ -201,7 +201,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             $request->payment_type = 'Regular';
             if ($captureDate) {
-                $request->capture_time = $this->config->getCaptureTime();
+                $request->capture_on = $this->config->getCaptureTime();
             }
 
             // Mada BIN Check
