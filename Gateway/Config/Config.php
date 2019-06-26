@@ -183,16 +183,15 @@ class Config
     {
         // Get the capture time from config
         $captureTime = (float) $this->getValue('capture_time');
-
+        
         // Force capture time to a minimum of 10 seconds
         $min = 0.0027;
         $captureTime = $captureTime >= 0.0027 ? $captureTime : $min;
 
         // Check the setting
-        if ($this->needsAutoCapture() && !empty($captureTime)) {
+        if ($this->needsAutoCapture()) {
             // Calculate the capture date
             $captureDate = time() + $captureTime*60*60;
-
             return $this->utilities->formatDate($captureDate);
         }
 
