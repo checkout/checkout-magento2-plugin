@@ -148,9 +148,11 @@ class Callback extends \Magento\Framework\App\Action\Action
                             $this->transactionHandler->createTransaction(
                                 $order,
                                 static::$transactionMapper[$this->payload->type],
-                                $this->payload,
-                                true
+                                $this->payload
                             );
+
+                            // Save the order
+                            $order = $this->orderRepository->save($order);
                         }
                     }
                 }
