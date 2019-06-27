@@ -25,8 +25,61 @@ use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
 class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
     const CODE = 'checkoutcom_moto';
+
+    /**
+     * @var string
+     */
     protected $_code = self::CODE;
+
+    /**
+     * @var string
+     */
     protected $_formBlockType = Moto::class;
+
+    /**
+     * @var bool
+     */
+    protected $_canAuthorize = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canCapture = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canCancel = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canCapturePartial = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canVoid = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canUseInternal = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canUseCheckout = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canRefund = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canRefundInvoicePartial = true;
 
     /**
      * @var Logger

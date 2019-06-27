@@ -45,11 +45,55 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     const CODE = 'checkoutcom_apm';
 
     /**
-     * @var       string
-     * @overriden
+     * @var string
      */
     protected $_code = self::CODE;
 
+    /**
+     * @var bool
+     */
+    protected $_canAuthorize = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canCapture = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canCancel = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canCapturePartial = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canVoid = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canUseInternal = false;
+
+    /**
+     * @var bool
+     */
+    protected $_canUseCheckout = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canRefund = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canRefundInvoicePartial = true;
+    
     /**
      * @var ShopperHandlerService
      */

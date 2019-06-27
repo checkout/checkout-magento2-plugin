@@ -27,15 +27,59 @@ use \Checkout\Models\Payments\ThreeDs;
 class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
     /**
-        * @var string
-        */
+     * @var string
+     */
     const CODE = 'checkoutcom_vault';
 
     /**
-     * @var       string
-     * @overriden
+     * @var string
      */
     protected $_code = self::CODE;
+
+    /**
+     * @var bool
+     */
+    protected $_canAuthorize = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canCapture = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canCancel = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canCapturePartial = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canVoid = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canUseInternal = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canUseCheckout = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canRefund = true;
+
+    /**
+     * @var bool
+     */
+    protected $_canRefundInvoicePartial = true;
 
     /**
      * @var VaultHandlerService
