@@ -93,7 +93,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      * @var bool
      */
     protected $_canRefundInvoicePartial = true;
-    
+
     /**
      * @var ShopperHandlerService
      */
@@ -223,7 +223,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 return $response;
             }
 
-
             return $response;
         } catch (\Exception $e) {
             $this->ckoLogger->write($e->getMessage());
@@ -295,7 +294,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             return false;
         }
     }
-
 
     /**
      * API related.

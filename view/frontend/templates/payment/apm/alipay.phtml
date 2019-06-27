@@ -7,6 +7,6 @@
 <div data-role="content" class="apm-content" id="body-<?= $block->escapeHtmlAttr($block->getData('apm_id')) ?>">
 	<form id="cko-apm-form-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
 		<input type="hidden" name="source" value="<?= $block->escapeHtmlAttr($block->getData('apm_id')) ?>" required>
-		<p align="center"><?= __('You will be redirected to an external page.')?></p>
+		<p align="center"><?= $block->escapeHtml(__('You will be redirected to an external page.'))?></p>
 	</form>
 </div>
