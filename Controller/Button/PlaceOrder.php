@@ -254,7 +254,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return array
      */
-    protected function buildProductData() {
+    protected function buildProductData()
+    {
         try {
             // Prepare the base array
             $output =[
@@ -271,7 +272,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return [];
-        } 
+        }
     }
 
     /**

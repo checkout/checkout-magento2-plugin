@@ -355,7 +355,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if (parent::isAvailable($quote) && null !== $quote) {
-                return $this->config->getValue('active', $this->_code) 
+                return $this->config->getValue('active', $this->_code)
                 && $this->vaultHandler->userHasCards()
                 && !$this->backendAuthSession->isLoggedIn();
             }

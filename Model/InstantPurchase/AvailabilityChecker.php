@@ -60,7 +60,7 @@ class AvailabilityChecker implements \Magento\InstantPurchase\PaymentMethodInteg
             'checkoutcom_vault'
         );
 
-        return $vaultEnabled 
+        return $vaultEnabled
         && $instantPurchaseEnabled
         && $this->vaultHandler->userHasCards();
     }

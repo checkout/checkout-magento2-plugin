@@ -138,7 +138,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     protected function getKlarna()
     {
         // Prepare the output array
-        $response = array('source' => false);
+        $response = ['source' => false];
 
         try {
             $products = $this->getProducts($response);
@@ -175,7 +175,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     protected function getProducts(array &$response)
     {
 
-        $products = array();
+        $products = [];
         $response['tax_amount'] = 0;
         foreach ($this->quote->getAllVisibleItems() as $item) {
             $product = new Product();
@@ -210,8 +210,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
 
         $shipping = $this->quote->getShippingAddress();
 
-        if($shipping->getShippingDescription()) {
-
+        if ($shipping->getShippingDescription()) {
             $product = new Product();
             $product->name = $shipping->getShippingDescription();
             $product->quantity = 1;
@@ -224,8 +223,6 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
             $response['tax_amount']  += $product->total_tax_amount;
             $products []= $product;
             $response['products'] []= $product->getValues();
-
         }
-
     }
 }

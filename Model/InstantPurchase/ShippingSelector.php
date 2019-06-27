@@ -42,7 +42,8 @@ class ShippingSelector
      * @param Address $address
      * @return Rate
      */
-    public function getShippingMethod($address) {
+    public function getShippingMethod($address)
+    {
         try {
             $address->setCollectShippingRates(true);
             $address->collectShippingRates();
