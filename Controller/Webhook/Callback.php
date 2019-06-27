@@ -191,7 +191,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     {
         try {
             return isset($this->payload->data->metadata->saveCard)
-            && $this->payload->data->metadata->saveCard
+            && (int) $this->payload->data->metadata->saveCard == 1
             && isset($this->payload->data->metadata->customerId)
             && (int) $this->payload->data->metadata->customerId > 0
             && isset($this->payload->data->source->id)

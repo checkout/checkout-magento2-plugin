@@ -225,10 +225,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Save card check
             if (isset($data['saveCard'])
+                && $data['saveCard'] === true
                 && $saveCardEnabled
                 && $this->customerSession->isLoggedIn()
             ) {
-                $request->metadata['saveCard'] = true;
+                $request->metadata['saveCard'] = 1;
                 $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
             }
 
