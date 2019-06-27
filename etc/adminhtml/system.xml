@@ -370,7 +370,7 @@
                 </group>
 
                 <group id="checkoutcom_vault" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Vault Cards Payments</label>
+                    <label>Saved Card Payments</label>
                     <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Vault Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
