@@ -1,127 +1,150 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
-        <payment>
-            <checkout_com>
-                <model>CheckoutComFacade</model>
-                <title>Credit Card (Checkout.com)</title>
+        <settings>
+            <checkoutcom_configuration>
+                <fields_encrypted>secret_key,public_key,private_shared_key</fields_encrypted>
+                <fields_hidden>secret_key,private_shared_key</fields_hidden>
                 <active>1</active>
-                <debug>1</debug>
+                <debug>0</debug>
+                <file_logging>0</file_logging>
+                <console_logging>0</console_logging>
+                <gateway_responses>0</gateway_responses>
+                <environment>1</environment>
+                <secret_key></secret_key>
+                <public_key></public_key>
+                <private_shared_key></private_shared_key>
+                <mada_test_file>Model/Files/Mada/mada_test.csv</mada_test_file>
+                <mada_live_file>Model/Files/Mada/mada_live.csv</mada_live_file>
+                <email_cookie_name>ckoUserEmail</email_cookie_name>
+                <order_status_authorized>pending_payment</order_status_authorized>
+                <order_status_captured>processing</order_status_captured>
+                <order_status_voided>canceled</order_status_voided>
+                <order_status_refunded>closed</order_status_refunded>
+                <order_status_flagged>fraud</order_status_flagged>
+                <payment_action>authorize_capture</payment_action>
+                <capture_time>0</capture_time> 
+                <invoice_generation>authorize_capture</invoice_generation>
+                <dynamic_descriptor_enabled>0</dynamic_descriptor_enabled>
+                <descriptor_name></descriptor_name>
+                <descriptor_city></descriptor_city>
+            </checkoutcom_configuration>
+        </settings>
+        <payment>
+            <checkoutcom_vault>
+                <model>CheckoutCom\Magento2\Model\Methods\VaultMethod</model>
+                <title>Stored Cards with Checkout.com</title>
+                <active>0</active>
+                <sort_order>0</sort_order>
+                <request_currency>USD</request_currency>
+                <three_ds>0</three_ds>
+                <attempt_n3d>0</attempt_n3d>
+                <instant_purchase_enabled>0</instant_purchase_enabled>
                 <is_gateway>1</is_gateway>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
-                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_cancel>1</can_cancel>
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
-                <can_cancel>1</can_cancel>
-                <can_use_internal>0</can_use_internal>
+                <can_use_internal>1</can_use_internal>
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_capture_vault>1</can_capture_vault>
-                <can_charge_details>1</can_charge_details>
-                <order_creation>after_auth</order_creation>
-                <new_order_status>pending</new_order_status>
-                <order_status_authorized>pending_payment</order_status_authorized>
-                <order_status_captured>processing</order_status_captured>
-                <order_status_voided>canceled</order_status_voided>
-                <order_status_flagged>fraud</order_status_flagged>
-                <order_comments_override>1</order_comments_override>
-                <payment_currency>base_currency</payment_currency>
-                <custom_currency>USD</custom_currency>
-                <accepted_currencies>AFN,ALL,DZD,AOA,ARS,AMD,AWG,AUD,AZN,AZM,BSD,BHD,BDT,BBD,BYR,BZD,BMD,BTN,BOB,BAM,BWP,BRL,GBP,BND,BGN,BUK,BIF,XOF,XPF,KHR,CAD,CVE,KYD,CLP,CNY,COP,KMF,CDF,CRC,HRK,CUP,CZK,DKK,DJF,DOP,XCD,EGP,GQE,ERN,EEK,ETB,EUR,FKP,FJD,GMD,GEK,GEL,GHS,GIP,GTQ,GNF,GYD,HTG,HNL,HKD,HUF,ISK,INR,IDR,IRR,IQD,ILS,JMD,JPY,JOD,KZT,KES,KWD,KGS,LAK,LVL,LBP,LSL,LRD,LYD,LTL,MOP,MKD,MGA,MWK,MYR,MVR,MRO,MUR,MXN,MDL,MNT,MAD,MZN,MMK,NAD,NPR,ANG,TWD,NZD,NIC,NGN,KPW,NOK,OMR,PKR,PAB,PGK,PYG,PEN,PHP,PLN,QAR,RHD,RON,ROL,RUB,RWF,SHP,SVC,WST,SAR,RSD,SCR,SLL,SGD,SKK,SBD,SOS,ZAR,KRW,LKR,SDG,SRD,SZL,SEK,CHF,SYP,STD,TJS,TZS,THB,TOP,TTD,TND,TRY,TRL,TMM,USD,UGX,UAH,AED,UYU,UZS,VUV,VEF,VEB,VND,CHE,CHW,YER,ZMK,ZWD</accepted_currencies>
-                <verify_3dsecure>0</verify_3dsecure>
-                <attemptN3D>0</attemptN3D>
-                <auto_generate_invoice>1</auto_generate_invoice>
-                <theme_color>#00b660</theme_color>
-                <box_title>Checkout.com</box_title>
-                <box_subtitle>Hosted Payment</box_subtitle>
-                <logo_url></logo_url>
-                <button_label>Pay Now</button_label>
-                <payment_mode>cards</payment_mode>
-                <embedded_theme>standard</embedded_theme>
-                <css_file>default</css_file>
-                <custom_css></custom_css>
-                <environment>sandbox</environment>
-                <integration>hosted</integration>
-                <payment_action>authorize</payment_action>
-                <auto_capture>0</auto_capture>
-                <auto_capture_time>0.02</auto_capture_time>
-                <language_fallback>EN-EN</language_fallback>
-                <public_key></public_key>
-                <secret_key></secret_key>
-                <private_shared_key></private_shared_key>
-                <sandbox_api_url><![CDATA[https://sandbox.checkout.com/api2/v2/]]></sandbox_api_url>
-                <live_api_url><![CDATA[https://api2.checkout.com/v2/]]></live_api_url>
-                <sandbox_embedded_url><![CDATA[https://cdn.checkout.com/js/frames.js]]></sandbox_embedded_url>
-                <live_embedded_url><![CDATA[https://cdn.checkout.com/js/frames.js]]></live_embedded_url>
-                <embedded_css><![CDATA[https://cdn.checkout.com/v2/js/css/theme-template.css]]></embedded_css>
-                <sandbox_hosted_url><![CDATA[https://secure1.checkout.com/sandbox/payment/]]></sandbox_hosted_url>
-                <live_hosted_url><![CDATA[https://secure1.checkout.com/payment/]]></live_hosted_url>
-                <live_applepay_token_request_url><![CDATA[https://api2.checkout.com/tokens/]]></live_applepay_token_request_url>
-                <sandbox_applepay_token_request_url><![CDATA[https://sandbox.checkout.com/api2/tokens/]]></sandbox_applepay_token_request_url>
-                <live_googlepay_token_request_url><![CDATA[https://api2.checkout.com/tokens/]]></live_googlepay_token_request_url>
-                <sandbox_googlepay_token_request_url><![CDATA[https://sandbox.checkout.com/api2/tokens/]]></sandbox_googlepay_token_request_url>
-                <mada_enabled>0</mada_enabled>
-                <mada_bins_path>Model/Files/Mada/mada_bins.csv</mada_bins_path>
-                <mada_bins_path_test>Model/Files/Mada/mada_bins_test.csv</mada_bins_path_test>
+                <can_capture_partial>1</can_capture_partial>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <require_cvv>0</require_cvv>
+                <instant_purchase>
+                    <available>CheckoutCom\Magento2\Model\InstantPurchase\AvailabilityChecker</available>
+                    <tokenFormat>CheckoutCom\Magento2\Model\InstantPurchase\TokenFormatter</tokenFormat>
+                </instant_purchase>
+            </checkoutcom_vault>
+            <checkoutcom_card_payment>
+                <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
+                <title>Pay by Card with Checkout.com</title>
+                <active>1</active>
+                <form_theme>standard</form_theme>
+                <language_fallback>EN-EN</language_fallback>    
                 <sort_order>1</sort_order>
-                <debugReplaceKeys>public_key,secret_key</debugReplaceKeys>
-                <masked_fields>cvv,number</masked_fields>
-                <paymentInfoKeys>cc_type,cc_number,card_expiry_month,card_expiry_year,card_last_4,status,responseMessage,responseAdvancedInfo,responseCode,authCode,three_d_secure</paymentInfoKeys>
-                <useccv>1</useccv>
-                <save_card_check_amount>1.00</save_card_check_amount>
-                <save_card_check_currency>USD</save_card_check_currency>
-            </checkout_com>
-            <checkout_com_applepay>
-                <title>Apple Pay (Checkout.com)</title>
-                <active>0</active>
-                <model>CheckoutCom\Magento2\Model\Method\ApplePayMethod</model>
+                <three_ds>0</three_ds>
+                <attempt_n3d>0</attempt_n3d>
+                <save_card_option>1</save_card_option>
+                <mada_enabled>0</mada_enabled>
+                <is_gateway>1</is_gateway>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
                 <can_cancel>1</can_cancel>
                 <can_refund>1</can_refund>
                 <can_void>1</can_void>
-                <debug>0</debug>
+                <can_use_internal>0</can_use_internal>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_capture_vault>1</can_capture_vault>
+                <can_capture_partial>1</can_capture_partial>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+            </checkoutcom_card_payment>
+            <checkoutcom_apm>
+                <model>CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</model>
+                <title>Alternative Payments with Checkout.com</title>
+                <active>0</active>
                 <sort_order>2</sort_order>
+                <is_gateway>1</is_gateway>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_use_internal>0</can_use_internal>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <apm_enabled></apm_enabled>
+            </checkoutcom_apm>
+            <checkoutcom_google_pay>
+                <model>CheckoutCom\Magento2\Model\Methods\GooglePayMethod</model>
+                <title>Google Pay with Checkout.com</title>
+                <active>0</active>
+                <sort_order>3</sort_order>
+                <is_gateway>1</is_gateway>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_use_internal>0</can_use_internal>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <gateway_name>checkoutltd</gateway_name>
+                <allowed_card_networks>VISA,MASTERCARD</allowed_card_networks>
+                <merchant_id></merchant_id>
+                <environment>TEST</environment>
+                <button_style>white</button_style>
+            </checkoutcom_google_pay>
+            <checkoutcom_apple_pay>
+                <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
+                <title>Apple Pay with Checkout.com</title>
+                <active>0</active>
+                <sort_order>4</sort_order>
+                <is_gateway>1</is_gateway>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_use_internal>0</can_use_internal>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <processing_certificate>/path/to/cert</processing_certificate>
                 <processing_certificate_password></processing_certificate_password>
                 <merchant_id_certificate>/path/to/cert</merchant_id_certificate>
                 <merchant_id></merchant_id>
                 <supported_networks>amex,masterCard,visa</supported_networks>
                 <merchant_capabilities>supportsCredit,supportsDebit</merchant_capabilities>
-                <supported_countries>US,GB</supported_countries>
                 <button_style>black</button_style>
-            </checkout_com_applepay>
-            <checkout_com_googlepay>
-                <title>Google Pay (Checkout.com)</title>
+            </checkoutcom_apple_pay>
+            <checkoutcom_moto>
+                <model>CheckoutCom\Magento2\Model\Methods\MotoMethod</model>
+                <title>MOTO Payments with Checkout.com</title>
                 <active>0</active>
-                <model>CheckoutCom\Magento2\Model\Method\GooglePayMethod</model>
-                <can_use_checkout>1</can_use_checkout>
-                <can_authorize>1</can_authorize>
-                <can_capture>1</can_capture>
-                <can_cancel>1</can_cancel>
-                <can_refund>1</can_refund>
-                <can_void>1</can_void>
-                <debug>0</debug>
-                <sort_order>3</sort_order>
-                <gateway_name>checkoutltd</gateway_name>
-                <allowed_card_networks>VISA,MASTERCARD</allowed_card_networks>
-                <merchant_id></merchant_id>
-                <environment>TEST</environment>
-                <button_style>white</button_style>
-            </checkout_com_googlepay>         
-            <checkout_com_cc_vault>
-                <model>CheckoutComCreditCardVaultFacade</model>
-                <title>Stored Cards (Checkout.com)</title>
-                <autosave>1</autosave>
-                <hide_card_storage>0</hide_card_storage>
-            </checkout_com_cc_vault>
-            <checkout_com_admin_method>
-                <model>CheckoutCom\Magento2\Model\Method\AdminMethod</model>
-                <title>MOTO Payments (Checkout.com)</title>
-                <active>1</active>
-                <debug>0</debug>
+                <sort_order>0</sort_order>
                 <is_gateway>1</is_gateway>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
@@ -131,30 +154,16 @@
                 <can_cancel>1</can_cancel>
                 <can_use_internal>1</can_use_internal>
                 <can_charge_details>1</can_charge_details>
-                <order_creation>after_auth</order_creation>
-                <payment_currency>base_currency</payment_currency>
-                <custom_currency>USD</custom_currency>
-                <accepted_currencies>AFN,ALL,DZD,AOA,ARS,AMD,AWG,AUD,AZN,AZM,BSD,BHD,BDT,BBD,BYR,BZD,BMD,BTN,BOB,BAM,BWP,BRL,GBP,BND,BGN,BUK,BIF,XOF,XPF,KHR,CAD,CVE,KYD,CLP,CNY,COP,KMF,CDF,CRC,HRK,CUP,CZK,DKK,DJF,DOP,XCD,EGP,GQE,ERN,EEK,ETB,EUR,FKP,FJD,GMD,GEK,GEL,GHS,GIP,GTQ,GNF,GYD,HTG,HNL,HKD,HUF,ISK,INR,IDR,IRR,IQD,ILS,JMD,JPY,JOD,KZT,KES,KWD,KGS,LAK,LVL,LBP,LSL,LRD,LYD,LTL,MOP,MKD,MGA,MWK,MYR,MVR,MRO,MUR,MXN,MDL,MNT,MAD,MZN,MMK,NAD,NPR,ANG,TWD,NZD,NIC,NGN,KPW,NOK,OMR,PKR,PAB,PGK,PYG,PEN,PHP,PLN,QAR,RHD,RON,ROL,RUB,RWF,SHP,SVC,WST,SAR,RSD,SCR,SLL,SGD,SKK,SBD,SOS,ZAR,KRW,LKR,SDG,SRD,SZL,SEK,CHF,SYP,STD,TJS,TZS,THB,TOP,TTD,TND,TRY,TRL,TMM,USD,UGX,UAH,AED,UYU,UZS,VUV,VEF,VEB,VND,CHE,CHW,YER,ZMK,ZWD</accepted_currencies>
-                <auto_generate_invoice>1</auto_generate_invoice>
-                <theme_color>#00b660</theme_color>
-                <embedded_theme>standard</embedded_theme>
-                <payment_action>authorize</payment_action>
-                <auto_capture>0</auto_capture>
-                <auto_capture_time>0.02</auto_capture_time>
-                <language_fallback>EN-EN</language_fallback>
-                <public_key></public_key>
+                <can_use_checkout>0</can_use_checkout>
+                <can_capture_partial>1</can_capture_partial>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <saved_cards_enabled>0</saved_cards_enabled>
+                <use_default_account>1</use_default_account>
+                <environment>1</environment>
                 <secret_key></secret_key>
+                <public_key></public_key>
                 <private_shared_key></private_shared_key>
-                <sandbox_api_url><![CDATA[https://sandbox.checkout.com/api2/v2/]]></sandbox_api_url>
-                <live_api_url><![CDATA[https://api2.checkout.com/v2/]]></live_api_url>
-                <sandbox_embedded_url><![CDATA[https://cdn.checkout.com/js/frames.js]]></sandbox_embedded_url>
-                <live_embedded_url><![CDATA[https://cdn.checkout.com/js/frames.js]]></live_embedded_url>
-                <embedded_css><![CDATA[https://cdn.checkout.com/v2/js/css/theme-template.css]]></embedded_css>
-                <sort_order>1</sort_order>
-            </checkout_com_admin_method>
-            <checkout_com_3ds>
-                <model>CheckoutComFacade</model>
-            </checkout_com_3ds>
+            </checkoutcom_moto>
         </payment>
     </default>
 </config>

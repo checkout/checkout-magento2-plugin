@@ -1,309 +1,182 @@
 <?php
+
 /**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
+ * PHP version 7
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use Magento\Framework\App\Action\Context;
-use Magento\Checkout\Model\Session;
-use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Framework\Exception\LocalizedException;
-use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
-use CheckoutCom\Magento2\Model\Service\VerifyPaymentService;
-use CheckoutCom\Magento2\Model\Service\StoreCardService;
-use CheckoutCom\Magento2\Model\Factory\VaultTokenFactory;
-use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
-use CheckoutCom\Magento2\Helper\Watchdog;
-use Magento\Vault\Api\PaymentTokenRepositoryInterface;
-use Magento\Vault\Api\PaymentTokenManagementInterface;
-use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Quote\Model\QuoteManagement;
-use CheckoutCom\Magento2\Helper\Helper;
+use \Checkout\Models\Payments\Refund;
+use \Checkout\Models\Payments\Voids;
 
-class Verify extends AbstractAction {
+/**
+ * Class Verify
+ */
+class Verify extends \Magento\Framework\App\Action\Action
+{
     /**
-     * @var Session
+     * @var Config
      */
-    protected $session;
+    protected $config;
 
     /**
-     * @var VerifyPaymentService
+     * @var CheckoutApi
      */
-    protected $verifyPaymentService;
+    protected $apiHandler;
 
     /**
-     * @var StoreCardService 
+     * @var QuoteHandlerService
      */
-    protected $storeCardService;
-    
-    /**
-     * @var Session 
-     */
-    protected $customerSession;
-    
-    /**
-     * @var VaultTokenFactory 
-     */
-    protected $vaultTokenFactory;
-    
-    /**
-     * @var PaymentTokenRepository 
-     */
-    protected $paymentTokenRepository;
+    protected $quoteHandler;
 
     /**
-     * @var ResultRedirect 
+     * @var OrderHandlerService
      */
-    protected $redirect;
+    protected $orderHandler;
 
     /**
-     * @var PaymentTokenManagementInterface
+     * @var Utilities
      */
-    protected $paymentTokenManagement;
+    protected $utilities;
 
     /**
-     * @var QuoteManagement
+     * @var Logger
      */
-    protected $quoteManagement;
+    protected $logger;
 
     /**
-     * @var Watchdog
-     */
-    protected $watchdog;
-
-    /**
-     * @var Helper
-     */
-    protected $helper;
-
-    /**
-     * Verify constructor.
-     * @param Context $context
-     * @param Session $session
-     * @param GatewayConfig $gatewayConfig
-     * @param VerifyPaymentService $verifyPaymentService
-     * @param StoreCardService $storeCardService
-     * @param CustomerSession $customerSession
-     * @param VaultTokenFactory $vaultTokenFactory
-     * @param PaymentTokenRepositoryInterface $paymentTokenRepository
-     * @param PaymentTokenManagementInterface $paymentTokenManagement
-     * @param Watchdog $watchdog
-     * @param Helper $helper
+     * PlaceOrder constructor
      */
     public function __construct(
-        Context $context, 
-        Session $session, 
-        GatewayConfig $gatewayConfig, 
-        VerifyPaymentService $verifyPaymentService, 
-        StoreCardService $storeCardService, 
-        CustomerSession $customerSession, 
-        VaultTokenFactory $vaultTokenFactory, 
-        PaymentTokenRepositoryInterface $paymentTokenRepository,
-        PaymentTokenManagementInterface $paymentTokenManagement,
-        QuoteManagement $quoteManagement,
-        Watchdog $watchdog,
-        Helper $helper
-    ) 
-    {
-        parent::__construct($context, $gatewayConfig);
-        $this->quoteManagement          = $quoteManagement;
-        $this->session                  = $session;
-        $this->gatewayConfig            = $gatewayConfig;
-        $this->verifyPaymentService     = $verifyPaymentService;
-        $this->storeCardService         = $storeCardService;
-        $this->customerSession          = $customerSession;
-        $this->vaultTokenFactory        = $vaultTokenFactory;
-        $this->paymentTokenRepository   = $paymentTokenRepository;
-        $this->paymentTokenManagement   = $paymentTokenManagement;
-        $this->watchdog                 = $watchdog;
-        $this->helper                   = $helper;
-        $this->redirect                 = $this->getResultRedirect();
+        \Magento\Framework\App\Action\Context $context,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Helper\Logger $logger
+    ) {
+        parent::__construct($context);
+
+        $this->config = $config;
+        $this->apiHandler = $apiHandler;
+        $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
+
+        // Try to load a quote
+        $this->quote = $this->quoteHandler->getQuote();
     }
 
     /**
      * Handles the controller method.
-     *
-     * @return \Magento\Framework\Controller\Result\Redirect
-     * @throws LocalizedException
      */
-    public function execute() {
-        // Get the payment token from response
-        $paymentToken = $this->extractPaymentToken();
-
-        // Finalize the process
-        return $this->finalizeProcess($paymentToken);
-    }
-
-    public function finalizeProcess($paymentToken) {
-        // Process the gateway response
-        $response = $this->verifyPaymentService->verifyPayment($paymentToken);
-
-        // Debug info
-        $this->watchdog->bark($response);
-
-        if (isset($response['responseCode']) && (int) $response['responseCode'] != 10000 && (int) $response['responseCode'] != 10100 ) {
-            throw new LocalizedException(__('There has been an error processing your transaction.'));
-        }
-
-        // If it's an alternative payment
-        if (isset($response['chargeMode']) && (int) $response['chargeMode'] == 3) {
-            if (isset($response['responseCode']) && (int) $response['responseCode'] == 10000 || (int) $response['responseCode'] == 10100) {
-
-                // Place a local payment order
-                $this->placeLocalPaymentOrder();
-            }
-            else {
-                $this->messageManager->addErrorMessage($response['responseMessage']);                
-            }
-        }
-
-        // If it's a vault card id charge response
-        else if (isset($response['udf2']) && $response['udf2'] == 'cardIdCharge') {
-            if (isset($response['responseCode']) && (int) $response['responseCode'] == 10000) {
-                $this->messageManager->addSuccessMessage( __('Order successfully processed.') );
-            }
-            else {
-                $this->messageManager->addErrorMessage($response['responseMessage']);                
-            }
-
-            return $this->redirect->setPath('checkout/onepage/success', ['_secure' => true]);
-        }
-
-        // Else proceed normally for 3D Secure
-        else {
-            if (isset($response['udf3']) && $response['udf3'] == 'storeInVaultOnSuccess') {
-                $this->vaultCardAfterThreeDSecure( $response );
-            }
-
-            // Check for declined transactions
-            if (isset($response['status']) && $response['status'] === 'Declined') {
-                throw new LocalizedException(__('The transaction has been declined.'));
-            }
-
-            // Update the order information
-            try {
-                // Redirect to the success page
-                return $this->redirect->setPath('checkout/onepage/success', ['_secure' => true]);
-
-            } catch (\Exception $e) {
-                $this->messageManager->addExceptionMessage($e, $e->getMessage());
-            }
-        }
-
-        // Redirect to cart by default if the order validation fails
-        return $this->redirect->setPath('checkout/onepage/success', ['_secure' => true]);
-    }
-
-    public function placeLocalPaymentOrder() {
-        // Get the quote from session
-        $quote = $this->session->getQuote();
-
-        // Check for guest user quote
-        if ($this->customerSession->isLoggedIn() === false)
-        {
-            $quote = $this->helper->prepareGuestQuote($quote);
-        }
-        
-        // Prepare the quote in session (required for success page redirection)
-        $this->session
-        ->setLastQuoteId($quote->getId())
-        ->setLastSuccessQuoteId($quote->getId())
-        ->clearHelperData();
-
-        // Set payment
-        $payment = $quote->getPayment();
-        $payment->setMethod(ConfigProvider::CODE);
-        $quote->save();
-
-        // Save the quote
-        $quote->collectTotals()->save();
-
+    public function execute()
+    {
         try {
+            // Get the session id
+            $sessionId = $this->getRequest()->getParam('cko-session-id', null);
+            if ($sessionId) {
+                // Get the payment details
+                $response = $this->apiHandler->getPaymentDetails($sessionId);
 
-            // Create order from quote
-            $order = $this->quoteManagement->submit($quote);
-            
-            // Prepare the order in session (required for success page redirection)
-            if ($order) {
-                $this->session->setLastOrderId($order->getId())
-                ->setLastRealOrderId($order->getIncrementId())
-                ->setLastOrderStatus($order->getStatus());
-            
-                // Update order status
-                $order->setStatus($this->gatewayConfig->getOrderStatusCaptured());
+                // Set the method ID
+                $this->methodId = $response->metadata['methodId'];
 
-                // Save the order
-                $order->save();
+                // Logging
+                $this->logger->display($response);
+                
+                // Process the response
+                if ($this->apiHandler->isValidResponse($response)) {
+                    if (!$this->placeOrder($response)) {
+                        // Add and error message
+                        $this->messageManager->addErrorMessage(
+                            __('The transaction could not be processed or has been cancelled.')
+                        );
+
+                        // Return to the cart
+                        return $this->_redirect('checkout/cart', ['_secure' => true]);
+                    }
+                    
+                    return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+                }
             }
-            
-            // Redirect to the success page
-            return $this->redirect->setPath('checkout/onepage/success', ['_secure' => true]);
-
         } catch (\Exception $e) {
-            $this->messageManager->addExceptionMessage($e, $e->getMessage());
+            $this->logger->write($e->getMessage());
         }
-    }
-
-    public function extractPaymentToken() {
-        // Get the gateway response from session if exists
-        $gatewayResponseId = $this->session->getGatewayResponseId();
-
-        // Destroy the session variable
-        $this->session->unsGatewayResponseId();
-
-        // Check if there is a payment token sent in url
-        $ckoPaymentToken = $this->getRequest()->getParam('cko-payment-token');
-
-        // Return the found payment token
-        return $ckoPaymentToken ? $ckoPaymentToken : $gatewayResponseId;
     }
 
     /**
-     * Performs 3-D Secure method when adding new card.
+     * Handles the order placing process.
      *
-     * @param array $response
+     * @param array $response The response
+     *
+     * @return mixed
+     */
+    protected function placeOrder($response = null)
+    {
+        try {
+            // Get the reserved order increment id
+            $reservedIncrementId = $this->quoteHandler
+                ->getReference($this->quote);
+
+            // Create an order
+            $order = $this->orderHandler
+                ->setMethodId($this->methodId)
+                ->handleOrder($response, $reservedIncrementId);
+
+            // Add the payment info to the order
+            $order = $this->utilities
+                ->setPaymentData($order, $response);
+
+            // Save the order
+            $order->save();
+
+            // Check if the order is valid
+            if (!$this->orderHandler->isOrder($order)) {
+                $this->cancelPayment($response);
+                return null;
+            }
+
+            return $order;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Cancels a payment.
+     *
+     * @param array $response The response
+     *
      * @return void
      */
-    public function vaultCardAfterThreeDSecure( array $response ){
-        // Get the card token from response
-        $cardToken = $response['card']['id'];
-        
-        // Prepare the card data
-        $cardData = [];
-        $cardData['expiryMonth']   = $response['card']['expiryMonth'];
-        $cardData['expiryYear']    = $response['card']['expiryYear'];
-        $cardData['last4']         = $response['card']['last4'];
-        $cardData['paymentMethod'] = $response['card']['paymentMethod'];
-        
-        // Create the token object
-        $paymentToken = $this->vaultTokenFactory->create($cardData, $this->customerSession->getCustomer()->getId());
-
+    protected function cancelPayment($response)
+    {
         try {
-            // Check if the payment token exists
-            $foundPaymentToken = $this->paymentTokenManagement->getByPublicHash( $paymentToken->getPublicHash(), $paymentToken->getCustomerId());
-
-            // If the token exists activate it, otherwise create it
-            if ($foundPaymentToken) {
-                $foundPaymentToken->setIsVisible(true);
-                $foundPaymentToken->setIsActive(true);
-                $this->paymentTokenRepository->save($foundPaymentToken);
+            // refund or void accordingly
+            if ($this->config->needsAutoCapture($this->methodId)) {
+                //refund
+                $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
+            } else {
+                //void
+                $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
             }
-            else {
-                $paymentToken->setGatewayToken($cardToken);
-                $paymentToken->setIsVisible(true);
-                $this->paymentTokenRepository->save($paymentToken);
-            } 
-            
-            $this->messageManager->addSuccessMessage( __('The payment card has been stored successfully') );
-        }    
-        catch (\Exception $e) {
-            $this->messageManager->addErrorMessage( $e->getMessage() );
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
         }
     }
 }

@@ -1,420 +1,201 @@
 <?php
+
 /**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
+ * PHP version 7
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Gateway\Config;
 
-use Magento\Payment\Gateway\Config\Config as BaseConfig;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Store\Model\ScopeInterface;
-use Magento\Checkout\Model\Session as CheckoutSession;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Locale\Resolver as LocaleResolver;
-use Magento\Framework\Encryption\EncryptorInterface;
-use CheckoutCom\Magento2\Model\Adminhtml\Source\Environment;
-use CheckoutCom\Magento2\Model\Adminhtml\Source\Integration;
-
-class Config extends BaseConfig {
-
-    const KEY_ENVIRONMENT = 'environment';
-    const KEY_ACTIVE = 'active';
-    const KEY_DEBUG = 'debug';
-    const KEY_CC_TYPES = 'cctypes';
-    const KEY_USE_CVV = 'useccv';
-    const KEY_COUNTRY_CREDIT_CARD = 'countrycreditcard';
-    const KEY_INTEGRATION = 'integration';
-    const KEY_PUBLIC_KEY = 'public_key';
-    const KEY_SECRET_KEY = 'secret_key';
-    const KEY_PRIVATE_SHARED_KEY = 'private_shared_key';
-    const KEY_AUTO_CAPTURE = 'auto_capture';
-    const KEY_AUTO_CAPTURE_TIME = 'auto_capture_time';
-    const KEY_VERIFY_3DSECURE = 'verify_3dsecure';
-    const KEY_ATTEMPT_N3D = 'attemptN3D';
-    const KEY_SANDBOX_API_URL = 'sandbox_api_url';
-    const KEY_LIVE_API_URL = 'live_api_url';
-    const KEY_SANDBOX_EMBEDDED_URL = 'sandbox_embedded_url';
-    const KEY_SANDBOX_HOSTED_URL = 'sandbox_hosted_url';
-    const KEY_LIVE_EMBEDDED_URL = 'live_embedded_url';
-    const KEY_LIVE_HOSTED_URL = 'live_hosted_url';
-    const MIN_AUTO_CAPTURE_TIME = 0;
-    const MAX_AUTO_CAPTURE_TIME = 168;
-    const KEY_USE_DESCRIPTOR = 'descriptor_enable';
-    const KEY_DESCRIPTOR_NAME = 'descriptor_name';
-    const KEY_DESCRIPTOR_CITY = 'descriptor_city';
-    const CODE_3DSECURE = 'three_d_secure';
-    const KEY_THEME_COLOR = 'theme_color';
-    const KEY_BUTTON_LABEL = 'button_label';
-    const KEY_BOX_TITLE = 'box_title';
-    const KEY_BOX_SUBTITLE = 'box_subtitle';
-    const KEY_LOGO_URL = 'logo_url';
-    const KEY_HOSTED_THEME = 'hosted_theme';
-    const KEY_NEW_ORDER_STATUS = 'new_order_status';
-    const KEY_ORDER_STATUS_AUTHORIZED = 'order_status_authorized';
-    const KEY_ORDER_STATUS_CAPTURED = 'order_status_captured';
-    const KEY_ORDER_STATUS_VOIDED = 'order_status_voided';
-    const KEY_ORDER_STATUS_FLAGGED = 'order_status_flagged';
-    const KEY_ACCEPTED_CURRENCIES = 'accepted_currencies';
-    const KEY_PAYMENT_CURRENCY = 'payment_currency';
-    const KEY_CUSTOM_CURRENCY = 'custom_currency';
-    const KEY_PAYMENT_MODE = 'payment_mode';
-    const KEY_AUTO_GENERATE_INVOICE = 'auto_generate_invoice';
-    const KEY_EMBEDDED_THEME = 'embedded_theme';
-    const KEY_EMBEDDED_CSS = 'embedded_css';
-    const KEY_CUSTOM_CSS = 'custom_css';
-    const KEY_FALLBACK_LANGUAGE = 'language_fallback';
-    const KEY_CSS_FILE = 'css_file';
-    const KEY_ORDER_COMMENTS_OVERRIDE = 'order_comments_override';
-    const KEY_ORDER_CREATION = 'order_creation';
-    const KEY_MADA_BINS_PATH = 'mada_bins_path';
-    const KEY_MADA_BINS_PATH_TEST = 'mada_bins_path_test';
-    const KEY_MADA_ENABLED = 'mada_enabled';
-    const KEY_LIVE_APPLEPAY_TOKEN_REQUEST_URL = 'live_applepay_token_request_url';
-    const KEY_SANDBOX_APPLEPAY_TOKEN_REQUEST_URL = 'sandbox_applepay_token_request_url';
-    const KEY_LIVE_GOOGLEPAY_TOKEN_REQUEST_URL = 'live_googlepay_token_request_url';
-    const KEY_SANDBOX_GOOGLEPAY_TOKEN_REQUEST_URL = 'sandbox_googlepay_token_request_url';
-
+/**
+ * Class Config
+ */
+class Config
+{
     /**
-     * @var array
-     */
-    protected static $ccTypesMap = [
-        'amex'          => 'AE',
-        'visa'          => 'VI',
-        'mastercard'    => 'MC',
-        'discover'      => 'DI',
-        'jcb'           => 'JCB',
-        'diners'        => 'DN',
-        'dinersclub'    => 'DN',
-    ];
-
-    /**
-     * ScopeConfigInterface
-     */
-    protected $scopeConfig;
-
-    /**
-     * StoreManagerInterface
+     * @var StoreManagerInterface
      */
     protected $storeManager;
 
     /**
-     * CheckoutSession
+     * @var ScopeConfigInterface
      */
-    protected $checkoutSession;
+    protected $scopeConfig;
 
     /**
-     * @var LocaleResolver
-     */    
-    protected $localeResolver;
+     * @var RequestInterface
+     */
+    protected $request;
+
+    /**
+     * @var Loader
+     */
+    public $loader;
 
     /**
      * Config constructor
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        StoreManagerInterface $storeManager,
-        CheckoutSession $checkoutSession,
-        LocaleResolver $localeResolver,
-        EncryptorInterface $encryptor,
-        $methodCode = null,
-        $pathPattern = self::DEFAULT_PATH_PATTERN
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\App\RequestInterface $request,
+        \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
-        parent::__construct($scopeConfig, $methodCode, $pathPattern);
-
-        $this->scopeConfig  = $scopeConfig;
         $this->storeManager = $storeManager;
-        $this->checkoutSession = $checkoutSession;
-        $this->localeResolver = $localeResolver;
-        $this->encryptor = $encryptor;
+        $this->scopeConfig = $scopeConfig;
+        $this->request = $request;
+        $this->loader = $loader;
+        $this->utilities = $utilities;
     }
 
-    public static function getSupportedLanguages() {
+    /**
+     * Checks if an external request is valid.
+     */
+    public function isValidAuth()
+    {
+        // Get the authorization header
+        $authorization = $this->request->getHeader('Authorization');
+
+        // Get the secret key from config
+        $privateSharedKey = $this->getValue('private_shared_key');
+
+        // Return the validity check
+        return $authorization == $privateSharedKey
+        && $this->request->isPost();
+    }
+
+    /**
+     * Returns a module config value.
+     *
+     * @return string
+     */
+    public function getValue($field, $methodId = null)
+    {
+        return $this->loader->getValue($field, $methodId);
+    }
+
+    /**
+     * Returns a Magento core value.
+     *
+     * @return string
+     */
+    public function getCoreValue($path)
+    {
+        return $this->scopeConfig->getValue(
+            $path,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Returns the module global config.
+     *
+     * @return array
+     */
+    public function getModuleConfig()
+    {
         return [
-            [
-                'value' => 'EN-GB',
-                'label' => __('English')
-            ],
-            [
-                'value' => 'ES-ES',
-                'label' => __('Spanish')
-            ],
-            [
-                'value' => 'DE-DE',
-                'label' => __('German')
-            ],            
-            [
-                'value' => 'KR-KR',
-                'label' => __('Korean')
-            ],
-            [
-                'value' => 'FR-FR',
-                'label' => __('French')
-            ],
-            [
-                'value' => 'IT-IT',
-                'label' => __('Italian')
-            ],
-            [
-                'value' => 'NL-NL',
-                'label' => __('Dutch')
-            ]
+            $this->loader::KEY_CONFIG => $this->loader
+                ->data[$this->loader::KEY_SETTINGS][$this->loader::KEY_CONFIG]
         ];
     }
 
     /**
-     * Returns the integration language.
-     *
-     * @return string
-     */
-    public function getIntegrationLanguage() {
-        // Get and format the user language
-        $userLanguage = $this->localeResolver->getLocale();
-        $userLanguage = strtoupper(str_replace('_', '-', $userLanguage));
-
-        // Get and format the supported languages
-        $supportedLanguages = [];
-        foreach (self::getSupportedLanguages() as $arr) {
-            $supportedLanguages[] = $arr['value'];
-        }
-
-        // Get the fallback language
-        $fallbackLanguage = $this->getValue(
-            self::KEY_FALLBACK_LANGUAGE,
-            $this->storeManager->getStore()
-        );
-
-        // Compare user language with supported
-        if (in_array($userLanguage, $supportedLanguages)) {
-            return $userLanguage;
-        }
-        else {
-            return ($fallbackLanguage) ? $fallbackLanguage : 'EN-EN';
-        }
-    }
-
-    /**
-     * Returns the environment type.
-     *
-     * @return string
-     */
-    public function getEnvironment() {
-        return (string) $this->getValue(
-            self::KEY_ENVIRONMENT,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the vault option title.
-     *
-     * @return string
-     */
-    public function getVaultTitle() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_cc_vault/title',
-            ScopeInterface::SCOPE_STORE
-        );
-    }
-
-    /**
-     * Returns the vault card autosave state.
-     *
-     * @return bool
-     */
-    public function isCardAutosave() {
-        return (bool) $this->getValue(
-            'payment/checkout_com_cc_vault/autosave',
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the payment mode.
-     *
-     * @return string
-     */
-    public function getPaymentMode() {
-        return (string) $this->getValue(
-            self::KEY_PAYMENT_MODE,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the automatic invoice generation state.
-     *
-     * @return bool
-     */
-    public function getAutoGenerateInvoice() {
-        return (bool) $this->getValue(
-            self::KEY_AUTO_GENERATE_INVOICE,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the new order status.
-     *
-     * @return string
-     */
-    public function getNewOrderStatus() {
-        return (string) $this->getValue(
-            self::KEY_NEW_ORDER_STATUS,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the authorized order status.
-     *
-     * @return string
-     */
-    public function getOrderStatusAuthorized() {
-        return (string) $this->getValue(
-            self::KEY_ORDER_STATUS_AUTHORIZED,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the captured order status.
-     *
-     * @return string
-     */
-    public function getOrderStatusCaptured() {
-        return (string) $this->getValue(
-            self::KEY_ORDER_STATUS_CAPTURED,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the voided order status.
-     *
-     * @return string
-     */
-    public function getOrderStatusVoided() {
-        return (string) $this->getValue(
-            self::KEY_ORDER_STATUS_VOIDED,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the flagged order status.
-     *
-     * @return string
-     */
-    public function getOrderStatusFlagged() {
-        return (string) $this->getValue(
-            self::KEY_ORDER_STATUS_FLAGGED,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the design settings.
+     * Returns the payment methods config.
      *
      * @return array
      */
-    public function getDesignSettings() {
-        return (array) array (
-            'hosted' => array (
-                'theme_color' => $this->getValue(
-                    self::KEY_THEME_COLOR,
-                    $this->storeManager->getStore()
-                ),
-                'button_label' => $this->getValue(
-                    self::KEY_BUTTON_LABEL,
-                    $this->storeManager->getStore()
-                ),
-                'box_title' => $this->getValue(
-                    self::KEY_BOX_TITLE,
-                    $this->storeManager->getStore()
-                ),
-                'box_subtitle' => $this->getValue(
-                    self::KEY_BOX_SUBTITLE,
-                    $this->storeManager->getStore()
-                ),
-                'logo_url' => $this->getLogoUrl()
-            )
-        );
-    }
-
-    /**
-     * Returns the hosted logo URL.
-     *
-     * @return string
-     */
-    public function getLogoUrl() {
-        $logoUrl = $this->getValue(
-            self::KEY_LOGO_URL,
-            $this->storeManager->getStore()
-        );
-
-        return (string) (isset($logoUrl) && !empty($logoUrl)) ? $logoUrl : 'none';
-    }
-
-    /**
-     * Determines if the environment is set as sandbox mode.
-     *
-     * @return bool
-     */
-    public function isSandbox() {
-        return $this->getEnvironment() === Environment::ENVIRONMENT_SANDBOX;
-    }
-
-    /**
-     * Determines if the environment is set as live (production) mode.
-     *
-     * @return bool
-     */
-    public function isLive() {
-        return $this->getEnvironment() === Environment::ENVIRONMENT_LIVE;
-    }
-
-    /**
-     * Returns the type of integration.
-     *
-     * @return string
-     */
-    public function getIntegration() {
-        return (string) $this->getValue(
-            self::KEY_INTEGRATION,
-            $this->storeManager->getStore()
-        ); 
-    }
-
-    /**
-     * Determines if the gateway is configured to use hosted integration.
-     *
-     * @return bool
-     */
-    public function isHostedIntegration() {
-        return $this->getIntegration() === Integration::INTEGRATION_HOSTED;
-    }
-
-    /**
-     * Determines if the gateway is active.
-     *
-     * @return bool
-     */
-    public function isActive() {
-        if (!$this->getValue(
-                self::KEY_ACTIVE,
-                $this->storeManager->getStore()
-            )) {
-            return false;
+    public function getMethodsConfig()
+    {
+        $methods = [];
+        foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodId => $data) {
+            // Check if the method is active
+            if ($this->getValue('active', $methodId) == 1) {
+                $methods[$methodId] = $data;
+            }
         }
 
-        $quote = $this->checkoutSession->getQuote();
+        return $methods;
+    }
 
-        return (bool) in_array($quote->getQuoteCurrencyCode(), $this->getAcceptedCurrencies());
+    /**
+     * Gets the account keys.
+     *
+     * @return string
+     */
+    public function getAccountKeys($methodId = null)
+    {
+
+        // Get the account keys for a method
+        if ($methodId) {
+            $publicKey = $this->getValue('public_key', $methodId);
+            $secretKey = $this->getValue('secret_key', $methodId);
+            $privateSharedKey = $this->getValue('private_shared_key', $methodId);
+            if (!empty($publicKey)
+                && !empty($secretKey)
+                && !empty($privateSharedKey)
+                && !$this->getValue('use_default_account', $methodId)
+            ) {
+                return [
+                    'public_key' => $publicKey,
+                    'secretKey' => $secretKey,
+                    'privateSharedKey' => $privateSharedKey
+                ];
+            }
+        }
+
+        // Return the default account keys
+        return [
+            'public_key' => $this->getValue('public_key'),
+            'secret_key' => $this->getValue('secret_key'),
+            'private_shared_key' => $this->getValue('private_shared_key')
+        ];
+    }
+
+    /**
+     * Determines if 3DS should be enabled for a payment request.
+     *
+     * @return string
+     */
+    public function needs3ds($methodId)
+    {
+        return (((bool) $this->getValue('three_ds', $methodId) === true)
+        || ((bool) $this->getValue('mada_enabled', $methodId) === true));
+    }
+
+    /**
+     * Checks and sets a capture time for the request.
+     *
+     * @return string
+     */
+    public function getCaptureTime()
+    {
+        // Get the capture time from config
+        $captureTime = (float) $this->getValue('capture_time');
+        
+        // Force capture time to a minimum of 10 seconds
+        $min = 0.0027;
+        $captureTime = $captureTime >= 0.0027 ? $captureTime : $min;
+
+        // Check the setting
+        if ($this->needsAutoCapture()) {
+            // Calculate the capture date
+            $captureDate = time() + $captureTime*60*60;
+            return $this->utilities->formatDate($captureDate);
+        }
+
+        return false;
     }
 
     /**
@@ -422,724 +203,75 @@ class Config extends BaseConfig {
      *
      * @return string
      */
-    public function getStoreName() {
-        $storeName = $this->scopeConfig->getValue(
-            'general/store_information/name',
-            ScopeInterface::SCOPE_STORE
-        );
-
+    public function getStoreName()
+    {
+        $storeName = $this->getCoreValue('general/store_information/name');
         trim($storeName);
-
-        if (empty($storeName)) {
-            $storeName = parse_url($this->storeManager->getStore()->getBaseUrl())['host'] ;
-        }
-
-        return (string) $storeName;
+        return !empty($storeName) ? $storeName
+        : $this->storeManager->getStore()->getBaseUrl();
     }
 
     /**
-     * Determines if Google Pay is active.
+     * Returns the store name.
+     *
+     * @return string
+     */
+    public function getStoreUrl()
+    {
+        return $this->storeManager->getStore()->getBaseUrl();
+    }
+
+    /**
+     * Determines if the module is in production mode.
      *
      * @return bool
      */
-    public function isActiveGooglePay() {
-        if (!$this->scopeConfig->getValue(
-                'payment/checkout_com_googlepay/active',
-                ScopeInterface::SCOPE_STORE
-            )) {
-            return false;
-        }
-    
-        return true;  
+    public function isLive()
+    {
+        return $this->getValue('environment') == 1;
     }
 
     /**
-     * Returns the Google Pay option title.
-     *
-     * @return string
-     */
-    public function getGooglePayTitle() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_googlepay/title',
-            ScopeInterface::SCOPE_STORE
-        );
-    }
-
-    /**
-     * Gets the Google Pay debug mode.
+     * Determines if the payment method needs auto capture.
      *
      * @return bool
      */
-    public function getGooglePayDebugMode() {
-        return (bool) $this->scopeConfig->getValue(
-            'payment/checkout_com_googlepay/debug',
-            ScopeInterface::SCOPE_STORE
-        ); 
+    public function needsAutoCapture()
+    {
+        return ($this->getValue('payment_action') == 'authorize_capture'
+        || (bool) $this->getValue('mada_enabled', 'checkoutcom_card_payment') === true);
     }
 
     /**
-     * Gets the Google Pay allowed networks.
-     *
-     * @return string
-     */
-    public function getGooglePayAllowedNetworks() {
-        $allowedNetworks = $this->scopeConfig->getValue(
-            'payment/checkout_com_googlepay/allowed_card_networks',
-            ScopeInterface::SCOPE_STORE
-        ); 
-
-        return (string) !empty($allowedNetworks) ? $allowedNetworks : 'VISA';
-    }
-
-    /**
-     * Gets the Google Pay gateway name.
-     *
-     * @return string
-     */
-    public function getGooglePayGatewayName() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_googlepay/gateway_name',
-            ScopeInterface::SCOPE_STORE
-        );
-    }
-
-    /**
-     * Gets the GooglePay merchant id.
-     *
-     * @return string
-     */
-    public function getGooglePayMerchantId() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_googlepay/merchant_id',
-            ScopeInterface::SCOPE_STORE
-        ); 
-    }
-
-    /**
-     * Gets the GooglePay environment.
-     *
-     * @return string
-     */
-    public function getGooglePayEnvironment() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_googlepay/environment',
-            ScopeInterface::SCOPE_STORE
-        ); 
-    }
-
-    /**
-     * Determines if Apple Pay is active.
+     * Determines if dynamic descriptors are available.
      *
      * @return bool
      */
-    public function isActiveApplePay() {
-        if (!$this->scopeConfig->getValue(
-                'payment/checkout_com_applepay/active',
-                ScopeInterface::SCOPE_STORE
-            )) {
-            return false;
-        }
-    
-        return true;  
+    public function needsDynamicDescriptor()
+    {
+        return $this->getValue('dynamic_descriptor_enabled')
+        && !empty($this->getValue('descriptor_name'))
+        && !empty($this->getValue('descriptor_city'));
     }
 
     /**
-     * Returns the Apple Pay token request URL.
-     *
-     * @return string
-     */
-    public function getApplePayTokenRequestUrl() {
-        $path = ($this->isLive()) ? 
-        self::KEY_LIVE_APPLEPAY_TOKEN_REQUEST_URL : 
-        self::KEY_SANDBOX_APPLEPAY_TOKEN_REQUEST_URL;
-
-        return (string) $this->getValue(
-            $path,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the Google Pay token request URL.
-     *
-     * @return string
-     */
-    public function getGooglePayTokenRequestUrl() {
-        $path = ($this->isLive()) ? 
-        self::KEY_LIVE_GOOGLEPAY_TOKEN_REQUEST_URL : 
-        self::KEY_SANDBOX_GOOGLEPAY_TOKEN_REQUEST_URL;
-
-        return (string) $this->getValue(
-            $path,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Gets the Google Pay button style.
+     * Get the MADA BIN file.
      *
      * @return bool
      */
-    public function getGooglePayButtonStyle() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_googlepay/button_style',
-            ScopeInterface::SCOPE_STORE
-        ); 
+    public function getMadaBinFile()
+    {
+        return (int) $this->getValue('environment') == 1
+        ? $this->getValue('mada_test_file') : $this->getValue('mada_live_file');
     }
 
     /**
-     * Return the countries supported by Apple Pay.
+     * Gets the apms.
      *
-     * @return array
+     * @return <array>  The apms.
      */
-    public function getApplePaySupportedCountries() {
-        $supportedCountries = $this->scopeConfig->getValue(
-            'payment/checkout_com_applepay/supported_countries',
-            ScopeInterface::SCOPE_STORE
-        );
-
-        return !empty($supportedCountries) ? $supportedCountries : 'US,GB';
-    }
-
-    /**
-     * Returns the Apple Pay option title.
-     *
-     * @return string
-     */
-    public function getApplePayTitle() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_applepay/title',
-            ScopeInterface::SCOPE_STORE
-        );
-    }
-
-    /**
-     * Returns the Apple Pay supported cards.
-     *
-     * @return string
-     */
-    public function getApplePaySupportedNetworks() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_applepay/supported_networks',
-            ScopeInterface::SCOPE_STORE
-        );
-    }
-
-    /**
-     * Returns the Apple Pay merchant capabilities.
-     *
-     * @return string
-     */
-    public function getApplePayMerchantCapabilities() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_applepay/merchant_capabilities',
-            ScopeInterface::SCOPE_STORE
-        );
-    }
-
-    /**
-     * Gets the ApplePay processing certificate.
-     *
-     * @return string
-     */
-    public function getApplePayProcessingCertificate() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_applepay/processing_certificate',
-            ScopeInterface::SCOPE_STORE
-        ); 
-    }
-
-    /**
-     * Gets the ApplePay processing certificate password.
-     *
-     * @return string
-     */
-    public function getApplePayProcessingCertificatePassword() {
-        $pass = $this->scopeConfig->getValue(
-            'payment/checkout_com_applepay/processing_certificate_password',
-            ScopeInterface::SCOPE_STORE
-        );
-        trim($pass);
-        return ($pass) ? $pass : ''; 
-    }
-
-    /**
-     * Gets the ApplePay merchant id certificate.
-     *
-     * @return string
-     */
-    public function getApplePayMerchantIdCertificate() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_applepay/merchant_id_certificate',
-            ScopeInterface::SCOPE_STORE
-        ); 
-    }
-
-    /**
-     * Gets the ApplePay merchant id.
-     *
-     * @return string
-     */
-    public function getApplePayMerchantId() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_applepay/merchant_id',
-            ScopeInterface::SCOPE_STORE
-        ); 
-    }
-
-    /**
-     * Gets the ApplePay debug mode.
-     *
-     * @return bool
-     */
-    public function getApplePayDebugMode() {
-        return (bool) $this->scopeConfig->getValue(
-            'payment/checkout_com_applepay/debug',
-            ScopeInterface::SCOPE_STORE
-        ); 
-    }
-
-    /**
-     * Gets the ApplePay button style.
-     *
-     * @return bool
-     */
-    public function getApplePayButtonStyle() {
-        return (string) $this->scopeConfig->getValue(
-            'payment/checkout_com_applepay/button_style',
-            ScopeInterface::SCOPE_STORE
-        ); 
-    }
-
-    /**
-     * Determines if the core order comments need override.
-     *
-     * @return bool
-     */
-    public function overrideOrderComments() {
-        return (bool) $this->getValue(
-            self::KEY_ORDER_COMMENTS_OVERRIDE,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Determines if debug mode is enabled.
-     *
-     * @return bool
-     */
-    public function isDebugMode() {
-        return (bool) $this->getValue(
-            self::KEY_DEBUG,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the public key for client-side functionality.
-     *
-     * @return string
-     */
-    public function getPublicKey() {
-        return (string) $this->encryptor->decrypt($this->getValue(
-            self::KEY_PUBLIC_KEY,
-            $this->storeManager->getStore()
-        ));
-    }
-
-    /**
-     * Returns the secret key for server-side functionality.
-     *
-     * @return string
-     */
-    public function getSecretKey() {
-        return (string) $this->encryptor->decrypt($this->getValue(
-            self::KEY_SECRET_KEY,
-            $this->storeManager->getStore()
-        ));
-    }
-
-    /**
-     * Is MADA BIN check enabled
-     *
-     * @return bool
-     */
-    public function isMadaEnabled() {
-        return (bool) $this->getValue(
-            self::KEY_MADA_ENABLED,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Return the MADA BINS file path.
-     *
-     * @return string
-     */
-    public function getMadaBinsPath() {
-        return (string) (($this->isLive()) ?
-        $this->getValue(
-            self::KEY_MADA_BINS_PATH,
-            $this->storeManager->getStore()
-        ) : 
-        $this->getValue(
-            self::KEY_MADA_BINS_PATH_TEST,
-            $this->storeManager->getStore()
-        ));
-    }
-
-    /**
-     * Returns the private shared key used for callback function.
-     *
-     * @return string
-     */
-    public function getPrivateSharedKey() {
-        return (string) $this->encryptor->decrypt($this->getValue(
-            self::KEY_PRIVATE_SHARED_KEY,
-            $this->storeManager->getStore()
-        ));
-    }
-
-    /**
-     * Determines if 3D Secure option is enabled.
-     *
-     * @return bool
-     */
-    public function isVerify3DSecure() {
-        return (bool) $this->getValue(
-            self::KEY_VERIFY_3DSECURE,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Determines if attempt Non 3D Secure option is enabled.
-     *
-     * @return bool
-     */
-    public function isAttemptN3D() {
-        return (bool) $this->getValue(
-            self::KEY_ATTEMPT_N3D,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the currencies allowed for payment.
-     *
-     * @return array
-     */
-    public function getAcceptedCurrencies() {
-        return (array) explode(',', $this->getValue(
-            self::KEY_ACCEPTED_CURRENCIES,
-            $this->storeManager->getStore()
-        ));
-    }
-
-    /**
-     * Returns the payment currency.
-     *
-     * @return string
-     */
-    public function getPaymentCurrency() {
-        return (string) $this->getValue(
-            self::KEY_PAYMENT_CURRENCY,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the custom payment currency.
-     *
-     * @return string
-     */
-    public function getCustomCurrency() {
-        return (string) $this->getValue(
-            self::KEY_CUSTOM_CURRENCY,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the API URL for sandbox environment.
-     *
-     * @return string
-     */
-    public function getSandboxApiUrl() {
-        return (string) $this->getValue(
-            self::KEY_SANDBOX_API_URL,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the API URL for sandbox environment.
-     *
-     * @return string
-     */
-    public function getLiveApiUrl() {
-        return (string) $this->getValue(
-            self::KEY_LIVE_API_URL,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the API URL based on environment settings.
-     *
-     * @return string
-     */
-    public function getApiUrl() {
-        return $this->isLive() ? $this->getLiveApiUrl() : $this->getSandboxApiUrl();
-    }
-
-    /**
-     * Returns the URL for hosted integration for sandbox environment.
-     *
-     * @return string
-     */
-    public function getSandboxHostedUrl() {
-        return (string) $this->getValue(
-            self::KEY_SANDBOX_HOSTED_URL,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the URL for hosted integration for live environment.
-     *
-     * @return string
-     */
-    public function getLiveHostedUrl() {
-        return (string) $this->getValue(
-            self::KEY_LIVE_HOSTED_URL,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the URL for hosted integration based on environment settings.
-     *
-     * @return string
-     */
-    public function getHostedUrl() {
-        return $this->isLive() ? $this->getLiveHostedUrl() : $this->getSandboxHostedUrl();
-    }
-
-
-    /**
-     * Returns the URL for embedded integration for sandbox environment.
-     *
-     * @return string
-     */
-    public function getSandboxEmbeddedUrl() {
-        return (string) $this->getValue(
-            self::KEY_SANDBOX_EMBEDDED_URL,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the URL for embedded integration for live environment.
-     *
-     * @return string
-     */
-    public function getLiveEmbeddedUrl() {
-        return (string) $this->getValue(
-            self::KEY_LIVE_EMBEDDED_URL,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the URL for embedded integration based on environment settings.
-     *
-     * @return string
-     */
-    public function getEmbeddedUrl() {
-        return $this->isLive() ? $this->getLiveEmbeddedUrl() : $this->getSandboxEmbeddedUrl();
-    }
-
-    /**
-     * Returns the CSS URL for embedded integration.
-     *
-     * @return string
-     */
-    public function getEmbeddedCss() {
-        return (string) $this->getValue(
-            self::KEY_EMBEDDED_CSS,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the CSS preference setting.
-     *
-     * @return string
-     */
-    public function getCssFile() {
-        return (string) $this->getValue(
-            self::KEY_CSS_FILE,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the new order creation setting.
-     *
-     * @return string
-     */
-    public function getOrderCreation() {
-        return (string) $this->getValue(
-            self::KEY_ORDER_CREATION,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the custom CSS URL for embedded integration.
-     *
-     * @return string
-     */
-    public function getCustomCss() {
-        // Prepare the paths
-        $base_url = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
-        $file_path = $this->getValue(
-            'payment/checkout_com/checkout_com_base_settings/custom_css',
-            $this->storeManager->getStore()
-        );
-
-        return $base_url . 'checkout_com/' . $file_path;
-    }
-
-    /**
-     * Determines if auto capture option is enabled.
-     *
-     * @return bool
-     */
-    public function isAutoCapture() {
-        return (bool) $this->getValue(
-            self::KEY_AUTO_CAPTURE,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the number of hours, after which the capture method should be invoked.
-     *
-     * @return int
-     */
-    public function getAutoCaptureTimeInHours() {
-        return $this->getValue(
-            self::KEY_AUTO_CAPTURE_TIME,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Return the country specific card type config.
-     *
-     * @return array
-     */
-    public function getCountrySpecificCardTypeConfig() {
-        $countriesCardTypes = unserialize($this->getValue(
-            self::KEY_COUNTRY_CREDIT_CARD,
-            $this->storeManager->getStore()
-        ));
-
-        return is_array($countriesCardTypes) ? $countriesCardTypes : [];
-    }
-
-    /**
-     * Get list of card types available for country.
-     *
-     * @param string $country
-     * @return array
-     */
-    public function getCountryAvailableCardTypes($country) {
-        $types = $this->getCountrySpecificCardTypeConfig();
-        return (!empty($types[$country])) ? $types[$country] : [];
-    }
-
-    /**
-     * Retrieve available credit card types.
-     *
-     * @return array
-     */
-    public function getAvailableCardTypes() {
-        $ccTypes = $this->getValue(
-            self::KEY_CC_TYPES,
-            $this->storeManager->getStore()
-        );
-
-        return ! empty($ccTypes) ? explode(',', $ccTypes) : [];
-    }
-
-    /**
-     * Retrieve mapper between Magento and Checkout.com card types.
-     *
-     * @return array
-     */
-    public function getCcTypesMapper() {
-        return self::$ccTypesMap;
-    }
-
-    /**
-     * Check if CVV field is enabled.
-     *
-     * @return bool
-     */
-    public function isCvvEnabled() {
-        return (bool) $this->getValue(
-            self::KEY_USE_CVV,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Check if the descriptor is enabled.
-     *
-     * @return bool
-     */
-    public function isDescriptorEnabled() {
-        return (bool) $this->getValue(
-            self::KEY_USE_DESCRIPTOR,
-            $this->storeManager->getStore()
-        );
-    }
-    /**
-     * Returns the descriptor name.
-     *
-     * @return string
-     */
-    public function getDescriptorName() {
-        return (string) $this->getValue(
-            self::KEY_DESCRIPTOR_NAME,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the descriptor city.
-     *
-     * @return string
-     */
-    public function getDescriptorCity() {
-        return (string) $this->getValue(
-            self::KEY_DESCRIPTOR_CITY,
-            $this->storeManager->getStore()
-        );
-    }
-
-    /**
-     * Returns the embedded theme.
-     *
-     * @return string
-     */
-    public function getEmbeddedTheme() {
-        return (string) $this->getValue(
-            self::KEY_EMBEDDED_THEME,
-            $this->storeManager->getStore()
-        );
+    public function getApms()
+    {
+        return $this->loader->loadApmList();
     }
 }

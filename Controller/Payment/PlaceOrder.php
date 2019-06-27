@@ -1,198 +1,272 @@
 <?php
+
 /**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
+ * PHP version 7
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use Magento\Framework\App\Action\Context;
-use Magento\Checkout\Model\Session as CheckoutSession;
-use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Model\Order\Payment\Transaction;
-use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
-use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
-use CheckoutCom\Magento2\Model\Service\OrderService;
-use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
-use CheckoutCom\Magento2\Model\Service\TokenChargeService;
-use CheckoutCom\Magento2\Helper\Helper;
+use \Checkout\Models\Payments\Refund;
+use \Checkout\Models\Payments\Voids;
 
-class PlaceOrder extends AbstractAction {
-
+/**
+ * Class PlaceOrder
+ */
+class PlaceOrder extends \Magento\Framework\App\Action\Action
+{
     /**
-     * @var TokenChargeService
+     * @var QuoteHandlerService
      */
-    protected $tokenChargeService;
+    protected $quoteHandler;
 
     /**
-     * @var CheckoutSession
+     * @var OrderHandlerService
+     */
+    protected $orderHandler;
+
+    /**
+     * @var MethodHandlerService
+     */
+    protected $methodHandler;
+
+    /**
+     * @var ApiHandlerService
+     */
+    protected $apiHandler;
+
+    /**
+     * @var JsonFactory
+     */
+    protected $jsonFactory;
+
+    /**
+     * @var Session
      */
     protected $checkoutSession;
 
     /**
-     * @var OrderInterface
+     * @var Utilities
      */
-    protected $orderInterface;
+    protected $utilities;
 
     /**
-     * @var OrderService
+     * @var Config
      */
-    protected $orderService;
+    protected $config;
 
     /**
-     * @var CustomerSession
+     * @var Logger
      */
-    protected $customerSession;
+    protected $logger;
 
     /**
-     * @var Helper
+     * @var String
      */
-    protected $helper;
+    protected $methodId;
 
     /**
-     * PlaceOrder constructor.
-     * @param Context $context
-     * @param CheckoutSession $checkoutSession
-     * @param GatewayConfig $gatewayConfig
-     * @param OrderInterface $orderInterface
-     * @param OrderService $orderService
-     * @param Order $orderManager
-     * @param Helper $helper
+     * @var array
+     */
+    protected $data;
+
+    /**
+     * @var String
+     */
+    protected $cardToken;
+
+    /**
+     * @var Quote
+     */
+    protected $quote;
+
+    /**
+     * PlaceOrder constructor
      */
     public function __construct(
-        Context $context,
-        CheckoutSession $checkoutSession,
-        GatewayConfig $gatewayConfig,
-        OrderService $orderService,
-        OrderInterface $orderInterface,
-        CustomerSession $customerSession,
-        TokenChargeService $tokenChargeService,
-        Helper $helper
+        \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
-        parent::__construct($context, $gatewayConfig);
+        parent::__construct($context);
 
-        $this->checkoutSession        = $checkoutSession;
-        $this->customerSession        = $customerSession;
-        $this->orderService           = $orderService;
-        $this->orderInterface         = $orderInterface;
-        $this->tokenChargeService     = $tokenChargeService;
-        $this->helper                 = $helper;
+        $this->jsonFactory = $jsonFactory;
+        $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
+        $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
+        $this->checkoutSession = $checkoutSession;
+        $this->utilities = $utilities;
+        $this->config = $config;
+        $this->logger = $logger;
+
+        // Try to load a quote
+        $this->quote = $this->quoteHandler->getQuote();
+
+        // Set some required properties
+        $this->data = $this->getRequest()->getParams();
+        $this->methodId = $this->data['methodId'];
     }
 
     /**
-     * Handles the controller method.
+     * Main controller function.
      *
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @return JSON
      */
-    public function execute() {
+    public function execute()
+    {
+        // Prepare some parameters
+        $url = '';
+        $message = '';
+        $success = false;
 
-        // Retrieve the request parameters
-        $params = array(
-            'cardToken' => $this->getRequest()->getParam('cko-card-token'),
-            'email' => $this->getRequest()->getParam('cko-context-id'),
-            'agreement' => array_keys($this->getRequest()->getPostValue('agreement', [])),
-            'quote' => $this->checkoutSession->getQuote()
-        );
-
-        $order = null;
-        if (isset($this->customerSession->getData('checkoutSessionData')['orderTrackId'])) {
-            $order = $this->orderInterface->loadByIncrementId($this->customerSession->getData('checkoutSessionData')['orderTrackId']);
-        }
-
-        if ($order) {
-            $this->updateOrder($params, $order);
-        }
-        else {
-            $this->createOrder($params);
-        }
-    }
-
-    public function updateOrder($params, $order) {
-
-        // Create the charge for order already placed
-        $updateSuccess = $this->tokenChargeService->sendChargeRequest($params['cardToken'], $order);
-
-        // Update payment data
-        $order = $this->updatePaymentData($order);
-        
-        // 3D Secure redirection if needed
-        if($this->isUrl($this->checkoutSession->get3DSRedirect())) {
-            $this->place3DSecureRedirectUrl();
-            exit();
-        }
-
-        return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
-    }
-
-    public function createOrder($params) {
-        // Check for guest email
-        if ($this->customerSession->isLoggedIn() === false) {
-            $params['quote'] = $this->helper->prepareGuestQuote($params['quote'], $params['email']);
-        }
-
-        // Perform quote and order validation
         try {
-            // Create an order from the quote
-            $this->validateQuote($params['quote']);
-            
-            /**
-             *  Temporary workaround for a M2 code T&C checkbox issue not sending data.
-             *  The last parameter should be $params['agreement']
-             */
-            $this->orderService->execute($params['quote'], $params['cardToken'], array(true));
+            // Process the request
+            if ($this->getRequest()->isAjax() && $this->quote) {
+                // Get response and success
+                $response = $this->requestPayment();
 
-            // 3D Secure redirection if needed
-            if ($this->isUrl($this->checkoutSession->get3DSRedirect())) {
-                $this->place3DSecureRedirectUrl();
-                exit();
+                // Logging
+                $this->logger->display($response);
+
+                // Check success
+                if ($this->apiHandler->isValidResponse($response)) {
+                    $success = $response->isSuccessful();
+                    $url = $response->getRedirection();
+                    if ($this->canPlaceOrder($response)) {
+                        $this->placeOrder($response);
+                    }
+                } else {
+                    // Payment failed
+                    $message = __('The transaction could not be processed.');
+                }
+            } else {
+                $message = __('The request is invalid.');
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            $message = __($e->getMessage());
+        } finally {
+            return $this->jsonFactory->create()->setData(
+                [
+                    'success' => $success,
+                    'message' => $message,
+                    'url' => $url
+                ]
+            );
+        }
+    }
+
+    /**
+     * Request payment to API handler.
+     *
+     * @return Response
+     */
+    protected function requestPayment()
+    {
+        try {
+            // Send the charge request
+            return $this->methodHandler
+                ->get($this->methodId)
+                ->sendPaymentRequest(
+                    $this->data,
+                    $this->quote->getGrandTotal(),
+                    $this->quote->getQuoteCurrencyCode(),
+                    $this->quoteHandler->getReference($this->quote)
+                );
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Checks if an order can be placed.
+     *
+     * @param array $response The response
+     *
+     * @return boolean
+     */
+    protected function canPlaceOrder($response)
+    {
+        return !$response->isPending() || $this->data['source'] === 'sepa' || $this->data['source'] === 'fawry';
+    }
+
+    /**
+     * Handles the order placing process.
+     *
+     * @param array $response The response
+     *
+     * @return void
+     */
+    protected function placeOrder($response = null)
+    {
+        try {
+            // Get the reserved order increment id
+            $reservedIncrementId = $this->quoteHandler
+                ->getReference($this->quote);
+
+            // Create an order
+            $order = $this->orderHandler
+                ->setMethodId($this->methodId)
+                ->handleOrder($response, $reservedIncrementId);
+
+            // Add the payment info to the order
+            $order = $this->utilities
+                ->setPaymentData($order, $response);
+
+            // Save the order
+            $order->save();
+
+            // Check if the order is valid
+            if (!$this->orderHandler->isOrder($order)) {
+                $this->cancelPayment($response);
+                return null;
             }
 
-            return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
-
+            return $order;
         } catch (\Exception $e) {
-            $this->messageManager->addExceptionMessage($e, $e->getMessage());
+            $this->logger->write($e->getMessage());
         }
-
-        return $this->_redirect('checkout/cart', ['_secure' => true]);
-    }
-
-    public function updatePaymentData($order) {
-        // Load payment object
-        $payment = $order->getPayment();
-
-        // Set the payment method, previously "substitution" for pre auth order creation
-        $payment->setMethod(ConfigProvider::CODE); 
-        $payment->save();
-        $order->save();
-
-        return $order;
     }
 
     /**
-     * Listens to a session variable set in Gateway/Response/ThreeDSecureDetailsHandler.php.
+     * Cancels a payment.
      *
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @param array $response The response
+     *
+     * @return void
      */
-    public function place3DSecureRedirectUrl() {
-        $url = $this->checkoutSession->get3DSRedirect();
-        $this->checkoutSession->uns3DSRedirect();
-
-        echo '<script type="text/javascript">';
-        echo 'function waitForElement() {';
-        echo 'var redirectUrl = "' . $url . '";';
-        echo 'if (redirectUrl.length != 0){ window.location.replace(redirectUrl); }';
-        echo 'else { setTimeout(waitForElement, 250); }';
-        echo '} ';
-        echo 'waitForElement();';
-        echo '</script>';
-    }
-
-    public function isUrl($url) {
-        return filter_var($url, FILTER_VALIDATE_URL) === false ? false : true;
+    protected function cancelPayment($response)
+    {
+        try {
+            // refund or void accordingly
+            if ($this->config->needsAutoCapture($this->methodId)) {
+                //refund
+                $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
+            } else {
+                //void
+                $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        }
     }
 }

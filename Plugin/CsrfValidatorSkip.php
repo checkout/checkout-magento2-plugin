@@ -1,21 +1,32 @@
 <?php
-namespace CheckoutCom\Magento2\Plugin;
+
 /**
- * Checkout.com Magento 2 Payment module (https://www.checkout.com)
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
- * Author: David Fiaty | integration@checkout.com
+ * PHP version 7
  *
- * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
  */
 
+namespace CheckoutCom\Magento2\Plugin;
+
+/**
+ * Class CsrfValidatorSkip.
+ */
 class CsrfValidatorSkip
 {
     /**
      * @param \Magento\Framework\App\Request\CsrfValidator $subject
-     * @param \Closure $proceed
-     * @param \Magento\Framework\App\RequestInterface $request
-     * @param \Magento\Framework\App\ActionInterface $action
+     * @param \Closure                                     $proceed
+     * @param \Magento\Framework\App\RequestInterface      $request
+     * @param \Magento\Framework\App\ActionInterface       $action
      */
     public function aroundValidate(
         $subject,
@@ -23,9 +34,12 @@ class CsrfValidatorSkip
         $request,
         $action
     ) {
+        // Skip CSRF check
         if ($request->getModuleName() == 'checkout_com') {
-            return; // Skip CSRF check
+            return;
         }
-        $proceed($request, $action); // Proceed Magento 2 core functionalities
+
+        // Proceed Magento 2 core functionalities
+        $proceed($request, $action);
     }
 }
