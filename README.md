@@ -4,7 +4,7 @@
 
 [Checkout.com](https://www.checkout.com "Checkout.com") is a software platform that has integrated 100% of the value chain to create payment infrastructures that truly make a difference. Checkout.com is authorized and regulated as a Payment institution by the UK Financial Conduct Authority.
 
-The Checkout.com extension for Magento 2 allows shop owners to process online payments through the [Checkout.com Payment Gateway](https://docs.checkout.com/getting-started/introduction "Checkout.com Payment Gateway").
+The Checkout.com extension for Magento 2 allows shop owners to process online payments through the [Checkout.com Payment Gateway](https://docs.checkout.com/ "Checkout.com Payment Gateway").
 
 The Checkout.com Magento 2 Extension offers 7 payment modes:
 
