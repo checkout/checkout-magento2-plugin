@@ -140,11 +140,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        // Prepare a default error message
-        $message = _('An error occurred and the order could not be created.');
-
         // Try to place the order
         try {
+            // Prepare a default error message
+            $message = __('An error occurred and the order could not be created.');
+
             // Create the quote
             $quote = $this->quoteHandler->createQuote();
             $quote = $this->quoteHandler->addItems(
@@ -257,11 +257,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     protected function buildProductData() {
         try {
             // Prepare the base array
-            $output = [
-                [
-                    'product_id' => $this->data['product'],
-                    'qty' => $this->data['qty'],
-                ]
+            $output =[
+                'product_id' => $this->data['product'],
+                'qty' => $this->data['qty']
             ];
 
             // Add product variations
@@ -269,7 +267,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 $output['super_attribute'] = $this->data['super_attribute'];
             }
 
-            return $output;
+            return [$output];
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return [];
