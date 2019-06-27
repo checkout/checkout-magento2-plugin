@@ -251,7 +251,7 @@
                 </group>
 
                 <group id="checkoutcom_apple_pay" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Apple Pay</label>
+                    <label>Apple Pay Payments</label>
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_apple_pay/title</config_path>
@@ -321,7 +321,7 @@
                 </group>
 
                 <group id="checkoutcom_google_pay" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Google Pay</label>
+                    <label>Google Pay Payments</label>
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_google_pay/title</config_path>
@@ -370,7 +370,7 @@
                 </group>
 
                 <group id="checkoutcom_vault" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Vault Cards</label>
+                    <label>Vault Cards Payments</label>
                     <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Vault Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
