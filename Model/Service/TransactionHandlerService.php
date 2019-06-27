@@ -190,8 +190,11 @@ class TransactionHandlerService
     public function handleAuthorization()
     {
         try {
-            $authTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
-            if (!$authTransaction && !$this->isWebhook) {
+            $authTransaction = $this->hasTransaction(
+                Transaction::TYPE_AUTH,
+                $this->order
+            );
+            if (!$authTransaction) {
                 // Set the order status
                 $this->setOrderStatus('order_status_authorized');
 

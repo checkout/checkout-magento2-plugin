@@ -109,7 +109,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                         // Return to the cart
                         return $this->_redirect('checkout/cart', ['_secure' => true]);
                     }
-
+                    
                     return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                 }
             }
