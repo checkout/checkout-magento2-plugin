@@ -28,12 +28,19 @@ class AvailabilityChecker implements \Magento\InstantPurchase\PaymentMethodInteg
     protected $config;
 
     /**
+     * @var VaultHandlerService
+     */
+    private $vaultHandler;
+
+    /**
      * AvailabilityChecker constructor
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
     ) {
         $this->config = $config;
+        $this->vaultHandler = $vaultHandler;
     }
 
     /**
@@ -53,6 +60,8 @@ class AvailabilityChecker implements \Magento\InstantPurchase\PaymentMethodInteg
             'checkoutcom_vault'
         );
 
-        return $vaultEnabled && $instantPurchaseEnabled;
+        return $vaultEnabled 
+        && $instantPurchaseEnabled
+        && $this->vaultHandler->userHasCards();
     }
 }
