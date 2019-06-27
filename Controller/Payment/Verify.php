@@ -78,9 +78,6 @@ class Verify extends \Magento\Framework\App\Action\Action
 
         // Try to load a quote
         $this->quote = $this->quoteHandler->getQuote();
-
-        // Todo - make the method detection generic for 3ds card payments and APMs
-        $this->methodId = 'checkoutcom_card_payment';
     }
 
     /**
@@ -94,6 +91,9 @@ class Verify extends \Magento\Framework\App\Action\Action
             if ($sessionId) {
                 // Get the payment details
                 $response = $this->apiHandler->getPaymentDetails($sessionId);
+
+                // Set the method ID
+                $this->methodId = $response->metadata['methodId'];
 
                 // Logging
                 $this->logger->display($response);

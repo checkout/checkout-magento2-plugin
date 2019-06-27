@@ -171,6 +171,9 @@ class Callback extends \Magento\Framework\App\Action\Action
         }
     }
 
+    /**
+     * Get the request payload.
+     */
     protected function getPayload()
     {
         try {
@@ -181,6 +184,9 @@ class Callback extends \Magento\Framework\App\Action\Action
         }
     }
 
+    /**
+     * Check if the card needs saving.
+     */
     protected function cardNeedsSaving()
     {
         try {
@@ -196,6 +202,9 @@ class Callback extends \Magento\Framework\App\Action\Action
         }
     }
 
+    /**
+     * Save a card.
+     */
     protected function saveCard($response)
     {
         try {
