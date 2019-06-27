@@ -6,7 +6,7 @@
 
 The Checkout.com extension for Magento 2 allows shop owners to process online payments through the [Checkout.com Payment Gateway](https://docs.checkout.com/getting-started/introduction "Checkout.com Payment Gateway").
 
-This extension is an integration of [Checkout.js](https://docs.checkout.com "Checkout.js") and offers 7 payment modes:
+The Checkout.com Magento 2 Extension offers 7 payment modes:
 
 * Card Payments with Frames.js <br>
 The payment form is embedded and shoppers complete payments without leaving your website.
