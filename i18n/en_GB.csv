@@ -1,5 +1,6 @@
 "The card could not be saved.","The card could not be saved."
 "The payment card has been stored successfully.","The payment card has been stored successfully."
+"An error occurred and the order could not be created.","An error occurred and the order could not be created."
 "Your order number %1 has been created successfully.","Your order number %1 has been created successfully."
 "The transaction could not be processed.","The transaction could not be processed."
 "The request is invalid.","The request is invalid."
@@ -56,6 +57,7 @@ Actions,Actions
 Delete,Delete
 "The card ending with %1 will be deleted.","The card ending with %1 will be deleted."
 "Delete a card","Delete a card"
+"You will be redirected to an external page.","You will be redirected to an external page."
 Name,Name
 "Cadastro de Pessoas Físicas","Cadastro de Pessoas Físicas"
 "Birth date","Birth date"
