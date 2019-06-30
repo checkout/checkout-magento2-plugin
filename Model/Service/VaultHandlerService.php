@@ -142,7 +142,7 @@ class VaultHandlerService
                 $paymentToken->getPublicHash(),
                 $paymentToken->getCustomerId()
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }
@@ -159,7 +159,7 @@ class VaultHandlerService
         try {
             $this->customerId = (int) $id > 0
             ? $id : $this->customerSession->getCustomer()->getId();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         } finally {
             return $this;
@@ -177,7 +177,7 @@ class VaultHandlerService
         try {
             $this->customerEmail = ($email)
             ? $email : $this->customerSession->getCustomer()->getEmail();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         } finally {
             return $this;
@@ -243,7 +243,7 @@ class VaultHandlerService
                 $paymentToken->setIsVisible(true);
                 $this->paymentTokenRepository->save($paymentToken);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
     }
