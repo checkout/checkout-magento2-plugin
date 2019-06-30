@@ -41,7 +41,7 @@ class TokenFormatter implements \Magento\InstantPurchase\PaymentMethodIntegratio
     /**
      * @inheritdoc
      */
-    public function formatPaymentToken(PaymentTokenInterface $paymentToken): string
+    public function formatPaymentToken(PaymentTokenInterface $paymentToken)
     {
         // Return the formatted token
         return $this->vaultHandler->renderTokenData($paymentToken);

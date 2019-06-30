@@ -17,7 +17,7 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use \Magento\Vault\Api\Data\PaymentTokenInterface;
+use Magento\Vault\Api\Data\PaymentTokenInterface;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
@@ -385,7 +385,7 @@ class VaultHandlerService
                 usort(
                     $cardList,
                     function ($a, $b) {
-                        return new \DateTime($a->getCreatedAt()) <=> new \DateTime($b->getCreatedAt());
+                        return strtotime($a->getCreatedAt()) - strtotime($b->getCreatedAt());
                     }
                 );
 

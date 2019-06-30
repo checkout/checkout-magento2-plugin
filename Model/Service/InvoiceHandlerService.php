@@ -18,6 +18,7 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Sales\Model\Order\Invoice;
 
 /**
  * Class InvoiceHandlerService.
@@ -134,7 +135,7 @@ class InvoiceHandlerService
     {
         $invoice = $this->getInvoice($this->order);
         if ($invoice) {
-            $invoice->setState($this->invoiceModel::STATE_CANCELED);
+            $invoice->setState(Invoice::STATE_CANCELED);
             $this->invoiceRepository->save($invoice);
         }
     }
@@ -181,12 +182,11 @@ class InvoiceHandlerService
     {
         try {
             if ($this->needsCaptureInvoice()) {
-                $invoice->setRequestedCaptureCase($this->invoiceModel::CAPTURE_ONLINE);
-                //$invoice->setState($this->invoiceModel::STATE_PAID);
+                $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
                 $invoice->setCanVoidFlag(false);
             } elseif ($this->needsAuthorizationInvoice()) {
-                $invoice->setState($this->invoiceModel::STATE_OPEN);
-                $invoice->setRequestedCaptureCase($this->invoiceModel::NOT_CAPTURE);
+                $invoice->setState(Invoice::STATE_OPEN);
+                $invoice->setRequestedCaptureCase(Invoice::NOT_CAPTURE);
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

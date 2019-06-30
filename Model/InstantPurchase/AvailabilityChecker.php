@@ -46,7 +46,7 @@ class AvailabilityChecker implements \Magento\InstantPurchase\PaymentMethodInteg
     /**
      * @inheritdoc
      */
-    public function isAvailable(): bool
+    public function isAvailable()
     {
         // Get the vault state
         $vaultEnabled = $this->config->getValue(
