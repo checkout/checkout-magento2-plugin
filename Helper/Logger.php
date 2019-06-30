@@ -17,7 +17,7 @@
 
 namespace CheckoutCom\Magento2\Helper;
 
-use \Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class Logger

@@ -20,7 +20,7 @@ namespace CheckoutCom\Magento2\Model\InstantPurchase;
 /**
  * Class AvailabilityChecker
  */
-class AvailabilityChecker implements \Magento\InstantPurchase\PaymentMethodIntegration\AvailabilityCheckerInterface
+class AvailabilityChecker
 {
     /**
      * @var Config
@@ -46,7 +46,7 @@ class AvailabilityChecker implements \Magento\InstantPurchase\PaymentMethodInteg
     /**
      * @inheritdoc
      */
-    public function isAvailable(): bool
+    public function isAvailable()
     {
         // Get the vault state
         $vaultEnabled = $this->config->getValue(

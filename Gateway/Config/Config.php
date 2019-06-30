@@ -17,6 +17,8 @@
 
 namespace CheckoutCom\Magento2\Gateway\Config;
 
+use CheckoutCom\Magento2\Gateway\Config\Loader;
+
 /**
  * Class Config
  */
@@ -106,8 +108,8 @@ class Config
     public function getModuleConfig()
     {
         return [
-            $this->loader::KEY_CONFIG => $this->loader
-                ->data[$this->loader::KEY_SETTINGS][$this->loader::KEY_CONFIG]
+            Loader::KEY_CONFIG => $this->loader
+                ->data[Loader::KEY_SETTINGS][Loader::KEY_CONFIG]
         ];
     }
 
@@ -119,7 +121,7 @@ class Config
     public function getMethodsConfig()
     {
         $methods = [];
-        foreach ($this->loader->data[$this->loader::KEY_PAYMENT] as $methodId => $data) {
+        foreach ($this->loader->data[Loader::KEY_PAYMENT] as $methodId => $data) {
             // Check if the method is active
             if ($this->getValue('active', $methodId) == 1) {
                 $methods[$methodId] = $data;
@@ -136,7 +138,6 @@ class Config
      */
     public function getAccountKeys($methodId = null)
     {
-
         // Get the account keys for a method
         if ($methodId) {
             $publicKey = $this->getValue('public_key', $methodId);
@@ -266,9 +267,9 @@ class Config
     }
 
     /**
-     * Gets the apms.
+     * Gets the Alternative Payments.
      *
-     * @return <array>  The apms.
+     * @return array
      */
     public function getApms()
     {

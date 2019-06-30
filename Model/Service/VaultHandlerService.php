@@ -17,7 +17,7 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use \Magento\Vault\Api\Data\PaymentTokenInterface;
+use Magento\Vault\Api\Data\PaymentTokenInterface;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
@@ -142,7 +142,7 @@ class VaultHandlerService
                 $paymentToken->getPublicHash(),
                 $paymentToken->getCustomerId()
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }
@@ -159,7 +159,7 @@ class VaultHandlerService
         try {
             $this->customerId = (int) $id > 0
             ? $id : $this->customerSession->getCustomer()->getId();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         } finally {
             return $this;
@@ -177,7 +177,7 @@ class VaultHandlerService
         try {
             $this->customerEmail = ($email)
             ? $email : $this->customerSession->getCustomer()->getEmail();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         } finally {
             return $this;
@@ -243,7 +243,7 @@ class VaultHandlerService
                 $paymentToken->setIsVisible(true);
                 $this->paymentTokenRepository->save($paymentToken);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
     }
@@ -385,7 +385,7 @@ class VaultHandlerService
                 usort(
                     $cardList,
                     function ($a, $b) {
-                        return new \DateTime($a->getCreatedAt()) <=> new \DateTime($b->getCreatedAt());
+                        return strtotime($a->getCreatedAt()) - strtotime($b->getCreatedAt());
                     }
                 );
 

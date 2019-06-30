@@ -240,11 +240,23 @@ class QuoteHandlerService
     public function findEmail($quote)
     {
         try {
-            return $quote->getCustomerEmail()
-            ?? $quote->getBillingAddress()->getEmail()
-            ?? $this->cookieManager->getCookie(
-                $this->config->getValue('email_cookie_name')
-            );
+            // Get an array of possible values
+            $emails = [
+                $quote->getCustomerEmail(),
+                $quote->getBillingAddress()->getEmail(),
+                $this->cookieManager->getCookie(
+                    $this->config->getValue('email_cookie_name')
+                )
+            ];
+
+            // Return the first available value
+            foreach ($emails as $email) {
+                if ($email && !empty($email)) {
+                    return $email;
+                }
+            }
+
+            return null;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;

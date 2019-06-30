@@ -17,6 +17,8 @@
 
 namespace CheckoutCom\Magento2\Model\Ui;
 
+use CheckoutCom\Magento2\Gateway\Config\Loader;
+
 /**
  * Class ConfigProvider.
  */
@@ -59,9 +61,8 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
     public function getConfig()
     {
         return [
-            $this->config->loader::KEY_PAYMENT =>
-            [
-                $this->config->loader::KEY_MODULE_ID => $this->getConfigArray()
+            Loader::KEY_PAYMENT => [
+                Loader::KEY_MODULE_ID => $this->getConfigArray()
             ]
         ];
     }

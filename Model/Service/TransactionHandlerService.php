@@ -144,7 +144,7 @@ class TransactionHandlerService
 
             // Save the processed elements
             $this->saveData();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
     }
@@ -386,7 +386,7 @@ class TransactionHandlerService
             return $this->order->getPayment()
                 ->getMethodInstance()
                 ->getCode();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }
@@ -402,7 +402,7 @@ class TransactionHandlerService
                 ->formatTxt(
                     $this->order->getGrandTotal()
                 );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }
@@ -417,7 +417,7 @@ class TransactionHandlerService
             $this->payment->save();
             $this->transaction->save();
             $this->order->save();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
     }
@@ -429,7 +429,7 @@ class TransactionHandlerService
     {
         try {
             return $this->paymentData['data']['action_id'] ?? $this->paymentData['action_id'] ?? null;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }
@@ -452,7 +452,7 @@ class TransactionHandlerService
                 )
                 ->setFailSafe(true)
                 ->build($this->transactionType);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }
@@ -468,7 +468,7 @@ class TransactionHandlerService
                 ->setMethod($this->methodId)
                 ->setLastTransId($this->getActionId())
                 ->setTransactionId($this->getActionId());
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }
@@ -491,7 +491,7 @@ class TransactionHandlerService
 
             // Return the clean array
             return array_diff_key($data, array_flip($remove));
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }
@@ -537,7 +537,7 @@ class TransactionHandlerService
             }
 
             return $transactions;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
         }

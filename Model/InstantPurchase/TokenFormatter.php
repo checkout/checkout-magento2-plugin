@@ -22,7 +22,7 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
 /**
  * Class TokenFormatter
  */
-class TokenFormatter implements \Magento\InstantPurchase\PaymentMethodIntegration\PaymentTokenFormatterInterface
+class TokenFormatter
 {
     /**
      * @var VaultHandlerService
@@ -41,7 +41,7 @@ class TokenFormatter implements \Magento\InstantPurchase\PaymentMethodIntegratio
     /**
      * @inheritdoc
      */
-    public function formatPaymentToken(PaymentTokenInterface $paymentToken): string
+    public function formatPaymentToken(PaymentTokenInterface $paymentToken)
     {
         // Return the formatted token
         return $this->vaultHandler->renderTokenData($paymentToken);
