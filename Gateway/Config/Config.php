@@ -138,7 +138,6 @@ class Config
      */
     public function getAccountKeys($methodId = null)
     {
-
         // Get the account keys for a method
         if ($methodId) {
             $publicKey = $this->getValue('public_key', $methodId);
