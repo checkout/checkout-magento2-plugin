@@ -124,9 +124,6 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         $this->config = $config;
         $this->utilities = $utilities;
         $this->logger = $logger;
-
-        // Get the request parameters
-        $this->params = $this->request->getParams();
     }
 
     /**
@@ -135,6 +132,9 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     public function execute(Observer $observer)
     {
         try {
+            // Get the request parameters
+            $this->params = $this->request->getParams();
+
             // Get the order
             $this->order = $observer->getEvent()->getOrder();
 
