@@ -20,7 +20,7 @@ namespace CheckoutCom\Magento2\Model\InstantPurchase;
 /**
  * Class AvailabilityChecker
  */
-class AvailabilityChecker implements \Magento\InstantPurchase\PaymentMethodIntegration\AvailabilityCheckerInterface
+class AvailabilityChecker
 {
     /**
      * @var Config
