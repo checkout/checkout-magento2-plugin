@@ -179,7 +179,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return Response
      */
-    protected function requestPayment()
+    public function requestPayment()
     {
         try {
             // Send the charge request
@@ -204,7 +204,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return boolean
      */
-    protected function canPlaceOrder($response)
+    public function canPlaceOrder($response)
     {
         return !$response->isPending() || $this->data['source'] === 'sepa' || $this->data['source'] === 'fawry';
     }
@@ -216,7 +216,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return void
      */
-    protected function placeOrder($response = null)
+    public function placeOrder($response = null)
     {
         try {
             // Get the reserved order increment id
@@ -254,7 +254,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return void
      */
-    protected function cancelPayment($response)
+    public function cancelPayment($response)
     {
         try {
             // refund or void accordingly

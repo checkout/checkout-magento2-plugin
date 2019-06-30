@@ -88,7 +88,7 @@ class Loader
         $this->data = $this->loadConfig();
     }
 
-    protected function loadConfig()
+    public function loadConfig()
     {
         try {
             // Prepare the output array
@@ -178,7 +178,7 @@ class Loader
      * @param string $fileName
      * @return string
      */
-    protected function getFilePath($fileName)
+    public function getFilePath($fileName)
     {
         try {
             return $this->moduleDirReader->getModuleDir(
@@ -197,7 +197,7 @@ class Loader
      *
      * @return array
      */
-    protected function loadXmlData()
+    public function loadXmlData()
     {
         // Prepare the output array
         $output = [];
@@ -227,7 +227,7 @@ class Loader
      * @param string $field
      * @return boolean
      */
-    protected function isHidden($field)
+    public function isHidden($field)
     {
         try {
             $hiddenFields = explode(
@@ -252,7 +252,7 @@ class Loader
      * @param string $field
      * @return boolean
      */
-    protected function isEncrypted($field)
+    public function isEncrypted($field)
     {
         try {
             return in_array(

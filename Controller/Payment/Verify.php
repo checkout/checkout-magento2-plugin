@@ -125,7 +125,7 @@ class Verify extends \Magento\Framework\App\Action\Action
      *
      * @return mixed
      */
-    protected function placeOrder($response = null)
+    public function placeOrder($response = null)
     {
         try {
             // Get the reserved order increment id
@@ -164,7 +164,7 @@ class Verify extends \Magento\Framework\App\Action\Action
      *
      * @return void
      */
-    protected function cancelPayment($response)
+    public function cancelPayment($response)
     {
         try {
             // refund or void accordingly

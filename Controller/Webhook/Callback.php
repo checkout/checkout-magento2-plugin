@@ -174,7 +174,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * Get the request payload.
      */
-    protected function getPayload()
+    public function getPayload()
     {
         try {
             return json_decode($this->getRequest()->getContent());
@@ -187,7 +187,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * Check if the card needs saving.
      */
-    protected function cardNeedsSaving()
+    public function cardNeedsSaving()
     {
         try {
             return isset($this->payload->data->metadata->saveCard)
@@ -205,7 +205,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * Save a card.
      */
-    protected function saveCard($response)
+    public function saveCard($response)
     {
         try {
             // Get the customer

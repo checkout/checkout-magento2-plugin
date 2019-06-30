@@ -114,7 +114,7 @@ class Display extends \Magento\Framework\App\Action\Action
      * @param array $apmEnabled
      * @return boolean
      */
-    protected function isValidApm($apm, $apmEnabled)
+    public function isValidApm($apm, $apmEnabled)
     {
         return in_array($apm['value'], $apmEnabled)
         && strpos(
@@ -130,7 +130,7 @@ class Display extends \Magento\Framework\App\Action\Action
      * @param string $title
      * @return string
      */
-    protected function loadBlock($apmId, $title)
+    public function loadBlock($apmId, $title)
     {
         try {
             return $this->pageFactory->create()->getLayout()

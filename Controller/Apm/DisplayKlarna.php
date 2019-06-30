@@ -135,7 +135,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      *
      * @return array
      */
-    protected function getKlarna()
+    public function getKlarna()
     {
         // Prepare the output array
         $response = ['source' => false];
@@ -172,7 +172,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      *
      * @return array  The products.
      */
-    protected function getProducts(array &$response)
+    public function getProducts(array &$response)
     {
 
         $products = [];
@@ -205,7 +205,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      * @param array $products The products.
      * @return void
      */
-    protected function getShipping(array &$response, array &$products)
+    public function getShipping(array &$response, array &$products)
     {
 
         $shipping = $this->quote->getShippingAddress();

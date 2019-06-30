@@ -203,7 +203,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     /**
      * Checks if the MOTO logic should be triggered.
      */
-    protected function needsMotoProcessing()
+    public function needsMotoProcessing()
     {
         try {
             return $this->backendAuthSession->isLoggedIn()
@@ -222,7 +222,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     /**
      * Provide a source from request.
      */
-    protected function getSource()
+    public function getSource()
     {
         try {
             if ($this->isCardToken()) {
@@ -253,7 +253,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     /**
      * Checks if a card token is available.
      */
-    protected function isCardToken()
+    public function isCardToken()
     {
         return isset($this->params['ckoCardToken'])
         && !empty($this->params['ckoCardToken']);
@@ -262,7 +262,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     /**
      * Checks if a public hash is available.
      */
-    protected function isSavedCard()
+    public function isSavedCard()
     {
         return isset($this->params['publicHash'])
         && !empty($this->params['publicHash'])

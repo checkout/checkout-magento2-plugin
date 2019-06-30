@@ -141,7 +141,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return boolean
      */
-    protected function isValidRequest()
+    public function isValidRequest()
     {
         try {
             return $this->getRequest()->isAjax()
@@ -158,7 +158,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return boolean
      */
-    protected function isValidTask()
+    public function isValidTask()
     {
         try {
             return method_exists($this, $this->buildMethodName());
@@ -173,7 +173,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return string
      */
-    protected function runTask()
+    public function runTask()
     {
         try {
             $methodName = $this->buildMethodName();
@@ -189,7 +189,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return string
      */
-    protected function buildMethodName()
+    public function buildMethodName()
     {
         try {
             return 'get' . ucfirst($this->task);
@@ -204,7 +204,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return boolean
      */
-    protected function isValidApm()
+    public function isValidApm()
     {
         try {
             // Get the list of APM
@@ -226,7 +226,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return string
      */
-    protected function loadBlock($reference, $url)
+    public function loadBlock($reference, $url)
     {
         try {
             return $this->pageFactory->create()->getLayout()
@@ -269,7 +269,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return Sepa
      */
-    protected function requestSepa()
+    public function requestSepa()
     {
         $sepa = null;
         try {

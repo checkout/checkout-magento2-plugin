@@ -80,7 +80,7 @@ class V1 extends \Magento\Framework\App\Action\Action
      *
      * @return string
      */
-    protected function getPayload()
+    public function getPayload()
     {
         return json_decode($this->getRequest()->getContent());
     }

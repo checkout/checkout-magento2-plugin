@@ -84,7 +84,7 @@ class Moto extends \Magento\Payment\Block\Form\Cc
      *
      * @return string
      */
-    protected function _toHtml()
+    public function _toHtml()
     {
         try {
             $this->_eventManager->dispatch('payment_form_block_to_html_before', ['block' => $this]);

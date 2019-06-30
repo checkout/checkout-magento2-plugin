@@ -218,7 +218,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return void
      */
-    protected function placeOrder($quote, $response = null)
+    public function placeOrder($quote, $response = null)
     {
         try {
             // Get the reserved order increment id
@@ -254,7 +254,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return array
      */
-    protected function buildProductData()
+    public function buildProductData()
     {
         try {
             // Prepare the base array
@@ -280,7 +280,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return array
      */
-    protected function createResponse(string $message, bool $successMessage)
+    public function createResponse(string $message, bool $successMessage)
     {
         // Prepare the result
         $result = $this->jsonFactory->create()->setData(
@@ -304,7 +304,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return void
      */
-    protected function cancelPayment($response)
+    public function cancelPayment($response)
     {
         try {
             // refund or void accordingly
