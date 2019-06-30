@@ -267,9 +267,9 @@ class Config
     }
 
     /**
-     * Gets the apms.
+     * Gets the Alternative Payments.
      *
-     * @return <array>  The apms.
+     * @return array
      */
     public function getApms()
     {
