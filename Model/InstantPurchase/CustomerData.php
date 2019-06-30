@@ -73,7 +73,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\InstantPurchase\Model\InstantPurchaseInterface $instantPurchase,
-        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Customer\Model\Session\Proxy $customerSession,
         \CheckoutCom\Magento2\Model\InstantPurchase\TokenFormatter $paymentTokenFormatter,
         \Magento\InstantPurchase\Model\Ui\CustomerAddressesFormatter $customerAddressesFormatter,
         \Magento\InstantPurchase\Model\Ui\ShippingMethodFormatter $shippingMethodFormatter,

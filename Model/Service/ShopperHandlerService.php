@@ -53,7 +53,7 @@ class ShopperHandlerService
      * ShopperHandlerService constructor
      */
     public function __construct(
-        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Customer\Model\Session\Proxy $customerSession,
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
         \Magento\Framework\Locale\Resolver $localeResolver,
         \CheckoutCom\Magento2\Helper\Logger $logger

@@ -42,7 +42,7 @@ class Utilities
      */
     public function __construct(
         \Magento\Framework\UrlInterface $urlInterface,
-        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Customer\Model\Session\Proxy $customerSession,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->urlInterface = $urlInterface;
