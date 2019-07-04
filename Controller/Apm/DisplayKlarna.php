@@ -115,8 +115,8 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         try {
             // Try to load a quote
             $this->quote = $this->quoteHandler->getQuote();
-            $this->billingAddress = $quoteHandler->getBillingAddress();
-            $this->locale = str_replace('_', '-', $shopperHandler->getCustomerLocale());
+            $this->billingAddress = $this->quoteHandler->getBillingAddress();
+            $this->locale = str_replace('_', '-', $this->shopperHandler->getCustomerLocale());
 
             // Get Klarna
             $klarna = $this->getKlarna();
