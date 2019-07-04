@@ -116,13 +116,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->utilities = $utilities;
         $this->config = $config;
         $this->logger = $logger;
-
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
-
-        // Set some required properties
-        $this->data = $this->getRequest()->getParams();
-        $this->methodId = $this->data['methodId'];
     }
 
     /**
@@ -138,6 +131,13 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $success = false;
 
         try {
+            // Try to load a quote
+            $this->quote = $this->quoteHandler->getQuote();
+
+            // Set some required properties
+            $this->data = $this->getRequest()->getParams();
+            $this->methodId = $this->data['methodId'];
+
             // Process the request
             if ($this->getRequest()->isAjax() && $this->quote) {
                 // Get response and success
