@@ -115,7 +115,9 @@ class QuoteHandlerService
                 }
 
                 // Return the first result found
-                return $quoteFactory->getFirstItem();
+                return $quoteFactory
+                    ->getSelect()->limit(1)
+                    ->getFirstItem();
             } else {
                 // Try to find the quote in session
                 return $this->checkoutSession->getQuote();

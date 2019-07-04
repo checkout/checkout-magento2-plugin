@@ -215,6 +215,7 @@ class OrderHandlerService
             // Get the resulting order
             $order = $this->orderRepository
                 ->getList($search)
+                ->getSelect()->limit(1)
                 ->getFirstItem();
 
             return $order;
