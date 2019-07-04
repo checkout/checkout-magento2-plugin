@@ -123,7 +123,7 @@ class VaultHandlerService
         $this->customerSession = $customerSession;
         $this->remoteAddress = $remoteAddress;
         $this->messageManager = $messageManager;
-        $this->apiHandler = $apiHandler;
+        $this->apiHandler = $apiHandler->init();
         $this->cardHandler = $cardHandler;
         $this->config = $config;
         $this->logger = $logger;
@@ -341,7 +341,7 @@ class VaultHandlerService
             $cardList = $this->getUserCards($customerId);
 
             // Check if the user has cards
-            if (count($cardList) > 0) {
+            if (!empty($cardList)) {
                 return  true;
             }
         } catch (\Exception $e) {
@@ -380,7 +380,7 @@ class VaultHandlerService
         try {
             // Get the cards list
             $cardList = $this->getUserCards();
-            if (count($cardList) > 0) {
+            if (!empty($cardList)) {
                 // Sort the array by date
                 usort(
                     $cardList,
