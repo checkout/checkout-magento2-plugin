@@ -88,6 +88,12 @@ class Loader
         $this->data = $this->loadConfig();
     }
 
+
+    /**
+     * Loads the module configuration values.
+     *
+     * @return array
+     */
     public function loadConfig()
     {
         try {
