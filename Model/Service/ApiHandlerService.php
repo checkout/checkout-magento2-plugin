@@ -73,7 +73,7 @@ class ApiHandlerService
     /**
      * Load the API client.
      */
-    private function loadClient()
+    public function loadClient()
     {
         try {
             return new CheckoutApi(
