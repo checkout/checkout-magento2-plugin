@@ -75,9 +75,6 @@ class Verify extends \Magento\Framework\App\Action\Action
         $this->orderHandler = $orderHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
-
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
     }
 
     /**
@@ -86,6 +83,9 @@ class Verify extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         try {
+            // Try to load a quote
+            $this->quote = $this->quoteHandler->getQuote();
+
             // Get the session id
             $sessionId = $this->getRequest()->getParam('cko-session-id', null);
             if ($sessionId) {
