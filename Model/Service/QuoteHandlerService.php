@@ -100,7 +100,7 @@ class QuoteHandlerService
     public function getQuote($fields = [])
     {
         try {
-            if (count($fields) > 0) {
+            if (!empty($fields)) {
                 // Get the quote factory
                 $quoteFactory = $this->quoteFactory
                     ->create()
