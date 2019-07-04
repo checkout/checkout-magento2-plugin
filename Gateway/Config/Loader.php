@@ -93,6 +93,8 @@ class Loader
      */
     public function init() {
         $this->data = $this->loadConfig();
+
+        return $this;
     }
 
     /**

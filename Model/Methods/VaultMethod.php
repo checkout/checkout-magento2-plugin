@@ -241,7 +241,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             );
             $request->description = __('Payment request from %1', $this->config->getStoreName());
             // Todo - add customer to the request
-            //$request->customer = $this->apiHandler->createCustomer($this->quoteHandler->getQuote());
+            //$request->customer = $this->apiHandler->init()->createCustomer($this->quoteHandler->getQuote());
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             $request->payment_type = 'Regular';
             if ($captureDate) {
@@ -257,7 +257,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Send the charge request
-            $response = $this->apiHandler->checkoutApi
+            $response = $this->apiHandler->init()->checkoutApi
                 ->payments()
                 ->request($request);
 
@@ -289,8 +289,8 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the void request
-                $response = $this->apiHandler->voidOrder($payment);
-                if (!$this->apiHandler->isValidResponse($response)) {
+                $response = $this->apiHandler->init()->voidOrder($payment);
+                if (!$this->apiHandler->init()->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The void request could not be processed.')
                     );
@@ -328,8 +328,8 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the refund request
-                $response = $this->apiHandler->refundOrder($payment, $amount);
-                if (!$this->apiHandler->isValidResponse($response)) {
+                $response = $this->apiHandler->init()->refundOrder($payment, $amount);
+                if (!$this->apiHandler->init()->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The refund request could not be processed.')
                     );

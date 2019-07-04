@@ -298,7 +298,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
 
             // Build and addthe source
             $source = new Sepa($address, $data);
-            $sepa = $this->apiHandler->checkoutApi
+            $sepa = $this->apiHandler->init()->checkoutApi
                 ->sources()
                 ->add($source);
         } catch (\Exception $e) {

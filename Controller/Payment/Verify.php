@@ -90,7 +90,7 @@ class Verify extends \Magento\Framework\App\Action\Action
             $sessionId = $this->getRequest()->getParam('cko-session-id', null);
             if ($sessionId) {
                 // Get the payment details
-                $response = $this->apiHandler->getPaymentDetails($sessionId);
+                $response = $this->apiHandler->init()->getPaymentDetails($sessionId);
 
                 // Set the method ID
                 $this->methodId = $response->metadata['methodId'];
@@ -99,7 +99,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                 $this->logger->display($response);
                 
                 // Process the response
-                if ($this->apiHandler->isValidResponse($response)) {
+                if ($this->apiHandler->init()->isValidResponse($response)) {
                     if (!$this->placeOrder($response)) {
                         // Add and error message
                         $this->messageManager->addErrorMessage(
@@ -170,10 +170,10 @@ class Verify extends \Magento\Framework\App\Action\Action
             // refund or void accordingly
             if ($this->config->needsAutoCapture($this->methodId)) {
                 //refund
-                $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
+                $this->apiHandler->init()->checkoutApi->payments()->refund(new Refund($response->getId()));
             } else {
                 //void
-                $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
+                $this->apiHandler->init()->checkoutApi->payments()->void(new Voids($response->getId()));
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

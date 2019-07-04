@@ -78,8 +78,11 @@ class ApiHandlerService
                 $this->config->getValue('environment'),
                 $this->config->getValue('public_key')
             );
+
+            return $this;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
+            return null;
         }
     }
 

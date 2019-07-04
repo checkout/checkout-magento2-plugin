@@ -190,7 +190,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 );
 
             // Process a successful response
-            if ($this->apiHandler->isValidResponse($response)) {
+            if ($this->apiHandler->init()->isValidResponse($response)) {
                 // Create the order
                 $order = $this->placeOrder($quote, $response);
 
@@ -310,10 +310,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             // refund or void accordingly
             if ($this->config->needsAutoCapture($this->methodId)) {
                 //refund
-                $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
+                $this->apiHandler->init()->checkoutApi->payments()->refund(new Refund($response->getId()));
             } else {
                 //void
-                $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
+                $this->apiHandler->init()->checkoutApi->payments()->void(new Voids($response->getId()));
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

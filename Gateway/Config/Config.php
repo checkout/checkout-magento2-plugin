@@ -57,7 +57,7 @@ class Config
         $this->storeManager = $storeManager;
         $this->scopeConfig = $scopeConfig;
         $this->request = $request;
-        $this->loader = $loader->init();
+        $this->loader = $loader;
         $this->utilities = $utilities;
     }
 
@@ -84,7 +84,7 @@ class Config
      */
     public function getValue($field, $methodId = null)
     {
-        return $this->loader->getValue($field, $methodId);
+        return $this->loader->init()->getValue($field, $methodId);
     }
 
     /**
@@ -108,7 +108,7 @@ class Config
     public function getModuleConfig()
     {
         return [
-            Loader::KEY_CONFIG => $this->loader
+            Loader::KEY_CONFIG => $this->loader->init()
                 ->data[Loader::KEY_SETTINGS][Loader::KEY_CONFIG]
         ];
     }
@@ -121,7 +121,7 @@ class Config
     public function getMethodsConfig()
     {
         $methods = [];
-        foreach ($this->loader->data[Loader::KEY_PAYMENT] as $methodId => $data) {
+        foreach ($this->loader->init()->data[Loader::KEY_PAYMENT] as $methodId => $data) {
             // Check if the method is active
             if ($this->getValue('active', $methodId) == 1) {
                 $methods[$methodId] = $data;
@@ -273,6 +273,6 @@ class Config
      */
     public function getApms()
     {
-        return $this->loader->loadApmList();
+        return $this->loader->init()->loadApmList();
     }
 }

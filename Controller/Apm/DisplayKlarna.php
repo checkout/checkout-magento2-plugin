@@ -101,7 +101,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
 
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
-        $this->apiHandler = $apiHandler->init();
+        $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
         $this->shopperHandler = $shopperHandler;
         $this->logger = $logger;
@@ -152,7 +152,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
                 $products
             );
 
-            $source = $this->apiHandler->checkoutApi->sources()->add($klarna);
+            $source = $this->apiHandler->init()->init()->checkoutApi->sources()->add($klarna);
 
             if ($source->isSuccessful()) {
                 $response['source'] = $source->getValues();

@@ -275,7 +275,7 @@ class VaultHandlerService
             $request->payment_ip = $this->remoteAddress->getRemoteAddress();
 
             // Send the charge request and get the response
-            $this->response = $this->apiHandler->checkoutApi
+            $this->response = $this->apiHandler->init()->checkoutApi
                 ->payments()
                 ->request($request);
 
@@ -296,7 +296,7 @@ class VaultHandlerService
     {
         try {
             // Check if the response is success
-            $success = $this->apiHandler->isValidResponse($this->response);
+            $success = $this->apiHandler->init()->isValidResponse($this->response);
             if ($success) {
                 // Get the response array
                 $values = $this->response->getValues();

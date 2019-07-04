@@ -165,13 +165,13 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $request->payment_ip = $this->remoteAddress->getRemoteAddress();
                 $request->payment_type = 'MOTO';
                 // Todo - add customer to the request
-                //$request->customer = $this->apiHandler->createCustomer($this->order);
+                //$request->customer = $this->apiHandler->init()->createCustomer($this->order);
                 if ($captureDate) {
                     $request->capture_on = $this->config->getCaptureTime();
                 }
 
                 // Send the charge request
-                $response = $this->apiHandler->checkoutApi
+                $response = $this->apiHandler->init()->checkoutApi
                     ->payments()
                     ->request($request);
 
@@ -179,7 +179,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $this->logger->display($response);
 
                 // Add the response to the order
-                if ($this->apiHandler->isValidResponse($response)) {
+                if ($this->apiHandler->init()->isValidResponse($response)) {
                     $this->utilities->setPaymentData($this->order, $response);
                     $this->messageManager->addSuccessMessage(
                         __('The payment request was successfully processed.')

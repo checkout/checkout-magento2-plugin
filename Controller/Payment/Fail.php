@@ -56,7 +56,7 @@ class Fail extends \Magento\Framework\App\Action\Action
             $sessionId = $this->getRequest()->getParam('cko-session-id', null);
             if ($sessionId) {
                 // Get the payment details
-                $response = $this->apiHandler->getPaymentDetails($sessionId);
+                $response = $this->apiHandler->init()->getPaymentDetails($sessionId);
 
                 // Logging
                 $this->logger->display($response);

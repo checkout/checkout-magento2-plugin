@@ -127,8 +127,8 @@ class Callback extends \Magento\Framework\App\Action\Action
                 // Process the request
                 if (isset($this->payload->data->id)) {
                     // Get the payment details
-                    $response = $this->apiHandler->getPaymentDetails($this->payload->data->id);
-                    if ($this->apiHandler->isValidResponse($response)) {
+                    $response = $this->apiHandler->init()->getPaymentDetails($this->payload->data->id);
+                    if ($this->apiHandler->init()->isValidResponse($response)) {
                         // Handle the save card request
                         if ($this->cardNeedsSaving()) {
                             $this->saveCard($response);
