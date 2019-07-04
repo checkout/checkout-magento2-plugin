@@ -51,10 +51,6 @@ class Validation extends \Magento\Framework\App\Action\Action
         $this->jsonFactory = $jsonFactory;
         $this->logger = $logger;
         $this->curl = $curl;
-
-        // Get request parameters
-        $this->methodId = $this->getRequest()->getParam('method_id');
-        $this->url = $this->getRequest()->getParam('u');
     }
 
     /**
@@ -65,6 +61,10 @@ class Validation extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         try {
+            // Get request parameters
+            $this->methodId = $this->getRequest()->getParam('method_id');
+            $this->url = $this->getRequest()->getParam('u');
+
             // Process the call after check
             if ($this->getRequest()->isAjax()) {
                 // Prepare the configuration parameters
