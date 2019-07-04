@@ -65,25 +65,21 @@ class ApiHandlerService
         $this->config = $config;
         $this->utilities = $utilities;
         $this->logger = $logger;
-
-        // Load the API client with credentials.
-        $this->checkoutApi = $this->loadClient();
     }
 
     /**
      * Load the API client.
      */
-    public function loadClient()
+    public function init()
     {
         try {
-            return new CheckoutApi(
+            $this->checkoutApi = new CheckoutApi(
                 $this->config->getValue('secret_key'),
                 $this->config->getValue('environment'),
                 $this->config->getValue('public_key')
             );
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
-            return null;
         }
     }
 

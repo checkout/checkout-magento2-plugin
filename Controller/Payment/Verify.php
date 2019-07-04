@@ -70,7 +70,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
 
         $this->config = $config;
-        $this->apiHandler = $apiHandler;
+        $this->apiHandler = $apiHandler->init();
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
         $this->utilities = $utilities;

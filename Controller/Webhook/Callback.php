@@ -100,7 +100,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
 
         $this->orderRepository = $orderRepository;
-        $this->apiHandler = $apiHandler;
+        $this->apiHandler = $apiHandler->init();
         $this->orderHandler = $orderHandler;
         $this->quoteHandler = $quoteHandler;
         $this->shopperHandler = $shopperHandler;

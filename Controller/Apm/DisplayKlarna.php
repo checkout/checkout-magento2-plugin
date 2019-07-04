@@ -101,7 +101,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
 
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
-        $this->apiHandler = $apiHandler;
+        $this->apiHandler = $apiHandler->init();
         $this->quoteHandler = $quoteHandler;
         $this->shopperHandler = $shopperHandler;
         $this->logger = $logger;
