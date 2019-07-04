@@ -47,9 +47,6 @@ class V1 extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
         $this->config = $config;
         $this->logger = $logger;
-
-        // Set the payload data
-        $this->payload = $this->getPayload();
     }
 
     /**
@@ -58,6 +55,9 @@ class V1 extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         try {
+            // Set the payload data
+            $this->payload = $this->getPayload();
+
             // Prepare the response handler
             $resultFactory = $this->resultFactory->create(ResultFactory::TYPE_JSON);
 
