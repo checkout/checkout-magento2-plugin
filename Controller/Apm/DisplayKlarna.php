@@ -105,11 +105,6 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         $this->quoteHandler = $quoteHandler;
         $this->shopperHandler = $shopperHandler;
         $this->logger = $logger;
-
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
-        $this->billingAddress = $quoteHandler->getBillingAddress();
-        $this->locale = str_replace('_', '-', $shopperHandler->getCustomerLocale());
     }
 
     /**
@@ -118,6 +113,12 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         try {
+            // Try to load a quote
+            $this->quote = $this->quoteHandler->getQuote();
+            $this->billingAddress = $quoteHandler->getBillingAddress();
+            $this->locale = str_replace('_', '-', $shopperHandler->getCustomerLocale());
+
+            // Get Klarna
             $klarna = $this->getKlarna();
 
             return $this->jsonFactory->create()
