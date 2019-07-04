@@ -84,10 +84,16 @@ class Loader
         $this->storeManager = $storeManager;
         $this->encryptor = $encryptor;
         $this->directoryReader = $directoryReader;
-
-        $this->data = $this->loadConfig();
     }
 
+    /**
+     * Prepares the loader class instance.
+     *
+     * @return void
+     */
+    public function init() {
+        $this->data = $this->loadConfig();
+    }
 
     /**
      * Loads the module configuration values.
