@@ -90,7 +90,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Store\Model\Information $storeManager,
-        \Magento\Store\Model\Store $store,
+        \Magento\Store\Model\Store $storeModel,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
@@ -100,18 +100,9 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
+        $this->storeManager = $storeManager;
+        $this->storeModel = $storeModel;
         $this->logger = $logger;
-
-        // Get the request parameters
-        $this->source = $this->getRequest()->getParam('source');
-        $this->task = $this->getRequest()->getParam('task');
-        $this->bic = $this->getRequest()->getParam('bic');
-        $this->account_iban = $this->getRequest()->getParam('account_iban');
-
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
-        $this->billingAddress = $quoteHandler->getBillingAddress();
-        $this->store = $storeManager->getStoreInformationObject($store);
     }
 
     /**
@@ -123,6 +114,17 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         $html = '';
 
         try {
+            // Get the request parameters
+            $this->source = $this->getRequest()->getParam('source');
+            $this->task = $this->getRequest()->getParam('task');
+            $this->bic = $this->getRequest()->getParam('bic');
+            $this->account_iban = $this->getRequest()->getParam('account_iban');
+
+            // Try to load a quote
+            $this->quote = $this->quoteHandler->getQuote();
+            $this->billingAddress = $this->quoteHandler->getBillingAddress();
+            $this->store = $this->storeManager->getStoreInformationObject($this->storeModel);
+
             // Run the requested task
             if ($this->isValidRequest()) {
                 $html = $this->runTask();
