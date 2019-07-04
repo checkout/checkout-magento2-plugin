@@ -110,7 +110,6 @@ class VaultHandlerService
         \Magento\Vault\Api\PaymentTokenRepositoryInterface $paymentTokenRepository,
         \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement,
         \Magento\Customer\Model\Session\Proxy $customerSession,
-        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
@@ -121,7 +120,6 @@ class VaultHandlerService
         $this->paymentTokenRepository = $paymentTokenRepository;
         $this->paymentTokenManagement = $paymentTokenManagement;
         $this->customerSession = $customerSession;
-        $this->remoteAddress = $remoteAddress;
         $this->messageManager = $messageManager;
         $this->apiHandler = $apiHandler->init();
         $this->cardHandler = $cardHandler;
@@ -272,7 +270,6 @@ class VaultHandlerService
             $request->threeDs = new ThreeDs($this->config->needs3ds('checkoutcom_vault'));
             $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', 'checkoutcom_vault');
             //$request->description = __('Save card authorization request from %1', $this->config->getStoreName());
-            $request->payment_ip = $this->remoteAddress->getRemoteAddress();
 
             // Send the charge request and get the response
             $this->response = $this->apiHandler->init()->checkoutApi

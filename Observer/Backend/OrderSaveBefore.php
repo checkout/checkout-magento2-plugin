@@ -103,7 +103,6 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     public function __construct(
         \Magento\Backend\Model\Auth\Session\Proxy $backendAuthSession,
         \Magento\Framework\App\Request\Http $request,
-        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
@@ -115,7 +114,6 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
-        $this->remoteAddress = $remoteAddress;
         $this->messageManager = $messageManager;
         $this->apiHandler = $apiHandler->init();
         $this->orderHandler = $orderHandler;
@@ -162,7 +160,6 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $request->capture = $this->config->needsAutoCapture($this->methodId);
                 $request->amount = $this->order->getGrandTotal()*100;
                 $request->reference = $this->order->getIncrementId();
-                $request->payment_ip = $this->remoteAddress->getRemoteAddress();
                 $request->payment_type = 'MOTO';
                 // Todo - add customer to the request
                 //$request->customer = $this->apiHandler->init()->createCustomer($this->order);

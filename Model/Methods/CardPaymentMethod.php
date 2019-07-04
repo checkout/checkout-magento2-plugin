@@ -127,7 +127,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Quote\Api\CartManagementInterface $quoteManagement,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Backend\Model\Session\Quote $sessionQuote,
-        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
@@ -163,7 +162,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
-        $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->quoteHandler       = $quoteHandler;
@@ -209,7 +207,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->description = __('Payment request from %1', $this->config->getStoreName());
             // Todo - add customer to the request
             //$request->customer = $this->apiHandler->init()->createCustomer($this->quoteHandler->getQuote());
-            $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             $request->payment_type = 'Regular';
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureTime();
