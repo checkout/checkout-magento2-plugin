@@ -57,7 +57,7 @@ class Config
         $this->storeManager = $storeManager;
         $this->scopeConfig = $scopeConfig;
         $this->request = $request;
-        $this->loader = $loader;
+        $this->loader = $loader->init();
         $this->utilities = $utilities;
     }
 
