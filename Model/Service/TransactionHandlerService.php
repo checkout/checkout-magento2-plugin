@@ -370,7 +370,7 @@ class TransactionHandlerService
                 $isClosed
             );
 
-            return count($transactions) > 0 ? $transactions : false;
+            return !empty($transactions) ? $transactions : false;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return false;
