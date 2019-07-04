@@ -27,47 +27,47 @@ class QuoteHandlerService
     /**
      * @var Session
      */
-    protected $checkoutSession;
+    public $checkoutSession;
 
     /**
      * @var Session
      */
-    protected $customerSession;
+    public $customerSession;
 
     /**
      * @var CookieManagerInterface
      */
-    protected $cookieManager;
+    public $cookieManager;
 
     /**
      * @var QuoteFactory
      */
-    protected $quoteFactory;
+    public $quoteFactory;
 
     /**
      * @var StoreManagerInterface
      */
-    protected $storeManager;
+    public $storeManager;
 
     /**
      * @var ProductRepositoryInterface
      */
-    protected $productRepository;
+    public $productRepository;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var ShopperHandlerService
      */
-    protected $shopperHandler;
+    public $shopperHandler;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * QuoteHandlerService constructor

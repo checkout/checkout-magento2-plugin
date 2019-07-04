@@ -27,17 +27,17 @@ class Config
     /**
      * @var StoreManagerInterface
      */
-    protected $storeManager;
+    public $storeManager;
 
     /**
      * @var ScopeConfigInterface
      */
-    protected $scopeConfig;
+    public $scopeConfig;
 
     /**
      * @var RequestInterface
      */
-    protected $request;
+    public $request;
 
     /**
      * @var Loader

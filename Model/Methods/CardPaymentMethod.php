@@ -36,72 +36,72 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var string
      */
-    protected $_code = self::CODE;
+    public $_code = self::CODE;
 
     /**
      * @var bool
      */
-    protected $_canAuthorize = true;
+    public $_canAuthorize = true;
 
     /**
      * @var bool
      */
-    protected $_canCapture = true;
+    public $_canCapture = true;
 
     /**
      * @var bool
      */
-    protected $_canCancel = true;
+    public $_canCancel = true;
 
     /**
      * @var bool
      */
-    protected $_canCapturePartial = true;
+    public $_canCapturePartial = true;
 
     /**
      * @var bool
      */
-    protected $_canVoid = true;
+    public $_canVoid = true;
 
     /**
      * @var bool
      */
-    protected $_canUseInternal = false;
+    public $_canUseInternal = false;
 
     /**
      * @var bool
      */
-    protected $_canUseCheckout = true;
+    public $_canUseCheckout = true;
 
     /**
      * @var bool
      */
-    protected $_canRefund = true;
+    public $_canRefund = true;
 
     /**
      * @var bool
      */
-    protected $_canRefundInvoicePartial = true;
+    public $_canRefundInvoicePartial = true;
 
     /**
      * @var CardHandlerService
      */
-    protected $cardHandler;
+    public $cardHandler;
 
     /**
      * @var Logger
      */
-    protected $ckoLogger;
+    public $ckoLogger;
 
     /**
      * @var Session
      */
-    protected $customerSession;
+    public $customerSession;
     
     /**
      * @var Session
      */
-    protected $backendAuthSession;
+    public $backendAuthSession;
 
     /**
      * CardPaymentMethod constructor.

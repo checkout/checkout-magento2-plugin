@@ -30,12 +30,12 @@ class ApiHandlerService
     /**
      * @var EncryptorInterface
      */
-    protected $encryptor;
+    public $encryptor;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var CheckoutApi
@@ -45,12 +45,12 @@ class ApiHandlerService
     /**
      * @var Utilities
      */
-    protected $utilities;
+    public $utilities;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * ApiHandlerService constructor.

@@ -29,12 +29,12 @@ class V1 extends \Magento\Framework\App\Action\Action
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * Callback constructor

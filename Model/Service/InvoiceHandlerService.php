@@ -28,37 +28,37 @@ class InvoiceHandlerService
     /**
      * @var InvoiceService
      */
-    protected $invoiceService;
+    public $invoiceService;
 
     /**
      * @var InvoiceRepositoryInterface
      */
-    protected $invoiceRepository;
+    public $invoiceRepository;
 
     /**
      * @var Invoice
      */
-    protected $invoiceModel;
+    public $invoiceModel;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var Order
      */
-    protected $order;
+    public $order;
 
     /**
      * @var Transaction
      */
-    protected $transaction;
+    public $transaction;
 
     /**
      * InvoiceHandlerService constructor.

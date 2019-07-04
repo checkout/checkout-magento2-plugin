@@ -28,67 +28,67 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var OrderHandlerService
      */
-    protected $orderHandler;
+    public $orderHandler;
 
     /**
      * @var MethodHandlerService
      */
-    protected $methodHandler;
+    public $methodHandler;
 
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var JsonFactory
      */
-    protected $jsonFactory;
+    public $jsonFactory;
 
     /**
      * @var Session
      */
-    protected $checkoutSession;
+    public $checkoutSession;
 
     /**
      * @var Utilities
      */
-    protected $utilities;
+    public $utilities;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var String
      */
-    protected $methodId;
+    public $methodId;
 
     /**
      * @var array
      */
-    protected $data;
+    public $data;
 
     /**
      * @var String
      */
-    protected $cardToken;
+    public $cardToken;
 
     /**
      * @var Quote
      */
-    protected $quote;
+    public $quote;
 
     /**
      * PlaceOrder constructor

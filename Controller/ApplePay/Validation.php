@@ -25,17 +25,17 @@ class Validation extends \Magento\Framework\App\Action\Action
     /**
      * @var JsonFactory
      */
-    protected $jsonFactory;
+    public $jsonFactory;
 
     /**
      * @var Curl
      */
-    protected $curl;
+    public $curl;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * Validation constructor.

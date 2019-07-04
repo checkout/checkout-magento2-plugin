@@ -37,12 +37,12 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     /**
      * @var JsonFactory
      */
-    protected $jsonFactory;
+    public $jsonFactory;
 
     /**
      * @var Product
      */
-    protected $productModel;
+    public $productModel;
 
     /**
      * @var ShippingConfiguration
@@ -52,42 +52,42 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     /**
      * @var Address
      */
-    protected $addressManager;
+    public $addressManager;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var OrderHandlerService
      */
-    protected $orderHandler;
+    public $orderHandler;
 
     /**
      * @var MethodHandlerService
      */
-    protected $methodHandler;
+    public $methodHandler;
 
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var Utilities
      */
-    protected $utilities;
+    public $utilities;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var ShippingSelector
      */
-    protected $shippingSelector;
+    public $shippingSelector;
 
     /**
      * PlaceOrder constructor

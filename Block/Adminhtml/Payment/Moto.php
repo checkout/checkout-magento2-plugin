@@ -25,17 +25,17 @@ class Moto extends \Magento\Payment\Block\Form\Cc
     /**
      * @var String
      */
-    protected $_template;
+    public $_template;
 
     /**
      * @var Config
      */
-    protected $paymentModelConfig;
+    public $paymentModelConfig;
 
     /**
      * @var Quote
      */
-    protected $adminQuote;
+    public $adminQuote;
 
     /**
      * @var Config
@@ -55,7 +55,7 @@ class Moto extends \Magento\Payment\Block\Form\Cc
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * Moto constructor.

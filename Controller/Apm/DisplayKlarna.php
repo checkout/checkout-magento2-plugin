@@ -30,59 +30,59 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     /**
      * @var Context
      */
-    protected $context;
+    public $context;
 
     /**
      * @var PageFactory
      */
-    protected $pageFactory;
+    public $pageFactory;
 
     /**
      * @var JsonFactory
      */
-    protected $jsonFactory;
+    public $jsonFactory;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var CheckoutApi
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var ShopperHandlerService
      */
-    protected $shopperHandler;
+    public $shopperHandler;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var Quote
      */
-    protected $quote;
+    public $quote;
 
     /**
      * @var Address
      */
-    protected $billingAddress;
+    public $billingAddress;
 
     /**
      * Locale code.
      *
      * @var string
      */
-    protected $locale;
+    public $locale;
 
     /**
      * Display constructor

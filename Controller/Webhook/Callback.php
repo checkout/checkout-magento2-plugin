@@ -40,47 +40,47 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * @var OrderRepositoryInterface
      */
-    protected $orderRepository;
+    public $orderRepository;
 
     /**
      * @var apiHandler
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var OrderHandlerService
      */
-    protected $orderHandler;
+    public $orderHandler;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var ShopperHandlerService
      */
-    protected $shopperHandler;
+    public $shopperHandler;
 
     /**
      * @var TransactionHandlerService
      */
-    protected $transactionHandler;
+    public $transactionHandler;
 
     /**
      * @var VaultHandlerService
      */
-    protected $vaultHandler;
+    public $vaultHandler;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * Callback constructor

@@ -27,12 +27,12 @@ class TransactionHandlerService
     /**
      * @var BuilderInterface
      */
-    protected $transactionBuilder;
+    public $transactionBuilder;
 
     /**
      * @var ManagerInterface
      */
-    protected $messageManager;
+    public $messageManager;
 
     /**
      * @var SearchCriteriaBuilder
@@ -62,22 +62,22 @@ class TransactionHandlerService
     /**
      * @var InvoiceHandlerService
      */
-    protected $invoiceHandler;
+    public $invoiceHandler;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Utilities
      */
-    protected $utilities;
+    public $utilities;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * TransactionHandlerService constructor.

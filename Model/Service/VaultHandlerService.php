@@ -30,77 +30,77 @@ class VaultHandlerService
     /**
      * @var VaultTokenFactory
      */
-    protected $vaultTokenFactory;
+    public $vaultTokenFactory;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var PaymentTokenRepositoryInterface
      */
-    protected $paymentTokenRepository;
+    public $paymentTokenRepository;
 
     /**
      * @var PaymentTokenManagementInterface
      */
-    protected $paymentTokenManagement;
+    public $paymentTokenManagement;
 
     /**
      * @var Session
      */
-    protected $customerSession;
+    public $customerSession;
 
     /**
      * @var RemoteAddress
      */
-    protected $remoteAddress;
+    public $remoteAddress;
 
     /**
      * @var ManagerInterface
      */
-    protected $messageManager;
+    public $messageManager;
 
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandlerService;
+    public $apiHandlerService;
 
     /**
      * @var CardHandlerService
      */
-    protected $cardHandler;
+    public $cardHandler;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var string
      */
-    protected $customerEmail;
+    public $customerEmail;
 
     /**
      * @var int
      */
-    protected $customerId;
+    public $customerId;
 
     /**
      * @var string
      */
-    protected $cardToken;
+    public $cardToken;
 
     /**
      * @var array
      */
-    protected $cardData = [];
+    public $cardData = [];
 
     /**
      * @var array
      */
-    protected $response = [];
+    public $response = [];
 
     /**
      * VaultHandlerService constructor.
