@@ -149,7 +149,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $quote = $this->quoteHandler->createQuote();
             $quote = $this->quoteHandler->addItems(
                 $quote,
-                $this->buildProductData()
+                $this->buildProductData($this->data)
             );
 
             // Set the billing address
@@ -246,32 +246,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             return $order;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
-        }
-    }
-
-    /**
-     * Creates a formatted array with the purchased product data.
-     *
-     * @return array
-     */
-    public function buildProductData()
-    {
-        try {
-            // Prepare the base array
-            $output =[
-                'product_id' => $this->data['product'],
-                'qty' => $this->data['qty']
-            ];
-
-            // Add product variations
-            if (isset($this->data['super_attribute']) && !empty($this->data['super_attribute'])) {
-                $output['super_attribute'] = $this->data['super_attribute'];
-            }
-
-            return [$output];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return [];
         }
     }
 

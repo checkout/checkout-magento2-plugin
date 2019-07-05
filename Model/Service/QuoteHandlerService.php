@@ -342,6 +342,32 @@ class QuoteHandlerService
         }
     }
 
+    /**
+     * Creates a formatted array with the purchased product data.
+     *
+     * @return array
+     */
+    public function buildProductData($data)
+    {
+        try {
+            // Prepare the base array
+            $output =[
+                'product_id' => $data['product'],
+                'qty' => $data['qty']
+            ];
+
+            // Add product variations
+            if (isset($data['super_attribute']) && !empty($data['super_attribute'])) {
+                $output['super_attribute'] = $data['super_attribute'];
+            }
+
+            return [$output];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return [];
+        }
+    }
+
     /* Gets the billing address.
      *
      * @return     Address  The billing address.
