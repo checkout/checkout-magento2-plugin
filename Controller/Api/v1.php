@@ -42,18 +42,25 @@ class V1 extends \Magento\Framework\App\Action\Action
     public $logger;
 
     /**
+     * @var QuoteHandlerService
+     */
+    public $quoteHandler;
+
+    /**
      * Callback constructor
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \CustomerRepositoryInterface $customerRepository,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger,
-        \CustomerRepositoryInterface $customerRepository
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     ) {
         parent::__construct($context);
+        $this->customerRepository  = $customerRepository;
         $this->config = $config;
         $this->logger = $logger;
-        $this->customerRepository  = $customerRepository;
+        $this->quoteHandler = $quoteHandler;
     }
 
     /**
@@ -72,6 +79,13 @@ class V1 extends \Magento\Framework\App\Action\Action
             if ($this->config->isValidAuth()) {
                 // Load the customer
                 $customer = $this->getCustomer();
+
+                // Create the quote
+                $quote = $this->quoteHandler->createQuote();
+                $quote = $this->quoteHandler->addItems(
+                    $quote,
+                    $this->data
+                );         
 
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
@@ -92,7 +106,7 @@ class V1 extends \Magento\Framework\App\Action\Action
      */
     public function getPayload()
     {
-        return json_decode($this->getRequest()->getContent());
+        $this->data = json_decode($this->getRequest()->getContent());
     }
 
     /**
