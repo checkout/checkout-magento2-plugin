@@ -38,11 +38,6 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     public $request;
 
     /**
-     * @var RemoteAddress
-     */
-    public $remoteAddress;
-
-    /**
      * @var ManagerInterface
      */
     public $messageManager;

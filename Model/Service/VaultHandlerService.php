@@ -53,11 +53,6 @@ class VaultHandlerService
     public $customerSession;
 
     /**
-     * @var RemoteAddress
-     */
-    public $remoteAddress;
-
-    /**
      * @var ManagerInterface
      */
     public $messageManager;
