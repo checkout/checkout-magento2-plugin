@@ -27,6 +27,11 @@ use Magento\Framework\Webapi\Rest\Response as WebResponse;
 class V1 extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var CustomerRepositoryInterface
+     */        
+    protected $customerRepository;
+
+    /**
      * @var Config
      */
     public $config;
@@ -42,11 +47,13 @@ class V1 extends \Magento\Framework\App\Action\Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \CustomerRepositoryInterface $customerRepository
     ) {
         parent::__construct($context);
         $this->config = $config;
         $this->logger = $logger;
+        $this->customerRepository  = $customerRepository;
     }
 
     /**
@@ -56,13 +63,16 @@ class V1 extends \Magento\Framework\App\Action\Action
     {
         try {
             // Set the payload data
-            $this->payload = $this->getPayload();
+            $this->getPayload();
 
             // Prepare the response handler
             $resultFactory = $this->resultFactory->create(ResultFactory::TYPE_JSON);
 
             // Process the request
             if ($this->config->isValidAuth()) {
+                // Load the customer
+                $customer = $this->getCustomer();
+
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
             } else {
@@ -83,5 +93,29 @@ class V1 extends \Magento\Framework\App\Action\Action
     public function getPayload()
     {
         return json_decode($this->getRequest()->getContent());
+    }
+
+    /**
+     * Load a customer
+     *
+     * @return string
+     */
+    public function getCustomer()
+    {
+        try {
+            if (isset($this->payload->customer->id) && (int) $this->payload->customer->id > 0) {
+                return $this->customerRepository->getById($this->payload->customer->id);
+            }
+            else if (isset($this->payload->customer->email)) {
+                return $this->customerRepository->get($this->payload->customer->email);    
+            }
+            else {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('A customer ID or email is required to place an order.')
+                );
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        }
     }
 }
