@@ -149,7 +149,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $quote = $this->quoteHandler->createQuote();
             $quote = $this->quoteHandler->addItems(
                 $quote,
-                $this->buildProductData($this->data)
+                $this->data
             );
 
             // Set the billing address

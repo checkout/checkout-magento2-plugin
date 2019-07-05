@@ -314,9 +314,10 @@ class QuoteHandlerService
     /**
      * Add product items to a quote
      */
-    public function addItems($quote, $items)
+    public function addItems($quote, $data)
     {
         try {
+            $items = $this->buildProductData($data);
             foreach ($items as $item) {
                 if (isset($item['product_id']) && (int) $item['product_id'] > 0) {
                     // Load the product
