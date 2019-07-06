@@ -77,16 +77,19 @@ class V1 extends \Magento\Framework\App\Action\Action
 
             // Process the request
             if ($this->config->isValidAuth()) {
-                // Load the customer
-                $customer = $this->getCustomer();
-
                 // Create the quote
-                $quote = $this->quoteHandler->createQuote();
+                $quote = $this->quoteHandler->createQuote(
+                    $this->data->currency,
+                    $this->getCustomer()
+                );
+
+                // Add the products
                 $quote = $this->quoteHandler->addItems(
                     $quote,
                     $this->data
                 );         
 
+                
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
             } else {

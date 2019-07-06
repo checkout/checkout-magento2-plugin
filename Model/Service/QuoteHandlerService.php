@@ -131,7 +131,7 @@ class QuoteHandlerService
     /**
      * Create a new quote
      */
-    public function createQuote($currency = null)
+    public function createQuote($currency = null, $customer = null)
     {
         try {
             // Create the quote instance
@@ -147,7 +147,12 @@ class QuoteHandlerService
             }
 
             // Set the quote customer
-            $quote->assignCustomer($this->shopperHandler->getCustomerData());
+            if ($customer) {
+                $quote->assignCustomer($customer);
+            }
+            else {
+                $quote->assignCustomer($this->shopperHandler->getCustomerData());
+            }
 
             return $quote;
         } catch (\Exception $e) {
