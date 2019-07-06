@@ -158,6 +158,33 @@ class V1 extends \Magento\Framework\App\Action\Action
     public function getPayload()
     {
         $this->data = json_decode($this->getRequest()->getContent());
+
+        // Validate data and throw localized exceptions if something is missing
+        /*
+        customer
+        - id
+        or
+        - email
+        
+        billing_address
+        - id
+        
+        shipping_address
+        - id
+        
+        payment_method
+        - code
+        
+        shipping_method
+        - code
+        
+        products
+        - sku
+        - id
+        
+        order
+        - currency
+        */
     }
 
     /**
