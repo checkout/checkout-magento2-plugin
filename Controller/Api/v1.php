@@ -20,6 +20,7 @@ namespace CheckoutCom\Magento2\Controller\Api;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
+use Magento\Checkout\Model\Type\Onepage;
 
 /**
  * Class V1
@@ -30,6 +31,11 @@ class V1 extends \Magento\Framework\App\Action\Action
      * @var CustomerRepositoryInterface
      */        
     protected $customerRepository;
+
+    /**
+     * @var QuoteManagement
+     */
+    public $quoteManagement;
 
     /**
      * @var Config
@@ -52,12 +58,14 @@ class V1 extends \Magento\Framework\App\Action\Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \CustomerRepositoryInterface $customerRepository,
+        \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     ) {
         parent::__construct($context);
         $this->customerRepository  = $customerRepository;
+        $this->quoteManagement = $quoteManagement;
         $this->config = $config;
         $this->logger = $logger;
         $this->quoteHandler = $quoteHandler;
@@ -89,8 +97,49 @@ class V1 extends \Magento\Framework\App\Action\Action
                     $this->data
                 );         
 
+                // Set the billing and shipping addresses
+                /*
+                $billingID = $this->customer->getDefaultBilling();
+                $billingAddress = $this->addressManager->load($billingID);
+                $quote->getBillingAddress()->addData($billingAddress->getData());
+        
+                // Set the shipping address
+                $shippingID = $this->customer->getDefaultShipping();
+                $shippingAddress = $this->addressManager->load($shippingID);
+                $shippingAddress->setCollectShippingRates(true);
+                $shippingAddress->setShippingMethod('flatrate_flatrate');
+                $quote->getShippingAddress()->addData($shippingAddress->getData());
+                $quote->setTotalsCollectedFlag(false)->collectTotals();
+                */
+
+                // Inventory
+                $quote->setInventoryProcessed(false);
+
+                // Set payment
+                /*
+                $payment = $quote->getPayment();
+                $payment->setMethod(ConfigProvider::CODE);
+                $payment->save();
+                $quote->save();
+                */
+
+                // Only registered users can order
+                //$quote->setCheckoutMethod(Onepage::METHOD_REGISTER);
+
+                // Set sales order payment
+                //$quote->getPayment()->importData(['method' => ConfigProvider::CODE]);
+
+                // Save the quote
+                //$quote->collectTotals()->save();
+
+                // Create the order
+                $order = $this->quoteManagement->submit($quote);
+
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
+
+                // Return the order id
+                return $order->getId();
             } else {
                 $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
             }
