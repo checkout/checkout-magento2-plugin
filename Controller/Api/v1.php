@@ -203,7 +203,7 @@ class V1 extends \Magento\Framework\App\Action\Action
             }
             else {
                 throw new \Magento\Framework\Exception\LocalizedException(
-                    __('A customer ID or email is required to place an order.')
+                    __('A valid customer ID or email is required to place an order.')
                 );
             }
         } catch (\Exception $e) {
