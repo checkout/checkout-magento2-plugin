@@ -89,7 +89,6 @@ class V1 extends \Magento\Framework\App\Action\Action
                     $this->data
                 );         
 
-                
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
             } else {
