@@ -131,13 +131,20 @@ class QuoteHandlerService
     /**
      * Create a new quote
      */
-    public function createQuote()
+    public function createQuote($currency = null)
     {
         try {
             // Create the quote instance
             $quote = $this->quoteFactory->create();
             $quote->setStore($this->storeManager->getStore());
-            $quote->setCurrency();
+
+            // Set the currency
+            if ($currency) {
+                $quote->setCurrency($currency);
+            }
+            else {
+                $quote->setCurrency();
+            }
 
             // Set the quote customer
             $quote->assignCustomer($this->shopperHandler->getCustomerData());
