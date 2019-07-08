@@ -122,7 +122,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     /**
      * OrderSaveBefore constructor.
      */
-    protected function execute(Observer $observer)
+    public function execute(Observer $observer)
     {
         try {
             // Get the request parameters
