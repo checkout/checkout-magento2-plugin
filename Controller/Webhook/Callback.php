@@ -30,7 +30,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * @var array
      */
-    protected static $transactionMapper = [
+    public static $transactionMapper = [
         'payment_approved' => Transaction::TYPE_AUTH,
         'payment_captured' => Transaction::TYPE_CAPTURE,
         'payment_refunded' => Transaction::TYPE_REFUND,

@@ -25,7 +25,7 @@ class CardHandlerService
     /**
      * @var array
      */
-    protected static $cardMapper = [
+    public static $cardMapper = [
         'VI' => 'Visa',
         'MC' => 'Mastercard',
         'AE' => 'American Express',

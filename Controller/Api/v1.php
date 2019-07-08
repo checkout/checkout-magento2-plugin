@@ -30,7 +30,7 @@ class V1 extends \Magento\Framework\App\Action\Action
     /**
      * @var CustomerRepositoryInterface
      */
-    protected $customerRepository;
+    public $customerRepository;
 
     /**
      * @var QuoteManagement
