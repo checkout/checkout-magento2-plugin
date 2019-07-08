@@ -29,7 +29,7 @@ class V1 extends \Magento\Framework\App\Action\Action
 {
     /**
      * @var CustomerRepositoryInterface
-     */        
+     */
     protected $customerRepository;
 
     /**
@@ -57,7 +57,7 @@ class V1 extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \CustomerRepositoryInterface $customerRepository,
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger,
@@ -95,42 +95,10 @@ class V1 extends \Magento\Framework\App\Action\Action
                 $quote = $this->quoteHandler->addItems(
                     $quote,
                     $this->data
-                );         
-
-                // Set the billing and shipping addresses
-                /*
-                $billingID = $this->customer->getDefaultBilling();
-                $billingAddress = $this->addressManager->load($billingID);
-                $quote->getBillingAddress()->addData($billingAddress->getData());
-        
-                // Set the shipping address
-                $shippingID = $this->customer->getDefaultShipping();
-                $shippingAddress = $this->addressManager->load($shippingID);
-                $shippingAddress->setCollectShippingRates(true);
-                $shippingAddress->setShippingMethod('flatrate_flatrate');
-                $quote->getShippingAddress()->addData($shippingAddress->getData());
-                $quote->setTotalsCollectedFlag(false)->collectTotals();
-                */
+                );
 
                 // Inventory
                 $quote->setInventoryProcessed(false);
-
-                // Set payment
-                /*
-                $payment = $quote->getPayment();
-                $payment->setMethod(ConfigProvider::CODE);
-                $payment->save();
-                $quote->save();
-                */
-
-                // Only registered users can order
-                //$quote->setCheckoutMethod(Onepage::METHOD_REGISTER);
-
-                // Set sales order payment
-                //$quote->getPayment()->importData(['method' => ConfigProvider::CODE]);
-
-                // Save the quote
-                //$quote->collectTotals()->save();
 
                 // Create the order
                 $order = $this->quoteManagement->submit($quote);
@@ -158,33 +126,6 @@ class V1 extends \Magento\Framework\App\Action\Action
     public function getPayload()
     {
         $this->data = json_decode($this->getRequest()->getContent());
-
-        // Validate data and throw localized exceptions if something is missing
-        /*
-        customer
-        - id
-        or
-        - email
-        
-        billing_address
-        - id
-        
-        shipping_address
-        - id
-        
-        payment_method
-        - code
-        
-        shipping_method
-        - code
-        
-        products
-        - sku
-        - id
-        
-        order
-        - currency
-        */
     }
 
     /**
@@ -197,11 +138,9 @@ class V1 extends \Magento\Framework\App\Action\Action
         try {
             if (isset($this->payload->customer->id) && (int) $this->payload->customer->id > 0) {
                 return $this->customerRepository->getById($this->payload->customer->id);
-            }
-            else if (isset($this->payload->customer->email)) {
-                return $this->customerRepository->get($this->payload->customer->email);    
-            }
-            else {
+            } elseif (isset($this->payload->customer->email)) {
+                return $this->customerRepository->get($this->payload->customer->email);
+            } else {
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('A valid customer ID or email is required to place an order.')
                 );

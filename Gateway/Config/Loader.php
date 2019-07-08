@@ -91,7 +91,8 @@ class Loader
      *
      * @return void
      */
-    public function init() {
+    public function init()
+    {
         $this->data = $this->loadConfig();
 
         return $this;

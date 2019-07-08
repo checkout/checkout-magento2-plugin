@@ -116,7 +116,7 @@ class QuoteHandlerService
 
                 // Return the first result found
                 return $quoteFactory
-                    ->getSelect()->limit(1)
+                    ->setPageSize(1)
                     ->getFirstItem();
             } else {
                 // Try to find the quote in session
@@ -141,16 +141,14 @@ class QuoteHandlerService
             // Set the currency
             if ($currency) {
                 $quote->setCurrency($currency);
-            }
-            else {
+            } else {
                 $quote->setCurrency();
             }
 
             // Set the quote customer
             if ($customer) {
                 $quote->assignCustomer($customer);
-            }
-            else {
+            } else {
                 $quote->assignCustomer($this->shopperHandler->getCustomerData());
             }
 
