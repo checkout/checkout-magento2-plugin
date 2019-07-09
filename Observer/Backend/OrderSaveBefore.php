@@ -110,7 +110,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
         $this->messageManager = $messageManager;
-        $this->apiHandler = $apiHandler->init();
+        $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->vaultHandler = $vaultHandler;
         $this->transactionHandler = $transactionHandler;

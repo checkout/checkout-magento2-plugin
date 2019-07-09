@@ -111,7 +111,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
         $this->methodHandler = $methodHandler;
-        $this->apiHandler = $apiHandler->init();
+        $this->apiHandler = $apiHandler;
         $this->checkoutSession = $checkoutSession;
         $this->utilities = $utilities;
         $this->config = $config;

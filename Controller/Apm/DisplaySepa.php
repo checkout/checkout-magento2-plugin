@@ -98,7 +98,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         $this->pageFactory = $pageFactory;
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
-        $this->apiHandler = $apiHandler->init();
+        $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
         $this->storeManager = $storeManager;
         $this->storeModel = $storeModel;

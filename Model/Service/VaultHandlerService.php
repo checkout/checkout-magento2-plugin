@@ -116,7 +116,7 @@ class VaultHandlerService
         $this->paymentTokenManagement = $paymentTokenManagement;
         $this->customerSession = $customerSession;
         $this->messageManager = $messageManager;
-        $this->apiHandler = $apiHandler->init();
+        $this->apiHandler = $apiHandler;
         $this->cardHandler = $cardHandler;
         $this->config = $config;
         $this->logger = $logger;
