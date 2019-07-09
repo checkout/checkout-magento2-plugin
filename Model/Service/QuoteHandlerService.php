@@ -117,7 +117,7 @@ class QuoteHandlerService
                 // Return the first result found
                 return $quoteFactory
                     ->setPageSize(1)
-                    ->getFirstItem();
+                    ->getLastItem();
             } else {
                 // Try to find the quote in session
                 return $this->checkoutSession->getQuote();

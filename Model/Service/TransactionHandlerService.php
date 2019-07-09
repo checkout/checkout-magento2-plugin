@@ -525,7 +525,7 @@ class TransactionHandlerService
             $transactions = $this->transactionRepository->getList($searchCriteria)->getItems();
 
             // Filter by transaction type
-            if ($transactionType && count($transactions) > 0) {
+            if ($transactionType && !empty($transactions)) {
                 $filteredResult = [];
                 foreach ($transactions as $transaction) {
                     if ($transaction->getTxnType() == $transactionType && $transaction->getIsClosed() == $isClosed) {

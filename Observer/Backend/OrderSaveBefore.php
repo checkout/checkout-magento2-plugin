@@ -33,7 +33,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     protected $backendAuthSession;
 
     /**
-     * @var Http
+     * @var RequestInterface
      */
     protected $request;
 

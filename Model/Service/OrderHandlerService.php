@@ -216,7 +216,7 @@ class OrderHandlerService
             $order = $this->orderRepository
                 ->getList($search)
                 ->setPageSize(1)
-                ->getFirstItem();
+                ->getLastItem();
 
             return $order;
         } catch (\Exception $e) {
