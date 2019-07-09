@@ -30,67 +30,67 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     /**
      * @var Session
      */
-    public $backendAuthSession;
+    protected $backendAuthSession;
 
     /**
      * @var Http
      */
-    public $request;
+    protected $request;
 
     /**
      * @var ManagerInterface
      */
-    public $messageManager;
+    protected $messageManager;
 
     /**
      * @var ApiHandlerService
      */
-    public $apiHandler;
+    protected $apiHandler;
 
     /**
      * @var OrderHandlerService
      */
-    public $orderHandler;
+    protected $orderHandler;
 
     /**
      * @var VaultHandlerService
      */
-    public $vaultHandler;
+    protected $vaultHandler;
 
     /**
      * @var TransactionHandlerService
      */
-    public $transactionHandler;
+    protected $transactionHandler;
 
     /**
      * @var Config
      */
-    public $config;
+    protected $config;
 
     /**
      * @var Utilities
      */
-    public $utilities;
+    protected $utilities;
 
     /**
      * @var Logger
      */
-    public $logger;
+    protected $logger;
 
     /**
      * @var Array
      */
-    public $params;
+    protected $params;
 
     /**
      * @var Order
      */
-    public $order;
+    protected $order;
 
     /**
      * @var String
      */
-    public $methodId;
+    protected $methodId;
 
     /**
      * OrderSaveBefore constructor.
