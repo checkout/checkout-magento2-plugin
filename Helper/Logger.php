@@ -24,7 +24,6 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Logger
 {
-
     /**
      * @var ManagerInterface
      */
