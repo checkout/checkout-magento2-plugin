@@ -137,15 +137,19 @@ class TransactionHandlerService
             }
 
             // Invoice handling
-            $this->invoiceHandler->processInvoice(
+            $this->order = $this->invoiceHandler->processInvoice(
                 $this->order,
                 $this->transaction
             );
 
             // Save the processed elements
             $this->saveData();
+
+            // Return the order
+            return $this->order;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
+            return null;
         }
     }
 

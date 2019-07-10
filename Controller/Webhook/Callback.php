@@ -145,7 +145,7 @@ class Callback extends \Magento\Framework\App\Action\Action
 
                         if ($this->orderHandler->isOrder($order)) {
                             // Handle the transaction
-                            $this->transactionHandler->createTransaction(
+                            $order = $this->transactionHandler->createTransaction(
                                 $order,
                                 static::$transactionMapper[$this->payload->type],
                                 $this->payload

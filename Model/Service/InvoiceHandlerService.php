@@ -93,6 +93,9 @@ class InvoiceHandlerService
             } elseif ($this->needsCancelling()) {
                 $this->cancelInvoice();
             }
+
+            // Return the order
+            return $this->order;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
