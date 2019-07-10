@@ -180,19 +180,19 @@ class ApiHandlerService
             // Get the billing address
             $billingAddress = $entity->getBillingAddress();
 
+            // Create the address
+            $address = new Address();
+            $address->address_line1 = $billingAddress->getStreetLine(1);
+            $address->address_line2 = $billingAddress->getStreetLine(2);
+            $address->city = $billingAddress->getCity();
+            $address->zip = $billingAddress->getPostcode();
+            $address->country = $billingAddress->getCountry();
+
             // Create the customer
             $customer = new Customer();
             $customer->email = $billingAddress->getEmail();
             $customer->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
-
-            // Create the address
-            $address = new Address();
-            $address->address_line1 = '14-17 Wells Mews';
-            $address->address_line2 = 'Fitzrovia';
-            $address->city = 'London';
-            $address->state = 'London';
-            $address->zip = 'W1T 3HF';
-            $address->country = 'UK';
+            $customer->address = $address;
 
             return $customer;
         } catch (\Exception $e) {
