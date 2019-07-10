@@ -68,17 +68,21 @@ define(
              * @return {mixed}  The billing address.
              */
             getCustomerName: function (obj = false) {
-                var billingAddress = Quote.billingAddress(),
+                var billingAddress = Quote.billingAddress();
+                if (billingAddress) {
                     name = {
-                        first_name: billingAddress.firstname,
-                        last_name: billingAddress.lastname
-                };
+                            first_name: billingAddress.firstname,
+                            last_name: billingAddress.lastname
+                    };
 
-                if (!obj) {
-                    name = name.first_name + ' ' + name.last_name
+                    if (!obj) {
+                        name = name.first_name + ' ' + name.last_name
+                    }
+
+                    return name;
                 }
 
-                return name;
+                return null;
             },
 
             /**
