@@ -28,11 +28,6 @@ class Validation extends \Magento\Framework\App\Action\Action
     public $jsonFactory;
 
     /**
-     * @var Curl
-     */
-    public $curl;
-
-    /**
      * @var Logger
      */
     public $logger;
@@ -43,14 +38,12 @@ class Validation extends \Magento\Framework\App\Action\Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Framework\HTTP\Client\Curl $curl,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
 
         $this->jsonFactory = $jsonFactory;
         $this->logger = $logger;
-        $this->curl = $curl;
     }
 
     /**
@@ -79,20 +72,22 @@ class Validation extends \Magento\Framework\App\Action\Action
                 . $params['displayName']
                 .'"}';
 
-                // Initialize the request
-                $this->curl->curlOptions([
-                    CURLOPT_SSLCERT => $params['merchantCertificate'],
-                    CURLOPT_SSLKEY => $params['processingCertificate'],
-                    CURLOPT_SSLKEYPASSWD => $params['processingCertificatePass'],
-                    CURLOPT_POSTFIELDS => $data,
-                    CURLOPT_RETURNTRANSFER => true
-                ]);
-
-                // Send the request
-                $this->curl->post($this->url, []);
-
-                // Return the response
-                return $this->curl->getBody();
+                // create a new cURL resource
+                $ch = curl_init();
+                $data = '{"merchantIdentifier":"'. $params['merchantId'] .'", "domainName":"'. $params['domainName'] .'", "displayName":"'. $params['displayName'] .'"}';
+                curl_setopt($ch, CURLOPT_URL, $this->url);
+                curl_setopt($ch, CURLOPT_SSLCERT, $params['merchantCertificate']);
+                curl_setopt($ch, CURLOPT_SSLKEY, $params['processingCertificate']);
+                curl_setopt($ch, CURLOPT_SSLKEYPASSWD, $params['processingCertificatePass']);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                if (curl_exec($ch) === false)
+                {
+                    echo '{"curlError":"' . curl_error($ch) . '"}';
+                }
+                
+                // close cURL resource, and free up system resources
+                curl_close($ch);
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
