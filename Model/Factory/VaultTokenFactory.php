@@ -28,22 +28,22 @@ class VaultTokenFactory
     /**
      * @var CreditCardTokenFactory
      */
-    protected $creditCardTokenFactory;
+    public $creditCardTokenFactory;
 
     /**
      * @var EncryptorInterface
      */
-    protected $encryptor;
+    public $encryptor;
 
     /**
      * @var CardHandlerService
      */
-    protected $cardHandler;
+    public $cardHandler;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * VaultTokenFactory constructor.

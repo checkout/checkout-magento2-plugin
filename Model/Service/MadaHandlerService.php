@@ -26,22 +26,22 @@ class MadaHandlerService
     /**
      * @var Reader
      */
-    protected $directoryReader;
+    public $directoryReader;
 
     /**
      * @var Csv
      */
-    protected $csvParser;
+    public $csvParser;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @param Context $context

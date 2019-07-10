@@ -27,7 +27,7 @@ class TokenFormatter
     /**
      * @var VaultHandlerService
      */
-    protected $vaultHandler;
+    public $vaultHandler;
 
     /**
      * TokenFormatter constructor.

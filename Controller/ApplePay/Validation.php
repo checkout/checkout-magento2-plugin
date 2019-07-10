@@ -25,17 +25,22 @@ class Validation extends \Magento\Framework\App\Action\Action
     /**
      * @var JsonFactory
      */
-    protected $jsonFactory;
+    public $jsonFactory;
 
     /**
      * @var Curl
      */
-    protected $curl;
+    public $curl;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
+
+    /**
+     * @var Config
+     */
+    public $config;
 
     /**
      * Validation constructor.
@@ -44,13 +49,15 @@ class Validation extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\HTTP\Client\Curl $curl,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         parent::__construct($context);
 
         $this->jsonFactory = $jsonFactory;
-        $this->logger = $logger;
         $this->curl = $curl;
+        $this->logger = $logger;
+        $this->config = $config;
     }
 
     /**

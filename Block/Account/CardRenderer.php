@@ -28,7 +28,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var CardHandlerService
@@ -38,7 +38,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * CardRenderer constructor.

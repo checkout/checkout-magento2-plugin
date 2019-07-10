@@ -25,32 +25,32 @@ class Display extends \Magento\Framework\App\Action\Action
     /**
      * @var Context
      */
-    protected $context;
+    public $context;
 
     /**
      * @var PageFactory
      */
-    protected $pageFactory;
+    public $pageFactory;
 
     /**
      * @var JsonFactory
      */
-    protected $jsonFactory;
+    public $jsonFactory;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * Display constructor

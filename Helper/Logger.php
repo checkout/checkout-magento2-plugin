@@ -24,16 +24,15 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Logger
 {
-
     /**
      * @var ManagerInterface
      */
-    protected $messageManager;
+    public $messageManager;
     
     /**
      * @var ScopeConfigInterface
      */
-    protected $scopeConfig;
+    public $scopeConfig;
 
     /**
      * Logger Constructor.

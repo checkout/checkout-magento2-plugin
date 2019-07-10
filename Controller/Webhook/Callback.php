@@ -30,7 +30,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * @var array
      */
-    protected static $transactionMapper = [
+    public static $transactionMapper = [
         'payment_approved' => Transaction::TYPE_AUTH,
         'payment_captured' => Transaction::TYPE_CAPTURE,
         'payment_refunded' => Transaction::TYPE_REFUND,
@@ -40,47 +40,47 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * @var OrderRepositoryInterface
      */
-    protected $orderRepository;
+    public $orderRepository;
 
     /**
      * @var apiHandler
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var OrderHandlerService
      */
-    protected $orderHandler;
+    public $orderHandler;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var ShopperHandlerService
      */
-    protected $shopperHandler;
+    public $shopperHandler;
 
     /**
      * @var TransactionHandlerService
      */
-    protected $transactionHandler;
+    public $transactionHandler;
 
     /**
      * @var VaultHandlerService
      */
-    protected $vaultHandler;
+    public $vaultHandler;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * Callback constructor
@@ -100,7 +100,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
 
         $this->orderRepository = $orderRepository;
-        $this->apiHandler = $apiHandler->init();
+        $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->quoteHandler = $quoteHandler;
         $this->shopperHandler = $shopperHandler;
@@ -145,7 +145,7 @@ class Callback extends \Magento\Framework\App\Action\Action
 
                         if ($this->orderHandler->isOrder($order)) {
                             // Handle the transaction
-                            $this->transactionHandler->createTransaction(
+                            $order = $this->transactionHandler->createTransaction(
                                 $order,
                                 static::$transactionMapper[$this->payload->type],
                                 $this->payload

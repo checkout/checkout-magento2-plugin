@@ -25,12 +25,12 @@ class Fail extends \Magento\Framework\App\Action\Action
     /**
      * @var CheckoutApi
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * PlaceOrder constructor
@@ -42,7 +42,7 @@ class Fail extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
-        $this->apiHandler = $apiHandler->init();
+        $this->apiHandler = $apiHandler;
         $this->logger = $logger;
     }
 

@@ -43,7 +43,7 @@
 </fieldset>
 
 <!-- Payment form JS -->
-<script>
+<script type="text/javascript">
     require(['jquery', 'domReady!', 'framesjs'], function ($) {
         // Prepare the elements
         var cardTokenField = $('#ckoCardToken');
@@ -79,7 +79,7 @@
 <?php
 
 if ($block->canDisplayAdminCards()) : ?>
-    <script>
+    <script type="text/javascript">
         require(['jquery', 'domReady!'], function ($) {
             // Prepare some variables
             var listItem = $('.cko-vault-card');

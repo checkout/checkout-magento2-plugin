@@ -28,37 +28,37 @@ class InvoiceHandlerService
     /**
      * @var InvoiceService
      */
-    protected $invoiceService;
+    public $invoiceService;
 
     /**
      * @var InvoiceRepositoryInterface
      */
-    protected $invoiceRepository;
+    public $invoiceRepository;
 
     /**
      * @var Invoice
      */
-    protected $invoiceModel;
+    public $invoiceModel;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var Order
      */
-    protected $order;
+    public $order;
 
     /**
      * @var Transaction
      */
-    protected $transaction;
+    public $transaction;
 
     /**
      * InvoiceHandlerService constructor.
@@ -93,6 +93,9 @@ class InvoiceHandlerService
             } elseif ($this->needsCancelling()) {
                 $this->cancelInvoice();
             }
+
+            // Return the order
+            return $this->order;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;

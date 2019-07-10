@@ -20,7 +20,8 @@ namespace CheckoutCom\Magento2\Model\Service;
 use \Checkout\CheckoutApi;
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
-use \Checkout\Models\Customer;
+use \Checkout\Models\Payments\Customer;
+use \Checkout\Models\Address;
 
 /**
  * Class ApiHandlerService.
@@ -30,12 +31,12 @@ class ApiHandlerService
     /**
      * @var EncryptorInterface
      */
-    protected $encryptor;
+    public $encryptor;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var CheckoutApi
@@ -45,12 +46,12 @@ class ApiHandlerService
     /**
      * @var Utilities
      */
-    protected $utilities;
+    public $utilities;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * ApiHandlerService constructor.
@@ -179,9 +180,19 @@ class ApiHandlerService
             // Get the billing address
             $billingAddress = $entity->getBillingAddress();
 
-            // Create the customer source
-            $customer = new Customer($billingAddress->getEmail());
+            // Create the address
+            $address = new Address();
+            $address->address_line1 = $billingAddress->getStreetLine(1);
+            $address->address_line2 = $billingAddress->getStreetLine(2);
+            $address->city = $billingAddress->getCity();
+            $address->zip = $billingAddress->getPostcode();
+            $address->country = $billingAddress->getCountry();
+
+            // Create the customer
+            $customer = new Customer();
+            $customer->email = $billingAddress->getEmail();
             $customer->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
+            $customer->address = $address;
 
             return $customer;
         } catch (\Exception $e) {

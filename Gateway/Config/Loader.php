@@ -35,37 +35,37 @@ class Loader
     /**
      * @var Dir
      */
-    protected $moduleDirReader;
+    public $moduleDirReader;
 
     /**
      * @var Parser
      */
-    protected $xmlParser;
+    public $xmlParser;
 
     /**
      * @var ScopeConfigInterface
      */
-    protected $scopeConfig;
+    public $scopeConfig;
 
     /**
      * @var StoreManagerInterface
      */
-    protected $storeManager;
+    public $storeManager;
 
     /**
      * @var EncryptorInterface
      */
-    protected $encryptor;
+    public $encryptor;
 
     /**
      * @var Reader
      */
-    protected $directoryReader;
+    public $directoryReader;
 
     /**
      * @var Array
      */
-    protected $xmlData;
+    public $xmlData;
 
     /**
      * Loader constructor
@@ -91,7 +91,8 @@ class Loader
      *
      * @return void
      */
-    public function init() {
+    public function init()
+    {
         $this->data = $this->loadConfig();
 
         return $this;

@@ -27,12 +27,12 @@ class TransactionHandlerService
     /**
      * @var BuilderInterface
      */
-    protected $transactionBuilder;
+    public $transactionBuilder;
 
     /**
      * @var ManagerInterface
      */
-    protected $messageManager;
+    public $messageManager;
 
     /**
      * @var SearchCriteriaBuilder
@@ -62,22 +62,22 @@ class TransactionHandlerService
     /**
      * @var InvoiceHandlerService
      */
-    protected $invoiceHandler;
+    public $invoiceHandler;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Utilities
      */
-    protected $utilities;
+    public $utilities;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * TransactionHandlerService constructor.
@@ -137,15 +137,19 @@ class TransactionHandlerService
             }
 
             // Invoice handling
-            $this->invoiceHandler->processInvoice(
+            $this->order = $this->invoiceHandler->processInvoice(
                 $this->order,
                 $this->transaction
             );
 
             // Save the processed elements
             $this->saveData();
+
+            // Return the order
+            return $this->order;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
+            return null;
         }
     }
 
@@ -525,7 +529,7 @@ class TransactionHandlerService
             $transactions = $this->transactionRepository->getList($searchCriteria)->getItems();
 
             // Filter by transaction type
-            if ($transactionType && count($transactions) > 0) {
+            if ($transactionType && !empty($transactions)) {
                 $filteredResult = [];
                 foreach ($transactions as $transaction) {
                     if ($transaction->getTxnType() == $transactionType && $transaction->getIsClosed() == $isClosed) {

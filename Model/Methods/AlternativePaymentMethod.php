@@ -47,82 +47,82 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * @var string
      */
-    protected $_code = self::CODE;
+    public $_code = self::CODE;
 
     /**
      * @var bool
      */
-    protected $_canAuthorize = true;
+    public $_canAuthorize = true;
 
     /**
      * @var bool
      */
-    protected $_canCapture = true;
+    public $_canCapture = true;
 
     /**
      * @var bool
      */
-    protected $_canCancel = true;
+    public $_canCancel = true;
 
     /**
      * @var bool
      */
-    protected $_canCapturePartial = true;
+    public $_canCapturePartial = true;
 
     /**
      * @var bool
      */
-    protected $_canVoid = true;
+    public $_canVoid = true;
 
     /**
      * @var bool
      */
-    protected $_canUseInternal = false;
+    public $_canUseInternal = false;
 
     /**
      * @var bool
      */
-    protected $_canUseCheckout = true;
+    public $_canUseCheckout = true;
 
     /**
      * @var bool
      */
-    protected $_canRefund = true;
+    public $_canRefund = true;
 
     /**
      * @var bool
      */
-    protected $_canRefundInvoicePartial = true;
+    public $_canRefundInvoicePartial = true;
 
     /**
      * @var ShopperHandlerService
      */
-    protected $shopperHandler;
+    public $shopperHandler;
 
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var Logger
      */
-    protected $ckoLogger;
+    public $ckoLogger;
 
     /**
      * @var Curl
      */
-    protected $curl;
+    public $curl;
 
     /**
      * @var Session
      */
-    protected $backendAuthSession;
+    public $backendAuthSession;
 
     /**
      * AlternativePaymentMethod constructor.
@@ -148,7 +148,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \Magento\Quote\Api\CartManagementInterface $quoteManagement,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Backend\Model\Session\Quote $sessionQuote,
-        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\shopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
@@ -185,7 +184,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
-        $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
         $this->shopperHandler     = $shopperHandler;
         $this->apiHandler         = $apiHandler;
@@ -259,7 +257,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 'Payment request from %1',
                 $this->config->getStoreName()
             );
-            $payment->payment_ip = $this->remoteAddress->getRemoteAddress();
             $payment->payment_type = 'Regular';
 
             return $payment;

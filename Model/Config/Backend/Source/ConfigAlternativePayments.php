@@ -26,7 +26,7 @@ class ConfigAlternativePayments implements \Magento\Framework\Option\ArrayInterf
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * ConfigAlternativePayments constructor

@@ -1,5 +1,6 @@
 "The card could not be saved.","The card could not be saved."
 "The payment card has been stored successfully.","The payment card has been stored successfully."
+"A valid customer ID or email is required to place an order.","A valid customer ID or email is required to place an order."
 "An error occurred and the order could not be created.","An error occurred and the order could not be created."
 "Your order number %1 has been created successfully.","Your order number %1 has been created successfully."
 "The transaction could not be processed.","The transaction could not be processed."

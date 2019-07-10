@@ -35,7 +35,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * @var Session
      */
-    protected $customerSession;
+    public $customerSession;
 
     /**
      * @var CustomerAddressesFormatter
@@ -65,7 +65,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * InstantPurchase constructor.

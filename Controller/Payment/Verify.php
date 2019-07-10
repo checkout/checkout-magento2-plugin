@@ -28,32 +28,32 @@ class Verify extends \Magento\Framework\App\Action\Action
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var CheckoutApi
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var OrderHandlerService
      */
-    protected $orderHandler;
+    public $orderHandler;
 
     /**
      * @var Utilities
      */
-    protected $utilities;
+    public $utilities;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * PlaceOrder constructor
@@ -70,7 +70,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
 
         $this->config = $config;
-        $this->apiHandler = $apiHandler->init();
+        $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
         $this->utilities = $utilities;

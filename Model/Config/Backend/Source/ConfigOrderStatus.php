@@ -25,7 +25,7 @@ class ConfigOrderStatus implements \Magento\Framework\Option\ArrayInterface
     /**
      * @var Collection
      */
-    protected $orderStatusCollection;
+    public $orderStatusCollection;
 
     /**
      * OrderStatus constructor.

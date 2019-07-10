@@ -25,7 +25,7 @@ class AvailabilityChecker
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var VaultHandlerService

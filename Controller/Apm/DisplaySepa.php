@@ -32,52 +32,52 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
     /**
      * @var Context
      */
-    protected $context;
+    public $context;
 
     /**
      * @var PageFactory
      */
-    protected $pageFactory;
+    public $pageFactory;
 
     /**
      * @var JsonFactory
      */
-    protected $jsonFactory;
+    public $jsonFactory;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var CheckoutApi
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var Quote
      */
-    protected $quote;
+    public $quote;
 
     /**
      * @var Address
      */
-    protected $billingAddress;
+    public $billingAddress;
 
     /**
      * @var Store
      */
-    protected $store;
+    public $store;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * Display constructor
@@ -98,7 +98,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         $this->pageFactory = $pageFactory;
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
-        $this->apiHandler = $apiHandler->init();
+        $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
         $this->storeManager = $storeManager;
         $this->storeModel = $storeModel;
