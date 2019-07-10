@@ -187,29 +187,27 @@ define(
                 FullScreenLoader.startLoader();
 
                 // Send the request
-                $.ajax(
-                    {
-                        type: 'POST',
-                        url: self.getUrl('payment/placeorder'),
-                        data: payload,
-                        success: function (data) {
-                            if (!data.success) {
-                                FullScreenLoader.stopLoader();
-                                self.showMessage('error', data.message, methodId);
-                            } else if (data.success && data.url) {
-                                // Handle 3DS redirection
-                                window.location.href = data.url
-                            } else {
-                                // Normal redirection
-                                RedirectOnSuccessAction.execute();
-                            }
-                        },
-                        error: function (request, status, error) {
-                            self.showMessage('error', error, methodId);
+                $.ajax({
+                    type: 'POST',
+                    url: self.getUrl('payment/placeorder'),
+                    data: payload,
+                    success: function (data) {
+                        if (!data.success) {
                             FullScreenLoader.stopLoader();
+                            self.showMessage('error', data.message, methodId);
+                        } else if (data.success && data.url) {
+                            // Handle 3DS redirection
+                            window.location.href = data.url
+                        } else {
+                            // Normal redirection
+                            RedirectOnSuccessAction.execute();
                         }
+                    },
+                    error: function (request, status, error) {
+                        self.showMessage('error', error, methodId);
+                        FullScreenLoader.stopLoader();
                     }
-                );
+                });
             }
         };
     }
