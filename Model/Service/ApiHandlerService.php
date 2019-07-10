@@ -20,7 +20,8 @@ namespace CheckoutCom\Magento2\Model\Service;
 use \Checkout\CheckoutApi;
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
-use \Checkout\Models\Customer;
+use \Checkout\Models\Payments\Customer;
+use \Checkout\Models\Address;
 
 /**
  * Class ApiHandlerService.
@@ -179,9 +180,19 @@ class ApiHandlerService
             // Get the billing address
             $billingAddress = $entity->getBillingAddress();
 
-            // Create the customer source
-            $customer = new Customer($billingAddress->getEmail());
+            // Create the customer
+            $customer = new Customer();
+            $customer->email = $billingAddress->getEmail();
             $customer->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
+
+            // Create the address
+            $address = new Address();
+            $address->address_line1 = '14-17 Wells Mews';
+            $address->address_line2 = 'Fitzrovia';
+            $address->city = 'London';
+            $address->state = 'London';
+            $address->zip = 'W1T 3HF';
+            $address->country = 'UK';
 
             return $customer;
         } catch (\Exception $e) {
