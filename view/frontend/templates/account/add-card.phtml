@@ -75,17 +75,14 @@
                 data: {cardToken: cardTokenField.val()},
                 success: function (data) {
                     if (!data.success) {
-                        // Todo - handle error message display
                         $('body').trigger('processStop');
                         //self.showMessage('error', data.message);
                     }
                     else if (data.success && data.url) {
-                        // Todo - handle3 DS redirection
                         window.location.href = data.url
                     }
                 },
                 error: function (request, status, error) {
-                   // Todo - handle error message display
                    $('body').trigger('processStop');
                    // self.showMessage('error', error);
                 }

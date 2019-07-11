@@ -252,7 +252,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      */
     public function getMandate()
     {
-        $html = ''; // @todo: return error message in HTML
+        $html = '';
 
         try {
             $sepa = $this->requestSepa();

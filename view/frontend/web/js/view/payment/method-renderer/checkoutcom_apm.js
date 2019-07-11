@@ -106,11 +106,9 @@ define(
                         Utilities.placeOrder(
                             data,
                             METHOD_ID,
-                            // Todo - Improve response handling. Error should come from the controller
                             function () {
                                 Utilities.log(__('Success'));
                             },
-                            // Todo - Improve response handling. Error should come from the controller
                             function () {
                                 Utilities.log(__('Fail'));
                             }
@@ -156,7 +154,6 @@ define(
                                     data,
                                     METHOD_ID,
                                     function () {
-                                        // Todo - Improve response handling. Error should come from the controller
                                         Utilities.log(__('Success'));
                                     },
                                     function () {
