@@ -432,7 +432,14 @@ class TransactionHandlerService
     public function getActionId()
     {
         try {
-            return $this->paymentData['data']['action_id'] ?? $this->paymentData['action_id'] ?? null;
+            if (isset($this->paymentData['data']['action_id'])) {
+                return $this->paymentData['data']['action_id'];
+            }
+            else if (isset($this->paymentData['action_id'])) {
+                return $this->paymentData['action_id'];
+            }
+
+            return null;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;

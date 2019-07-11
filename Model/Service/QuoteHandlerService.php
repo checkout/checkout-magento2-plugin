@@ -297,8 +297,9 @@ class QuoteHandlerService
     public function getQuoteCurrency()
     {
         try {
-            return $this->getQuote()->getQuoteCurrencyCode()
-            ?? $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+            $quoteCurrencyCode = $this->getQuote()->getQuoteCurrencyCode();
+            $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+            return ($quoteCurrencyCode) ? $quoteCurrencyCode : $storeCurrencyCode;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
