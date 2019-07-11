@@ -158,8 +158,6 @@ define(
                             function getGooglePaymentDataConfiguration()
                             {
                                 return {
-                                    // @todo a merchant ID is available for a production environment after approval by Google
-                                    // @see {@link https://developers.google.com/pay/api/web/guides/test-and-deploy/overview|Test and deploy}
                                     merchantId: self.getValue('merchant_id'),
                                     paymentMethodTokenizationParameters: tokenizationParameters,
                                     allowedPaymentMethods: allowedPaymentMethods,
