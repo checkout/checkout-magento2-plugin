@@ -253,7 +253,15 @@ define(
 
                             // Payment method authorization
                             session.onpaymentauthorized = function (event) {
-                                var promise = self.sendPaymentRequest(event.payment.token);
+                                // Prepare the payload
+                                var payload = {
+                                    methodId: METHOD_ID,
+                                    cardToken: event.payment.token,
+                                    source: METHOD_ID
+                                };
+
+                                // Send the request
+                                var promise = self.sendPaymentRequest(payload);
                                 promise.then(
                                     function (success) {
                                         var status;
