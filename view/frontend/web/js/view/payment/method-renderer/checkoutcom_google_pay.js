@@ -207,7 +207,6 @@ define(
                              */
                             function processPayment(paymentData)
                             {
-                                //self.logEvent(JSON.parse(paymentData.paymentMethodToken.token));
                                 $.post(
                                     Utilities.getUrl('payment/placeorder'),
                                     {
