@@ -17,7 +17,8 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use CheckoutCom\Magento2\Gateway\Config\Config;
+use \Checkout\Models\Payments\Payment;
+use \Checkout\Models\Payments\TokenSource;
 
 /**
  * Class GooglePayMethod
@@ -145,6 +146,42 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->ckoLogger          = $ckoLogger;
+    }
+
+    /**
+     * Send a charge request.
+     */
+    public function sendPaymentRequest($data, $amount, $currency, $reference = '')
+    {
+        try {
+            // Prepare the Google Pay data
+            $googlePayData = '';
+
+            // Create the Apple Pay token
+            $token = $this->apiHandler->init()->tokens()->request($googlePayData->getId());
+
+            // Create the Apple Pay token source
+            $tokenSource = new TokenSource($token);
+
+            // Set the payment
+            $request = new Payment(
+                $tokenSource,
+                $currency
+            );
+
+            // Prepare the metadata array
+            $request->metadata = ['methodId' => $this->_code];
+
+            // Send the charge request
+            $response = $this->apiHandler->init()->checkoutApi
+                ->payments()
+                ->request($request);
+
+            return $response;
+        } catch (\Exception $e) {
+            $this->ckoLogger->write($e->getBody());
+            return null;
+        }
     }
 
     /**
