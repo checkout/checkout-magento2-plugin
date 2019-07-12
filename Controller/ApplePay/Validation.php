@@ -91,8 +91,7 @@ class Validation extends \Magento\Framework\App\Action\Action
                     CURLOPT_SSLCERT => $params['merchantCertificate'],
                     CURLOPT_SSLKEY => $params['processingCertificate'],
                     CURLOPT_SSLKEYPASSWD => $params['processingCertificatePass'],
-                    CURLOPT_POSTFIELDS => $data,
-                    CURLOPT_RETURNTRANSFER => true
+                    CURLOPT_POSTFIELDS => $data
                 ]);
 
                 // Send the request
