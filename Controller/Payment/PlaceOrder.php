@@ -136,7 +136,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
             // Set some required properties
             $this->data = $this->getRequest()->getParams();
-            $this->methodId = $this->data['methodId'];
 
             // Process the request
             if ($this->getRequest()->isAjax() && $this->quote) {
@@ -184,7 +183,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         try {
             // Send the charge request
             return $this->methodHandler
-                ->get($this->methodId)
+                ->get($this->data['methodId'])
                 ->sendPaymentRequest(
                     $this->data,
                     $this->quote->getGrandTotal(),
@@ -225,7 +224,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
             // Create an order
             $order = $this->orderHandler
-                ->setMethodId($this->methodId)
+                ->setMethodId($this->data['methodId'])
                 ->handleOrder($response, $reservedIncrementId);
 
             // Add the payment info to the order
@@ -258,7 +257,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     {
         try {
             // refund or void accordingly
-            if ($this->config->needsAutoCapture($this->methodId)) {
+            if ($this->config->needsAutoCapture($this->data['methodId'])) {
                 //refund
                 $this->apiHandler->init()->checkoutApi->payments()->refund(new Refund($response->getId()));
             } else {
