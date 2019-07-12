@@ -108,7 +108,7 @@ define(
                     return new Promise(
                         function (resolve, reject) {
                             $.ajax({
-                                url: url.build('payment/placeorder'),
+                                url: Utilities.getUrl('payment/placeorder'),
                                 type: "POST",
                                 data: paymentData,
                                 success: function (data, textStatus, xhr) {
