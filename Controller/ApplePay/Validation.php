@@ -139,7 +139,7 @@ class Validation extends \Magento\Framework\App\Action\Action
             ];
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
-            return [];
+            return $this->jsonFactory->create()->setData([]);
         }
     }
 }
