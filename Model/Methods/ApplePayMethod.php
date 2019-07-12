@@ -17,14 +17,16 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use CheckoutCom\Magento2\Gateway\Config\Config;
+use \Checkout\Models\Tokens\ApplePay;
+use \Checkout\Models\Tokens\ApplePayHeader;
+use \Checkout\Models\Payments\Payment;
+use \Checkout\Models\Payments\TokenSource;
 
 /**
  * Class ApplePayMethod
  */
 class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
-
     /**
      * @var string
      */
@@ -146,7 +148,55 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->apiHandler         = $apiHandler;
         $this->ckoLogger          = $ckoLogger;
     }
-    
+
+    /**
+     * Send a charge request.
+     */
+    public function sendPaymentRequest($data, $amount, $currency, $reference = '')
+    {
+        try {
+            // Create the Apple Pay header
+            $applePayHeader = new ApplePayHeader(
+                $data['cardToken']['paymentData']['version'],
+                $data['cardToken']['paymentData']['header']['publicKeyHash'],
+                $data['cardToken']['paymentData']['header']['ephemeralPublicKey']
+            );
+
+            // Create the Apple Pay data instance
+            $applePayData = new ApplePay(
+                $data['cardToken']['paymentData']['version'],
+                $data['cardToken']['paymentData']['signature'],
+                $data['cardToken']['paymentData']['data'],
+                $applePayHeader
+            );
+
+            // Create the Apple Pay token
+            $token = $this->apiHandler->init()->tokens()->request($applePayData->getId());
+
+            // Create the Apple Pay token source
+            $tokenSource = new TokenSource($token);
+
+            // Set the payment
+            $request = new Payment(
+                $tokenSource,
+                $currency
+            );
+
+            // Prepare the metadata array
+            $request->metadata = ['methodId' => $this->_code];
+
+            // Send the charge request
+            $response = $this->apiHandler->init()->checkoutApi
+                ->payments()
+                ->request($request);
+
+            return $response;
+        } catch (\Exception $e) {
+            $this->ckoLogger->write($e->getBody());
+            return null;
+        }
+    }
+
     /**
      * { function_description }
      *
