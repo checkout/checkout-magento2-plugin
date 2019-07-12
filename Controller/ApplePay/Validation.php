@@ -72,41 +72,45 @@ class Validation extends \Magento\Framework\App\Action\Action
             $this->methodId = $this->getRequest()->getParam('method_id');
             $this->url = $this->getRequest()->getParam('u');
 
-            // Process the call after check
-            if ($this->getRequest()->isAjax()) {
-                // Prepare the configuration parameters
-                $params = $this->getParams();
+            // Prepare the configuration parameters
+            $params = $this->getParams();
 
-                // Prepare the data
-                $data = '{"merchantIdentifier":"'
-                . $params['merchantId']
-                .'", "domainName":"'
-                . $params['domainName']
-                .'", "displayName":"'
-                . $params['displayName']
-                .'"}';
+            // Prepare the data
+            $data = $this->buildDataString($params);
 
-                // Initialize the request
-                $this->curl->curlOptions([
-                    CURLOPT_SSLCERT => $params['merchantCertificate'],
-                    CURLOPT_SSLKEY => $params['processingCertificate'],
-                    CURLOPT_SSLKEYPASSWD => $params['processingCertificatePass'],
-                    CURLOPT_POSTFIELDS => $data
-                ]);
+            // Initialize the request
+            $this->curl->setOption(CURLOPT_SSLCERT, $params['merchantCertificate']);
+            $this->curl->setOption(CURLOPT_SSLKEY, $params['processingCertificate']);
+            $this->curl->setOption(CURLOPT_SSLKEYPASSWD, $params['processingCertificatePass']);
+            $this->curl->setOption(CURLOPT_POSTFIELDS, $data);
 
-                // Send the request
-                $this->curl->post($this->url, []);
+            // Send the request
+            $this->curl->post($this->url, []);
 
-                // Return the response
-                return $this->curl->getBody();
-            }
+            // Return the response
+            echo $this->curl->getBody();
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
     }
 
     /**
-     * Prepare the Apple Pay request parameters.
+     * Build the Apple Pay data string
+     *
+     * @return array
+     */
+    public function buildDataString($params) {
+        return '{"merchantIdentifier":"'
+            . $params['merchantId']
+            .'", "domainName":"'
+            . $params['domainName']
+            .'", "displayName":"'
+            . $params['displayName']
+            .'"}';
+    }
+
+    /**
+     * Prepare the Apple Pay request parameters
      *
      * @return array
      */
