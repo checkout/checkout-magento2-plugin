@@ -287,25 +287,6 @@ define(
                             session.begin();
                         }
                     );
-                },
-
-                /**
-                 * Events
-                 */
-
-                /**
-                 * @returns {string}
-                 */
-                beforePlaceOrder: function () {
-                    // Start the loader
-                    FullScreenLoader.startLoader();
-
-                    // Validate before submission
-                    if (AdditionalValidators.validate()) {
-                        // Submission logic
-                    } else {
-                        FullScreenLoader.stopLoader();
-                    }
                 }
             }
         );
