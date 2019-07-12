@@ -207,13 +207,21 @@ define(
                              */
                             function processPayment(paymentData)
                             {
-                                $.post(
-                                    Utilities.getUrl('payment/placeorder'),
-                                    {
+                                // Prepare the payload
+                                var payload = {
+                                    methodId: METHOD_ID,
+                                    cardToken: {
                                         signature: JSON.parse(paymentData.paymentMethodToken.token).signature,
                                         protocolVersion: JSON.parse(paymentData.paymentMethodToken.token).protocolVersion,
                                         signedMessage: JSON.parse(paymentData.paymentMethodToken.token).signedMessage,
                                     },
+                                    source: METHOD_ID
+                                };
+
+                                // Send the request
+                                $.post(
+                                    Utilities.getUrl('payment/placeorder'),
+                                    payload,
                                     function (data, status) {
                                         if (data.status === true) {
                                             // redirect to success page
