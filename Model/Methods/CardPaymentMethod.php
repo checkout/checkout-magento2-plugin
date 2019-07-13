@@ -84,14 +84,19 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $_canRefundInvoicePartial = true;
 
     /**
-     * @var CardHandlerService
-     */
-    public $cardHandler;
-
-    /**
      * @var Logger
      */
     public $ckoLogger;
+ 
+    /**
+     * @var QuoteHandlerService
+     */
+    public $quoteHandler;
+
+    /**
+     * @var CardHandlerService
+     */
+    public $cardHandler;
 
     /**
      * @var Session
