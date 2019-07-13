@@ -5,9 +5,10 @@ define(
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
+        'Magento_Checkout/js/action/redirect-on-success',
         'mage/translate'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, __) {
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, __) {
 
         'use strict';
 
@@ -133,9 +134,6 @@ define(
                 launchApplePay: function () {
                     // Prepare the parameters
                     var self = this;
-
-                    // Set the debug mode
-                    //self.debug = JSON.parse(ap['debugMode']);
 
                     // Apply the button style
                     $(self.button_target)
@@ -276,7 +274,7 @@ define(
                                         if (success) {
                                             // redirect to success page
                                             FullScreenLoader.startLoader();
-                                            redirectOnSuccessAction.execute();
+                                            RedirectOnSuccessAction.execute();
                                         }
                                     }
                                 ).catch(

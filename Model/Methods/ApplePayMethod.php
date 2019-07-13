@@ -88,6 +88,11 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $ckoLogger;
 
     /**
+     * @var QuoteHandlerService
+     */
+    public $quoteHandler;
+
+    /**
      * ApplePayMethod constructor.
      */
     public function __construct(
@@ -114,6 +119,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -147,6 +153,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->ckoLogger          = $ckoLogger;
+        $this->quoteHandler       = $quoteHandler;
     }
 
     /**
@@ -157,7 +164,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         try {
             // Create the Apple Pay header
             $applePayHeader = new ApplePayHeader(
-                $data['cardToken']['paymentData']['version'],
+                $data['cardToken']['paymentData']['header']['transactionId'],
                 $data['cardToken']['paymentData']['header']['publicKeyHash'],
                 $data['cardToken']['paymentData']['header']['ephemeralPublicKey']
             );
@@ -170,11 +177,13 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $applePayHeader
             );
 
-            // Create the Apple Pay token
-            $token = $this->apiHandler->init()->tokens()->request($applePayData->getId());
+            // Get the token data
+            $tokenData = $this->apiHandler->init()->checkoutApi
+                ->tokens()
+                ->request($applePayData);
 
             // Create the Apple Pay token source
-            $tokenSource = new TokenSource($token);
+            $tokenSource = new TokenSource($tokenData->getId());
 
             // Set the payment
             $request = new Payment(
@@ -184,6 +193,20 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Prepare the metadata array
             $request->metadata = ['methodId' => $this->_code];
+
+            // Prepare the capture date setting
+            $captureDate = $this->config->getCaptureTime($this->_code);
+
+            // Set the request parameters
+            $request->capture = $this->config->needsAutoCapture($this->_code);
+            $request->amount = $amount*100;
+            $request->reference = $reference;
+            $request->description = __('Payment request from %1', $this->config->getStoreName());
+            $request->customer = $this->apiHandler->init()->createCustomer($this->quoteHandler->getQuote());
+            $request->payment_type = 'Regular';
+            if ($captureDate) {
+                $request->capture_on = $this->config->getCaptureTime();
+            }
 
             // Send the charge request
             $response = $this->apiHandler->init()->checkoutApi
