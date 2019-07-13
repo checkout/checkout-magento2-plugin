@@ -219,7 +219,7 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $payment->setTransactionId($response->action_id);
             }
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;
         }
