@@ -17,6 +17,7 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
+use \Checkout\Models\Tokens\GooglePay;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\TokenSource;
 
@@ -25,7 +26,6 @@ use \Checkout\Models\Payments\TokenSource;
  */
 class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
-
     /**
      * @var string
      */
@@ -87,6 +87,11 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $ckoLogger;
 
     /**
+     * @var QuoteHandlerService
+     */
+    public $quoteHandler;
+
+    /**
      * GooglePayMethod constructor.
      */
     public function __construct(
@@ -113,6 +118,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -146,6 +152,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->ckoLogger          = $ckoLogger;
+        $this->quoteHandler       = $quoteHandler;
     }
 
     /**
@@ -154,14 +161,20 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public function sendPaymentRequest($data, $amount, $currency, $reference = '')
     {
         try {
-            // Prepare the Google Pay data
-            $googlePayData = '';
+            // Create the Google Pay data
+            $googlePayData = new GooglePay(
+                $data['cardToken']['protocolVersion'],
+                $data['cardToken']['signature'],
+                $data['cardToken']['signedMessage']
+            );
 
-            // Create the Apple Pay token
-            $token = $this->apiHandler->init()->tokens()->request($googlePayData->getId());
+            // Get the token data
+            $tokenData = $this->apiHandler->init()->checkoutApi
+                ->tokens()
+                ->request($googlePayData);
 
             // Create the Apple Pay token source
-            $tokenSource = new TokenSource($token);
+            $tokenSource = new TokenSource($tokenData->getId());
 
             // Set the payment
             $request = new Payment(
@@ -171,6 +184,20 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Prepare the metadata array
             $request->metadata = ['methodId' => $this->_code];
+
+            // Prepare the capture date setting
+            $captureDate = $this->config->getCaptureTime($this->_code);
+
+            // Set the request parameters
+            $request->capture = $this->config->needsAutoCapture($this->_code);
+            $request->amount = $amount*100;
+            $request->reference = $reference;
+            $request->description = __('Payment request from %1', $this->config->getStoreName());
+            $request->customer = $this->apiHandler->init()->createCustomer($this->quoteHandler->getQuote());
+            $request->payment_type = 'Regular';
+            if ($captureDate) {
+                $request->capture_on = $this->config->getCaptureTime();
+            }
 
             // Send the charge request
             $response = $this->apiHandler->init()->checkoutApi
