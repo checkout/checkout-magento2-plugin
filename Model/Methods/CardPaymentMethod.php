@@ -251,7 +251,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             return $response;
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
             return null;
         }
     }
@@ -288,7 +288,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $payment->setTransactionId($response->action_id);
             }
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;
         }
@@ -327,7 +327,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $payment->setTransactionId($response->action_id);
             }
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;
         }

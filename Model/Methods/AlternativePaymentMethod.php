@@ -223,7 +223,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
             return $response;
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
             return null;
         }
     }
@@ -261,7 +261,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
             return $payment;
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
             return null;
         }
     }
