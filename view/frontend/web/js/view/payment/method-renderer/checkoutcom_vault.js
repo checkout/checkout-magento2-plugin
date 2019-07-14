@@ -230,7 +230,8 @@ define(
                         // Prepare the payload
                         var payload = {
                             methodId: METHOD_ID,
-                            publicHash: self.getPublicHash()
+                            publicHash: self.getPublicHash(),
+                            source: METHOD_ID
                         }
 
                         // Add the CVV to the payload if needed
