@@ -113,8 +113,8 @@ define(
                                 type: "POST",
                                 data: paymentData,
                                 success: function (data, textStatus, xhr) {
-                                    if (data.status === true) {
-                                        resolve(data.status);
+                                    if (data.success === true) {
+                                        resolve(data.success);
                                     } else {
                                         reject;
                                     }
@@ -272,7 +272,7 @@ define(
                                         session.completePayment(status);
 
                                         if (success) {
-                                            // redirect to success page
+                                            // Redirect to success page
                                             FullScreenLoader.startLoader();
                                             RedirectOnSuccessAction.execute();
                                         }

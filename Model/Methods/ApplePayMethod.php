@@ -213,6 +213,12 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 ->payments()
                 ->request($request);
 
+                $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
+                $logger = new \Zend\Log\Logger();
+                $logger->addWriter($writer);
+                $logger->info(print_r($response, 1));
+
+
             return $response;
         } catch (\Exception $e) {
             $this->ckoLogger->write($e->getBody());
