@@ -5,10 +5,11 @@ define(
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
+        'Magento_Checkout/js/action/redirect-on-success',
         'mage/translate',
         'googlepayjs'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, __) {
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, __) {
 
         'use strict';
 
@@ -223,10 +224,10 @@ define(
                                     Utilities.getUrl('payment/placeorder'),
                                     payload,
                                     function (data, status) {
-                                        if (data.status === true) {
+                                        if (data.success === true) {
                                             // redirect to success page
                                             FullScreenLoader.startLoader();
-                                            redirectOnSuccessAction.execute();
+                                            RedirectOnSuccessAction.execute();
                                         } else {
                                             alert(__('An error has occurred. Please try again.'));
                                         }
