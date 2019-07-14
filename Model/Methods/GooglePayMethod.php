@@ -82,6 +82,16 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $_canRefundInvoicePartial = true;
 
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
+     * @var ApiHandlerService
+     */
+    public $apiHandler;
+    
+    /**
      * @var Logger
      */
     public $ckoLogger;
@@ -161,6 +171,12 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public function sendPaymentRequest($data, $amount, $currency, $reference = '')
     {
         try {
+
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/gg.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($data, 1));
+
             // Create the Google Pay data
             $googlePayData = new GooglePay(
                 $data['cardToken']['protocolVersion'],

@@ -83,6 +83,16 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $_canRefundInvoicePartial = true;
 
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
+     * @var ApiHandlerService
+     */
+    public $apiHandler;
+
+    /**
      * @var Logger
      */
     public $ckoLogger;

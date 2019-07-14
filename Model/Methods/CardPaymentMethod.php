@@ -99,6 +99,16 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $cardHandler;
 
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
+     * @var ApiHandlerService
+     */
+    public $apiHandler;
+    
+    /**
      * @var Session
      */
     public $customerSession;

@@ -87,6 +87,16 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $ckoLogger;
 
     /**
+     * @var ApiHandlerService
+     */
+    public $apiHandler;
+
+    /**
+     * @var Config
+     */
+    public $config;
+    
+    /**
      * MotoMethod constructor.
      */
     public function __construct(

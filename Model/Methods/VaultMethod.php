@@ -97,6 +97,16 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $ckoLogger;
 
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
+     * @var ApiHandlerService
+     */
+    public $apiHandler;
+    
+    /**
      * @var QuoteHandlerService
      */
     public $quoteHandler;
