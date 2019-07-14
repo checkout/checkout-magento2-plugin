@@ -88,7 +88,7 @@ class Validation extends \Magento\Framework\App\Action\Action
             $this->curl->post($this->url, []);
 
             // Return the response
-            echo $this->curl->getBody();
+            print $this->curl->getBody();
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
