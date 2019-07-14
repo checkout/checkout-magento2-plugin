@@ -190,7 +190,7 @@ define(
                             {
                                 var paymentDataRequest = getGooglePaymentDataConfiguration();
 
-                                // transactionInfo must be set but does not affect cache
+                                // TransactionInfo must be set but does not affect cache
                                 paymentDataRequest.transactionInfo = {
                                     totalPriceStatus: 'NOT_CURRENTLY_KNOWN',
                                     currencyCode: Utilities.getQuoteCurrency()
@@ -225,7 +225,7 @@ define(
                                     payload,
                                     function (data, status) {
                                         if (data.success === true) {
-                                            // redirect to success page
+                                            // Redirect to success page
                                             FullScreenLoader.startLoader();
                                             RedirectOnSuccessAction.execute();
                                         } else {
