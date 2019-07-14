@@ -497,7 +497,8 @@ class TransactionHandlerService
                 'risk',
                 'metadata',
                 'customer',
-                'source'
+                'source',
+                'data'
             ];
 
             // Return the clean array
