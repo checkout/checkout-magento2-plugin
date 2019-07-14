@@ -8,12 +8,8 @@ define(
         'mage/translate'
     ],
     function ($, Component, Utilities, AdditionalValidators, FullScreenLoader, __) {
-
         'use strict';
-
-        // Fix billing address missing.
         window.checkoutConfig.reloadOnBillingAddress = true;
-
         const METHOD_ID = 'checkoutcom_vault';
 
         return Component.extend(

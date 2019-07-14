@@ -11,10 +11,7 @@ define(
     function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, __) {
 
         'use strict';
-
-        // Fix billing address missing.
         window.checkoutConfig.reloadOnBillingAddress = true;
-
         const METHOD_ID = 'checkoutcom_apm';
 
         return Component.extend(

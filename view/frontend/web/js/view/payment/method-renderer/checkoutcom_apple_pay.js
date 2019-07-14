@@ -9,11 +9,8 @@ define(
         'mage/translate'
     ],
     function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, __) {
-
         'use strict';
-
-        window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
-
+        window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_apple_pay';
 
         return Component.extend(

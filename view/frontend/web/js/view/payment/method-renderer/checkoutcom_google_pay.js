@@ -10,10 +10,8 @@ define(
         'googlepayjs'
     ],
     function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, __) {
-
         'use strict';
-
-        window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
+        window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_google_pay';
 
         return Component.extend(
@@ -208,6 +206,9 @@ define(
                              */
                             function processPayment(paymentData)
                             {
+                                // Start the loader
+                                FullScreenLoader.startLoader();
+
                                 // Prepare the payload
                                 var payload = {
                                     methodId: METHOD_ID,
@@ -226,9 +227,9 @@ define(
                                     function (data, status) {
                                         if (data.success === true) {
                                             // Redirect to success page
-                                            FullScreenLoader.startLoader();
                                             RedirectOnSuccessAction.execute();
                                         } else {
+                                            FullScreenLoader.stopLoader();
                                             alert(__('An error has occurred. Please try again.'));
                                         }
                                     }
