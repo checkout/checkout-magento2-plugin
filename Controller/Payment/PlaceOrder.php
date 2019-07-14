@@ -256,12 +256,12 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public function cancelPayment($response)
     {
         try {
-            // refund or void accordingly
+            // Refund or void accordingly
             if ($this->config->needsAutoCapture($this->data['methodId'])) {
-                //refund
+                // Refund
                 $this->apiHandler->init()->checkoutApi->payments()->refund(new Refund($response->getId()));
             } else {
-                //void
+                // Void
                 $this->apiHandler->init()->checkoutApi->payments()->void(new Voids($response->getId()));
             }
         } catch (\Exception $e) {
