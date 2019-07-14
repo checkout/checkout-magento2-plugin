@@ -97,7 +97,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      * OrderSaveBefore constructor.
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session\Proxy $backendAuthSession,
+        \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\App\RequestInterface $request,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,

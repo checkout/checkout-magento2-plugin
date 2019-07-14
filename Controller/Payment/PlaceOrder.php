@@ -96,7 +96,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Checkout\Model\Session\Proxy $checkoutSession,
+        \Magento\Checkout\Model\Session $checkoutSession,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
