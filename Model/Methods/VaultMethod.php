@@ -249,7 +249,6 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $this->_code
             );
             $request->description = __('Payment request from %1', $this->config->getStoreName());
-            $request->customer = $this->apiHandler->init()->createCustomer($this->quoteHandler->getQuote());
             $request->payment_type = 'Regular';
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureTime();
