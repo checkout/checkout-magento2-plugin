@@ -17,7 +17,6 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Library\HttpHandler;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 use \Checkout\Models\Payments\TokenSource;
@@ -245,14 +244,12 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Billing descriptor
-            /*
             if ($this->config->needsDynamicDescriptor()) {
                 $request->billing_descriptor = new BillingDescriptor(
-                    $this->getValue('descriptor_name'),
-                    $this->getValue('descriptor_city')
+                    $this->config->getValue('descriptor_name'),
+                    $this->config->getValue('descriptor_city')
                 );
             }
-            */
 
             // Send the charge request
             $response = $this->apiHandler->init()->checkoutApi

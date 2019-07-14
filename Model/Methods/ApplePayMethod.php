@@ -21,6 +21,7 @@ use \Checkout\Models\Tokens\ApplePay;
 use \Checkout\Models\Tokens\ApplePayHeader;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\TokenSource;
+use \Checkout\Models\Payments\BillingDescriptor;
 
 /**
  * Class ApplePayMethod
@@ -218,6 +219,14 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $request->capture_on = $this->config->getCaptureTime();
             }
 
+            // Billing descriptor
+            if ($this->config->needsDynamicDescriptor()) {
+                $request->billing_descriptor = new BillingDescriptor(
+                    $this->config->getValue('descriptor_name'),
+                    $this->config->getValue('descriptor_city')
+                );
+            }
+            
             // Send the charge request
             $response = $this->apiHandler->init()->checkoutApi
                 ->payments()

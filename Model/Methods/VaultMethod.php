@@ -20,6 +20,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
+use \Checkout\Models\Payments\BillingDescriptor;
 
 /**
  * Class VaultMethod.
@@ -105,7 +106,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      * @var ApiHandlerService
      */
     public $apiHandler;
-    
+
     /**
      * @var QuoteHandlerService
      */
@@ -262,6 +263,14 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $request->metadata = ['udf1' => 'MADA'];
             }
 
+            // Billing descriptor
+            if ($this->config->needsDynamicDescriptor()) {
+                $request->billing_descriptor = new BillingDescriptor(
+                    $this->config->getValue('descriptor_name'),
+                    $this->config->getValue('descriptor_city')
+                );
+            }
+            
             // Send the charge request
             $response = $this->apiHandler->init()->checkoutApi
                 ->payments()

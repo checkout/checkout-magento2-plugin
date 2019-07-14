@@ -18,6 +18,7 @@
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
+use \Checkout\Models\Payments\BillingDescriptor;
 
 /**
  * Class MotoMethod
@@ -95,7 +96,7 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
      * @var Config
      */
     public $config;
-    
+
     /**
      * MotoMethod constructor.
      */
