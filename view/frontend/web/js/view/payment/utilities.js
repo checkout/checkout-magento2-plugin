@@ -71,8 +71,8 @@ define(
                 var billingAddress = Quote.billingAddress();
                 if (billingAddress) {
                     name = {
-                            first_name: billingAddress.firstname,
-                            last_name: billingAddress.lastname
+                        first_name: billingAddress.firstname,
+                        last_name: billingAddress.lastname
                     };
 
                     if (!obj) {

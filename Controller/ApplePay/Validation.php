@@ -99,7 +99,8 @@ class Validation extends \Magento\Framework\App\Action\Action
      *
      * @return array
      */
-    public function buildDataString($params) {
+    public function buildDataString($params)
+    {
         return '{"merchantIdentifier":"'
             . $params['merchantId']
             .'", "domainName":"'

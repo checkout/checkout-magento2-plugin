@@ -434,8 +434,7 @@ class TransactionHandlerService
         try {
             if (isset($this->paymentData['data']['action_id'])) {
                 return $this->paymentData['data']['action_id'];
-            }
-            else if (isset($this->paymentData['action_id'])) {
+            } elseif (isset($this->paymentData['action_id'])) {
                 return $this->paymentData['action_id'];
             }
 
