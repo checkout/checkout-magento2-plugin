@@ -226,7 +226,11 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     {
         try {
             if ($this->isCardToken()) {
-                return new TokenSource($this->params['ckoCardToken']);
+                $tokenSource = new TokenSource($this->params['ckoCardToken']);
+                $tokenSource->billing_address = $this->apiHandler->init()
+                    ->createBillingAddress($this->order);
+
+                return $tokenSource;
             } elseif ($this->isSavedCard()) {
                 $card = $this->vaultHandler->getCardFromHash(
                     $this->params['publicHash'],

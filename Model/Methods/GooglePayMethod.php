@@ -186,7 +186,9 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Create the Apple Pay token source
             $tokenSource = new TokenSource($tokenData->getId());
-
+            $tokenSource->billing_address = $this->apiHandler->init()
+                ->createBillingAddress($this->quoteHandler->getQuote());
+                
             // Set the payment
             $request = new Payment(
                 $tokenSource,
