@@ -69,7 +69,7 @@ class Logger
             $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/checkoutcom_magento2.log');
             $logger = new \Zend\Log\Logger();
             $logger->addWriter($writer);
-            $logger->info(json_encode($msg));
+            $logger->info(json_encode($msg, JSON_PRETTY_PRINT));
         }
     }
 
@@ -93,7 +93,7 @@ class Logger
         );
 
         if ($debug && $gatewayResponses) {
-            $output = json_encode($response);
+            $output = json_encode($response, JSON_PRETTY_PRINT);
             $this->messageManager->addComplexSuccessMessage(
                 'ckoMessages',
                 ['output' => $output]
