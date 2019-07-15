@@ -213,7 +213,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 );
 
                 // Send the charge request
-                $response = $this->apiHandler
+                $response = $this->apiHandler->init()
                                  ->checkoutApi
                                  ->payments()->request($payment);
 
