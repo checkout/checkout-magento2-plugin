@@ -23,6 +23,7 @@ use \Checkout\Models\Payments\Voids;
 use \Checkout\Models\Payments\Customer;
 use \Checkout\Models\Address;
 use \Checkout\Models\Payments\Shipping;
+use \Checkout\Models\Phone;
 
 /**
  * Class ApiHandlerService.
@@ -234,7 +235,11 @@ class ApiHandlerService
             $address->zip = $shippingAddress->getPostcode();
             $address->country = $shippingAddress->getCountry();
 
-            return new Shipping($address);
+            // Create the phone
+            $phone = new Phone();
+            $phone->number = $shippingAddress->getTelephone();
+            
+            return new Shipping($address, $phone);
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
