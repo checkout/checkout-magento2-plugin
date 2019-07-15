@@ -95,8 +95,7 @@ class Logger
         if ($debug && $gatewayResponses) {
             // Prepare the output
             $output = json_encode(
-                json_decode($response),
-                JSON_PRETTY_PRINT
+                json_decode($response, JSON_PRETTY_PRINT)
             );
 
             // Display the content
