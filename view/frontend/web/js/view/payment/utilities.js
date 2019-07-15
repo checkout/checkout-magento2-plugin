@@ -67,22 +67,15 @@ define(
              * @param  {bool} return in object format.
              * @return {mixed}  The billing address.
              */
-            getCustomerName: function (obj = false) {
+            getCustomerName: function () {
                 var billingAddress = Quote.billingAddress();
+                var customerName = '';
                 if (billingAddress) {
-                    name = {
-                        first_name: billingAddress.firstname,
-                        last_name: billingAddress.lastname
-                    };
-
-                    if (!obj) {
-                        name = name.first_name + ' ' + name.last_name
-                    }
-
-                    return name;
+                    customerName += billingAddress.firstname;
+                    customerName += ' ' + billingAddress.lastname;
                 }
 
-                return null;
+                return customerName;
             },
 
             /**
