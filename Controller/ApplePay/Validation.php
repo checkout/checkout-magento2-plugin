@@ -23,9 +23,9 @@ namespace CheckoutCom\Magento2\Controller\ApplePay;
 class Validation extends \Magento\Framework\App\Action\Action
 {
     /**
-     * @var JsonFactory
+     * @var RawFactory
      */
-    public $jsonFactory;
+    public $rawFactory;
 
     /**
      * @var Curl
@@ -47,14 +47,14 @@ class Validation extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
+        \Magento\Framework\Controller\Result\RawFactory $rawFactory,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \CheckoutCom\Magento2\Helper\Logger $logger,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         parent::__construct($context);
 
-        $this->jsonFactory = $jsonFactory;
+        $this->rawFactory = $rawFactory;
         $this->curl = $curl;
         $this->logger = $logger;
         $this->config = $config;
@@ -88,7 +88,9 @@ class Validation extends \Magento\Framework\App\Action\Action
             $this->curl->post($this->url, []);
 
             // Return the response
-            print $this->curl->getBody();
+            return $this->rawFactory->create()->setContents(
+                $this->curl->getBody()
+            );
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
