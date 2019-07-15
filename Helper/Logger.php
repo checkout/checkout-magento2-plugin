@@ -93,12 +93,7 @@ class Logger
         );
 
         if ($debug && $gatewayResponses) {
-            // Prepare the output
-            $output = json_encode(
-                json_decode($response, JSON_PRETTY_PRINT)
-            );
-
-            // Display the content
+            $output = json_encode($response);
             $this->messageManager->addComplexSuccessMessage(
                 'ckoMessages',
                 ['output' => $output]
