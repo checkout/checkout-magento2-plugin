@@ -28,17 +28,17 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var VaultHandlerService
      */
-    protected $vaultHandlerService;
+    public $vaultHandlerService;
 
     /**
      * ConfigProvider constructor.
@@ -72,7 +72,7 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
      *
      * @return array
      */
-    protected function getConfigArray()
+    public function getConfigArray()
     {
         return array_merge(
             $this->config->getModuleConfig(),

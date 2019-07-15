@@ -68,17 +68,21 @@ define(
              * @return {mixed}  The billing address.
              */
             getCustomerName: function (obj = false) {
-                var billingAddress = Quote.billingAddress(),
+                var billingAddress = Quote.billingAddress();
+                if (billingAddress) {
                     name = {
                         first_name: billingAddress.firstname,
                         last_name: billingAddress.lastname
-                };
+                    };
 
-                if (!obj) {
-                    name = name.first_name + ' ' + name.last_name
+                    if (!obj) {
+                        name = name.first_name + ' ' + name.last_name
+                    }
+
+                    return name;
                 }
 
-                return name;
+                return null;
             },
 
             /**
@@ -183,29 +187,27 @@ define(
                 FullScreenLoader.startLoader();
 
                 // Send the request
-                $.ajax(
-                    {
-                        type: 'POST',
-                        url: self.getUrl('payment/placeorder'),
-                        data: payload,
-                        success: function (data) {
-                            if (!data.success) {
-                                FullScreenLoader.stopLoader();
-                                self.showMessage('error', data.message, methodId);
-                            } else if (data.success && data.url) {
-                                // Handle 3DS redirection
-                                window.location.href = data.url
-                            } else {
-                                // Normal redirection
-                                RedirectOnSuccessAction.execute();
-                            }
-                        },
-                        error: function (request, status, error) {
-                            self.showMessage('error', error, methodId);
+                $.ajax({
+                    type: 'POST',
+                    url: self.getUrl('payment/placeorder'),
+                    data: payload,
+                    success: function (data) {
+                        if (!data.success) {
                             FullScreenLoader.stopLoader();
+                            self.showMessage('error', data.message, methodId);
+                        } else if (data.success && data.url) {
+                            // Handle 3DS redirection
+                            window.location.href = data.url
+                        } else {
+                            // Normal redirection
+                            RedirectOnSuccessAction.execute();
                         }
+                    },
+                    error: function (request, status, error) {
+                        self.showMessage('error', error, methodId);
+                        FullScreenLoader.stopLoader();
                     }
-                );
+                });
             }
         };
     }

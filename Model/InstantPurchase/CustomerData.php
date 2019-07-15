@@ -35,7 +35,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * @var Session
      */
-    protected $customerSession;
+    public $customerSession;
 
     /**
      * @var CustomerAddressesFormatter
@@ -65,7 +65,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * InstantPurchase constructor.
@@ -142,7 +142,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * Prepare the data needed for instant purchase
      */
-    protected function prepareData()
+    public function prepareData()
     {
         try {
             // Get the  payment token
@@ -165,7 +165,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * Load the instant purchase option
      */
-    protected function loadOption()
+    public function loadOption()
     {
         try {
             return $this->instantPurchase->getOption(
@@ -181,7 +181,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * Checks if the instant purchase option is available
      */
-    protected function isAvailable()
+    public function isAvailable()
     {
         return $this->availabilityChecker->isAvailable();
     }
@@ -189,7 +189,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * Checks if the instant purchase option can be displayed
      */
-    protected function canDisplay()
+    public function canDisplay()
     {
         return $this->customerSession->isLoggedIn()
         && !empty($this->paymentToken)

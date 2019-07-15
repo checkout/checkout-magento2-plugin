@@ -25,62 +25,62 @@ class OrderHandlerService
     /**
      * @var Session
      */
-    protected $checkoutSession;
+    public $checkoutSession;
 
     /**
      * @var Session
      */
-    protected $customerSession;
+    public $customerSession;
 
     /**
      * @var OrderInterface
      */
-    protected $orderInterface;
+    public $orderInterface;
 
     /**
      * @var QuoteManagement
      */
-    protected $quoteManagement;
+    public $quoteManagement;
 
     /**
      * @var OrderRepositoryInterface
      */
-    protected $orderRepository;
+    public $orderRepository;
 
     /**
      * @var SearchCriteriaBuilder
      */
-    protected $searchBuilder;
+    public $searchBuilder;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var TransactionHandlerService
      */
-    protected $transactionHandler;
+    public $transactionHandler;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var String
      */
-    protected $methodId;
+    public $methodId;
 
     /**
      * @var Array
      */
-    protected $paymentData;
+    public $paymentData;
 
     /**
      * OrderHandler constructor
@@ -215,7 +215,8 @@ class OrderHandlerService
             // Get the resulting order
             $order = $this->orderRepository
                 ->getList($search)
-                ->getFirstItem();
+                ->setPageSize(1)
+                ->getLastItem();
 
             return $order;
         } catch (\Exception $e) {

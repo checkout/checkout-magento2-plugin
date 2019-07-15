@@ -35,7 +35,8 @@ Users can place orders with a website administrator using the MOTO (Mail Order T
 The Checkout.com extension for Magento 2 supports VISA, Mastercard, American Express, Discover, Diners Club, JCB, in addition to the Alternative Payment options described above.
 
 ## Compatibility
-The Checkout.com extension for Magento 2 is compatible with Magento 2.1.0 to 2.3.x.
+The Checkout.com extension for Magento 2 is compatible with Magento 2.2.0 and above.
+The introduction of the Instant Purchase feature breaks compatibility with the Magento 2.1.x series. In order to use this extension, you have to be at least on Magento 2.2.0. If you are willing to use the Checkout.com Magento 2 extension on Magento 2.1.x, please use [Checkout.com Magento 2 version 1.0.51](https://github.com/checkout/checkout-magento2-plugin/tree/classic-1.0.51 "Checkout.com Magento 2 version 1.0.51")
 
 ## Features
 The Checkout.com extension for Magento 2 offers useful and unique features, allowing Magento 2 shop owners to process online payments in the best conditions. These features have been designed to offer an optimal shopping and payment experience to Magento 2 merchants and shoppers.

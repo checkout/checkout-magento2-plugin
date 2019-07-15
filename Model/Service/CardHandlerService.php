@@ -25,7 +25,7 @@ class CardHandlerService
     /**
      * @var array
      */
-    protected static $cardMapper = [
+    public static $cardMapper = [
         'VI' => 'Visa',
         'MC' => 'Mastercard',
         'AE' => 'American Express',
@@ -37,27 +37,27 @@ class CardHandlerService
     /**
      * @var Repository
      */
-    protected $assetRepository;
+    public $assetRepository;
 
     /**
      * @var Reader
      */
-    protected $directoryReader;
+    public $directoryReader;
 
     /**
      * @var Csv
      */
-    protected $csvParser;
+    public $csvParser;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * CardHandlerService constructor.

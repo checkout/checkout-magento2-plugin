@@ -20,6 +20,7 @@ namespace CheckoutCom\Magento2\Controller\Api;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
+use Magento\Checkout\Model\Type\Onepage;
 
 /**
  * Class V1
@@ -27,29 +28,47 @@ use Magento\Framework\Webapi\Rest\Response as WebResponse;
 class V1 extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var CustomerRepositoryInterface
+     */
+    public $customerRepository;
+
+    /**
+     * @var QuoteManagement
+     */
+    public $quoteManagement;
+
+    /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
+
+    /**
+     * @var QuoteHandlerService
+     */
+    public $quoteHandler;
 
     /**
      * Callback constructor
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
+        \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     ) {
         parent::__construct($context);
+        $this->customerRepository  = $customerRepository;
+        $this->quoteManagement = $quoteManagement;
         $this->config = $config;
         $this->logger = $logger;
-
-        // Set the payload data
-        $this->payload = $this->getPayload();
+        $this->quoteHandler = $quoteHandler;
     }
 
     /**
@@ -58,13 +77,37 @@ class V1 extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         try {
+            // Set the payload data
+            $this->getPayload();
+
             // Prepare the response handler
             $resultFactory = $this->resultFactory->create(ResultFactory::TYPE_JSON);
 
             // Process the request
             if ($this->config->isValidAuth()) {
+                // Create the quote
+                $quote = $this->quoteHandler->createQuote(
+                    $this->data->currency,
+                    $this->getCustomer()
+                );
+
+                // Add the products
+                $quote = $this->quoteHandler->addItems(
+                    $quote,
+                    $this->data
+                );
+
+                // Inventory
+                $quote->setInventoryProcessed(false);
+
+                // Create the order
+                $order = $this->quoteManagement->submit($quote);
+
                 // Set a valid response
                 $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
+
+                // Return the order id
+                return $order->getId();
             } else {
                 $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
             }
@@ -80,8 +123,30 @@ class V1 extends \Magento\Framework\App\Action\Action
      *
      * @return string
      */
-    protected function getPayload()
+    public function getPayload()
     {
-        return json_decode($this->getRequest()->getContent());
+        $this->data = json_decode($this->getRequest()->getContent());
+    }
+
+    /**
+     * Load a customer
+     *
+     * @return string
+     */
+    public function getCustomer()
+    {
+        try {
+            if (isset($this->payload->customer->id) && (int) $this->payload->customer->id > 0) {
+                return $this->customerRepository->getById($this->payload->customer->id);
+            } elseif (isset($this->payload->customer->email)) {
+                return $this->customerRepository->get($this->payload->customer->email);
+            } else {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('A valid customer ID or email is required to place an order.')
+                );
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        }
     }
 }

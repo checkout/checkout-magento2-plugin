@@ -32,22 +32,22 @@ class ShopperHandlerService
     /**
      * @var Session
      */
-    protected $customerSession;
+    public $customerSession;
 
     /**
      * @var CustomerRepositoryInterface
      */
-    protected $customerRepository;
+    public $customerRepository;
 
     /**
      * @var Resolver
      */
-    protected $localeResolver;
+    public $localeResolver;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * ShopperHandlerService constructor

@@ -27,47 +27,47 @@ class QuoteHandlerService
     /**
      * @var Session
      */
-    protected $checkoutSession;
+    public $checkoutSession;
 
     /**
      * @var Session
      */
-    protected $customerSession;
+    public $customerSession;
 
     /**
      * @var CookieManagerInterface
      */
-    protected $cookieManager;
+    public $cookieManager;
 
     /**
      * @var QuoteFactory
      */
-    protected $quoteFactory;
+    public $quoteFactory;
 
     /**
      * @var StoreManagerInterface
      */
-    protected $storeManager;
+    public $storeManager;
 
     /**
      * @var ProductRepositoryInterface
      */
-    protected $productRepository;
+    public $productRepository;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var ShopperHandlerService
      */
-    protected $shopperHandler;
+    public $shopperHandler;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * QuoteHandlerService constructor
@@ -100,7 +100,7 @@ class QuoteHandlerService
     public function getQuote($fields = [])
     {
         try {
-            if (count($fields) > 0) {
+            if (!empty($fields)) {
                 // Get the quote factory
                 $quoteFactory = $this->quoteFactory
                     ->create()
@@ -115,7 +115,9 @@ class QuoteHandlerService
                 }
 
                 // Return the first result found
-                return $quoteFactory->getFirstItem();
+                return $quoteFactory
+                    ->setPageSize(1)
+                    ->getLastItem();
             } else {
                 // Try to find the quote in session
                 return $this->checkoutSession->getQuote();
@@ -129,16 +131,26 @@ class QuoteHandlerService
     /**
      * Create a new quote
      */
-    public function createQuote()
+    public function createQuote($currency = null, $customer = null)
     {
         try {
             // Create the quote instance
             $quote = $this->quoteFactory->create();
             $quote->setStore($this->storeManager->getStore());
-            $quote->setCurrency();
+
+            // Set the currency
+            if ($currency) {
+                $quote->setCurrency($currency);
+            } else {
+                $quote->setCurrency();
+            }
 
             // Set the quote customer
-            $quote->assignCustomer($this->shopperHandler->getCustomerData());
+            if ($customer) {
+                $quote->assignCustomer($customer);
+            } else {
+                $quote->assignCustomer($this->shopperHandler->getCustomerData());
+            }
 
             return $quote;
         } catch (\Exception $e) {
@@ -285,8 +297,9 @@ class QuoteHandlerService
     public function getQuoteCurrency()
     {
         try {
-            return $this->getQuote()->getQuoteCurrencyCode()
-            ?? $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+            $quoteCurrencyCode = $this->getQuote()->getQuoteCurrencyCode();
+            $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+            return ($quoteCurrencyCode) ? $quoteCurrencyCode : $storeCurrencyCode;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
@@ -312,9 +325,10 @@ class QuoteHandlerService
     /**
      * Add product items to a quote
      */
-    public function addItems($quote, $items)
+    public function addItems($quote, $data)
     {
         try {
+            $items = $this->buildProductData($data);
             foreach ($items as $item) {
                 if (isset($item['product_id']) && (int) $item['product_id'] > 0) {
                     // Load the product
@@ -337,6 +351,32 @@ class QuoteHandlerService
             $this->logger->write($e->getMessage());
         } finally {
             return $quote;
+        }
+    }
+
+    /**
+     * Creates a formatted array with the purchased product data.
+     *
+     * @return array
+     */
+    public function buildProductData($data)
+    {
+        try {
+            // Prepare the base array
+            $output =[
+                'product_id' => $data['product'],
+                'qty' => $data['qty']
+            ];
+
+            // Add product variations
+            if (isset($data['super_attribute']) && !empty($data['super_attribute'])) {
+                $output['super_attribute'] = $data['super_attribute'];
+            }
+
+            return [$output];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return [];
         }
     }
 

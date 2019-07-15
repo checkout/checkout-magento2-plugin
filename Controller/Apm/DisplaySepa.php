@@ -32,52 +32,52 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
     /**
      * @var Context
      */
-    protected $context;
+    public $context;
 
     /**
      * @var PageFactory
      */
-    protected $pageFactory;
+    public $pageFactory;
 
     /**
      * @var JsonFactory
      */
-    protected $jsonFactory;
+    public $jsonFactory;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var CheckoutApi
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var Quote
      */
-    protected $quote;
+    public $quote;
 
     /**
      * @var Address
      */
-    protected $billingAddress;
+    public $billingAddress;
 
     /**
      * @var Store
      */
-    protected $store;
+    public $store;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * Display constructor
@@ -90,7 +90,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Store\Model\Information $storeManager,
-        \Magento\Store\Model\Store $store,
+        \Magento\Store\Model\Store $storeModel,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
@@ -100,18 +100,9 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
+        $this->storeManager = $storeManager;
+        $this->storeModel = $storeModel;
         $this->logger = $logger;
-
-        // Get the request parameters
-        $this->source = $this->getRequest()->getParam('source');
-        $this->task = $this->getRequest()->getParam('task');
-        $this->bic = $this->getRequest()->getParam('bic');
-        $this->account_iban = $this->getRequest()->getParam('account_iban');
-
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
-        $this->billingAddress = $quoteHandler->getBillingAddress();
-        $this->store = $storeManager->getStoreInformationObject($store);
     }
 
     /**
@@ -123,6 +114,17 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         $html = '';
 
         try {
+            // Get the request parameters
+            $this->source = $this->getRequest()->getParam('source');
+            $this->task = $this->getRequest()->getParam('task');
+            $this->bic = $this->getRequest()->getParam('bic');
+            $this->account_iban = $this->getRequest()->getParam('account_iban');
+
+            // Try to load a quote
+            $this->quote = $this->quoteHandler->getQuote();
+            $this->billingAddress = $this->quoteHandler->getBillingAddress();
+            $this->store = $this->storeManager->getStoreInformationObject($this->storeModel);
+
             // Run the requested task
             if ($this->isValidRequest()) {
                 $html = $this->runTask();
@@ -141,7 +143,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return boolean
      */
-    protected function isValidRequest()
+    public function isValidRequest()
     {
         try {
             return $this->getRequest()->isAjax()
@@ -158,7 +160,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return boolean
      */
-    protected function isValidTask()
+    public function isValidTask()
     {
         try {
             return method_exists($this, $this->buildMethodName());
@@ -173,7 +175,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return string
      */
-    protected function runTask()
+    public function runTask()
     {
         try {
             $methodName = $this->buildMethodName();
@@ -189,7 +191,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return string
      */
-    protected function buildMethodName()
+    public function buildMethodName()
     {
         try {
             return 'get' . ucfirst($this->task);
@@ -204,7 +206,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return boolean
      */
-    protected function isValidApm()
+    public function isValidApm()
     {
         try {
             // Get the list of APM
@@ -226,7 +228,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return string
      */
-    protected function loadBlock($reference, $url)
+    public function loadBlock($reference, $url)
     {
         try {
             return $this->pageFactory->create()->getLayout()
@@ -250,7 +252,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      */
     public function getMandate()
     {
-        $html = ''; // @todo: return error message in HTML
+        $html = '';
 
         try {
             $sepa = $this->requestSepa();
@@ -269,7 +271,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return Sepa
      */
-    protected function requestSepa()
+    public function requestSepa()
     {
         $sepa = null;
         try {
@@ -296,7 +298,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
 
             // Build and addthe source
             $source = new Sepa($address, $data);
-            $sepa = $this->apiHandler->checkoutApi
+            $sepa = $this->apiHandler->init()->checkoutApi
                 ->sources()
                 ->add($source);
         } catch (\Exception $e) {

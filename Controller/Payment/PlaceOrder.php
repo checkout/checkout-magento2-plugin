@@ -28,67 +28,67 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var OrderHandlerService
      */
-    protected $orderHandler;
+    public $orderHandler;
 
     /**
      * @var MethodHandlerService
      */
-    protected $methodHandler;
+    public $methodHandler;
 
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var JsonFactory
      */
-    protected $jsonFactory;
+    public $jsonFactory;
 
     /**
      * @var Session
      */
-    protected $checkoutSession;
+    public $checkoutSession;
 
     /**
      * @var Utilities
      */
-    protected $utilities;
+    public $utilities;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var String
      */
-    protected $methodId;
+    public $methodId;
 
     /**
      * @var array
      */
-    protected $data;
+    public $data;
 
     /**
      * @var String
      */
-    protected $cardToken;
+    public $cardToken;
 
     /**
      * @var Quote
      */
-    protected $quote;
+    public $quote;
 
     /**
      * PlaceOrder constructor
@@ -116,13 +116,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->utilities = $utilities;
         $this->config = $config;
         $this->logger = $logger;
-
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
-
-        // Set some required properties
-        $this->data = $this->getRequest()->getParams();
-        $this->methodId = $this->data['methodId'];
     }
 
     /**
@@ -138,6 +131,12 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $success = false;
 
         try {
+            // Try to load a quote
+            $this->quote = $this->quoteHandler->getQuote();
+
+            // Set some required properties
+            $this->data = $this->getRequest()->getParams();
+
             // Process the request
             if ($this->getRequest()->isAjax() && $this->quote) {
                 // Get response and success
@@ -147,7 +146,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 $this->logger->display($response);
 
                 // Check success
-                if ($this->apiHandler->isValidResponse($response)) {
+                if ($this->apiHandler->init()->isValidResponse($response)) {
                     $success = $response->isSuccessful();
                     $url = $response->getRedirection();
                     if ($this->canPlaceOrder($response)) {
@@ -179,12 +178,12 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return Response
      */
-    protected function requestPayment()
+    public function requestPayment()
     {
         try {
             // Send the charge request
             return $this->methodHandler
-                ->get($this->methodId)
+                ->get($this->data['methodId'])
                 ->sendPaymentRequest(
                     $this->data,
                     $this->quote->getGrandTotal(),
@@ -204,7 +203,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return boolean
      */
-    protected function canPlaceOrder($response)
+    public function canPlaceOrder($response)
     {
         return !$response->isPending() || $this->data['source'] === 'sepa' || $this->data['source'] === 'fawry';
     }
@@ -216,7 +215,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return void
      */
-    protected function placeOrder($response = null)
+    public function placeOrder($response = null)
     {
         try {
             // Get the reserved order increment id
@@ -225,7 +224,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
             // Create an order
             $order = $this->orderHandler
-                ->setMethodId($this->methodId)
+                ->setMethodId($this->data['methodId'])
                 ->handleOrder($response, $reservedIncrementId);
 
             // Add the payment info to the order
@@ -254,16 +253,16 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return void
      */
-    protected function cancelPayment($response)
+    public function cancelPayment($response)
     {
         try {
-            // refund or void accordingly
-            if ($this->config->needsAutoCapture($this->methodId)) {
-                //refund
-                $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
+            // Refund or void accordingly
+            if ($this->config->needsAutoCapture($this->data['methodId'])) {
+                // Refund
+                $this->apiHandler->init()->checkoutApi->payments()->refund(new Refund($response->getId()));
             } else {
-                //void
-                $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
+                // Void
+                $this->apiHandler->init()->checkoutApi->payments()->void(new Voids($response->getId()));
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

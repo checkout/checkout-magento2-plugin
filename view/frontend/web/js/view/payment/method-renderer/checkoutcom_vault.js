@@ -8,12 +8,8 @@ define(
         'mage/translate'
     ],
     function ($, Component, Utilities, AdditionalValidators, FullScreenLoader, __) {
-
         'use strict';
-
-        // Fix billing address missing.
         window.checkoutConfig.reloadOnBillingAddress = true;
-
         const METHOD_ID = 'checkoutcom_vault';
 
         return Component.extend(
@@ -71,7 +67,7 @@ define(
                  * @returns {bool}
                  */
                 isCvvRequired: function () {
-                    return this.getValue('require_cvv');
+                    return JSON.parse(this.getValue('require_cvv'));
                 },
 
                 /**
@@ -106,7 +102,13 @@ define(
                  * @returns {bool}
                  */
                 canEnableButton: function () {
-                    return !this.isCvvRequired() || (this.isCvvRequired() && this.isCvvValid());
+                    if (this.getActiveRow().length) {
+                        if (!this.isCvvRequired() || (this.isCvvRequired() && this.isCvvValid())) {
+                            return true;
+                        }
+                    }
+
+                    return false;
                 },
 
                 /**
@@ -228,7 +230,8 @@ define(
                         // Prepare the payload
                         var payload = {
                             methodId: METHOD_ID,
-                            publicHash: self.getPublicHash()
+                            publicHash: self.getPublicHash(),
+                            source: METHOD_ID
                         }
 
                         // Add the CVV to the payload if needed

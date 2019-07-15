@@ -37,12 +37,12 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     /**
      * @var JsonFactory
      */
-    protected $jsonFactory;
+    public $jsonFactory;
 
     /**
      * @var Product
      */
-    protected $productModel;
+    public $productModel;
 
     /**
      * @var ShippingConfiguration
@@ -52,42 +52,42 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     /**
      * @var Address
      */
-    protected $addressManager;
+    public $addressManager;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var OrderHandlerService
      */
-    protected $orderHandler;
+    public $orderHandler;
 
     /**
      * @var MethodHandlerService
      */
-    protected $methodHandler;
+    public $methodHandler;
 
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var Utilities
      */
-    protected $utilities;
+    public $utilities;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var ShippingSelector
      */
-    protected $shippingSelector;
+    public $shippingSelector;
 
     /**
      * PlaceOrder constructor
@@ -149,7 +149,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $quote = $this->quoteHandler->createQuote();
             $quote = $this->quoteHandler->addItems(
                 $quote,
-                $this->buildProductData()
+                $this->data
             );
 
             // Set the billing address
@@ -190,7 +190,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 );
 
             // Process a successful response
-            if ($this->apiHandler->isValidResponse($response)) {
+            if ($this->apiHandler->init()->isValidResponse($response)) {
                 // Create the order
                 $order = $this->placeOrder($quote, $response);
 
@@ -218,7 +218,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return void
      */
-    protected function placeOrder($quote, $response = null)
+    public function placeOrder($quote, $response = null)
     {
         try {
             // Get the reserved order increment id
@@ -250,37 +250,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Creates a formatted array with the purchased product data.
-     *
-     * @return array
-     */
-    protected function buildProductData()
-    {
-        try {
-            // Prepare the base array
-            $output =[
-                'product_id' => $this->data['product'],
-                'qty' => $this->data['qty']
-            ];
-
-            // Add product variations
-            if (isset($this->data['super_attribute']) && !empty($this->data['super_attribute'])) {
-                $output['super_attribute'] = $this->data['super_attribute'];
-            }
-
-            return [$output];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return [];
-        }
-    }
-
-    /**
      * Creates response with the operation status message.
      *
      * @return array
      */
-    protected function createResponse(string $message, bool $successMessage)
+    public function createResponse(string $message, bool $successMessage)
     {
         // Prepare the result
         $result = $this->jsonFactory->create()->setData(
@@ -304,16 +278,16 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return void
      */
-    protected function cancelPayment($response)
+    public function cancelPayment($response)
     {
         try {
-            // refund or void accordingly
+            // Refund or void accordingly
             if ($this->config->needsAutoCapture($this->methodId)) {
-                //refund
-                $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
+                // Refund
+                $this->apiHandler->init()->checkoutApi->payments()->refund(new Refund($response->getId()));
             } else {
-                //void
-                $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
+                // Void
+                $this->apiHandler->init()->checkoutApi->payments()->void(new Voids($response->getId()));
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

@@ -26,22 +26,22 @@ class SaveCard extends \Magento\Framework\App\Action\Action
     /**
      * @var JsonFactory
      */
-    protected $jsonFactory;
+    public $jsonFactory;
 
     /**
      * @var UrlInterface
      */
-    protected $urlInterface;
+    public $urlInterface;
 
     /**
      * @var VaultHandlerService
      */
-    protected $vaultHandler;
+    public $vaultHandler;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * SaveCard constructor.

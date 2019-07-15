@@ -23,38 +23,41 @@ namespace CheckoutCom\Magento2\Controller\ApplePay;
 class Validation extends \Magento\Framework\App\Action\Action
 {
     /**
-     * @var JsonFactory
+     * @var RawFactory
      */
-    protected $jsonFactory;
+    public $rawFactory;
 
     /**
      * @var Curl
      */
-    protected $curl;
+    public $curl;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
+
+    /**
+     * @var Config
+     */
+    public $config;
 
     /**
      * Validation constructor.
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
+        \Magento\Framework\Controller\Result\RawFactory $rawFactory,
         \Magento\Framework\HTTP\Client\Curl $curl,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         parent::__construct($context);
 
-        $this->jsonFactory = $jsonFactory;
-        $this->logger = $logger;
+        $this->rawFactory = $rawFactory;
         $this->curl = $curl;
-
-        // Get request parameters
-        $this->methodId = $this->getRequest()->getParam('method_id');
-        $this->url = $this->getRequest()->getParam('u');
+        $this->logger = $logger;
+        $this->config = $config;
     }
 
     /**
@@ -65,42 +68,52 @@ class Validation extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         try {
-            // Process the call after check
-            if ($this->getRequest()->isAjax()) {
-                // Prepare the configuration parameters
-                $params = $this->getParams();
+            // Get request parameters
+            $this->methodId = $this->getRequest()->getParam('method_id');
+            $this->url = $this->getRequest()->getParam('u');
 
-                // Prepare the data
-                $data = '{"merchantIdentifier":"'
-                . $params['merchantId']
-                .'", "domainName":"'
-                . $params['domainName']
-                .'", "displayName":"'
-                . $params['displayName']
-                .'"}';
+            // Prepare the configuration parameters
+            $params = $this->getParams();
 
-                // Initialize the request
-                $this->curl->curlOptions([
-                    CURLOPT_SSLCERT => $params['merchantCertificate'],
-                    CURLOPT_SSLKEY => $params['processingCertificate'],
-                    CURLOPT_SSLKEYPASSWD => $params['processingCertificatePass'],
-                    CURLOPT_POSTFIELDS => $data,
-                    CURLOPT_RETURNTRANSFER => true
-                ]);
+            // Prepare the data
+            $data = $this->buildDataString($params);
 
-                // Send the request
-                $this->curl->post($this->url, []);
+            // Initialize the request
+            $this->curl->setOption(CURLOPT_SSLCERT, $params['merchantCertificate']);
+            $this->curl->setOption(CURLOPT_SSLKEY, $params['processingCertificate']);
+            $this->curl->setOption(CURLOPT_SSLKEYPASSWD, $params['processingCertificatePass']);
+            $this->curl->setOption(CURLOPT_POSTFIELDS, $data);
 
-                // Return the response
-                return $this->curl->getBody();
-            }
+            // Send the request
+            $this->curl->post($this->url, []);
+
+            // Return the response
+            return $this->rawFactory->create()->setContents(
+                $this->curl->getBody()
+            );
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
     }
 
     /**
-     * Prepare the Apple Pay request parameters.
+     * Build the Apple Pay data string
+     *
+     * @return array
+     */
+    public function buildDataString($params)
+    {
+        return '{"merchantIdentifier":"'
+            . $params['merchantId']
+            .'", "domainName":"'
+            . $params['domainName']
+            .'", "displayName":"'
+            . $params['displayName']
+            .'"}';
+    }
+
+    /**
+     * Prepare the Apple Pay request parameters
      *
      * @return array
      */
@@ -129,7 +142,7 @@ class Validation extends \Magento\Framework\App\Action\Action
             ];
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
-            return [];
+            return $this->jsonFactory->create()->setData([]);
         }
     }
 }

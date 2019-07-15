@@ -8,12 +8,8 @@ define(
         'framesjs'
     ],
     function ($, Component, Utilities, AdditionalValidators, Customer) {
-
         'use strict';
-
-        // Fix billing address missing.
         window.checkoutConfig.reloadOnBillingAddress = true;
-
         const METHOD_ID = 'checkoutcom_card_payment';
 
         return Component.extend(

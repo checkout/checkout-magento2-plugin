@@ -21,6 +21,7 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
+use \Checkout\Models\Payments\BillingDescriptor;
 
 /**
  * Class OrderSaveBefore.
@@ -33,14 +34,9 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     protected $backendAuthSession;
 
     /**
-     * @var Http
+     * @var RequestInterface
      */
     protected $request;
-
-    /**
-     * @var RemoteAddress
-     */
-    protected $remoteAddress;
 
     /**
      * @var ManagerInterface
@@ -102,8 +98,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      */
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Framework\App\Request\Http $request,
-        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
+        \Magento\Framework\App\RequestInterface $request,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
@@ -115,7 +110,6 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
-        $this->remoteAddress = $remoteAddress;
         $this->messageManager = $messageManager;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
@@ -124,9 +118,6 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         $this->config = $config;
         $this->utilities = $utilities;
         $this->logger = $logger;
-
-        // Get the request parameters
-        $this->params = $this->request->getParams();
     }
 
     /**
@@ -135,6 +126,9 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     public function execute(Observer $observer)
     {
         try {
+            // Get the request parameters
+            $this->params = $this->request->getParams();
+
             // Get the order
             $this->order = $observer->getEvent()->getOrder();
 
@@ -162,16 +156,22 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $request->capture = $this->config->needsAutoCapture($this->methodId);
                 $request->amount = $this->order->getGrandTotal()*100;
                 $request->reference = $this->order->getIncrementId();
-                $request->payment_ip = $this->remoteAddress->getRemoteAddress();
                 $request->payment_type = 'MOTO';
-                // Todo - add customer to the request
-                //$request->customer = $this->apiHandler->createCustomer($this->order);
+                $request->customer = $this->apiHandler->init()->createCustomer($this->order);
                 if ($captureDate) {
                     $request->capture_on = $this->config->getCaptureTime();
                 }
 
+                // Billing descriptor
+                if ($this->config->needsDynamicDescriptor()) {
+                    $request->billing_descriptor = new BillingDescriptor(
+                        $this->config->getValue('descriptor_name'),
+                        $this->config->getValue('descriptor_city')
+                    );
+                }
+
                 // Send the charge request
-                $response = $this->apiHandler->checkoutApi
+                $response = $this->apiHandler->init()->checkoutApi
                     ->payments()
                     ->request($request);
 
@@ -179,7 +179,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $this->logger->display($response);
 
                 // Add the response to the order
-                if ($this->apiHandler->isValidResponse($response)) {
+                if ($this->apiHandler->init()->isValidResponse($response)) {
                     $this->utilities->setPaymentData($this->order, $response);
                     $this->messageManager->addSuccessMessage(
                         __('The payment request was successfully processed.')

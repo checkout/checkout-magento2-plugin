@@ -30,59 +30,59 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     /**
      * @var Context
      */
-    protected $context;
+    public $context;
 
     /**
      * @var PageFactory
      */
-    protected $pageFactory;
+    public $pageFactory;
 
     /**
      * @var JsonFactory
      */
-    protected $jsonFactory;
+    public $jsonFactory;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var CheckoutApi
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var ShopperHandlerService
      */
-    protected $shopperHandler;
+    public $shopperHandler;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var Quote
      */
-    protected $quote;
+    public $quote;
 
     /**
      * @var Address
      */
-    protected $billingAddress;
+    public $billingAddress;
 
     /**
      * Locale code.
      *
      * @var string
      */
-    protected $locale;
+    public $locale;
 
     /**
      * Display constructor
@@ -105,11 +105,6 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         $this->quoteHandler = $quoteHandler;
         $this->shopperHandler = $shopperHandler;
         $this->logger = $logger;
-
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
-        $this->billingAddress = $quoteHandler->getBillingAddress();
-        $this->locale = str_replace('_', '-', $shopperHandler->getCustomerLocale());
     }
 
     /**
@@ -118,6 +113,12 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         try {
+            // Try to load a quote
+            $this->quote = $this->quoteHandler->getQuote();
+            $this->billingAddress = $this->quoteHandler->getBillingAddress();
+            $this->locale = str_replace('_', '-', $this->shopperHandler->getCustomerLocale());
+
+            // Get Klarna
             $klarna = $this->getKlarna();
 
             return $this->jsonFactory->create()
@@ -135,7 +136,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      *
      * @return array
      */
-    protected function getKlarna()
+    public function getKlarna()
     {
         // Prepare the output array
         $response = ['source' => false];
@@ -151,7 +152,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
                 $products
             );
 
-            $source = $this->apiHandler->checkoutApi->sources()->add($klarna);
+            $source = $this->apiHandler->init()->init()->checkoutApi->sources()->add($klarna);
 
             if ($source->isSuccessful()) {
                 $response['source'] = $source->getValues();
@@ -172,7 +173,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      *
      * @return array  The products.
      */
-    protected function getProducts(array &$response)
+    public function getProducts(array &$response)
     {
 
         $products = [];
@@ -205,7 +206,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      * @param array $products The products.
      * @return void
      */
-    protected function getShipping(array &$response, array &$products)
+    public function getShipping(array &$response, array &$products)
     {
 
         $shipping = $this->quote->getShippingAddress();

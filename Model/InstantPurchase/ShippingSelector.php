@@ -25,7 +25,7 @@ class ShippingSelector
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * ShippingSelector constructor.

@@ -17,14 +17,17 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use CheckoutCom\Magento2\Gateway\Config\Config;
+use \Checkout\Models\Tokens\ApplePay;
+use \Checkout\Models\Tokens\ApplePayHeader;
+use \Checkout\Models\Payments\Payment;
+use \Checkout\Models\Payments\TokenSource;
+use \Checkout\Models\Payments\BillingDescriptor;
 
 /**
  * Class ApplePayMethod
  */
 class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
-
     /**
      * @var string
      */
@@ -33,57 +36,72 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var string
      */
-    protected $_code = self::CODE;
+    public $_code = self::CODE;
 
     /**
      * @var bool
      */
-    protected $_canAuthorize = true;
+    public $_canAuthorize = true;
 
     /**
      * @var bool
      */
-    protected $_canCapture = true;
+    public $_canCapture = true;
 
     /**
      * @var bool
      */
-    protected $_canCancel = true;
+    public $_canCancel = true;
 
     /**
      * @var bool
      */
-    protected $_canCapturePartial = true;
+    public $_canCapturePartial = true;
 
     /**
      * @var bool
      */
-    protected $_canVoid = true;
+    public $_canVoid = true;
 
     /**
      * @var bool
      */
-    protected $_canUseInternal = false;
+    public $_canUseInternal = false;
 
     /**
      * @var bool
      */
-    protected $_canUseCheckout = true;
+    public $_canUseCheckout = true;
 
     /**
      * @var bool
      */
-    protected $_canRefund = true;
+    public $_canRefund = true;
 
     /**
      * @var bool
      */
-    protected $_canRefundInvoicePartial = true;
+    public $_canRefundInvoicePartial = true;
+
+    /**
+     * @var Config
+     */
+    public $config;
+
+    /**
+     * @var ApiHandlerService
+     */
+    public $apiHandler;
 
     /**
      * @var Logger
      */
-    protected $ckoLogger;
+    public $ckoLogger;
+
+    /**
+     * @var QuoteHandlerService
+     */
+    public $quoteHandler;
 
     /**
      * ApplePayMethod constructor.
@@ -109,10 +127,10 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Quote\Api\CartManagementInterface $quoteManagement,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Backend\Model\Session\Quote $sessionQuote,
-        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -143,12 +161,84 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
-        $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->ckoLogger          = $ckoLogger;
+        $this->quoteHandler       = $quoteHandler;
     }
-    
+
+    /**
+     * Send a charge request.
+     */
+    public function sendPaymentRequest($data, $amount, $currency, $reference = '')
+    {
+        try {
+            // Create the Apple Pay header
+            $applePayHeader = new ApplePayHeader(
+                $data['cardToken']['paymentData']['header']['transactionId'],
+                $data['cardToken']['paymentData']['header']['publicKeyHash'],
+                $data['cardToken']['paymentData']['header']['ephemeralPublicKey']
+            );
+
+            // Create the Apple Pay data instance
+            $applePayData = new ApplePay(
+                $data['cardToken']['paymentData']['version'],
+                $data['cardToken']['paymentData']['signature'],
+                $data['cardToken']['paymentData']['data'],
+                $applePayHeader
+            );
+
+            // Get the token data
+            $tokenData = $this->apiHandler->init()->checkoutApi
+                ->tokens()
+                ->request($applePayData);
+
+            // Create the Apple Pay token source
+            $tokenSource = new TokenSource($tokenData->getId());
+
+            // Set the payment
+            $request = new Payment(
+                $tokenSource,
+                $currency
+            );
+
+            // Prepare the metadata array
+            $request->metadata = ['methodId' => $this->_code];
+
+            // Prepare the capture date setting
+            $captureDate = $this->config->getCaptureTime($this->_code);
+
+            // Set the request parameters
+            $request->capture = $this->config->needsAutoCapture($this->_code);
+            $request->amount = $amount*100;
+            $request->reference = $reference;
+            $request->description = __('Payment request from %1', $this->config->getStoreName());
+            $request->customer = $this->apiHandler->init()->createCustomer($this->quoteHandler->getQuote());
+            $request->payment_type = 'Regular';
+            if ($captureDate) {
+                $request->capture_on = $this->config->getCaptureTime();
+            }
+
+            // Billing descriptor
+            if ($this->config->needsDynamicDescriptor()) {
+                $request->billing_descriptor = new BillingDescriptor(
+                    $this->config->getValue('descriptor_name'),
+                    $this->config->getValue('descriptor_city')
+                );
+            }
+            
+            // Send the charge request
+            $response = $this->apiHandler->init()->checkoutApi
+                ->payments()
+                ->request($request);
+            
+            return $response;
+        } catch (\Exception $e) {
+            $this->ckoLogger->write($e->getBody());
+            return null;
+        }
+    }
+
     /**
      * { function_description }
      *
@@ -170,8 +260,8 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the void request
-                $response = $this->apiHandler->voidOrder($payment);
-                if (!$this->apiHandler->isValidResponse($response)) {
+                $response = $this->apiHandler->init()->voidOrder($payment);
+                if (!$this->apiHandler->init()->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The void request could not be processed.')
                     );
@@ -181,7 +271,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $payment->setTransactionId($response->action_id);
             }
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;
         }
@@ -209,8 +299,8 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the refund request
-                $response = $this->apiHandler->refundOrder($payment, $amount);
-                if (!$this->apiHandler->isValidResponse($response)) {
+                $response = $this->apiHandler->init()->refundOrder($payment, $amount);
+                if (!$this->apiHandler->init()->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The refund request could not be processed.')
                     );
@@ -220,7 +310,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $payment->setTransactionId($response->action_id);
             }
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;
         }

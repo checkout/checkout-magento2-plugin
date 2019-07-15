@@ -25,17 +25,17 @@ class Utilities
     /**
      * @var UrlInterface
      */
-    protected $urlInterface;
+    public $urlInterface;
 
     /**
      * @var Session
      */
-    protected $customerSession;
+    public $customerSession;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * Utilities constructor.

@@ -20,6 +20,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
+use \Checkout\Models\Payments\BillingDescriptor;
 
 /**
  * Class VaultMethod.
@@ -34,82 +35,92 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var string
      */
-    protected $_code = self::CODE;
+    public $_code = self::CODE;
 
     /**
      * @var bool
      */
-    protected $_canAuthorize = true;
+    public $_canAuthorize = true;
 
     /**
      * @var bool
      */
-    protected $_canCapture = true;
+    public $_canCapture = true;
 
     /**
      * @var bool
      */
-    protected $_canCancel = true;
+    public $_canCancel = true;
 
     /**
      * @var bool
      */
-    protected $_canCapturePartial = true;
+    public $_canCapturePartial = true;
 
     /**
      * @var bool
      */
-    protected $_canVoid = true;
+    public $_canVoid = true;
 
     /**
      * @var bool
      */
-    protected $_canUseInternal = true;
+    public $_canUseInternal = true;
 
     /**
      * @var bool
      */
-    protected $_canUseCheckout = true;
+    public $_canUseCheckout = true;
 
     /**
      * @var bool
      */
-    protected $_canRefund = true;
+    public $_canRefund = true;
 
     /**
      * @var bool
      */
-    protected $_canRefundInvoicePartial = true;
+    public $_canRefundInvoicePartial = true;
 
     /**
      * @var VaultHandlerService
      */
-    protected $vaultHandler;
+    public $vaultHandler;
 
     /**
      * @var CardHandlerService
      */
-    protected $cardHandler;
+    public $cardHandler;
 
     /**
      * @var Logger
      */
-    protected $ckoLogger;
+    public $ckoLogger;
+
+    /**
+     * @var Config
+     */
+    public $config;
+
+    /**
+     * @var ApiHandlerService
+     */
+    public $apiHandler;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var Moto
      */
-    protected $motoBlock;
+    public $motoBlock;
 
     /**
      * @var Session
      */
-    protected $backendAuthSession;
+    public $backendAuthSession;
 
     /**
      * VaultMethod constructor.
@@ -135,7 +146,6 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Quote\Api\CartManagementInterface $quoteManagement,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Backend\Model\Session\Quote $sessionQuote,
-        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
@@ -173,7 +183,6 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
-        $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->ckoLogger          = $ckoLogger;
@@ -240,9 +249,6 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $this->_code
             );
             $request->description = __('Payment request from %1', $this->config->getStoreName());
-            // Todo - add customer to the request
-            //$request->customer = $this->apiHandler->createCustomer($this->quoteHandler->getQuote());
-            $request->payment_ip = $this->remoteAddress->getRemoteAddress();
             $request->payment_type = 'Regular';
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureTime();
@@ -256,14 +262,22 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $request->metadata = ['udf1' => 'MADA'];
             }
 
+            // Billing descriptor
+            if ($this->config->needsDynamicDescriptor()) {
+                $request->billing_descriptor = new BillingDescriptor(
+                    $this->config->getValue('descriptor_name'),
+                    $this->config->getValue('descriptor_city')
+                );
+            }
+            
             // Send the charge request
-            $response = $this->apiHandler->checkoutApi
+            $response = $this->apiHandler->init()->checkoutApi
                 ->payments()
                 ->request($request);
 
             return $response;
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
             return null;
         }
     }
@@ -289,8 +303,8 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the void request
-                $response = $this->apiHandler->voidOrder($payment);
-                if (!$this->apiHandler->isValidResponse($response)) {
+                $response = $this->apiHandler->init()->voidOrder($payment);
+                if (!$this->apiHandler->init()->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The void request could not be processed.')
                     );
@@ -300,7 +314,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $payment->setTransactionId($response->action_id);
             }
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;
         }
@@ -328,8 +342,8 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the refund request
-                $response = $this->apiHandler->refundOrder($payment, $amount);
-                if (!$this->apiHandler->isValidResponse($response)) {
+                $response = $this->apiHandler->init()->refundOrder($payment, $amount);
+                if (!$this->apiHandler->init()->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The refund request could not be processed.')
                     );
@@ -339,7 +353,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $payment->setTransactionId($response->action_id);
             }
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;
         }

@@ -30,77 +30,72 @@ class VaultHandlerService
     /**
      * @var VaultTokenFactory
      */
-    protected $vaultTokenFactory;
+    public $vaultTokenFactory;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var PaymentTokenRepositoryInterface
      */
-    protected $paymentTokenRepository;
+    public $paymentTokenRepository;
 
     /**
      * @var PaymentTokenManagementInterface
      */
-    protected $paymentTokenManagement;
+    public $paymentTokenManagement;
 
     /**
      * @var Session
      */
-    protected $customerSession;
-
-    /**
-     * @var RemoteAddress
-     */
-    protected $remoteAddress;
+    public $customerSession;
 
     /**
      * @var ManagerInterface
      */
-    protected $messageManager;
+    public $messageManager;
 
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandlerService;
+    public $apiHandlerService;
 
     /**
      * @var CardHandlerService
      */
-    protected $cardHandler;
+    public $cardHandler;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var string
      */
-    protected $customerEmail;
+    public $customerEmail;
 
     /**
      * @var int
      */
-    protected $customerId;
+    public $customerId;
 
     /**
      * @var string
      */
-    protected $cardToken;
+    public $cardToken;
 
     /**
      * @var array
      */
-    protected $cardData = [];
+    public $cardData = [];
 
     /**
      * @var array
      */
-    protected $response = [];
+    public $response = [];
 
     /**
      * VaultHandlerService constructor.
@@ -110,7 +105,6 @@ class VaultHandlerService
         \Magento\Vault\Api\PaymentTokenRepositoryInterface $paymentTokenRepository,
         \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement,
         \Magento\Customer\Model\Session $customerSession,
-        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
@@ -121,7 +115,6 @@ class VaultHandlerService
         $this->paymentTokenRepository = $paymentTokenRepository;
         $this->paymentTokenManagement = $paymentTokenManagement;
         $this->customerSession = $customerSession;
-        $this->remoteAddress = $remoteAddress;
         $this->messageManager = $messageManager;
         $this->apiHandler = $apiHandler;
         $this->cardHandler = $cardHandler;
@@ -272,10 +265,9 @@ class VaultHandlerService
             $request->threeDs = new ThreeDs($this->config->needs3ds('checkoutcom_vault'));
             $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', 'checkoutcom_vault');
             //$request->description = __('Save card authorization request from %1', $this->config->getStoreName());
-            $request->payment_ip = $this->remoteAddress->getRemoteAddress();
 
             // Send the charge request and get the response
-            $this->response = $this->apiHandler->checkoutApi
+            $this->response = $this->apiHandler->init()->checkoutApi
                 ->payments()
                 ->request($request);
 
@@ -296,7 +288,7 @@ class VaultHandlerService
     {
         try {
             // Check if the response is success
-            $success = $this->apiHandler->isValidResponse($this->response);
+            $success = $this->apiHandler->init()->isValidResponse($this->response);
             if ($success) {
                 // Get the response array
                 $values = $this->response->getValues();
@@ -341,7 +333,7 @@ class VaultHandlerService
             $cardList = $this->getUserCards($customerId);
 
             // Check if the user has cards
-            if (count($cardList) > 0) {
+            if (!empty($cardList)) {
                 return  true;
             }
         } catch (\Exception $e) {
@@ -380,7 +372,7 @@ class VaultHandlerService
         try {
             // Get the cards list
             $cardList = $this->getUserCards();
-            if (count($cardList) > 0) {
+            if (!empty($cardList)) {
                 // Sort the array by date
                 usort(
                     $cardList,

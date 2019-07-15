@@ -17,7 +17,6 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Library\HttpHandler;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 use \Checkout\Models\Payments\TokenSource;
@@ -36,72 +35,87 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var string
      */
-    protected $_code = self::CODE;
+    public $_code = self::CODE;
 
     /**
      * @var bool
      */
-    protected $_canAuthorize = true;
+    public $_canAuthorize = true;
 
     /**
      * @var bool
      */
-    protected $_canCapture = true;
+    public $_canCapture = true;
 
     /**
      * @var bool
      */
-    protected $_canCancel = true;
+    public $_canCancel = true;
 
     /**
      * @var bool
      */
-    protected $_canCapturePartial = true;
+    public $_canCapturePartial = true;
 
     /**
      * @var bool
      */
-    protected $_canVoid = true;
+    public $_canVoid = true;
 
     /**
      * @var bool
      */
-    protected $_canUseInternal = false;
+    public $_canUseInternal = false;
 
     /**
      * @var bool
      */
-    protected $_canUseCheckout = true;
+    public $_canUseCheckout = true;
 
     /**
      * @var bool
      */
-    protected $_canRefund = true;
+    public $_canRefund = true;
 
     /**
      * @var bool
      */
-    protected $_canRefundInvoicePartial = true;
-
-    /**
-     * @var CardHandlerService
-     */
-    protected $cardHandler;
+    public $_canRefundInvoicePartial = true;
 
     /**
      * @var Logger
      */
-    protected $ckoLogger;
+    public $ckoLogger;
+ 
+    /**
+     * @var QuoteHandlerService
+     */
+    public $quoteHandler;
 
     /**
-     * @var Session
+     * @var CardHandlerService
      */
-    protected $customerSession;
+    public $cardHandler;
+
+    /**
+     * @var Config
+     */
+    public $config;
+
+    /**
+     * @var ApiHandlerService
+     */
+    public $apiHandler;
     
     /**
      * @var Session
      */
-    protected $backendAuthSession;
+    public $customerSession;
+    
+    /**
+     * @var Session
+     */
+    public $backendAuthSession;
 
     /**
      * CardPaymentMethod constructor.
@@ -127,7 +141,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Quote\Api\CartManagementInterface $quoteManagement,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Backend\Model\Session\Quote $sessionQuote,
-        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
@@ -163,7 +176,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
-        $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->quoteHandler       = $quoteHandler;
@@ -207,9 +219,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
             $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
             $request->description = __('Payment request from %1', $this->config->getStoreName());
-            // Todo - add customer to the request
-            //$request->customer = $this->apiHandler->createCustomer($this->quoteHandler->getQuote());
-            $request->payment_ip = $this->remoteAddress->getRemoteAddress();
+            $request->customer = $this->apiHandler->init()->createCustomer($this->quoteHandler->getQuote());
             $request->payment_type = 'Regular';
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureTime();
@@ -234,23 +244,21 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Billing descriptor
-            /*
             if ($this->config->needsDynamicDescriptor()) {
                 $request->billing_descriptor = new BillingDescriptor(
-                    $this->getValue('descriptor_name'),
-                    $this->getValue('descriptor_city')
+                    $this->config->getValue('descriptor_name'),
+                    $this->config->getValue('descriptor_city')
                 );
             }
-            */
 
             // Send the charge request
-            $response = $this->apiHandler->checkoutApi
+            $response = $this->apiHandler->init()->checkoutApi
                 ->payments()
                 ->request($request);
 
             return $response;
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
             return null;
         }
     }
@@ -276,8 +284,8 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the void request
-                $response = $this->apiHandler->voidOrder($payment);
-                if (!$this->apiHandler->isValidResponse($response)) {
+                $response = $this->apiHandler->init()->voidOrder($payment);
+                if (!$this->apiHandler->init()->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The void request could not be processed.')
                     );
@@ -287,7 +295,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $payment->setTransactionId($response->action_id);
             }
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;
         }
@@ -315,8 +323,8 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the refund request
-                $response = $this->apiHandler->refundOrder($payment, $amount);
-                if (!$this->apiHandler->isValidResponse($response)) {
+                $response = $this->apiHandler->init()->refundOrder($payment, $amount);
+                if (!$this->apiHandler->init()->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The refund request could not be processed.')
                     );
@@ -326,7 +334,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $payment->setTransactionId($response->action_id);
             }
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;
         }

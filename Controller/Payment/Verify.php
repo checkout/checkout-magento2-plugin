@@ -28,32 +28,32 @@ class Verify extends \Magento\Framework\App\Action\Action
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var CheckoutApi
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var OrderHandlerService
      */
-    protected $orderHandler;
+    public $orderHandler;
 
     /**
      * @var Utilities
      */
-    protected $utilities;
+    public $utilities;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * PlaceOrder constructor
@@ -75,9 +75,6 @@ class Verify extends \Magento\Framework\App\Action\Action
         $this->orderHandler = $orderHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
-
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
     }
 
     /**
@@ -86,11 +83,14 @@ class Verify extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         try {
+            // Try to load a quote
+            $this->quote = $this->quoteHandler->getQuote();
+
             // Get the session id
             $sessionId = $this->getRequest()->getParam('cko-session-id', null);
             if ($sessionId) {
                 // Get the payment details
-                $response = $this->apiHandler->getPaymentDetails($sessionId);
+                $response = $this->apiHandler->init()->getPaymentDetails($sessionId);
 
                 // Set the method ID
                 $this->methodId = $response->metadata['methodId'];
@@ -99,7 +99,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                 $this->logger->display($response);
                 
                 // Process the response
-                if ($this->apiHandler->isValidResponse($response)) {
+                if ($this->apiHandler->init()->isValidResponse($response)) {
                     if (!$this->placeOrder($response)) {
                         // Add and error message
                         $this->messageManager->addErrorMessage(
@@ -125,7 +125,7 @@ class Verify extends \Magento\Framework\App\Action\Action
      *
      * @return mixed
      */
-    protected function placeOrder($response = null)
+    public function placeOrder($response = null)
     {
         try {
             // Get the reserved order increment id
@@ -164,16 +164,16 @@ class Verify extends \Magento\Framework\App\Action\Action
      *
      * @return void
      */
-    protected function cancelPayment($response)
+    public function cancelPayment($response)
     {
         try {
-            // refund or void accordingly
+            // Refund or void accordingly
             if ($this->config->needsAutoCapture($this->methodId)) {
-                //refund
-                $this->apiHandler->checkoutApi->payments()->refund(new Refund($response->getId()));
+                // Refund
+                $this->apiHandler->init()->checkoutApi->payments()->refund(new Refund($response->getId()));
             } else {
-                //void
-                $this->apiHandler->checkoutApi->payments()->void(new Voids($response->getId()));
+                // Void
+                $this->apiHandler->init()->checkoutApi->payments()->void(new Voids($response->getId()));
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

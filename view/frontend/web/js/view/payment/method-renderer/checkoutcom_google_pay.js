@@ -5,14 +5,13 @@ define(
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
+        'Magento_Checkout/js/action/redirect-on-success',
         'mage/translate',
         'googlepayjs'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, __) {
-
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, __) {
         'use strict';
-
-        window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
+        window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_google_pay';
 
         return Component.extend(
@@ -86,8 +85,8 @@ define(
                             var tokenizationParameters = {
                                 tokenizationType: 'PAYMENT_GATEWAY',
                                 parameters: {
-                                    'gateway':  self.getValue('gateway_name'),
-                                    'gatewayMerchantId': Utilities.getValue('public_key')
+                                    'gateway': self.getValue('gateway_name'),
+                                    'gatewayMerchantId': self.getValue('public_key')
                                 }
                             }
 
@@ -158,8 +157,6 @@ define(
                             function getGooglePaymentDataConfiguration()
                             {
                                 return {
-                                    // @todo a merchant ID is available for a production environment after approval by Google
-                                    // @see {@link https://developers.google.com/pay/api/web/guides/test-and-deploy/overview|Test and deploy}
                                     merchantId: self.getValue('merchant_id'),
                                     paymentMethodTokenizationParameters: tokenizationParameters,
                                     allowedPaymentMethods: allowedPaymentMethods,
@@ -191,7 +188,7 @@ define(
                             {
                                 var paymentDataRequest = getGooglePaymentDataConfiguration();
 
-                                // transactionInfo must be set but does not affect cache
+                                // TransactionInfo must be set but does not affect cache
                                 paymentDataRequest.transactionInfo = {
                                     totalPriceStatus: 'NOT_CURRENTLY_KNOWN',
                                     currencyCode: Utilities.getQuoteCurrency()
@@ -209,20 +206,30 @@ define(
                              */
                             function processPayment(paymentData)
                             {
-                                //self.logEvent(JSON.parse(paymentData.paymentMethodToken.token));
-                                $.post(
-                                    Utilities.getUrl('payment/placeorder'),
-                                    {
+                                // Start the loader
+                                FullScreenLoader.startLoader();
+
+                                // Prepare the payload
+                                var payload = {
+                                    methodId: METHOD_ID,
+                                    cardToken: {
                                         signature: JSON.parse(paymentData.paymentMethodToken.token).signature,
                                         protocolVersion: JSON.parse(paymentData.paymentMethodToken.token).protocolVersion,
                                         signedMessage: JSON.parse(paymentData.paymentMethodToken.token).signedMessage,
                                     },
+                                    source: METHOD_ID
+                                };
+
+                                // Send the request
+                                $.post(
+                                    Utilities.getUrl('payment/placeorder'),
+                                    payload,
                                     function (data, status) {
-                                        if (data.status === true) {
-                                            // redirect to success page
-                                            FullScreenLoader.startLoader();
-                                            redirectOnSuccessAction.execute();
+                                        if (data.success === true) {
+                                            // Redirect to success page
+                                            RedirectOnSuccessAction.execute();
                                         } else {
+                                            FullScreenLoader.stopLoader();
                                             alert(__('An error has occurred. Please try again.'));
                                         }
                                     }

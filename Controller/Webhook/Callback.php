@@ -30,7 +30,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * @var array
      */
-    protected static $transactionMapper = [
+    public static $transactionMapper = [
         'payment_approved' => Transaction::TYPE_AUTH,
         'payment_captured' => Transaction::TYPE_CAPTURE,
         'payment_refunded' => Transaction::TYPE_REFUND,
@@ -40,47 +40,47 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * @var OrderRepositoryInterface
      */
-    protected $orderRepository;
+    public $orderRepository;
 
     /**
      * @var apiHandler
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var OrderHandlerService
      */
-    protected $orderHandler;
+    public $orderHandler;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var ShopperHandlerService
      */
-    protected $shopperHandler;
+    public $shopperHandler;
 
     /**
      * @var TransactionHandlerService
      */
-    protected $transactionHandler;
+    public $transactionHandler;
 
     /**
      * @var VaultHandlerService
      */
-    protected $vaultHandler;
+    public $vaultHandler;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * Callback constructor
@@ -108,9 +108,6 @@ class Callback extends \Magento\Framework\App\Action\Action
         $this->vaultHandler = $vaultHandler;
         $this->config = $config;
         $this->logger = $logger;
-
-        // Set the payload data
-        $this->payload = $this->getPayload();
     }
 
     /**
@@ -119,6 +116,9 @@ class Callback extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         try {
+            // Set the payload data
+            $this->payload = $this->getPayload();
+
             // Prepare the response handler
             $resultFactory = $this->resultFactory->create(ResultFactory::TYPE_JSON);
 
@@ -127,8 +127,8 @@ class Callback extends \Magento\Framework\App\Action\Action
                 // Process the request
                 if (isset($this->payload->data->id)) {
                     // Get the payment details
-                    $response = $this->apiHandler->getPaymentDetails($this->payload->data->id);
-                    if ($this->apiHandler->isValidResponse($response)) {
+                    $response = $this->apiHandler->init()->getPaymentDetails($this->payload->data->id);
+                    if ($this->apiHandler->init()->isValidResponse($response)) {
                         // Handle the save card request
                         if ($this->cardNeedsSaving()) {
                             $this->saveCard($response);
@@ -145,7 +145,7 @@ class Callback extends \Magento\Framework\App\Action\Action
 
                         if ($this->orderHandler->isOrder($order)) {
                             // Handle the transaction
-                            $this->transactionHandler->createTransaction(
+                            $order = $this->transactionHandler->createTransaction(
                                 $order,
                                 static::$transactionMapper[$this->payload->type],
                                 $this->payload
@@ -174,7 +174,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * Get the request payload.
      */
-    protected function getPayload()
+    public function getPayload()
     {
         try {
             return json_decode($this->getRequest()->getContent());
@@ -187,7 +187,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * Check if the card needs saving.
      */
-    protected function cardNeedsSaving()
+    public function cardNeedsSaving()
     {
         try {
             return isset($this->payload->data->metadata->saveCard)
@@ -205,7 +205,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * Save a card.
      */
-    protected function saveCard($response)
+    public function saveCard($response)
     {
         try {
             // Get the customer

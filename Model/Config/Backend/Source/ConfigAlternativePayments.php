@@ -26,7 +26,7 @@ class ConfigAlternativePayments implements \Magento\Framework\Option\ArrayInterf
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * ConfigAlternativePayments constructor
@@ -34,7 +34,7 @@ class ConfigAlternativePayments implements \Magento\Framework\Option\ArrayInterf
     public function __construct(
         \CheckoutCom\Magento2\Gateway\Config\Loader $configLoader
     ) {
-        $this->configLoader = $configLoader;
+        $this->configLoader = $configLoader->init();
     }
 
     /**

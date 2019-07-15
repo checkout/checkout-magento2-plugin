@@ -35,37 +35,37 @@ class Loader
     /**
      * @var Dir
      */
-    protected $moduleDirReader;
+    public $moduleDirReader;
 
     /**
      * @var Parser
      */
-    protected $xmlParser;
+    public $xmlParser;
 
     /**
      * @var ScopeConfigInterface
      */
-    protected $scopeConfig;
+    public $scopeConfig;
 
     /**
      * @var StoreManagerInterface
      */
-    protected $storeManager;
+    public $storeManager;
 
     /**
      * @var EncryptorInterface
      */
-    protected $encryptor;
+    public $encryptor;
 
     /**
      * @var Reader
      */
-    protected $directoryReader;
+    public $directoryReader;
 
     /**
      * @var Array
      */
-    protected $xmlData;
+    public $xmlData;
 
     /**
      * Loader constructor
@@ -84,11 +84,26 @@ class Loader
         $this->storeManager = $storeManager;
         $this->encryptor = $encryptor;
         $this->directoryReader = $directoryReader;
-
-        $this->data = $this->loadConfig();
     }
 
-    protected function loadConfig()
+    /**
+     * Prepares the loader class instance.
+     *
+     * @return void
+     */
+    public function init()
+    {
+        $this->data = $this->loadConfig();
+
+        return $this;
+    }
+
+    /**
+     * Loads the module configuration values.
+     *
+     * @return array
+     */
+    public function loadConfig()
     {
         try {
             // Prepare the output array
@@ -178,7 +193,7 @@ class Loader
      * @param string $fileName
      * @return string
      */
-    protected function getFilePath($fileName)
+    public function getFilePath($fileName)
     {
         try {
             return $this->moduleDirReader->getModuleDir(
@@ -197,7 +212,7 @@ class Loader
      *
      * @return array
      */
-    protected function loadXmlData()
+    public function loadXmlData()
     {
         // Prepare the output array
         $output = [];
@@ -227,7 +242,7 @@ class Loader
      * @param string $field
      * @return boolean
      */
-    protected function isHidden($field)
+    public function isHidden($field)
     {
         try {
             $hiddenFields = explode(
@@ -252,7 +267,7 @@ class Loader
      * @param string $field
      * @return boolean
      */
-    protected function isEncrypted($field)
+    public function isEncrypted($field)
     {
         try {
             return in_array(

@@ -47,82 +47,82 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * @var string
      */
-    protected $_code = self::CODE;
+    public $_code = self::CODE;
 
     /**
      * @var bool
      */
-    protected $_canAuthorize = true;
+    public $_canAuthorize = true;
 
     /**
      * @var bool
      */
-    protected $_canCapture = true;
+    public $_canCapture = true;
 
     /**
      * @var bool
      */
-    protected $_canCancel = true;
+    public $_canCancel = true;
 
     /**
      * @var bool
      */
-    protected $_canCapturePartial = true;
+    public $_canCapturePartial = true;
 
     /**
      * @var bool
      */
-    protected $_canVoid = true;
+    public $_canVoid = true;
 
     /**
      * @var bool
      */
-    protected $_canUseInternal = false;
+    public $_canUseInternal = false;
 
     /**
      * @var bool
      */
-    protected $_canUseCheckout = true;
+    public $_canUseCheckout = true;
 
     /**
      * @var bool
      */
-    protected $_canRefund = true;
+    public $_canRefund = true;
 
     /**
      * @var bool
      */
-    protected $_canRefundInvoicePartial = true;
+    public $_canRefundInvoicePartial = true;
 
     /**
      * @var ShopperHandlerService
      */
-    protected $shopperHandler;
+    public $shopperHandler;
 
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var QuoteHandlerService
      */
-    protected $quoteHandler;
+    public $quoteHandler;
 
     /**
      * @var Logger
      */
-    protected $ckoLogger;
+    public $ckoLogger;
 
     /**
      * @var Curl
      */
-    protected $curl;
+    public $curl;
 
     /**
      * @var Session
      */
-    protected $backendAuthSession;
+    public $backendAuthSession;
 
     /**
      * AlternativePaymentMethod constructor.
@@ -148,7 +148,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \Magento\Quote\Api\CartManagementInterface $quoteManagement,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Backend\Model\Session\Quote $sessionQuote,
-        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\shopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
@@ -185,7 +184,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
-        $this->remoteAddress      = $remoteAddress;
         $this->config             = $config;
         $this->shopperHandler     = $shopperHandler;
         $this->apiHandler         = $apiHandler;
@@ -225,7 +223,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
             return $response;
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
             return null;
         }
     }
@@ -237,7 +235,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return Payment
      */
-    protected function createPayment(IdSource $source, int $amount, string $currency, string $reference, $methodId)
+    public function createPayment(IdSource $source, int $amount, string $currency, string $reference, $methodId)
     {
         try {
             $payment = null;
@@ -259,12 +257,11 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 'Payment request from %1',
                 $this->config->getStoreName()
             );
-            $payment->payment_ip = $this->remoteAddress->getRemoteAddress();
             $payment->payment_type = 'Regular';
 
             return $payment;
         } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
+            $this->ckoLogger->write($e->getBody());
             return null;
         }
     }
@@ -277,7 +274,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return bool
      */
-    protected function validateCurrency(string $method, string $currency)
+    public function validateCurrency(string $method, string $currency)
     {
         try {
             $apms = $this->config->getApms();
@@ -306,7 +303,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return IdSource
      */
-    protected function sepa($data)
+    public function sepa($data)
     {
         try {
             $mandate = $this->activateMandate($data['url']);
@@ -326,7 +323,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      * @param  string $url
      * @return array
      */
-    protected function activateMandate(string $url)
+    public function activateMandate(string $url)
     {
 
         try {
@@ -367,7 +364,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return TokenSource
      */
-    protected function alipay($data)
+    public function alipay($data)
     {
         return new AlipaySource();
     }
@@ -379,7 +376,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return BoletoSource
      */
-    protected function boleto($data)
+    public function boleto($data)
     {
         return new BoletoSource($data['name'], $data['birthDate'], $data['cpf']);
     }
@@ -391,7 +388,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return GiropaySource
      */
-    protected function giropay(array $data)
+    public function giropay(array $data)
     {
         $source = new GiropaySource(
             __('Payment request from %1', $this->config->getStoreName()),
@@ -408,7 +405,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return TokenSource
      */
-    protected function ideal($data)
+    public function ideal($data)
     {
         $source = new IdealSource(
             $data['bic'],
@@ -426,7 +423,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return TokenSource
      */
-    protected function poli($data)
+    public function poli($data)
     {
         return new PoliSource();
     }
@@ -438,7 +435,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return TokenSource
      */
-    protected function sofort($data)
+    public function sofort($data)
     {
         return new SofortSource();
     }
@@ -450,7 +447,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return KlarnaSource
      */
-    protected function klarna($data)
+    public function klarna($data)
     {
         try {
             $products = [];
@@ -524,7 +521,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return TokenSource
      */
-    protected function eps($data)
+    public function eps($data)
     {
         return new EpsSource(__('Payment request from %1', $this->config->getStoreName()));
     }
@@ -536,7 +533,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return TokenSource
      */
-    protected function fawry($data)
+    public function fawry($data)
     {
 
         $products = [];
@@ -579,7 +576,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return TokenSource
      */
-    protected function knet($data)
+    public function knet($data)
     {
 
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('en'));
@@ -593,7 +590,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return TokenSource
      */
-    protected function bancontact($data)
+    public function bancontact($data)
     {
 
         $billingAddress = $this->quoteHandler->getBillingAddress();
@@ -634,8 +631,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 }
 
                 // Process the void request
-                $response = $this->apiHandler->voidOrder($payment);
-                if (!$this->apiHandler->isValidResponse($response)) {
+                $response = $this->apiHandler->init()->voidOrder($payment);
+                if (!$this->apiHandler->init()->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The void request could not be processed.')
                     );
@@ -660,8 +657,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 }
 
                 // Process the refund request
-                $response = $this->apiHandler->refundOrder($payment, $amount);
-                if (!$this->apiHandler->isValidResponse($response)) {
+                $response = $this->apiHandler->init()->refundOrder($payment, $amount);
+                if (!$this->apiHandler->init()->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The refund request could not be processed.')
                     );

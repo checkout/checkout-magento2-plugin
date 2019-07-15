@@ -5,14 +5,12 @@ define(
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
+        'Magento_Checkout/js/action/redirect-on-success',
         'mage/translate'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, __) {
-
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, __) {
         'use strict';
-
-        window.checkoutConfig.reloadOnBillingAddress = true; // Fix billing address missing.
-
+        window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_apple_pay';
 
         return Component.extend(
@@ -108,12 +106,12 @@ define(
                     return new Promise(
                         function (resolve, reject) {
                             $.ajax({
-                                url: url.build('payment/placeorder'),
+                                url: Utilities.getUrl('payment/placeorder'),
                                 type: "POST",
                                 data: paymentData,
                                 success: function (data, textStatus, xhr) {
-                                    if (data.status === true) {
-                                        resolve(data.status);
+                                    if (data.success === true) {
+                                        resolve(data.success);
                                     } else {
                                         reject;
                                     }
@@ -133,9 +131,6 @@ define(
                 launchApplePay: function () {
                     // Prepare the parameters
                     var self = this;
-
-                    // Set the debug mode
-                    //self.debug = JSON.parse(ap['debugMode']);
 
                     // Apply the button style
                     $(self.button_target)
@@ -253,7 +248,15 @@ define(
 
                             // Payment method authorization
                             session.onpaymentauthorized = function (event) {
-                                var promise = self.sendPaymentRequest(event.payment.token);
+                                // Prepare the payload
+                                var payload = {
+                                    methodId: METHOD_ID,
+                                    cardToken: event.payment.token,
+                                    source: METHOD_ID
+                                };
+
+                                // Send the request
+                                var promise = self.sendPaymentRequest(payload);
                                 promise.then(
                                     function (success) {
                                         var status;
@@ -266,9 +269,9 @@ define(
                                         session.completePayment(status);
 
                                         if (success) {
-                                            // redirect to success page
+                                            // Redirect to success page
                                             FullScreenLoader.startLoader();
-                                            redirectOnSuccessAction.execute();
+                                            RedirectOnSuccessAction.execute();
                                         }
                                     }
                                 ).catch(
@@ -287,25 +290,6 @@ define(
                             session.begin();
                         }
                     );
-                },
-
-                /**
-                 * Events
-                 */
-
-                /**
-                 * @returns {string}
-                 */
-                beforePlaceOrder: function () {
-                    // Start the loader
-                    FullScreenLoader.startLoader();
-
-                    // Validate before submission
-                    if (AdditionalValidators.validate()) {
-                        // Submission logic
-                    } else {
-                        FullScreenLoader.stopLoader();
-                    }
                 }
             }
         );
