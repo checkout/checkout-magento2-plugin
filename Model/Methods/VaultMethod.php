@@ -250,6 +250,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             );
             $request->description = __('Payment request from %1', $this->config->getStoreName());
             $request->payment_type = 'Regular';
+            $request->shipping = $this->apiHandler->init()->createShippingAddress($this->quoteHandler->getQuote());
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureTime();
             }
