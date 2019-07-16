@@ -7,15 +7,15 @@
         <label data-bind="attr: {'for': getCode()}" class="label">
             <span data-bind="text: getTitle()"></span>
         </label>
-    </div>
-    <div class="payment-method-content">
+
         <!-- Card Icons -->
         <!-- ko if: (shouldDisplayCardIcons()) -->
-            <div class="cko-supported-cards" data-bind="foreach: {data: getCardIcons(), as: 'card'}">
-                <img data-bind="attr: {'src': card.url, 'alt': card.name}" style="display:inline-block; vertical-align:-50%">
-            </div>
-        <!-- /ko -->
-
+            <!-- ko foreach: {data: getCardIcons(), as: 'card'} -->
+            <img data-bind="attr: {'src': card.url, 'alt': card.name}" style="display:inline-block; vertical-align:-50%; line-height: 14px; margin-left: 4px">
+            <!--/ko-->
+        <!--/ko-->
+    </div>
+    <div class="payment-method-content">
         <!-- Messages -->
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->

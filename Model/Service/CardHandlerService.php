@@ -137,7 +137,8 @@ class CardHandlerService
         try {
             $output = [];
             foreach (self::$cardMapper as $code => $value) {
-                $output[$code] = [
+                $output[] = [
+                    'code' => $code,
                     'name' => __($value),
                     'url' => $this->assetRepository
                     ->getUrl(
