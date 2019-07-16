@@ -35,20 +35,49 @@ define(
                 return val;
             },
 
+            /**
+             * Get the store name.
+             *
+             * @return {string}  The store name.
+             */
             getStoreName: function () {
                 return Config[KEY_DATA].store.name;
             },
 
+            /**
+             * Get the quote value.
+             *
+             * @return {float}  The quote value.
+             */
             getQuoteValue: function () {
                 return Config[KEY_DATA].quote.value;
             },
 
+            /**
+             * Get the quote currency.
+             *
+             * @return {string}  The quote currency.
+             */
             getQuoteCurrency: function () {
                 return Config[KEY_DATA].quote.currency;
             },
 
+            /**
+             * Checks if user has saved cards.
+             *
+             * @return {bool}
+             */
             userHasCards: function () {
                 return Config[KEY_DATA].user.hasCards;
+            },
+
+            /**
+             * Get the supported cards.
+             *
+             * @return {array}
+             */
+            getSupportedCards: function () {
+                return Config[KEY_DATA].cards;
             },
 
             /**
