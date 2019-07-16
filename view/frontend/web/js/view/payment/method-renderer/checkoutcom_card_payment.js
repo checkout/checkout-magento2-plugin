@@ -21,6 +21,7 @@ define(
                     cardToken: null,
                     cardBin: null,
                     saveCard: false,
+                    supportedCards: null,
                     redirectAfterPlaceOrder: false
                 },
 

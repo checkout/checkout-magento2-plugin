@@ -18,6 +18,7 @@
 namespace CheckoutCom\Magento2\Model\Ui;
 
 use CheckoutCom\Magento2\Gateway\Config\Loader;
+use CheckoutCom\Magento2\Model\Service\CardHandlerService;
 
 /**
  * Class ConfigProvider.
@@ -85,7 +86,8 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
                     ],
                     'user' => [
                         'hasCards' => $this->vaultHandler->userHasCards()
-                    ]
+                    ],
+                    'cards' => CardHandlerService::$cardMapper
                 ]
             ]
         );
