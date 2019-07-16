@@ -113,14 +113,14 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Payment\Helper\Data $paymentData,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
+        \Magento\Backend\Model\Auth\Session\Proxy $backendAuthSession,
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Framework\UrlInterface $urlBuilder,
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Customer\Model\Session\Proxy $customerSession,
+        \Magento\Checkout\Model\Session\Proxy $checkoutSession,
         \Magento\Checkout\Helper\Data $checkoutData,
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \Magento\Quote\Api\CartManagementInterface $quoteManagement,
@@ -206,6 +206,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->description = __('Payment request from %1', $this->config->getStoreName());
             $request->customer = $this->apiHandler->init()->createCustomer($this->quoteHandler->getQuote());
             $request->payment_type = 'Regular';
+            $request->shipping = $this->apiHandler->init()->createShippingAddress($this->quoteHandler->getQuote());
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureTime();
             }

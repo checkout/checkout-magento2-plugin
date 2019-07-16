@@ -121,20 +121,35 @@ class Config
     public function getMethodsConfig()
     {
         $methods = [];
-        foreach ($this->loader->init()->data[Loader::KEY_PAYMENT] as $methodId => $data) {
-            // Check if the method is active
-            if ($this->getValue('active', $methodId) == 1) {
-                $methods[$methodId] = $data;
+        if ($this->canDisplay()) {
+            foreach ($this->loader->init()->data[Loader::KEY_PAYMENT] as $methodId => $data) {
+                if ($this->getValue('active', $methodId) == 1) {
+                    $methods[$methodId] = $data;
+                }
             }
         }
-
         return $methods;
+    }
+
+    /**
+     * Checks if payment options can be displayed.
+     *
+     * @return bool
+     */
+    public function canDisplay()
+    {
+        // Get the account keys
+        $accountKeys = $this->getAccountKeys();
+
+        // Return the check result
+        return $this->getValue('active') == 1
+        && !in_array('', array_map('trim', $accountKeys));
     }
 
     /**
      * Gets the account keys.
      *
-     * @return string
+     * @return array
      */
     public function getAccountKeys($methodId = null)
     {

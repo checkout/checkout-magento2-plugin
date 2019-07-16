@@ -35,20 +35,49 @@ define(
                 return val;
             },
 
+            /**
+             * Get the store name.
+             *
+             * @return {string}  The store name.
+             */
             getStoreName: function () {
                 return Config[KEY_DATA].store.name;
             },
 
+            /**
+             * Get the quote value.
+             *
+             * @return {float}  The quote value.
+             */
             getQuoteValue: function () {
                 return Config[KEY_DATA].quote.value;
             },
 
+            /**
+             * Get the quote currency.
+             *
+             * @return {string}  The quote currency.
+             */
             getQuoteCurrency: function () {
                 return Config[KEY_DATA].quote.currency;
             },
 
+            /**
+             * Checks if user has saved cards.
+             *
+             * @return {bool}
+             */
             userHasCards: function () {
                 return Config[KEY_DATA].user.hasCards;
+            },
+
+            /**
+             * Get the supported cards.
+             *
+             * @return {array}
+             */
+            getSupportedCards: function () {
+                return Config[KEY_DATA].cards;
             },
 
             /**
@@ -67,22 +96,15 @@ define(
              * @param  {bool} return in object format.
              * @return {mixed}  The billing address.
              */
-            getCustomerName: function (obj = false) {
+            getCustomerName: function () {
                 var billingAddress = Quote.billingAddress();
+                var customerName = '';
                 if (billingAddress) {
-                    name = {
-                        first_name: billingAddress.firstname,
-                        last_name: billingAddress.lastname
-                    };
-
-                    if (!obj) {
-                        name = name.first_name + ' ' + name.last_name
-                    }
-
-                    return name;
+                    customerName += billingAddress.firstname;
+                    customerName += ' ' + billingAddress.lastname;
                 }
 
-                return null;
+                return customerName;
             },
 
             /**

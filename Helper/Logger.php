@@ -69,7 +69,7 @@ class Logger
             $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/checkoutcom_magento2.log');
             $logger = new \Zend\Log\Logger();
             $logger->addWriter($writer);
-            $logger->info(json_encode($msg));
+            $logger->info($msg);
         }
     }
 
