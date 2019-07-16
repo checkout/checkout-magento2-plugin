@@ -128,6 +128,32 @@ class CardHandlerService
     }
 
     /**
+     * Get all card icons.
+     *
+     * @return string
+     */
+    public function getCardIcons()
+    {
+        try {
+            $output = [];
+            foreach (self::$cardMapper as $code => $value) {
+                $output[$code] = [
+                    'name' => __($value),
+                    'url' => $this->assetRepository
+                    ->getUrl(
+                        'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+                    )
+                ];
+            }
+
+            return $output;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return '';
+        }
+    }
+
+    /**
      * Check if a card is active.
      *
      * @return bool

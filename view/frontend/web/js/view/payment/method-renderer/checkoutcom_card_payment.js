@@ -66,6 +66,20 @@ define(
                 /**
                  * @returns {bool}
                  */
+                shouldDisplayCardIcons: function () {
+                    return this.getValue('display_card_icons');
+                },
+
+                /**
+                 * @returns {array}
+                 */
+                getCardIcons: function () {
+                    return Utilities.getSupportedCards();
+                },
+
+                /**
+                 * @returns {bool}
+                 */
                 isLoggedIn: function () {
                     return Customer.isLoggedIn();
                 },

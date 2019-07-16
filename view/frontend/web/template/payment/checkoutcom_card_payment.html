@@ -9,11 +9,20 @@
         </label>
     </div>
     <div class="payment-method-content">
+        <!-- Card Icons -->
+        <!-- ko if: (shouldDisplayCardIcons()) -->
+            <div class="cko-supported-cards">
+                <!-- ko foreach: getCardIcons() -->
+                    <img src="" style="display:inline-block; vertical-align:-50%">
+                <!--/ko-->
+            </div>
+        <!-- /ko -->
+
+        <!-- Messages -->
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->
 
-        <!-- Messages -->
         <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
 
         <!-- Card form -->
