@@ -11,10 +11,8 @@
     <div class="payment-method-content">
         <!-- Card Icons -->
         <!-- ko if: (shouldDisplayCardIcons()) -->
-            <div class="cko-supported-cards">
-                <!-- ko foreach: getCardIcons() -->
-                    <img src="" style="display:inline-block; vertical-align:-50%">
-                <!--/ko-->
+            <div class="cko-supported-cards" data-bind="foreach: {data: getCardIcons(), as: 'card'}">
+                <img data-bind="attr: {'src': card.url, 'alt': card.name}" style="display:inline-block; vertical-align:-50%">
             </div>
         <!-- /ko -->
 
