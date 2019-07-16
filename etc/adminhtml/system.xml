@@ -188,6 +188,13 @@
                         <comment>Select the language to use by default if the one used by the shopper is not supported by the integration.</comment>
                     </field>
 
+                    <field id="display_card_icons" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Display card icons</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_card_payment/display_card_icons</config_path>
+                        <comment>Display the supported card icons under the payment option.</comment>
+                    </field>
+
                     <field id="form_theme" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Form theme</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFormTheme</source_model>
