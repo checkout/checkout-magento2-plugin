@@ -76,35 +76,35 @@
                     <group id="order_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Order Settings</label>
                         <field id="order_status_authorized" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Authorization order status</label>
+                            <label>Authorization Order Status</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
                             <config_path>settings/checkoutcom_configuration/order_status_authorized</config_path>
                             <comment>Select the status that should be used for orders with successful payment authorisation.</comment>
                         </field>
 
                         <field id="order_status_captured" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Capture order status</label>
+                            <label>Capture Order Status</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
                             <config_path>settings/checkoutcom_configuration/order_status_captured</config_path>
                             <comment>Select the status that should be used for orders with successful payment capture.</comment>
                         </field>
 
                         <field id="order_status_voided" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Void order status</label>
+                            <label>Void Order Status</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
                             <config_path>settings/checkoutcom_configuration/order_status_voided</config_path>
                             <comment>Select the status that should be used for orders with successful payment void.</comment>
                         </field>
 
                         <field id="order_status_refunded" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Refund order status</label>
+                            <label>Refund Order Status</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
                             <config_path>settings/checkoutcom_configuration/order_status_refunded</config_path>
                             <comment>Select the status that should be used for orders with successful payment refund.</comment>
                         </field>
 
                         <field id="order_status_flagged" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Flagged order status</label>
+                            <label>Flagged Order Status</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
                             <config_path>settings/checkoutcom_configuration/order_status_flagged</config_path>
                             <comment>Select the status that should be used for flagged orders.</comment>
@@ -133,13 +133,13 @@
                     <group id="debug_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Debug Settings</label>
                         <field id="debug" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Debug mode enabled</label>
+                            <label>Debug Mode Enabled</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                             <config_path>settings/checkoutcom_configuration/debug</config_path>
                         </field>
 
                         <field id="file_logging" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>File logging enabled</label>
+                            <label>File Logging Enabled</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                             <depends>
                                 <field id="debug">1</field>
@@ -148,7 +148,7 @@
                         </field>
 
                         <field id="console_logging" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Console logging enabled</label>
+                            <label>Console Logging Enabled</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                             <depends>
                                 <field id="debug">1</field>
@@ -157,7 +157,7 @@
                         </field>
 
                         <field id="gateway_responses" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Gateway responses enabled</label>
+                            <label>Gateway Responses Enabled</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                             <depends>
                                 <field id="debug">1</field>
@@ -188,8 +188,15 @@
                         <comment>Select the language to use by default if the one used by the shopper is not supported by the integration.</comment>
                     </field>
 
+                    <field id="display_card_icons" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Display Card Icons</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_card_payment/display_card_icons</config_path>
+                        <comment>Display the supported card icons under the payment option.</comment>
+                    </field>
+
                     <field id="form_theme" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Form theme</label>
+                        <label>Form Theme</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFormTheme</source_model>
                         <config_path>payment/checkoutcom_card_payment/form_theme</config_path>
                         <comment>Select the theme to use for the payment form.</comment>
@@ -211,7 +218,7 @@
                     </field>
 
                     <field id="save_card_option" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Save card option</label>
+                        <label>Save Card Option</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_card_payment/save_card_option</config_path>
                         <comment>Display an option (checkbox) to save a new card on the payment page.</comment>

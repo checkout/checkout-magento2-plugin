@@ -158,6 +158,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $request->reference = $this->order->getIncrementId();
                 $request->payment_type = 'MOTO';
                 $request->customer = $this->apiHandler->init()->createCustomer($this->order);
+                $request->shipping = $this->apiHandler->init()->createShippingAddress($this->order);
                 if ($captureDate) {
                     $request->capture_on = $this->config->getCaptureTime();
                 }
@@ -226,7 +227,11 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     {
         try {
             if ($this->isCardToken()) {
-                return new TokenSource($this->params['ckoCardToken']);
+                $tokenSource = new TokenSource($this->params['ckoCardToken']);
+                $tokenSource->billing_address = $this->apiHandler->init()
+                    ->createBillingAddress($this->order);
+
+                return $tokenSource;
             } elseif ($this->isSavedCard()) {
                 $card = $this->vaultHandler->getCardFromHash(
                     $this->params['publicHash'],

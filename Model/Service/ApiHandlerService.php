@@ -22,6 +22,8 @@ use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
 use \Checkout\Models\Payments\Customer;
 use \Checkout\Models\Address;
+use \Checkout\Models\Payments\Shipping;
+use \Checkout\Models\Phone;
 
 /**
  * Class ApiHandlerService.
@@ -180,6 +182,27 @@ class ApiHandlerService
             // Get the billing address
             $billingAddress = $entity->getBillingAddress();
 
+            // Create the customer
+            $customer = new Customer();
+            $customer->email = $billingAddress->getEmail();
+            $customer->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
+
+            return $customer;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Creates a billing address.
+     */
+    public function createBillingAddress($entity)
+    {
+        try {
+            // Get the billing address
+            $billingAddress = $entity->getBillingAddress();
+
             // Create the address
             $address = new Address();
             $address->address_line1 = $billingAddress->getStreetLine(1);
@@ -188,13 +211,35 @@ class ApiHandlerService
             $address->zip = $billingAddress->getPostcode();
             $address->country = $billingAddress->getCountry();
 
-            // Create the customer
-            $customer = new Customer();
-            $customer->email = $billingAddress->getEmail();
-            $customer->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
-            $customer->address = $address;
+            return $address;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
+    }
 
-            return $customer;
+    /**
+     * Creates a shipping address.
+     */
+    public function createShippingAddress($entity)
+    {
+        try {
+            // Get the billing address
+            $shippingAddress = $entity->getBillingAddress();
+
+            // Create the address
+            $address = new Address();
+            $address->address_line1 = $shippingAddress->getStreetLine(1);
+            $address->address_line2 = $shippingAddress->getStreetLine(2);
+            $address->city = $shippingAddress->getCity();
+            $address->zip = $shippingAddress->getPostcode();
+            $address->country = $shippingAddress->getCountry();
+
+            // Create the phone
+            $phone = new Phone();
+            $phone->number = $shippingAddress->getTelephone();
+            
+            return new Shipping($address, $phone);
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;

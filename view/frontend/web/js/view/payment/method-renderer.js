@@ -2,14 +2,12 @@ define(
     [
         'uiComponent',
         'Magento_Checkout/js/model/payment/renderer-list',
-        'CheckoutCom_Magento2/js/view/payment/config-loader',
-        'CheckoutCom_Magento2/js/view/payment/utilities'
+        'CheckoutCom_Magento2/js/view/payment/config-loader'
     ],
     function (
         Component,
         rendererList,
-        Config,
-        Utilities
+        Config
     ) {
         // Render the active payment methods
         for (var method in Config) {

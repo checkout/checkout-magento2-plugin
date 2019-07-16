@@ -21,6 +21,7 @@ define(
                     cardToken: null,
                     cardBin: null,
                     saveCard: false,
+                    supportedCards: null,
                     redirectAfterPlaceOrder: false
                 },
 
@@ -60,6 +61,20 @@ define(
                  */
                 isSaveCardEnabled: function () {
                     return this.getValue('save_card_option');
+                },
+
+                /**
+                 * @returns {bool}
+                 */
+                shouldDisplayCardIcons: function () {
+                    return this.getValue('display_card_icons');
+                },
+
+                /**
+                 * @returns {array}
+                 */
+                getCardIcons: function () {
+                    return Utilities.getSupportedCards();
                 },
 
                 /**
