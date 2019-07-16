@@ -48,7 +48,6 @@
             <checkoutcom_vault>
                 <model>CheckoutCom\Magento2\Model\Methods\VaultMethod</model>
                 <title>Stored Cards with Checkout.com</title>
-                <display_card_icons>0</display_card_icons>
                 <active>0</active>
                 <sort_order>0</sort_order>
                 <request_currency>USD</request_currency>
@@ -78,6 +77,7 @@
                 <title>Pay by Card with Checkout.com</title>
                 <active>1</active>
                 <form_theme>standard</form_theme>
+                <display_card_icons>0</display_card_icons>
                 <language_fallback>EN-EN</language_fallback>    
                 <sort_order>1</sort_order>
                 <three_ds>0</three_ds>
