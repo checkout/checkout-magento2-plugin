@@ -127,10 +127,17 @@ define(
              * @returns {void}
              */
             setEmail: function () {
-                $.cookie(
-                    this.getValue(null, 'email_cookie_name'),
-                    this.getEmail()
-                );
+                var userEmail = this.getEmail();
+                var emailCookieName = this.getValue(null, 'email_cookie_name');
+                $.cookie(emailCookieName, userEmail);
+
+                // If no email found, observe the core email field
+                if (!userEmail) {
+                    $('#customer-email').off('change').on('change', function () {
+                        userEmail = Quote.guestEmail || CheckoutData.getValidatedEmailValue();
+                        $.cookie(emailCookieName, userEmail);
+                    });
+                }
             },
 
             /**

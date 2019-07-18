@@ -5,9 +5,10 @@ define(
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Customer/js/model/customer',
+        'Magento_Checkout/js/model/quote',
         'framesjs'
     ],
-    function ($, Component, Utilities, AdditionalValidators, Customer) {
+    function ($, Component, Utilities, AdditionalValidators, Customer, Quote) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_card_payment';
@@ -30,9 +31,19 @@ define(
                  */
                 initialize: function () {
                     this._super();
+                    this.initAddressObserver();
                     Utilities.setEmail();
 
                     return this;
+                },
+
+                initAddressObserver: function () {
+                    var self = this;
+                    Quote.billingAddress.subscribe(function () {
+                        if (AdditionalValidators.validate() && Frames.isCardValid()) {
+                            Utilities.allowPlaceOrder(self.buttonId, true);
+                        }
+                    });
                 },
 
                 /**
