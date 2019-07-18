@@ -133,7 +133,7 @@ define(
 
                 // If no email found, observe the core email field
                 if (!userEmail) {
-                    $('#customer-email').off('change').on('change', function() {
+                    $('#customer-email').off('change').on('change', function () {
                         userEmail = Quote.guestEmail || CheckoutData.getValidatedEmailValue();
                         $.cookie(emailCookieName, userEmail);
                     });
