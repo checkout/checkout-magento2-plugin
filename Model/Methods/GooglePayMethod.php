@@ -221,7 +221,10 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                     $this->config->getValue('descriptor_city')
                 );
             }
-            
+
+            // Add the quote metadata
+            $request->metadata['quoteData'] = $this->quoteHandler->getQuoteRequestData($quote);
+
             // Send the charge request
             $response = $this->apiHandler->init()->checkoutApi
                 ->payments()
