@@ -393,4 +393,17 @@ class QuoteHandlerService
             return null;
         }
     }
+
+    /* Gets quote data for a payment request.
+     *
+     * @return array
+     */
+    public function getQuoteRequestData($quote) {
+        try {
+
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return [];
+        }
+    }
 }

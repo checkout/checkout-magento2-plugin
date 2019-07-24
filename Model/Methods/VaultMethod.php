@@ -207,6 +207,9 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public function sendPaymentRequest($data, $amount, $currency, $reference = '')
     {
         try {
+            // Get the quote
+            $quote = $this->quoteHandler->getQuote();
+
             // Find the card token
             $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
 
@@ -249,9 +252,9 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $this->_code
             );
             $request->description = __('Payment request from %1', $this->config->getStoreName());
-            $request->customer = $this->apiHandler->init()->createCustomer($this->quoteHandler->getQuote());
+            $request->customer = $this->apiHandler->init()->createCustomer($quote);
             $request->payment_type = 'Regular';
-            $request->shipping = $this->apiHandler->init()->createShippingAddress($this->quoteHandler->getQuote());
+            $request->shipping = $this->apiHandler->init()->createShippingAddress($quote);
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureTime();
             }

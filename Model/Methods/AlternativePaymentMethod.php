@@ -534,7 +534,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function fawry($data)
     {
-
         $products = [];
         $quote = $this->quoteHandler->getQuote();
         foreach ($quote->getAllVisibleItems() as $item) {

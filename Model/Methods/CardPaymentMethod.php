@@ -189,10 +189,13 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public function sendPaymentRequest($data, $amount, $currency, $reference = '')
     {
         try {
+            // Get the quote
+            $quote = $this->quoteHandler->getQuote();
+
             // Set the token source
             $tokenSource = new TokenSource($data['cardToken']);
             $tokenSource->billing_address = $this->apiHandler->init()
-                ->createBillingAddress($this->quoteHandler->getQuote());
+                ->createBillingAddress($quote);
 
             // Set the payment
             $request = new Payment(
@@ -221,9 +224,9 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
             $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
             $request->description = __('Payment request from %1', $this->config->getStoreName());
-            $request->customer = $this->apiHandler->init()->createCustomer($this->quoteHandler->getQuote());
+            $request->customer = $this->apiHandler->init()->createCustomer($quote);
             $request->payment_type = 'Regular';
-            $request->shipping = $this->apiHandler->init()->createShippingAddress($this->quoteHandler->getQuote());
+            $request->shipping = $this->apiHandler->init()->createShippingAddress($quote);
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureTime();
             }
