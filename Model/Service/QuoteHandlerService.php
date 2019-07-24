@@ -401,9 +401,9 @@ class QuoteHandlerService
     public function getQuoteRequestData($quote) {
         try {
          return [
-            'quoteId' => $quote->getId(),
-            'storeId' => $quote->getStoreId(),
-            'customerEmail' => $quote->getCustomerEmail()
+            'quote_id' => $quote->getId(),
+            'store_id' => $quote->getStoreId(),
+            'customer_email' => $quote->getCustomerEmail()
          ];
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

@@ -139,7 +139,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                             ->setMethodId($this->payload->data->metadata->methodId)
                             ->handleOrder(
                                 $response,
-                                $response->reference,
+                                ['increment_id' => $response->reference],
                                 true
                             );
 
