@@ -121,21 +121,26 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function handleOrder($paymentData, $reservedIncrementId = '', $isWebhook = false)
+    public function handleOrder($paymentData, $filters, $isWebhook = false)
     {
         if ($this->methodId) {
             try {
+                // Check if at least the increment id is available
+                if (!isset($filters['increment_id'])) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('The order increment id is required for the handleOrder method.')
+                    );                   
+                }
+
                 // Check if the order exists
-                $order = $this->getOrder(
-                    ['increment_id' => $reservedIncrementId]
-                );
+                $order = $this->getOrder($filters);
 
                 // Create the order
                 if (!$this->isOrder($order)) {
                     // Prepare the quote
                     $quote = $this->quoteHandler->prepareQuote(
                         $this->methodId,
-                        ['reserved_order_id' => $reservedIncrementId],
+                        ['reserved_order_id' => $filters['increment_id']],
                         $isWebhook
                     );
 
