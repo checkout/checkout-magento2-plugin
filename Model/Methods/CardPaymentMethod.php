@@ -238,7 +238,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Save card check
             if (isset($data['saveCard'])
-                && $data['saveCard'] === true
+                && json_decode($data['saveCard']) === true
                 && $saveCardEnabled
                 && $this->customerSession->isLoggedIn()
             ) {
