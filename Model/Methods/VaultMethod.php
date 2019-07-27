@@ -275,7 +275,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Add the quote metadata
-            $request->metadata['quoteData'] = $this->quoteHandler->getQuoteRequestData($quote);
+            $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
 
             // Send the charge request
             $response = $this->apiHandler->init()->checkoutApi
