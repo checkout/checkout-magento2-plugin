@@ -78,6 +78,7 @@
                 <active>1</active>
                 <form_theme>standard</form_theme>
                 <display_card_icons>0</display_card_icons>
+                <card_icons>VI,MC,AE,DN,DI,JCB</card_icons>
                 <language_fallback>EN-EN</language_fallback>    
                 <sort_order>1</sort_order>
                 <three_ds>0</three_ds>

@@ -195,6 +195,15 @@
                         <comment>Display the supported card icons under the payment option.</comment>
                     </field>
 
+                    <field id="card_icons" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Card Icons</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigCardIcons</source_model>
+                        <config_path>payment/checkoutcom_card_payment/card_icons</config_path>
+                        <depends>
+                            <field id="display_card_icons">1</field>
+                        </depends>
+                    </field>
+
                     <field id="form_theme" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Form Theme</label>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFormTheme</source_model>

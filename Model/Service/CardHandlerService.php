@@ -135,16 +135,30 @@ class CardHandlerService
     public function getCardIcons()
     {
         try {
+            // Prepare the output array
             $output = [];
+
+            // Get the selected cards
+            $selectedCards = explode(
+                ',',
+                $this->config->getValue(
+                    'card_icons',
+                    'checkoutcom_card_payment'
+                )
+            );
+
+            // Build the cards list
             foreach (self::$cardMapper as $code => $value) {
-                $output[] = [
-                    'code' => $code,
-                    'name' => __($value),
-                    'url' => $this->assetRepository
-                    ->getUrl(
-                        'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
-                    )
-                ];
+                if (in_array($code, $selectedCards)) {
+                    $output[] = [
+                        'code' => $code,
+                        'name' => __($value),
+                        'url' => $this->assetRepository
+                        ->getUrl(
+                            'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+                        )
+                    ];
+                }
             }
 
             return $output;
