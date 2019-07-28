@@ -202,6 +202,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $response = null;
 
             if ($this->validateCurrency($method, $currency)) {
+                // Initialize the API handler
+                $api = $this->apiHandler->init();
+
                 // Create source object
                 $source = $this->{$method}($data);
                 $payment = $this->createPayment(
@@ -213,9 +216,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 );
 
                 // Send the charge request
-                $response = $this->apiHandler->init()
-                                 ->checkoutApi
-                                 ->payments()->request($payment);
+                $response = $api->checkoutApi
+                    ->payments()->request($payment);
 
                 return $response;
             }
@@ -621,6 +623,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     {
         try {
             if ($this->backendAuthSession->isLoggedIn()) {
+                // Initialize the API handler
+                $api = $this->apiHandler->init();
+
                 // Check the status
                 if (!$this->canVoid()) {
                     throw new \Magento\Framework\Exception\LocalizedException(
@@ -629,8 +634,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 }
 
                 // Process the void request
-                $response = $this->apiHandler->init()->voidOrder($payment);
-                if (!$this->apiHandler->init()->isValidResponse($response)) {
+                $response = $api->voidOrder($payment);
+                if (!$api->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The void request could not be processed.')
                     );
@@ -647,6 +652,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     {
         try {
             if ($this->backendAuthSession->isLoggedIn()) {
+                // Initialize the API handler
+                $api = $this->apiHandler->init();
+
                 // Check the status
                 if (!$this->canRefund()) {
                     throw new \Magento\Framework\Exception\LocalizedException(
@@ -655,8 +663,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 }
 
                 // Process the refund request
-                $response = $this->apiHandler->init()->refundOrder($payment, $amount);
-                if (!$this->apiHandler->init()->isValidResponse($response)) {
+                $response = $api->refundOrder($payment, $amount);
+                if (!$api->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The refund request could not be processed.')
                     );

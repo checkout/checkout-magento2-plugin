@@ -137,6 +137,9 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
             // Process the payment
             if ($this->needsMotoProcessing()) {
+                // Initialize the API handler
+                $api = $this->apiHandler->init();
+
                 // Set the source
                 $source = $this->getSource();
 
@@ -157,7 +160,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $request->amount = $this->order->getGrandTotal()*100;
                 $request->reference = $this->order->getIncrementId();
                 $request->payment_type = 'MOTO';
-                $request->shipping = $this->apiHandler->init()->createShippingAddress($this->order);
+                $request->shipping = $api->createShippingAddress($this->order);
                 if ($captureDate) {
                     $request->capture_on = $this->config->getCaptureTime();
                 }
@@ -171,7 +174,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 }
 
                 // Send the charge request
-                $response = $this->apiHandler->init()->checkoutApi
+                $response = $api->checkoutApi
                     ->payments()
                     ->request($request);
 
@@ -179,7 +182,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $this->logger->display($response);
 
                 // Add the response to the order
-                if ($this->apiHandler->init()->isValidResponse($response)) {
+                if ($api->isValidResponse($response)) {
                     $this->utilities->setPaymentData($this->order, $response);
                     $this->messageManager->addSuccessMessage(
                         __('The payment request was successfully processed.')
@@ -226,9 +229,12 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     {
         try {
             if ($this->isCardToken()) {
+                // Initialize the API handler
+                $api = $this->apiHandler->init();
+
+                // Create the token source
                 $tokenSource = new TokenSource($this->params['ckoCardToken']);
-                $tokenSource->billing_address = $this->apiHandler->init()
-                    ->createBillingAddress($this->order);
+                $tokenSource->billing_address = $api->createBillingAddress($this->order);
 
                 return $tokenSource;
             } elseif ($this->isSavedCard()) {

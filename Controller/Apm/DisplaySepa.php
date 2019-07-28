@@ -275,6 +275,9 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
     {
         $sepa = null;
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Build the address
             $address = new SepaAddress(
                 $this->billingAddress->getStreetLine(1),
@@ -298,7 +301,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
 
             // Build and addthe source
             $source = new Sepa($address, $data);
-            $sepa = $this->apiHandler->init()->checkoutApi
+            $sepa = $api->checkoutApi
                 ->sources()
                 ->add($source);
         } catch (\Exception $e) {

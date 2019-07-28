@@ -207,6 +207,9 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public function sendPaymentRequest($data, $amount, $currency, $reference = '')
     {
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Get the quote
             $quote = $this->quoteHandler->getQuote();
 
@@ -253,7 +256,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             );
             $request->description = __('Payment request from %1', $this->config->getStoreName());
             $request->payment_type = 'Regular';
-            $request->shipping = $this->apiHandler->init()->createShippingAddress($quote);
+            $request->shipping = $api->createShippingAddress($quote);
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureTime();
             }
@@ -278,7 +281,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
 
             // Send the charge request
-            $response = $this->apiHandler->init()->checkoutApi
+            $response = $api->checkoutApi
                 ->payments()
                 ->request($request);
 
@@ -302,6 +305,9 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if ($this->backendAuthSession->isLoggedIn()) {
+                // Initialize the API handler
+                $api = $this->apiHandler->init();
+
                 // Check the status
                 if (!$this->canVoid()) {
                     throw new \Magento\Framework\Exception\LocalizedException(
@@ -310,8 +316,8 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the void request
-                $response = $this->apiHandler->init()->voidOrder($payment);
-                if (!$this->apiHandler->init()->isValidResponse($response)) {
+                $response = $api->voidOrder($payment);
+                if (!$api->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The void request could not be processed.')
                     );
@@ -341,6 +347,9 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if ($this->backendAuthSession->isLoggedIn()) {
+                // Initialize the API handler
+                $api = $this->apiHandler->init();
+
                 // Check the status
                 if (!$this->canRefund()) {
                     throw new \Magento\Framework\Exception\LocalizedException(
@@ -349,8 +358,8 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the refund request
-                $response = $this->apiHandler->init()->refundOrder($payment, $amount);
-                if (!$this->apiHandler->init()->isValidResponse($response)) {
+                $response = $api->refundOrder($payment, $amount);
+                if (!$api->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The refund request could not be processed.')
                     );

@@ -131,6 +131,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $success = false;
 
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Try to load a quote
             $this->quote = $this->quoteHandler->getQuote();
 
@@ -146,7 +149,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 $this->logger->display($response);
 
                 // Check success
-                if ($this->apiHandler->init()->isValidResponse($response)) {
+                if ($api->isValidResponse($response)) {
                     $success = $response->isSuccessful();
                     $url = $response->getRedirection();
                     if ($this->canPlaceOrder($response)) {
@@ -218,12 +221,15 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public function placeOrder($response = null)
     {
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Get the reserved order increment id
             $reservedIncrementId = $this->quoteHandler
                 ->getReference($this->quote);
 
             // Get the payment details
-            $paymentDetails = $this->apiHandler->init()->getPaymentDetails($response->id);
+            $paymentDetails = $api->getPaymentDetails($response->id);
 
             // Prepare the quote filters
             $filters = $this->prepareQuoteFilters(
@@ -287,13 +293,16 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public function cancelPayment($response)
     {
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Refund or void accordingly
             if ($this->config->needsAutoCapture($this->data['methodId'])) {
                 // Refund
-                $this->apiHandler->init()->checkoutApi->payments()->refund(new Refund($response->getId()));
+                $api->checkoutApi->payments()->refund(new Refund($response->getId()));
             } else {
                 // Void
-                $this->apiHandler->init()->checkoutApi->payments()->void(new Voids($response->getId()));
+                $api->checkoutApi->payments()->void(new Voids($response->getId()));
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

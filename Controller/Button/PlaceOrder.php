@@ -142,6 +142,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     {
         // Try to place the order
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Prepare a default error message
             $message = __('An error occurred and the order could not be created.');
 
@@ -190,7 +193,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 );
 
             // Process a successful response
-            if ($this->apiHandler->init()->isValidResponse($response)) {
+            if ($api->isValidResponse($response)) {
                 // Create the order
                 $order = $this->placeOrder($quote, $response);
 
@@ -284,13 +287,16 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public function cancelPayment($response)
     {
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Refund or void accordingly
             if ($this->config->needsAutoCapture($this->methodId)) {
                 // Refund
-                $this->apiHandler->init()->checkoutApi->payments()->refund(new Refund($response->getId()));
+                $api->checkoutApi->payments()->refund(new Refund($response->getId()));
             } else {
                 // Void
-                $this->apiHandler->init()->checkoutApi->payments()->void(new Voids($response->getId()));
+                $api->checkoutApi->payments()->void(new Voids($response->getId()));
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
