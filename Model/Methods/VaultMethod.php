@@ -305,8 +305,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if ($this->backendAuthSession->isLoggedIn()) {
+                // Get the store code
+                $storeCode = $payment->getOrder()->getStore()->getCode();
+
                 // Initialize the API handler
-                $api = $this->apiHandler->init();
+                $api = $this->apiHandler->init($storeCode);
 
                 // Check the status
                 if (!$this->canVoid()) {
@@ -347,8 +350,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if ($this->backendAuthSession->isLoggedIn()) {
+                // Get the store code
+                $storeCode = $payment->getOrder()->getStore()->getCode();
+
                 // Initialize the API handler
-                $api = $this->apiHandler->init();
+                $api = $this->apiHandler->init($storeCode);
 
                 // Check the status
                 if (!$this->canRefund()) {
