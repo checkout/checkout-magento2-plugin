@@ -38,6 +38,7 @@ Authorize,Authorize
 "The refund action is not available.","The refund action is not available."
 "The refund request could not be processed.","The refund request could not be processed."
 "The CVV value is required.","The CVV value is required."
+"The order increment id is required for the handleOrder method.","The order increment id is required for the handleOrder method."
 "A payment method ID is required to place an order.","A payment method ID is required to place an order."
 "This card is already saved.","This card is already saved."
 ending,ending
