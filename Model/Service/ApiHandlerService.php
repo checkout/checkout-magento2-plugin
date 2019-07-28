@@ -73,15 +73,15 @@ class ApiHandlerService
     /**
      * Load the API client.
      */
-    public function init()
+    public function init($storeCode = null)
     {
         try {
             $this->checkoutApi = new CheckoutApi(
-                $this->config->getValue('secret_key'),
-                $this->config->getValue('environment'),
-                $this->config->getValue('public_key')
+                $this->config->getValue('secret_key', null, $storeCode),
+                $this->config->getValue('environment', null, $storeCode),
+                $this->config->getValue('public_key', null, $storeCode)
             );
-
+            
             return $this;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
@@ -144,7 +144,7 @@ class ApiHandlerService
             // Get the payment info
             $paymentInfo = $this->utilities->getPaymentData($order);
 
-            // Process the void request
+            // Process the refund request
             if (isset($paymentInfo['id'])) {
                 $request = new Refund($paymentInfo['id']);
                 $request->amount = $amount*100;

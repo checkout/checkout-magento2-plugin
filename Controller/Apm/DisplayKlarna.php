@@ -142,6 +142,9 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         $response = ['source' => false];
 
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             $products = $this->getProducts($response);
             $klarna = new Klarna(
                 strtolower($this->billingAddress->getCountry()),
@@ -152,7 +155,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
                 $products
             );
 
-            $source = $this->apiHandler->init()->init()->checkoutApi->sources()->add($klarna);
+            $source = $api->checkoutApi->sources()->add($klarna);
 
             if ($source->isSuccessful()) {
                 $response['source'] = $source->getValues();

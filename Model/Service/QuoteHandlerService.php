@@ -393,4 +393,22 @@ class QuoteHandlerService
             return null;
         }
     }
+
+    /* Gets quote data for a payment request.
+     *
+     * @return array
+     */
+    public function getQuoteRequestData($quote)
+    {
+        try {
+            return [
+            'quote_id' => $quote->getId(),
+            'store_id' => $quote->getStoreId(),
+            'customer_email' => $quote->getCustomerEmail()
+            ];
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return [];
+        }
+    }
 }

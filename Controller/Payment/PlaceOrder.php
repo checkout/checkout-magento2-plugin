@@ -131,6 +131,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $success = false;
 
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Try to load a quote
             $this->quote = $this->quoteHandler->getQuote();
 
@@ -146,7 +149,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 $this->logger->display($response);
 
                 // Check success
-                if ($this->apiHandler->init()->isValidResponse($response)) {
+                if ($api->isValidResponse($response)) {
                     $success = $response->isSuccessful();
                     $url = $response->getRedirection();
                     if ($this->canPlaceOrder($response)) {
@@ -218,14 +221,26 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public function placeOrder($response = null)
     {
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Get the reserved order increment id
             $reservedIncrementId = $this->quoteHandler
                 ->getReference($this->quote);
 
+            // Get the payment details
+            $paymentDetails = $api->getPaymentDetails($response->id);
+
+            // Prepare the quote filters
+            $filters = $this->prepareQuoteFilters(
+                $paymentDetails,
+                $reservedIncrementId
+            );
+
             // Create an order
             $order = $this->orderHandler
                 ->setMethodId($this->data['methodId'])
-                ->handleOrder($response, $reservedIncrementId);
+                ->handleOrder($response, $filters);
 
             // Add the payment info to the order
             $order = $this->utilities
@@ -247,6 +262,28 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     }
 
     /**
+     * Prepares the quote filters.
+     *
+     * @param array $paymentDetails
+     * @param string $reservedIncrementId
+     *
+     * @return array
+     */
+    public function prepareQuoteFilters($paymentDetails, $reservedIncrementId)
+    {
+        // Prepare the filters array
+        $filters = ['increment_id' => $reservedIncrementId];
+
+        // Retrieve the quote metadata
+        $quoteData = isset($paymentDetails->metadata['quoteData'])
+        && !empty($paymentDetails->metadata['quoteData'])
+        ? json_decode($paymentDetails->metadata['quoteData'], true)
+        : [];
+
+        return array_merge($filters, $quoteData);
+    }
+
+    /**
      * Cancels a payment.
      *
      * @param array $response The response
@@ -256,13 +293,16 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public function cancelPayment($response)
     {
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Refund or void accordingly
             if ($this->config->needsAutoCapture($this->data['methodId'])) {
                 // Refund
-                $this->apiHandler->init()->checkoutApi->payments()->refund(new Refund($response->getId()));
+                $api->checkoutApi->payments()->refund(new Refund($response->getId()));
             } else {
                 // Void
-                $this->apiHandler->init()->checkoutApi->payments()->void(new Voids($response->getId()));
+                $api->checkoutApi->payments()->void(new Voids($response->getId()));
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

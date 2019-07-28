@@ -126,9 +126,12 @@ class Callback extends \Magento\Framework\App\Action\Action
             if ($this->config->isValidAuth()) {
                 // Process the request
                 if (isset($this->payload->data->id)) {
+                    // Initialize the API handler
+                    $api = $this->apiHandler->init();
+
                     // Get the payment details
-                    $response = $this->apiHandler->init()->getPaymentDetails($this->payload->data->id);
-                    if ($this->apiHandler->init()->isValidResponse($response)) {
+                    $response = $api->getPaymentDetails($this->payload->data->id);
+                    if ($api->isValidResponse($response)) {
                         // Handle the save card request
                         if ($this->cardNeedsSaving()) {
                             $this->saveCard($response);
@@ -139,7 +142,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                             ->setMethodId($this->payload->data->metadata->methodId)
                             ->handleOrder(
                                 $response,
-                                $response->reference,
+                                ['increment_id' => $response->reference],
                                 true
                             );
 

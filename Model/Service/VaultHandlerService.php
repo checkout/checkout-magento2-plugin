@@ -251,6 +251,9 @@ class VaultHandlerService
     public function authorizeTransaction()
     {
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Set the token source
             $tokenSource = new TokenSource($this->cardToken);
 
@@ -267,7 +270,7 @@ class VaultHandlerService
             //$request->description = __('Save card authorization request from %1', $this->config->getStoreName());
 
             // Send the charge request and get the response
-            $this->response = $this->apiHandler->init()->checkoutApi
+            $this->response = $api->checkoutApi
                 ->payments()
                 ->request($request);
 
@@ -287,8 +290,11 @@ class VaultHandlerService
     public function saveCard()
     {
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Check if the response is success
-            $success = $this->apiHandler->init()->isValidResponse($this->response);
+            $success = $api->isValidResponse($this->response);
             if ($success) {
                 // Get the response array
                 $values = $this->response->getValues();

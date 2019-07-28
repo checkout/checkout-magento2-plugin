@@ -173,6 +173,12 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public function sendPaymentRequest($data, $amount, $currency, $reference = '')
     {
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
+            // Get the quote
+            $quote = $this->quoteHandler->getQuote();
+
             // Create the Apple Pay header
             $applePayHeader = new ApplePayHeader(
                 $data['cardToken']['paymentData']['header']['transactionId'],
@@ -189,7 +195,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
             );
 
             // Get the token data
-            $tokenData = $this->apiHandler->init()->checkoutApi
+            $tokenData = $api->checkoutApi
                 ->tokens()
                 ->request($applePayData);
 
@@ -213,9 +219,9 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->amount = $amount*100;
             $request->reference = $reference;
             $request->description = __('Payment request from %1', $this->config->getStoreName());
-            $request->customer = $this->apiHandler->init()->createCustomer($this->quoteHandler->getQuote());
+            $request->customer = $api->createCustomer($quote);
             $request->payment_type = 'Regular';
-            $request->shipping = $this->apiHandler->init()->createShippingAddress($this->quoteHandler->getQuote());
+            $request->shipping = $api->createShippingAddress($quote);
             if ($captureDate) {
                 $request->capture_on = $this->config->getCaptureTime();
             }
@@ -227,9 +233,12 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                     $this->config->getValue('descriptor_city')
                 );
             }
-            
+
+            // Add the quote metadata
+            $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
+
             // Send the charge request
-            $response = $this->apiHandler->init()->checkoutApi
+            $response = $api->checkoutApi
                 ->payments()
                 ->request($request);
             
@@ -253,6 +262,12 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if ($this->backendAuthSession->isLoggedIn()) {
+                // Get the store code
+                $storeCode = $payment->getOrder()->getStore()->getCode();
+
+                // Initialize the API handler
+                $api = $this->apiHandler->init($storeCode);
+
                 // Check the status
                 if (!$this->canVoid()) {
                     throw new \Magento\Framework\Exception\LocalizedException(
@@ -261,8 +276,8 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the void request
-                $response = $this->apiHandler->init()->voidOrder($payment);
-                if (!$this->apiHandler->init()->isValidResponse($response)) {
+                $response = $api->voidOrder($payment);
+                if (!$api->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The void request could not be processed.')
                     );
@@ -292,6 +307,12 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if ($this->backendAuthSession->isLoggedIn()) {
+                // Get the store code
+                $storeCode = $payment->getOrder()->getStore()->getCode();
+
+                // Initialize the API handler
+                $api = $this->apiHandler->init($storeCode);
+
                 // Check the status
                 if (!$this->canRefund()) {
                     throw new \Magento\Framework\Exception\LocalizedException(
@@ -300,8 +321,8 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the refund request
-                $response = $this->apiHandler->init()->refundOrder($payment, $amount);
-                if (!$this->apiHandler->init()->isValidResponse($response)) {
+                $response = $api->refundOrder($payment, $amount);
+                if (!$api->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The refund request could not be processed.')
                     );

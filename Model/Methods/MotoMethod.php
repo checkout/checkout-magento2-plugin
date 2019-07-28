@@ -172,6 +172,12 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if ($this->backendAuthSession->isLoggedIn()) {
+                // Get the store code
+                $storeCode = $payment->getOrder()->getStore()->getCode();
+
+                // Initialize the API handler
+                $api = $this->apiHandler->init($storeCode);
+
                 // Check the status
                 if (!$this->canVoid()) {
                     throw new \Magento\Framework\Exception\LocalizedException(
@@ -180,8 +186,8 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the void request
-                $response = $this->apiHandler->init()->voidOrder($payment);
-                if (!$this->apiHandler->init()->isValidResponse($response)) {
+                $response = $api->voidOrder($payment);
+                if (!$api->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The void request could not be processed.')
                     );
@@ -211,6 +217,12 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if ($this->backendAuthSession->isLoggedIn()) {
+                // Get the store code
+                $storeCode = $payment->getOrder()->getStore()->getCode();
+
+                // Initialize the API handler
+                $api = $this->apiHandler->init($storeCode);
+
                 // Check the status
                 if (!$this->canRefund()) {
                     throw new \Magento\Framework\Exception\LocalizedException(
@@ -219,8 +231,8 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 }
 
                 // Process the refund request
-                $response = $this->apiHandler->init()->refundOrder($payment, $amount);
-                if (!$this->apiHandler->init()->isValidResponse($response)) {
+                $response = $api->refundOrder($payment, $amount);
+                if (!$api->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The refund request could not be processed.')
                     );
