@@ -398,13 +398,14 @@ class QuoteHandlerService
      *
      * @return array
      */
-    public function getQuoteRequestData($quote) {
+    public function getQuoteRequestData($quote)
+    {
         try {
-         return [
+            return [
             'quote_id' => $quote->getId(),
             'store_id' => $quote->getStoreId(),
             'customer_email' => $quote->getCustomerEmail()
-         ];
+            ];
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return [];

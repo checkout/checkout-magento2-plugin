@@ -129,7 +129,7 @@ class OrderHandlerService
                 if (!isset($filters['increment_id'])) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The order increment id is required for the handleOrder method.')
-                    );                   
+                    );
                 }
 
                 // Check if the order exists
