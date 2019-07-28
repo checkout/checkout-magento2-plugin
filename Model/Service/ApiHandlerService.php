@@ -73,15 +73,15 @@ class ApiHandlerService
     /**
      * Load the API client.
      */
-    public function init()
+    public function init($storeCode = null)
     {
         try {
             $this->checkoutApi = new CheckoutApi(
-                $this->config->getValue('secret_key'),
-                $this->config->getValue('environment'),
-                $this->config->getValue('public_key')
+                $this->config->getValue('secret_key', null, $storeCode),
+                $this->config->getValue('environment', null, $storeCode),
+                $this->config->getValue('public_key', null, $storeCode)
             );
-
+            
             return $this;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

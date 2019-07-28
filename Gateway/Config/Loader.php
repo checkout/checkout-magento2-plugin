@@ -292,9 +292,10 @@ class Loader
      *
      * @param string $key
      * @param string $methodId
+     * @param string $storeId
      * @return string
      */
-    public function getValue($key, $methodId = null)
+    public function getValue($key, $methodId = null, $storeCode = null)
     {
         try {
             // Prepare the path
@@ -305,7 +306,8 @@ class Loader
             // Get field value in database
             $value = $this->scopeConfig->getValue(
                 $path,
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                $storeCode
             );
 
             // Return a decrypted value for encrypted fields

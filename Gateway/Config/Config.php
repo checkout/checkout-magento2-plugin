@@ -82,9 +82,9 @@ class Config
      *
      * @return string
      */
-    public function getValue($field, $methodId = null)
+    public function getValue($field, $methodId = null, $storeCode = null)
     {
-        return $this->loader->init()->getValue($field, $methodId);
+        return $this->loader->init()->getValue($field, $methodId, $storeCode);
     }
 
     /**
