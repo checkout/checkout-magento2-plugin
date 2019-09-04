@@ -156,16 +156,36 @@ class Callback extends \Magento\Framework\App\Action\Action
 
                             // Save the order
                             $order = $this->orderRepository->save($order);
+
+                            // Set a valid response
+                            $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
+                            return $resultFactory->setData([
+                                'result' => _('Webhook and order successfully processed.')
+                            ]);
+                        }
+                        else {
+                            $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
+                            return $resultFactory->setData([
+                                'error_message' => __('The order creation failed. Please check the error logs.')
+                            ]);
                         }
                     }
+                    else {
+                        $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
+                        return $resultFactory->setData([
+                            'error_message' => __('The order was not created because of an invalid or failed payment.')
+                        ]);                      
+                    }
                 }
-
-                // Set a valid response
-                $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
-                return $resultFactory->setData(['result' => _('Success')]);
+                else {
+                    $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
+                    return $resultFactory->setData(
+                        ['error_message' => __('The webhook payment response is invalid.')]
+                    );                      
+                }
             } else {
                 $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
-                return $resultFactory->setData(['error_message' => _('Unauthorized request')]);
+                return $resultFactory->setData(['error_message' => _('Unauthorized request.')]);
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());

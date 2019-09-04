@@ -15,7 +15,7 @@ define(
 
         const KEY_CONFIG = 'checkoutcom_configuration';
         const KEY_DATA = 'checkoutcom_data';
-
+        
         return {
             /**
              * Gets a field value.
@@ -50,7 +50,49 @@ define(
              * @return {float}  The quote value.
              */
             getQuoteValue: function () {
-                return Config[KEY_DATA].quote.value;
+                var data = this.getRestQuoteData();
+                var amount = parseFloat(data.totals.base_grand_total);
+
+                return amount.toFixed(2);
+            },
+
+            /**
+             * Get the updated quote data from the core REST API.
+             *
+             * @return {object}  The quote data.
+             */
+            getRestQuoteData: function() {
+                // Prepare the required parameters
+                var self = this;
+                var result = null;
+
+                // Build the URL
+                var restUrl = window.BASE_URL;
+                restUrl += 'rest/default/V1/carts/mine/payment-information';
+                restUrl += '?form_key=' + window.checkoutConfig.formKey;
+
+                // Set the event to update data on any button click
+                $('button[type="submit"]')
+                .off('click', self.getRestQuoteData)
+                .on('click', self.getRestQuoteData);
+
+                // Send the AJAX request
+                $.ajax({
+                    url: restUrl,
+                    type: 'GET',
+                    contentType: "application/json",
+                    dataType: "json",
+                    async: false,
+                    showLoader: true,
+                    success: function(data, status, xhr) {
+                        result = data;
+                    },
+                    error: function (request, status, error) {
+                        self.log(error);
+                    }
+                });
+
+                return result;
             },
 
             /**
