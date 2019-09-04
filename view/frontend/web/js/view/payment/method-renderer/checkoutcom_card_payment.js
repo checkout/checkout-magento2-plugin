@@ -6,9 +6,10 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/model/quote',
+        'Magento_Checkout/js/model/url-builder',
         'framesjs'
     ],
-    function ($, Component, Utilities, AdditionalValidators, Customer, Quote) {
+    function ($, Component, Utilities, AdditionalValidators, Customer, Quote, urlBuilder) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_card_payment';
