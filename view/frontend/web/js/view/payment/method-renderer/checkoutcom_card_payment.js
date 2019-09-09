@@ -128,6 +128,7 @@ define(
                  * @return {void}
                  */
                 getPaymentForm: function () {
+
                     var self = this;
 
                     // Remove any existing event handlers
@@ -137,12 +138,10 @@ define(
                     Frames.init(
                         {
                             publicKey: self.getValue('public_key'),
-                            containerSelector: '.frames-container',
-                            debugMode: (self.getValue('debug') && self.getValue('console_logging')),
-                            localisation: self.getValue('language_fallback'),
-                            theme: self.getValue('form_theme'),
-                            customerName: Utilities.getCustomerName(),
-                            cardValidationChanged: function () {
+                            debug: (self.getValue('debug') && self.getValue('console_logging')),
+                            localization: self.getValue('language_fallback'),
+                            name: Utilities.getCustomerName(),
+                            frameValidationChanged: function() {
                                 if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
                                     Utilities.allowPlaceOrder(self.buttonId, true);
                                     Frames.submitCard();
@@ -150,23 +149,54 @@ define(
                                 } else {
                                     Utilities.allowPlaceOrder(self.buttonId, false);
                                 }
-                            },
-                            cardTokenised: function (event) {
-                                // Store the card token and the card bin
-                                self.cardToken = event.data.cardToken;
-                                self.cardBin =  event.data.card.bin;
-
-                                // Add the card token to the form
-                                Frames.addCardToken(
-                                    document.getElementById(self.formId),
-                                    event.data.cardToken
-                                );
                             }
                         }
                     );
+                    this.addFramesEvents();
 
                     // Initialize other events
-                    self.initEvents();
+                    this.initEvents();
+                },
+
+                /**
+                 * Add events to Frames.
+                 * @returns {void}
+                 */
+                addFramesEvents: function () {
+
+                    var self = this;
+                    Frames.addEventHandler(
+                      Frames.Events.CARD_VALIDATION_CHANGED,
+                      function (event) {
+
+                        if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
+                            Utilities.allowPlaceOrder(self.buttonId, true);
+                            Frames.submitCard();
+                            Frames.unblockFields();
+                        } else {
+                            Utilities.allowPlaceOrder(self.buttonId, false);
+                        }
+                      }
+
+                    );
+
+                    Frames.addEventHandler(
+                      Frames.Events.CARD_TOKENIZED,
+                        function (event) {
+
+                            // Store the card token and the card bin
+                            self.cardToken = event.token;
+                            self.cardBin =  event.bin;
+
+                            // Add the card token to the form
+                            Frames.addCardToken(
+                                document.getElementById(self.formId),
+                                event.token
+                            );
+
+                        }
+                    );
+
                 },
 
                 /**
