@@ -145,7 +145,6 @@ define(
                                 if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
                                     Utilities.allowPlaceOrder(self.buttonId, true);
                                     Frames.submitCard();
-                                    Frames.unblockFields();
                                 } else {
                                     Utilities.allowPlaceOrder(self.buttonId, false);
                                 }
@@ -172,7 +171,6 @@ define(
                         if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
                             Utilities.allowPlaceOrder(self.buttonId, true);
                             Frames.submitCard();
-                            Frames.unblockFields();
                         } else {
                             Utilities.allowPlaceOrder(self.buttonId, false);
                         }
@@ -220,9 +218,6 @@ define(
 
                         // Place the order
                         Utilities.placeOrder(payload, METHOD_ID);
-
-                        // Make sure the card form stays unblocked
-                        Frames.unblockFields();
                     }
                 }
             }
