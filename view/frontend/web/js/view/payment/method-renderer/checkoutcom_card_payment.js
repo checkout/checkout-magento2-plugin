@@ -138,7 +138,7 @@ define(
                     Frames.init(
                         {
                             publicKey: self.getValue('public_key'),
-                            debug: (self.getValue('debug') && self.getValue('console_logging')) == 'true',
+                            debug: Boolean((+self.getValue('debug') && +self.getValue('console_logging'))),
                             localization: self.getValue('language_fallback'),
                             name: Utilities.getCustomerName(),
                             frameValidationChanged: function() {
