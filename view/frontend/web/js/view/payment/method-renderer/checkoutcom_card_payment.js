@@ -138,7 +138,7 @@ define(
                     Frames.init(
                         {
                             publicKey: self.getValue('public_key'),
-                            debug: (self.getValue('debug') && self.getValue('console_logging')),
+                            debug: (self.getValue('debug') && self.getValue('console_logging')) == 'true',
                             localization: self.getValue('language_fallback'),
                             name: Utilities.getCustomerName(),
                             frameValidationChanged: function() {
@@ -194,6 +194,7 @@ define(
                                 event.token
                             );
 
+                            Frames.enableSubmitForm();
                         }
                     );
 
