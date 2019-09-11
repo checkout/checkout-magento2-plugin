@@ -38,9 +38,8 @@
             {
                 publicKey: ckoPublicKey,
                 debug: Boolean(<?= $block->escapeHtml(($block->config->getValue('debug') && $block->config->getValue('console_logging'))); ?>),
-                frameValidationChanged: function() {
+                cardValidationChanged: function() {
                     if (Frames.isCardValid()) {
-                        saveCardButton.attr("disabled", false);
                         Frames.submitCard();
                     }
                 },
@@ -50,8 +49,11 @@
                 cardTokenized: function(event) {
                     // Add the card token to the form
                     Frames.addCardToken(paymentForm, event.token);
+
                     // Add the card token to the hidden input field
                     cardTokenField.val(event.token);
+                    saveCardButton.attr("disabled", false);
+
                     Frames.enableSubmitForm();
                 }
             }
