@@ -134,21 +134,17 @@ define(
                     this.cleanEvents();
 
                     // Initialize the payment form
-                    Frames.init(
-                        {
-                            publicKey: self.getValue('public_key'),
-                            debug: Boolean((+self.getValue('debug') && +self.getValue('console_logging'))),
-                            localization: self.getValue('language_fallback'),
-                            name: Utilities.getCustomerName(),
-                            frameValidationChanged: function() {
-                                var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
-                                if (valid) {
-                                    Frames.submitCard();
-                                }
-                                Utilities.allowPlaceOrder(self.buttonId, valid);
-                            }
+                    Frames.init({
+                        publicKey: self.getValue('public_key'),
+                        debug: Boolean((+self.getValue('debug') && +self.getValue('console_logging'))),
+                        localization: self.getValue('language_fallback'),
+                        name: Utilities.getCustomerName(),
+                        frameValidationChanged: function() {
+                            var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
+                            if (valid) Frames.submitCard();
+                            Utilities.allowPlaceOrder(self.buttonId, valid);
                         }
-                    );
+                    });
 
                     // Add Frames events
                     this.addFramesEvents();
