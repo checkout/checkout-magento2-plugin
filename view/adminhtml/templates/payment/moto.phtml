@@ -1,6 +1,12 @@
 <fieldset class="admin__fieldset payment-method checkoutcom_moto"
           id="payment_form_checkoutcom_moto" style="display: none;">
     <div id="cko-form-holder">
+        <br>
+        <div class="one-liner">
+          <div class="card-frame">
+            <!-- form will be added here -->
+          </div>
+        </div>
         <form id="motoCardForm" method="POST">
             <!-- Saved cards -->
             <div id="vault-container">
@@ -46,32 +52,30 @@
 <script type="text/javascript">
     require(['jquery', 'domReady!', 'framesjs'], function ($) {
         // Prepare the elements
-        var cardTokenField = $('#ckoCardToken');
-        var cardFormContainerId = '#cko-form-holder';
+        var cardTokenField = document.getElementById('ckoCardToken');
         var paymentForm = document.getElementById('motoCardForm');
 
         // Remove any existing event handlers
         Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
-        Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
+        Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENIZED);
         Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
 
-        // Initialize the embedded form
-        Frames.init({
-            publicKey: '<?= $block->escapeHtml($block->config->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
-            containerSelector: cardFormContainerId,
-            theme: '<?= $block->escapeHtml($block->config->getValue('form_theme')) ?>',
-            debugMode: '<?= $block->escapeHtml($block->config->getValue('debug')) ?>',
-            cardValidationChanged: function(event) {
-                if (Frames.isCardValid()) {
-                    Frames.submitCard();
-                    Frames.unblockFields();
+        Frames.init(
+            {
+                publicKey: '<?= $block->escapeHtml($block->config->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
+                debug: Boolean(<?= $block->escapeHtml($block->config->getValue('debug')) ?>),
+                frameValidationChanged: function(event) {
+                    if (Frames.isCardValid()) {
+                        Frames.submitCard();
+                    }
+                },
+                cardTokenized: function(event) {
+                    // Add the card token to the hidden input field
+                    cardTokenField.value = event.token;
+                    Frames.enableSubmitForm();
                 }
-            },
-            cardTokenised: function(event) {
-                // Add the card token to the hidden input field
-                cardTokenField.val(event.data.cardToken);
             }
-        });
+        );
     });
 </script>
 

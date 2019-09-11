@@ -4,6 +4,12 @@
 </button>
 
 <div id="cko-form-holder" style="display: none;">
+    <br>
+    <div class="one-liner">
+      <div class="card-frame">
+        <!-- form will be added here -->
+      </div>
+    </div>
     <form class="widget-container" id="saveCardForm" method="POST">
         <?= $block->getBlockHtml('formkey') ?>
         <input type="hidden" id="ckoCardToken" name="ckoCardToken">
@@ -26,32 +32,30 @@
         var cardFormContainerId = '#cko-form-holder';
         var ckoPublicKey = '<?= $block->escapeHtml($block->config->getValue('public_key')); ?>';
         var paymentForm = document.getElementById('saveCardForm');
-        var ckoTheme = '';
 
         // Initialize the embedded form
-        Frames.init({
-            publicKey: ckoPublicKey,
-            containerSelector: cardFormContainerId,
-            theme: ckoTheme,
-            debugMode: '<?= $block->escapeHtml(($block->config->getValue('debug') && $block->config->getValue('console_logging'))); ?>',
-            frameActivated: function () {
-                saveCardButton.attr("disabled", true);
-            },
-            cardValidationChanged: function(event) {
-                if (Frames.isCardValid()) {
-                    saveCardButton.attr("disabled", false);
-                    Frames.submitCard();
-                    Frames.unblockFields();
+        Frames.init(
+            {
+                publicKey: ckoPublicKey,
+                debug: Boolean(<?= $block->escapeHtml(($block->config->getValue('debug') && $block->config->getValue('console_logging'))); ?>),
+                frameValidationChanged: function() {
+                    if (Frames.isCardValid()) {
+                        saveCardButton.attr("disabled", false);
+                        Frames.submitCard();
+                    }
+                },
+                frameActivated: function () {
+                    saveCardButton.attr("disabled", true);
+                },
+                cardTokenized: function(event) {
+                    // Add the card token to the form
+                    Frames.addCardToken(paymentForm, event.token);
+                    // Add the card token to the hidden input field
+                    cardTokenField.val(event.token);
+                    Frames.enableSubmitForm();
                 }
-            },
-            cardTokenised: function(event) {
-                // Add the card token to the form
-                Frames.addCardToken(paymentForm, event.data.cardToken);
-
-                // Add the card token to the hidden input field
-                cardTokenField.val(event.data.cardToken);
             }
-        });
+        );
 
         // Add card form controls
         showFormButton.on('click touch', function (event) {
