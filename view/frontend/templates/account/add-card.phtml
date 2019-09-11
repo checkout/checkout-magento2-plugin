@@ -42,6 +42,7 @@
                     if (Frames.isCardValid()) {
                         Frames.submitCard();
                     }
+                    saveCardButton.attr("disabled", !Frames.isCardValid());
                 },
                 frameActivated: function () {
                     saveCardButton.attr("disabled", true);
@@ -52,7 +53,6 @@
 
                     // Add the card token to the hidden input field
                     cardTokenField.val(event.token);
-                    saveCardButton.attr("disabled", false);
 
                     Frames.enableSubmitForm();
                 }

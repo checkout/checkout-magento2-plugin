@@ -142,12 +142,11 @@ define(
                             localization: self.getValue('language_fallback'),
                             name: Utilities.getCustomerName(),
                             frameValidationChanged: function() {
-                                if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
-                                    Utilities.allowPlaceOrder(self.buttonId, true);
+                                var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
+                                if (valid) {
                                     Frames.submitCard();
-                                } else {
-                                    Utilities.allowPlaceOrder(self.buttonId, false);
                                 }
+                                Utilities.allowPlaceOrder(self.buttonId, valid);
                             }
                         }
                     );
@@ -167,13 +166,11 @@ define(
                     Frames.addEventHandler(
                       Frames.Events.CARD_VALIDATION_CHANGED,
                       function (event) {
-
-                        if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
-                            Utilities.allowPlaceOrder(self.buttonId, true);
+                        var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
+                        if (valid) {
                             Frames.submitCard();
-                        } else {
-                            Utilities.allowPlaceOrder(self.buttonId, false);
                         }
+                        Utilities.allowPlaceOrder(self.buttonId, valid);
                       }
 
                     );
