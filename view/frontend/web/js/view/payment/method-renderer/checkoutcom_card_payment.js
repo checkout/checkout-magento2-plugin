@@ -128,7 +128,6 @@ define(
                  * @return {void}
                  */
                 getPaymentForm: function () {
-
                     var self = this;
 
                     // Remove any existing event handlers
@@ -150,6 +149,8 @@ define(
                             }
                         }
                     );
+
+                    // Add Frames events
                     this.addFramesEvents();
 
                     // Initialize other events
@@ -161,24 +162,24 @@ define(
                  * @returns {void}
                  */
                 addFramesEvents: function () {
-
                     var self = this;
-                    Frames.addEventHandler(
-                      Frames.Events.CARD_VALIDATION_CHANGED,
-                      function (event) {
-                        var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
-                        if (valid) {
-                            Frames.submitCard();
-                        }
-                        Utilities.allowPlaceOrder(self.buttonId, valid);
-                      }
 
+                    // Card validation event
+                    Frames.addEventHandler(
+                        Frames.Events.CARD_VALIDATION_CHANGED,
+                        function (event) {
+                            var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
+                            if (valid) {
+                                Frames.submitCard();
+                            }
+                            Utilities.allowPlaceOrder(self.buttonId, valid);
+                        }
                     );
 
+                    // Card tokenized event
                     Frames.addEventHandler(
                       Frames.Events.CARD_TOKENIZED,
                         function (event) {
-
                             // Store the card token and the card bin
                             self.cardToken = event.token;
                             self.cardBin =  event.bin;
@@ -189,10 +190,10 @@ define(
                                 event.token
                             );
 
+                            // Submit the form submission
                             Frames.enableSubmitForm();
                         }
                     );
-
                 },
 
                 /**
