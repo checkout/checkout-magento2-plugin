@@ -109,14 +109,6 @@ define(
                     );
                 },
 
-                /**
-                 * @returns {void}
-                 */
-                cleanEvents: function () {
-                    Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
-                    Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
-                    Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
-                },
 
                 /**
                  * Events
@@ -131,26 +123,32 @@ define(
 
                     var self = this;
 
-                    // Remove any existing event handlers
-                    this.cleanEvents();
+                    var address = Utilities.getBillingAddress(),
+                        line1 = address.street[0] !== undefined ? address.street[0] : '',
+                        line2 = address.street[1] !== undefined ? address.street[1] : '';
 
                     // Initialize the payment form
                     Frames.init(
                         {
                             publicKey: self.getValue('public_key'),
-                            debug: Boolean((+self.getValue('debug') && +self.getValue('console_logging'))),
+                            debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
                             localization: self.getValue('language_fallback'),
-                            name: Utilities.getCustomerName(),
-                            frameValidationChanged: function() {
-                                var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
-                                if (valid) {
-                                    Frames.submitCard();
+                            cardholder: {
+                                name: Utilities.getCustomerName(),
+                                phone: address.telephone,
+                                billingAddress: {
+                                    addressLine1: line1,
+                                    addressLine2: line2,
+                                    postcode: address.postcode,
+                                    city: address.city,
+                                    state: address.region,
+                                    country: address.countryId,
                                 }
-                                Utilities.allowPlaceOrder(self.buttonId, valid);
                             }
                         }
                     );
-                    this.addFramesEvents();
+
+                    self.addFramesEvents();
 
                     // Initialize other events
                     this.initEvents();
@@ -166,11 +164,14 @@ define(
                     Frames.addEventHandler(
                       Frames.Events.CARD_VALIDATION_CHANGED,
                       function (event) {
+
                         var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
                         if (valid) {
                             Frames.submitCard();
                         }
+
                         Utilities.allowPlaceOrder(self.buttonId, valid);
+
                       }
 
                     );

@@ -55,11 +55,6 @@
         var cardTokenField = document.getElementById('ckoCardToken');
         var paymentForm = document.getElementById('motoCardForm');
 
-        // Remove any existing event handlers
-        Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
-        Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENIZED);
-        Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
-
         Frames.init(
             {
                 publicKey: '<?= $block->escapeHtml($block->config->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
