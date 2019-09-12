@@ -149,7 +149,6 @@ define(
                     );
 
                     self.addFramesEvents();
-
                     // Initialize other events
                     this.initEvents();
                 },
@@ -164,36 +163,28 @@ define(
                     Frames.addEventHandler(
                       Frames.Events.CARD_VALIDATION_CHANGED,
                       function (event) {
-
                         var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
                         if (valid) {
                             Frames.submitCard();
                         }
-
                         Utilities.allowPlaceOrder(self.buttonId, valid);
-
                       }
-
                     );
 
                     Frames.addEventHandler(
                       Frames.Events.CARD_TOKENIZED,
                         function (event) {
-
                             // Store the card token and the card bin
                             self.cardToken = event.token;
                             self.cardBin =  event.bin;
-
                             // Add the card token to the form
                             Frames.addCardToken(
                                 document.getElementById(self.formId),
                                 event.token
                             );
-
                             Frames.enableSubmitForm();
                         }
                     );
-
                 },
 
                 /**
