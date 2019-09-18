@@ -147,7 +147,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
