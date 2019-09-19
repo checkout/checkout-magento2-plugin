@@ -109,20 +109,13 @@ define(
                     );
                 },
 
-
-                /**
-                 * Events
-                 */
-
                 /**
                  * Gets the payment form
                  *
                  * @return {void}
                  */
                 getPaymentForm: function () {
-
                     var self = this;
-
                     var address = Utilities.getBillingAddress(),
                         line1 = address.street[0] !== undefined ? address.street[0] : '',
                         line2 = address.street[1] !== undefined ? address.street[1] : '';
@@ -159,6 +152,8 @@ define(
                  */
                 addFramesEvents: function () {
                     var self = this;
+
+                    // Card validation changed event
                     Frames.addEventHandler(
                       Frames.Events.CARD_VALIDATION_CHANGED,
                       function (event) {
@@ -170,6 +165,7 @@ define(
                       }
                     );
 
+                    // Card tokenized event
                     Frames.addEventHandler(
                       Frames.Events.CARD_TOKENIZED,
                         function (event) {
