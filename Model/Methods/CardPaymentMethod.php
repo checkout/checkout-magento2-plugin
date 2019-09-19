@@ -86,7 +86,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      * @var Logger
      */
     public $ckoLogger;
- 
+
     /**
      * @var QuoteHandlerService
      */
@@ -106,12 +106,12 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      * @var ApiHandlerService
      */
     public $apiHandler;
-    
+
     /**
      * @var Session
      */
     public $customerSession;
-    
+
     /**
      * @var Session
      */

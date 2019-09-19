@@ -110,63 +110,76 @@ define(
                 },
 
                 /**
-                 * @returns {void}
-                 */
-                cleanEvents: function () {
-                    Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
-                    Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENISED);
-                    Frames.removeAllEventHandlers(Frames.Events.FRAME_ACTIVATED);
-                },
-
-                /**
-                 * Events
-                 */
-
-                /**
                  * Gets the payment form
                  *
                  * @return {void}
                  */
                 getPaymentForm: function () {
                     var self = this;
-
-                    // Remove any existing event handlers
-                    this.cleanEvents();
+                    var address = Utilities.getBillingAddress(),
+                        line1 = address.street[0] !== undefined ? address.street[0] : '',
+                        line2 = address.street[1] !== undefined ? address.street[1] : '';
 
                     // Initialize the payment form
                     Frames.init(
                         {
                             publicKey: self.getValue('public_key'),
-                            containerSelector: '.frames-container',
-                            debugMode: (self.getValue('debug') && self.getValue('console_logging')),
-                            localisation: self.getValue('language_fallback'),
-                            theme: self.getValue('form_theme'),
-                            customerName: Utilities.getCustomerName(),
-                            cardValidationChanged: function () {
-                                if (Frames.isCardValid() && Utilities.getBillingAddress() != null) {
-                                    Utilities.allowPlaceOrder(self.buttonId, true);
-                                    Frames.submitCard();
-                                    Frames.unblockFields();
-                                } else {
-                                    Utilities.allowPlaceOrder(self.buttonId, false);
+                            debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
+                            localization: self.getValue('language_fallback'),
+                            cardholder: {
+                                name: Utilities.getCustomerName(),
+                                phone: address.telephone,
+                                billingAddress: {
+                                    addressLine1: line1,
+                                    addressLine2: line2,
+                                    postcode: address.postcode,
+                                    city: address.city,
+                                    state: address.region,
+                                    country: address.countryId,
                                 }
-                            },
-                            cardTokenised: function (event) {
-                                // Store the card token and the card bin
-                                self.cardToken = event.data.cardToken;
-                                self.cardBin =  event.data.card.bin;
-
-                                // Add the card token to the form
-                                Frames.addCardToken(
-                                    document.getElementById(self.formId),
-                                    event.data.cardToken
-                                );
                             }
                         }
                     );
 
+                    self.addFramesEvents();
                     // Initialize other events
-                    self.initEvents();
+                    this.initEvents();
+                },
+
+                /**
+                 * Add events to Frames.
+                 * @returns {void}
+                 */
+                addFramesEvents: function () {
+                    var self = this;
+
+                    // Card validation changed event
+                    Frames.addEventHandler(
+                      Frames.Events.CARD_VALIDATION_CHANGED,
+                      function (event) {
+                        var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
+                        if (valid) {
+                            Frames.submitCard();
+                        }
+                        Utilities.allowPlaceOrder(self.buttonId, valid);
+                      }
+                    );
+
+                    // Card tokenized event
+                    Frames.addEventHandler(
+                      Frames.Events.CARD_TOKENIZED,
+                        function (event) {
+                            // Store the card token and the card bin
+                            self.cardToken = event.token;
+                            self.cardBin =  event.bin;
+                            // Add the card token to the form
+                            Frames.addCardToken(
+                                document.getElementById(self.formId),
+                                event.token
+                            );
+                            Frames.enableSubmitForm();
+                        }
+                    );
                 },
 
                 /**
@@ -189,9 +202,6 @@ define(
 
                         // Place the order
                         Utilities.placeOrder(payload, METHOD_ID);
-
-                        // Make sure the card form stays unblocked
-                        Frames.unblockFields();
                     }
                 }
             }
