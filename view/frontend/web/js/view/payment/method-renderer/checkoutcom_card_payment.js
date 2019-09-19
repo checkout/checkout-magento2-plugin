@@ -158,7 +158,6 @@ define(
                  * @returns {void}
                  */
                 addFramesEvents: function () {
-
                     var self = this;
                     Frames.addEventHandler(
                       Frames.Events.CARD_VALIDATION_CHANGED,
