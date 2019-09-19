@@ -35,6 +35,16 @@ class Config
     public $scopeConfig;
 
     /**
+     * @var Reader
+     */
+    protected $directoryReader;
+
+    /**
+     * @var Driver
+     */
+    protected $fileDriver;
+
+    /**
      * @var RequestInterface
      */
     public $request;
@@ -45,17 +55,26 @@ class Config
     public $loader;
 
     /**
+     * @var Reader
+     */
+    protected $directoryReader;
+    
+    /**
      * Config constructor
      */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\Module\Dir\Reader $directoryReader,
+        \Magento\Framework\Filesystem\Driver $fileDriver,
         \Magento\Framework\App\RequestInterface $request,
         \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         $this->storeManager = $storeManager;
         $this->scopeConfig = $scopeConfig;
+        $this->directoryReader = $directoryReader;
+        $this->fileDriver = $fileDriver;
         $this->request = $request;
         $this->loader = $loader;
         $this->utilities = $utilities;
@@ -289,5 +308,29 @@ class Config
     public function getApms()
     {
         return $this->loader->init()->loadApmList();
+    }
+
+    /**
+     * Gets the module version.
+     *
+     * @return array
+     */
+    public function getModuleVersion()
+    {
+        // Get the module path
+        $modulePath = $this->directoryReader->getModuleDir(
+            '',
+            'CheckoutCom_Magento2'
+        );
+
+        // Prepare the file path
+        $filePath = $modulePath . '/composer.json';
+
+        // Get the file content
+        $jsonData = json_decode(
+            $this->fileDriver->fileGetContents($filePath)
+        );
+
+        return $jsonData->version;
     }
 }

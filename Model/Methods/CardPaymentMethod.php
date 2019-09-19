@@ -262,6 +262,12 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             // Add the quote metadata
             $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
 
+            // Add the base metadata
+            $request->metadata = array_merge(
+                $request->metadata,
+                $this->config->getBaseMetadata()
+            );
+
             // Send the charge request
             $response = $api->checkoutApi
                 ->payments()
