@@ -55,22 +55,20 @@
         var cardTokenField = document.getElementById('ckoCardToken');
         var paymentForm = document.getElementById('motoCardForm');
 
-        Frames.init(
-            {
-                publicKey: '<?= $block->escapeHtml($block->config->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
-                debug: Boolean(<?= $block->escapeHtml($block->config->getValue('debug')) ?>),
-                frameValidationChanged: function(event) {
-                    if (Frames.isCardValid()) {
-                        Frames.submitCard();
-                    }
-                },
-                cardTokenized: function(event) {
-                    // Add the card token to the hidden input field
-                    cardTokenField.value = event.token;
-                    Frames.enableSubmitForm();
+        Frames.init({
+            publicKey: '<?= $block->escapeHtml($block->config->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
+            debug: Boolean(<?= $block->escapeHtml($block->config->getValue('debug')) ?>),
+            frameValidationChanged: function(event) {
+                if (Frames.isCardValid()) {
+                    Frames.submitCard();
                 }
+            },
+            cardTokenized: function(event) {
+                // Add the card token to the hidden input field
+                cardTokenField.value = event.token;
+                Frames.enableSubmitForm();
             }
-        );
+        });
     });
 </script>
 
