@@ -59,7 +59,7 @@
             {
                 publicKey: '<?= $block->escapeHtml($block->config->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
                 debug: Boolean(<?= $block->escapeHtml($block->config->getValue('debug')) ?>),
-                frameValidationChanged: function(event) {
+                cardValidationChanged: function(event) {
                     if (Frames.isCardValid()) {
                         Frames.submitCard();
                     }
