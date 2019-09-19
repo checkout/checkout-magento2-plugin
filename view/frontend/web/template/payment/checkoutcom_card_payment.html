@@ -25,8 +25,14 @@
 
         <!-- Card form -->
         <div class="frames-container">
+
             <form method="POST" data-bind="attr: {'id': formId}"></form>
-            <div data-bind="afterRender: getPaymentForm()"></div> 
+
+            <div class="one-liner">
+              <div class="card-frame" data-bind="afterRender: getPaymentForm()">
+                <!-- form will be added here -->
+              </div>
+            </div>
         </div>
 
         <!-- Billing form -->
@@ -51,7 +57,7 @@
                 <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
-        
+
         <!-- Actions -->
         <div class="actions-toolbar">
             <div class="primary">

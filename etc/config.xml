@@ -37,7 +37,7 @@
                 <order_status_refunded>closed</order_status_refunded>
                 <order_status_flagged>fraud</order_status_flagged>
                 <payment_action>authorize_capture</payment_action>
-                <capture_time>0</capture_time> 
+                <capture_time>0</capture_time>
                 <invoice_generation>authorize_capture</invoice_generation>
                 <dynamic_descriptor_enabled>0</dynamic_descriptor_enabled>
                 <descriptor_name></descriptor_name>
@@ -76,10 +76,9 @@
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
                 <title>Pay by Card with Checkout.com</title>
                 <active>1</active>
-                <form_theme>standard</form_theme>
                 <display_card_icons>0</display_card_icons>
                 <card_icons>VI,MC,AE,DN,DI,JCB</card_icons>
-                <language_fallback>EN-EN</language_fallback>    
+                <language_fallback>EN-EN</language_fallback>
                 <sort_order>1</sort_order>
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>
