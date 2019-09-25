@@ -61,7 +61,7 @@ class Config
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\Module\Dir\Reader $directoryReader,
-        \Magento\Framework\Filesystem\Driver $fileDriver,
+        \Magento\Framework\Filesystem\Driver\File $fileDriver,
         \Magento\Framework\App\RequestInterface $request,
         \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
         \CheckoutCom\Magento2\Helper\Utilities $utilities

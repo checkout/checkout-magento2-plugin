@@ -263,6 +263,7 @@ define(
                     url: self.getUrl('payment/placeorder'),
                     data: payload,
                     success: function (data) {
+                        console.log(data);
                         if (!data.success) {
                             FullScreenLoader.stopLoader();
                             self.showMessage('error', data.message, methodId);

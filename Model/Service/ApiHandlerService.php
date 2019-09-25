@@ -268,15 +268,36 @@ class ApiHandlerService
         // Get the website URL
         $serverUrl = $this->storeManager->getStore()->getBaseUrl();
 
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/1.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($serverUrl,1));
+
         // Get the SDK data
         $sdkData = 'PHP v' . phpversion() . ', SDK v' . CheckoutAPI::VERSION;
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/2.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($sdkData,1));
 
         // Get the integration data
         $integrationData  = 'Checkout.com Magento 2 Module v';
         $integrationData .= $this->config->getModuleVersion();
 
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/3.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($integrationData,1));
+
+
         // Get the Magento version
-        $platformData = 'Magento ' . $productMeta->getVersion();
+        $platformData = 'Magento ' . $this->productMeta->getVersion();
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/4.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($platformData,1));
 
         return [
             'server_url' => $serverUrl,

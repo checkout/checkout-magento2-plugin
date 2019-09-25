@@ -259,13 +259,18 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 );
             }
 
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/meta.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($this->apiHandler->getBaseMetadata(),1));
+
             // Add the quote metadata
             $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
 
             // Add the base metadata
             $request->metadata = array_merge(
                 $request->metadata,
-                $this->config->getBaseMetadata()
+                $this->apiHandler->getBaseMetadata()
             );
 
             // Send the charge request

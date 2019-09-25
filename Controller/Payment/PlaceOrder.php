@@ -155,6 +155,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                     if ($this->canPlaceOrder($response)) {
                         $this->placeOrder($response);
                     }
+                    else {
+                        $message = __('The order could not be placed.');
+                    }
                 } else {
                     // Payment failed
                     $message = __('The transaction could not be processed.');

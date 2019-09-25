@@ -152,7 +152,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 // Prepare the metadata array
                 $request->metadata = array_merge(
                     ['methodId' => $this->methodId],
-                    $this->config->getBaseMetadata()
+                    $this->apiHandler->getBaseMetadata()
                 );
 
                 // Prepare the capture date setting

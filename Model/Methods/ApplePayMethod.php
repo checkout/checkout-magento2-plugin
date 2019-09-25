@@ -211,7 +211,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
             // Prepare the metadata array
             $request->metadata = array_merge(
                 ['methodId' => $this->_code],
-                $this->config->getBaseMetadata()
+                $this->apiHandler->getBaseMetadata()
             );
 
             // Prepare the capture date setting

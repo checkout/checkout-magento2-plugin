@@ -231,7 +231,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
             // Add the base metadata
             $request->metadata = array_merge(
                 $request->metadata,
-                $this->config->getBaseMetadata()
+                $this->apiHandler->getBaseMetadata()
             );
             
             // Send the charge request
