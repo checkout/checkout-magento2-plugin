@@ -242,7 +242,7 @@
                         <label>Payment form styles</label>
                         <config_path>payment/checkoutcom_card_payment/payment_form_styles</config_path>
                         <comment>
-                            Add add styles in JSON format for the payment form.
+                            Add add styles in valid JSON format for the payment form (See Frames.js docs for more information). Ex: {"base":{"color":"blue","fontSize":"18px"}}
                         </comment>
                     </field>
                 </group>

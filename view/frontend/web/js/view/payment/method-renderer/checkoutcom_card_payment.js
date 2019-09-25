@@ -115,7 +115,7 @@ define(
                  * @return {void}
                  */
                 getFormStyles: function() {
-                    var formStyles = self.getValue('payment_form_styles');
+                    var formStyles = this.getValue('payment_form_styles');
 
                     // Reject empty, null or undefined values
                     if (formStyles === undefined || formStyles == null || formStyles.length <= 0) {
