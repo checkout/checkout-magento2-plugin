@@ -53,11 +53,6 @@ class Config
      * @var Loader
      */
     public $loader;
-
-    /**
-     * @var Reader
-     */
-    protected $directoryReader;
     
     /**
      * Config constructor
