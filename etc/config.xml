@@ -96,6 +96,7 @@
                 <can_capture_vault>1</can_capture_vault>
                 <can_capture_partial>1</can_capture_partial>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <payment_form_styles></payment_form_styles>
             </checkoutcom_card_payment>
             <checkoutcom_apm>
                 <model>CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</model>

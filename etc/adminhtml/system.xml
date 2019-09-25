@@ -237,6 +237,14 @@
                             Add a flag to the charge request if the payment card is MADA.
                         </comment>
                     </field>
+
+                    <field id="payment_form_styles" type="textarea" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment form styles</label>
+                        <config_path>payment/checkoutcom_card_payment/payment_form_styles</config_path>
+                        <comment>
+                            Add add styles in JSON format for the payment form.
+                        </comment>
+                    </field>
                 </group>
 
                 <group id="checkoutcom_apm" type="text" showInDefault="1" showInWebsite="1" showInStore="1">

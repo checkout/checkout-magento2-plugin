@@ -110,15 +110,39 @@ define(
                 },
 
                 /**
+                 * Gets the payment form styles
+                 *
+                 * @return {void}
+                 */
+                getFormStyles: function() {
+                    var formStyles = self.getValue('payment_form_styles');
+
+                    // Reject empty, null or undefined values
+                    if (formStyles === undefined || formStyles == null || formStyles.length <= 0) {
+                        return false;
+                    }
+
+                    // Check if the styles are valid
+                    try {
+                        var stylesObj = JSON.parse(formStyles);
+                    } catch (e) {
+                        return null;
+                    }
+
+                    return stylesObj;   
+                },   
+
+                /**
                  * Gets the payment form
                  *
                  * @return {void}
                  */
                 getPaymentForm: function () {
                     var self = this;
+                    var formStyles = self.getFormStyles();
                     var address = Utilities.getBillingAddress(),
                         line1 = address.street[0] !== undefined ? address.street[0] : '',
-                        line2 = address.street[1] !== undefined ? address.street[1] : '';
+                        line2 = address.street[1] !== undefined ? address.street[1] : ''
 
                     // Initialize the payment form
                     Frames.init(
@@ -126,6 +150,7 @@ define(
                             publicKey: self.getValue('public_key'),
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
                             localization: self.getValue('language_fallback'),
+                            style: (formStyles) ? formStyles : {}, 
                             cardholder: {
                                 name: Utilities.getCustomerName(),
                                 phone: address.telephone,
