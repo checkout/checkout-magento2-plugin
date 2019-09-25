@@ -4,8 +4,12 @@
 "An error occurred and the order could not be created.","An error occurred and the order could not be created."
 "Your order number %1 has been created successfully.","Your order number %1 has been created successfully."
 "The transaction could not be processed.","The transaction could not be processed."
+"The order could not be placed.","The order could not be placed."
 "The request is invalid.","The request is invalid."
 "The transaction could not be processed or has been cancelled.","The transaction could not be processed or has been cancelled."
+"The order creation failed. Please check the error logs.","The order creation failed. Please check the error logs."
+"The order was not created because of an invalid or failed payment.","The order was not created because of an invalid or failed payment."
+"The webhook payment response is invalid.","The webhook payment response is invalid."
 Black,Black
 White,White
 "White with line","White with line"
