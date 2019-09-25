@@ -235,7 +235,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $paymentDetails = $api->getPaymentDetails($response->id);
 
             // Prepare the quote filters
-            $filters = $this->prepareQuoteFilters(
+            $filters = $this->quoteHandler->prepareQuoteFilters(
                 $paymentDetails,
                 $reservedIncrementId
             );
@@ -262,28 +262,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
-    }
-
-    /**
-     * Prepares the quote filters.
-     *
-     * @param array $paymentDetails
-     * @param string $reservedIncrementId
-     *
-     * @return array
-     */
-    public function prepareQuoteFilters($paymentDetails, $reservedIncrementId)
-    {
-        // Prepare the filters array
-        $filters = ['increment_id' => $reservedIncrementId];
-
-        // Retrieve the quote metadata
-        $quoteData = isset($paymentDetails->metadata['quoteData'])
-        && !empty($paymentDetails->metadata['quoteData'])
-        ? json_decode($paymentDetails->metadata['quoteData'], true)
-        : [];
-
-        return array_merge($filters, $quoteData);
     }
 
     /**
