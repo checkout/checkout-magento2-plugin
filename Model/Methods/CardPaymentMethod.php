@@ -86,7 +86,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      * @var Logger
      */
     public $ckoLogger;
- 
+
     /**
      * @var QuoteHandlerService
      */
@@ -106,12 +106,12 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      * @var ApiHandlerService
      */
     public $apiHandler;
-    
+
     /**
      * @var Session
      */
     public $customerSession;
-    
+
     /**
      * @var Session
      */
@@ -261,6 +261,12 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Add the quote metadata
             $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
+
+            // Add the base metadata
+            $request->metadata = array_merge(
+                $request->metadata,
+                $this->apiHandler->getBaseMetadata()
+            );
 
             // Send the charge request
             $response = $api->checkoutApi

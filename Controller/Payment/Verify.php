@@ -131,16 +131,28 @@ class Verify extends \Magento\Framework\App\Action\Action
     public function placeOrder($response = null)
     {
         try {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
             // Get the reserved order increment id
             $reservedIncrementId = $this->quoteHandler
                 ->getReference($this->quote);
+
+            // Get the payment details
+            $paymentDetails = $api->getPaymentDetails($response->id);
+
+            // Prepare the quote filters
+            $filters = $this->quoteHandler->prepareQuoteFilters(
+                $paymentDetails,
+                $reservedIncrementId
+            );
 
             // Create an order
             $order = $this->orderHandler
                 ->setMethodId($this->methodId)
                 ->handleOrder(
                     $response,
-                    ['increment_id' => $reservedIncrementId]
+                    $filters
                 );
 
             // Add the payment info to the order
@@ -161,6 +173,28 @@ class Verify extends \Magento\Framework\App\Action\Action
             $this->logger->write($e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Prepares the quote filters.
+     *
+     * @param array $paymentDetails
+     * @param string $reservedIncrementId
+     *
+     * @return array
+     */
+    public function prepareQuoteFilters($paymentDetails, $reservedIncrementId)
+    {
+        // Prepare the filters array
+        $filters = ['increment_id' => $reservedIncrementId];
+
+        // Retrieve the quote metadata
+        $quoteData = isset($paymentDetails->metadata['quoteData'])
+        && !empty($paymentDetails->metadata['quoteData'])
+        ? json_decode($paymentDetails->metadata['quoteData'], true)
+        : [];
+
+        return array_merge($filters, $quoteData);
     }
 
     /**

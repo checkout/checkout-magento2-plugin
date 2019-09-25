@@ -147,7 +147,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
@@ -280,6 +280,12 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             // Add the quote metadata
             $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
 
+            // Add the base metadata
+            $request->metadata = array_merge(
+                $request->metadata,
+                $this->apiHandler->getBaseMetadata()
+            );
+            
             // Send the charge request
             $response = $api->checkoutApi
                 ->payments()

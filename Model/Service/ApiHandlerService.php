@@ -36,6 +36,16 @@ class ApiHandlerService
     public $encryptor;
 
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager;
+
+    /**
+     * @var ProductMetadataInterface
+     */
+    public $productMeta;
+
+    /**
      * @var Config
      */
     public $config;
@@ -60,11 +70,15 @@ class ApiHandlerService
      */
     public function __construct(
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\App\ProductMetadataInterface $productMeta,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->encryptor = $encryptor;
+        $this->storeManager = $storeManager;
+        $this->productMeta = $productMeta;
         $this->config = $config;
         $this->utilities = $utilities;
         $this->logger = $logger;
@@ -244,5 +258,31 @@ class ApiHandlerService
             $this->logger->write($e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Get base metadata.
+     */
+    public function getBaseMetadata()
+    {
+        // Get the website URL
+        $serverUrl = $this->storeManager->getStore()->getBaseUrl();
+
+        // Get the SDK data
+        $sdkData = 'PHP v' . phpversion() . ', SDK v' . CheckoutAPI::VERSION;
+
+        // Get the integration data
+        $integrationData  = 'Checkout.com Magento 2 Module v';
+        $integrationData .= $this->config->getModuleVersion();
+
+        // Get the Magento version
+        $platformData = 'Magento ' . $this->productMeta->getVersion();
+
+        return [
+            'server_url' => $serverUrl,
+            'sdk_data' => $sdkData,
+            'integration_data' => $integrationData,
+            'platform_data' => $platformData
+        ];     
     }
 }
