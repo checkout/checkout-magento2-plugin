@@ -37,12 +37,12 @@ class Config
     /**
      * @var Reader
      */
-    protected $directoryReader;
+    public $directoryReader;
 
     /**
      * @var Driver
      */
-    protected $fileDriver;
+    public $fileDriver;
 
     /**
      * @var RequestInterface
