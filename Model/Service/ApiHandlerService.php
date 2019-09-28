@@ -248,12 +248,8 @@ class ApiHandlerService
             $address->city = $shippingAddress->getCity();
             $address->zip = $shippingAddress->getPostcode();
             $address->country = $shippingAddress->getCountry();
-
-            // Create the phone
-            $phone = new Phone();
-            $phone->number = $shippingAddress->getTelephone();
             
-            return new Shipping($address, $phone);
+            return new Shipping($address);
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
