@@ -238,6 +238,15 @@
                         </comment>
                     </field>
 
+                    <field id="payment_form_layout" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment form layout</label>
+                        <config_path>payment/checkoutcom_card_payment/payment_form_layout</config_path>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentFormLayout</source_model>
+                        <comment>
+                            Select a layout for the payment forn dipslay.
+                        </comment>
+                    </field>
+
                     <field id="payment_form_styles" type="textarea" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment form styles</label>
                         <config_path>payment/checkoutcom_card_payment/payment_form_styles</config_path>
