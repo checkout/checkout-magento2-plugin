@@ -133,6 +133,15 @@ define(
                 },   
 
                 /**
+                 * Gets the payment form layout
+                 *
+                 * @return {void}
+                 */
+                getFormLayout: function() {
+                    return this.getValue('payment_form_layout');
+                },   
+
+                /**
                  * Gets the payment form
                  *
                  * @return {void}

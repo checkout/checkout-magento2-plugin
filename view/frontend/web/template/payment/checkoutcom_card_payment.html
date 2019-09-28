@@ -25,30 +25,85 @@
 
         <!-- Card form -->
         <div class="frames-container">
+            <form method="POST" data-bind="attr: {'id': formId}">
+                <!-- ko if: (getFormLayout() == 'single') -->
+                    <div class="one-liner">
+                        <div class="card-frame" data-bind="afterRender: getPaymentForm()">
+                            <!-- Form will be added here -->
+                        </div>
+                    </div>
+                    <p class="error-message"></p>
+                <!-- /ko -->
+                <!-- ko if: (getFormLayout() == 'multi') -->
+                    <!-- Card number field-->
+                    <label for="card-number">
+                        <!-- ko i18n: 'Card number'--><!-- /ko -->
+                    </label>
+                    <div class="input-container card-number">
+                        <div class="icon-container">
+                            <img id="icon-card-number" src="images/card-icons/card.svg" data-bind="attr: {alt: $t('PAN')"/>
+                        </div>
+                        <div class="card-number-frame"></div>
+                        <div class="icon-container payment-method">
+                            <img id="logo-payment-method" />
+                        </div>
+                        <div class="icon-container">
+                            <img id="icon-card-number-error" src="images/card-icons/error.svg" />
+                        </div>
+                    </div>
 
-            <form method="POST" data-bind="attr: {'id': formId}"></form>
+                    <!-- Date and code fields -->
+                    <div class="date-and-code">
+                        <!-- Date field -->
+                        <div>
+                            <label for="expiry-date">
+                                <!-- ko i18n: 'Expiry date'--><!-- /ko -->
+                            </label>
+                            <div class="input-container expiry-date">
+                                <div class="icon-container">
+                                    <img id="icon-expiry-date" src="images/card-icons/exp-date.svg" data-bind="attr: {alt: $t('Expiry date')" />
+                                </div>
+                                <div class="expiry-date-frame"></div>
+                                <div class="icon-container">
+                                    <img id="icon-expiry-date-error" src="images/card-icons/error.svg" />
+                                </div>
+                            </div>
+                        </div>
 
-            <div class="one-liner">
-              <div class="card-frame" data-bind="afterRender: getPaymentForm()">
-                <!-- form will be added here -->
-              </div>
-            </div>
+                        <!-- Code field -->
+                        <div>
+                            <label for="cvv">
+                                <!-- ko i18n: 'Security code'--><!-- /ko -->
+                            </label>
+                            <div class="input-container cvv">
+                                <div class="icon-container">
+                                    <img id="icon-cvv" src="images/card-icons/cvv.svg" data-bind="attr: {alt: $t('CVV')"/>
+                                </div>
+                                <div class="cvv-frame"></div>
+                                <div class="icon-container">
+                                    <img id="icon-cvv-error" src="images/card-icons/error.svg"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <!-- /ko -->
+            </form>
         </div>
 
         <!-- Billing form -->
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
-            <!-- ko template: getTemplate() --><!-- /ko -->
+                <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
 
         <!-- ko if: (isVaultEnabled() && isSaveCardEnabled() && isLoggedIn()) -->
-        <div class="field choice save-card-option">
-            <input type="checkbox" name="saveCard" class="checkbox"/>
-            <label class="label" for="saveCard">
-                <span><!-- ko i18n: 'Save this card for later use.'--><!-- /ko --></span>
-            </label>
-        </div>
+            <div class="field choice save-card-option">
+                <input type="checkbox" name="saveCard" class="checkbox"/>
+                <label class="label" for="saveCard">
+                    <span><!-- ko i18n: 'Save this card for later use.'--><!-- /ko --></span>
+                </label>
+            </div>
         <!-- /ko -->
 
         <!-- Agreements form -->

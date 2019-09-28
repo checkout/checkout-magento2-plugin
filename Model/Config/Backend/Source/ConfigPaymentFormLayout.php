@@ -23,7 +23,7 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 class ConfigPaymentFormLayout implements \Magento\Framework\Option\ArrayInterface
 {
     /**
-     * Language fallback
+     * Payment form layout
      *
      * @return array
      */
