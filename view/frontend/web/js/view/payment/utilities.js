@@ -36,6 +36,23 @@ define(
             },
 
             /**
+             * Load a CSS file
+             *
+             * @return {void}
+             */
+            loadCss: function(fileName, folderPath) {
+                // Prepare the folder path
+                folderPath = '/' + folderPath + '/' || '';
+
+                // Build the payment form CSS path
+                var cssPath = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.css_path;
+                cssPath += folderPath + fileName + '.css';
+
+                // Append the CSS file
+                $('head').append('<link rel="stylesheet" href="' + cssPath + '" type="text/css"/>');
+            },  
+
+            /**
              * Get the store name.
              *
              * @return {string}  The store name.

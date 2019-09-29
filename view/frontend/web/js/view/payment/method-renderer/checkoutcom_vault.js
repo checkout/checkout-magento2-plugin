@@ -29,6 +29,7 @@ define(
                 initialize: function () {
                     this._super();
                     Utilities.setEmail();
+                    Utilities.loadCss('vault');
 
                     return this;
                 },

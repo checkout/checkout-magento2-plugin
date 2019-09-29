@@ -34,7 +34,7 @@ define(
                 initialize: function () {
                     this._super();
                     this.initAddressObserver();
-                    this.loadCss();
+                    Utilities.loadCss(this.getFormLayout(), 'frames');
                     Utilities.setEmail();
 
                     return this;
@@ -153,20 +153,6 @@ define(
                 },  
 
                 /**
-                 * Gets the module CSS path
-                 *
-                 * @return {void}
-                 */
-                loadCss: function() {
-                    // Build the payment form CSS path
-                    var cssPath = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.css_path;
-                    cssPath += '/frames/' + this.getFormLayout() + '.css';
-
-                    // Append the CSS file
-                    $('head').append('<link rel="stylesheet" href="' + cssPath + '" type="text/css" />');
-                },  
-
-                /**
                  * Gets the payment form
                  *
                  * @return {void}
@@ -200,19 +186,29 @@ define(
                         }
                     );
 
-                    // Load Frames multi if needed
-                    if (this.getFormLayout() == 'multi') {
-                        Frames = FramesMulti.load(Frames, this.formId);
-                    }
-                    else {
-                        Frames = FramesSingle.load(Frames, this.formId);   
-                    }
+                    // Load the Frames instance component
+                    Frames = this.addFramesComponent(Frames);
 
                     // Add the Frames events
                     this.addFramesEvents();
 
                     // Initialize other events
                     this.initEvents();
+                },
+
+                /**
+                 * Loads a Frames component.
+                 * @returns {void}
+                 */
+                addFramesComponent: function (framesInstance) {
+                    if (this.getFormLayout() == 'multi') {
+                        Frames = FramesMulti.load(framesInstance, this.formId);
+                    }
+                    else {
+                        Frames = FramesSingle.load(framesInstance, this.formId);   
+                    }
+
+                    return Frames;
                 },
 
                 /**
