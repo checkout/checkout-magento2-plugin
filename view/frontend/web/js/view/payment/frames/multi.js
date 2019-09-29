@@ -117,7 +117,7 @@ define(
             setErrorMessage: function(el) {
                 var targetSelector = '#' + this.formId + ' .error-message__' + el;
                 var message = document.querySelector(targetSelector);
-                message.textContent = errors[el];
+                message.textContent = this.getErrors()[el];
             },
 
             setDefaultIcon: function(el) {

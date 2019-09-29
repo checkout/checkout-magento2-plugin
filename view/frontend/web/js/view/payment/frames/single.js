@@ -40,7 +40,7 @@ define(
             },
 
             onValidationChanged: function(event) {
-                var targetSelector = '#' + this.formId + ' .error-message';
+                var targetSelector = '.error-message';
                 var errorMessage = document.querySelector(targetSelector);
                 errorMessage.textContent = this.getErrorMessage(event);
             }
