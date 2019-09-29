@@ -35,53 +35,55 @@
                     <p class="error-message"></p>
                 <!-- /ko -->
                 <!-- ko if: (getFormLayout() == 'multi') -->
-                    <!-- Card number field-->
-                    <label for="card-number">
-                        <!-- ko i18n: 'Card number'--><!-- /ko -->
-                    </label>
-                    <div class="input-container card-number">
-                        <div class="icon-container">
-                            <img id="icon-card-number" data-bind="attr: {alt: $t('PAN'), src: getImagesPath() + '/frames/multi/card.svg'}"/>
-                        </div>
-                        <div class="card-number-frame"></div>
-                        <div class="icon-container payment-method">
-                            <img id="logo-payment-method" />
-                        </div>
-                        <div class="icon-container">
-                            <img id="icon-card-number-error" data-bind="attr: {src: getImagesPath() + '/frames/multi/error.svg'}"/>
-                        </div>
-                    </div>
-
-                    <!-- Date and code fields -->
-                    <div class="date-and-code">
-                        <!-- Date field -->
-                        <div>
-                            <label for="expiry-date">
-                                <!-- ko i18n: 'Expiry date'--><!-- /ko -->
-                            </label>
-                            <div class="input-container expiry-date">
-                                <div class="icon-container">
-                                    <img id="icon-expiry-date" data-bind="attr: {alt: $t('Expiry date'), src: getImagesPath() + '/frames/multi/exp-date.svg'}"/>
-                                </div>
-                                <div class="expiry-date-frame"></div>
-                                <div class="icon-container">
-                                    <img id="icon-expiry-date-error" data-bind="attr: {src: getImagesPath() + '/frames/multi/error.svg'}"/>
-                                </div>
+                    <div data-bind="afterRender: getPaymentForm()">
+                        <!-- Card number field-->
+                        <label for="card-number">
+                            <!-- ko i18n: 'Card number'--><!-- /ko -->
+                        </label>
+                        <div class="input-container card-number">
+                            <div class="icon-container">
+                                <img id="icon-card-number" data-bind="attr: {alt: $t('PAN'), src: getImagesPath() + '/frames/multi/card.svg'}"/>
+                            </div>
+                            <div class="card-number-frame"></div>
+                            <div class="icon-container payment-method">
+                                <img id="logo-payment-method" />
+                            </div>
+                            <div class="icon-container">
+                                <img id="icon-card-number-error" data-bind="attr: {src: getImagesPath() + '/frames/multi/error.svg'}"/>
                             </div>
                         </div>
 
-                        <!-- Code field -->
-                        <div>
-                            <label for="cvv">
-                                <!-- ko i18n: 'Security code'--><!-- /ko -->
-                            </label>
-                            <div class="input-container cvv">
-                                <div class="icon-container">
-                                    <img id="icon-cvv" data-bind="attr: {alt: $t('CVV'), src: getImagesPath() + '/frames/multi/cvv.svg'}"/>
+                        <!-- Date and code fields -->
+                        <div class="date-and-code">
+                            <!-- Date field -->
+                            <div>
+                                <label for="expiry-date">
+                                    <!-- ko i18n: 'Expiry date'--><!-- /ko -->
+                                </label>
+                                <div class="input-container expiry-date">
+                                    <div class="icon-container">
+                                        <img id="icon-expiry-date" data-bind="attr: {alt: $t('Expiry date'), src: getImagesPath() + '/frames/multi/exp-date.svg'}"/>
+                                    </div>
+                                    <div class="expiry-date-frame"></div>
+                                    <div class="icon-container">
+                                        <img id="icon-expiry-date-error" data-bind="attr: {src: getImagesPath() + '/frames/multi/error.svg'}"/>
+                                    </div>
                                 </div>
-                                <div class="cvv-frame"></div>
-                                <div class="icon-container">
-                                    <img id="icon-cvv-error" data-bind="attr: {src: getImagesPath() + '/frames/multi/error.svg'}"/>
+                            </div>
+
+                            <!-- Code field -->
+                            <div>
+                                <label for="cvv">
+                                    <!-- ko i18n: 'Security code'--><!-- /ko -->
+                                </label>
+                                <div class="input-container cvv">
+                                    <div class="icon-container">
+                                        <img id="icon-cvv" data-bind="attr: {alt: $t('CVV'), src: getImagesPath() + '/frames/multi/cvv.svg'}"/>
+                                    </div>
+                                    <div class="cvv-frame"></div>
+                                    <div class="icon-container">
+                                        <img id="icon-cvv-error" data-bind="attr: {src: getImagesPath() + '/frames/multi/error.svg'}"/>
+                                    </div>
                                 </div>
                             </div>
                         </div>

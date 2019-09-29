@@ -3,13 +3,14 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
+        'CheckoutCom_Magento2/js/view/payment/frames/multi',
+        'CheckoutCom_Magento2/js/view/payment/frames/single',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/model/quote',
-        'Magento_Checkout/js/model/url-builder',
         'framesjs'
     ],
-    function ($, Component, Utilities, AdditionalValidators, Customer, Quote, urlBuilder) {
+    function ($, Component, Utilities, FramesMulti, FramesSingle, AdditionalValidators, Customer, Quote) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_card_payment';
@@ -199,7 +200,17 @@ define(
                         }
                     );
 
-                    self.addFramesEvents();
+                    // Load Frames multi if needed
+                    if (this.getFormLayout() == 'multi') {
+                        Frames = FramesMulti.load(Frames, this.formId);
+                    }
+                    else {
+                        Frames = FramesSingle.load(Frames, this.formId);   
+                    }
+
+                    // Add the Frames events
+                    this.addFramesEvents();
+
                     // Initialize other events
                     this.initEvents();
                 },
@@ -213,14 +224,14 @@ define(
 
                     // Card validation changed event
                     Frames.addEventHandler(
-                      Frames.Events.CARD_VALIDATION_CHANGED,
-                      function (event) {
-                        var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
-                        if (valid) {
-                            Frames.submitCard();
+                        Frames.Events.CARD_VALIDATION_CHANGED,
+                        function (event) {
+                            var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
+                            if (valid) {
+                                Frames.submitCard();
+                            }
+                            Utilities.allowPlaceOrder(self.buttonId, valid);
                         }
-                        Utilities.allowPlaceOrder(self.buttonId, valid);
-                      }
                     );
 
                     // Card tokenized event
