@@ -139,7 +139,16 @@ define(
                  */
                 getFormLayout: function() {
                     return this.getValue('payment_form_layout');
-                },   
+                },
+
+                /**
+                 * Gets the module images path
+                 *
+                 * @return {void}
+                 */
+                getImagesPath: function() {
+                    return window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.images_path;
+                },  
 
                 /**
                  * Gets the payment form
