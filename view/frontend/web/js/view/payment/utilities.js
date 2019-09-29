@@ -42,7 +42,7 @@ define(
              */
             loadCss: function(fileName, folderPath) {
                 // Prepare the folder path
-                folderPath = '/' + folderPath + '/' || '';
+                folderPath = (folderPath) ? '/' + folderPath + '/' : '';
 
                 // Build the payment form CSS path
                 var cssPath = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.css_path;
