@@ -132,6 +132,11 @@
                             <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
                             <validate>required-entry</validate>
                         </field>
+
+                        <field id="webhook_url" sortOrder="0" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Webhook Url</label>
+                            <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\WebhookUrl</frontend_model>
+                        </field>
                     </group>
                     <group id="debug_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Debug Settings</label>
