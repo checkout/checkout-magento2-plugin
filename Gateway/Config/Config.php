@@ -346,4 +346,15 @@ class Config
         return $this->assetRepository
         ->getUrl('CheckoutCom_Magento2::images');
     }
+
+    /**
+     * Gets the module CSS path.
+     *
+     * @return array
+     */
+    public function getCssPath()
+    {
+        return $this->assetRepository
+        ->getUrl('CheckoutCom_Magento2::css');
+    }
 }

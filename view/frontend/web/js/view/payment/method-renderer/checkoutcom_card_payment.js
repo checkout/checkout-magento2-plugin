@@ -33,6 +33,7 @@ define(
                 initialize: function () {
                     this._super();
                     this.initAddressObserver();
+                    this.loadCss();
                     Utilities.setEmail();
 
                     return this;
@@ -148,6 +149,20 @@ define(
                  */
                 getImagesPath: function() {
                     return window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.images_path;
+                },  
+
+                /**
+                 * Gets the module CSS path
+                 *
+                 * @return {void}
+                 */
+                loadCss: function() {
+                    // Build the payment form CSS path
+                    var cssPath = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.css_path;
+                    cssPath += '/' + this.getFormLayout() + '.css';
+
+                    // Append the CSS file
+                    $('head').append('<link rel="stylesheet" href="' + cssPath + '" type="text/css" />');
                 },  
 
                 /**
