@@ -19,10 +19,6 @@
     box-sizing: border-box;
 }
 
-#checkoutcom_card_payment_frm {
-    max-width: 450px;
-}
-
 #checkoutcom_card_payment_frm html {
     padding: 1rem;
     background-color: #FFF;
@@ -86,6 +82,7 @@
   
 #checkoutcom_card_payment_frm .card-number-frame {
     padding-left: 40px;
+    width: 100%;
 }
 
 #checkoutcom_card_payment_frm .expiry-date-frame {
@@ -149,7 +146,7 @@
 #checkoutcom_card_payment_frm .error-message {
     display: block;
     color: #C9501C;
-    font-size: .9rem;
+    font-size: 1.2rem;
     margin: 8px 0 0 1px;
     font-weight: 300;
 }
