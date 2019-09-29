@@ -1,0 +1,93 @@
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+  
+html {
+    padding: 1rem;
+    background-color: #FFF;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+#payment-form {
+    max-width: 31.5rem;
+    margin: 0 auto;
+}
+
+iframe {
+    width: 100%;
+}
+
+.one-liner {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-frame {
+    border: solid 1px #13395E;
+    border-radius: 3px;
+    width: 100%;
+    margin-bottom: 8px;
+    height: 40px;
+    box-shadow: 0 1px 3px 0 rgba(19,57,94,0.2);
+}
+
+.card-frame.frame--rendered {
+    opacity: 1; /* Prevents iFrame rendering issue */
+
+    /* Reminder: consider removal of 'rendered' */
+    /* event passing to Merchant page */
+}
+
+.card-frame.frame--rendered.frame--focus {
+    border: solid 1px #13395E;
+    box-shadow: 0 2px 5px 0 rgba(19,57,94,0.15);
+}
+
+.card-frame.frame--rendered.frame--invalid {
+    border: solid 1px #D96830;
+    box-shadow: 0 2px 5px 0 rgba(217,104,48,0.15);
+}
+
+.error-message {
+    color: #C9501C;
+    font-size: .9rem;
+    margin: 8px 0 0 1px;
+    font-weight: 300;
+}
+
+.success-payment-message {
+    color: #13395E;
+    line-height: 1.4;
+}
+
+.token {
+    color: #b35e14;
+    font-size: .9rem;
+    font-family: monospace;
+}
+
+@media screen and (min-width: 31rem) {
+    .one-liner {
+        flex-direction: row;
+    }
+
+    .card-frame {
+        width: 318px;
+        margin-bottom: 0;
+    }
+}
