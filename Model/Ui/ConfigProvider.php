@@ -94,7 +94,7 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
                     ],
                     'cards' => $this->cardHandler->getCardIcons(),
                     'images_path' => $this->config->getImagesPath(),
-                    'css_path' => $this->config->getCsssPath()
+                    'css_path' => $this->config->getCssPath()
                 ]
             ]
         );

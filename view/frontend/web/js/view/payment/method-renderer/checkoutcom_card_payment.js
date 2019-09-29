@@ -159,7 +159,7 @@ define(
                 loadCss: function() {
                     // Build the payment form CSS path
                     var cssPath = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.css_path;
-                    cssPath += '/' + this.getFormLayout() + '.css';
+                    cssPath += '/frames/' + this.getFormLayout() + '.css';
 
                     // Append the CSS file
                     $('head').append('<link rel="stylesheet" href="' + cssPath + '" type="text/css" />');
