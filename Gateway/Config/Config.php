@@ -25,6 +25,11 @@ use CheckoutCom\Magento2\Gateway\Config\Loader;
 class Config
 {
     /**
+     * @var Repository
+     */
+    public $assetRepository;
+
+    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
@@ -58,6 +63,7 @@ class Config
      * Config constructor
      */
     public function __construct(
+        \Magento\Framework\View\Asset\Repository $assetRepository,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\Module\Dir\Reader $directoryReader,
@@ -66,6 +72,7 @@ class Config
         \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
+        $this->assetRepository = $assetRepository;
         $this->storeManager = $storeManager;
         $this->scopeConfig = $scopeConfig;
         $this->directoryReader = $directoryReader;
@@ -327,5 +334,27 @@ class Config
         );
 
         return $jsonData->version;
+    }
+
+    /**
+     * Gets the module images path.
+     *
+     * @return array
+     */
+    public function getImagesPath()
+    {
+        return $this->assetRepository
+        ->getUrl('CheckoutCom_Magento2::images');
+    }
+
+    /**
+     * Gets the module CSS path.
+     *
+     * @return array
+     */
+    public function getCssPath()
+    {
+        return $this->assetRepository
+        ->getUrl('CheckoutCom_Magento2::css');
     }
 }

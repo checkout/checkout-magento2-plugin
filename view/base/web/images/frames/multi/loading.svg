@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 55.2 (78181) - https://sketchapp.com -->
+    <title>04F9496F-DDA0-44F5-B1BF-8E1369F8B567</title>
+    <desc>Created with sketchtool.</desc>
+    <defs>
+        <path d="M8,1 C7.724,1 7.5,1.224 7.5,1.5 C7.5,1.776 7.724,2 8,2 C11.309,2 14,4.691 14,8 C14,11.309 11.309,14 8,14 C4.691,14 2,11.309 2,8 C2,7.724 1.776,7.5 1.5,7.5 C1.224,7.5 1,7.724 1,8 C1,11.859 4.14,15 8,15 C11.859,15 15,11.859 15,8 C15,4.14 11.859,1 8,1" id="path-1"></path>
+    </defs>
+    <g id="Frames" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="1.1.-One-liner" transform="translate(-506.000000, -98.000000)">
+            <g id="Group" transform="translate(112.000000, 85.000000)">
+                <g id="icon/action/card/card" transform="translate(393.000000, 12.000000)">
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <use id="Fill-1" fill="#000000" xlink:href="#path-1"></use>
+                    <g id="🎨-icon-color" mask="url(#mask-2)" fill="#FFFFFF">
+                        <rect id="color" x="0" y="0" width="16" height="16"></rect>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

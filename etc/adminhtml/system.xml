@@ -132,6 +132,11 @@
                             <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
                             <validate>required-entry</validate>
                         </field>
+
+                        <field id="webhook_url" sortOrder="0" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Webhook Url</label>
+                            <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\WebhookUrl</frontend_model>
+                        </field>
                     </group>
                     <group id="debug_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Debug Settings</label>
@@ -238,11 +243,20 @@
                         </comment>
                     </field>
 
+                    <field id="payment_form_layout" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment form layout</label>
+                        <config_path>payment/checkoutcom_card_payment/payment_form_layout</config_path>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentFormLayout</source_model>
+                        <comment>
+                            Select a layout for the payment forn dipslay.
+                        </comment>
+                    </field>
+
                     <field id="payment_form_styles" type="textarea" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment form styles</label>
                         <config_path>payment/checkoutcom_card_payment/payment_form_styles</config_path>
                         <comment>
-                            Add add styles in valid JSON format for the payment form (See Frames.js docs for more information). Ex: {"base":{"color":"blue","fontSize":"18px"}}
+                            Add add CSS styles in JSON format for the payment form (See Frames.js docs for more information). Ex: {"base":{"color":"blue","fontSize":"18px"}}
                         </comment>
                     </field>
                 </group>

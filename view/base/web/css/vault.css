@@ -1,0 +1,62 @@
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+ 
+/**
+ * Vault payment
+ */
+#vault-container {
+    margin-bottom: 20px;
+}
+
+#vault-container div:last-child {
+    border-bottom: none !important;
+}
+
+#vault-container .card-on,
+#vault-container .card-selected {
+    background-color:  #f1f1f1;
+}
+
+.cko-vault-card {
+    border-bottom: 1px solid #ccc;
+    padding: 15px;
+    cursor: pointer;
+}
+
+.cko-vault-card input[type=radio] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cko-vault-card input[type=radio] + img {
+    cursor: pointer;
+}
+
+.cko-vault-card label img {
+    width: 45px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+.cko-vault-card .vault-details {
+    float: left;
+}
+
+.cko-vault-card .vault-cvv {
+    float: right;
+    width: 55px;
+}

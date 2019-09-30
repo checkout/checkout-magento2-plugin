@@ -87,6 +87,15 @@ Contact your [Checkout.com](https://www.checkout.com "Checkout.com") account man
 
 Dedicated technical support is available to all Merchants using Checkout.com via the public GitHub repositories or directly by email at integration@checkout.com. Checkout.com does not provide support for third party plugins or any alterations made to the official Checkout.com plugins.
 
+## Webhook URL
+In order to allow the [Checkout.com](https://www.checkout.com "Checkout.com") payment gateway to send payment notifications to your Magenot 2 installation, you will have to configure the following URL as a Webhook URL in the Hub:
+
+```bash
+yoursite.com/checkout_com/webhook/callback
+```
+
+A dynamically generated Webhook URL specific to your installation is available in the "Account settings" section of the Checkout.com Magento 2 module configuration.
+
 **DISCLAIMER**
 
 In no event shall Checkout.com be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from the information or code provided or the use of the information or code provided. This disclaimer of liability refers to any technical issue or damage caused by the use or non-use of the information or code provided or by the use of incorrect or incomplete information or code provided.

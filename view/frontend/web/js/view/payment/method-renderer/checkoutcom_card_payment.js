@@ -3,13 +3,14 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
+        'CheckoutCom_Magento2/js/view/payment/frames/multi',
+        'CheckoutCom_Magento2/js/view/payment/frames/single',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/model/quote',
-        'Magento_Checkout/js/model/url-builder',
         'framesjs'
     ],
-    function ($, Component, Utilities, AdditionalValidators, Customer, Quote, urlBuilder) {
+    function ($, Component, Utilities, FramesMulti, FramesSingle, AdditionalValidators, Customer, Quote) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_card_payment';
@@ -33,6 +34,7 @@ define(
                 initialize: function () {
                     this._super();
                     this.initAddressObserver();
+                    Utilities.loadCss(this.getFormLayout(), 'frames');
                     Utilities.setEmail();
 
                     return this;
@@ -133,6 +135,24 @@ define(
                 },   
 
                 /**
+                 * Gets the payment form layout
+                 *
+                 * @return {void}
+                 */
+                getFormLayout: function() {
+                    return this.getValue('payment_form_layout');
+                },
+
+                /**
+                 * Gets the module images path
+                 *
+                 * @return {void}
+                 */
+                getImagesPath: function() {
+                    return window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.images_path;
+                },  
+
+                /**
                  * Gets the payment form
                  *
                  * @return {void}
@@ -166,9 +186,29 @@ define(
                         }
                     );
 
-                    self.addFramesEvents();
+                    // Load the Frames instance component
+                    Frames = this.addFramesComponent(Frames);
+
+                    // Add the Frames events
+                    this.addFramesEvents();
+
                     // Initialize other events
                     this.initEvents();
+                },
+
+                /**
+                 * Loads a Frames component.
+                 * @returns {void}
+                 */
+                addFramesComponent: function (framesInstance) {
+                    if (this.getFormLayout() == 'multi') {
+                        Frames = FramesMulti.load(framesInstance, this.formId);
+                    }
+                    else {
+                        Frames = FramesSingle.load(framesInstance, this.formId);   
+                    }
+
+                    return Frames;
                 },
 
                 /**
@@ -180,14 +220,14 @@ define(
 
                     // Card validation changed event
                     Frames.addEventHandler(
-                      Frames.Events.CARD_VALIDATION_CHANGED,
-                      function (event) {
-                        var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
-                        if (valid) {
-                            Frames.submitCard();
+                        Frames.Events.CARD_VALIDATION_CHANGED,
+                        function (event) {
+                            var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
+                            if (valid) {
+                                Frames.submitCard();
+                            }
+                            Utilities.allowPlaceOrder(self.buttonId, valid);
                         }
-                        Utilities.allowPlaceOrder(self.buttonId, valid);
-                      }
                     );
 
                     // Card tokenized event

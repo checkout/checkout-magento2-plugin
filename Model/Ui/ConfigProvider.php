@@ -92,7 +92,9 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
                     'user' => [
                         'hasCards' => $this->vaultHandler->userHasCards()
                     ],
-                    'cards' => $this->cardHandler->getCardIcons()
+                    'cards' => $this->cardHandler->getCardIcons(),
+                    'images_path' => $this->config->getImagesPath(),
+                    'css_path' => $this->config->getCssPath()
                 ]
             ]
         );
