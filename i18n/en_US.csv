@@ -36,6 +36,8 @@ Italian,Italian
 Dutch,Dutch
 Authorize,Authorize
 "Authorize and Capture","Authorize and Capture"
+"Single iframe","Single iframe"
+"Multiple iframes","Multiple iframes"
 "Payment request from %1","Payment request from %1"
 "The void action is not available.","The void action is not available."
 "The void request could not be processed.","The void request could not be processed."
@@ -79,4 +81,7 @@ Debitor,Debitor
 "I accept the mandate for a single payment","I accept the mandate for a single payment"
 "Your rights regarding the above mandate are explained in a statement that you can obtain from your bank.","Your rights regarding the above mandate are explained in a statement that you can obtain from your bank."
 "Place Order","Place Order"
+"Card number","Card number"
+"Expiry date","Expiry date"
+"Security code","Security code"
 "Save this card for later use.","Save this card for later use."
