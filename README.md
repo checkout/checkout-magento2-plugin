@@ -94,7 +94,7 @@ In order to allow the [Checkout.com](https://www.checkout.com "Checkout.com") pa
 yoursite.com/checkout_com/webhook/callback
 ```
 
-A dynamically generated Webhook URL specific to your installation is available in the "Account settings" section of the module configuration.
+A dynamically generated Webhook URL specific to your installation is available in the "Account settings" section of the Checkout.com Magento 2 module configuration.
 
 **DISCLAIMER**
 
