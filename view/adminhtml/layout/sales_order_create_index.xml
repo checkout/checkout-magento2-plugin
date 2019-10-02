@@ -15,6 +15,6 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="CheckoutCom_Magento2::moto.css"/>
+        <css src="CheckoutCom_Magento2::css/moto.css"/>
     </head>
 </page>
