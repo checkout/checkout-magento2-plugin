@@ -42,7 +42,7 @@ define(
                 initialize: function () {
                     this._super();
                     Utilities.setEmail();
-                    Utilities.loadCss('apm');
+                    Utilities.loadCss('apm', 'apm');
                 },
 
                 /**

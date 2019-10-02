@@ -43,7 +43,7 @@ define(
                 initialize: function () {
                     this._super();
                     Utilities.setEmail();
-                    Utilities.loadCss('google-pay');
+                    Utilities.loadCss('google-pay', 'google-pay');
 
                     return this;
                 },

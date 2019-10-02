@@ -44,7 +44,7 @@ define(
                 initialize: function () {
                     this._super();
                     Utilities.setEmail();
-                    Utilities.loadCss('vault');
+                    Utilities.loadCss('vault', 'vault');
 
                     return this;
                 },

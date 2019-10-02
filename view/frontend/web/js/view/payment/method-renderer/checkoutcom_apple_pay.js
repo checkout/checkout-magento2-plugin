@@ -42,7 +42,7 @@ define(
                 initialize: function () {
                     this._super();
                     Utilities.setEmail();
-                    Utilities.loadCss('apple-pay');
+                    Utilities.loadCss('apple-pay', 'apple-pay');
 
                     return this;
                 },
