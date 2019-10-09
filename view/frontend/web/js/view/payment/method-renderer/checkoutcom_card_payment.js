@@ -36,6 +36,8 @@ define(
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     buttonId: METHOD_ID + '_btn',
                     formId: METHOD_ID + '_frm',
+                    containerId: '#checkoutcom_card_payment_container',
+                    formClone: null,
                     cardToken: null,
                     cardBin: null,
                     saveCard: false,
@@ -46,7 +48,7 @@ define(
                 /**
                  * @returns {exports}
                  */
-                initialize: function () {
+                initialize: function() {
                     this._super();
                     this.initAddressObserver();
                     Utilities.loadCss(this.getFormLayout(), 'frames');
@@ -55,7 +57,7 @@ define(
                     return this;
                 },
 
-                initAddressObserver: function () {
+                initAddressObserver: function() {
                     var self = this;
                     Quote.billingAddress.subscribe(function () {
                         if (AdditionalValidators.validate() && Frames.isCardValid()) {
@@ -67,61 +69,80 @@ define(
                 /**
                  * @returns {string}
                  */
-                getCode: function () {
+                getCode: function() {
                     return METHOD_ID;
                 },
 
                 /**
                  * @returns {string}
                  */
-                getValue: function (field) {
+                getValue: function(field) {
                     return Utilities.getValue(METHOD_ID, field);
                 },
 
                 /**
                  * @returns {string}
                  */
-                isVaultEnabled: function () {
+                isVaultEnabled: function() {
                     return this.getValue('active');
                 },
 
                 /**
                  * @returns {string}
                  */
-                isSaveCardEnabled: function () {
+                isSaveCardEnabled: function() {
                     return this.getValue('save_card_option');
                 },
 
                 /**
                  * @returns {bool}
                  */
-                shouldDisplayCardIcons: function () {
+                shouldDisplayCardIcons: function() {
                     return this.getValue('display_card_icons');
                 },
 
                 /**
                  * @returns {array}
                  */
-                getCardIcons: function () {
+                getCardIcons: function() {
                     return Utilities.getSupportedCards();
                 },
 
                 /**
                  * @returns {bool}
                  */
-                isLoggedIn: function () {
+                isLoggedIn: function() {
                     return Customer.isLoggedIn();
                 },
 
                 /**
                  * @returns {void}
                  */
-                initEvents: function () {
+                initEvents: function() {
                     var self = this;
+
+                    // Save card event
                     $('input[name="saveCard"]').on(
                         'click',
                         function () {
                             self.saveCard = this.checked;
+                        }
+                    );
+
+                    // Frames handling event
+                    $('div.payment-method input[type="radio"]').on(
+                        'click',
+                        function () {
+                            alert('option clicked');
+                            var containerId = this.containerId.replace('#', '');
+                            if ($(this).closest('.payment-method').attr('id') == containerId) {
+                                alert('get form');
+                                self.getPaymentForm();
+                            }
+                            else {
+                                alert('remove form');
+                                self.removePaymentForm();
+                            }
                         }
                     );
                 },
@@ -168,54 +189,72 @@ define(
                 },  
 
                 /**
+                 * Removes the payment form
+                 *
+                 * @return {void}
+                 */
+                removePaymentForm: function() {
+                    var container = $('#' + this.formId);
+                    this.formClone = $('#' + this.formId).html();
+                    container.empty();
+                },
+
+                /**
                  * Gets the payment form
                  *
                  * @return {void}
                  */
-                getPaymentForm: function () {
+                getPaymentForm: function() {
+                    // Prepare the needed variables
                     var self = this;
                     var formStyles = self.getFormStyles();
                     var address = Utilities.getBillingAddress(),
                         line1 = address.street[0] !== undefined ? address.street[0] : '',
                         line2 = address.street[1] !== undefined ? address.street[1] : ''
 
-                    // Initialize the payment form
-                    Frames.init(
-                        {
-                            publicKey: self.getValue('public_key'),
-                            debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
-                            localization: self.getValue('language_fallback'),
-                            style: (formStyles) ? formStyles : {}, 
-                            cardholder: {
-                                name: Utilities.getCustomerName(),
-                                phone: address.telephone,
-                                billingAddress: {
-                                    addressLine1: line1,
-                                    addressLine2: line2,
-                                    postcode: address.postcode,
-                                    city: address.city,
-                                    state: address.region,
-                                    country: address.countryId,
+                    // Restore any existing HTML
+                    if (this.formClone) {
+                        $('#' + this.formId).html(this.formClone);
+                    }
+                    else {
+                        // Initialize the payment form
+                        Frames.init(
+                            {
+                                publicKey: self.getValue('public_key'),
+                                debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
+                                localization: self.getValue('language_fallback'),
+                                style: (formStyles) ? formStyles : {}, 
+                                cardholder: {
+                                    name: Utilities.getCustomerName(),
+                                    phone: address.telephone,
+                                    billingAddress: {
+                                        addressLine1: line1,
+                                        addressLine2: line2,
+                                        postcode: address.postcode,
+                                        city: address.city,
+                                        state: address.region,
+                                        country: address.countryId,
+                                    }
                                 }
                             }
-                        }
-                    );
+                        );
 
-                    // Load the Frames instance component
-                    Frames = this.addFramesComponent(Frames);
+                        // Load the Frames instance component
+                        Frames = this.addFramesComponent(Frames);
 
-                    // Add the Frames events
-                    this.addFramesEvents();
+                        // Add the Frames events
+                        this.addFramesEvents();
 
-                    // Initialize other events
-                    this.initEvents();
+                        // Initialize other events
+                        this.initEvents();
+                    }
                 },
 
                 /**
                  * Loads a Frames component.
                  * @returns {void}
                  */
-                addFramesComponent: function (framesInstance) {
+                addFramesComponent: function(framesInstance) {
                     if (this.getFormLayout() == 'multi') {
                         Frames = FramesMulti.load(framesInstance, this.formId);
                     }
@@ -230,7 +269,7 @@ define(
                  * Add events to Frames.
                  * @returns {void}
                  */
-                addFramesEvents: function () {
+                addFramesEvents: function() {
                     var self = this;
 
                     // Card validation changed event
@@ -265,23 +304,22 @@ define(
                 /**
                  * @returns {void}
                  */
-                placeOrder: function () {
-                    // Prepare some variables
-                    var self = this;
+                placeOrder: function() {
+                    if (Utilities.optionIsActive(this.containerId)) {
+                        // Validate the order placement
+                        if (AdditionalValidators.validate() && Frames.isCardValid()) {
+                            // Prepare the payload
+                            var payload = {
+                                methodId: METHOD_ID,
+                                cardToken: this.cardToken,
+                                cardBin: this.cardBin,
+                                saveCard: this.saveCard,
+                                source: METHOD_ID
+                            };
 
-                    // Validate the order placement
-                    if (AdditionalValidators.validate() && Frames.isCardValid()) {
-                        // Prepare the payload
-                        var payload = {
-                            methodId: METHOD_ID,
-                            cardToken: self.cardToken,
-                            cardBin: self.cardBin,
-                            saveCard: self.saveCard,
-                            source: METHOD_ID
-                        };
-
-                        // Place the order
-                        Utilities.placeOrder(payload, METHOD_ID);
+                            // Place the order
+                            Utilities.placeOrder(payload, METHOD_ID);
+                        }
                     }
                 }
             }

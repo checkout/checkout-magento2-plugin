@@ -279,6 +279,13 @@ define(
             },
 
             /**
+             * Check if a payment option is active.
+             */
+            optionIsActive: function (idSelector) {
+                return $(idSelector).hasClass('_active');
+            },
+
+            /**
              * Place a new order.
              *
              * @returns {void}

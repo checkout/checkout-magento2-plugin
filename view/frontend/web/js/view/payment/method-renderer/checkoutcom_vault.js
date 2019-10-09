@@ -241,32 +241,33 @@ define(
                  * @returns {void}
                  */
                 placeOrder: function () {
-                    var self = this;
-                    if (AdditionalValidators.validate()) {
-                        // Prepare the payload
-                        var payload = {
-                            methodId: METHOD_ID,
-                            publicHash: self.getPublicHash(),
-                            source: METHOD_ID
-                        }
-
-                        // Add the CVV to the payload if needed
-                        if (self.isCvvRequired()) {
-                            if (!self.isCvvValid()) {
-                                Utilities.showMessage(
-                                    'error',
-                                    __('The CVV field is invalid.'),
-                                    METHOD_ID
-                                );
-
-                                return;
-                            } else {
-                                payload.cvv = self.getCvvValue();
+                    if (Utilities.optionIsActive(this.containerId)) {
+                        if (AdditionalValidators.validate()) {
+                            // Prepare the payload
+                            var payload = {
+                                methodId: METHOD_ID,
+                                publicHash: this.getPublicHash(),
+                                source: METHOD_ID
                             }
-                        }
 
-                        // Place the order
-                        Utilities.placeOrder(payload, METHOD_ID);
+                            // Add the CVV to the payload if needed
+                            if (this.isCvvRequired()) {
+                                if (!this.isCvvValid()) {
+                                    Utilities.showMessage(
+                                        'error',
+                                        __('The CVV field is invalid.'),
+                                        METHOD_ID
+                                    );
+
+                                    return;
+                                } else {
+                                    payload.cvv = this.getCvvValue();
+                                }
+                            }
+
+                            // Place the order
+                            Utilities.placeOrder(payload, METHOD_ID);
+                        }
                     }
                 }
             }

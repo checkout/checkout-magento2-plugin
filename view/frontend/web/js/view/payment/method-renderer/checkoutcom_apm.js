@@ -33,6 +33,7 @@ define(
             {
                 defaults: {
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
+                    containerId: '#checkoutcom_apm_container',
                     redirectAfterPlaceOrder: false
                 },
 
@@ -100,35 +101,37 @@ define(
                  * @returns {void}
                  */
                 placeOrder: function () {
-                    var id = $("#apm-container div[aria-selected=true]").attr('id'),
-                        $form = $("#cko-apm-form-" + id),
-                        data = {methodId: METHOD_ID};
+                    if (Utilities.optionIsActive(this.containerId)) {
+                        var id = $("#apm-container div[aria-selected=true]").attr('id'),
+                            $form = $("#cko-apm-form-" + id),
+                            data = {methodId: METHOD_ID};
 
-                    // Start the loader
-                    FullScreenLoader.startLoader()
+                        // Start the loader
+                        FullScreenLoader.startLoader()
 
-                    // Serialize data
-                    $("#cko-apm-form-" + id).serializeArray().forEach(
-                        function (e) {
-                            data[e.name] = e.value;
-                        }
-                    );
-
-                    // Place the order
-                    if (AdditionalValidators.validate() && $form.valid() && this.custom(data)) {
-                        Utilities.placeOrder(
-                            data,
-                            METHOD_ID,
-                            function () {
-                                Utilities.log(__('Success'));
-                            },
-                            function () {
-                                Utilities.log(__('Fail'));
+                        // Serialize data
+                        $("#cko-apm-form-" + id).serializeArray().forEach(
+                            function (e) {
+                                data[e.name] = e.value;
                             }
                         );
-                    }
 
-                    FullScreenLoader.stopLoader();
+                        // Place the order
+                        if (AdditionalValidators.validate() && $form.valid() && this.custom(data)) {
+                            Utilities.placeOrder(
+                                data,
+                                METHOD_ID,
+                                function () {
+                                    Utilities.log(__('Success'));
+                                },
+                                function () {
+                                    Utilities.log(__('Fail'));
+                                }
+                            );
+                        }
+
+                        FullScreenLoader.stopLoader();
+                    }
                 },
 
                 /**
