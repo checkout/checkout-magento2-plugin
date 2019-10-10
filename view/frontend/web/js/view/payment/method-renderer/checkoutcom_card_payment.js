@@ -128,23 +128,21 @@ define(
                             self.saveCard = this.checked;
                         }
                     );
+                },
 
-                    // Frames handling event
-                    $('div.payment-method input[type="radio"]').on(
-                        'click',
-                        function () {
-                            alert('option clicked');
-                            var containerId = this.containerId.replace('#', '');
-                            if ($(this).closest('.payment-method').attr('id') == containerId) {
-                                alert('get form');
-                                self.getPaymentForm();
-                            }
-                            else {
-                                alert('remove form');
-                                self.removePaymentForm();
-                            }
+                /**
+                 * @returns {void}
+                 */
+                handleOptionClick: function() {
+                    var self = this;
+                    $('.payment-method input[type="radio"]').on('click', function() {
+                        if ($(this).attr('id') == METHOD_ID) {
+                            self.getPaymentForm();
                         }
-                    );
+                        else {
+                            self.removePaymentForm();
+                        }
+                    });
                 },
 
                 /**
@@ -187,17 +185,6 @@ define(
                 getImagesPath: function() {
                     return window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.images_path;
                 },  
-
-                /**
-                 * Removes the payment form
-                 *
-                 * @return {void}
-                 */
-                removePaymentForm: function() {
-                    var container = $('#' + this.formId);
-                    this.formClone = $('#' + this.formId).html();
-                    container.empty();
-                },
 
                 /**
                  * Gets the payment form
@@ -263,6 +250,22 @@ define(
                     }
 
                     return Frames;
+                },
+
+                /**
+                 * Removes the payment form
+                 *
+                 * @return {void}
+                 */
+                removePaymentForm: function() {
+                    // Remove the events
+                    Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
+                    Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENIZED);
+
+                    // Remove the HTML
+                    var container = $('#' + this.formId);
+                    this.formClone = $('#' + this.formId).html();
+                    container.empty();
                 },
 
                 /**
