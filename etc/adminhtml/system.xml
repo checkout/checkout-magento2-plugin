@@ -18,9 +18,12 @@
         <section id="payment">
 
             <group id="checkoutcom" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label><![CDATA[<div class="checkout-payment-logo"></div><div class="checkout-payment-byline">Checkout.com delivers increased payment processing speed, greater reliability, and adaptability to the needs of your business with a unified payment solution.</div>]]></label>
+                <label>
+                    <![CDATA[<div class="checkout-payment-logo"></div><div class="checkout-payment-byline">Checkout.com delivers increased payment processing speed, greater reliability, and adaptability to the needs of your business with a unified payment solution.</div>]]>
+                </label>
+                <attribute type="checkout_com_separator">0</attribute>
                 <fieldset_css>checkout-settings checkout-payment-section</fieldset_css>
-                <frontend_model>Magento\Paypal\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
+                <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
 
                 <group id="module" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Configuration</label>
