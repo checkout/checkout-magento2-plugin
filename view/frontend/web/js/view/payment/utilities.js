@@ -281,8 +281,10 @@ define(
             /**
              * Check if a payment option is active.
              */
-            optionIsActive: function (idSelector) {
-                return $(idSelector).hasClass('_active');
+            methodIsSelected: function (idSelector) {
+                var id = idSelector.replace('#', '');
+                var selected = CheckoutData.getSelectedPaymentMethod();
+                return id == selected;
             },
 
             /**

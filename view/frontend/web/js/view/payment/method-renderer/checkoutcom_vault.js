@@ -33,7 +33,6 @@ define(
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     buttonId: METHOD_ID + '_btn',
                     cvvField: '.vault-cvv input',
-                    containerId: '#vault-container',
                     rowSelector: '.cko-vault-card',
                     redirectAfterPlaceOrder: false
                 },
@@ -241,7 +240,7 @@ define(
                  * @returns {void}
                  */
                 placeOrder: function () {
-                    if (Utilities.optionIsActive(this.containerId)) {
+                    if (Utilities.methodIsSelected(METHOD_ID)) {
                         if (AdditionalValidators.validate()) {
                             // Prepare the payload
                             var payload = {

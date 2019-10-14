@@ -34,7 +34,6 @@ define(
                 defaults: {
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     button_target: '#ckoGooglePayButton',
-                    containerId: '#checkoutcom_google_pay_container',
                     redirectAfterPlaceOrder: false
                 },
 
@@ -90,7 +89,7 @@ define(
                     //  Button click event
                     $(self.button_target).click(
                         function (evt) {
-                            if (Utilities.optionIsActive(this.containerId)) {
+                            if (Utilities.methodIsSelected(METHOD_ID)) {
                                 // Validate T&C submission
                                 if (!AdditionalValidators.validate()) {
                                     return;

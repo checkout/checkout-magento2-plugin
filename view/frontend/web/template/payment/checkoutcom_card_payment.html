@@ -13,7 +13,7 @@
  */
 -->
 
-<div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}, attr: {'id': getCode() + '_container', afterRender: handleOptionClick()}">
+<div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}, attr: {'id': getCode() + '_container', afterRender: initEvents()}">
     <div class="payment-method-title field choice">
         <input type="radio"
                name="payment[method]"

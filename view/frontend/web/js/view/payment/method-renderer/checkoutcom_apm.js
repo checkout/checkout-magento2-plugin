@@ -33,7 +33,6 @@ define(
             {
                 defaults: {
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
-                    containerId: '#checkoutcom_apm_container',
                     redirectAfterPlaceOrder: false
                 },
 
@@ -101,7 +100,7 @@ define(
                  * @returns {void}
                  */
                 placeOrder: function () {
-                    if (Utilities.optionIsActive(this.containerId)) {
+                    if (Utilities.methodIsSelected(METHOD_ID)) {
                         var id = $("#apm-container div[aria-selected=true]").attr('id'),
                             $form = $("#cko-apm-form-" + id),
                             data = {methodId: METHOD_ID};

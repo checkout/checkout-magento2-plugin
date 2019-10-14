@@ -36,7 +36,6 @@ define(
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     buttonId: METHOD_ID + '_btn',
                     formId: METHOD_ID + '_frm',
-                    containerId: '#checkoutcom_card_payment_container',
                     formClone: null,
                     cardToken: null,
                     cardBin: null,
@@ -128,13 +127,8 @@ define(
                             self.saveCard = this.checked;
                         }
                     );
-                },
 
-                /**
-                 * @returns {void}
-                 */
-                handleOptionClick: function() {
-                    var self = this;
+                    // Option click event
                     $('.payment-method input[type="radio"]').on('click', function() {
                         if ($(this).attr('id') == METHOD_ID) {
                             self.getPaymentForm();
@@ -143,6 +137,12 @@ define(
                             self.removePaymentForm();
                         }
                     });
+
+                    // Option load event
+                    if (Utilities.methodIsSelected(METHOD_ID)) {
+                        self.removePaymentForm();
+                        self.getPaymentForm();
+                    }
                 },
 
                 /**
@@ -201,7 +201,11 @@ define(
 
                     // Restore any existing HTML
                     if (this.formClone) {
+                        // Restore the clone HTML
                         $('#' + this.formId).html(this.formClone);
+
+                        // Empty the clone cache
+                        this.formClone = null;
                     }
                     else {
                         // Initialize the payment form
@@ -231,9 +235,6 @@ define(
 
                         // Add the Frames events
                         this.addFramesEvents();
-
-                        // Initialize other events
-                        this.initEvents();
                     }
                 },
 
@@ -308,7 +309,7 @@ define(
                  * @returns {void}
                  */
                 placeOrder: function() {
-                    if (Utilities.optionIsActive(this.containerId)) {
+                    if (Utilities.methodIsSelected(METHOD_ID)) {
                         // Validate the order placement
                         if (AdditionalValidators.validate() && Frames.isCardValid()) {
                             // Prepare the payload

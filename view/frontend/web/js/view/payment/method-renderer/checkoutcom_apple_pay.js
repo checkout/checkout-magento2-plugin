@@ -33,7 +33,6 @@ define(
                 defaults: {
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     button_target: '#ckoApplePayButton',
-                    containerId: '#checkoutcom_apple_pay_container',
                     redirectAfterPlaceOrder: false
                 },
 
@@ -186,7 +185,7 @@ define(
                     // Handle the events
                     $(self.button_target).click(
                         function (evt) {
-                            if (Utilities.optionIsActive(this.containerId)) {
+                            if (Utilities.methodIsSelected(METHOD_ID)) {
                                 // Validate T&C submission
                                 if (!AdditionalValidators.validate()) {
                                     return;
