@@ -20,6 +20,7 @@
  */
 .frames-container {
     margin-bottom: 15px;
+    max-width: 650px;
 }
 
 .save-card-option {

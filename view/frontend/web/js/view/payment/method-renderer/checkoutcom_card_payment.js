@@ -137,14 +137,17 @@ define(
                             self.removePaymentForm();
                         }
                     });
-
-                    // Option load event
-                    if (Utilities.methodIsSelected(METHOD_ID)) {
-                        self.removePaymentForm();
-                        self.getPaymentForm();
-                    }
                 },
 
+                /**
+                 * @returns {void}
+                 */
+                handleFormState: function() {
+                    if (Utilities.methodIsSelected(METHOD_ID)) {
+                        this.getPaymentForm();
+                    }
+                },
+                
                 /**
                  * Gets the payment form styles
                  *
@@ -207,35 +210,34 @@ define(
                         // Empty the clone cache
                         this.formClone = null;
                     }
-                    else {
-                        // Initialize the payment form
-                        Frames.init(
-                            {
-                                publicKey: self.getValue('public_key'),
-                                debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
-                                localization: self.getValue('language_fallback'),
-                                style: (formStyles) ? formStyles : {}, 
-                                cardholder: {
-                                    name: Utilities.getCustomerName(),
-                                    phone: address.telephone,
-                                    billingAddress: {
-                                        addressLine1: line1,
-                                        addressLine2: line2,
-                                        postcode: address.postcode,
-                                        city: address.city,
-                                        state: address.region,
-                                        country: address.countryId,
-                                    }
+
+                    // Initialize the payment form
+                    Frames.init(
+                        {
+                            publicKey: self.getValue('public_key'),
+                            debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
+                            localization: self.getValue('language_fallback'),
+                            style: (formStyles) ? formStyles : {}, 
+                            cardholder: {
+                                name: Utilities.getCustomerName(),
+                                phone: address.telephone,
+                                billingAddress: {
+                                    addressLine1: line1,
+                                    addressLine2: line2,
+                                    postcode: address.postcode,
+                                    city: address.city,
+                                    state: address.region,
+                                    country: address.countryId,
                                 }
                             }
-                        );
+                        }
+                    );
 
-                        // Load the Frames instance component
-                        Frames = this.addFramesComponent(Frames);
+                    // Load the Frames instance component
+                    Frames = this.addFramesComponent(Frames);
 
-                        // Add the Frames events
-                        this.addFramesEvents();
-                    }
+                    // Add the Frames events
+                    this.addFramesEvents();
                 },
 
                 /**
@@ -262,6 +264,8 @@ define(
                     // Remove the events
                     Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
                     Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENIZED);
+                    Frames.removeAllEventHandlers(Frames.Events.FRAME_VALIDATION_CHANGED);
+                    Frames.removeAllEventHandlers(Frames.Events.PAYMENT_METHOD_CHANGED);
 
                     // Remove the HTML
                     var container = $('#' + this.formId);
