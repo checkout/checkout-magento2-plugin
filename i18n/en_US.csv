@@ -1,3 +1,7 @@
+Configure,Configure
+Close,Close
+"Learn More","Learn More"
+"View Demo","View Demo"
 "The card could not be saved.","The card could not be saved."
 "The payment card has been stored successfully.","The payment card has been stored successfully."
 "A valid customer ID or email is required to place an order.","A valid customer ID or email is required to place an order."
@@ -43,6 +47,8 @@ Authorize,Authorize
 "The void request could not be processed.","The void request could not be processed."
 "The refund action is not available.","The refund action is not available."
 "The refund request could not be processed.","The refund request could not be processed."
+"The capture action is not available.","The capture action is not available."
+"The capture request could not be processed.","The capture request could not be processed."
 "The CVV value is required.","The CVV value is required."
 "The order increment id is required for the handleOrder method.","The order increment id is required for the handleOrder method."
 "A payment method ID is required to place an order.","A payment method ID is required to place an order."

@@ -1,0 +1,16 @@
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+ 
+@import url(https://cdn.checkout.com/v2/css/cko-fonts-jsicons.css?v=1.1.9);.frames-container{margin-bottom:15px;max-width: 650px}.save-card-option{margin-bottom:10px}.clr{clear:both;visibility:hidden;height:0;width:0}.checkout-agreement label{background-image:url(../images/icon-link.png);background-repeat:no-repeat;background-position:top right;padding-right:20px;background-size:13px 13px}.message.notice{overflow-wrap:break-word}

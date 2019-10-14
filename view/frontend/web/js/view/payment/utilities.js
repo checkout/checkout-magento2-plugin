@@ -1,3 +1,18 @@
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
 define(
     [
         'jquery',
@@ -261,6 +276,15 @@ define(
              */
             allowPlaceOrder: function (buttonId, yesNo) {
                 $('#' + buttonId).prop('disabled', !yesNo);
+            },
+
+            /**
+             * Check if a payment option is active.
+             */
+            methodIsSelected: function (idSelector) {
+                var id = idSelector.replace('#', '');
+                var selected = CheckoutData.getSelectedPaymentMethod();
+                return id == selected;
             },
 
             /**

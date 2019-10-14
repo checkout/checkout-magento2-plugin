@@ -1,0 +1,16 @@
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+ 
+@supports (-webkit-appearance:-apple-pay-button){.apple-pay-button{display:inline-block;-webkit-appearance:-apple-pay-button}.apple-pay-button-black{-apple-pay-button-style:#000}.apple-pay-button-white{-apple-pay-button-style:#fff}.apple-pay-button-white-with-line{-apple-pay-button-style:white-outline}}@supports not (-webkit-appearance:-apple-pay-button){.apple-pay-button{display:inline-block;background-size:100% 60%;background-repeat:no-repeat;background-position:50% 50%;border-radius:5px;padding:0;box-sizing:border-box;min-width:200px;min-height:32px;max-height:64px}.apple-pay-button-black{background-image:-webkit-named-image(apple-pay-logo-white);background-color:#000}.apple-pay-button-white{background-image:-webkit-named-image(apple-pay-logo-black);background-color:#fff}.apple-pay-button-white-with-line{background-image:-webkit-named-image(apple-pay-logo-black);background-color:#fff;border:.5px solid #000}}#ckoApplePayButton{width:138px!important;height:52px!important}@media only screen and (max-width:600px){#ckoApplePayButton{width:100%!important}}

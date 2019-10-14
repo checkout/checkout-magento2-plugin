@@ -16,7 +16,7 @@
 /**
  * Alternative payments
  */
- .alternative-selector input {
+.alternative-selector input {
     /*display: none;*/
     margin:0;padding:0;
     -webkit-appearance:none;

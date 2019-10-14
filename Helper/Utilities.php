@@ -28,6 +28,16 @@ class Utilities
     public $urlInterface;
 
     /**
+     * @var Dir
+     */
+    public $moduleDirReader;
+
+    /**
+     * @var File
+     */
+    public $fileDriver;
+
+    /**
      * @var Session
      */
     public $customerSession;
@@ -42,10 +52,14 @@ class Utilities
      */
     public function __construct(
         \Magento\Framework\UrlInterface $urlInterface,
+        \Magento\Framework\Module\Dir\Reader $moduleDirReader,
+        \Magento\Framework\Filesystem\Driver\File $fileDriver,
         \Magento\Customer\Model\Session $customerSession,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->urlInterface = $urlInterface;
+        $this->moduleDirReader = $moduleDirReader;
+        $this->fileDriver = $fileDriver;
         $this->customerSession = $customerSession;
         $this->logger = $logger;
     }
@@ -103,6 +117,30 @@ class Utilities
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Get the module version
+     */
+    public function getModuleVersion($prefix = '')
+    {
+        try {
+            // Build the composer file path
+            $filePath = $this->moduleDirReader->getModuleDir(
+                '',
+                'CheckoutCom_Magento2'
+            ) . '/composer.json';
+
+            // Get the composer file content
+            $fileContent = json_decode(
+                $this->fileDriver->fileGetContents($filePath)
+            );
+
+            return $prefix . $fileContent->version;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return '...';
         }
     }
 }

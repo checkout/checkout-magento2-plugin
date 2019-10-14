@@ -1,3 +1,18 @@
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-2019 Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
 define(
     [
         'jquery',
@@ -18,7 +33,6 @@ define(
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     buttonId: METHOD_ID + '_btn',
                     cvvField: '.vault-cvv input',
-                    containerId: '#vault-container',
                     rowSelector: '.cko-vault-card',
                     redirectAfterPlaceOrder: false
                 },
@@ -29,7 +43,7 @@ define(
                 initialize: function () {
                     this._super();
                     Utilities.setEmail();
-                    Utilities.loadCss('vault');
+                    Utilities.loadCss('vault', 'vault');
 
                     return this;
                 },
@@ -226,32 +240,33 @@ define(
                  * @returns {void}
                  */
                 placeOrder: function () {
-                    var self = this;
-                    if (AdditionalValidators.validate()) {
-                        // Prepare the payload
-                        var payload = {
-                            methodId: METHOD_ID,
-                            publicHash: self.getPublicHash(),
-                            source: METHOD_ID
-                        }
-
-                        // Add the CVV to the payload if needed
-                        if (self.isCvvRequired()) {
-                            if (!self.isCvvValid()) {
-                                Utilities.showMessage(
-                                    'error',
-                                    __('The CVV field is invalid.'),
-                                    METHOD_ID
-                                );
-
-                                return;
-                            } else {
-                                payload.cvv = self.getCvvValue();
+                    if (Utilities.methodIsSelected(METHOD_ID)) {
+                        if (AdditionalValidators.validate()) {
+                            // Prepare the payload
+                            var payload = {
+                                methodId: METHOD_ID,
+                                publicHash: this.getPublicHash(),
+                                source: METHOD_ID
                             }
-                        }
 
-                        // Place the order
-                        Utilities.placeOrder(payload, METHOD_ID);
+                            // Add the CVV to the payload if needed
+                            if (this.isCvvRequired()) {
+                                if (!this.isCvvValid()) {
+                                    Utilities.showMessage(
+                                        'error',
+                                        __('The CVV field is invalid.'),
+                                        METHOD_ID
+                                    );
+
+                                    return;
+                                } else {
+                                    payload.cvv = this.getCvvValue();
+                                }
+                            }
+
+                            // Place the order
+                            Utilities.placeOrder(payload, METHOD_ID);
+                        }
                     }
                 }
             }

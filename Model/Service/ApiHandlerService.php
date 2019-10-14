@@ -18,6 +18,7 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use \Checkout\CheckoutApi;
+use \Checkout\Models\Payments\Capture;
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
 use \Checkout\Models\Payments\Customer;
@@ -113,6 +114,33 @@ class ApiHandlerService
             && is_object($response)
             && method_exists($response, 'isSuccessful')
             && $response->isSuccessful();
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Captures a transaction.
+     */
+    public function captureOrder($payment)
+    {
+        try {
+            // Get the order
+            $order = $payment->getOrder();
+
+            // Get the payment info
+            $paymentInfo = $this->utilities->getPaymentData($order);
+
+            // Process the capture request
+            if (isset($paymentInfo['id'])) {
+                $request = new Capture($paymentInfo['id']);
+                $response = $this->checkoutApi
+                    ->payments()
+                    ->capture($request);
+
+                return $response;
+            }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return false;
