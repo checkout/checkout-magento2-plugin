@@ -140,7 +140,7 @@ class Utilities
             return $prefix . $fileContent->version;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
-            return '';
+            return '...';
         }
     }
 }
