@@ -34,7 +34,8 @@ define(
                 defaults: {
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     button_target: '#ckoGooglePayButton',
-                    redirectAfterPlaceOrder: false
+                    redirectAfterPlaceOrder: false,
+                    remoteScriptUrl: 'https://pay.google.com/gp/p/js/pay.js'
                 },
 
                 /**
@@ -44,6 +45,7 @@ define(
                     this._super();
                     Utilities.setEmail();
                     Utilities.loadCss('google-pay', 'google-pay');
+                    Utilities.loadRemoteJs(this.remoteScriptUrl);
 
                     return this;
                 },

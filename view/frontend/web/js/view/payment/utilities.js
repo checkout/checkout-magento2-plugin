@@ -72,6 +72,16 @@ define(
             },  
 
             /**
+             * Load a remote JS file
+             *
+             * @return {void}
+             */
+            loadRemoteJs: function(jsUrl) {
+                // Append the CSS file
+                $('head').append('<script type="text/javascript" src="' + jsUrl + '"></script>');
+            },  
+
+            /**
              * Get the store name.
              *
              * @return {string}  The store name.
