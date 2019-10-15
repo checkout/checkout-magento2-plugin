@@ -21,8 +21,7 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/action/redirect-on-success',
-        'mage/translate',
-        'googlepayjs'
+        'mage/translate'
     ],
     function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, __) {
         'use strict';
