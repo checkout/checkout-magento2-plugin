@@ -43,6 +43,7 @@ define(
                     this._super();
                     Utilities.setEmail();
                     Utilities.loadCss('apm', 'apm');
+                    Utilities.loadRemoteJs('https://x.klarnacdn.net/kp/lib/v1/api.js');
                 },
 
                 /**
@@ -156,7 +157,7 @@ define(
                  * @returns {boolean}
                  */
                 klarna: function (data) {
-                    try {
+                    try {                  
                         Klarna.Payments.authorize(
                             {
                                 instance_id: "klarna-payments-instance",
