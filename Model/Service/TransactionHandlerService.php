@@ -287,9 +287,6 @@ class TransactionHandlerService
                 $this->transaction->setParentTxnId(
                     $parentTransaction->getTxnId()
                 );
-
-                // Set the order status
-                $this->setOrderStatus('order_status_refunded');
                 
                 // Prepare the refunded amount
                 $amount = $this->paymentData['data']['amount']/100;
@@ -310,6 +307,20 @@ class TransactionHandlerService
 
                 // Lock the transaction
                 $this->transaction->setIsClosed(1);
+
+                // Apply the order status
+                if ($this->order->getGrandTotal() == $this->order->getTotalRefunded()) {
+                    $this->setOrderStatus(
+                        'order_status_refunded',
+                        'order_status_refunded'
+                    );
+                }
+                else {
+                    $this->setOrderStatus(
+                        'order_status_refunded_partial',
+                        'order_status_refunded_partial'
+                    );
+                }
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
@@ -332,9 +343,17 @@ class TransactionHandlerService
     /**
      * Set the current order status.
      */
-    public function setOrderStatus($status)
+    public function setOrderStatus($status, $state = null)
     {
         try {
+            // Set the order state
+            if ($state) {
+                $this->order->setState(
+                    $this->config->getValue($state)
+                );             
+            }
+
+            // Set the order status
             $this->order->setStatus(
                 $this->config->getValue($status)
             );
