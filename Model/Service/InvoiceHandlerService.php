@@ -90,8 +90,6 @@ class InvoiceHandlerService
             // Handle the invoice
             if ($this->needsInvoicing()) {
                 $this->createInvoice();
-            } elseif ($this->needsCancelling()) {
-                //$this->cancelInvoice();
             }
 
             // Return the order
@@ -132,32 +130,11 @@ class InvoiceHandlerService
     }
 
     /**
-     * Cancel an invoice for void or refund.
-     */
-    public function cancelInvoice()
-    {
-        $invoice = $this->getInvoice($this->order);
-        if ($invoice) {
-            $invoice->setState(Invoice::STATE_CANCELED);
-            $this->invoiceRepository->save($invoice);
-        }
-    }
-
-    /**
      * Check if invoicing is needed.
      */
     public function needsInvoicing()
     {
         return $this->needsCaptureInvoice() || $this->needsAuthorizationInvoice();
-    }
-
-    /**
-     * Check invoice cancelling is needed.
-     */
-    public function needsCancelling()
-    {
-        return $this->transaction->getTxnType() == Transaction::TYPE_VOID
-        || $this->transaction->getTxnType() == Transaction::TYPE_REFUND;
     }
 
     /**
