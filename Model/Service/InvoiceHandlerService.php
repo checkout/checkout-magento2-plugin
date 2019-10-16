@@ -91,7 +91,7 @@ class InvoiceHandlerService
             if ($this->needsInvoicing()) {
                 $this->createInvoice();
             } elseif ($this->needsCancelling()) {
-                $this->cancelInvoice();
+                //$this->cancelInvoice();
             }
 
             // Return the order
