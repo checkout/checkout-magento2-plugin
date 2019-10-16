@@ -58,7 +58,12 @@ class Config
      * @var Loader
      */
     public $loader;
-    
+
+    /**
+     * @var Utilities
+     */
+    public $utilities;
+
     /**
      * Config constructor
      */
