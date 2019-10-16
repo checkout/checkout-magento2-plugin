@@ -302,9 +302,6 @@ class TransactionHandlerService
                 // Refund
                 $this->creditMemoService->refund($creditMemo);
 
-                // Update the order
-                $this->order->setTotalRefunded($amount + $this->order->getTotalRefunded());
-
                 // Lock the transaction
                 $this->transaction->setIsClosed(1);
 
