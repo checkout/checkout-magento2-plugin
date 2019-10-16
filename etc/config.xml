@@ -35,6 +35,7 @@
                 <order_status_captured>processing</order_status_captured>
                 <order_status_voided>canceled</order_status_voided>
                 <order_status_refunded>closed</order_status_refunded>
+                <order_status_refunded_partial>processing</order_status_refunded_partial>
                 <order_status_flagged>fraud</order_status_flagged>
                 <payment_action>authorize_capture</payment_action>
                 <capture_time>0</capture_time>
