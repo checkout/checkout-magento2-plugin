@@ -299,6 +299,9 @@ class TransactionHandlerService
                 $creditMemo->setInvoice($invoice);
                 $creditMemo->setBaseGrandTotal($amount);
 
+                // Update the refunded amount
+                $this->order->setTotalRefunded($amount + $this->order->getTotalRefunded());
+
                 // Refund
                 $this->creditMemoService->refund($creditMemo);
 
