@@ -21,8 +21,7 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/action/redirect-on-success',
-        'mage/translate',
-        'googlepayjs'
+        'mage/translate'
     ],
     function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, __) {
         'use strict';
@@ -34,7 +33,8 @@ define(
                 defaults: {
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     button_target: '#ckoGooglePayButton',
-                    redirectAfterPlaceOrder: false
+                    redirectAfterPlaceOrder: false,
+                    remoteScriptUrl: 'https://pay.google.com/gp/p/js/pay.js'
                 },
 
                 /**
@@ -44,6 +44,7 @@ define(
                     this._super();
                     Utilities.setEmail();
                     Utilities.loadCss('google-pay', 'google-pay');
+                    Utilities.loadRemoteJs(this.remoteScriptUrl);
 
                     return this;
                 },

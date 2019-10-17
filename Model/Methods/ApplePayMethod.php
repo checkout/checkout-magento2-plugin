@@ -290,11 +290,10 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 // Set the transaction id from response
                 $payment->setTransactionId($response->action_id);
             }
-
-            return $response;
         } catch (\Exception $e) {
             $this->ckoLogger->write($e->getBody());
-            return null;
+        } finally {
+            return $this;
         }
     }
     

@@ -59,12 +59,26 @@ define(
                 // Prepare the folder path
                 folderPath = (folderPath) ? '/' + folderPath : '';
 
+                // Get the CSS config parameters
+                var useMinCss = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.use_minified_css;
+                var ext = (useMinCss == '1') ? '.min.css' : '.css';
+
                 // Build the payment form CSS path
                 var cssPath = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.css_path;
-                cssPath += folderPath + '/' + fileName + '.css';
+                cssPath += folderPath + '/' + fileName + ext;
 
                 // Append the CSS file
                 $('head').append('<link rel="stylesheet" href="' + cssPath + '" type="text/css"/>');
+            },  
+
+            /**
+             * Load a remote JS file
+             *
+             * @return {void}
+             */
+            loadRemoteJs: function(jsUrl) {
+                // Append the CSS file
+                $('head').append('<script type="text/javascript" src="' + jsUrl + '"></script>');
             },  
 
             /**
