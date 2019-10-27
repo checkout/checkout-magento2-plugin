@@ -160,7 +160,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                             // Set a valid response
                             $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
                             return $resultFactory->setData([
-                                'result' => _('Webhook and order successfully processed.')
+                                'result' => __('Webhook and order successfully processed.')
                             ]);
                         }
                         else {
@@ -185,7 +185,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                 }
             } else {
                 $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
-                return $resultFactory->setData(['error_message' => _('Unauthorized request.')]);
+                return $resultFactory->setData(['error_message' => __('Unauthorized request.')]);
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
