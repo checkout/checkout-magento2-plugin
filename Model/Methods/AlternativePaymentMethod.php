@@ -21,6 +21,7 @@ use \Checkout\Library\HttpHandler;
 use \Checkout\Models\Product;
 use \Checkout\Models\Address;
 use \Checkout\Models\Payments\Payment;
+use \Checkout\Models\Payments\Source;
 use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\EpsSource;
 use \Checkout\Models\Payments\IdealSource;
@@ -230,13 +231,17 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     }
 
     /**
-     * Create a payment object based on the body.
+     * Creates a payment object.
      *
-     * @param array $array The value
+     * @param      \Checkout\Models\Payments\Source  $source     The source
+     * @param      integer                           $amount     The amount
+     * @param      string                            $currency   The currency
+     * @param      string                            $reference  The reference
+     * @param      string                            $methodId   The method identifier
      *
-     * @return Payment
+     * @return     \Checkout\Models\Payments\Payment
      */
-    public function createPayment(IdSource $source, int $amount, string $currency, string $reference, $methodId)
+    public function createPayment(Source $source, int $amount, string $currency, string $reference, string $methodId)
     {
         try {
             $payment = null;

@@ -55,7 +55,7 @@
                      * @param      {Array}  methods  The methods
                      */
                     load: function(data, methods) {
-
+console.log(data);
                         var self = this;
                         try {
                             Klarna.Payments.init({client_token: data.source.client_token}); // Initialize Klarna
