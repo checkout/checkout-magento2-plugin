@@ -147,7 +147,7 @@ define(
                         this.getPaymentForm();
                     }
                 },
-                
+
                 /**
                  * Gets the payment form styles
                  *
@@ -168,8 +168,8 @@ define(
                         return null;
                     }
 
-                    return stylesObj;   
-                },   
+                    return stylesObj;
+                },
 
                 /**
                  * Gets the payment form layout
@@ -187,7 +187,7 @@ define(
                  */
                 getImagesPath: function() {
                     return window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.images_path;
-                },  
+                },
 
                 /**
                  * Gets the payment form
@@ -217,7 +217,7 @@ define(
                             publicKey: self.getValue('public_key'),
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
                             localization: self.getValue('language_fallback'),
-                            style: (formStyles) ? formStyles : {}, 
+                            style: (formStyles) ? formStyles : {},
                             cardholder: {
                                 name: Utilities.getCustomerName(),
                                 phone: address.telephone,
@@ -249,7 +249,7 @@ define(
                         Frames = FramesMulti.load(framesInstance, this.formId);
                     }
                     else {
-                        Frames = FramesSingle.load(framesInstance, this.formId);   
+                        Frames = FramesSingle.load(framesInstance, this.formId);
                     }
 
                     return Frames;
@@ -288,7 +288,7 @@ define(
                             if (valid) {
                                 Frames.submitCard();
                             }
-                            Utilities.allowPlaceOrder(self.buttonId, valid);
+                            Utilities.allowPlaceOrder(self.buttonId, false);
                         }
                     );
 
@@ -305,6 +305,9 @@ define(
                                 event.token
                             );
                             Frames.enableSubmitForm();
+
+                            // Enable place order button only when tokenized.
+                            Utilities.allowPlaceOrder(self.buttonId, true);
                         }
                     );
                 },
