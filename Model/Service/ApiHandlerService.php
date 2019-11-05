@@ -123,7 +123,7 @@ class ApiHandlerService
     /**
      * Captures a transaction.
      */
-    public function captureOrder($payment)
+    public function captureOrder($payment, $amount)
     {
         try {
             // Get the order
@@ -134,7 +134,17 @@ class ApiHandlerService
 
             // Process the capture request
             if (isset($paymentInfo['id'])) {
+                // Initialise the capture object
                 $request = new Capture($paymentInfo['id']);
+
+                // Handle partial capture
+                $paymentAmount = $this->utilities->formatDecimals($amount);
+                $orderAmount = $this->utilities->formatDecimals($order->getGrandTotal());
+                if ($paymentAmount < $orderAmount) {
+                    $payment->amount = $paymentAmount;
+                }
+
+                // Process the request
                 $response = $this->checkoutApi
                     ->payments()
                     ->capture($request);

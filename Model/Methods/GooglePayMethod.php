@@ -260,12 +260,6 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if ($this->backendAuthSession->isLoggedIn()) {
-                // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
-
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
-
                 // Check the status
                 if (!$this->canCapture()) {
                     throw new \Magento\Framework\Exception\LocalizedException(
@@ -273,8 +267,14 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                     );
                 }
 
+                // Get the store code
+                $storeCode = $payment->getOrder()->getStore()->getCode();
+
+                // Initialize the API handler
+                $api = $this->apiHandler->init($storeCode);
+                
                 // Process the capture request
-                $response = $api->captureOrder($payment);
+                $response = $api->captureOrder($payment, $amount);
                 if (!$api->isValidResponse($response)) {
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The capture request could not be processed.')

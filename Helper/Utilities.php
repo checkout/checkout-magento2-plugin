@@ -73,6 +73,14 @@ class Utilities
     }
 
     /**
+     * Format an amount to 2 demicals.
+     */
+    public function formatDecimals($amount)
+    {
+        return number_format($amount, 2);
+    }
+
+    /**
      * Convert an object to array.
      */
     public function objectToArray($object)
