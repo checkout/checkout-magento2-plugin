@@ -140,7 +140,7 @@ class ApiHandlerService
                 // Handle partial capture
                 $paymentAmount = $this->utilities->formatDecimals($amount);
                 $orderAmount = $this->utilities->formatDecimals($order->getGrandTotal());
-                if ($paymentAmount < $orderAmount) {
+                if ($paymentAmount < $orderAmount && $payment->canCapturePartial()) {
                     $payment->amount = $paymentAmount;
                 }
 
