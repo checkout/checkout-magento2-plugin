@@ -299,11 +299,8 @@ define(
                             // Store the card token and the card bin
                             self.cardToken = event.token;
                             self.cardBin =  event.bin;
-                            // Add the card token to the form
-                            Frames.addCardToken(
-                                document.getElementById(self.formId),
-                                event.token
-                            );
+
+                            // Enable the submit form
                             Frames.enableSubmitForm();
 
                             // Enable place order button only when tokenized.
