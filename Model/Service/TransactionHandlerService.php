@@ -18,6 +18,7 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Sales\Model\Order;
 
 /**
  * Class TransactionHandlerService.
@@ -200,7 +201,10 @@ class TransactionHandlerService
             );
             if (!$authTransaction) {
                 // Set the order status
-                $this->setOrderStatus('order_status_authorized');
+                $this->setOrderStatus(
+                    'order_status_authorized',
+                    Order::STATE_PENDING_PAYMENT
+                );
 
                 // Add order comment
                 $this->addOrderComment('The authorized amount is %1.');
@@ -230,7 +234,10 @@ class TransactionHandlerService
                 );
             
                 // Set the order status
-                $this->setOrderStatus('order_status_captured');
+                $this->setOrderStatus(
+                    'order_status_captured',
+                    Order::STATE_PROCESSING
+                );
 
                 // Add order comment
                 $this->addOrderComment('The captured amount is %1.');
@@ -268,7 +275,10 @@ class TransactionHandlerService
             }
 
             // Set the order status
-            $this->setOrderStatus('order_status_voided');
+            $this->setOrderStatus(
+                'order_status_voided',
+                'order_status_voided'
+            );
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
@@ -347,7 +357,7 @@ class TransactionHandlerService
     {
         try {
             // Set the order state
-            if ($state) {
+            if ($state && !empty($state)) {
                 $this->order->setState(
                     $this->config->getValue($state)
                 );             
