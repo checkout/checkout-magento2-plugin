@@ -245,7 +245,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the request parameters
             $request->capture = $this->config->needsAutoCapture($this->_code);
-            $request->amount = $amount*100;
+            $request->amount = $this->quoteHandler->prepareAmount($amount, $quote);
             $request->reference = $reference;
             $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
             $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';

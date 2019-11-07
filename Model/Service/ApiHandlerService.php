@@ -67,6 +67,11 @@ class ApiHandlerService
     public $logger;
 
     /**
+     * @var QuoteHandlerService
+     */
+    public $quoteHandler;
+
+    /**
      * ApiHandlerService constructor.
      */
     public function __construct(
@@ -75,7 +80,8 @@ class ApiHandlerService
         \Magento\Framework\App\ProductMetadataInterface $productMeta,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     ) {
         $this->encryptor = $encryptor;
         $this->storeManager = $storeManager;
@@ -83,6 +89,7 @@ class ApiHandlerService
         $this->config = $config;
         $this->utilities = $utilities;
         $this->logger = $logger;
+        $this->quoteHandler = $quoteHandler;
     }
 
     /**
@@ -199,7 +206,7 @@ class ApiHandlerService
             // Process the refund request
             if (isset($paymentInfo['id'])) {
                 $request = new Refund($paymentInfo['id']);
-                $request->amount = $amount*100;
+                $request->amount = $this->quoteHandler->prepareAmount($amount, $quote);
                 $response = $this->checkoutApi
                     ->payments()
                     ->refund($request);

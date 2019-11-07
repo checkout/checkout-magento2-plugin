@@ -160,7 +160,10 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
                 // Set the request parameters
                 $request->capture = $this->config->needsAutoCapture($this->methodId);
-                $request->amount = $this->order->getGrandTotal()*100;
+                $request->amount = $this->orderHandler->prepareAmount(
+                    $this->order->getGrandTotal(),
+                    $order
+                );
                 $request->reference = $this->order->getIncrementId();
                 $request->payment_type = 'MOTO';
                 $request->shipping = $api->createShippingAddress($this->order);

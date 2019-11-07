@@ -201,6 +201,53 @@ class OrderHandlerService
     }
 
     /**
+     * Gets an order currency
+     */
+    public function getOrderCurrency($order)
+    {
+        try {
+            $orderCurrencyCode = $order->getOrderCurrencyCode();
+            $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+            return ($orderCurrencyCode) ? $orderCurrencyCode : $storeCurrencyCode;
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Convert an order amount to integer value for the gateway request.
+     */
+    public function prepareAmount($amount, $order)
+    {
+        // Get the quote currency
+        $currency = $this->getOrderCurrency($order);
+
+        // Get the x1 currency calculation mapping
+        $currenciesX1 = explode(
+            ',',
+            $this->config->getValue('currencies_x1')
+        );
+
+        // Get the x1000 currency calculation mapping
+        $currenciesX1000 = explode(
+            ',',
+            $this->config->getValue('currencies_x1000')
+        );
+
+        // Prepare the amount
+        if (in_array($currency, $currenciesX1)) {
+            return $amount;
+        }
+        else if (in_array($currency, $currenciesX1000)) {
+            return $amount*1000;
+        }
+        else {
+            return $amount*100;
+        }
+    }
+
+    /**
      * Find an order by fields
      */
     public function findOrderByFields($fields)

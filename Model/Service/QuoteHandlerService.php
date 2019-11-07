@@ -294,15 +294,48 @@ class QuoteHandlerService
     /**
      * Gets a quote currency
      */
-    public function getQuoteCurrency()
+    public function getQuoteCurrency($quote = null)
     {
         try {
-            $quoteCurrencyCode = $this->getQuote()->getQuoteCurrencyCode();
+            $quote = ($quote) ? $quote : $this->getQuote();
+            $quoteCurrencyCode = $quote->getQuoteCurrencyCode();
             $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
             return ($quoteCurrencyCode) ? $quoteCurrencyCode : $storeCurrencyCode;
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Convert a quote amount to integer value for the gateway request.
+     */
+    public function prepareAmount($amount, $quote)
+    {
+        // Get the quote currency
+        $currency = $this->getQuoteCurrency($quote);
+
+        // Get the x1 currency calculation mapping
+        $currenciesX1 = explode(
+            ',',
+            $this->config->getValue('currencies_x1')
+        );
+
+        // Get the x1000 currency calculation mapping
+        $currenciesX1000 = explode(
+            ',',
+            $this->config->getValue('currencies_x1000')
+        );
+
+        // Prepare the amount
+        if (in_array($currency, $currenciesX1)) {
+            return $amount;
+        }
+        else if (in_array($currency, $currenciesX1000)) {
+            return $amount*1000;
+        }
+        else {
+            return $amount*100;
         }
     }
 
