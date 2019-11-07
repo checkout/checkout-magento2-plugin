@@ -112,23 +112,15 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        try {
-            // Try to load a quote
-            $this->quote = $this->quoteHandler->getQuote();
-            $this->billingAddress = $this->quoteHandler->getBillingAddress();
-            $this->locale = str_replace('_', '-', $this->shopperHandler->getCustomerLocale());
+        // Try to load a quote
+        $this->quote = $this->quoteHandler->getQuote();
+        $this->billingAddress = $this->quoteHandler->getBillingAddress();
+        $this->locale = str_replace('_', '-', $this->shopperHandler->getCustomerLocale());
 
-            // Get Klarna
-            $klarna = $this->getKlarna();
+        // Get Klarna
+        $klarna = $this->getKlarna();
 
-            return $this->jsonFactory->create()
-                ->setData($klarna);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-
-            return $this->jsonFactory->create()
-                ->setData([]);
-        }
+        return $this->jsonFactory->create()->setData($klarna);
     }
 
     /**

@@ -422,16 +422,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        try {
-            if (parent::isAvailable($quote) && null !== $quote) {
-                return $this->config->getValue('active', $this->_code)
-                && !$this->backendAuthSession->isLoggedIn();
-            }
-
-            return false;
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
-            return false;
+        if (parent::isAvailable($quote) && null !== $quote) {
+            return $this->config->getValue('active', $this->_code)
+            && !$this->backendAuthSession->isLoggedIn();
         }
+
+        return false;
     }
 }

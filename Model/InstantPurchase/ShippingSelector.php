@@ -44,21 +44,16 @@ class ShippingSelector
      */
     public function getShippingMethod($address)
     {
-        try {
-            $address->setCollectShippingRates(true);
-            $address->collectShippingRates();
-            $shippingRates = $address->getAllShippingRates();
+        $address->setCollectShippingRates(true);
+        $address->collectShippingRates();
+        $shippingRates = $address->getAllShippingRates();
 
-            if (empty($shippingRates)) {
-                return null;
-            }
-
-            $cheapestRate = $this->selectCheapestRate($shippingRates);
-            return $cheapestRate->getCode();
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
+        if (empty($shippingRates)) {
             return null;
         }
+
+        $cheapestRate = $this->selectCheapestRate($shippingRates);
+        return $cheapestRate->getCode();
     }
 
     /**
@@ -69,18 +64,13 @@ class ShippingSelector
      */
     private function selectCheapestRate(array $shippingRates)
     {
-        try {
-            $rate = array_shift($shippingRates);
-            foreach ($shippingRates as $tmpRate) {
-                if ($tmpRate->getPrice() < $rate->getPrice()) {
-                    $rate = $tmpRate;
-                }
+        $rate = array_shift($shippingRates);
+        foreach ($shippingRates as $tmpRate) {
+            if ($tmpRate->getPrice() < $rate->getPrice()) {
+                $rate = $tmpRate;
             }
-
-            return $rate;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
         }
+
+        return $rate;
     }
 }

@@ -199,12 +199,7 @@ class Callback extends \Magento\Framework\App\Action\Action
      */
     public function getPayload()
     {
-        try {
-            return json_decode($this->getRequest()->getContent());
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return json_decode($this->getRequest()->getContent());
     }
 
     /**
@@ -212,17 +207,12 @@ class Callback extends \Magento\Framework\App\Action\Action
      */
     public function cardNeedsSaving()
     {
-        try {
-            return isset($this->payload->data->metadata->saveCard)
-            && (int) $this->payload->data->metadata->saveCard == 1
-            && isset($this->payload->data->metadata->customerId)
-            && (int) $this->payload->data->metadata->customerId > 0
-            && isset($this->payload->data->source->id)
-            && !empty($this->payload->data->source->id);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
-        }
+        return isset($this->payload->data->metadata->saveCard)
+        && (int) $this->payload->data->metadata->saveCard == 1
+        && isset($this->payload->data->metadata->customerId)
+        && (int) $this->payload->data->metadata->customerId > 0
+        && isset($this->payload->data->source->id)
+        && !empty($this->payload->data->source->id);
     }
 
     /**
@@ -230,24 +220,19 @@ class Callback extends \Magento\Framework\App\Action\Action
      */
     public function saveCard($response)
     {
-        try {
-            // Get the customer
-            $customer = $this->shopperHandler->getCustomerData(
-                ['id' => $this->payload->data->metadata->customerId]
-            );
+        // Get the customer
+        $customer = $this->shopperHandler->getCustomerData(
+            ['id' => $this->payload->data->metadata->customerId]
+        );
 
-            // Save the card
-            $success = $this->vaultHandler
-                ->setCardToken($this->payload->data->source->id)
-                ->setCustomerId($customer->getId())
-                ->setCustomerEmail($customer->getEmail())
-                ->setResponse($response)
-                ->saveCard();
+        // Save the card
+        $success = $this->vaultHandler
+            ->setCardToken($this->payload->data->source->id)
+            ->setCustomerId($customer->getId())
+            ->setCustomerEmail($customer->getEmail())
+            ->setResponse($response)
+            ->saveCard();
 
-            return $success;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
-        }
+        return $success;
     }
 }

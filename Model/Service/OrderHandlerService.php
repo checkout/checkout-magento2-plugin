@@ -124,46 +124,41 @@ class OrderHandlerService
     public function handleOrder($paymentData, $filters, $isWebhook = false)
     {
         if ($this->methodId) {
-            try {
-                // Check if at least the increment id is available
-                if (!isset($filters['increment_id'])) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The order increment id is required for the handleOrder method.')
-                    );
-                }
-
-                // Check if the order exists
-                $order = $this->getOrder($filters);
-
-                // Create the order
-                if (!$this->isOrder($order)) {
-                    // Prepare the quote
-                    $quote = $this->quoteHandler->prepareQuote(
-                        $this->methodId,
-                        ['reserved_order_id' => $filters['increment_id']],
-                        $isWebhook
-                    );
-
-                    // Process the quote
-                    if ($quote) {
-                        // Create the order
-                        $order = $this->quoteManagement->submit($quote);
-                    }
-
-                    // Return the saved order
-                    $order = $this->orderRepository->save($order);
-                }
-
-                // Perform after place order tasks
-                if (!$isWebhook) {
-                    $order = $this->afterPlaceOrder($quote, $order);
-                }
-
-                return $order;
-            } catch (\Exception $e) {
-                $this->logger->write($e->getMessage());
-                return null;
+            // Check if at least the increment id is available
+            if (!isset($filters['increment_id'])) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The order increment id is required for the handleOrder method.')
+                );
             }
+
+            // Check if the order exists
+            $order = $this->getOrder($filters);
+
+            // Create the order
+            if (!$this->isOrder($order)) {
+                // Prepare the quote
+                $quote = $this->quoteHandler->prepareQuote(
+                    $this->methodId,
+                    ['reserved_order_id' => $filters['increment_id']],
+                    $isWebhook
+                );
+
+                // Process the quote
+                if ($quote) {
+                    // Create the order
+                    $order = $this->quoteManagement->submit($quote);
+                }
+
+                // Return the saved order
+                $order = $this->orderRepository->save($order);
+            }
+
+            // Perform after place order tasks
+            if (!$isWebhook) {
+                $order = $this->afterPlaceOrder($quote, $order);
+            }
+
+            return $order;
         } else {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('A payment method ID is required to place an order.')
@@ -176,15 +171,10 @@ class OrderHandlerService
      */
     public function isOrder($order)
     {
-        try {
-            return $order
-            && is_object($order)
-            && method_exists($order, 'getId')
-            && $order->getId() > 0;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $order
+        && is_object($order)
+        && method_exists($order, 'getId')
+        && $order->getId() > 0;
     }
 
     /**
@@ -192,12 +182,7 @@ class OrderHandlerService
      */
     public function getOrder($fields)
     {
-        try {
-            return $this->findOrderByFields($fields);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $this->findOrderByFields($fields);
     }
 
     /**
@@ -205,14 +190,9 @@ class OrderHandlerService
      */
     public function getOrderCurrency($order)
     {
-        try {
-            $orderCurrencyCode = $order->getOrderCurrencyCode();
-            $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
-            return ($orderCurrencyCode) ? $orderCurrencyCode : $storeCurrencyCode;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        $orderCurrencyCode = $order->getOrderCurrencyCode();
+        $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+        return ($orderCurrencyCode) ? $orderCurrencyCode : $storeCurrencyCode;
     }
 
     /**
@@ -252,29 +232,24 @@ class OrderHandlerService
      */
     public function findOrderByFields($fields)
     {
-        try {
-            // Add each field as filter
-            foreach ($fields as $key => $value) {
-                $this->searchBuilder->addFilter(
-                    $key,
-                    $value
-                );
-            }
-
-            // Create the search instance
-            $search = $this->searchBuilder->create();
-
-            // Get the resulting order
-            $order = $this->orderRepository
-                ->getList($search)
-                ->setPageSize(1)
-                ->getLastItem();
-
-            return $order;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+        // Add each field as filter
+        foreach ($fields as $key => $value) {
+            $this->searchBuilder->addFilter(
+                $key,
+                $value
+            );
         }
+
+        // Create the search instance
+        $search = $this->searchBuilder->create();
+
+        // Get the resulting order
+        $order = $this->orderRepository
+            ->getList($search)
+            ->setPageSize(1)
+            ->getLastItem();
+
+        return $order;
     }
 
     /**
@@ -282,22 +257,17 @@ class OrderHandlerService
      */
     public function afterPlaceOrder($quote, $order)
     {
-        try {
-            // Prepare session quote info for redirection after payment
-            $this->checkoutSession
-                ->setLastQuoteId($quote->getId())
-                ->setLastSuccessQuoteId($quote->getId())
-                ->clearHelperData();
+        // Prepare session quote info for redirection after payment
+        $this->checkoutSession
+            ->setLastQuoteId($quote->getId())
+            ->setLastSuccessQuoteId($quote->getId())
+            ->clearHelperData();
 
-            // Prepare session order info for redirection after payment
-            $this->checkoutSession->setLastOrderId($order->getId())
-                ->setLastRealOrderId($order->getIncrementId())
-                ->setLastOrderStatus($order->getStatus());
+        // Prepare session order info for redirection after payment
+        $this->checkoutSession->setLastOrderId($order->getId())
+            ->setLastRealOrderId($order->getIncrementId())
+            ->setLastOrderStatus($order->getStatus());
 
-            return $order;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $order;
     }
 }

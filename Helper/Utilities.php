@@ -93,17 +93,12 @@ class Utilities
      */
     public function getPaymentData($order)
     {
-        try {
-            $paymentData = $order->getPayment()
-                ->getMethodInstance()
-                ->getInfoInstance()
-                ->getData();
+        $paymentData = $order->getPayment()
+            ->getMethodInstance()
+            ->getInfoInstance()
+            ->getData();
 
-            return $paymentData['additional_information']['transaction_info'];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return [];
-        }
+        return $paymentData['additional_information']['transaction_info'];
     }
 
     /**
@@ -111,21 +106,16 @@ class Utilities
      */
     public function setPaymentData($order, $data)
     {
-        try {
-            // Get the payment info instance
-            $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();
+        // Get the payment info instance
+        $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();
 
-            // Add the transaction info for order save after
-            $paymentInfo->setAdditionalInformation(
-                'transaction_info',
-                (array) $data
-            );
+        // Add the transaction info for order save after
+        $paymentInfo->setAdditionalInformation(
+            'transaction_info',
+            (array) $data
+        );
 
-            return $order;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $order;
     }
 
     /**
@@ -133,22 +123,17 @@ class Utilities
      */
     public function getModuleVersion($prefix = '')
     {
-        try {
-            // Build the composer file path
-            $filePath = $this->moduleDirReader->getModuleDir(
-                '',
-                'CheckoutCom_Magento2'
-            ) . '/composer.json';
+        // Build the composer file path
+        $filePath = $this->moduleDirReader->getModuleDir(
+            '',
+            'CheckoutCom_Magento2'
+        ) . '/composer.json';
 
-            // Get the composer file content
-            $fileContent = json_decode(
-                $this->fileDriver->fileGetContents($filePath)
-            );
+        // Get the composer file content
+        $fileContent = json_decode(
+            $this->fileDriver->fileGetContents($filePath)
+        );
 
-            return $prefix . $fileContent->version;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return '...';
-        }
+        return $prefix . $fileContent->version;
     }
 }

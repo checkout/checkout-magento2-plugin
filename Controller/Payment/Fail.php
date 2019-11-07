@@ -51,27 +51,23 @@ class Fail extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        try {
-            // Get the session id
-            $sessionId = $this->getRequest()->getParam('cko-session-id', null);
-            if ($sessionId) {
-                // Initialize the API handler
-                $api = $this->apiHandler->init();
+        // Get the session id
+        $sessionId = $this->getRequest()->getParam('cko-session-id', null);
+        if ($sessionId) {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
 
-                // Get the payment details
-                $response = $api->getPaymentDetails($sessionId);
+            // Get the payment details
+            $response = $api->getPaymentDetails($sessionId);
 
-                // Logging
-                $this->logger->display($response);
-                
-                // Display the message
-                $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        } finally {
-            // Return to the cart
-            return $this->_redirect('checkout/cart', ['_secure' => true]);
+            // Logging
+            $this->logger->display($response);
+            
+            // Display the message
+            $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
         }
+
+        // Return to the cart
+        return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 }

@@ -81,30 +81,26 @@ class Display extends \Magento\Framework\App\Action\Action
         $html = '';
 
         // Process the request
-        try {
-            if ($this->getRequest()->isAjax()) {
-                // Get the list of APM
-                $apmEnabled = explode(
-                    ',',
-                    $this->config->getValue('apm_enabled', 'checkoutcom_apm')
-                );
+        if ($this->getRequest()->isAjax()) {
+            // Get the list of APM
+            $apmEnabled = explode(
+                ',',
+                $this->config->getValue('apm_enabled', 'checkoutcom_apm')
+            );
 
-                $apms = $this->config->getApms();
+            $apms = $this->config->getApms();
 
-                // Load block data for each APM
-                foreach ($apms as $apm) {
-                    if ($this->isValidApm($apm, $apmEnabled)) {
-                        $html .= $this->loadBlock($apm['value'], $apm['label']);
-                    }
+            // Load block data for each APM
+            foreach ($apms as $apm) {
+                if ($this->isValidApm($apm, $apmEnabled)) {
+                    $html .= $this->loadBlock($apm['value'], $apm['label']);
                 }
             }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        } finally {
-            return $this->jsonFactory->create()->setData(
-                ['html' => $html]
-            );
         }
+
+        return $this->jsonFactory->create()->setData(
+            ['html' => $html]
+        );
     }
 
     /**
@@ -132,16 +128,11 @@ class Display extends \Magento\Framework\App\Action\Action
      */
     public function loadBlock($apmId, $title)
     {
-        try {
-            return $this->pageFactory->create()->getLayout()
-                ->createBlock('CheckoutCom\Magento2\Block\Apm\Form')
-                ->setTemplate('CheckoutCom_Magento2::payment/apm/' . $apmId . '.phtml')
-                ->setData('apm_id', $apmId)
-                ->setData('title', $title)
-                ->toHtml();
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return '';
-        }
+        return $this->pageFactory->create()->getLayout()
+            ->createBlock('CheckoutCom\Magento2\Block\Apm\Form')
+            ->setTemplate('CheckoutCom_Magento2::payment/apm/' . $apmId . '.phtml')
+            ->setData('apm_id', $apmId)
+            ->setData('title', $title)
+            ->toHtml();
     }
 }

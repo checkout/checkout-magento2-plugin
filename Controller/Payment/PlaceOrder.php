@@ -130,53 +130,46 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $message = '';
         $success = false;
 
-        try {
-            // Initialize the API handler
-            $api = $this->apiHandler->init();
+        // Initialize the API handler
+        $api = $this->apiHandler->init();
 
-            // Try to load a quote
-            $this->quote = $this->quoteHandler->getQuote();
+        // Try to load a quote
+        $this->quote = $this->quoteHandler->getQuote();
 
-            // Set some required properties
-            $this->data = $this->getRequest()->getParams();
+        // Set some required properties
+        $this->data = $this->getRequest()->getParams();
 
-            // Process the request
-            if ($this->getRequest()->isAjax() && $this->quote) {
-                // Get response and success
-                $response = $this->requestPayment();
+        // Process the request
+        if ($this->getRequest()->isAjax() && $this->quote) {
+            // Get response and success
+            $response = $this->requestPayment();
 
-                // Logging
-                $this->logger->display($response);
+            // Logging
+            $this->logger->display($response);
 
-                // Check success
-                if ($api->isValidResponse($response)) {
-                    $success = $response->isSuccessful();
-                    $url = $response->getRedirection();
-                    if ($this->canPlaceOrder($response)) {
-                        $this->placeOrder($response);
-                    }
-                    else {
-                        $message = __('The order could not be placed.');
-                    }
-                } else {
-                    // Payment failed
-                    $message = __('The transaction could not be processed.');
+            // Check success
+            if ($api->isValidResponse($response)) {
+                $success = $response->isSuccessful();
+                $url = $response->getRedirection();
+                if ($this->canPlaceOrder($response)) {
+                    $this->placeOrder($response);
+                }
+                else {
+                    $message = __('The order could not be placed.');
                 }
             } else {
-                $message = __('The request is invalid.');
+                // Payment failed
+                $message = __('The transaction could not be processed.');
             }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            $message = __($e->getMessage());
-        } finally {
-            return $this->jsonFactory->create()->setData(
-                [
-                    'success' => $success,
-                    'message' => $message,
-                    'url' => $url
-                ]
-            );
+        } else {
+            $message = __('The request is invalid.');
         }
+
+        return $this->jsonFactory->create()->setData([
+            'success' => $success,
+            'message' => $message,
+            'url' => $url
+        ]);
     }
 
     /**
@@ -186,20 +179,15 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function requestPayment()
     {
-        try {
-            // Send the charge request
-            return $this->methodHandler
-                ->get($this->data['methodId'])
-                ->sendPaymentRequest(
-                    $this->data,
-                    $this->quote->getGrandTotal(),
-                    $this->quote->getQuoteCurrencyCode(),
-                    $this->quoteHandler->getReference($this->quote)
-                );
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        // Send the charge request
+        return $this->methodHandler
+        ->get($this->data['methodId'])
+        ->sendPaymentRequest(
+            $this->data,
+            $this->quote->getGrandTotal(),
+            $this->quote->getQuoteCurrencyCode(),
+            $this->quoteHandler->getReference($this->quote)
+        );
     }
 
     /**
@@ -223,45 +211,41 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function placeOrder($response = null)
     {
-        try {
-            // Initialize the API handler
-            $api = $this->apiHandler->init();
+        // Initialize the API handler
+        $api = $this->apiHandler->init();
 
-            // Get the reserved order increment id
-            $reservedIncrementId = $this->quoteHandler
-                ->getReference($this->quote);
+        // Get the reserved order increment id
+        $reservedIncrementId = $this->quoteHandler
+            ->getReference($this->quote);
 
-            // Get the payment details
-            $paymentDetails = $api->getPaymentDetails($response->id);
+        // Get the payment details
+        $paymentDetails = $api->getPaymentDetails($response->id);
 
-            // Prepare the quote filters
-            $filters = $this->quoteHandler->prepareQuoteFilters(
-                $paymentDetails,
-                $reservedIncrementId
-            );
+        // Prepare the quote filters
+        $filters = $this->quoteHandler->prepareQuoteFilters(
+            $paymentDetails,
+            $reservedIncrementId
+        );
 
-            // Create an order
-            $order = $this->orderHandler
-                ->setMethodId($this->data['methodId'])
-                ->handleOrder($response, $filters);
+        // Create an order
+        $order = $this->orderHandler
+            ->setMethodId($this->data['methodId'])
+            ->handleOrder($response, $filters);
 
-            // Add the payment info to the order
-            $order = $this->utilities
-                ->setPaymentData($order, $response);
+        // Add the payment info to the order
+        $order = $this->utilities
+            ->setPaymentData($order, $response);
 
-            // Save the order
-            $order->save();
+        // Save the order
+        $order->save();
 
-            // Check if the order is valid
-            if (!$this->orderHandler->isOrder($order)) {
-                $this->cancelPayment($response);
-                return null;
-            }
-
-            return $order;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
+        // Check if the order is valid
+        if (!$this->orderHandler->isOrder($order)) {
+            $this->cancelPayment($response);
+            return null;
         }
+
+        return $order;
     }
 
     /**
@@ -273,20 +257,16 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function cancelPayment($response)
     {
-        try {
-            // Initialize the API handler
-            $api = $this->apiHandler->init();
+        // Initialize the API handler
+        $api = $this->apiHandler->init();
 
-            // Refund or void accordingly
-            if ($this->config->needsAutoCapture($this->data['methodId'])) {
-                // Refund
-                $api->checkoutApi->payments()->refund(new Refund($response->getId()));
-            } else {
-                // Void
-                $api->checkoutApi->payments()->void(new Voids($response->getId()));
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
+        // Refund or void accordingly
+        if ($this->config->needsAutoCapture($this->data['methodId'])) {
+            // Refund
+            $api->checkoutApi->payments()->refund(new Refund($response->getId()));
+        } else {
+            // Void
+            $api->checkoutApi->payments()->void(new Voids($response->getId()));
         }
     }
 }

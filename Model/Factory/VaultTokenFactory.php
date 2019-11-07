@@ -69,43 +69,38 @@ class VaultTokenFactory
      */
     public function create(array $card, $methodId, $customerId = null)
     {
-        try {
-            $expiryMonth    = str_pad($card['expiry_month'], 2, '0', STR_PAD_LEFT);
-            $expiryYear     = $card['expiry_year'];
-            $expiresAt      = $this->getExpirationDate($expiryMonth, $expiryYear);
-            $cardScheme      = $card['scheme'];
+        $expiryMonth    = str_pad($card['expiry_month'], 2, '0', STR_PAD_LEFT);
+        $expiryYear     = $card['expiry_year'];
+        $expiresAt      = $this->getExpirationDate($expiryMonth, $expiryYear);
+        $cardScheme      = $card['scheme'];
 
-            /**
- * @var PaymentTokenInterface $paymentToken
-*/
-            $paymentToken = $this->creditCardTokenFactory->create();
-            $paymentToken->setExpiresAt($expiresAt);
+        /**
+         * @var PaymentTokenInterface $paymentToken
+         */
+        $paymentToken = $this->creditCardTokenFactory->create();
+        $paymentToken->setExpiresAt($expiresAt);
 
-            if (array_key_exists('id', $card)) {
-                $paymentToken->setGatewayToken($card['id']);
-            }
-
-            $tokenDetails = [
-                'type'              => $this->cardHandler->getCardCode($cardScheme),
-                'maskedCC'          => $card['last4'],
-                'expirationDate'    => $expiryMonth . '/' . $expiryYear,
-            ];
-
-            $paymentToken->setTokenDetails($this->convertDetailsToJSON($tokenDetails));
-            $paymentToken->setIsActive(true);
-            $paymentToken->setPaymentMethodCode($methodId);
-
-            if ($customerId) {
-                $paymentToken->setCustomerId($customerId);
-            }
-
-            $paymentToken->setPublicHash($this->generatePublicHash($paymentToken));
-
-            return $paymentToken;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+        if (array_key_exists('id', $card)) {
+            $paymentToken->setGatewayToken($card['id']);
         }
+
+        $tokenDetails = [
+            'type'              => $this->cardHandler->getCardCode($cardScheme),
+            'maskedCC'          => $card['last4'],
+            'expirationDate'    => $expiryMonth . '/' . $expiryYear,
+        ];
+
+        $paymentToken->setTokenDetails($this->convertDetailsToJSON($tokenDetails));
+        $paymentToken->setIsActive(true);
+        $paymentToken->setPaymentMethodCode($methodId);
+
+        if ($customerId) {
+            $paymentToken->setCustomerId($customerId);
+        }
+
+        $paymentToken->setPublicHash($this->generatePublicHash($paymentToken));
+
+        return $paymentToken;
     }
 
     /**
@@ -117,23 +112,18 @@ class VaultTokenFactory
      */
     private function getExpirationDate($expiryMonth, $expiryYear)
     {
-        try {
-            $expDate = new \DateTime(
-                $expiryYear
-                . '-'
-                . $expiryMonth
-                . '-'
-                . '01'
-                . ' '
-                . '00:00:00',
-                new \DateTimeZone('UTC')
-            );
+        $expDate = new \DateTime(
+            $expiryYear
+            . '-'
+            . $expiryMonth
+            . '-'
+            . '01'
+            . ' '
+            . '00:00:00',
+            new \DateTimeZone('UTC')
+        );
 
-            return $expDate->add(new \DateInterval('P1M'))->format('Y-m-d 00:00:00');
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return '';
-        }
+        return $expDate->add(new \DateInterval('P1M'))->format('Y-m-d 00:00:00');
     }
 
     /**
@@ -144,22 +134,17 @@ class VaultTokenFactory
      */
     private function generatePublicHash(PaymentTokenInterface $paymentToken)
     {
-        try {
-            $hashKey = $paymentToken->getGatewayToken();
+        $hashKey = $paymentToken->getGatewayToken();
 
-            if ($paymentToken->getCustomerId()) {
-                $hashKey = $paymentToken->getCustomerId();
-            }
-
-            $hashKey .= $paymentToken->getPaymentMethodCode()
-                . $paymentToken->getType()
-                . $paymentToken->getTokenDetails();
-
-            return $this->encryptor->getHash($hashKey);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return '';
+        if ($paymentToken->getCustomerId()) {
+            $hashKey = $paymentToken->getCustomerId();
         }
+
+        $hashKey .= $paymentToken->getPaymentMethodCode()
+            . $paymentToken->getType()
+            . $paymentToken->getTokenDetails();
+
+        return $this->encryptor->getHash($hashKey);
     }
 
     /**

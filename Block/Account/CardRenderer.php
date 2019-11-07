@@ -65,12 +65,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      */
     public function getNumberLast4Digits()
     {
-        try {
-            return $this->getTokenDetails()['maskedCC'];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $this->getTokenDetails()['maskedCC'];
     }
 
     /**
@@ -80,12 +75,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      */
     public function getExpDate()
     {
-        try {
-            return $this->getTokenDetails()['expirationDate'];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $this->getTokenDetails()['expirationDate'];
     }
 
     /**
@@ -96,12 +86,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      */
     public function canRender(PaymentTokenInterface $token)
     {
-        try {
-            return $token->getPaymentMethodCode() === 'checkoutcom_vault';
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $token->getPaymentMethodCode() === 'checkoutcom_vault';
     }
 
     /**
@@ -111,12 +96,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      */
     public function getCardType()
     {
-        try {
-            return $this->getTokenDetails()['type'];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $this->getTokenDetails()['type'];
     }
 
     /**
@@ -126,12 +106,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      */
     public function getIconUrl()
     {
-        try {
-            return $this->getIconForType($this->getCardType())['url'];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $this->getIconForType($this->getCardType())['url'];
     }
 
     /**
@@ -141,12 +116,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      */
     public function getIconHeight()
     {
-        try {
-            return $this->getIconForType($this->getCardType())['height'];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $this->getIconForType($this->getCardType())['height'];
     }
 
     /**
@@ -156,11 +126,6 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      */
     public function getIconWidth()
     {
-        try {
-            return $this->getIconForType($this->getCardType())['width'];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $this->getIconForType($this->getCardType())['width'];
     }
 }

@@ -82,22 +82,17 @@ class InvoiceHandlerService
      */
     public function processInvoice($order, $transaction = null)
     {
-        try {
-            // Set required properties
-            $this->order = $order;
-            $this->transaction = $transaction;
+        // Set required properties
+        $this->order = $order;
+        $this->transaction = $transaction;
 
-            // Handle the invoice
-            if ($this->needsInvoicing()) {
-                $this->createInvoice();
-            }
-
-            // Return the order
-            return $this->order;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+        // Handle the invoice
+        if ($this->needsInvoicing()) {
+            $this->createInvoice();
         }
+
+        // Return the order
+        return $this->order;
     }
 
     /**
@@ -105,28 +100,23 @@ class InvoiceHandlerService
      */
     public function createInvoice()
     {
-        try {
-            // Prepare the invoice
-            $invoice = $this->invoiceService->prepareInvoice($this->order);
+        // Prepare the invoice
+        $invoice = $this->invoiceService->prepareInvoice($this->order);
 
-            // Set the invoice transaction ID
-            if ($this->transaction) {
-                $invoice->setTransactionId($this->transaction->getTxnId());
-            }
-
-            // Set the invoice state
-            $invoice = $this->setInvoiceState($invoice);
-
-            // Finalize the invoice
-            $invoice->setBaseGrandTotal($this->order->getGrandTotal());
-            $invoice->register();
-
-            // Save the invoice
-            $this->invoiceRepository->save($invoice);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+        // Set the invoice transaction ID
+        if ($this->transaction) {
+            $invoice->setTransactionId($this->transaction->getTxnId());
         }
+
+        // Set the invoice state
+        $invoice = $this->setInvoiceState($invoice);
+
+        // Finalize the invoice
+        $invoice->setBaseGrandTotal($this->order->getGrandTotal());
+        $invoice->register();
+
+        // Save the invoice
+        $this->invoiceRepository->save($invoice);
     }
 
     /**
@@ -142,16 +132,12 @@ class InvoiceHandlerService
      */
     public function setInvoiceState($invoice)
     {
-        try {
-            if ($this->needsInvoicing()) {
-                $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
-                $invoice->setCanVoidFlag(false);
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        } finally {
-            return $invoice;
+        if ($this->needsInvoicing()) {
+            $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+            $invoice->setCanVoidFlag(false);
         }
+
+        return $invoice;
     }
 
     /**
@@ -159,24 +145,18 @@ class InvoiceHandlerService
      */
     public function getInvoice($order)
     {
-        try {
-            // Get the invoices collection
-            $invoices = $order->getInvoiceCollection();
+    // Get the invoices collection
+    $invoices = $order->getInvoiceCollection();
 
-            // Retrieve the invoice increment id
-            if (!empty($invoices)) {
-                foreach ($invoices as $item) {
-                    $invoiceIncrementId = $item->getIncrementId();
-                }
-
-                // Load an invoice
-                return $this->invoiceModel->loadByIncrementId($invoiceIncrementId);
-            }
-
-            return null;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+    // Retrieve the invoice increment id
+    if (!empty($invoices)) {
+        foreach ($invoices as $item) {
+            $invoiceIncrementId = $item->getIncrementId();
         }
+
+        // Load an invoice
+        return $this->invoiceModel->loadByIncrementId($invoiceIncrementId);
     }
+
+    return null;
 }
