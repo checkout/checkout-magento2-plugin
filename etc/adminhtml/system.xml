@@ -61,13 +61,6 @@
                             <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
                         </field>
 
-                        <field id="invoice_generation" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Invoice Generation</label>
-                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigInvoiceGeneration</source_model>
-                            <config_path>settings/checkoutcom_configuration/invoice_generation</config_path>
-                            <comment>Determines when the invoice should be generated.</comment>
-                        </field>
-
                         <field id="dynamic_descriptor_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Enable Dynamic Descriptor</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
