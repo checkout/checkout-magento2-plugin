@@ -310,7 +310,7 @@ class QuoteHandlerService
     /**
      * Convert a quote amount to integer value for the gateway request.
      */
-    public function prepareAmount($amount, $quote)
+    public function amountToGateway($amount, $quote)
     {
         // Get the quote currency
         $currency = $this->getQuoteCurrency($quote);

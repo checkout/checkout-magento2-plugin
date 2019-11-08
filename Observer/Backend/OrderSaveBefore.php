@@ -160,7 +160,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
                 // Set the request parameters
                 $request->capture = $this->config->needsAutoCapture($this->methodId);
-                $request->amount = $this->orderHandler->prepareAmount(
+                $request->amount = $this->orderHandler->amountToGateway(
                     $this->order->getGrandTotal(),
                     $order
                 );

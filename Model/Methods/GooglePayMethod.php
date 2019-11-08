@@ -207,7 +207,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the request parameters
             $request->capture = $this->config->needsAutoCapture($this->_code);
-            $request->amount = $this->quoteHandler->prepareAmount($amount, $quote);
+            $request->amount = $this->quoteHandler->amountToGateway($amount, $quote);
             $request->reference = $reference;
             $request->description = __('Payment request from %1', $this->config->getStoreName());
             $request->customer = $api->createCustomer($quote);
