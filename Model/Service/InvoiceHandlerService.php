@@ -145,18 +145,19 @@ class InvoiceHandlerService
      */
     public function getInvoice($order)
     {
-    // Get the invoices collection
-    $invoices = $order->getInvoiceCollection();
+        // Get the invoices collection
+        $invoices = $order->getInvoiceCollection();
 
-    // Retrieve the invoice increment id
-    if (!empty($invoices)) {
-        foreach ($invoices as $item) {
-            $invoiceIncrementId = $item->getIncrementId();
+        // Retrieve the invoice increment id
+        if (!empty($invoices)) {
+            foreach ($invoices as $item) {
+                $invoiceIncrementId = $item->getIncrementId();
+            }
+
+            // Load an invoice
+            return $this->invoiceModel->loadByIncrementId($invoiceIncrementId);
         }
 
-        // Load an invoice
-        return $this->invoiceModel->loadByIncrementId($invoiceIncrementId);
+        return null;
     }
-
-    return null;
 }
