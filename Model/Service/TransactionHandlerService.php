@@ -449,23 +449,18 @@ class TransactionHandlerService
      */
     public function buildDataArray($data)
     {
-        try {
-            // Prepare the fields to remove
-            $remove = [
-                '_links',
-                'risk',
-                'metadata',
-                'customer',
-                'source',
-                'data'
-            ];
+        // Prepare the fields to remove
+        $remove = [
+            '_links',
+            'risk',
+            'metadata',
+            'customer',
+            'source',
+            'data'
+        ];
 
-            // Return the clean array
-            return array_diff_key($data, array_flip($remove));
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        // Return the clean array
+        return array_diff_key($data, array_flip($remove));
     }
 
     /**
@@ -473,44 +468,39 @@ class TransactionHandlerService
      */
     public function getTransactions($transactionType = null, $order = null, $isClosed = 0)
     {
-        try {
-            // Prepare the order
-            $order = $order ? $order : $this->order;
+        // Prepare the order
+        $order = $order ? $order : $this->order;
 
-            // Payment filter
-            $filters[] = $this->filterBuilder->setField('payment_id')
-                ->setValue($order->getPayment()->getId())
-                ->create();
+        // Payment filter
+        $filters[] = $this->filterBuilder->setField('payment_id')
+            ->setValue($order->getPayment()->getId())
+            ->create();
 
-            // Order filter
-            $filters[] = $this->filterBuilder->setField('order_id')
-                ->setValue($order->getId())
-                ->create();
+        // Order filter
+        $filters[] = $this->filterBuilder->setField('order_id')
+            ->setValue($order->getId())
+            ->create();
 
-            // Build the search criteria
-            $searchCriteria = $this->searchCriteriaBuilder
-                ->addFilters($filters)
-                ->create();
+        // Build the search criteria
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilters($filters)
+            ->create();
 
-            // Get the list of transactions
-            $transactions = $this->transactionRepository->getList($searchCriteria)->getItems();
+        // Get the list of transactions
+        $transactions = $this->transactionRepository->getList($searchCriteria)->getItems();
 
-            // Filter by transaction type
-            if ($transactionType && !empty($transactions)) {
-                $filteredResult = [];
-                foreach ($transactions as $transaction) {
-                    if ($transaction->getTxnType() == $transactionType && $transaction->getIsClosed() == $isClosed) {
-                        $filteredResult[] = $transaction;
-                    }
+        // Filter by transaction type
+        if ($transactionType && !empty($transactions)) {
+            $filteredResult = [];
+            foreach ($transactions as $transaction) {
+                if ($transaction->getTxnType() == $transactionType && $transaction->getIsClosed() == $isClosed) {
+                    $filteredResult[] = $transaction;
                 }
-
-                return $filteredResult;
             }
 
-            return $transactions;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+            return $filteredResult;
         }
+
+        return $transactions;
     }
 }
