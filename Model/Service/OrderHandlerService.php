@@ -139,11 +139,17 @@ class OrderHandlerService
                 $order = $this->afterPlaceOrder($quote, $order);
 
                 return $order;
-            } else {
+            }
+            else {
                 throw new \Magento\Framework\Exception\LocalizedException(
-                    __('A payment method ID is required to place an order.')
+                    __('There is no quote available to place an order.')
                 );
             }
+        }
+        else {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('A payment method ID is required to place an order.')
+            );
         }
     }
 

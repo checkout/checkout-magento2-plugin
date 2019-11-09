@@ -99,32 +99,27 @@ class QuoteHandlerService
      */
     public function getQuote($fields = [])
     {
-        try {
-            if (!empty($fields)) {
-                // Get the quote factory
-                $quoteFactory = $this->quoteFactory
-                    ->create()
-                    ->getCollection();
+        if (!empty($fields)) {
+            // Get the quote factory
+            $quoteFactory = $this->quoteFactory
+                ->create()
+                ->getCollection();
 
-                // Add search filters
-                foreach ($fields as $key => $value) {
-                    $quoteFactory->addFieldToFilter(
-                        $key,
-                        $value
-                    );
-                }
-
-                // Return the first result found
-                return $quoteFactory
-                    ->setPageSize(1)
-                    ->getLastItem();
-            } else {
-                // Try to find the quote in session
-                return $this->checkoutSession->getQuote();
+            // Add search filters
+            foreach ($fields as $key => $value) {
+                $quoteFactory->addFieldToFilter(
+                    $key,
+                    $value
+                );
             }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+
+            // Return the first result found
+            return $quoteFactory
+                ->setPageSize(1)
+                ->getLastItem();
+        } else {
+            // Try to find the quote in session
+            return $this->checkoutSession->getQuote();
         }
     }
 
@@ -133,30 +128,25 @@ class QuoteHandlerService
      */
     public function createQuote($currency = null, $customer = null)
     {
-        try {
-            // Create the quote instance
-            $quote = $this->quoteFactory->create();
-            $quote->setStore($this->storeManager->getStore());
+        // Create the quote instance
+        $quote = $this->quoteFactory->create();
+        $quote->setStore($this->storeManager->getStore());
 
-            // Set the currency
-            if ($currency) {
-                $quote->setCurrency($currency);
-            } else {
-                $quote->setCurrency();
-            }
-
-            // Set the quote customer
-            if ($customer) {
-                $quote->assignCustomer($customer);
-            } else {
-                $quote->assignCustomer($this->shopperHandler->getCustomerData());
-            }
-
-            return $quote;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+        // Set the currency
+        if ($currency) {
+            $quote->setCurrency($currency);
+        } else {
+            $quote->setCurrency();
         }
+
+        // Set the quote customer
+        if ($customer) {
+            $quote->assignCustomer($customer);
+        } else {
+            $quote->assignCustomer($this->shopperHandler->getCustomerData());
+        }
+
+        return $quote;
     }
 
     /**
@@ -164,15 +154,10 @@ class QuoteHandlerService
      */
     public function isQuote($quote)
     {
-        try {
-            return $quote
-            && is_object($quote)
-            && method_exists($quote, 'getId')
-            && $quote->getId() > 0;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $quote
+        && is_object($quote)
+        && method_exists($quote, 'getId')
+        && $quote->getId() > 0;
     }
 
     /**
@@ -180,14 +165,9 @@ class QuoteHandlerService
      */
     public function getReference($quote)
     {
-        try {
-            return $quote->reserveOrderId()
-                ->save()
-                ->getReservedOrderId();
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return '';
-        }
+        return $quote->reserveOrderId()
+            ->save()
+            ->getReservedOrderId();
     }
 
     /**
@@ -195,28 +175,23 @@ class QuoteHandlerService
      */
     public function prepareQuote($methodId)
     {
-        try {
-            // Find quote and perform tasks
-            $quote = $this->getQuote();
-            if ($this->isQuote($quote)) {
-                // Prepare the inventory
-                $quote->setInventoryProcessed(false);
+        // Find quote and perform tasks
+        $quote = $this->getQuote();
+        if ($this->isQuote($quote)) {
+            // Prepare the inventory
+            $quote->setInventoryProcessed(false);
 
-                // Check for guest user quote
-                if (!$this->customerSession->isLoggedIn()) {
-                    $quote = $this->prepareGuestQuote($quote);
-                }
-
-                // Set the payment information
-                $payment = $quote->getPayment();
-                $payment->setMethod($methodId);
-                $payment->save();
-
-                return $quote;
+            // Check for guest user quote
+            if (!$this->customerSession->isLoggedIn()) {
+                $quote = $this->prepareGuestQuote($quote);
             }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+
+            // Set the payment information
+            $payment = $quote->getPayment();
+            $payment->setMethod($methodId);
+            $payment->save();
+
+            return $quote;
         }
     }
 
@@ -225,25 +200,21 @@ class QuoteHandlerService
      */
     public function prepareGuestQuote($quote, $email = null)
     {
-        try {
-            // Retrieve the user email
-            $guestEmail = ($email) ? $email : $this->findEmail($quote);
+        // Retrieve the user email
+        $guestEmail = ($email) ? $email : $this->findEmail($quote);
 
-            // Set the quote as guest
-            $quote->setCustomerId(null)
-                ->setCustomerEmail($guestEmail)
-                ->setCustomerIsGuest(true)
-                ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
+        // Set the quote as guest
+        $quote->setCustomerId(null)
+            ->setCustomerEmail($guestEmail)
+            ->setCustomerIsGuest(true)
+            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
 
-            // Delete the cookie
-            $this->cookieManager->deleteCookie(
-                $this->config->getValue('email_cookie_name')
-            );
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        } finally {
-            return $quote;
-        }
+        // Delete the cookie
+        $this->cookieManager->deleteCookie(
+            $this->config->getValue('email_cookie_name')
+        );
+
+        return $quote;
     }
 
     /**
@@ -251,28 +222,23 @@ class QuoteHandlerService
      */
     public function findEmail($quote)
     {
-        try {
-            // Get an array of possible values
-            $emails = [
-                $quote->getCustomerEmail(),
-                $quote->getBillingAddress()->getEmail(),
-                $this->cookieManager->getCookie(
-                    $this->config->getValue('email_cookie_name')
-                )
-            ];
+        // Get an array of possible values
+        $emails = [
+            $quote->getCustomerEmail(),
+            $quote->getBillingAddress()->getEmail(),
+            $this->cookieManager->getCookie(
+                $this->config->getValue('email_cookie_name')
+            )
+        ];
 
-            // Return the first available value
-            foreach ($emails as $email) {
-                if ($email && !empty($email)) {
-                    return $email;
-                }
+        // Return the first available value
+        foreach ($emails as $email) {
+            if ($email && !empty($email)) {
+                return $email;
             }
-
-            return null;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -280,15 +246,10 @@ class QuoteHandlerService
      */
     public function getQuoteData()
     {
-        try {
-            return [
-                'value' => $this->getQuoteValue(),
-                'currency' => $this->getQuoteCurrency()
-            ];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return [
+            'value' => $this->getQuoteValue(),
+            'currency' => $this->getQuoteCurrency()
+        ];
     }
 
     /**
@@ -296,15 +257,10 @@ class QuoteHandlerService
      */
     public function getQuoteCurrency($quote = null)
     {
-        try {
-            $quote = ($quote) ? $quote : $this->getQuote();
-            $quoteCurrencyCode = $quote->getQuoteCurrencyCode();
-            $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
-            return ($quoteCurrencyCode) ? $quoteCurrencyCode : $storeCurrencyCode;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        $quote = ($quote) ? $quote : $this->getQuote();
+        $quoteCurrencyCode = $quote->getQuoteCurrencyCode();
+        $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+        return ($quoteCurrencyCode) ? $quoteCurrencyCode : $storeCurrencyCode;
     }
 
     /**
@@ -344,15 +300,10 @@ class QuoteHandlerService
      */
     public function getQuoteValue()
     {
-        try {
-            return $this->getQuote()
-                ->collectTotals()
-                ->save()
-                ->getGrandTotal();
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $this->getQuote()
+            ->collectTotals()
+            ->save()
+            ->getGrandTotal();
     }
 
     /**
@@ -360,31 +311,27 @@ class QuoteHandlerService
      */
     public function addItems($quote, $data)
     {
-        try {
-            $items = $this->buildProductData($data);
-            foreach ($items as $item) {
-                if (isset($item['product_id']) && (int) $item['product_id'] > 0) {
-                    // Load the product
-                    $product = $this->productRepository->getById($item['product_id']);
+        $items = $this->buildProductData($data);
+        foreach ($items as $item) {
+            if (isset($item['product_id']) && (int) $item['product_id'] > 0) {
+                // Load the product
+                $product = $this->productRepository->getById($item['product_id']);
 
-                    // Get the quantity
-                    $quantity = isset($item['qty']) && (int) $item['qty'] > 0
-                    ? $item['qty'] : 1;
+                // Get the quantity
+                $quantity = isset($item['qty']) && (int) $item['qty'] > 0
+                ? $item['qty'] : 1;
 
-                    // Add the item
-                    if (!empty($item['super_attribute'])) {
-                        $buyRequest = new \Magento\Framework\DataObject($item);
-                        $quote->addProduct($product, $buyRequest);
-                    } else {
-                        $quote->addProduct($product, $quantity);
-                    }
+                // Add the item
+                if (!empty($item['super_attribute'])) {
+                    $buyRequest = new \Magento\Framework\DataObject($item);
+                    $quote->addProduct($product, $buyRequest);
+                } else {
+                    $quote->addProduct($product, $quantity);
                 }
             }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        } finally {
-            return $quote;
         }
+
+        return $quote;
     }
 
     /**
@@ -394,23 +341,18 @@ class QuoteHandlerService
      */
     public function buildProductData($data)
     {
-        try {
-            // Prepare the base array
-            $output =[
-                'product_id' => $data['product'],
-                'qty' => $data['qty']
-            ];
+        // Prepare the base array
+        $output =[
+            'product_id' => $data['product'],
+            'qty' => $data['qty']
+        ];
 
-            // Add product variations
-            if (isset($data['super_attribute']) && !empty($data['super_attribute'])) {
-                $output['super_attribute'] = $data['super_attribute'];
-            }
-
-            return [$output];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return [];
+        // Add product variations
+        if (isset($data['super_attribute']) && !empty($data['super_attribute'])) {
+            $output['super_attribute'] = $data['super_attribute'];
         }
+
+        return [$output];
     }
 
     /* Gets the billing address.
@@ -419,12 +361,7 @@ class QuoteHandlerService
      */
     public function getBillingAddress()
     {
-        try {
-            return $this->getQuote()->getBillingAddress();
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $this->getQuote()->getBillingAddress();
     }
 
     /* Gets quote data for a payment request.
@@ -433,16 +370,11 @@ class QuoteHandlerService
      */
     public function getQuoteRequestData($quote)
     {
-        try {
-            return [
+        return [
             'quote_id' => $quote->getId(),
             'store_id' => $quote->getStoreId(),
             'customer_email' => $quote->getCustomerEmail()
-            ];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return [];
-        }
+        ];
     }
 
     /**

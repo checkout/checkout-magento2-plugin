@@ -173,6 +173,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             }
         }
 
+        // Return the json response
         return $this->jsonFactory->create()->setData([
             'success' => $success,
             'message' => $message,
