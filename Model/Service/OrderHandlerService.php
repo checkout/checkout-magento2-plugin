@@ -147,7 +147,6 @@ class OrderHandlerService
         }
     }
 
-    
     /**
      * Checks if an order exists and is valid
      */
