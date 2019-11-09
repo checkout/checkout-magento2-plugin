@@ -121,48 +121,29 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function handleOrder($paymentData, $filters, $isWebhook = false)
+    public function handleOrder()
     {
         if ($this->methodId) {
-            // Check if at least the increment id is available
-            if (!isset($filters['increment_id'])) {
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('The order increment id is required for the handleOrder method.')
-                );
-            }
+            // Prepare the quote
+            $quote = $this->quoteHandler->prepareQuote($this->methodId);
 
-            // Check if the order exists
-            $order = $this->getOrder($filters);
-
-            // Create the order
-            if (!$this->isOrder($order)) {
-                // Prepare the quote
-                $quote = $this->quoteHandler->prepareQuote(
-                    $this->methodId,
-                    ['reserved_order_id' => $filters['increment_id']],
-                    $isWebhook
-                );
-
-                // Process the quote
-                if ($quote) {
-                    // Create the order
-                    $order = $this->quoteManagement->submit($quote);
-                }
+            // Process the quote
+            if ($quote) {
+                // Create the order
+                $order = $this->quoteManagement->submit($quote);
 
                 // Return the saved order
                 $order = $this->orderRepository->save($order);
-            }
 
-            // Perform after place order tasks
-            if (!$isWebhook) {
+                // Perform after place order tasks
                 $order = $this->afterPlaceOrder($quote, $order);
-            }
 
-            return $order;
-        } else {
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __('A payment method ID is required to place an order.')
-            );
+                return $order;
+            } else {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('A payment method ID is required to place an order.')
+                );
+            }
         }
     }
 
@@ -198,7 +179,7 @@ class OrderHandlerService
     /**
      * Convert an order amount to integer value for the gateway request.
      */
-    public function amountToGateway($amount, $order)
+    public function prepareAmount($amount, $order)
     {
         // Get the quote currency
         $currency = $this->getOrderCurrency($order);

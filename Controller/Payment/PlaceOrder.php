@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -130,9 +129,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $message = '';
         $success = false;
 
-        // Initialize the API handler
-        $api = $this->apiHandler->init();
-
         // Try to load a quote
         $this->quote = $this->quoteHandler->getQuote();
 
@@ -141,28 +137,40 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
         // Process the request
         if ($this->getRequest()->isAjax() && $this->quote) {
-            // Get response and success
-            $response = $this->requestPayment();
+            // Create an order
+            $order = $this->orderHandler
+                ->setMethodId($this->data['methodId'])
+                ->handleOrder();
 
-            // Logging
-            $this->logger->display($response);
+            // Process the payment
+            if ($this->orderHandler->isOrder($order)) { 
+                // Get response and success
+                $response = $this->requestPayment();
 
-            // Check success
-            if ($api->isValidResponse($response)) {
-                $success = $response->isSuccessful();
-                $url = $response->getRedirection();
-                if ($this->canPlaceOrder($response)) {
-                    $this->placeOrder($response);
+                // Logging
+                $this->logger->display($response);
+
+                // Get the payment details
+                $api = $this->apiHandler->init();
+                if ($api->isValidResponse($response)) {
+                    // Get the payment details
+                    $paymentDetails = $api->getPaymentDetails($response->id);
+        
+                    // Add the payment info to the order
+                    $order = $this->utilities->setPaymentData($order, $response);
+        
+                    // Save the order
+                    $order->save();
+
+                    // Update the response parameters
+                    $success = $response->isSuccessful();
+                    $url = $response->getRedirection();
                 }
-                else {
-                    $message = __('The order could not be placed.');
-                }
-            } else {
+            }
+            else {
                 // Payment failed
                 $message = __('The transaction could not be processed.');
             }
-        } else {
-            $message = __('The request is invalid.');
         }
 
         return $this->jsonFactory->create()->setData([
@@ -188,85 +196,5 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $this->quote->getQuoteCurrencyCode(),
             $this->quoteHandler->getReference($this->quote)
         );
-    }
-
-    /**
-     * Checks if an order can be placed.
-     *
-     * @param array $response The response
-     *
-     * @return boolean
-     */
-    public function canPlaceOrder($response)
-    {
-        return !$response->isPending() || $this->data['source'] === 'sepa' || $this->data['source'] === 'fawry';
-    }
-
-    /**
-     * Handles the order placing process.
-     *
-     * @param array $response The response
-     *
-     * @return void
-     */
-    public function placeOrder($response = null)
-    {
-        // Initialize the API handler
-        $api = $this->apiHandler->init();
-
-        // Get the reserved order increment id
-        $reservedIncrementId = $this->quoteHandler
-            ->getReference($this->quote);
-
-        // Get the payment details
-        $paymentDetails = $api->getPaymentDetails($response->id);
-
-        // Prepare the quote filters
-        $filters = $this->quoteHandler->prepareQuoteFilters(
-            $paymentDetails,
-            $reservedIncrementId
-        );
-
-        // Create an order
-        $order = $this->orderHandler
-            ->setMethodId($this->data['methodId'])
-            ->handleOrder($response, $filters);
-
-        // Add the payment info to the order
-        $order = $this->utilities
-            ->setPaymentData($order, $response);
-
-        // Save the order
-        $order->save();
-
-        // Check if the order is valid
-        if (!$this->orderHandler->isOrder($order)) {
-            $this->cancelPayment($response);
-            return null;
-        }
-
-        return $order;
-    }
-
-    /**
-     * Cancels a payment.
-     *
-     * @param array $response The response
-     *
-     * @return void
-     */
-    public function cancelPayment($response)
-    {
-        // Initialize the API handler
-        $api = $this->apiHandler->init();
-
-        // Refund or void accordingly
-        if ($this->config->needsAutoCapture($this->data['methodId'])) {
-            // Refund
-            $api->checkoutApi->payments()->refund(new Refund($response->getId()));
-        } else {
-            // Void
-            $api->checkoutApi->payments()->void(new Voids($response->getId()));
-        }
     }
 }
