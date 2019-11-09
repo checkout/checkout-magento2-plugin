@@ -115,82 +115,67 @@ class Callback extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        try {
-            // Set the payload data
-            $this->payload = $this->getPayload();
+        // Set the payload data
+        $this->payload = $this->getPayload();
 
-            // Prepare the response handler
-            $resultFactory = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        // Prepare the response handler
+        $resultFactory = $this->resultFactory->create(ResultFactory::TYPE_JSON);
 
+        // Process the request
+        if ($this->config->isValidAuth()) {
             // Process the request
-            if ($this->config->isValidAuth()) {
-                // Process the request
-                if (isset($this->payload->data->id)) {
-                    // Initialize the API handler
-                    $api = $this->apiHandler->init();
+            if (isset($this->payload->data->id)) {
+                // Initialize the API handler
+                $api = $this->apiHandler->init();
 
-                    // Get the payment details
-                    $response = $api->getPaymentDetails($this->payload->data->id);
-                    if ($api->isValidResponse($response)) {
-                        // Handle the save card request
-                        if ($this->cardNeedsSaving()) {
-                            $this->saveCard($response);
-                        }
+                // Get the payment details
+                $response = $api->getPaymentDetails($this->payload->data->id);
+                if ($api->isValidResponse($response)) {
+                    // Handle the save card request
+                    if ($this->cardNeedsSaving()) {
+                        $this->saveCard($response);
+                    }
 
-                        // Process the order
-                        $order = $this->orderHandler
-                            ->setMethodId($this->payload->data->metadata->methodId)
-                            ->handleOrder(
-                                $response,
-                                ['increment_id' => $response->reference],
-                                true
-                            );
+                    // Find the order from increment id
+                    $order = $this->orderHandler->getOrder([
+                        'increment_id' => $response->reference
+                    ]);
 
-                        if ($this->orderHandler->isOrder($order)) {
-                            // Handle the transaction
-                            $order = $this->transactionHandler->createTransaction(
-                                $order,
-                                static::$transactionMapper[$this->payload->type],
-                                $this->payload
-                            );
+                    // Process the order
+                    if ($this->orderHandler->isOrder($order)) {
+                        // Handle the transaction
+                        $order = $this->transactionHandler->createTransaction(
+                            $order,
+                            static::$transactionMapper[$this->payload->type],
+                            $this->payload
+                        );
 
-                            // Save the order
-                            $order = $this->orderRepository->save($order);
+                        // Save the order
+                        $order = $this->orderRepository->save($order);
 
-                            // Set a valid response
-                            $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
-                            return $resultFactory->setData([
-                                'result' => __('Webhook and order successfully processed.')
-                            ]);
-                        }
-                        else {
-                            $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
-                            return $resultFactory->setData([
-                                'error_message' => __('The order creation failed. Please check the error logs.')
-                            ]);
-                        }
+                        // Set a valid response
+                        $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
+                        return $resultFactory->setData([
+                            'result' => __('Webhook and order successfully processed.')
+                        ]);
                     }
                     else {
-                        $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
+                        $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
                         return $resultFactory->setData([
-                            'error_message' => __('The order was not created because of an invalid or failed payment.')
-                        ]);                      
+                            'error_message' => __('The order creation failed. Please check the error logs.')
+                        ]);
                     }
                 }
-                else {
-                    $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
-                    return $resultFactory->setData(
-                        ['error_message' => __('The webhook payment response is invalid.')]
-                    );                      
-                }
-            } else {
-                $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
-                return $resultFactory->setData(['error_message' => __('Unauthorized request.')]);
             }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
-            return $resultFactory->setData(['error_message' => $e->getMessage()]);
+            else {
+                $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
+                return $resultFactory->setData(
+                    ['error_message' => __('The webhook payment response is invalid.')]
+                );                      
+            }
+        } else {
+            $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
+            return $resultFactory->setData(['error_message' => __('Unauthorized request.')]);
         }
     }
 

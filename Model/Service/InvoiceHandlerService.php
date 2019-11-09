@@ -141,7 +141,7 @@ class InvoiceHandlerService
     }
 
     /**
-     * Load order invoices.
+     * Load an order invoice.
      */
     public function getInvoice($order)
     {
@@ -159,5 +159,13 @@ class InvoiceHandlerService
         }
 
         return null;
+    }
+
+    /**
+     * Load all order invoices.
+     */
+    public function getInvoices($order)
+    {
+        return $order->getInvoiceCollection();
     }
 }

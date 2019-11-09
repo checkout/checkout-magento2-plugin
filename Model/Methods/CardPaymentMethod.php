@@ -219,7 +219,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the request parameters
             $request->capture = $this->config->needsAutoCapture($this->_code);
-            $request->amount = $this->quoteHandler->prepareAmount($amount, $quote);
+            $request->amount = $this->quoteHandler->amountToGateway($amount, $quote);
             $request->reference = $reference;
             $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
             $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';

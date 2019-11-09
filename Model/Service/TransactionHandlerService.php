@@ -213,7 +213,10 @@ class TransactionHandlerService
      */
     public function handleCapture()
     {
+        // Get the parent transaction
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
+
+        // Handle the capture logic
         if ($parentTransaction) {
             $parentTransaction->close();
             $this->transaction->setParentTxnId(
