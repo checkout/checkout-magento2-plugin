@@ -193,6 +193,8 @@ class QuoteHandlerService
 
             return $quote;
         }
+
+        return null;
     }
 
     /**

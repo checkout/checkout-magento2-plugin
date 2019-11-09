@@ -145,7 +145,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             // Process the payment
             if ($this->orderHandler->isOrder($order)) { 
                 // Get response and success
-                $response = $this->requestPayment();
+                $response = $this->requestPayment($order);
 
                 // Logging
                 $this->logger->display($response);
@@ -186,16 +186,21 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return Response
      */
-    public function requestPayment()
+    public function requestPayment($order)
     {
+        // Get the method id
+        $methodId = $order->getPayment()
+        ->getMethodInstance()
+        ->getCode();
+
         // Send the charge request
         return $this->methodHandler
-        ->get($this->data['methodId'])
+        ->get($methodId)
         ->sendPaymentRequest(
             $this->data,
-            $this->quote->getGrandTotal(),
-            $this->quote->getQuoteCurrencyCode(),
-            $this->quoteHandler->getReference($this->quote)
+            $order->getGrandTotal(),
+            $order->getOrderCurrencyCode(),
+            $order->getIncrementId()
         );
     }
 }

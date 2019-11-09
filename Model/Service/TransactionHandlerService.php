@@ -216,11 +216,8 @@ class TransactionHandlerService
         // Get the parent transaction
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
 
-        // Get order invoices
-        $orderInvoicesCollection = $this->invoiceHandler->getInvoices();
-
         // Handle the capture logic
-        if ($parentTransaction && $orderInvoicesCollection->getSize() == 0) {
+        if ($parentTransaction) {
             $parentTransaction->close();
             $this->transaction->setParentTxnId(
                 $parentTransaction->getTxnId()
