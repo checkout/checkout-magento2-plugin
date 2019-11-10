@@ -180,21 +180,29 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         // Save the quote
         $quote->collectTotals()->save();
 
+        // Create the order
+        $order = $this->orderHandler
+            ->setMethodId($this->methodId)
+            ->handleOrder();
+
         // Process the payment
-        $response = $this->methodHandler
-            ->get($this->methodId)
-            ->sendPaymentRequest(
-                $this->data,
-                $quote->getGrandTotal(),
-                $quote->getQuoteCurrencyCode(),
-                $this->quoteHandler->getReference($quote)
-            );
+        $response = $this->methodHandler->get($this->methodId)
+        ->sendPaymentRequest(
+            $this->data,
+            $order->getGrandTotal(),
+            $order->getOrderCurrencyCode(),
+            $order->getIncrementId()
+        );
+
+        // Add the payment info to the order
+        $order = $this->utilities
+        ->setPaymentData($order, $response);
+
+        // Save the order
+        $order->save();
 
         // Process a successful response
         if ($api->isValidResponse($response)) {
-            // Create the order
-            $order = $this->placeOrder($quote, $response);
-
             // Prepare the user response
             $message = __(
                 'Your order number %1 has been created successfully.',
@@ -203,43 +211,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         }
 
         return $this->createResponse($message, true);
-    }
-
-    /**
-     * Handles the order placing process.
-     *
-     * @param array $response The response
-     *
-     * @return void
-     */
-    public function placeOrder($quote, $response = null)
-    {
-        // Get the reserved order increment id
-        $reservedIncrementId = $this->quoteHandler
-            ->getReference($quote);
-
-        // Create an order
-        $order = $this->orderHandler
-            ->setMethodId($this->methodId)
-            ->handleOrder(
-                $response,
-                ['increment_id' => $reservedIncrementId]
-            );
-
-        // Add the payment info to the order
-        $order = $this->utilities
-            ->setPaymentData($order, $response);
-
-        // Save the order
-        $order->save();
-
-        // Check if the order is valid
-        if (!$this->orderHandler->isOrder($order)) {
-            $this->cancelPayment($response);
-            return null;
-        }
-
-        return $order;
     }
 
     /**
