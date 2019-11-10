@@ -234,26 +234,4 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
         return $result;
     }
-
-    /**
-     * Cancels a payment.
-     *
-     * @param array $response The response
-     *
-     * @return void
-     */
-    public function cancelPayment($response)
-    {
-        // Initialize the API handler
-        $api = $this->apiHandler->init();
-
-        // Refund or void accordingly
-        if ($this->config->needsAutoCapture($this->methodId)) {
-            // Refund
-            $api->checkoutApi->payments()->refund(new Refund($response->getId()));
-        } else {
-            // Void
-            $api->checkoutApi->payments()->void(new Voids($response->getId()));
-        }
-    }
 }
