@@ -36,11 +36,6 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $apiHandler;
 
     /**
-     * @var QuoteHandlerService
-     */
-    public $quoteHandler;
-
-    /**
      * @var OrderHandlerService
      */
     public $orderHandler;
@@ -62,7 +57,6 @@ class Verify extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
@@ -71,7 +65,6 @@ class Verify extends \Magento\Framework\App\Action\Action
 
         $this->config = $config;
         $this->apiHandler = $apiHandler;
-        $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
