@@ -121,11 +121,14 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function handleOrder()
+    public function handleOrder($quote = null)
     {
         if ($this->methodId) {
             // Prepare the quote
-            $quote = $this->quoteHandler->prepareQuote($this->methodId);
+            $quote = $this->quoteHandler->prepareQuote(
+                $this->methodId,
+                $quote
+            );
 
             // Process the quote
             if ($quote) {

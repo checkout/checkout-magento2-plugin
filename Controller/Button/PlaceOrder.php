@@ -183,7 +183,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         // Create the order
         $order = $this->orderHandler
             ->setMethodId($this->methodId)
-            ->handleOrder();
+            ->handleOrder($quote);
 
         // Process the payment
         $response = $this->methodHandler->get($this->methodId)

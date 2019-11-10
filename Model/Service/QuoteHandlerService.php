@@ -173,10 +173,10 @@ class QuoteHandlerService
     /**
      * Prepares a quote for order placement
      */
-    public function prepareQuote($methodId)
+    public function prepareQuote($methodId, $quote = null)
     {
         // Find quote and perform tasks
-        $quote = $this->getQuote();
+        $quote = $quote ? $quote : $this->getQuote();
         if ($this->isQuote($quote)) {
             // Prepare the inventory
             $quote->setInventoryProcessed(false);
