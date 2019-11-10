@@ -75,15 +75,14 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         // Process the request
         if ($this->getRequest()->isAjax() && !empty($ckoCardToken)) {
             // Save the card
+            $success = $this->vaultHandler
+                ->setCardToken($ckoCardToken)
+                ->setCustomerId()
+                ->setCustomerEmail()
+                ->authorizeTransaction()
+                ->saveCard();
 
-                $success = $this->vaultHandler
-                    ->setCardToken($ckoCardToken)
-                    ->setCustomerId()
-                    ->setCustomerEmail()
-                    ->authorizeTransaction()
-                    ->saveCard();
-
-                $this->messageManager->addSuccessMessage(__('The payment card has been stored successfully.'));
+            $this->messageManager->addSuccessMessage(__('The payment card has been stored successfully.'));
         }
 
         // Build the AJAX response
