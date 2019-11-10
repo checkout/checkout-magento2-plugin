@@ -28,9 +28,9 @@ use \Checkout\Models\Payments\ThreeDs;
 class VaultHandlerService
 {
     /**
-     * @var VaultTokenFactory
+     * @var VaultToken
      */
-    public $vaultTokenFactory;
+    public $vaultToken;
 
     /**
      * @var Config
@@ -101,7 +101,7 @@ class VaultHandlerService
      * VaultHandlerService constructor.
      */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Factory\VaultTokenFactory $vaultTokenFactory,
+        \CheckoutCom\Magento2\Model\Vault\VaultToken $vaultToken,
         \Magento\Vault\Api\PaymentTokenRepositoryInterface $paymentTokenRepository,
         \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement,
         \Magento\Customer\Model\Session $customerSession,
@@ -111,7 +111,7 @@ class VaultHandlerService
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
-        $this->vaultTokenFactory = $vaultTokenFactory;
+        $this->vaultToken = $vaultToken;
         $this->paymentTokenRepository = $paymentTokenRepository;
         $this->paymentTokenManagement = $paymentTokenManagement;
         $this->customerSession = $customerSession;
@@ -212,7 +212,7 @@ class VaultHandlerService
     {
         try {
             // Create the payment token from response
-            $paymentToken = $this->vaultTokenFactory->create(
+            $paymentToken = $this->vaultToken->create(
                 $this->cardData,
                 $this->customerId
             );
@@ -303,7 +303,7 @@ class VaultHandlerService
                     $cardData = $values['source'];
 
                     // Create the payment token
-                    $paymentToken = $this->vaultTokenFactory->create($cardData, 'checkoutcom_vault', $this->customerId);
+                    $paymentToken = $this->vaultToken->create($cardData, 'checkoutcom_vault', $this->customerId);
                     $foundPaymentToken = $this->foundExistedPaymentToken($paymentToken);
 
                     // Check if card exists

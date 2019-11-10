@@ -15,16 +15,15 @@
  * @link      https://docs.checkout.com/
  */
 
-namespace CheckoutCom\Magento2\Model\Factory;
+namespace CheckoutCom\Magento2\Model\Vault;
 
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 
 /**
- * Class VaultTokenFactory
+ * Class VaultToken
  */
-class VaultTokenFactory
+class VaultToken
 {
-
     /**
      * @var CreditCardTokenFactory
      */
@@ -46,7 +45,7 @@ class VaultTokenFactory
     public $logger;
 
     /**
-     * VaultTokenFactory constructor.
+     * VaultToken constructor.
      */
     public function __construct(
         \Magento\Vault\Model\CreditCardTokenFactory $creditCardTokenFactory,

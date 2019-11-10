@@ -440,12 +440,8 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        if (parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code)
-            && $this->vaultHandler->userHasCards()
-            && !$this->backendAuthSession->isLoggedIn();
-        }
-    
-        return false;
+        return $this->config->getValue('active', $this->_code)
+        && $this->vaultHandler->userHasCards()
+        && !$this->backendAuthSession->isLoggedIn();
     }
 }

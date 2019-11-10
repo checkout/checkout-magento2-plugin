@@ -29,6 +29,10 @@
     </type>
     <!-- END Method handler configurations -->
 
+    <!-- Instant Purchase override -->
+    <preference for="Magento\InstantPurchase\CustomerData\InstantPurchase" type="CheckoutCom\Magento2\Model\InstantPurchase\CustomerData" />
+    <!-- END Instant Purchase override -->
+
     <!-- CSRF bypass from 2.3.x series -->
     <type name="Magento\Framework\App\Request\CsrfValidator">
         <plugin name="csrf_validator_skip" type="CheckoutCom\Magento2\Plugin\CsrfValidatorSkip" />
