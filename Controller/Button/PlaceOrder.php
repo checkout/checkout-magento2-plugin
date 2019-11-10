@@ -180,7 +180,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         // Save the quote
         $quote->collectTotals()->save();
 
-        // Process the response
+        // Process the payment
         $response = $this->methodHandler
             ->get($this->methodId)
             ->sendPaymentRequest(
