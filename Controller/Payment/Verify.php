@@ -56,7 +56,7 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $logger;
 
     /**
-     * PlaceOrder constructor
+     * Verify constructor
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
