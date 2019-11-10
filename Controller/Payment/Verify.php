@@ -36,11 +36,6 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $apiHandler;
 
     /**
-     * @var QuoteHandlerService
-     */
-    public $quoteHandler;
-
-    /**
      * @var OrderHandlerService
      */
     public $orderHandler;
@@ -62,7 +57,6 @@ class Verify extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
@@ -71,7 +65,6 @@ class Verify extends \Magento\Framework\App\Action\Action
 
         $this->config = $config;
         $this->apiHandler = $apiHandler;
-        $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
@@ -82,9 +75,6 @@ class Verify extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
-
         // Get the session id
         $sessionId = $this->getRequest()->getParam('cko-session-id', null);
         if ($sessionId) {
@@ -97,116 +87,48 @@ class Verify extends \Magento\Framework\App\Action\Action
             // Set the method ID
             $this->methodId = $response->metadata['methodId'];
 
-            // Logging
-            $this->logger->display($response);
-            
-            // Process the response
-            if ($api->isValidResponse($response)) {
-                if (!$this->placeOrder($response)) {
+            // Find the order from increment id
+            $order = $this->orderHandler->getOrder([
+                'increment_id' => $response->reference
+            ]);
+
+            // Process the order
+            if ($this->orderHandler->isOrder($order)) {
+                // Add the payment info to the order
+                $order = $this->utilities->setPaymentData($order, $response);
+
+                // Save the order
+                $order->save();
+
+                // Logging
+                $this->logger->display($response);
+                
+                // Process the response
+                if ($api->isValidResponse($response)) {
+                    return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+                }
+                else {
                     // Add and error message
                     $this->messageManager->addErrorMessage(
                         __('The transaction could not be processed or has been cancelled.')
                     );
-
-                    // Return to the cart
-                    return $this->_redirect('checkout/cart', ['_secure' => true]);
                 }
-                
-                return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+            }
+            else {
+                // Add and error message
+                $this->messageManager->addErrorMessage(
+                    __('Invalid request. No order found.')
+                );                     
             }
         }
-    }
-
-    /**
-     * Handles the order placing process.
-     *
-     * @param array $response The response
-     *
-     * @return mixed
-     */
-    public function placeOrder($response = null)
-    {
-        // Initialize the API handler
-        $api = $this->apiHandler->init();
-
-        // Get the reserved order increment id
-        $reservedIncrementId = $this->quoteHandler
-            ->getReference($this->quote);
-
-        // Get the payment details
-        $paymentDetails = $api->getPaymentDetails($response->id);
-
-        // Prepare the quote filters
-        $filters = $this->quoteHandler->prepareQuoteFilters(
-            $paymentDetails,
-            $reservedIncrementId
-        );
-
-        // Create an order
-        $order = $this->orderHandler
-            ->setMethodId($this->methodId)
-            ->handleOrder(
-                $response,
-                $filters
-            );
-
-        // Add the payment info to the order
-        $order = $this->utilities
-            ->setPaymentData($order, $response);
-
-        // Save the order
-        $order->save();
-
-        // Check if the order is valid
-        if (!$this->orderHandler->isOrder($order)) {
-            $this->cancelPayment($response);
-            return null;
+        else {
+            // Add and error message
+            $this->messageManager->addErrorMessage(
+                __('Invalid request. No session ID found.')
+            );       
         }
 
-        return $order;
-    }
-
-    /**
-     * Prepares the quote filters.
-     *
-     * @param array $paymentDetails
-     * @param string $reservedIncrementId
-     *
-     * @return array
-     */
-    public function prepareQuoteFilters($paymentDetails, $reservedIncrementId)
-    {
-        // Prepare the filters array
-        $filters = ['increment_id' => $reservedIncrementId];
-
-        // Retrieve the quote metadata
-        $quoteData = isset($paymentDetails->metadata['quoteData'])
-        && !empty($paymentDetails->metadata['quoteData'])
-        ? json_decode($paymentDetails->metadata['quoteData'], true)
-        : [];
-
-        return array_merge($filters, $quoteData);
-    }
-
-    /**
-     * Cancels a payment.
-     *
-     * @param array $response The response
-     *
-     * @return void
-     */
-    public function cancelPayment($response)
-    {
-        // Initialize the API handler
-        $api = $this->apiHandler->init();
-
-        // Refund or void accordingly
-        if ($this->config->needsAutoCapture($this->methodId)) {
-            // Refund
-            $api->checkoutApi->payments()->refund(new Refund($response->getId()));
-        } else {
-            // Void
-            $api->checkoutApi->payments()->void(new Voids($response->getId()));
-        }
+        // Return to the cart
+        return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 }
