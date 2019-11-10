@@ -135,9 +135,6 @@ class OrderHandlerService
                 // Create the order
                 $order = $this->quoteManagement->submit($quote);
 
-                // Return the saved order
-                $order = $this->orderRepository->save($order);
-
                 // Perform after place order tasks
                 $order = $this->afterPlaceOrder($quote, $order);
 
