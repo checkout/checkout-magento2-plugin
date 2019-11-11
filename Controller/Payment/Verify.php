@@ -41,6 +41,11 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $orderHandler;
 
     /**
+     * @var QuoteHandlerService
+     */
+    public $quoteHandler;
+
+    /**
      * @var Utilities
      */
     public $utilities;
@@ -58,6 +63,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
@@ -66,6 +72,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
+        $this->quoteHandler = $quoteHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
     }
@@ -108,6 +115,14 @@ class Verify extends \Magento\Framework\App\Action\Action
                     return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                 }
                 else {
+                    // Get the quote
+                    $quote = $this->quoteHandler->getQuote([
+                        'reserved_order_id' => $response->reference
+                    ]);
+
+                    // Restore the quote
+                    $quote->setIsActive(true)->save();
+
                     // Add and error message
                     $this->messageManager->addErrorMessage(
                         __('The transaction could not be processed or has been cancelled.')
