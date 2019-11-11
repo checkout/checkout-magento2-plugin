@@ -109,7 +109,7 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                 // Logging
                 $this->logger->display($response);
-                
+
                 // Process the response
                 if ($api->isValidResponse($response)) {
                     return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
