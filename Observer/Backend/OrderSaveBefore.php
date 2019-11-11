@@ -183,9 +183,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             }
 
             // Send the charge request
-            $response = $api->checkoutApi
-                ->payments()
-                ->request($request);
+            $response = $api->checkoutApi->payments()->request($request);
 
             // Logging
             $this->logger->display($response);
@@ -203,11 +201,15 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             }
         }
         else if ($this->needsBackendCapture()) {
-            $request = new Capture($paymentInfo['id']);
-            $payment->amount = $this->prepareAmount();
+            // Get the payment info
+            $paymentInfo = $this->utilities->getPaymentData($this->order);
 
+            // Prepare the request
+            $request = new Capture($paymentInfo['id']);
+            $request->amount = $this->prepareAmount();
+            
             // Process the request
-            $response = $api->payments()->capture($request);
+            $response = $api->checkoutApi->payments()->capture($request);
 
             // Logging
             $this->logger->display($response);
