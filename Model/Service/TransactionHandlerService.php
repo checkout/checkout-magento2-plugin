@@ -19,6 +19,7 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order;
+use Magento\Payment\Model\MethodInterface;
 
 /**
  * Class TransactionHandlerService.
@@ -61,6 +62,11 @@ class TransactionHandlerService
     private $creditMemoService;
 
     /**
+     * @var OrderSender
+     */
+    private $orderSender;
+
+    /**
      * @var InvoiceHandlerService
      */
     public $invoiceHandler;
@@ -91,6 +97,7 @@ class TransactionHandlerService
         \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository,
         \Magento\Sales\Model\Order\CreditmemoFactory $creditMemoFactory,
         \Magento\Sales\Model\Service\CreditmemoService $creditMemoService,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
@@ -103,6 +110,7 @@ class TransactionHandlerService
         $this->transactionRepository = $transactionRepository;
         $this->creditMemoFactory     = $creditMemoFactory;
         $this->creditMemoService     = $creditMemoService;
+        $this->orderSender           = $orderSender;
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
         $this->utilities             = $utilities;
@@ -204,6 +212,11 @@ class TransactionHandlerService
 
             // Allow void
             $this->transaction->setIsClosed(0);
+
+            // Check the email sender
+            if ($this->config->getValue('order_email') == MethodInterface::ACTION_AUTHORIZE) {
+                $this->orderSender->send($this->order, true);
+            }
         }
 
     }
@@ -237,6 +250,11 @@ class TransactionHandlerService
 
             // Allow refund
             $this->transaction->setIsClosed(0);
+
+            // Check the email sender
+            if ($this->config->getValue('order_email') == MethodInterface::ACTION_AUTHORIZE_CAPTURE) {
+                $this->orderSender->send($this->order, true);
+            }
         }
     }
 

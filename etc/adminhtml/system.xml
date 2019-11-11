@@ -86,10 +86,10 @@
                     <group id="order_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Order Settings</label>
 
-                        <field id="order_confirmation_email" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="order_email" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Order confirmation email</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
-                            <config_path>settings/checkoutcom_configuration/order_confirmation_email</config_path>
+                            <config_path>settings/checkoutcom_configuration/order_email</config_path>
                             <comment>Defines if the order confirmation email should be sent after successful payment authorisation or payment capture.</comment>
                         </field>
 
