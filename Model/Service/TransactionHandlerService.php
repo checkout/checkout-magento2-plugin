@@ -120,10 +120,10 @@ class TransactionHandlerService
     /**
      * Create a transaction for an order.
      */
-    public function createTransaction($order, $transactionType, $data = null, $isWebhook = true)
+    public function createTransaction($order, $transactionType, $data = null)
     {
         // Prepare the needed elements
-        $this->prepareData($order, $transactionType, $data, $isWebhook);
+        $this->prepareData($order, $transactionType, $data);
 
         // Process the transaction
         switch ($this->transactionType) {
@@ -160,11 +160,8 @@ class TransactionHandlerService
     /**
      * Prepare the required instance properties.
      */
-    public function prepareData($order, $transactionType, $data, $isWebhook)
+    public function prepareData($order, $transactionType, $data)
     {
-        // Assign the request type
-        $this->isWebhook = $isWebhook;
-
         // Assign the order
         $this->order = $order;
 
