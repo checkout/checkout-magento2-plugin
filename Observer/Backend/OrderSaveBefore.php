@@ -125,88 +125,84 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        try {
-            // Get the request parameters
-            $this->params = $this->request->getParams();
+        // Get the request parameters
+        $this->params = $this->request->getParams();
 
-            // Get the order
-            $this->order = $observer->getEvent()->getOrder();
+        // Get the order
+        $this->order = $observer->getEvent()->getOrder();
 
-            // Get the method id
-            $this->methodId = $this->order->getPayment()->getMethodInstance()->getCode();
+        // Get the method id
+        $this->methodId = $this->order->getPayment()->getMethodInstance()->getCode();
 
-            // Process the payment
-            if ($this->needsMotoProcessing()) {
-                // Initialize the API handler
-                $api = $this->apiHandler->init();
+        // Process the payment
+        if ($this->needsMotoProcessing()) {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
 
-                // Set the source
-                $source = $this->getSource();
+            // Set the source
+            $source = $this->getSource();
 
-                // Set the payment
-                $request = new Payment(
-                    $source,
-                    $this->order->getOrderCurrencyCode()
-                );
+            // Set the payment
+            $request = new Payment(
+                $source,
+                $this->order->getOrderCurrencyCode()
+            );
 
-                // Prepare the metadata array
-                $request->metadata = array_merge(
-                    ['methodId' => $this->methodId],
-                    $this->apiHandler->getBaseMetadata()
-                );
+            // Prepare the metadata array
+            $request->metadata = array_merge(
+                ['methodId' => $this->methodId],
+                $this->apiHandler->getBaseMetadata()
+            );
 
-                // Prepare the capture date setting
-                $captureDate = $this->config->getCaptureTime($this->methodId);
+            // Prepare the capture date setting
+            $captureDate = $this->config->getCaptureTime($this->methodId);
 
-                // Set the request parameters
-                $request->capture = $this->config->needsAutoCapture($this->methodId);
-                $request->amount = $this->orderHandler->amountToGateway(
-                    $this->order->getGrandTotal(),
-                    $order
-                );
-                $request->reference = $this->order->getIncrementId();
-                $request->payment_type = 'MOTO';
-                $request->shipping = $api->createShippingAddress($this->order);
-                if ($captureDate) {
-                    $request->capture_on = $this->config->getCaptureTime();
-                }
-
-                // Billing descriptor
-                if ($this->config->needsDynamicDescriptor()) {
-                    $request->billing_descriptor = new BillingDescriptor(
-                        $this->config->getValue('descriptor_name'),
-                        $this->config->getValue('descriptor_city')
-                    );
-                }
-
-                // Send the charge request
-                $response = $api->checkoutApi
-                    ->payments()
-                    ->request($request);
-
-                // Logging
-                $this->logger->display($response);
-
-                // Add the response to the order
-                if ($api->isValidResponse($response)) {
-                    $this->utilities->setPaymentData($this->order, $response);
-                    $this->messageManager->addSuccessMessage(
-                        __('The payment request was successfully processed.')
-                    );
-                } else {
-                    $this->messageManager->addErrorMessage(
-                        __('The transaction could not be processed. Please check the payment details.')
-                    );
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The gateway declined a MOTO payment request.')
-                    );
-                }
+            // Set the request parameters
+            $request->capture = $this->config->needsAutoCapture($this->methodId);
+            $request->amount = $this->orderHandler->amountToGateway(
+                $this->order->getGrandTotal(),
+                $order
+            );
+            $request->reference = $this->order->getIncrementId();
+            $request->payment_type = 'MOTO';
+            $request->shipping = $api->createShippingAddress($this->order);
+            if ($captureDate) {
+                $request->capture_on = $this->config->getCaptureTime();
             }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        } finally {
-            return $this;
+
+            // Billing descriptor
+            if ($this->config->needsDynamicDescriptor()) {
+                $request->billing_descriptor = new BillingDescriptor(
+                    $this->config->getValue('descriptor_name'),
+                    $this->config->getValue('descriptor_city')
+                );
+            }
+
+            // Send the charge request
+            $response = $api->checkoutApi
+                ->payments()
+                ->request($request);
+
+            // Logging
+            $this->logger->display($response);
+
+            // Add the response to the order
+            if ($api->isValidResponse($response)) {
+                $this->utilities->setPaymentData($this->order, $response);
+                $this->messageManager->addSuccessMessage(
+                    __('The payment request was successfully processed.')
+                );
+            } else {
+                $this->messageManager->addErrorMessage(
+                    __('The transaction could not be processed. Please check the payment details.')
+                );
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The gateway declined a MOTO payment request.')
+                );
+            }
         }
+
+        return $this;
     }
 
     /**
@@ -214,18 +210,13 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      */
     protected function needsMotoProcessing()
     {
-        try {
-            return $this->backendAuthSession->isLoggedIn()
-            && isset($this->params['ckoCardToken'])
-            && $this->methodId == 'checkoutcom_moto'
-            && !$this->transactionHandler->hasTransaction(
-                Transaction::TYPE_AUTH,
-                $this->order
-            );
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
-        }
+        return $this->backendAuthSession->isLoggedIn()
+        && isset($this->params['ckoCardToken'])
+        && $this->methodId == 'checkoutcom_moto'
+        && !$this->transactionHandler->hasTransaction(
+            Transaction::TYPE_AUTH,
+            $this->order
+        );
     }
 
     /**
@@ -233,36 +224,31 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      */
     protected function getSource()
     {
-        try {
-            if ($this->isCardToken()) {
-                // Initialize the API handler
-                $api = $this->apiHandler->init();
+        if ($this->isCardToken()) {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
 
-                // Create the token source
-                $tokenSource = new TokenSource($this->params['ckoCardToken']);
-                $tokenSource->billing_address = $api->createBillingAddress($this->order);
+            // Create the token source
+            $tokenSource = new TokenSource($this->params['ckoCardToken']);
+            $tokenSource->billing_address = $api->createBillingAddress($this->order);
 
-                return $tokenSource;
-            } elseif ($this->isSavedCard()) {
-                $card = $this->vaultHandler->getCardFromHash(
-                    $this->params['publicHash'],
-                    $this->order->getCustomerId()
-                );
-                $idSource = new IdSource($card->getGatewayToken());
-                $idSource->cvv = $this->params['cvv'];
+            return $tokenSource;
+        } elseif ($this->isSavedCard()) {
+            $card = $this->vaultHandler->getCardFromHash(
+                $this->params['publicHash'],
+                $this->order->getCustomerId()
+            );
+            $idSource = new IdSource($card->getGatewayToken());
+            $idSource->cvv = $this->params['cvv'];
 
-                return $idSource;
-            } else {
-                $this->messageManager->addErrorMessage(
-                    __('Please provide the required card information for the MOTO payment.')
-                );
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('Missing required card information for the MOTO payment.')
-                );
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+            return $idSource;
+        } else {
+            $this->messageManager->addErrorMessage(
+                __('Please provide the required card information for the MOTO payment.')
+            );
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Missing required card information for the MOTO payment.')
+            );
         }
     }
 
