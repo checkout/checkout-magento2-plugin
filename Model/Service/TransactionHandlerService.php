@@ -254,7 +254,7 @@ class TransactionHandlerService
 
             // Check the email sender
             if ($this->config->getValue('order_email') == MethodInterface::ACTION_AUTHORIZE_CAPTURE) {
-                $order->setCanSendNewEmailFlag(true);
+                $this->order->setCanSendNewEmailFlag(true);
                 $this->orderSender->send($this->order, true);
             }
         }
