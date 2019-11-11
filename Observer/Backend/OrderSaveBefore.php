@@ -125,6 +125,14 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(Observer $observer)
     {
+
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/osave.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r('tttt', 1));
+
+
         // Get the request parameters
         $this->params = $this->request->getParams();
 
