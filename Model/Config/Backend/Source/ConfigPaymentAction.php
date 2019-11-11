@@ -17,6 +17,8 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+use Magento\Payment\Model\MethodInterface;
+
 /**
  * Class ConfigPaymentAction
  */
@@ -31,11 +33,11 @@ class ConfigPaymentAction implements \Magento\Framework\Option\ArrayInterface
     {
         return [
             [
-                'value' => 'authorize',
+                'value' => MethodInterface::ACTION_AUTHORIZE,
                 'label' => __('Authorize')
             ],
             [
-                'value' => 'authorize_capture',
+                'value' => MethodInterface::ACTION_AUTHORIZE_CAPTURE,
                 'label' => __('Authorize and Capture')
             ]
         ];
