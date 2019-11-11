@@ -185,7 +185,7 @@ class OrderHandlerService
     /**
      * Convert an order amount to integer value for the gateway request.
      */
-    public function prepareAmount($amount, $order)
+    public function amountToGateway($amount, $order)
     {
         // Get the quote currency
         $currency = $this->getOrderCurrency($order);

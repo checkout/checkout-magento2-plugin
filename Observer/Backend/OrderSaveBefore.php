@@ -125,14 +125,6 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(Observer $observer)
     {
-
-
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/osave.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r('tttt', 1));
-
-
         // Get the request parameters
         $this->params = $this->request->getParams();
 
@@ -141,9 +133,9 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
         // Get the method id
         $this->methodId = $this->order->getPayment()->getMethodInstance()->getCode();
-
+        
         // Process the payment
-        if ($this->needsMotoProcessing()) {
+        if ($this->needsMotoProcessing() || $this->needsBackendCapture()) {
             // Initialize the API handler
             $api = $this->apiHandler->init();
 
@@ -167,10 +159,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
             // Set the request parameters
             $request->capture = $this->config->needsAutoCapture($this->methodId);
-            $request->amount = $this->orderHandler->amountToGateway(
-                $this->order->getGrandTotal(),
-                $order
-            );
+            $request->amount = $this->prepareAmount();
             $request->reference = $this->order->getIncrementId();
             $request->payment_type = 'MOTO';
             $request->shipping = $api->createShippingAddress($this->order);
@@ -214,6 +203,21 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Prepare the payment amount for the payment request.
+     */
+    protected function prepareAmount()
+    {
+        // Get the payment instance
+        $payment = $this->order->getPayment();
+
+        // Return the formatted amount
+        return $this->orderHandler->amountToGateway(
+            $this->utilities->formatDecimals($payment->getAmountPaid()),
+            $this->order
+        );
+    }
+
+    /**
      * Checks if the MOTO logic should be triggered.
      */
     protected function needsMotoProcessing()
@@ -222,6 +226,23 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         && isset($this->params['ckoCardToken'])
         && $this->methodId == 'checkoutcom_moto'
         && !$this->transactionHandler->hasTransaction(
+            Transaction::TYPE_AUTH,
+            $this->order
+        );
+    }
+
+    /**
+     * Checks if the backend capture logic should be triggered.
+     */
+    protected function needsBackendCapture()
+    {
+        // Get the payment instance
+        $payment = $this->order->getPayment();
+
+        // Return the test
+        return $this->backendAuthSession->isLoggedIn()
+        && ($payment->canCapturePartial() || $payment->canCapture())
+        && $this->transactionHandler->hasTransaction(
             Transaction::TYPE_AUTH,
             $this->order
         );
