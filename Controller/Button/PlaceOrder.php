@@ -80,11 +80,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $utilities;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * @var ShippingSelector
      */
     public $shippingSelector;
@@ -103,7 +98,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger,
         \CheckoutCom\Magento2\Model\InstantPurchase\ShippingSelector $shippingSelector
     ) {
         parent::__construct($context);
@@ -117,7 +111,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
-        $this->logger = $logger;
         $this->shippingSelector = $shippingSelector;
 
         // Try to load a quote

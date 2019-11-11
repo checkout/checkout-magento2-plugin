@@ -33,11 +33,6 @@ class Validation extends \Magento\Framework\App\Action\Action
     public $curl;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * @var Config
      */
     public $config;
@@ -49,14 +44,12 @@ class Validation extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Controller\Result\RawFactory $rawFactory,
         \Magento\Framework\HTTP\Client\Curl $curl,
-        \CheckoutCom\Magento2\Helper\Logger $logger,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         parent::__construct($context);
 
         $this->rawFactory = $rawFactory;
         $this->curl = $curl;
-        $this->logger = $logger;
         $this->config = $config;
     }
 

@@ -39,26 +39,19 @@ class SaveCard extends \Magento\Framework\App\Action\Action
     public $vaultHandler;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * SaveCard constructor.
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\UrlInterface $urlInterface,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
     ) {
         parent::__construct($context);
 
         $this->jsonFactory = $jsonFactory;
         $this->urlInterface = $urlInterface;
         $this->vaultHandler = $vaultHandler;
-        $this->logger = $logger;
     }
 
     /**

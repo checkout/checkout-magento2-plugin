@@ -49,11 +49,6 @@ class Display extends \Magento\Framework\App\Action\Action
     public $vaultHandler;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * Display constructor
      */
     public function __construct(
@@ -61,8 +56,7 @@ class Display extends \Magento\Framework\App\Action\Action
         \Magento\Framework\View\Result\PageFactory $pageFactory,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
     ) {
         parent::__construct($context);
 
@@ -70,7 +64,6 @@ class Display extends \Magento\Framework\App\Action\Action
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
         $this->vaultHandler = $vaultHandler;
-        $this->logger = $logger;
     }
 
     /**

@@ -75,11 +75,6 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
     public $store;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * Display constructor
      */
     public function __construct(
@@ -90,8 +85,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Store\Model\Information $storeManager,
-        \Magento\Store\Model\Store $storeModel,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \Magento\Store\Model\Store $storeModel
     ) {
         parent::__construct($context);
 
@@ -102,7 +96,6 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         $this->quoteHandler = $quoteHandler;
         $this->storeManager = $storeManager;
         $this->storeModel = $storeModel;
-        $this->logger = $logger;
     }
 
     /**

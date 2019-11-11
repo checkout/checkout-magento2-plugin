@@ -53,11 +53,6 @@ class Moto extends \Magento\Payment\Block\Form\Cc
     public $cardHandler;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * Moto constructor.
      */
     public function __construct(
@@ -66,8 +61,7 @@ class Moto extends \Magento\Payment\Block\Form\Cc
         \Magento\Backend\Model\Session\Quote $adminQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler
     ) {
         parent::__construct($context, $paymentModelConfig);
 
@@ -76,7 +70,6 @@ class Moto extends \Magento\Payment\Block\Form\Cc
         $this->config = $config;
         $this->vaultHandler = $vaultHandler;
         $this->cardHandler = $cardHandler;
-        $this->logger = $logger;
     }
 
     /**

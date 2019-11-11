@@ -48,11 +48,6 @@ class Display extends \Magento\Framework\App\Action\Action
     public $quoteHandler;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * Display constructor
      */
     public function __construct(
@@ -60,8 +55,7 @@ class Display extends \Magento\Framework\App\Action\Action
         \Magento\Framework\View\Result\PageFactory $pageFactory,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
     ) {
         parent::__construct($context);
 
@@ -69,7 +63,6 @@ class Display extends \Magento\Framework\App\Action\Action
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
-        $this->logger = $logger;
     }
 
     /**

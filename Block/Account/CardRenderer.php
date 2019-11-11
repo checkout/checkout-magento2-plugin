@@ -36,11 +36,6 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
     public $cardHandler;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * CardRenderer constructor.
      */
     public function __construct(
@@ -48,14 +43,12 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
         \Magento\Payment\Model\CcConfigProvider $iconsProvider,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger,
         array $data
     ) {
         parent::__construct($context, $iconsProvider, $data);
 
         $this->config = $config;
         $this->cardHandler = $cardHandler;
-        $this->logger = $logger;
     }
 
     /**

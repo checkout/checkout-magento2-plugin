@@ -40,23 +40,16 @@ class VaultToken
     public $cardHandler;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * VaultToken constructor.
      */
     public function __construct(
         \Magento\Vault\Model\CreditCardTokenFactory $creditCardTokenFactory,
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler
     ) {
         $this->creditCardTokenFactory = $creditCardTokenFactory;
         $this->encryptor = $encryptor;
         $this->cardHandler = $cardHandler;
-        $this->logger = $logger;
     }
 
     /**

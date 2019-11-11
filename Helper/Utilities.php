@@ -43,25 +43,18 @@ class Utilities
     public $customerSession;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * Utilities constructor.
      */
     public function __construct(
         \Magento\Framework\UrlInterface $urlInterface,
         \Magento\Framework\Module\Dir\Reader $moduleDirReader,
         \Magento\Framework\Filesystem\Driver\File $fileDriver,
-        \Magento\Customer\Model\Session $customerSession,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \Magento\Customer\Model\Session $customerSession
     ) {
         $this->urlInterface = $urlInterface;
         $this->moduleDirReader = $moduleDirReader;
         $this->fileDriver = $fileDriver;
         $this->customerSession = $customerSession;
-        $this->logger = $logger;
     }
 
     /**
