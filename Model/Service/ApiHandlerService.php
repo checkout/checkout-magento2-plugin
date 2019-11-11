@@ -133,6 +133,9 @@ class ApiHandlerService
             // Initialise the capture object
             $request = new Capture($paymentInfo['id']);
 
+            // Set the backend capture flag
+            $request->metadata['isBackendCapture'] = true;
+
             // Handle partial capture
             $paymentAmount = $this->utilities->formatDecimals($amount);
             $orderAmount = $this->utilities->formatDecimals($order->getGrandTotal());
