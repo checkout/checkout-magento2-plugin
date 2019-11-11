@@ -28,9 +28,9 @@ class AfterPlaceOrder
     /**
      * Disable order email sending on order creation
      */
-	public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
-	{
+    public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
+    {
         $order->setCanSendNewEmailFlag(false);
         return $order;
-	}
+    }
 }

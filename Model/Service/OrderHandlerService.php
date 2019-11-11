@@ -129,9 +129,6 @@ class OrderHandlerService
                 $this->methodId,
                 $quote
             );
-
-            // Block the email sending
-            $this->checkoutSession->setForceOrderMailSentOnSuccess(true);
             
             // Process the quote
             if ($quote) {
