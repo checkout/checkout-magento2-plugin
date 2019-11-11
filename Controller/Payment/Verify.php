@@ -115,13 +115,8 @@ class Verify extends \Magento\Framework\App\Action\Action
                     return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                 }
                 else {
-                    // Get the quote
-                    $quote = $this->quoteHandler->getQuote([
-                        'reserved_order_id' => $response->reference
-                    ]);
-
                     // Restore the quote
-                    $quote->setIsActive(true)->save();
+                    $this->quoteHandler->restoreQuote($response->reference);
 
                     // Add and error message
                     $this->messageManager->addErrorMessage(

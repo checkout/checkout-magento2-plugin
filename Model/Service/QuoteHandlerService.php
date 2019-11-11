@@ -124,6 +124,20 @@ class QuoteHandlerService
     }
 
     /**
+     * Restore a quote
+     */
+    public function restoreQuote($reference)
+    {
+        // Get the quote
+        $quote = $this->getQuote([
+            'reserved_order_id' => $reference
+        ]);
+
+        // Restore the quote
+        $quote->setIsActive(true)->save();
+    }
+
+    /**
      * Create a new quote
      */
     public function createQuote($currency = null, $customer = null)
