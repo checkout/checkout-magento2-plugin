@@ -219,7 +219,6 @@ class TransactionHandlerService
                 $this->orderSender->send($this->order, true);
             }
         }
-
     }
 
     /**
