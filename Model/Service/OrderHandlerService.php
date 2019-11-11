@@ -130,6 +130,9 @@ class OrderHandlerService
                 $quote
             );
 
+            // Block the email sending
+            $this->checkoutSession->setForceOrderMailSentOnSuccess(true);
+            
             // Process the quote
             if ($quote) {
                 // Create the order
