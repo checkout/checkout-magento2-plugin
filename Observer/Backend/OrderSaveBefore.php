@@ -22,6 +22,7 @@ use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\BillingDescriptor;
+use \Checkout\Models\Payments\Capture;
 
 /**
  * Class OrderSaveBefore.
@@ -131,14 +132,20 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         // Get the order
         $this->order = $observer->getEvent()->getOrder();
 
+        // Get the payment
+        $payment = $this->order->getPayment();
+
+        // Get the store code
+        $storeCode = $this->order->getStore()->getCode();
+
         // Get the method id
-        $this->methodId = $this->order->getPayment()->getMethodInstance()->getCode();
+        $this->methodId = $payment->getMethodInstance()->getCode();
+
+        // Initialize the API handler
+        $api = $this->apiHandler->init($storeCode);
 
         // Process the payment
         if ($this->needsMotoProcessing()) {
-            // Initialize the API handler
-            $api = $this->apiHandler->init();
-
             // Set the source
             $source = $this->getSource();
 
@@ -159,10 +166,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
             // Set the request parameters
             $request->capture = $this->config->needsAutoCapture($this->methodId);
-            $request->amount = $this->orderHandler->amountToGateway(
-                $this->order->getGrandTotal(),
-                $order
-            );
+            $request->amount = $this->prepareAmount();
             $request->reference = $this->order->getIncrementId();
             $request->payment_type = 'MOTO';
             $request->shipping = $api->createShippingAddress($this->order);
@@ -179,9 +183,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             }
 
             // Send the charge request
-            $response = $api->checkoutApi
-                ->payments()
-                ->request($request);
+            $response = $api->checkoutApi->payments()->request($request);
 
             // Logging
             $this->logger->display($response);
@@ -193,16 +195,58 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                     __('The payment request was successfully processed.')
                 );
             } else {
-                $this->messageManager->addErrorMessage(
+                throw new \Magento\Framework\Exception\LocalizedException(
                     __('The transaction could not be processed. Please check the payment details.')
                 );
+            }
+        }
+        else if ($this->needsBackendCapture()) {
+            // Get the payment info
+            $paymentInfo = $this->utilities->getPaymentData($this->order);
+
+            // Prepare the request
+            $request = new Capture($paymentInfo['id']);
+            $request->amount = $this->prepareAmount();
+            
+            // Add the backend capture flag
+            $request->metadata['isBackendCapture'] = true;
+
+            // Process the request
+            $response = $api->checkoutApi->payments()->capture($request);
+
+            // Logging
+            $this->logger->display($response);
+
+            // Process the capture request
+            if ($api->isValidResponse($response)) {
+                $this->utilities->setPaymentData($this->order, $response);
+                $this->messageManager->addSuccessMessage(
+                    __('The capture request was successfully processed.')
+                );
+            }
+            else {
                 throw new \Magento\Framework\Exception\LocalizedException(
-                    __('The gateway declined a MOTO payment request.')
+                    __('The capture request could not be processed.')
                 );
             }
         }
 
         return $this;
+    }
+
+    /**
+     * Prepare the payment amount for the payment request.
+     */
+    protected function prepareAmount()
+    {
+        // Get the payment instance
+        $payment = $this->order->getPayment();
+
+        // Return the formatted amount
+        return $this->orderHandler->amountToGateway(
+            $this->utilities->formatDecimals($payment->getAmountPaid()),
+            $this->order
+        );
     }
 
     /**
@@ -214,6 +258,23 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         && isset($this->params['ckoCardToken'])
         && $this->methodId == 'checkoutcom_moto'
         && !$this->transactionHandler->hasTransaction(
+            Transaction::TYPE_AUTH,
+            $this->order
+        );
+    }
+
+    /**
+     * Checks if the backend capture logic should be triggered.
+     */
+    protected function needsBackendCapture()
+    {
+        // Get the payment instance
+        $payment = $this->order->getPayment();
+
+        // Return the test
+        return $this->backendAuthSession->isLoggedIn()
+        && ($payment->canCapturePartial() || $payment->canCapture())
+        && $this->transactionHandler->hasTransaction(
             Transaction::TYPE_AUTH,
             $this->order
         );
@@ -245,9 +306,6 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         } else {
             $this->messageManager->addErrorMessage(
                 __('Please provide the required card information for the MOTO payment.')
-            );
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __('Missing required card information for the MOTO payment.')
             );
         }
     }
