@@ -166,6 +166,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                     $success = $response->isSuccessful();
                     $url = $response->getRedirection();
                 }
+                else {
+                    // Restore the quote
+                    $this->quoteHandler->restoreQuote($response->reference);
+                }
             }
             else {
                 // Payment failed
