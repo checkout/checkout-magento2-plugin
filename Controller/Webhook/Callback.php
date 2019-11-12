@@ -143,9 +143,6 @@ class Callback extends \Magento\Framework\App\Action\Action
 
                     // Process the order
                     if ($this->orderHandler->isOrder($order)) {
-                        // Add the payment info to the order
-                        $order = $this->utilities->setPaymentData($order, $response);
-
                         // Handle the transaction
                         $order = $this->transactionHandler->createTransaction(
                             $order,
