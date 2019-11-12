@@ -135,6 +135,9 @@ class ApiHandlerService
                 ->payments()
                 ->void($request);
 
+            // Logging
+            $this->logger->display($response);
+
             return $response;
         }
     }
@@ -158,6 +161,9 @@ class ApiHandlerService
                 ->payments()
                 ->refund($request);
 
+            // Logging
+            $this->logger->display($response);
+            
             // Apply the order status
             if ($order->getGrandTotal() == $order->getTotalRefunded()) {
                 $order->setState('order_status_refunded');
