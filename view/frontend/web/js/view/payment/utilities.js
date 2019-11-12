@@ -208,7 +208,11 @@ define(
              * @returns {string}
              */
             getEmail: function () {
-                return window.checkoutConfig.customerData.email || Quote.guestEmail || CheckoutData.getValidatedEmailValue();
+                var emailCookieName = this.getValue(null, 'email_cookie_name');
+                return window.checkoutConfig.customerData.email 
+                || Quote.guestEmail 
+                || CheckoutData.getValidatedEmailValue()
+                || $.cookie(emailCookieName);
             },
 
             /**

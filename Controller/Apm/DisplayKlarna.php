@@ -158,9 +158,15 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
             $source = $api->checkoutApi->sources()->add($klarna);
 
             if ($source->isSuccessful()) {
+                // Prepare the response
                 $response['source'] = $source->getValues();
                 $response['billing'] = $this->billingAddress->toArray();
                 $response['quote'] = $this->quote->toArray();
+
+                // Handle missing email for guest checkout
+                if ($response['billing']['email'] === null || empty($response['billing']['email'])) {
+                    $response['billing']['email'] = $this->quoteHandler->findEmail();
+                }
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getBody());

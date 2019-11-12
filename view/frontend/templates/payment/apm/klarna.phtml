@@ -29,13 +29,14 @@
     <div id="klarna_container" align="center">
         <?= $block->escapeHtml(__('Could not load the Klarna script.')) ?>
     </div>
-
+    <script type="text/javascript" src="https://x.klarnacdn.net/kp/lib/v1/api.js"></script>
     <script type="text/javascript">
         /**
          * Klarna controller.
          */
         require([
             "jquery",
+            'CheckoutCom_Magento2/js/view/payment/utilities',
             "domReady!",
             "Klarna",
             ], function ($, Utilities) {
@@ -64,7 +65,7 @@
                                 instance_id: "klarna-payments-instance"
                             },
                             {
-                                purchase_country:   data.billing.country,
+                                purchase_country:   data.billing.country_id,
                                 purchase_currency:  data.quote.quote_currency_code,
                                 locale:             data.locale,
                                 order_amount:       parseInt(data.quote.grand_total) *100,
@@ -73,7 +74,7 @@
                                 billing_address:    {
                                     given_name:     data.billing.firstname,
                                     family_name:    data.billing.lastname,
-                                    email:          data.billing.email,
+                                    email:          data.billing.email || Utilities.getEmail(),
                                     //title:          data.billing.email,
                                     street_address: data.billing.street,
                                     //street_address2:          data.billing.email,
