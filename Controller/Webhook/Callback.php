@@ -78,6 +78,11 @@ class Callback extends \Magento\Framework\App\Action\Action
     public $config;
 
     /**
+     * @var Utilities
+     */
+    protected $utilities;
+
+    /**
      * Callback constructor
      */
     public function __construct(
@@ -89,7 +94,8 @@ class Callback extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         parent::__construct($context);
 
@@ -101,6 +107,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         $this->transactionHandler = $transactionHandler;
         $this->vaultHandler = $vaultHandler;
         $this->config = $config;
+        $this->utilities = $utilities;
     }
 
     /**
