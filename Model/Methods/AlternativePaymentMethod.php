@@ -371,7 +371,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     public function giropay(array $data)
     {
         $source = new GiropaySource(
-            __('Payment request from %1', $this->config->getStoreName()),
+            __('Payment request from %1', $this->config->getStoreName())->getText(),
             $this->getValue('bic', $data)
         );
         $source->iban = $this->getValue('iban', $data);
