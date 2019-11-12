@@ -221,7 +221,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->capture = $this->config->needsAutoCapture($this->_code);
             $request->amount = $this->quoteHandler->amountToGateway($amount, $quote);
             $request->reference = $reference;
-            $request->description = __('Payment request from %1', $this->config->getStoreName());
+            $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
             $request->customer = $api->createCustomer($quote);
             $request->payment_type = 'Regular';
             $request->shipping = $api->createShippingAddress($quote);

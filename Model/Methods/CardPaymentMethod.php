@@ -225,7 +225,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
             $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
             $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
-            $request->description = __('Payment request from %1', $this->config->getStoreName());
+            $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
             $request->customer = $api->createCustomer($quote);
             $request->payment_type = 'Regular';
             $request->shipping = $api->createShippingAddress($quote);

@@ -254,7 +254,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 'attempt_n3d',
                 $this->_code
             );
-            $request->description = __('Payment request from %1', $this->config->getStoreName());
+            $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
             $request->payment_type = 'Regular';
             $request->shipping = $api->createShippingAddress($quote);
             if ($captureDate) {

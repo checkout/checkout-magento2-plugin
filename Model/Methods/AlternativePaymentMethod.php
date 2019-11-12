@@ -256,7 +256,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $payment->description = __(
             'Payment request from %1',
             $this->config->getStoreName()
-        );
+        )->getText();
         $payment->payment_type = 'Regular';
 
         return $payment;
@@ -389,7 +389,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     {
         $source = new IdealSource(
             $data['bic'],
-            __('Payment request from %1', $this->config->getStoreName())
+            __('Payment request from %1', $this->config->getStoreName())->getText()
         );
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl'));
         $source->language = $locale[0];
@@ -496,7 +496,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function eps($data)
     {
-        return new EpsSource(__('Payment request from %1', $this->config->getStoreName()));
+        return new EpsSource(
+            __('Payment request from %1', $this->config->getStoreName())->getText()
+        );
     }
 
     /**
@@ -536,7 +538,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $billingAddress = $this->quoteHandler->getBillingAddress();
         $email = $billingAddress->getEmail();
         $phone = $billingAddress->getTelephone();
-        $description = __('Payment request from %1', $this->config->getStoreName());
+        $description = __('Payment request from %1', $this->config->getStoreName())->getText();
 
         return new FawrySource($email, $phone, $description, $products);
     }
@@ -572,7 +574,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $desciptor = __(
             'Payment request from %1',
             $this->config->getStoreName()
-        );
+        )->getText();
 
         return new BancontactSource($name, $country, $desciptor);
     }
