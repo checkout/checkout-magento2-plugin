@@ -345,7 +345,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
                 // Initialize the API handler
                 $api = $this->apiHandler->init($storeCode);
-
+                
                 // Check the status
                 if (!$this->canRefund()) {
                     throw new \Magento\Framework\Exception\LocalizedException(
