@@ -149,7 +149,7 @@ class ApiHandlerService
 
         // Get the payment info
         $paymentInfo = $this->utilities->getPaymentData($order);
-
+        
         // Process the refund request
         if (isset($paymentInfo['id'])) {
             $request = new Refund($paymentInfo['id']);

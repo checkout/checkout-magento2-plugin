@@ -194,7 +194,7 @@ class OrderHandlerService
      */
     public function amountToGateway($amount, $order)
     {
-        // Get the quote currency
+        // Get the order currency
         $currency = $this->getOrderCurrency($order);
 
         // Get the x1 currency calculation mapping

@@ -260,7 +260,9 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Add the quote metadata
-            $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
+            $request->metadata['quoteData'] = json_encode(
+                $this->quoteHandler->getQuoteRequestData($quote)
+            );
 
             // Add the base metadata
             $request->metadata = array_merge(

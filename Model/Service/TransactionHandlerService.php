@@ -39,32 +39,32 @@ class TransactionHandlerService
     /**
      * @var SearchCriteriaBuilder
      */
-    private $searchCriteriaBuilder;
+    public $searchCriteriaBuilder;
 
     /**
      * @var FilterBuilder
      */
-    private $filterBuilder;
+    public $filterBuilder;
 
     /**
      * @var TransactionRepository
      */
-    private $transactionRepository;
+    public $transactionRepository;
 
     /**
      * @var CreditmemoFactory
      */
-    private $creditMemoFactory;
+    public $creditMemoFactory;
 
     /**
      * @var CreditmemoService
      */
-    private $creditMemoService;
+    public $creditMemoService;
 
     /**
      * @var OrderSender
      */
-    private $orderSender;
+    public $orderSender;
 
     /**
      * @var InvoiceHandlerService
@@ -82,11 +82,6 @@ class TransactionHandlerService
     public $utilities;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * TransactionHandlerService constructor.
      */
     public function __construct(
@@ -100,8 +95,7 @@ class TransactionHandlerService
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         $this->transactionBuilder    = $transactionBuilder;
         $this->messageManager        = $messageManager;
@@ -114,7 +108,6 @@ class TransactionHandlerService
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
         $this->utilities             = $utilities;
-        $this->logger                = $logger;
     }
 
     /**
@@ -144,17 +137,43 @@ class TransactionHandlerService
                 break;
         }
 
-        // Invoice handling
-        $this->order = $this->invoiceHandler->processInvoice(
-            $this->order,
-            $this->transaction
-        );
-
         // Save the processed elements
         $this->saveData();
 
         // Return the order
         return $this->order;
+    }
+
+    /**
+     * Convert a gateway to decimal value for processing.
+     */
+    public function amountFromGateway($amount, $order)
+    {
+        // Get the quote currency
+        $currency = $order->getOrderCurrencyCode();
+
+        // Get the x1 currency calculation mapping
+        $currenciesX1 = explode(
+            ',',
+            $this->config->getValue('currencies_x1')
+        );
+
+        // Get the x1000 currency calculation mapping
+        $currenciesX1000 = explode(
+            ',',
+            $this->config->getValue('currencies_x1000')
+        );
+
+        // Prepare the amount
+        if (in_array($currency, $currenciesX1)) {
+            return $amount;
+        }
+        else if (in_array($currency, $currenciesX1000)) {
+            return $amount/1000;
+        }
+        else {
+            return $amount/100;
+        }
     }
 
     /**
@@ -252,6 +271,34 @@ class TransactionHandlerService
             if ($this->config->getValue('order_email') == MethodInterface::ACTION_AUTHORIZE_CAPTURE) {
                 $this->order->setCanSendNewEmailFlag(true);
                 $this->orderSender->send($this->order, true);
+            }
+
+            // Custom invoice handling only if it's not admin capture
+            if (!isset($this->paymentData['data']['metadata']['isBackendCapture'])) {
+                $this->order = $this->invoiceHandler->processInvoice(
+                    $this->order,
+                    $this->transaction
+                );
+            }
+            else {    
+                // Get the payment amount
+                $paymentAmount = $this->utilities->formatDecimals(
+                    $this->amountFromGateway(
+                        $this->paymentData['data']['amount'],
+                        $this->order
+                    )
+                );
+
+                // Get the order amount
+                $orderAmount = $this->utilities->formatDecimals(
+                    $this->order->getGrandTotal()
+                );
+
+                // Check the partial capture case
+                if ($paymentAmount < $orderAmount) {
+                    $parentTransaction->setIsClosed(0);
+                    $parentTransaction->save();
+                }
             }
         }
     }

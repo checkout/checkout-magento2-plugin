@@ -208,6 +208,9 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             $request = new Capture($paymentInfo['id']);
             $request->amount = $this->prepareAmount();
             
+            // Add the backend capture flag
+            $request->metadata['isBackendCapture'] = true;
+
             // Process the request
             $response = $api->checkoutApi->payments()->capture($request);
 
