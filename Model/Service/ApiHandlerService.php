@@ -67,9 +67,9 @@ class ApiHandlerService
     public $logger;
 
     /**
-     * @var QuoteHandlerService
+     * @var OrderHandlerService
      */
-    public $quoteHandler;
+    public $orderHandler;
 
     /**
      * ApiHandlerService constructor.
@@ -81,7 +81,7 @@ class ApiHandlerService
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler
     ) {
         $this->encryptor = $encryptor;
         $this->storeManager = $storeManager;
@@ -89,7 +89,7 @@ class ApiHandlerService
         $this->config = $config;
         $this->utilities = $utilities;
         $this->logger = $logger;
-        $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
     }
 
     /**
@@ -153,7 +153,7 @@ class ApiHandlerService
         // Process the refund request
         if (isset($paymentInfo['id'])) {
             $request = new Refund($paymentInfo['id']);
-            $request->amount = $this->quoteHandler->amountToGateway($amount, $quote);
+            $request->amount = $this->orderHandler->amountToGateway($amount, $order);
             $response = $this->checkoutApi
                 ->payments()
                 ->refund($request);
