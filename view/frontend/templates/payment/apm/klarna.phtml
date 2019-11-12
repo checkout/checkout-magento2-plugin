@@ -36,9 +36,10 @@
          */
         require([
             "jquery",
+            'CheckoutCom_Magento2/js/view/payment/utilities',
             "domReady!",
-            "Klarna"
-            ], function ($) {
+            "Klarna",
+            ], function ($, Utilities) {
 
                 var k = {
                     /**
@@ -116,25 +117,28 @@
                 /**
                  * Verify if Klarna is available.
                  */
-                if(Klarna != undefined) {
-
-                    $.ajax({type: 'POST',
+                if (Klarna != undefined) {
+                    $.ajax({
+                            type: 'POST',
                             url: '<?= $block->escapeUrl($block->getUrl('checkout_com/apm/displayklarna'))?>',
-                            data: {},
+                            data: {
+                                quote_id: window.checkoutConfig.quoteItemData[0].quote_id,
+                                form_key: window.checkoutConfig.formKey,
+                                store_id: window.checkoutConfig.quoteData.store_id
+                            },
                             success: function (data) {
-
-                            if(data.source) {
+                            if (data.source) {
                                 $("#klarna_container").html("");
-                                k.load( data,
-                                        k.getMethods(data.source.payment_method_categories));
+                                k.load(
+                                    data,
+                                    k.getMethods(data.source.payment_method_categories)
+                                );
                                 return;
                             }
-
                             k.remove();
                         },
                         error: k.remove
                     });
-
                 } else {
                     k.remove();
                 }

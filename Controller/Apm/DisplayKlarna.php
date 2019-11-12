@@ -112,8 +112,16 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
+        // Get the request data
+        $quoteId = $this->getRequest()->getParam('quote_id');
+        $storeId = $this->getRequest()->getParam('store_id');
+
         // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
+        $this->quote = $this->quoteHandler->getQuote([
+            'entity_id' => $quoteId,
+            'store_id' => $storeId
+        ]);
+
         $this->billingAddress = $this->quoteHandler->getBillingAddress();
         $this->locale = str_replace('_', '-', $this->shopperHandler->getCustomerLocale());
 
