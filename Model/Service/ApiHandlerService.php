@@ -118,38 +118,6 @@ class ApiHandlerService
     }
 
     /**
-     * Captures a transaction.
-     */
-    public function captureOrder($payment, $amount)
-    {
-        // Get the order
-        $order = $payment->getOrder();
-
-        // Get the payment info
-        $paymentInfo = $this->utilities->getPaymentData($order);
-
-        // Process the capture request
-        if (isset($paymentInfo['id'])) {
-            // Initialise the capture object
-            $request = new Capture($paymentInfo['id']);
-
-            // Handle partial capture
-            $paymentAmount = $this->utilities->formatDecimals($amount);
-            $orderAmount = $this->utilities->formatDecimals($order->getGrandTotal());
-            if ($paymentAmount < $orderAmount && $payment->canCapturePartial()) {
-                $payment->amount = $paymentAmount;
-            }
-
-            // Process the request
-            $response = $this->checkoutApi
-                ->payments()
-                ->capture($request);
-
-            return $response;
-        }
-    }
-
-    /**
      * Voids a transaction.
      */
     public function voidOrder($payment)
@@ -181,7 +149,7 @@ class ApiHandlerService
 
         // Get the payment info
         $paymentInfo = $this->utilities->getPaymentData($order);
-
+        
         // Process the refund request
         if (isset($paymentInfo['id'])) {
             $request = new Refund($paymentInfo['id']);

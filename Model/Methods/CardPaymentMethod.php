@@ -260,7 +260,9 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Add the quote metadata
-            $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
+            $request->metadata['quoteData'] = json_encode(
+                $this->quoteHandler->getQuoteRequestData($quote)
+            );
 
             // Add the base metadata
             $request->metadata = array_merge(
@@ -277,51 +279,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         } catch (\Exception $e) {
             $this->ckoLogger->write($e->getBody());
             return null;
-        }
-    }
-
-    /**
-     * Perform a capture request.
-     *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
-     * @param float $amount The amount
-     *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
-     */
-    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
-    {
-        try {
-            if ($this->backendAuthSession->isLoggedIn()) {
-                // Check the status
-                if (!$this->canCapture()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The capture action is not available.')
-                    );
-                }
-
-                // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
-
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
-                
-                // Process the capture request
-                $response = $api->captureOrder($payment, $amount);
-                if (!$api->isValidResponse($response)) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The capture request could not be processed.')
-                    );
-                }
-
-                // Set the transaction id from response
-                $payment->setTransactionId($response->action_id);
-            }
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getBody());
-        } finally {
-            return $this;
         }
     }
 

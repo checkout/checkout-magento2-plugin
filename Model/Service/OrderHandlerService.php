@@ -63,6 +63,11 @@ class OrderHandlerService
     public $quoteHandler;
 
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager;
+
+    /**
      * @var TransactionHandlerService
      */
     public $transactionHandler;
@@ -94,6 +99,7 @@ class OrderHandlerService
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
@@ -105,6 +111,7 @@ class OrderHandlerService
         $this->searchBuilder = $searchBuilder;
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
+        $this->storeManager = $storeManager;
         $this->transactionHandler = $transactionHandler;
         $this->logger = $logger;
     }
@@ -185,9 +192,9 @@ class OrderHandlerService
     /**
      * Convert an order amount to integer value for the gateway request.
      */
-    public function prepareAmount($amount, $order)
+    public function amountToGateway($amount, $order)
     {
-        // Get the quote currency
+        // Get the order currency
         $currency = $this->getOrderCurrency($order);
 
         // Get the x1 currency calculation mapping

@@ -46,11 +46,6 @@ class InvoiceHandlerService
     public $config;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * @var Order
      */
     public $order;
@@ -67,14 +62,12 @@ class InvoiceHandlerService
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Sales\Model\Order\Invoice $invoiceModel,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->invoiceService     = $invoiceService;
         $this->invoiceRepository  = $invoiceRepository;
         $this->invoiceModel       = $invoiceModel;
         $this->config             = $config;
-        $this->logger             = $logger;
     }
 
     /**
@@ -124,7 +117,8 @@ class InvoiceHandlerService
      */
     public function needsInvoicing()
     {
-        return $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+        return $this->transaction
+        && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE;
     }
 
     /**
