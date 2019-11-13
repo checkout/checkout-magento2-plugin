@@ -35,6 +35,11 @@ use \Checkout\Models\Payments\Voids;
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager; 
+
+    /**
      * @var JsonFactory
      */
     public $jsonFactory;
@@ -89,6 +94,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Catalog\Model\Product $productModel,
         \Magento\InstantPurchase\Model\QuoteManagement\ShippingConfiguration $shippingConfiguration,
@@ -102,6 +108,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
+        $this->storeManager = $storeManager;
         $this->jsonFactory = $jsonFactory;
         $this->productModel = $productModel;
         $this->shippingConfiguration = $shippingConfiguration;
@@ -133,8 +140,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
+        // Get the store code
+        $storeCode = $this->storeManager->getStore()->getCode();
+
         // Initialize the API handler
-        $api = $this->apiHandler->init();
+        $api = $this->apiHandler->init($storeCode);
 
         // Prepare a default error message
         $message = __('An error occurred and the order could not be created.');

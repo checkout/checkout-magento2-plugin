@@ -230,8 +230,11 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
     {
         $sepa = null;
 
+        // Get the store code
+        $storeCode = $this->storeManager->getStore()->getCode();
+
         // Initialize the API handler
-        $api = $this->apiHandler->init();
+        $api = $this->apiHandler->init($storeCode);
 
         // Build the address
         $address = new SepaAddress(

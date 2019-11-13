@@ -39,6 +39,11 @@ class Callback extends \Magento\Framework\App\Action\Action
     ];
 
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager; 
+
+    /**
      * @var OrderRepositoryInterface
      */
     public $orderRepository;
@@ -88,6 +93,7 @@ class Callback extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
@@ -100,6 +106,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
+        $this->storeManager = $storeManager;
         $this->orderRepository = $orderRepository;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
@@ -126,8 +133,11 @@ class Callback extends \Magento\Framework\App\Action\Action
         if ($this->config->isValidAuth()) {
             // Process the request
             if (isset($this->payload->data->id)) {
+                // Get the store code
+                $storeCode = $this->storeManager->getStore()->getCode();
+
                 // Initialize the API handler
-                $api = $this->apiHandler->init();
+                $api = $this->apiHandler->init($storeCode);
 
                 // Get the payment details
                 $response = $api->getPaymentDetails($this->payload->data->id);

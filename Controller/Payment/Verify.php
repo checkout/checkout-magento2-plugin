@@ -26,6 +26,11 @@ use \Checkout\Models\Payments\Voids;
 class Verify extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager; 
+
+    /**
      * @var Config
      */
     public $config;
@@ -60,6 +65,7 @@ class Verify extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
@@ -69,6 +75,7 @@ class Verify extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
+        $this->storeManager = $storeManager;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
@@ -85,8 +92,11 @@ class Verify extends \Magento\Framework\App\Action\Action
         // Get the session id
         $sessionId = $this->getRequest()->getParam('cko-session-id', null);
         if ($sessionId) {
+            // Get the store code
+            $storeCode = $this->storeManager->getStore()->getCode();
+
             // Initialize the API handler
-            $api = $this->apiHandler->init();
+            $api = $this->apiHandler->init($storeCode);
 
             // Get the payment details
             $response = $api->getPaymentDetails($sessionId);

@@ -25,6 +25,11 @@ use \Checkout\Models\Payments\Voids;
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager; 
+
+    /**
      * @var QuoteHandlerService
      */
     public $quoteHandler;
@@ -94,6 +99,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Checkout\Model\Session $checkoutSession,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
@@ -106,6 +112,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
+        $this->storeManager = $storeManager;
         $this->jsonFactory = $jsonFactory;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
@@ -150,8 +157,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 // Logging
                 $this->logger->display($response);
 
-                // Get the payment details
-                $api = $this->apiHandler->init();
+                // Get the store code
+                $storeCode = $this->storeManager->getStore()->getCode();
+                
+                $api = $this->apiHandler->init($storeCode);
                 if ($api->isValidResponse($response)) {
                     // Get the payment details
                     $paymentDetails = $api->getPaymentDetails($response->id);

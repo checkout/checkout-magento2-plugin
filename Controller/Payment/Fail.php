@@ -23,6 +23,11 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 class Fail extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager; 
+
+    /**
      * @var CheckoutApi
      */
     public $apiHandler;
@@ -42,12 +47,14 @@ class Fail extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
 
+        $this->storeManager = $storeManager;
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
         $this->logger = $logger;
@@ -61,8 +68,11 @@ class Fail extends \Magento\Framework\App\Action\Action
         // Get the session id
         $sessionId = $this->getRequest()->getParam('cko-session-id', null);
         if ($sessionId) {
+            // Get the store code
+            $storeCode = $this->storeManager->getStore()->getCode();
+
             // Initialize the API handler
-            $api = $this->apiHandler->init();
+            $api = $this->apiHandler->init($storeCode);
 
             // Get the payment details
             $response = $api->getPaymentDetails($sessionId);

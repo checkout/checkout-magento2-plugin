@@ -33,6 +33,11 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     public $context;
 
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager; 
+
+    /**
      * @var PageFactory
      */
     public $pageFactory;
@@ -89,6 +94,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
@@ -99,6 +105,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
 
         parent::__construct($context);
 
+        $this->storeManager = $storeManager;
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
@@ -142,8 +149,11 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         $response = ['source' => false];
 
         try {
+            // Get the store code
+            $storeCode = $this->storeManager->getStore()->getCode();
+
             // Initialize the API handler
-            $api = $this->apiHandler->init();
+            $api = $this->apiHandler->init($storeCode);
 
             $products = $this->getProducts($response);
             $klarna = new Klarna(
