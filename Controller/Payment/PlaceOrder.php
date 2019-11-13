@@ -147,6 +147,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 // Get response and success
                 $response = $this->requestPayment($order);
 
+                $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
+                $logger = new \Zend\Log\Logger();
+                $logger->addWriter($writer);
+                $logger->info(print_r($response, 1));
+
                 // Logging
                 $this->logger->display($response);
 
@@ -167,13 +172,16 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                     $url = $response->getRedirection();
                 }
                 else {
+                    // Payment failed
+                    $message = __('The transaction could not be processed.');
+
                     // Restore the quote
                     $this->quoteHandler->restoreQuote($order->getIncrementId());
                 }
             }
             else {
                 // Payment failed
-                $message = __('The transaction could not be processed.');
+                $message = __('The order could not be processed.');
             }
         }
 
