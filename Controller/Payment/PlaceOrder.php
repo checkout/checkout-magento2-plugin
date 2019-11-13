@@ -168,7 +168,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 }
                 else {
                     // Restore the quote
-                    $this->quoteHandler->restoreQuote($response->reference);
+                    $this->quoteHandler->restoreQuote($order->getIncrementId());
                 }
             }
             else {
