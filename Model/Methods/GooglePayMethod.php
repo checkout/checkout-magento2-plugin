@@ -93,6 +93,11 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $apiHandler;
 
     /**
+     * @var Utilities
+     */
+    public $utilities;
+
+    /**
      * @var Logger
      */
     public $ckoLogger;
@@ -128,6 +133,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -162,6 +168,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->sessionQuote       = $sessionQuote;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
+        $this->utilities          = $utilities;
         $this->ckoLogger          = $ckoLogger;
         $this->quoteHandler       = $quoteHandler;
     }
@@ -207,7 +214,10 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the request parameters
             $request->capture = $this->config->needsAutoCapture($this->_code);
-            $request->amount = $this->quoteHandler->amountToGateway($amount, $quote);
+            $request->amount = $this->quoteHandler->amountToGateway(
+                $this->utilities->formatDecimals($amount),
+                $quote
+            );
             $request->reference = $reference;
             $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
             $request->customer = $api->createCustomer($quote);

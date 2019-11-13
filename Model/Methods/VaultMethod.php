@@ -108,6 +108,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $apiHandler;
 
     /**
+     * @var Utilities
+     */
+    public $utilities;
+
+    /**
      * @var QuoteHandlerService
      */
     public $quoteHandler;
@@ -148,6 +153,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
@@ -185,6 +191,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->sessionQuote       = $sessionQuote;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
+        $this->utilities          = $utilities;
         $this->ckoLogger          = $ckoLogger;
         $this->vaultHandler       = $vaultHandler;
         $this->cardHandler        = $cardHandler;
@@ -245,7 +252,10 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the request parameters
             $request->capture = $this->config->needsAutoCapture($this->_code);
-            $request->amount = $this->quoteHandler->amountToGateway($amount, $quote);
+            $request->amount = $this->quoteHandler->amountToGateway(
+                $this->utilities->formatDecimals($amount),
+                $quote
+            );
             $request->reference = $reference;
             $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
             $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';

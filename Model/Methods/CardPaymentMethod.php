@@ -108,6 +108,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $apiHandler;
 
     /**
+     * @var Utilities
+     */
+    public $utilities;
+
+    /**
      * @var Session
      */
     public $customerSession;
@@ -143,6 +148,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
@@ -178,6 +184,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->sessionQuote       = $sessionQuote;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
+        $this->utilities          = $utilities;
         $this->quoteHandler       = $quoteHandler;
         $this->cardHandler        = $cardHandler;
         $this->ckoLogger          = $ckoLogger;
@@ -219,7 +226,10 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the request parameters
             $request->capture = $this->config->needsAutoCapture($this->_code);
-            $request->amount = $this->quoteHandler->amountToGateway($amount, $quote);
+            $request->amount = $this->quoteHandler->amountToGateway(
+                $this->utilities->formatDecimals($amount),
+                $quote
+            );
             $request->reference = $reference;
             $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
             $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
@@ -269,6 +279,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $request->metadata,
                 $this->apiHandler->getBaseMetadata()
             );
+
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/req.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($request, 1));
 
             // Send the charge request
             $response = $api->checkoutApi
