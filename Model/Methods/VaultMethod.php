@@ -83,6 +83,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $_canRefundInvoicePartial = true;
 
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager; 
+
+    /**
      * @var VaultHandlerService
      */
     public $vaultHandler;
@@ -154,6 +159,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
@@ -193,6 +199,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->apiHandler         = $apiHandler;
         $this->utilities          = $utilities;
         $this->ckoLogger          = $ckoLogger;
+        $this->storeManager       = $storeManager;
         $this->vaultHandler       = $vaultHandler;
         $this->cardHandler        = $cardHandler;
         $this->quoteHandler       = $quoteHandler;
@@ -214,8 +221,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public function sendPaymentRequest($data, $amount, $currency, $reference = '')
     {
         try {
+            // Get the store code
+            $storeCode = $this->storeManager->getStore()->getCode();
+
             // Initialize the API handler
-            $api = $this->apiHandler->init();
+            $api = $this->apiHandler->init($storeCode);
 
             // Get the quote
             $quote = $this->quoteHandler->getQuote();

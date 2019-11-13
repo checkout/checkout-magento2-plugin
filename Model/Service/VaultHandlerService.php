@@ -28,6 +28,11 @@ use \Checkout\Models\Payments\ThreeDs;
 class VaultHandlerService
 {
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager; 
+
+    /**
      * @var VaultToken
      */
     public $vaultToken;
@@ -101,6 +106,7 @@ class VaultHandlerService
      * VaultHandlerService constructor.
      */
     public function __construct(
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Vault\VaultToken $vaultToken,
         \Magento\Vault\Api\PaymentTokenRepositoryInterface $paymentTokenRepository,
         \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement,
@@ -111,6 +117,7 @@ class VaultHandlerService
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
+        $this->storeManager = $storeManager;
         $this->vaultToken = $vaultToken;
         $this->paymentTokenRepository = $paymentTokenRepository;
         $this->paymentTokenManagement = $paymentTokenManagement;
@@ -233,8 +240,11 @@ class VaultHandlerService
      */
     public function authorizeTransaction()
     {
+        // Get the store code
+        $storeCode = $this->storeManager->getStore()->getCode();
+
         // Initialize the API handler
-        $api = $this->apiHandler->init();
+        $api = $this->apiHandler->init($storeCode);
 
         // Set the token source
         $tokenSource = new TokenSource($this->cardToken);

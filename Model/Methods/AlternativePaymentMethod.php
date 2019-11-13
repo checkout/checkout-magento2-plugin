@@ -111,6 +111,11 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     public $quoteHandler;
 
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager; 
+
+    /**
      * @var Logger
      */
     public $ckoLogger;
@@ -154,6 +159,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -190,6 +196,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->apiHandler         = $apiHandler;
         $this->ckoLogger          = $ckoLogger;
         $this->quoteHandler       = $quoteHandler;
+        $this->storeManager       = $storeManager;
         $this->curl               = $curl;
     }
 
@@ -202,8 +209,11 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $response = null;
 
         if ($this->validateCurrency($method, $currency)) {
+            // Get the store code
+            $storeCode = $this->storeManager->getStore()->getCode();
+
             // Initialize the API handler
-            $api = $this->apiHandler->init();
+            $api = $this->apiHandler->init($storeCode);
 
             // Create source object
             $source = $this->{$method}($data);

@@ -108,6 +108,11 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $quoteHandler;
 
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager; 
+
+    /**
      * GooglePayMethod constructor.
      */
     public function __construct(
@@ -134,6 +139,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -169,6 +175,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->utilities          = $utilities;
+        $this->storeManager       = $storeManager;
         $this->ckoLogger          = $ckoLogger;
         $this->quoteHandler       = $quoteHandler;
     }
@@ -179,8 +186,11 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public function sendPaymentRequest($data, $amount, $currency, $reference = '')
     {
         try {
+            // Get the store code
+            $storeCode = $this->storeManager->getStore()->getCode();
+
             // Initialize the API handler
-            $api = $this->apiHandler->init();
+            $api = $this->apiHandler->init($storeCode);
 
             // Get the quote
             $quote = $this->quoteHandler->getQuote();

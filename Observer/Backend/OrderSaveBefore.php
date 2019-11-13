@@ -286,8 +286,11 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     protected function getSource()
     {
         if ($this->isCardToken()) {
+            // Get the store code
+            $storeCode = $this->order->getStore()->getCode();
+
             // Initialize the API handler
-            $api = $this->apiHandler->init();
+            $api = $this->apiHandler->init($storeCode);
 
             // Create the token source
             $tokenSource = new TokenSource($this->params['ckoCardToken']);
