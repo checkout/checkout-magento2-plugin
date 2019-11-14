@@ -19,7 +19,6 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order;
-use Magento\Payment\Model\MethodInterface;
 
 /**
  * Class TransactionHandlerService.
@@ -230,7 +229,7 @@ class TransactionHandlerService
             $this->transaction->setIsClosed(0);
 
             // Check the email sender
-            if ($this->config->getValue('order_email') == MethodInterface::ACTION_AUTHORIZE) {
+            if ($this->config->getValue('order_email') == 'authorize') {
                 $order->setCanSendNewEmailFlag(true);
                 $this->orderSender->send($this->order, true);
             }
@@ -268,7 +267,7 @@ class TransactionHandlerService
             $this->transaction->setIsClosed(0);
 
             // Check the email sender
-            if ($this->config->getValue('order_email') == MethodInterface::ACTION_AUTHORIZE_CAPTURE) {
+            if ($this->config->getValue('order_email') == 'authorize_capture') {
                 $this->order->setCanSendNewEmailFlag(true);
                 $this->orderSender->send($this->order, true);
             }

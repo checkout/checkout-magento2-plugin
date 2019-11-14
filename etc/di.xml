@@ -35,14 +35,19 @@
 
     <!-- CSRF bypass from 2.3.x series -->
     <type name="Magento\Framework\App\Request\CsrfValidator">
-        <plugin name="csrf_validator_skip" type="CheckoutCom\Magento2\Plugin\CsrfValidatorSkip" />
+        <plugin name="cko_csrf_validator_skip" type="CheckoutCom\Magento2\Plugin\CsrfValidatorSkip" />
     </type>
     <!-- End CSRF bypass -->
 
     <!-- After place order plugin -->
     <type name="Magento\Sales\Api\OrderManagementInterface">
-        <plugin name="after_palce_order" type="CheckoutCom\Magento2\Plugin\AfterPlaceOrder" />
+        <plugin name="cko_after_palce_order" type="CheckoutCom\Magento2\Plugin\AfterPlaceOrder" />
     </type>
     <!-- END After place order plugin -->
 
+    <!-- Minification exclusion plugin -->
+    <type name="Magento\Framework\View\Asset\Minification">
+        <plugin name="cko_minification_exclude" type="CheckoutCom\Magento2\Plugin\MinificationExclude" />
+    </type>
+    <!-- END Minification exclusion plugin -->
 </config>

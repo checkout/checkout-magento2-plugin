@@ -15,15 +15,6 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
-        <dev>
-            <js>
-                <minify_exclude>
-                    <framesjs>https://cdn.checkout.com/js/framesv2.min.js</framesjs>
-                    <klarna>https://x.klarnacdn.net/kp/lib/v1/api.js</klarna>
-                    <googlepayjs>https://pay.google.com/gp/p/js/pay.js</googlepayjs>
-                </minify_exclude>
-            </js>
-        </dev>
         <settings>
             <checkoutcom_configuration>
                 <fields_encrypted>secret_key,public_key,private_shared_key</fields_encrypted>

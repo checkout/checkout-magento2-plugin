@@ -18,7 +18,6 @@
 namespace CheckoutCom\Magento2\Gateway\Config;
 
 use CheckoutCom\Magento2\Gateway\Config\Loader;
-use Magento\Payment\Model\MethodInterface;
 
 /**
  * Class Config
@@ -281,7 +280,7 @@ class Config
      */
     public function needsAutoCapture()
     {
-        return ($this->getValue('payment_action') == MethodInterface::ACTION_AUTHORIZE_CAPTURE
+        return ($this->getValue('payment_action') == 'authorize_capture'
         || (bool) $this->getValue('mada_enabled', 'checkoutcom_card_payment') === true);
     }
 
