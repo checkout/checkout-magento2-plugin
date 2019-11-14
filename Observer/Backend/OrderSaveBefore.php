@@ -166,7 +166,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
             // Set the request parameters
             $request->capture = $this->config->needsAutoCapture($this->methodId);
-            $request->amount = $this->prepareAmount();
+            $request->amount = $this->prepareMotoAmount();
             $request->reference = $this->order->getIncrementId();
             $request->payment_type = 'MOTO';
             $request->shipping = $api->createShippingAddress($this->order);
@@ -206,7 +206,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
             // Prepare the request
             $request = new Capture($paymentInfo['id']);
-            $request->amount = $this->prepareAmount();
+            $request->amount = $this->prepareCaptureAmount();
             
             // Add the backend capture flag
             $request->metadata['isBackendCapture'] = true;
@@ -235,16 +235,31 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * Prepare the payment amount for the payment request.
+     * Prepare the payment amount for the capture payment request.
      */
-    protected function prepareAmount()
+    protected function prepareCaptureAmount()
     {
         // Get the payment instance
-        $payment = $this->order->getPayment();
+        $amount = $this->order->getPayment()->getAmountPaid();
 
         // Return the formatted amount
         return $this->orderHandler->amountToGateway(
-            $this->utilities->formatDecimals($payment->getAmountPaid()),
+            $this->utilities->formatDecimals($amount),
+            $this->order
+        );
+    }
+
+    /**
+     * Prepare the payment amount for the MOTO payment request.
+     */
+    protected function prepareMotoAmount()
+    {
+        // Get the payment instance
+        $amount = $this->order->getPayment()->getGrandTotal();
+
+        // Return the formatted amount
+        return $this->orderHandler->amountToGateway(
+            $this->utilities->formatDecimals($amount),
             $this->order
         );
     }
