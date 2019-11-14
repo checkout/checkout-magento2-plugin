@@ -255,7 +255,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     protected function prepareMotoAmount()
     {
         // Get the payment instance
-        $amount = $this->order->getPayment()->getGrandTotal();
+        $amount = $this->order->getGrandTotal();
 
         // Return the formatted amount
         return $this->orderHandler->amountToGateway(
