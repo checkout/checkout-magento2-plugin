@@ -147,7 +147,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             // Create an order
             $order = $this->orderHandler
                 ->setMethodId($this->data['methodId'])
-                ->handleOrder();
+                ->handleOrder($this->quote);
 
             // Process the payment
             if ($this->orderHandler->isOrder($order)) { 
@@ -187,6 +187,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 // Payment failed
                 $message = __('The order could not be processed.');
             }
+        }
+        else {
+            // Payment failed
+            $message = __('The request is invalid or there was no quote found.');
         }
 
         // Return the json response

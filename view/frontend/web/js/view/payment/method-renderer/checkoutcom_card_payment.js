@@ -325,6 +325,8 @@ define(
                                 source: METHOD_ID
                             };
 
+                            console.log('--- Place order ----');
+
                             // Place the order
                             Utilities.placeOrder(payload, METHOD_ID);
                         }
