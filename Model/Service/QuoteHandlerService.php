@@ -302,11 +302,9 @@ class QuoteHandlerService
         // Prepare the amount
         if (in_array($currency, $currenciesX1)) {
             return $amount;
-        }
-        else if (in_array($currency, $currenciesX1000)) {
+        } elseif (in_array($currency, $currenciesX1000)) {
             return $amount*1000;
-        }
-        else {
+        } else {
             return $amount*100;
         }
     }

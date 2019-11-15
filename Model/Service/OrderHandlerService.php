@@ -146,14 +146,12 @@ class OrderHandlerService
                 $order = $this->afterPlaceOrder($quote, $order);
 
                 return $order;
-            }
-            else {
+            } else {
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('There is no quote available to place an order.')
                 );
             }
-        }
-        else {
+        } else {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('A payment method ID is required to place an order.')
             );
@@ -212,11 +210,9 @@ class OrderHandlerService
         // Prepare the amount
         if (in_array($currency, $currenciesX1)) {
             return $amount;
-        }
-        else if (in_array($currency, $currenciesX1000)) {
+        } elseif (in_array($currency, $currenciesX1000)) {
             return $amount*1000;
-        }
-        else {
+        } else {
             return $amount*100;
         }
     }

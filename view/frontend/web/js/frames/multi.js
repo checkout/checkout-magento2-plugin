@@ -22,7 +22,7 @@ define(
         'use strict';
         
         return {
-            load: function(framesInstance, formId) {
+            load: function (framesInstance, formId) {
                 // Assign properties
                 this.F = framesInstance;
                 this.formId = formId;
@@ -42,7 +42,7 @@ define(
                 return this.F;
             },
 
-            getLogos: function() {
+            getLogos: function () {
                 var logos = {};
 
                 logos['card-number'] = {
@@ -63,7 +63,7 @@ define(
                 return logos;
             },
 
-            getErrors: function() {
+            getErrors: function () {
                 var errors = {
                     ['card-number']: __('Please enter a valid card number'),
                     ['expiry-date']: __('Please enter a valid expiry date'),
@@ -73,7 +73,7 @@ define(
                 return errors;
             },
 
-            onValidationChanged: function(event) {
+            onValidationChanged: function (event) {
                 var e = event.element;
                 var pm = event.paymentMethod;
                 var targetSelector = '#' + this.formId + ' .icon-container.payment-method';
@@ -96,46 +96,50 @@ define(
                 }
             },
 
-            clearErrorMessage: function(el) {
+            clearErrorMessage: function (el) {
                 var targetSelector = '#' + this.formId + ' .error-message__' + el;
                 var message = document.querySelector(targetSelector);
                 message.textContent = '';
             },
 
-            clearErrorIcon: function(el) {
+            clearErrorIcon: function (el) {
                 var logo = document.getElementById('icon-' + el + '-error');
                 logo.style.removeProperty('display');
             },
 
-            showPaymentMethodIcon: function(parent, pm) {
-                if (parent) parent.classList.add('show');
+            showPaymentMethodIcon: function (parent, pm) {
+                if (parent) {
+                    parent.classList.add('show');
+                }
                 var logo = document.getElementById('logo-payment-method');
                 if (pm) {
-                  var name = pm.toLowerCase();
-                  logo.setAttribute('src', this.getImagesPath() + name + '.svg');
-                  logo.setAttribute('alt', pm || __('Payment method'));
+                    var name = pm.toLowerCase();
+                    logo.setAttribute('src', this.getImagesPath() + name + '.svg');
+                    logo.setAttribute('alt', pm || __('Payment method'));
                 }
                 logo.style.removeProperty('display');
             },
 
-            getImagesPath: function() {
+            getImagesPath: function () {
                 return window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.images_path
                 + '/frames/multi/';
-            },  
+            },
 
-            clearPaymentMethodIcon: function(parent) {
-                if (parent) parent.classList.remove('show');
+            clearPaymentMethodIcon: function (parent) {
+                if (parent) {
+                    parent.classList.remove('show');
+                }
                 var logo = document.getElementById('logo-payment-method');
                 logo.style.setProperty('display', 'none');
             },
 
-            setErrorMessage: function(el) {
+            setErrorMessage: function (el) {
                 var targetSelector = '#' + this.formId + ' .error-message__' + el;
                 var message = document.querySelector(targetSelector);
                 message.textContent = this.getErrors()[el];
             },
 
-            setDefaultIcon: function(el) {
+            setDefaultIcon: function (el) {
                 var selector = 'icon-' + el;
                 var logos = this.getLogos();
                 var logo = document.getElementById(selector);
@@ -143,7 +147,7 @@ define(
                 logo.setAttribute('alt', logos[el].alt);
             },
 
-            setDefaultErrorIcon: function(el) {
+            setDefaultErrorIcon: function (el) {
                 var selector = 'icon-' + el;
                 var logos = this.getLogos();
                 var logo = document.getElementById(selector);
@@ -151,19 +155,19 @@ define(
                 logo.setAttribute('alt', logos[el].alt);
             },
 
-            setErrorIcon: function(el) {
+            setErrorIcon: function (el) {
                 var logo = document.getElementById('icon-' + el + '-error');
                 logo.style.setProperty('display', 'block');
             },
 
-            paymentMethodChanged: function(event) {
+            paymentMethodChanged: function (event) {
                 var pm = event.paymentMethod;
                 var targetSelector = '#' + this.formId + ' .icon-container.payment-method';
                 let container = document.querySelector(targetSelector);
                 if (!pm) {
                     this.clearPaymentMethodIcon(container);
                 } else {
-                    this.clearErrorIcon('card-number'); 
+                    this.clearErrorIcon('card-number');
                     this.showPaymentMethodIcon(container, pm);
                 }
             }

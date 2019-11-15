@@ -113,7 +113,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * @var StoreManagerInterface
      */
-    public $storeManager; 
+    public $storeManager;
 
     /**
      * @var Logger

@@ -199,8 +199,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                     __('The transaction could not be processed. Please check the payment details.')
                 );
             }
-        }
-        else if ($this->needsBackendCapture()) {
+        } elseif ($this->needsBackendCapture()) {
             // Get the payment info
             $paymentInfo = $this->utilities->getPaymentData($this->order);
 
@@ -223,8 +222,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 $this->messageManager->addSuccessMessage(
                     __('The capture request was successfully processed.')
                 );
-            }
-            else {
+            } else {
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('The capture request could not be processed.')
                 );

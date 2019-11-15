@@ -83,7 +83,6 @@ class Validation extends \Magento\Framework\App\Action\Action
         return $this->rawFactory->create()->setContents(
             $this->curl->getBody()
         );
-
     }
 
     /**

@@ -101,7 +101,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var StoreManagerInterface
      */
-    public $storeManager; 
+    public $storeManager;
 
     /**
      * @var Logger

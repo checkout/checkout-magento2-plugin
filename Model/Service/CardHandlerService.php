@@ -109,7 +109,7 @@ class CardHandlerService
         return $this->assetRepository
             ->getUrl(
                 'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
-        );
+            );
     }
 
     /**

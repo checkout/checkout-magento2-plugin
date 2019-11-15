@@ -30,7 +30,7 @@ class VaultHandlerService
     /**
      * @var StoreManagerInterface
      */
-    public $storeManager; 
+    public $storeManager;
 
     /**
      * @var VaultToken

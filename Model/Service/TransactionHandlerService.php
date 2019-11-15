@@ -166,11 +166,9 @@ class TransactionHandlerService
         // Prepare the amount
         if (in_array($currency, $currenciesX1)) {
             return $amount;
-        }
-        else if (in_array($currency, $currenciesX1000)) {
+        } elseif (in_array($currency, $currenciesX1000)) {
             return $amount/1000;
-        }
-        else {
+        } else {
             return $amount/100;
         }
     }
@@ -278,8 +276,7 @@ class TransactionHandlerService
                     $this->order,
                     $this->transaction
                 );
-            }
-            else {    
+            } else {
                 // Get the payment amount
                 $paymentAmount = $this->utilities->formatDecimals(
                     $this->amountFromGateway(
@@ -327,7 +324,6 @@ class TransactionHandlerService
             'order_status_voided',
             'order_status_voided'
         );
-
     }
 
     /**
@@ -369,8 +365,7 @@ class TransactionHandlerService
                     'order_status_refunded',
                     'order_status_refunded'
                 );
-            }
-            else {
+            } else {
                 $this->setOrderStatus(
                     'order_status_refunded_partial',
                     'order_status_refunded_partial'
@@ -397,7 +392,7 @@ class TransactionHandlerService
         if ($state && !empty($state)) {
             $this->order->setState(
                 $this->config->getValue($state)
-            );             
+            );
         }
 
         // Set the order status

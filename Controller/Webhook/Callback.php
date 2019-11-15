@@ -42,7 +42,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * @var StoreManagerInterface
      */
-    public $storeManager; 
+    public $storeManager;
 
     /**
      * @var OrderRepositoryInterface
@@ -180,31 +180,32 @@ class Callback extends \Magento\Framework\App\Action\Action
                         return $resultFactory->setData([
                             'result' => __('Webhook and order successfully processed.')
                         ]);
-                    }
-                    else {
+                    } else {
                         // Log the payment error
                         $this->paymentErrorHandler->logError(
                             $this->payload,
                             $order
-                        );                  
+                        );
                     }
-                }
-                else {
+                } else {
                     $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
                     return $resultFactory->setData([
-                        'error_message' => __('The order creation failed. Please check the error logs.')
+                        'error_message' => __(
+                            'The order creation failed. Please check the error logs.'
+                        )
                     ]);
                 }
-            }
-            else {
+            } else {
                 $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
                 return $resultFactory->setData(
                     ['error_message' => __('The webhook payment response is invalid.')]
-                );                      
+                );
             }
         } else {
             $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
-            return $resultFactory->setData(['error_message' => __('Unauthorized request. No matching private shared key.')]);
+            return $resultFactory->setData([
+                'error_message' => __('Unauthorized request. No matching private shared key.')
+                ]);
         }
     }
 

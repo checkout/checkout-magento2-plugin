@@ -19,14 +19,16 @@ namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
 use Magento\Framework\Data\Form\Element\AbstractElement;
 
-abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\Form\Field {
+abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\Form\Field
+{
     /**
      * Overridden method for rendering a field. In this case the field must be only for read.
      *
      * @param AbstractElement $element
      * @return string
      */
-    protected function _getElementHtml(AbstractElement $element) {
+    protected function _getElementHtml(AbstractElement $element)
+    {
         $callbackUrl= $this->getBaseUrl() . 'checkout_com/' . $this->getControllerUrl();
         $element->setData('value', $callbackUrl);
         $element->setReadonly('readonly');
@@ -37,5 +39,5 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
      *
      * @return string
      */
-    public abstract function getControllerUrl();
+    abstract public function getControllerUrl();
 }
