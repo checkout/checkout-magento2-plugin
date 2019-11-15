@@ -23,20 +23,6 @@ namespace CheckoutCom\Magento2\Model\InstantPurchase;
 class ShippingSelector
 {
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
-     * ShippingSelector constructor.
-     */
-    public function __construct(
-        \CheckoutCom\Magento2\Helper\Logger $logger
-    ) {
-        $this->logger = $logger;
-    }
-
-    /**
      * Selects a shipping method.
      *
      * @param Address $address

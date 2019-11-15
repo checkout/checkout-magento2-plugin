@@ -73,11 +73,6 @@ class VaultHandlerService
     public $cardHandler;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * @var string
      */
     public $customerEmail;
@@ -114,8 +109,7 @@ class VaultHandlerService
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->storeManager = $storeManager;
         $this->vaultToken = $vaultToken;
@@ -126,7 +120,6 @@ class VaultHandlerService
         $this->apiHandler = $apiHandler;
         $this->cardHandler = $cardHandler;
         $this->config = $config;
-        $this->logger = $logger;
     }
 
     /**
