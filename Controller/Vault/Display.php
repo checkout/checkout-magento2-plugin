@@ -49,11 +49,6 @@ class Display extends \Magento\Framework\App\Action\Action
     public $vaultHandler;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * Display constructor
      */
     public function __construct(
@@ -61,8 +56,7 @@ class Display extends \Magento\Framework\App\Action\Action
         \Magento\Framework\View\Result\PageFactory $pageFactory,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
     ) {
         parent::__construct($context);
 
@@ -70,7 +64,6 @@ class Display extends \Magento\Framework\App\Action\Action
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
         $this->vaultHandler = $vaultHandler;
-        $this->logger = $logger;
     }
 
     /**
@@ -79,40 +72,31 @@ class Display extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         $html = '';
-        try {
-            if ($this->getRequest()->isAjax()) {
-                // Check if vault is enabled
-                $vaultEnabled = $this->config->getValue('active', 'checkoutcom_vault');
+        if ($this->getRequest()->isAjax()) {
+            // Check if vault is enabled
+            $vaultEnabled = $this->config->getValue('active', 'checkoutcom_vault');
 
-                // Load block data for vault
-                if ($vaultEnabled) {
-                    // Get the uer cards
-                    $cards = $this->vaultHandler->getUserCards();
-                    foreach ($cards as $card) {
-                        $html .= $this->loadBlock($card);
-                    }
+            // Load block data for vault
+            if ($vaultEnabled) {
+                // Get the uer cards
+                $cards = $this->vaultHandler->getUserCards();
+                foreach ($cards as $card) {
+                    $html .= $this->loadBlock($card);
                 }
             }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        } finally {
-            return $this->jsonFactory->create()->setData(
-                ['html' => $html]
-            );
         }
+
+        return $this->jsonFactory->create()->setData(
+            ['html' => $html]
+        );
     }
 
     private function loadBlock($card)
     {
-        try {
-            return $this->pageFactory->create()->getLayout()
-                ->createBlock('CheckoutCom\Magento2\Block\Vault\Form')
-                ->setTemplate('CheckoutCom_Magento2::payment/vault/card.phtml')
-                ->setData('card', $card)
-                ->toHtml();
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return '';
-        }
+        return $this->pageFactory->create()->getLayout()
+        ->createBlock('CheckoutCom\Magento2\Block\Vault\Form')
+        ->setTemplate('CheckoutCom_Magento2::payment/vault/card.phtml')
+        ->setData('card', $card)
+        ->toHtml();
     }
 }

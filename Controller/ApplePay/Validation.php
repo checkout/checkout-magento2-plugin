@@ -33,11 +33,6 @@ class Validation extends \Magento\Framework\App\Action\Action
     public $curl;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * @var Config
      */
     public $config;
@@ -49,14 +44,12 @@ class Validation extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Controller\Result\RawFactory $rawFactory,
         \Magento\Framework\HTTP\Client\Curl $curl,
-        \CheckoutCom\Magento2\Helper\Logger $logger,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         parent::__construct($context);
 
         $this->rawFactory = $rawFactory;
         $this->curl = $curl;
-        $this->logger = $logger;
         $this->config = $config;
     }
 
@@ -67,33 +60,29 @@ class Validation extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        try {
-            // Get request parameters
-            $this->methodId = $this->getRequest()->getParam('method_id');
-            $this->url = $this->getRequest()->getParam('u');
+        // Get request parameters
+        $this->methodId = $this->getRequest()->getParam('method_id');
+        $this->url = $this->getRequest()->getParam('u');
 
-            // Prepare the configuration parameters
-            $params = $this->getParams();
+        // Prepare the configuration parameters
+        $params = $this->getParams();
 
-            // Prepare the data
-            $data = $this->buildDataString($params);
+        // Prepare the data
+        $data = $this->buildDataString($params);
 
-            // Initialize the request
-            $this->curl->setOption(CURLOPT_SSLCERT, $params['merchantCertificate']);
-            $this->curl->setOption(CURLOPT_SSLKEY, $params['processingCertificate']);
-            $this->curl->setOption(CURLOPT_SSLKEYPASSWD, $params['processingCertificatePass']);
-            $this->curl->setOption(CURLOPT_POSTFIELDS, $data);
+        // Initialize the request
+        $this->curl->setOption(CURLOPT_SSLCERT, $params['merchantCertificate']);
+        $this->curl->setOption(CURLOPT_SSLKEY, $params['processingCertificate']);
+        $this->curl->setOption(CURLOPT_SSLKEYPASSWD, $params['processingCertificatePass']);
+        $this->curl->setOption(CURLOPT_POSTFIELDS, $data);
 
-            // Send the request
-            $this->curl->post($this->url, []);
+        // Send the request
+        $this->curl->post($this->url, []);
 
-            // Return the response
-            return $this->rawFactory->create()->setContents(
-                $this->curl->getBody()
-            );
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        }
+        // Return the response
+        return $this->rawFactory->create()->setContents(
+            $this->curl->getBody()
+        );
     }
 
     /**
@@ -119,30 +108,25 @@ class Validation extends \Magento\Framework\App\Action\Action
      */
     public function getParams()
     {
-        try {
-            return [
-                'merchantId' => $this->config->getValue(
-                    'merchant_id',
-                    $this->methodId
-                ),
-                'domainName' => $this->getRequest()->getServer('HTTP_HOST'),
-                'displayName' => $this->config->getStoreName(),
-                'processingCertificate' => $this->config->getValue(
-                    'processing_certificate',
-                    $this->methodId
-                ),
-                'processingCertificatePass' => $this->config->getValue(
-                    'processing_certificate_password',
-                    $this->methodId
-                ),
-                'merchantCertificate' => $this->config->getValue(
-                    'merchant_id_certificate',
-                    $this->methodId
-                )
-            ];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return $this->jsonFactory->create()->setData([]);
-        }
+        return $this->jsonFactory->create()->setData([
+            'merchantId' => $this->config->getValue(
+                'merchant_id',
+                $this->methodId
+            ),
+            'domainName' => $this->getRequest()->getServer('HTTP_HOST'),
+            'displayName' => $this->config->getStoreName(),
+            'processingCertificate' => $this->config->getValue(
+                'processing_certificate',
+                $this->methodId
+            ),
+            'processingCertificatePass' => $this->config->getValue(
+                'processing_certificate_password',
+                $this->methodId
+            ),
+            'merchantCertificate' => $this->config->getValue(
+                'merchant_id_certificate',
+                $this->methodId
+            )
+        ]);
     }
 }

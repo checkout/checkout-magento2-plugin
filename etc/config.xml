@@ -31,6 +31,7 @@
                 <mada_test_file>Model/Files/Mada/mada_test.csv</mada_test_file>
                 <mada_live_file>Model/Files/Mada/mada_live.csv</mada_live_file>
                 <email_cookie_name>ckoUserEmail</email_cookie_name>
+                <order_email>authorize_capture</order_email>
                 <order_status_authorized>pending_payment</order_status_authorized>
                 <order_status_captured>processing</order_status_captured>
                 <order_status_voided>canceled</order_status_voided>
@@ -39,10 +40,11 @@
                 <order_status_flagged>fraud</order_status_flagged>
                 <payment_action>authorize_capture</payment_action>
                 <capture_time>0</capture_time>
-                <invoice_generation>authorize_capture</invoice_generation>
                 <dynamic_descriptor_enabled>0</dynamic_descriptor_enabled>
                 <descriptor_name></descriptor_name>
                 <descriptor_city></descriptor_city>
+                <currencies_x1>BIF,DJF,GNF,ISK,KMF,XAF,CLF,XPF,JPY,PYG,RWF,KRW,VUV,VND,XOF</currencies_x1>
+                <currencies_x1000>BHD,LYD,JOD,KWD,OMR,TND</currencies_x1000>
             </checkoutcom_configuration>
         </settings>
         <payment>

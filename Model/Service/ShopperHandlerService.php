@@ -66,23 +66,18 @@ class ShopperHandlerService
 
     public function getCustomerData($filters = [])
     {
-        try {
-            if (isset($filters['id'])) {
-                return $this->customerRepository->getById($filters['id']);
-            } elseif (isset($filters['email'])) {
-                return $this->customerRepository->get(
-                    filter_var(
-                        $filters['email'],
-                        FILTER_SANITIZE_EMAIL
-                    )
-                );
-            } else {
-                $customerId = $this->customerSession->getCustomer()->getId();
-                return $this->customerRepository->getById($customerId);
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+        if (isset($filters['id'])) {
+            return $this->customerRepository->getById($filters['id']);
+        } elseif (isset($filters['email'])) {
+            return $this->customerRepository->get(
+                filter_var(
+                    $filters['email'],
+                    FILTER_SANITIZE_EMAIL
+                )
+            );
+        } else {
+            $customerId = $this->customerSession->getCustomer()->getId();
+            return $this->customerRepository->getById($customerId);
         }
     }
 
@@ -91,16 +86,11 @@ class ShopperHandlerService
      */
     public function getCustomerLocale($default = 'en_GB')
     {
-        try {
-            $locale = $this->localeResolver->getLocale();
-            if (!$locale) {
-                return $default;
-            }
-
-            return $locale;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
+        $locale = $this->localeResolver->getLocale();
+        if (!$locale) {
             return $default;
         }
+
+        return $locale;
     }
 }

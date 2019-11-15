@@ -22,7 +22,7 @@ define(
         'use strict';
         
         return {
-            load: function(framesInstance, formId) {
+            load: function (framesInstance, formId) {
                 // Assign properties
                 this.F = framesInstance;
                 this.formId = formId;
@@ -36,7 +36,7 @@ define(
                 return this.F;
             },
 
-            getErrors: function() {
+            getErrors: function () {
                 var errors = {
                     ['card-number']: __('Please enter a valid card number'),
                     ['expiry-date']: __('Please enter a valid expiry date'),
@@ -48,13 +48,13 @@ define(
 
             getErrorMessage: function (event) {
                 if (event.isValid || event.isEmpty) {
-                  return '';
+                    return '';
                 }
               
                 return this.getErrors()[event.element];
             },
 
-            onValidationChanged: function(event) {
+            onValidationChanged: function (event) {
                 var targetSelector = '.error-message';
                 var errorMessage = document.querySelector(targetSelector);
                 errorMessage.textContent = this.getErrorMessage(event);

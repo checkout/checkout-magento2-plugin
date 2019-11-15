@@ -33,6 +33,7 @@ define(
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     buttonId: METHOD_ID + '_btn',
                     cvvField: '.vault-cvv input',
+                    containerId: '#vault-container',
                     rowSelector: '.cko-vault-card',
                     redirectAfterPlaceOrder: false
                 },

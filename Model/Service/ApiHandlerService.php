@@ -67,6 +67,11 @@ class ApiHandlerService
     public $logger;
 
     /**
+     * @var OrderHandlerService
+     */
+    public $orderHandler;
+
+    /**
      * ApiHandlerService constructor.
      */
     public function __construct(
@@ -75,7 +80,8 @@ class ApiHandlerService
         \Magento\Framework\App\ProductMetadataInterface $productMeta,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler
     ) {
         $this->encryptor = $encryptor;
         $this->storeManager = $storeManager;
@@ -83,6 +89,7 @@ class ApiHandlerService
         $this->config = $config;
         $this->utilities = $utilities;
         $this->logger = $logger;
+        $this->orderHandler = $orderHandler;
     }
 
     /**
@@ -90,18 +97,13 @@ class ApiHandlerService
      */
     public function init($storeCode = null)
     {
-        try {
-            $this->checkoutApi = new CheckoutApi(
-                $this->config->getValue('secret_key', null, $storeCode),
-                $this->config->getValue('environment', null, $storeCode),
-                $this->config->getValue('public_key', null, $storeCode)
-            );
-            
-            return $this;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        $this->checkoutApi = new CheckoutApi(
+            $this->config->getValue('secret_key', null, $storeCode),
+            $this->config->getValue('environment', null, $storeCode),
+            $this->config->getValue('public_key', null, $storeCode)
+        );
+        
+        return $this;
     }
 
     /**
@@ -109,42 +111,10 @@ class ApiHandlerService
      */
     public function isValidResponse($response)
     {
-        try {
-            return $response != null
-            && is_object($response)
-            && method_exists($response, 'isSuccessful')
-            && $response->isSuccessful();
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Captures a transaction.
-     */
-    public function captureOrder($payment)
-    {
-        try {
-            // Get the order
-            $order = $payment->getOrder();
-
-            // Get the payment info
-            $paymentInfo = $this->utilities->getPaymentData($order);
-
-            // Process the capture request
-            if (isset($paymentInfo['id'])) {
-                $request = new Capture($paymentInfo['id']);
-                $response = $this->checkoutApi
-                    ->payments()
-                    ->capture($request);
-
-                return $response;
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
-        }
+        return $response != null
+        && is_object($response)
+        && method_exists($response, 'isSuccessful')
+        && $response->isSuccessful();
     }
 
     /**
@@ -152,25 +122,23 @@ class ApiHandlerService
      */
     public function voidOrder($payment)
     {
-        try {
-            // Get the order
-            $order = $payment->getOrder();
+        // Get the order
+        $order = $payment->getOrder();
 
-            // Get the payment info
-            $paymentInfo = $this->utilities->getPaymentData($order);
+        // Get the payment info
+        $paymentInfo = $this->utilities->getPaymentData($order);
 
-            // Process the void request
-            if (isset($paymentInfo['id'])) {
-                $request = new Voids($paymentInfo['id']);
-                $response = $this->checkoutApi
-                    ->payments()
-                    ->void($request);
+        // Process the void request
+        if (isset($paymentInfo['id'])) {
+            $request = new Voids($paymentInfo['id']);
+            $response = $this->checkoutApi
+                ->payments()
+                ->void($request);
 
-                return $response;
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
+            // Logging
+            $this->logger->display($response);
+
+            return $response;
         }
     }
 
@@ -179,37 +147,34 @@ class ApiHandlerService
      */
     public function refundOrder($payment, $amount)
     {
-        try {
-            // Get the order
-            $order = $payment->getOrder();
+        // Get the order
+        $order = $payment->getOrder();
 
-            // Get the payment info
-            $paymentInfo = $this->utilities->getPaymentData($order);
+        // Get the payment info
+        $paymentInfo = $this->utilities->getPaymentData($order);
+        
+        // Process the refund request
+        if (isset($paymentInfo['id'])) {
+            $request = new Refund($paymentInfo['id']);
+            $request->amount = $this->orderHandler->amountToGateway($amount, $order);
+            $response = $this->checkoutApi
+                ->payments()
+                ->refund($request);
 
-            // Process the refund request
-            if (isset($paymentInfo['id'])) {
-                $request = new Refund($paymentInfo['id']);
-                $request->amount = $amount*100;
-                $response = $this->checkoutApi
-                    ->payments()
-                    ->refund($request);
-
-                // Apply the order status
-                if ($order->getGrandTotal() == $order->getTotalRefunded()) {
-                    $order->setState('order_status_refunded');
-                    $order->setStatus($this->config->getValue('order_status_refunded'));
-                }
-                else {
-                    $order->setState($this->config->getValue('order_status_refunded_partial'));
-                    $order->setStatus($this->config->getValue('order_status_refunded_partial'));
-                }
-
-                // Return the response
-                return $response;
+            // Logging
+            $this->logger->display($response);
+            
+            // Apply the order status
+            if ($order->getGrandTotal() == $order->getTotalRefunded()) {
+                $order->setState('order_status_refunded');
+                $order->setStatus($this->config->getValue('order_status_refunded'));
+            } else {
+                $order->setState($this->config->getValue('order_status_refunded_partial'));
+                $order->setStatus($this->config->getValue('order_status_refunded_partial'));
             }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
+
+            // Return the response
+            return $response;
         }
     }
 
@@ -218,12 +183,7 @@ class ApiHandlerService
      */
     public function getPaymentDetails($paymentId)
     {
-        try {
-            return $this->checkoutApi->payments()->details($paymentId);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $this->checkoutApi->payments()->details($paymentId);
     }
 
     /**
@@ -231,20 +191,15 @@ class ApiHandlerService
      */
     public function createCustomer($entity)
     {
-        try {
-            // Get the billing address
-            $billingAddress = $entity->getBillingAddress();
+        // Get the billing address
+        $billingAddress = $entity->getBillingAddress();
 
-            // Create the customer
-            $customer = new Customer();
-            $customer->email = $billingAddress->getEmail();
-            $customer->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
+        // Create the customer
+        $customer = new Customer();
+        $customer->email = $billingAddress->getEmail();
+        $customer->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
 
-            return $customer;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $customer;
     }
 
     /**
@@ -252,23 +207,18 @@ class ApiHandlerService
      */
     public function createBillingAddress($entity)
     {
-        try {
-            // Get the billing address
-            $billingAddress = $entity->getBillingAddress();
+        // Get the billing address
+        $billingAddress = $entity->getBillingAddress();
 
-            // Create the address
-            $address = new Address();
-            $address->address_line1 = $billingAddress->getStreetLine(1);
-            $address->address_line2 = $billingAddress->getStreetLine(2);
-            $address->city = $billingAddress->getCity();
-            $address->zip = $billingAddress->getPostcode();
-            $address->country = $billingAddress->getCountry();
+        // Create the address
+        $address = new Address();
+        $address->address_line1 = $billingAddress->getStreetLine(1);
+        $address->address_line2 = $billingAddress->getStreetLine(2);
+        $address->city = $billingAddress->getCity();
+        $address->zip = $billingAddress->getPostcode();
+        $address->country = $billingAddress->getCountry();
 
-            return $address;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $address;
     }
 
     /**
@@ -276,23 +226,18 @@ class ApiHandlerService
      */
     public function createShippingAddress($entity)
     {
-        try {
-            // Get the billing address
-            $shippingAddress = $entity->getBillingAddress();
+        // Get the billing address
+        $shippingAddress = $entity->getBillingAddress();
 
-            // Create the address
-            $address = new Address();
-            $address->address_line1 = $shippingAddress->getStreetLine(1);
-            $address->address_line2 = $shippingAddress->getStreetLine(2);
-            $address->city = $shippingAddress->getCity();
-            $address->zip = $shippingAddress->getPostcode();
-            $address->country = $shippingAddress->getCountry();
-            
-            return new Shipping($address);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        // Create the address
+        $address = new Address();
+        $address->address_line1 = $shippingAddress->getStreetLine(1);
+        $address->address_line2 = $shippingAddress->getStreetLine(2);
+        $address->city = $shippingAddress->getCity();
+        $address->zip = $shippingAddress->getPostcode();
+        $address->country = $shippingAddress->getCountry();
+        
+        return new Shipping($address);
     }
 
     /**
@@ -318,6 +263,6 @@ class ApiHandlerService
             'sdk_data' => $sdkData,
             'integration_data' => $integrationData,
             'platform_data' => $platformData
-        ];     
+        ];
     }
 }

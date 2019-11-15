@@ -61,13 +61,6 @@
                             <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
                         </field>
 
-                        <field id="invoice_generation" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Invoice Generation</label>
-                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigInvoiceGeneration</source_model>
-                            <config_path>settings/checkoutcom_configuration/invoice_generation</config_path>
-                            <comment>Determines when the invoice should be generated.</comment>
-                        </field>
-
                         <field id="dynamic_descriptor_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Enable Dynamic Descriptor</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -92,6 +85,14 @@
                     </group>
                     <group id="order_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Order Settings</label>
+
+                        <field id="order_email" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Order confirmation email</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
+                            <config_path>settings/checkoutcom_configuration/order_email</config_path>
+                            <comment>Defines if the order confirmation email should be sent after successful payment authorisation or payment capture.</comment>
+                        </field>
+
                         <field id="order_status_authorized" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Authorization Order Status</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>

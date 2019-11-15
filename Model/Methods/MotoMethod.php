@@ -158,51 +158,6 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->apiHandler         = $apiHandler;
         $this->ckoLogger          = $ckoLogger;
     }
-
-    /**
-     * Perform a capture request.
-     *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
-     * @param float $amount The amount
-     *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
-     */
-    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
-    {
-        try {
-            if ($this->backendAuthSession->isLoggedIn()) {
-                // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
-
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
-
-                // Check the status
-                if (!$this->canCapture()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The capture action is not available.')
-                    );
-                }
-
-                // Process the capture request
-                $response = $api->captureOrder($payment);
-                if (!$api->isValidResponse($response)) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The capture request could not be processed.')
-                    );
-                }
-
-                // Set the transaction id from response
-                $payment->setTransactionId($response->action_id);
-            }
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getBody());
-        } finally {
-            return $this;
-        }
-    }
     
     /**
      * Perform a void request.
@@ -312,16 +267,11 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        try {
-            if (parent::isAvailable($quote) && null !== $quote) {
-                return $this->config->getValue('active', $this->_code)
-                && $this->backendAuthSession->isLoggedIn();
-            }
-
-            return false;
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
-            return false;
+        if (parent::isAvailable($quote) && null !== $quote) {
+            return $this->config->getValue('active', $this->_code)
+            && $this->backendAuthSession->isLoggedIn();
         }
+
+        return false;
     }
 }

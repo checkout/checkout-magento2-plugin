@@ -63,6 +63,11 @@ class OrderHandlerService
     public $quoteHandler;
 
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager;
+
+    /**
      * @var TransactionHandlerService
      */
     public $transactionHandler;
@@ -94,6 +99,7 @@ class OrderHandlerService
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
@@ -105,6 +111,7 @@ class OrderHandlerService
         $this->searchBuilder = $searchBuilder;
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
+        $this->storeManager = $storeManager;
         $this->transactionHandler = $transactionHandler;
         $this->logger = $logger;
     }
@@ -121,48 +128,28 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function handleOrder($paymentData, $filters, $isWebhook = false)
+    public function handleOrder($quote = null)
     {
         if ($this->methodId) {
-            try {
-                // Check if at least the increment id is available
-                if (!isset($filters['increment_id'])) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The order increment id is required for the handleOrder method.')
-                    );
-                }
-
-                // Check if the order exists
-                $order = $this->getOrder($filters);
-
+            // Prepare the quote
+            $quote = $this->quoteHandler->prepareQuote(
+                $this->methodId,
+                $quote
+            );
+            
+            // Process the quote
+            if ($quote) {
                 // Create the order
-                if (!$this->isOrder($order)) {
-                    // Prepare the quote
-                    $quote = $this->quoteHandler->prepareQuote(
-                        $this->methodId,
-                        ['reserved_order_id' => $filters['increment_id']],
-                        $isWebhook
-                    );
-
-                    // Process the quote
-                    if ($quote) {
-                        // Create the order
-                        $order = $this->quoteManagement->submit($quote);
-                    }
-
-                    // Return the saved order
-                    $order = $this->orderRepository->save($order);
-                }
+                $order = $this->quoteManagement->submit($quote);
 
                 // Perform after place order tasks
-                if (!$isWebhook) {
-                    $order = $this->afterPlaceOrder($quote, $order);
-                }
+                $order = $this->afterPlaceOrder($quote, $order);
 
                 return $order;
-            } catch (\Exception $e) {
-                $this->logger->write($e->getMessage());
-                return null;
+            } else {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('There is no quote available to place an order.')
+                );
             }
         } else {
             throw new \Magento\Framework\Exception\LocalizedException(
@@ -176,15 +163,10 @@ class OrderHandlerService
      */
     public function isOrder($order)
     {
-        try {
-            return $order
-            && is_object($order)
-            && method_exists($order, 'getId')
-            && $order->getId() > 0;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $order
+        && is_object($order)
+        && method_exists($order, 'getId')
+        && $order->getId() > 0;
     }
 
     /**
@@ -192,11 +174,46 @@ class OrderHandlerService
      */
     public function getOrder($fields)
     {
-        try {
-            return $this->findOrderByFields($fields);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+        return $this->findOrderByFields($fields);
+    }
+
+    /**
+     * Gets an order currency
+     */
+    public function getOrderCurrency($order)
+    {
+        $orderCurrencyCode = $order->getOrderCurrencyCode();
+        $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+        return ($orderCurrencyCode) ? $orderCurrencyCode : $storeCurrencyCode;
+    }
+
+    /**
+     * Convert an order amount to integer value for the gateway request.
+     */
+    public function amountToGateway($amount, $order)
+    {
+        // Get the order currency
+        $currency = $this->getOrderCurrency($order);
+
+        // Get the x1 currency calculation mapping
+        $currenciesX1 = explode(
+            ',',
+            $this->config->getValue('currencies_x1')
+        );
+
+        // Get the x1000 currency calculation mapping
+        $currenciesX1000 = explode(
+            ',',
+            $this->config->getValue('currencies_x1000')
+        );
+
+        // Prepare the amount
+        if (in_array($currency, $currenciesX1)) {
+            return $amount;
+        } elseif (in_array($currency, $currenciesX1000)) {
+            return $amount*1000;
+        } else {
+            return $amount*100;
         }
     }
 
@@ -205,29 +222,24 @@ class OrderHandlerService
      */
     public function findOrderByFields($fields)
     {
-        try {
-            // Add each field as filter
-            foreach ($fields as $key => $value) {
-                $this->searchBuilder->addFilter(
-                    $key,
-                    $value
-                );
-            }
-
-            // Create the search instance
-            $search = $this->searchBuilder->create();
-
-            // Get the resulting order
-            $order = $this->orderRepository
-                ->getList($search)
-                ->setPageSize(1)
-                ->getLastItem();
-
-            return $order;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+        // Add each field as filter
+        foreach ($fields as $key => $value) {
+            $this->searchBuilder->addFilter(
+                $key,
+                $value
+            );
         }
+
+        // Create the search instance
+        $search = $this->searchBuilder->create();
+
+        // Get the resulting order
+        $order = $this->orderRepository
+            ->getList($search)
+            ->setPageSize(1)
+            ->getLastItem();
+
+        return $order;
     }
 
     /**
@@ -235,22 +247,17 @@ class OrderHandlerService
      */
     public function afterPlaceOrder($quote, $order)
     {
-        try {
-            // Prepare session quote info for redirection after payment
-            $this->checkoutSession
-                ->setLastQuoteId($quote->getId())
-                ->setLastSuccessQuoteId($quote->getId())
-                ->clearHelperData();
+        // Prepare session quote info for redirection after payment
+        $this->checkoutSession
+            ->setLastQuoteId($quote->getId())
+            ->setLastSuccessQuoteId($quote->getId())
+            ->clearHelperData();
 
-            // Prepare session order info for redirection after payment
-            $this->checkoutSession->setLastOrderId($order->getId())
-                ->setLastRealOrderId($order->getIncrementId())
-                ->setLastOrderStatus($order->getStatus());
+        // Prepare session order info for redirection after payment
+        $this->checkoutSession->setLastOrderId($order->getId())
+            ->setLastRealOrderId($order->getIncrementId())
+            ->setLastOrderStatus($order->getStatus());
 
-            return $order;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $order;
     }
 }

@@ -65,21 +65,16 @@ class MadaHandlerService
      */
     private function getCsvPath()
     {
-        try {
-            // Get the MADA file name
-            $file = ($this->config->isLive()) ? 'mada_live_file' : 'mada_test_file';
+        // Get the MADA file name
+        $file = ($this->config->isLive()) ? 'mada_live_file' : 'mada_test_file';
 
-            // Get the MADA file path
-            $path = $this->config->getValue($file);
+        // Get the MADA file path
+        $path = $this->config->getValue($file);
 
-            return $this->directoryReader->getModuleDir(
-                '',
-                'CheckoutCom_Magento2'
-            ) . '/' . $path;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return '';
-        }
+        return $this->directoryReader->getModuleDir(
+            '',
+            'CheckoutCom_Magento2'
+        ) . '/' . $path;
     }
 
     /**
@@ -89,26 +84,21 @@ class MadaHandlerService
      */
     public function isMadaBin($bin)
     {
-        try {
-            // Set the root path
-            $csvPath = $this->getCsvPath();
+        // Set the root path
+        $csvPath = $this->getCsvPath();
 
-            // Get the data
-            $csvData = $this->csvParser->getData($csvPath);
+        // Get the data
+        $csvData = $this->csvParser->getData($csvPath);
 
-            // Remove the first row of csv columns
-            unset($csvData[0]);
+        // Remove the first row of csv columns
+        unset($csvData[0]);
 
-            // Build the MADA BIN array
-            $binArray = [];
-            foreach ($csvData as $row) {
-                $binArray[] = $row[1];
-            }
-
-            return in_array($bin, $binArray);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
+        // Build the MADA BIN array
+        $binArray = [];
+        foreach ($csvData as $row) {
+            $binArray[] = $row[1];
         }
+
+        return in_array($bin, $binArray);
     }
 }

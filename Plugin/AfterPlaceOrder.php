@@ -15,17 +15,22 @@
  * @link      https://docs.checkout.com/
  */
 
-namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
+namespace CheckoutCom\Magento2\Plugin;
 
-class WebhookUrl extends AbstractCallbackUrl
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+
+/**
+ * Class AfterPlaceOrder.
+ */
+class AfterPlaceOrder
 {
     /**
-     * Returns the controller url.
-     *
-     * @return string
+     * Disable order email sending on order creation
      */
-    public function getControllerUrl()
+    public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
     {
-        return 'webhook/callback';
+        $order->setCanSendNewEmailFlag(false);
+        return $order;
     }
 }

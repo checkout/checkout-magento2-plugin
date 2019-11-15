@@ -21,6 +21,7 @@ use \Checkout\Library\HttpHandler;
 use \Checkout\Models\Product;
 use \Checkout\Models\Address;
 use \Checkout\Models\Payments\Payment;
+use \Checkout\Models\Payments\Source;
 use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\EpsSource;
 use \Checkout\Models\Payments\IdealSource;
@@ -110,6 +111,11 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     public $quoteHandler;
 
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager;
+
+    /**
      * @var Logger
      */
     public $ckoLogger;
@@ -153,6 +159,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -189,6 +196,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->apiHandler         = $apiHandler;
         $this->ckoLogger          = $ckoLogger;
         $this->quoteHandler       = $quoteHandler;
+        $this->storeManager       = $storeManager;
         $this->curl               = $curl;
     }
 
@@ -197,74 +205,71 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function sendPaymentRequest(array $data, $amount, $currency, $reference = '')
     {
-        try {
-            $method = $data['source'];
-            $response = null;
+        $method = $data['source'];
+        $response = null;
 
-            if ($this->validateCurrency($method, $currency)) {
-                // Initialize the API handler
-                $api = $this->apiHandler->init();
+        if ($this->validateCurrency($method, $currency)) {
+            // Get the store code
+            $storeCode = $this->storeManager->getStore()->getCode();
 
-                // Create source object
-                $source = $this->{$method}($data);
-                $payment = $this->createPayment(
-                    $source,
-                    $amount,
-                    $currency,
-                    $reference,
-                    $this->_code
-                );
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
 
-                // Send the charge request
-                $response = $api->checkoutApi
-                    ->payments()->request($payment);
+            // Create source object
+            $source = $this->{$method}($data);
+            $payment = $this->createPayment(
+                $source,
+                $amount,
+                $currency,
+                $reference,
+                $this->_code
+            );
 
-                return $response;
-            }
+            // Send the charge request
+            $response = $api->checkoutApi
+                ->payments()->request($payment);
 
             return $response;
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getBody());
-            return null;
         }
+
+        return $response;
     }
 
     /**
-     * Create a payment object based on the body.
+     * Creates a payment object.
      *
-     * @param array $array The value
+     * @param      \Checkout\Models\Payments\Source  $source     The source
+     * @param      integer                           $amount     The amount
+     * @param      string                            $currency   The currency
+     * @param      string                            $reference  The reference
+     * @param      string                            $methodId   The method identifier
      *
-     * @return Payment
+     * @return     \Checkout\Models\Payments\Payment
      */
-    public function createPayment(IdSource $source, int $amount, string $currency, string $reference, $methodId)
+    public function createPayment($source, int $amount, string $currency, string $reference, string $methodId)
     {
-        try {
-            $payment = null;
+        $payment = null;
 
-            // Create payment object
-            $payment = new Payment($source, $currency);
+        // Create payment object
+        $payment = new Payment($source, $currency);
 
-            // Prepare the metadata array
-            $payment->metadata = ['methodId' => $methodId];
+        // Prepare the metadata array
+        $payment->metadata = ['methodId' => $methodId];
 
-            // Set the payment specifications
-            $payment->capture = $this->config->needsAutoCapture($this->_code);
-            $payment->amount = $amount * 100;
-            $payment->reference = $reference;
-            $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
-            $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+        // Set the payment specifications
+        $payment->capture = $this->config->needsAutoCapture($this->_code);
+        $payment->amount = $amount * 100;
+        $payment->reference = $reference;
+        $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+        $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
 
-            $payment->description = __(
-                'Payment request from %1',
-                $this->config->getStoreName()
-            );
-            $payment->payment_type = 'Regular';
+        $payment->description = __(
+            'Payment request from %1',
+            $this->config->getStoreName()
+        )->getText();
+        $payment->payment_type = 'Regular';
 
-            return $payment;
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getBody());
-            return null;
-        }
+        return $payment;
     }
 
     /**
@@ -277,20 +282,15 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function validateCurrency(string $method, string $currency)
     {
-        try {
-            $apms = $this->config->getApms();
-            $valid = false;
-            foreach ($apms as $apm) {
-                if ($apm['value'] === $method) {
-                    $valid = strpos($apm['currencies'], $currency) !== false;
-                }
+        $apms = $this->config->getApms();
+        $valid = false;
+        foreach ($apms as $apm) {
+            if ($apm['value'] === $method) {
+                $valid = strpos($apm['currencies'], $currency) !== false;
             }
-
-            return $valid;
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
-            return false;
         }
+
+        return $valid;
     }
 
     /**
@@ -306,16 +306,11 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function sepa($data)
     {
-        try {
-            $mandate = $this->activateMandate($data['url']);
-            $pos = strripos($data['url'], '/');
-            $id = substr($data['url'], $pos +1);
+        $mandate = $this->activateMandate($data['url']);
+        $pos = strripos($data['url'], '/');
+        $id = substr($data['url'], $pos +1);
 
-            return new IdSource($id);
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
-            return null;
-        }
+        return new IdSource($id);
     }
 
     /**
@@ -326,36 +321,30 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function activateMandate(string $url)
     {
+        // Get the secret key
+        $secret = $this->config->getValue('secret_key');
 
-        try {
-            // Get the secret key
-            $secret = $this->config->getValue('secret_key');
+        // Prepare the options
+        // Set the CURL headers
+        $this->curl->setHeaders([
+            'Content-type: ' . HttpHandler::MIME_TYPE_JSON,
+            'Accept: ' . HttpHandler::MIME_TYPE_JSON,
+            'Authorization: ' . $secret,
+            'User-Agent: checkout-magento2-plugin/1.0.0'
+        ]);
 
-            // Prepare the options
-            // Set the CURL headers
-            $this->curl->setHeaders([
-                'Content-type: ' . HttpHandler::MIME_TYPE_JSON,
-                'Accept: ' . HttpHandler::MIME_TYPE_JSON,
-                'Authorization: ' . $secret,
-                'User-Agent: checkout-magento2-plugin/1.0.0'
-            ]);
+        // Set extra CURL parameters
+        $this->curl->curlOption(CURLOPT_FAILONERROR, false);
+        $this->curl->curlOption(CURLOPT_RETURNTRANSFER, true);
 
-            // Set extra CURL parameters
-            $this->curl->curlOption(CURLOPT_FAILONERROR, false);
-            $this->curl->curlOption(CURLOPT_RETURNTRANSFER, true);
+        // Send the request
+        $this->curl->post($url, []);
 
-            // Send the request
-            $this->curl->post($url, []);
+        // Get the response
+        $content = $this->curl->getBody();
 
-            // Get the response
-            $content = $this->curl->getBody();
-
-            // Return the content
-            return json_decode($content, true);
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
-            return null;
-        }
+        // Return the content
+        return json_decode($content, true);
     }
 
     /**
@@ -392,7 +381,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     public function giropay(array $data)
     {
         $source = new GiropaySource(
-            __('Payment request from %1', $this->config->getStoreName()),
+            __('Payment request from %1', $this->config->getStoreName())->getText(),
             $this->getValue('bic', $data)
         );
         $source->iban = $this->getValue('iban', $data);
@@ -410,7 +399,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     {
         $source = new IdealSource(
             $data['bic'],
-            __('Payment request from %1', $this->config->getStoreName())
+            __('Payment request from %1', $this->config->getStoreName())->getText()
         );
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl'));
         $source->language = $locale[0];
@@ -450,69 +439,62 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function klarna($data)
     {
-        try {
-            $products = [];
-            $tax = 0;
-            $quote = $this->quoteHandler->getQuote();
-            foreach ($quote->getAllVisibleItems() as $item) {
-                $product = new Product();
-                $product->name = $item->getName();
-                $product->quantity = $item->getQty();
-                $product->unit_price = $item->getPriceInclTax() *100;
-                $product->tax_rate = $item->getTaxPercent() *100;
-                $product->total_amount = $item->getRowTotalInclTax() *100;
-                $product->total_tax_amount = $item->getTaxAmount() *100;
+        $products = [];
+        $tax = 0;
+        $quote = $this->quoteHandler->getQuote();
+        foreach ($quote->getAllVisibleItems() as $item) {
+            $product = new Product();
+            $product->name = $item->getName();
+            $product->quantity = $item->getQty();
+            $product->unit_price = $item->getPriceInclTax() *100;
+            $product->tax_rate = $item->getTaxPercent() *100;
+            $product->total_amount = $item->getRowTotalInclTax() *100;
+            $product->total_tax_amount = $item->getTaxAmount() *100;
 
-                $tax += $product->total_tax_amount;
-                $products []= $product;
-            }
-
-            // Shipping fee
-            $shipping = $quote->getShippingAddress();
-
-            if ($shipping->getShippingDescription()) {
-                $product = new Product();
-                $product->name = $shipping->getShippingDescription();
-                $product->quantity = 1;
-                $product->unit_price = $shipping->getShippingInclTax() *100;
-                $product->tax_rate = $shipping->getTaxPercent() *100;
-                $product->total_amount = $shipping->getShippingAmount() *100;
-                $product->total_tax_amount = $shipping->getTaxAmount() *100;
-                $product->type = 'shipping_fee';
-
-                $tax  += $product->total_tax_amount;
-                $products []= $product;
-            }
-
-            /* Billing */
-            $billingAddress = $this->quoteHandler->getBillingAddress();
-            $address = new Address();
-            $address->given_name = $billingAddress->getFirstname();
-            $address->family_name = $billingAddress->getLastname();
-            $address->email = $billingAddress->getEmail();
-            //$address->title = $billingAddress->getPrefix();
-            $address->street_address = $billingAddress->getStreetLine(1);
-            //$address->street_address2 = $billingAddress->getStreetLine(2);
-            $address->postal_code = $billingAddress->getPostcode();
-            $address->city = $billingAddress->getCity();
-            $address->region = $billingAddress->getRegion();
-            $address->phone = $billingAddress->getTelephone();
-            $address->country = strtolower($billingAddress->getCountry());
-
-            $klarna =  new KlarnaSource(
-                $data['authorization_token'],
-                strtolower($billingAddress->getCountry()),
-                str_replace('_', '-', $this->shopperHandler->getCustomerLocale('en_GB')),
-                $address,
-                $tax,
-                $products
-            );
-
-            return $klarna;
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
-            return null;
+            $tax += $product->total_tax_amount;
+            $products []= $product;
         }
+
+        // Shipping fee
+        $shipping = $quote->getShippingAddress();
+
+        if ($shipping->getShippingDescription()) {
+            $product = new Product();
+            $product->name = $shipping->getShippingDescription();
+            $product->quantity = 1;
+            $product->unit_price = $shipping->getShippingInclTax() *100;
+            $product->tax_rate = $shipping->getTaxPercent() *100;
+            $product->total_amount = $shipping->getShippingAmount() *100;
+            $product->total_tax_amount = $shipping->getTaxAmount() *100;
+            $product->type = 'shipping_fee';
+
+            $tax  += $product->total_tax_amount;
+            $products []= $product;
+        }
+
+        /* Billing */
+        $billingAddress = $this->quoteHandler->getBillingAddress();
+        $address = new Address();
+        $address->given_name = $billingAddress->getFirstname();
+        $address->family_name = $billingAddress->getLastname();
+        $address->email = $billingAddress->getEmail();
+        $address->street_address = $billingAddress->getStreetLine(1);
+        $address->postal_code = $billingAddress->getPostcode();
+        $address->city = $billingAddress->getCity();
+        $address->region = $billingAddress->getRegion();
+        $address->phone = $billingAddress->getTelephone();
+        $address->country = strtolower($billingAddress->getCountry());
+
+        $klarna =  new KlarnaSource(
+            $data['authorization_token'],
+            strtolower($billingAddress->getCountry()),
+            str_replace('_', '-', $this->shopperHandler->getCustomerLocale('en_GB')),
+            $address,
+            $tax,
+            $products
+        );
+
+        return $klarna;
     }
 
     /**
@@ -524,7 +506,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function eps($data)
     {
-        return new EpsSource(__('Payment request from %1', $this->config->getStoreName()));
+        return new EpsSource(
+            __('Payment request from %1', $this->config->getStoreName())->getText()
+        );
     }
 
     /**
@@ -564,7 +548,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $billingAddress = $this->quoteHandler->getBillingAddress();
         $email = $billingAddress->getEmail();
         $phone = $billingAddress->getTelephone();
-        $description = __('Payment request from %1', $this->config->getStoreName());
+        $description = __('Payment request from %1', $this->config->getStoreName())->getText();
 
         return new FawrySource($email, $phone, $description, $products);
     }
@@ -600,10 +584,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $desciptor = __(
             'Payment request from %1',
             $this->config->getStoreName()
-        );
+        )->getText();
 
         return new BancontactSource($name, $country, $desciptor);
-        ;
     }
 
     /**
@@ -621,66 +604,58 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
-        try {
-            if ($this->backendAuthSession->isLoggedIn()) {
-                // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $storeCode = $payment->getOrder()->getStore()->getCode();
 
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
 
-                // Check the status
-                if (!$this->canVoid()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The void action is not available.')
-                    );
-                }
-
-                // Process the void request
-                $response = $api->voidOrder($payment);
-                if (!$api->isValidResponse($response)) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The void request could not be processed.')
-                    );
-                }
+            // Check the status
+            if (!$this->canVoid()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void action is not available.')
+                );
             }
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
-        } finally {
-            return $this;
+
+            // Process the void request
+            $response = $api->voidOrder($payment);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void request could not be processed.')
+                );
+            }
         }
+
+        return $this;
     }
 
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
-        try {
-            if ($this->backendAuthSession->isLoggedIn()) {
-                // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $storeCode = $payment->getOrder()->getStore()->getCode();
 
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
 
-                // Check the status
-                if (!$this->canRefund()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The refund action is not available.')
-                    );
-                }
-
-                // Process the refund request
-                $response = $api->refundOrder($payment, $amount);
-                if (!$api->isValidResponse($response)) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The refund request could not be processed.')
-                    );
-                }
+            // Check the status
+            if (!$this->canRefund()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The refund action is not available.')
+                );
             }
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
-        } finally {
-            return $this;
+
+            // Process the refund request
+            $response = $api->refundOrder($payment, $amount);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The refund request could not be processed.')
+                );
+            }
         }
+
+        return $this;
     }
 
     /**
@@ -691,18 +666,13 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        try {
-            if (parent::isAvailable($quote) && null !== $quote) {
-                return $this->config->getValue('active', $this->_code)
-                && count($this->config->getApms()) > 0
-                && !$this->backendAuthSession->isLoggedIn();
-            }
-
-            return false;
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getMessage());
-            return false;
+        if (parent::isAvailable($quote) && null !== $quote) {
+            return $this->config->getValue('active', $this->_code)
+            && count($this->config->getApms()) > 0
+            && !$this->backendAuthSession->isLoggedIn();
         }
+
+        return false;
     }
 
     /**

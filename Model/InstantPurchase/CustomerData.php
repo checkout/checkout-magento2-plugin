@@ -95,7 +95,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     /**
      * @inheritdoc
      */
-    public function getSectionData()
+    public function getSectionData() : array
     {
         // Set the instant purchase availability
         $data = ['available' => $this->isAvailable()];
@@ -103,40 +103,36 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
             return $data;
         }
         
-        try {
-            // Prepare the required data
-            $this->prepareData();
+        // Prepare the required data
+        $this->prepareData();
 
-            // Check if the option can be displayed
-            if (!$this->canDisplay()) {
-                return $data;
-            }
-
-            // Build the instant purchase data
-            $data += [
-                'paymentToken' => [
-                    'publicHash' => $this->paymentToken->getPublicHash(),
-                    'summary' => $this->paymentTokenFormatter->formatPaymentToken($this->paymentToken),
-                ],
-                'shippingAddress' => [
-                    'id' => $this->shippingAddress->getId(),
-                    'summary' => $this->customerAddressesFormatter->format($this->shippingAddress),
-                ],
-                'billingAddress' => [
-                    'id' => $this->billingAddress->getId(),
-                    'summary' => $this->customerAddressesFormatter->format($this->billingAddress),
-                ],
-                'shippingMethod' => [
-                    'carrier' => $this->shippingMethod->getCarrierCode(),
-                    'method' => $this->shippingMethod->getMethodCode(),
-                    'summary' => $this->shippingMethodFormatter->format($this->shippingMethod),
-                ]
-            ];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        } finally {
+        // Check if the option can be displayed
+        if (!$this->canDisplay()) {
             return $data;
         }
+
+        // Build the instant purchase data
+        $data += [
+            'paymentToken' => [
+                'publicHash' => $this->paymentToken->getPublicHash(),
+                'summary' => $this->paymentTokenFormatter->formatPaymentToken($this->paymentToken),
+            ],
+            'shippingAddress' => [
+                'id' => $this->shippingAddress->getId(),
+                'summary' => $this->customerAddressesFormatter->format($this->shippingAddress),
+            ],
+            'billingAddress' => [
+                'id' => $this->billingAddress->getId(),
+                'summary' => $this->customerAddressesFormatter->format($this->billingAddress),
+            ],
+            'shippingMethod' => [
+                'carrier' => $this->shippingMethod->getCarrierCode(),
+                'method' => $this->shippingMethod->getMethodCode(),
+                'summary' => $this->shippingMethodFormatter->format($this->shippingMethod),
+            ]
+        ];
+
+        return $data;
     }
 
     /**
@@ -144,21 +140,17 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
      */
     public function prepareData()
     {
-        try {
-            // Get the  payment token
-            $this->paymentToken = $this->vaultHandler->getLastSavedCard();
+        // Get the  payment token
+        $this->paymentToken = $this->vaultHandler->getLastSavedCard();
 
-            // Get the instant purchase option
-            $this->instantPurchaseOption = $this->loadOption();
+        // Get the instant purchase option
+        $this->instantPurchaseOption = $this->loadOption();
 
-            // Get the shipping and billing data
-            if ($this->instantPurchaseOption) {
-                $this->shippingAddress = $this->instantPurchaseOption->getShippingAddress();
-                $this->billingAddress = $this->instantPurchaseOption->getBillingAddress();
-                $this->shippingMethod = $this->instantPurchaseOption->getShippingMethod();
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
+        // Get the shipping and billing data
+        if ($this->instantPurchaseOption) {
+            $this->shippingAddress = $this->instantPurchaseOption->getShippingAddress();
+            $this->billingAddress = $this->instantPurchaseOption->getBillingAddress();
+            $this->shippingMethod = $this->instantPurchaseOption->getShippingMethod();
         }
     }
 
@@ -167,15 +159,10 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
      */
     public function loadOption()
     {
-        try {
-            return $this->instantPurchase->getOption(
-                $this->storeManager->getStore(),
-                $this->customerSession->getCustomer()
-            );
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        return $this->instantPurchase->getOption(
+            $this->storeManager->getStore(),
+            $this->customerSession->getCustomer()
+        );
     }
 
     /**

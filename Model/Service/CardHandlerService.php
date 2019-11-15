@@ -83,15 +83,10 @@ class CardHandlerService
      */
     public function getCardCode($scheme)
     {
-        try {
-            return array_search(
-                $scheme,
-                self::$cardMapper
-            );
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return '';
-        }
+        return array_search(
+            $scheme,
+            self::$cardMapper
+        );
     }
 
     /**
@@ -101,12 +96,7 @@ class CardHandlerService
      */
     public function getCardScheme($code)
     {
-        try {
-            return self::$cardMapper[$code];
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return '';
-        }
+        return self::$cardMapper[$code];
     }
 
     /**
@@ -116,15 +106,10 @@ class CardHandlerService
      */
     public function getCardIcon($code)
     {
-        try {
-            return $this->assetRepository
-                ->getUrl(
-                    'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
-                );
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return '';
-        }
+        return $this->assetRepository
+            ->getUrl(
+                'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+            );
     }
 
     /**
@@ -134,38 +119,33 @@ class CardHandlerService
      */
     public function getCardIcons()
     {
-        try {
-            // Prepare the output array
-            $output = [];
+        // Prepare the output array
+        $output = [];
 
-            // Get the selected cards
-            $selectedCards = explode(
-                ',',
-                $this->config->getValue(
-                    'card_icons',
-                    'checkoutcom_card_payment'
-                )
-            );
+        // Get the selected cards
+        $selectedCards = explode(
+            ',',
+            $this->config->getValue(
+                'card_icons',
+                'checkoutcom_card_payment'
+            )
+        );
 
-            // Build the cards list
-            foreach (self::$cardMapper as $code => $value) {
-                if (in_array($code, $selectedCards)) {
-                    $output[] = [
-                        'code' => $code,
-                        'name' => __($value),
-                        'url' => $this->assetRepository
-                        ->getUrl(
-                            'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
-                        )
-                    ];
-                }
+        // Build the cards list
+        foreach (self::$cardMapper as $code => $value) {
+            if (in_array($code, $selectedCards)) {
+                $output[] = [
+                    'code' => $code,
+                    'name' => __($value),
+                    'url' => $this->assetRepository
+                    ->getUrl(
+                        'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+                    )
+                ];
             }
-
-            return $output;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return '';
         }
+
+        return $output;
     }
 
     /**
@@ -175,14 +155,9 @@ class CardHandlerService
      */
     public function isCardActive($card)
     {
-        try {
-            return $card->getIsActive()
-            && $card->getIsVisible()
-            && $card->getPaymentMethodCode() == 'checkoutcom_vault';
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
-        }
+        return $card->getIsActive()
+        && $card->getIsVisible()
+        && $card->getPaymentMethodCode() == 'checkoutcom_vault';
     }
 
     /**
@@ -192,29 +167,24 @@ class CardHandlerService
      */
     public function isMadaBin($bin)
     {
-        try {
-            // Set the root path
-            $csvPath = $this->directoryReader->getModuleDir(
-                '',
-                'CheckoutCom_Magento2'
-            )  . '/' . $this->config->getMadaBinFile();
+        // Set the root path
+        $csvPath = $this->directoryReader->getModuleDir(
+            '',
+            'CheckoutCom_Magento2'
+        )  . '/' . $this->config->getMadaBinFile();
 
-            // Get the data
-            $csvData = $this->csvParser->getData($csvPath);
+        // Get the data
+        $csvData = $this->csvParser->getData($csvPath);
 
-            // Remove the first row of csv columns
-            unset($csvData[0]);
+        // Remove the first row of csv columns
+        unset($csvData[0]);
 
-            // Build the MADA BIN array
-            $binArray = [];
-            foreach ($csvData as $row) {
-                $binArray[] = $row[1];
-            }
-
-            return in_array($bin, $binArray);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
+        // Build the MADA BIN array
+        $binArray = [];
+        foreach ($csvData as $row) {
+            $binArray[] = $row[1];
         }
+
+        return in_array($bin, $binArray);
     }
 }

@@ -53,11 +53,6 @@ class Moto extends \Magento\Payment\Block\Form\Cc
     public $cardHandler;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * Moto constructor.
      */
     public function __construct(
@@ -66,8 +61,7 @@ class Moto extends \Magento\Payment\Block\Form\Cc
         \Magento\Backend\Model\Session\Quote $adminQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler
     ) {
         parent::__construct($context, $paymentModelConfig);
 
@@ -76,7 +70,6 @@ class Moto extends \Magento\Payment\Block\Form\Cc
         $this->config = $config;
         $this->vaultHandler = $vaultHandler;
         $this->cardHandler = $cardHandler;
-        $this->logger = $logger;
     }
 
     /**
@@ -86,13 +79,8 @@ class Moto extends \Magento\Payment\Block\Form\Cc
      */
     public function _toHtml()
     {
-        try {
-            $this->_eventManager->dispatch('payment_form_block_to_html_before', ['block' => $this]);
-            return parent::_toHtml();
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
+        $this->_eventManager->dispatch('payment_form_block_to_html_before', ['block' => $this]);
+        return parent::_toHtml();
     }
 
     /**
@@ -102,18 +90,13 @@ class Moto extends \Magento\Payment\Block\Form\Cc
      */
     public function canDisplayAdminCards()
     {
-        try {
-            // Get the customer id
-            $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();
+        // Get the customer id
+        $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();
 
-            // Return the check result
-            return $this->config->getValue('saved_cards_enabled', 'checkoutcom_moto')
-            && $this->config->getValue('active', 'checkoutcom_moto')
-            && $this->vaultHandler->userHasCards($customerId);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return false;
-        }
+        // Return the check result
+        return $this->config->getValue('saved_cards_enabled', 'checkoutcom_moto')
+        && $this->config->getValue('active', 'checkoutcom_moto')
+        && $this->vaultHandler->userHasCards($customerId);
     }
 
     /**
@@ -123,15 +106,10 @@ class Moto extends \Magento\Payment\Block\Form\Cc
      */
     public function getUserCards()
     {
-        try {
-            // Get the customer id
-            $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();
+        // Get the customer id
+        $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();
 
-            // Return the cards list
-            return $this->vaultHandler->getUserCards($customerId);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return [];
-        }
+        // Return the cards list
+        return $this->vaultHandler->getUserCards($customerId);
     }
 }

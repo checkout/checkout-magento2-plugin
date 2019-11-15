@@ -33,6 +33,11 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     public $context;
 
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager;
+
+    /**
      * @var PageFactory
      */
     public $pageFactory;
@@ -89,6 +94,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
@@ -99,6 +105,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
 
         parent::__construct($context);
 
+        $this->storeManager = $storeManager;
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
@@ -112,23 +119,23 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        try {
-            // Try to load a quote
-            $this->quote = $this->quoteHandler->getQuote();
-            $this->billingAddress = $this->quoteHandler->getBillingAddress();
-            $this->locale = str_replace('_', '-', $this->shopperHandler->getCustomerLocale());
+        // Get the request data
+        $quoteId = $this->getRequest()->getParam('quote_id');
+        $storeId = $this->getRequest()->getParam('store_id');
 
-            // Get Klarna
-            $klarna = $this->getKlarna();
+        // Try to load a quote
+        $this->quote = $this->quoteHandler->getQuote([
+            'entity_id' => $quoteId,
+            'store_id' => $storeId
+        ]);
 
-            return $this->jsonFactory->create()
-                ->setData($klarna);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
+        $this->billingAddress = $this->quoteHandler->getBillingAddress();
+        $this->locale = str_replace('_', '-', $this->shopperHandler->getCustomerLocale());
 
-            return $this->jsonFactory->create()
-                ->setData([]);
-        }
+        // Get Klarna
+        $klarna = $this->getKlarna();
+
+        return $this->jsonFactory->create()->setData($klarna);
     }
 
     /**
@@ -142,8 +149,11 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         $response = ['source' => false];
 
         try {
+            // Get the store code
+            $storeCode = $this->storeManager->getStore()->getCode();
+
             // Initialize the API handler
-            $api = $this->apiHandler->init();
+            $api = $this->apiHandler->init($storeCode);
 
             $products = $this->getProducts($response);
             $klarna = new Klarna(
@@ -158,9 +168,15 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
             $source = $api->checkoutApi->sources()->add($klarna);
 
             if ($source->isSuccessful()) {
+                // Prepare the response
                 $response['source'] = $source->getValues();
                 $response['billing'] = $this->billingAddress->toArray();
                 $response['quote'] = $this->quote->toArray();
+
+                // Handle missing email for guest checkout
+                if ($response['billing']['email'] === null || empty($response['billing']['email'])) {
+                    $response['billing']['email'] = $this->quoteHandler->findEmail();
+                }
             }
         } catch (\Exception $e) {
             $this->logger->write($e->getBody());

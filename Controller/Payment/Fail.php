@@ -23,9 +23,19 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 class Fail extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager;
+
+    /**
      * @var CheckoutApi
      */
     public $apiHandler;
+
+    /**
+     * @var QuoteHandlerService
+     */
+    public $quoteHandler;
 
     /**
      * @var Logger
@@ -37,12 +47,16 @@ class Fail extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
 
+        $this->storeManager = $storeManager;
         $this->apiHandler = $apiHandler;
+        $this->quoteHandler = $quoteHandler;
         $this->logger = $logger;
     }
 
@@ -51,27 +65,29 @@ class Fail extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        try {
-            // Get the session id
-            $sessionId = $this->getRequest()->getParam('cko-session-id', null);
-            if ($sessionId) {
-                // Initialize the API handler
-                $api = $this->apiHandler->init();
+        // Get the session id
+        $sessionId = $this->getRequest()->getParam('cko-session-id', null);
+        if ($sessionId) {
+            // Get the store code
+            $storeCode = $this->storeManager->getStore()->getCode();
 
-                // Get the payment details
-                $response = $api->getPaymentDetails($sessionId);
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
 
-                // Logging
-                $this->logger->display($response);
-                
-                // Display the message
-                $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        } finally {
-            // Return to the cart
-            return $this->_redirect('checkout/cart', ['_secure' => true]);
+            // Get the payment details
+            $response = $api->getPaymentDetails($sessionId);
+
+            // Restore the quote
+            $this->quoteHandler->restoreQuote($response->reference);
+
+            // Logging
+            $this->logger->display($response);
         }
+
+        // Display the message
+        $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
+
+        // Return to the cart
+        return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 }

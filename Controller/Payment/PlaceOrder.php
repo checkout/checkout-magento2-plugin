@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -25,6 +24,11 @@ use \Checkout\Models\Payments\Voids;
  */
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
+    /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager;
+
     /**
      * @var QuoteHandlerService
      */
@@ -95,6 +99,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Checkout\Model\Session $checkoutSession,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
@@ -107,6 +112,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
+        $this->storeManager = $storeManager;
         $this->jsonFactory = $jsonFactory;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
@@ -130,53 +136,67 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $message = '';
         $success = false;
 
-        try {
-            // Initialize the API handler
-            $api = $this->apiHandler->init();
+        // Try to load a quote
+        $this->quote = $this->quoteHandler->getQuote();
 
-            // Try to load a quote
-            $this->quote = $this->quoteHandler->getQuote();
+        // Set some required properties
+        $this->data = $this->getRequest()->getParams();
 
-            // Set some required properties
-            $this->data = $this->getRequest()->getParams();
+        // Process the request
+        if ($this->getRequest()->isAjax() && $this->quote) {
+            // Create an order
+            $order = $this->orderHandler
+                ->setMethodId($this->data['methodId'])
+                ->handleOrder($this->quote);
 
-            // Process the request
-            if ($this->getRequest()->isAjax() && $this->quote) {
+            // Process the payment
+            if ($this->orderHandler->isOrder($order)) {
                 // Get response and success
-                $response = $this->requestPayment();
+                $response = $this->requestPayment($order);
 
                 // Logging
                 $this->logger->display($response);
 
-                // Check success
+                // Get the store code
+                $storeCode = $this->storeManager->getStore()->getCode();
+                
+                // Process the response
+                $api = $this->apiHandler->init($storeCode);
                 if ($api->isValidResponse($response)) {
+                    // Get the payment details
+                    $paymentDetails = $api->getPaymentDetails($response->id);
+        
+                    // Add the payment info to the order
+                    $order = $this->utilities->setPaymentData($order, $response);
+        
+                    // Save the order
+                    $order->save();
+
+                    // Update the response parameters
                     $success = $response->isSuccessful();
                     $url = $response->getRedirection();
-                    if ($this->canPlaceOrder($response)) {
-                        $this->placeOrder($response);
-                    }
-                    else {
-                        $message = __('The order could not be placed.');
-                    }
                 } else {
                     // Payment failed
                     $message = __('The transaction could not be processed.');
+
+                    // Restore the quote
+                    $this->quoteHandler->restoreQuote($order->getIncrementId());
                 }
             } else {
-                $message = __('The request is invalid.');
+                // Payment failed
+                $message = __('The order could not be processed.');
             }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            $message = __($e->getMessage());
-        } finally {
-            return $this->jsonFactory->create()->setData(
-                [
-                    'success' => $success,
-                    'message' => $message,
-                    'url' => $url
-                ]
-            );
+        } else {
+            // Payment failed
+            $message = __('The request is invalid or there was no quote found.');
         }
+
+        // Return the json response
+        return $this->jsonFactory->create()->setData([
+            'success' => $success,
+            'message' => $message,
+            'url' => $url
+        ]);
     }
 
     /**
@@ -184,109 +204,21 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      *
      * @return Response
      */
-    public function requestPayment()
+    public function requestPayment($order)
     {
-        try {
-            // Send the charge request
-            return $this->methodHandler
-                ->get($this->data['methodId'])
-                ->sendPaymentRequest(
-                    $this->data,
-                    $this->quote->getGrandTotal(),
-                    $this->quote->getQuoteCurrencyCode(),
-                    $this->quoteHandler->getReference($this->quote)
-                );
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
-        }
-    }
+        // Get the method id
+        $methodId = $order->getPayment()
+        ->getMethodInstance()
+        ->getCode();
 
-    /**
-     * Checks if an order can be placed.
-     *
-     * @param array $response The response
-     *
-     * @return boolean
-     */
-    public function canPlaceOrder($response)
-    {
-        return !$response->isPending() || $this->data['source'] === 'sepa' || $this->data['source'] === 'fawry';
-    }
-
-    /**
-     * Handles the order placing process.
-     *
-     * @param array $response The response
-     *
-     * @return void
-     */
-    public function placeOrder($response = null)
-    {
-        try {
-            // Initialize the API handler
-            $api = $this->apiHandler->init();
-
-            // Get the reserved order increment id
-            $reservedIncrementId = $this->quoteHandler
-                ->getReference($this->quote);
-
-            // Get the payment details
-            $paymentDetails = $api->getPaymentDetails($response->id);
-
-            // Prepare the quote filters
-            $filters = $this->quoteHandler->prepareQuoteFilters(
-                $paymentDetails,
-                $reservedIncrementId
-            );
-
-            // Create an order
-            $order = $this->orderHandler
-                ->setMethodId($this->data['methodId'])
-                ->handleOrder($response, $filters);
-
-            // Add the payment info to the order
-            $order = $this->utilities
-                ->setPaymentData($order, $response);
-
-            // Save the order
-            $order->save();
-
-            // Check if the order is valid
-            if (!$this->orderHandler->isOrder($order)) {
-                $this->cancelPayment($response);
-                return null;
-            }
-
-            return $order;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        }
-    }
-
-    /**
-     * Cancels a payment.
-     *
-     * @param array $response The response
-     *
-     * @return void
-     */
-    public function cancelPayment($response)
-    {
-        try {
-            // Initialize the API handler
-            $api = $this->apiHandler->init();
-
-            // Refund or void accordingly
-            if ($this->config->needsAutoCapture($this->data['methodId'])) {
-                // Refund
-                $api->checkoutApi->payments()->refund(new Refund($response->getId()));
-            } else {
-                // Void
-                $api->checkoutApi->payments()->void(new Voids($response->getId()));
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        }
+        // Send the charge request
+        return $this->methodHandler
+        ->get($methodId)
+        ->sendPaymentRequest(
+            $this->data,
+            $order->getGrandTotal(),
+            $order->getOrderCurrencyCode(),
+            $order->getIncrementId()
+        );
     }
 }

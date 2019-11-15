@@ -103,7 +103,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
         $disabledAttributeString = $this->_isPaymentEnabled($element) ? '' : ' disabled="disabled"';
         $disabledClassString = $this->_isPaymentEnabled($element) ? '' : ' disabled';
         $htmlId = $element->getHtmlId();
-        $html .= '<div class="button-container">' . 
+        $html .= '<div class="button-container">' .
             $this->utilities->getModuleVersion('v') . '&nbsp;&nbsp;' .
             '<button type="button"' .
             $disabledAttributeString .

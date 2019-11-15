@@ -55,7 +55,7 @@ define(
              *
              * @return {void}
              */
-            loadCss: function(fileName, folderPath) {
+            loadCss: function (fileName, folderPath) {
                 // Prepare the folder path
                 folderPath = (folderPath) ? '/' + folderPath : '';
 
@@ -69,17 +69,17 @@ define(
 
                 // Append the CSS file
                 $('head').append('<link rel="stylesheet" href="' + cssPath + '" type="text/css"/>');
-            },  
+            },
 
             /**
              * Load a remote JS file
              *
              * @return {void}
              */
-            loadRemoteJs: function(jsUrl) {
+            loadRemoteJs: function (jsUrl) {
                 // Append the CSS file
                 $('head').append('<script type="text/javascript" src="' + jsUrl + '"></script>');
-            },  
+            },
 
             /**
              * Get the store name.
@@ -107,7 +107,7 @@ define(
              *
              * @return {object}  The quote data.
              */
-            getRestQuoteData: function() {
+            getRestQuoteData: function () {
                 // Prepare the required parameters
                 var self = this;
                 var result = null;
@@ -130,7 +130,7 @@ define(
                     dataType: "json",
                     async: false,
                     showLoader: true,
-                    success: function(data, status, xhr) {
+                    success: function (data, status, xhr) {
                         result = data;
                     },
                     error: function (request, status, error) {
@@ -208,7 +208,11 @@ define(
              * @returns {string}
              */
             getEmail: function () {
-                return window.checkoutConfig.customerData.email || Quote.guestEmail || CheckoutData.getValidatedEmailValue();
+                var emailCookieName = this.getValue(null, 'email_cookie_name');
+                return window.checkoutConfig.customerData.email
+                || Quote.guestEmail
+                || CheckoutData.getValidatedEmailValue()
+                || $.cookie(emailCookieName);
             },
 
             /**

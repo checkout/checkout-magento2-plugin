@@ -35,6 +35,11 @@ use \Checkout\Models\Payments\Voids;
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager;
+
+    /**
      * @var JsonFactory
      */
     public $jsonFactory;
@@ -80,11 +85,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $utilities;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * @var ShippingSelector
      */
     public $shippingSelector;
@@ -94,6 +94,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Catalog\Model\Product $productModel,
         \Magento\InstantPurchase\Model\QuoteManagement\ShippingConfiguration $shippingConfiguration,
@@ -103,11 +104,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger,
         \CheckoutCom\Magento2\Model\InstantPurchase\ShippingSelector $shippingSelector
     ) {
         parent::__construct($context);
 
+        $this->storeManager = $storeManager;
         $this->jsonFactory = $jsonFactory;
         $this->productModel = $productModel;
         $this->shippingConfiguration = $shippingConfiguration;
@@ -117,7 +118,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
-        $this->logger = $logger;
         $this->shippingSelector = $shippingSelector;
 
         // Try to load a quote
@@ -140,119 +140,80 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        // Try to place the order
-        try {
-            // Initialize the API handler
-            $api = $this->apiHandler->init();
+        // Get the store code
+        $storeCode = $this->storeManager->getStore()->getCode();
 
-            // Prepare a default error message
-            $message = __('An error occurred and the order could not be created.');
+        // Initialize the API handler
+        $api = $this->apiHandler->init($storeCode);
 
-            // Create the quote
-            $quote = $this->quoteHandler->createQuote();
-            $quote = $this->quoteHandler->addItems(
-                $quote,
-                $this->data
+        // Prepare a default error message
+        $message = __('An error occurred and the order could not be created.');
+
+        // Create the quote
+        $quote = $this->quoteHandler->createQuote();
+        $quote = $this->quoteHandler->addItems(
+            $quote,
+            $this->data
+        );
+
+        // Set the billing address
+        $billingAddress = $this->addressManager->load($this->data['instant_purchase_billing_address']);
+        $quote->getBillingAddress()->addData($billingAddress->getData());
+
+        // Get the shipping address
+        $shippingAddress = $this->addressManager->load($this->data['instant_purchase_shipping_address']);
+
+        // Prepare the quote
+        $quote->getShippingAddress()->addData($shippingAddress->getData());
+
+        // Set the shipping method
+        $shippingMethodCode = $this->shippingSelector->getShippingMethod($quote->getShippingAddress());
+        $quote->getShippingAddress()->setShippingMethod($shippingMethodCode)
+            ->setCollectShippingRates(true)
+            ->collectShippingRates();
+
+        // Set payment
+        $quote->setPaymentMethod($this->methodId);
+        $quote->setInventoryProcessed(false);
+        $quote->save();
+        $quote->getPayment()->importData(
+            ['method' => $this->methodId]
+        );
+
+        // Save the quote
+        $quote->collectTotals()->save();
+
+        // Create the order
+        $order = $this->orderHandler
+            ->setMethodId($this->methodId)
+            ->handleOrder($quote);
+
+        // Process the payment
+        $response = $this->methodHandler->get($this->methodId)
+        ->sendPaymentRequest(
+            $this->data,
+            $order->getGrandTotal(),
+            $order->getOrderCurrencyCode(),
+            $order->getIncrementId()
+        );
+
+        // Add the payment info to the order
+        $order = $this->utilities
+        ->setPaymentData($order, $response);
+
+        // Save the order
+        $order->save();
+
+        // Process a successful response
+        if ($api->isValidResponse($response)) {
+            // Prepare the user response
+            $message = __(
+                'Your order number %1 has been created successfully.',
+                $order->getIncrementId()
             );
-
-            // Set the billing address
-            $billingAddress = $this->addressManager->load($this->data['instant_purchase_billing_address']);
-            $quote->getBillingAddress()->addData($billingAddress->getData());
-
-            // Get the shipping address
-            $shippingAddress = $this->addressManager->load($this->data['instant_purchase_shipping_address']);
-
-            // Prepare the quote
-            $quote->getShippingAddress()->addData($shippingAddress->getData());
-
-            // Set the shipping method
-            $shippingMethodCode = $this->shippingSelector->getShippingMethod($quote->getShippingAddress());
-            $quote->getShippingAddress()->setShippingMethod($shippingMethodCode)
-                ->setCollectShippingRates(true)
-                ->collectShippingRates();
-
-            // Set payment
-            $quote->setPaymentMethod($this->methodId);
-            $quote->setInventoryProcessed(false);
-            $quote->save();
-            $quote->getPayment()->importData(
-                ['method' => $this->methodId]
-            );
-
-            // Save the quote
-            $quote->collectTotals()->save();
-
-            // Process the response
-            $response = $this->methodHandler
-                ->get($this->methodId)
-                ->sendPaymentRequest(
-                    $this->data,
-                    $quote->getGrandTotal(),
-                    $quote->getQuoteCurrencyCode(),
-                    $this->quoteHandler->getReference($quote)
-                );
-
-            // Process a successful response
-            if ($api->isValidResponse($response)) {
-                // Create the order
-                $order = $this->placeOrder($quote, $response);
-
-                // Prepare the user response
-                $message = __(
-                    'Your order number %1 has been created successfully.',
-                    $order->getIncrementId()
-                );
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return $this->createResponse(
-                $message,
-                false
-            );
-        } finally {
-            return $this->createResponse($message, true);
         }
-    }
 
-    /**
-     * Handles the order placing process.
-     *
-     * @param array $response The response
-     *
-     * @return void
-     */
-    public function placeOrder($quote, $response = null)
-    {
-        try {
-            // Get the reserved order increment id
-            $reservedIncrementId = $this->quoteHandler
-                ->getReference($quote);
-
-            // Create an order
-            $order = $this->orderHandler
-                ->setMethodId($this->methodId)
-                ->handleOrder(
-                    $response,
-                    ['increment_id' => $reservedIncrementId]
-                );
-
-            // Add the payment info to the order
-            $order = $this->utilities
-                ->setPaymentData($order, $response);
-
-            // Save the order
-            $order->save();
-
-            // Check if the order is valid
-            if (!$this->orderHandler->isOrder($order)) {
-                $this->cancelPayment($response);
-                return null;
-            }
-
-            return $order;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        }
+        return $this->createResponse($message, true);
     }
 
     /**
@@ -275,31 +236,5 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         }
 
         return $result;
-    }
-
-    /**
-     * Cancels a payment.
-     *
-     * @param array $response The response
-     *
-     * @return void
-     */
-    public function cancelPayment($response)
-    {
-        try {
-            // Initialize the API handler
-            $api = $this->apiHandler->init();
-
-            // Refund or void accordingly
-            if ($this->config->needsAutoCapture($this->methodId)) {
-                // Refund
-                $api->checkoutApi->payments()->refund(new Refund($response->getId()));
-            } else {
-                // Void
-                $api->checkoutApi->payments()->void(new Voids($response->getId()));
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        }
     }
 }

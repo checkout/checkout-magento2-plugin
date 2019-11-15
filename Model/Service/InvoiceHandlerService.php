@@ -46,11 +46,6 @@ class InvoiceHandlerService
     public $config;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * @var Order
      */
     public $order;
@@ -67,14 +62,12 @@ class InvoiceHandlerService
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Sales\Model\Order\Invoice $invoiceModel,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->invoiceService     = $invoiceService;
         $this->invoiceRepository  = $invoiceRepository;
         $this->invoiceModel       = $invoiceModel;
         $this->config             = $config;
-        $this->logger             = $logger;
     }
 
     /**
@@ -82,22 +75,17 @@ class InvoiceHandlerService
      */
     public function processInvoice($order, $transaction = null)
     {
-        try {
-            // Set required properties
-            $this->order = $order;
-            $this->transaction = $transaction;
+        // Set required properties
+        $this->order = $order;
+        $this->transaction = $transaction;
 
-            // Handle the invoice
-            if ($this->needsInvoicing()) {
-                $this->createInvoice();
-            }
-
-            // Return the order
-            return $this->order;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+        // Handle the invoice
+        if ($this->needsInvoicing()) {
+            $this->createInvoice();
         }
+
+        // Return the order
+        return $this->order;
     }
 
     /**
@@ -105,28 +93,23 @@ class InvoiceHandlerService
      */
     public function createInvoice()
     {
-        try {
-            // Prepare the invoice
-            $invoice = $this->invoiceService->prepareInvoice($this->order);
+        // Prepare the invoice
+        $invoice = $this->invoiceService->prepareInvoice($this->order);
 
-            // Set the invoice transaction ID
-            if ($this->transaction) {
-                $invoice->setTransactionId($this->transaction->getTxnId());
-            }
-
-            // Set the invoice state
-            $invoice = $this->setInvoiceState($invoice);
-
-            // Finalize the invoice
-            $invoice->setBaseGrandTotal($this->order->getGrandTotal());
-            $invoice->register();
-
-            // Save the invoice
-            $this->invoiceRepository->save($invoice);
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+        // Set the invoice transaction ID
+        if ($this->transaction) {
+            $invoice->setTransactionId($this->transaction->getTxnId());
         }
+
+        // Set the invoice state
+        $invoice = $this->setInvoiceState($invoice);
+
+        // Finalize the invoice
+        $invoice->setBaseGrandTotal($this->order->getGrandTotal());
+        $invoice->register();
+
+        // Save the invoice
+        $this->invoiceRepository->save($invoice);
     }
 
     /**
@@ -134,25 +117,8 @@ class InvoiceHandlerService
      */
     public function needsInvoicing()
     {
-        return $this->needsCaptureInvoice() || $this->needsAuthorizationInvoice();
-    }
-
-    /**
-     * Check if a transaction is capture type.
-     */
-    public function needsCaptureInvoice()
-    {
-        return $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE
-        && $this->config->getValue('invoice_generation') == 'authorize_capture';
-    }
-
-    /**
-     * Check if a transaction is authorization type.
-     */
-    public function needsAuthorizationInvoice()
-    {
-        return $this->transaction->getTxnType() == Transaction::TYPE_AUTH
-        && $this->config->getValue('invoice_generation') == 'authorize';
+        return $this->transaction
+        && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE;
     }
 
     /**
@@ -160,44 +126,40 @@ class InvoiceHandlerService
      */
     public function setInvoiceState($invoice)
     {
-        try {
-            if ($this->needsCaptureInvoice()) {
-                $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
-                $invoice->setCanVoidFlag(false);
-            } elseif ($this->needsAuthorizationInvoice()) {
-                $invoice->setState(Invoice::STATE_OPEN);
-                $invoice->setRequestedCaptureCase(Invoice::NOT_CAPTURE);
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-        } finally {
-            return $invoice;
+        if ($this->needsInvoicing()) {
+            $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+            $invoice->setCanVoidFlag(false);
         }
+
+        return $invoice;
     }
 
     /**
-     * Load order invoices.
+     * Load an order invoice.
      */
     public function getInvoice($order)
     {
-        try {
-            // Get the invoices collection
-            $invoices = $order->getInvoiceCollection();
+        // Get the invoices collection
+        $invoices = $order->getInvoiceCollection();
 
-            // Retrieve the invoice increment id
-            if (!empty($invoices)) {
-                foreach ($invoices as $item) {
-                    $invoiceIncrementId = $item->getIncrementId();
-                }
-
-                // Load an invoice
-                return $this->invoiceModel->loadByIncrementId($invoiceIncrementId);
+        // Retrieve the invoice increment id
+        if (!empty($invoices)) {
+            foreach ($invoices as $item) {
+                $invoiceIncrementId = $item->getIncrementId();
             }
 
-            return null;
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
-            return null;
+            // Load an invoice
+            return $this->invoiceModel->loadByIncrementId($invoiceIncrementId);
         }
+
+        return null;
+    }
+
+    /**
+     * Load all order invoices.
+     */
+    public function getInvoices($order)
+    {
+        return $order->getInvoiceCollection();
     }
 }
