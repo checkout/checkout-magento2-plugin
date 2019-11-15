@@ -67,11 +67,15 @@ class PaymentErrorHandlerService
 
         // Prepare the failed transaction info
         $suffix = __(
-            ' for an amount of %1. Action ID: %2. Event ID: %3. Payment ID: %4.',
+            ' for an amount of %1. Action ID: %2. Event ID: %3. Payment ID: %4. Error: %5 %6',
             $this->prepareAmount($response->data->amount),
             $response->data->action_id,
             $response->id,
-            $response->data->id
+            $response->data->id,
+            $response->data->response_code,
+            !empty($response->data->response_summary)
+            ? $response->data->response_summary
+            : __('Not specified.')
         );
 
         // Add the order comment
