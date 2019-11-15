@@ -186,7 +186,7 @@ class Callback extends \Magento\Framework\App\Action\Action
             }
         } else {
             $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
-            return $resultFactory->setData(['error_message' => __('Unauthorized request.')]);
+            return $resultFactory->setData(['error_message' => __('Unauthorized request. No matching private shared key.')]);
         }
     }
 
