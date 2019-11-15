@@ -8,12 +8,15 @@ Close,Close
 "An error occurred and the order could not be created.","An error occurred and the order could not be created."
 "Your order number %1 has been created successfully.","Your order number %1 has been created successfully."
 "The transaction could not be processed.","The transaction could not be processed."
-"The order could not be placed.","The order could not be placed."
-"The request is invalid.","The request is invalid."
+"The order could not be processed.","The order could not be processed."
+"The request is invalid or there was no quote found.","The request is invalid or there was no quote found."
 "The transaction could not be processed or has been cancelled.","The transaction could not be processed or has been cancelled."
+"Invalid request. No order found.","Invalid request. No order found."
+"Invalid request. No session ID found.","Invalid request. No session ID found."
+"Webhook and order successfully processed.","Webhook and order successfully processed."
 "The order creation failed. Please check the error logs.","The order creation failed. Please check the error logs."
-"The order was not created because of an invalid or failed payment.","The order was not created because of an invalid or failed payment."
 "The webhook payment response is invalid.","The webhook payment response is invalid."
+"Unauthorized request. No matching private shared key.","Unauthorized request. No matching private shared key."
 Black,Black
 White,White
 "White with line","White with line"
@@ -28,9 +31,6 @@ Standard,Standard
 Simple,Simple
 JCB,JCB
 Discover,Discover
-Disable,Disable
-"Payment authorized","Payment authorized"
-"Payment captured","Payment captured"
 English,English
 Spanish,Spanish
 German,German
@@ -38,6 +38,8 @@ Korean,Korean
 French,French
 Italian,Italian
 Dutch,Dutch
+Processing,Processing
+Pending,Pending
 Authorize,Authorize
 "Authorize and Capture","Authorize and Capture"
 "Single iframe","Single iframe"
@@ -47,19 +49,18 @@ Authorize,Authorize
 "The void request could not be processed.","The void request could not be processed."
 "The refund action is not available.","The refund action is not available."
 "The refund request could not be processed.","The refund request could not be processed."
-"The capture action is not available.","The capture action is not available."
-"The capture request could not be processed.","The capture request could not be processed."
 "The CVV value is required.","The CVV value is required."
-"The order increment id is required for the handleOrder method.","The order increment id is required for the handleOrder method."
+"There is no quote available to place an order.","There is no quote available to place an order."
 "A payment method ID is required to place an order.","A payment method ID is required to place an order."
+" for an amount of %1. Action ID: %2. Event ID: %3. Payment ID: %4. Error: %5 %6"," for an amount of %1. Action ID: %2. Event ID: %3. Payment ID: %4. Error: %5 %6"
 "This card is already saved.","This card is already saved."
 ending,ending
 expires,expires
 "The payment request was successfully processed.","The payment request was successfully processed."
 "The transaction could not be processed. Please check the payment details.","The transaction could not be processed. Please check the payment details."
-"The gateway declined a MOTO payment request.","The gateway declined a MOTO payment request."
+"The capture request was successfully processed.","The capture request was successfully processed."
+"The capture request could not be processed.","The capture request could not be processed."
 "Please provide the required card information for the MOTO payment.","Please provide the required card information for the MOTO payment."
-"Missing required card information for the MOTO payment.","Missing required card information for the MOTO payment."
 CVV,CVV
 "Get your credentials <a href=""https://www.checkout.com/"">here</a>.","Get your credentials <a href=""https://www.checkout.com/"">here</a>."
 "Add a card","Add a card"
@@ -76,6 +77,7 @@ Name,Name
 "Birth date","Birth date"
 BIC,BIC
 Description,Description
+"Could not load the Klarna script.","Could not load the Klarna script."
 "Account IBAN","Account IBAN"
 Continue,Continue
 "SEPA Direct Debit Mandate for single payment","SEPA Direct Debit Mandate for single payment"
