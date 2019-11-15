@@ -35,7 +35,8 @@ class Callback extends \Magento\Framework\App\Action\Action
         'payment_captured' => Transaction::TYPE_CAPTURE,
         'payment_refunded' => Transaction::TYPE_REFUND,
         'payment_voided' => Transaction::TYPE_VOID,
-        'payment_pending' => 'payment_pending'
+        'payment_pending' => 'payment_pending',
+        'payment_declined' => 'payment_declined'
     ];
 
     /**
@@ -79,6 +80,11 @@ class Callback extends \Magento\Framework\App\Action\Action
     public $vaultHandler;
 
     /**
+     * @var PaymentErrorHandlerService
+     */
+    public $paymentErrorHandler;
+
+    /**
      * @var Config
      */
     public $config;
@@ -101,6 +107,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
@@ -114,6 +121,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         $this->shopperHandler = $shopperHandler;
         $this->transactionHandler = $transactionHandler;
         $this->vaultHandler = $vaultHandler;
+        $this->paymentErrorHandler = $paymentErrorHandler;
         $this->config = $config;
         $this->utilities = $utilities;
     }
@@ -141,19 +149,20 @@ class Callback extends \Magento\Framework\App\Action\Action
 
                 // Get the payment details
                 $response = $api->getPaymentDetails($this->payload->data->id);
-                if ($api->isValidResponse($response)) {
-                    // Handle the save card request
-                    if ($this->cardNeedsSaving()) {
-                        $this->saveCard($response);
-                    }
 
-                    // Find the order from increment id
-                    $order = $this->orderHandler->getOrder([
-                        'increment_id' => $response->reference
-                    ]);
+                // Find the order from increment id
+                $order = $this->orderHandler->getOrder([
+                    'increment_id' => $response->reference
+                ]);
 
-                    // Process the order
-                    if ($this->orderHandler->isOrder($order)) {
+                // Process the order
+                if ($this->orderHandler->isOrder($order)) {
+                    if ($api->isValidResponse($response)) {
+                        // Handle the save card request
+                        if ($this->cardNeedsSaving()) {
+                            $this->saveCard($response);
+                        }
+
                         // Handle the transaction
                         $order = $this->transactionHandler->createTransaction(
                             $order,
@@ -166,16 +175,25 @@ class Callback extends \Magento\Framework\App\Action\Action
 
                         // Set a valid response
                         $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
+
+                        // Return the 200 success response
                         return $resultFactory->setData([
                             'result' => __('Webhook and order successfully processed.')
                         ]);
                     }
                     else {
-                        $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
-                        return $resultFactory->setData([
-                            'error_message' => __('The order creation failed. Please check the error logs.')
-                        ]);
+                        // Log the payment error
+                        $this->paymentErrorHandler->logError(
+                            $this->payload,
+                            $order
+                        );                  
                     }
+                }
+                else {
+                    $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
+                    return $resultFactory->setData([
+                        'error_message' => __('The order creation failed. Please check the error logs.')
+                    ]);
                 }
             }
             else {

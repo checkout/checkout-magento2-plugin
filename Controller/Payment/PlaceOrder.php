@@ -160,6 +160,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 // Get the store code
                 $storeCode = $this->storeManager->getStore()->getCode();
                 
+                // Process the response
                 $api = $this->apiHandler->init($storeCode);
                 if ($api->isValidResponse($response)) {
                     // Get the payment details
