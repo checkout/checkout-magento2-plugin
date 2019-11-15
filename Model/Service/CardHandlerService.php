@@ -55,25 +55,18 @@ class CardHandlerService
     public $config;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * CardHandlerService constructor.
      */
     public function __construct(
         \Magento\Framework\View\Asset\Repository $assetRepository,
         \Magento\Framework\Module\Dir\Reader $directoryReader,
         \Magento\Framework\File\Csv $csvParser,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->assetRepository = $assetRepository;
         $this->directoryReader = $directoryReader;
         $this->csvParser = $csvParser;
         $this->config = $config;
-        $this->logger = $logger;
     }
 
     /**
