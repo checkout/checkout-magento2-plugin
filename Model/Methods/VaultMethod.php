@@ -21,6 +21,7 @@ use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\ThreeDs;
 use \Checkout\Models\Payments\BillingDescriptor;
+use \Checkout\Library\Exceptions\CheckoutHttpException;
 
 /**
  * Class VaultMethod.
@@ -312,7 +313,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 ->request($request);
 
             return $response;
-        } catch (\Exception $e) {
+        } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
             return null;
         }
@@ -355,7 +356,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 // Set the transaction id from response
                 $payment->setTransactionId($response->action_id);
             }
-        } catch (\Exception $e) {
+        } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;
@@ -400,7 +401,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 // Set the transaction id from response
                 $payment->setTransactionId($response->action_id);
             }
-        } catch (\Exception $e) {
+        } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;

@@ -19,6 +19,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
 use \Checkout\Models\Payments\BillingDescriptor;
+use \Checkout\Library\Exceptions\CheckoutHttpException;
 
 /**
  * Class MotoMethod
@@ -196,7 +197,7 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 // Set the transaction id from response
                 $payment->setTransactionId($response->action_id);
             }
-        } catch (\Exception $e) {
+        } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;
@@ -241,7 +242,7 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 // Set the transaction id from response
                 $payment->setTransactionId($response->action_id);
             }
-        } catch (\Exception $e) {
+        } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;
