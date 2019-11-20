@@ -45,6 +45,11 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     public $messageManager;
 
     /**
+     * @var Registry
+     */
+    public $registry;
+
+    /**
      * @var ApiHandlerService
      */
     public $apiHandler;
@@ -116,6 +121,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\App\RequestInterface $request,
         \Magento\Framework\Message\ManagerInterface $messageManager,
+        \Magento\Framework\Registry $registry,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
@@ -127,6 +133,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
         $this->messageManager = $messageManager;
+        $this->registry = $registry;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->vaultHandler = $vaultHandler;
@@ -239,6 +246,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         return $this->backendAuthSession->isLoggedIn()
         && isset($this->params['ckoCardToken'])
         && $this->methodId == 'checkoutcom_moto'
+        && !$this->registry->registry('backend_moto_success')
         && !$this->transactionHandler->hasTransaction(
             Transaction::TYPE_AUTH,
             $this->order
@@ -255,6 +263,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         && isset($this->params['invoice']['capture_case'])
         && $this->params['invoice']['capture_case'] == 'online'
         && ($this->payment->canCapturePartial() || $this->payment->canCapture())
+        && !$this->registry->registry('backend_capture_success')
         && $this->transactionHandler->hasTransaction(
             Transaction::TYPE_AUTH,
             $this->order
@@ -268,7 +277,8 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     {
         // Return the test
         return $this->backendAuthSession->isLoggedIn()
-        && $this->request->getActionName() == 'voidPayment';
+        && $this->request->getActionName() == 'voidPayment'
+        && !$this->registry->registry('backend_void_success');
     }
 
     /**
@@ -295,7 +305,14 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         // Allow void only if there are no previous captures
         if (!$authTransaction) {
             // Send the void request
-            return $this->api->voidOrder($this->payment);
+            $response = $this->api->voidOrder($this->payment);
+            
+            // Set a success registry value
+            if ($this->api->isValidResponse($response)) {
+                $this->registry->register('backend_void_success', true);
+            }
+
+            return $response;
         }
         else {
             $msg  = 'An order with a previous full or partial capture ';
@@ -331,7 +348,14 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         }
 
         // Process the request
-        return $this->api->checkoutApi->payments()->capture($request);
+        $response = $this->api->checkoutApi->payments()->capture($request);
+
+        // Set a registry value
+        if ($this->api->isValidResponse($response)) {
+            $this->registry->register('backend_capture_success', true);
+        }
+
+        return $response;
     }
 
     /**
@@ -376,7 +400,14 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         }
 
         // Send the charge request
-        return $this->api->checkoutApi->payments()->request($request);
+        $response = $this->api->checkoutApi->payments()->request($request);
+
+        // Set a success registry value
+        if ($this->api->isValidResponse($response)) {
+            $this->registry->register('backend_moto_success', true);
+        }
+
+        return $response;
     }
 
     /**
