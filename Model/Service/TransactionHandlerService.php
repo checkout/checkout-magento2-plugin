@@ -244,7 +244,10 @@ class TransactionHandlerService
 
         // Handle the capture logic
         if ($parentTransaction) {
+            // Close the authorization transaction
             $parentTransaction->close();
+
+            // Set the parent transaction id for the current transaction
             $this->transaction->setParentTxnId(
                 $parentTransaction->getTxnId()
             );
@@ -254,12 +257,6 @@ class TransactionHandlerService
                 'order_status_captured',
                 Order::STATE_PROCESSING
             );
-
-            // Add order comment
-            $this->addOrderComment('The captured amount is %1.');
-
-            // Set the total paid
-            $this->order->setTotalPaid($this->order->getGrandTotal());
 
             // Allow refund
             $this->transaction->setIsClosed(0);
@@ -272,10 +269,17 @@ class TransactionHandlerService
 
             // Custom invoice handling only if it's not admin capture
             if (!isset($this->paymentData['data']['metadata']['isBackendCapture'])) {
+                // Process the invoice
                 $this->order = $this->invoiceHandler->processInvoice(
                     $this->order,
                     $this->transaction
                 );
+
+                // Set the total paid
+                $this->order->setTotalPaid($this->order->getGrandTotal());
+
+                // Add order comment
+                $this->addOrderComment('The captured amount is %1.');
             } else {
                 // Get the payment amount
                 $paymentAmount = $this->utilities->formatDecimals(
