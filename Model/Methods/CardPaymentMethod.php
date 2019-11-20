@@ -22,8 +22,6 @@ use \Checkout\Models\Payments\ThreeDs;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\BillingDescriptor;
 use \Checkout\Library\Exceptions\CheckoutHttpException;
-use Magento\Sales\Model\Order\Payment\Transaction;
-use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 
 /**
  * Class CardPaymentMethod
@@ -101,11 +99,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $cardHandler;
 
     /**
-     * @var TransactionHandlerService
-     */
-    public $transactionHandler;
-
-    /**
      * @var Config
      */
     public $config;
@@ -166,7 +159,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -203,7 +195,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->storeManager       = $storeManager;
         $this->quoteHandler       = $quoteHandler;
         $this->cardHandler        = $cardHandler;
-        $this->transactionHandler = $transactionHandler;
         $this->ckoLogger          = $ckoLogger;
     }
 
@@ -309,69 +300,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
             return null;
-        }
-    }
-
-    /**
-     * Perform a void request.
-     *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
-     *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
-     */
-    public function void(\Magento\Payment\Model\InfoInterface $payment)
-    {
-        try {
-            if ($this->backendAuthSession->isLoggedIn()) {
-                // Get the order
-                $order = $payment->getOrder();
-
-                // Get the store code
-                $storeCode = $order->getStore()->getCode();
-
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
-
-                // Check the status
-                if (!$this->canVoid()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The void action is not available.')
-                    );
-                }
-
-                // Check for previous captures
-                $authTransaction = $this->transactionHandler->hasTransaction(
-                    Transaction::TYPE_AUTH,
-                    $order
-                );
-
-                // Process the void request only if there are no previous captures
-                if (!$authTransaction) {
-                    $response = $api->voidOrder($payment);
-                    if (!$api->isValidResponse($response)) {
-                        throw new \Magento\Framework\Exception\LocalizedException(
-                            __('The void request could not be processed.')
-                        );
-                    }
-                }
-                else {
-                    $msg  = 'An order with a previous full or partial capture ';
-                    $msg .= 'cannot be voided by the gateway.';
-                    $msg .= 'Please use the cancel action instead.';
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __($msg)
-                    );
-                }
-
-                // Set the transaction id from response
-                $payment->setTransactionId($response->action_id);
-            }
-        } catch (CheckoutHttpException $e) {
-            $this->ckoLogger->write($e->getBody());
-        } finally {
-            return $this;
         }
     }
 
