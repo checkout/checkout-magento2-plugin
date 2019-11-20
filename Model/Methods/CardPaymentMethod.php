@@ -22,6 +22,8 @@ use \Checkout\Models\Payments\ThreeDs;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\BillingDescriptor;
 use \Checkout\Library\Exceptions\CheckoutHttpException;
+use Magento\Sales\Model\Order\Payment\Transaction;
+use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 
 /**
  * Class CardPaymentMethod
@@ -99,6 +101,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $cardHandler;
 
     /**
+     * @var TransactionHandlerService
+     */
+    public $transactionHandler;
+
+    /**
      * @var Config
      */
     public $config;
@@ -159,6 +166,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -195,6 +203,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->storeManager       = $storeManager;
         $this->quoteHandler       = $quoteHandler;
         $this->cardHandler        = $cardHandler;
+        $this->transactionHandler = $transactionHandler;
         $this->ckoLogger          = $ckoLogger;
     }
 
@@ -316,8 +325,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             if ($this->backendAuthSession->isLoggedIn()) {
+                // Get the order
+                $order = $payment->getOrder();
+
                 // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
+                $storeCode = $order->getStore()->getCode();
 
                 // Initialize the API handler
                 $api = $this->apiHandler->init($storeCode);
@@ -329,11 +341,27 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                     );
                 }
 
-                // Process the void request
-                $response = $api->voidOrder($payment);
-                if (!$api->isValidResponse($response)) {
+                // Check for previous captures
+                $authTransaction = $this->transactionHandler->hasTransaction(
+                    Transaction::TYPE_AUTH,
+                    $order
+                );
+
+                // Process the void request only if there are no previous captures
+                if (!$authTransaction) {
+                    $response = $api->voidOrder($payment);
+                    if (!$api->isValidResponse($response)) {
+                        throw new \Magento\Framework\Exception\LocalizedException(
+                            __('The void request could not be processed.')
+                        );
+                    }
+                }
+                else {
+                    $msg  = 'An order with a previous full or partial capture ';
+                    $msg .= 'cannot be voided by the gateway.';
+                    $msg .= 'Please use the cancel action instead.';
                     throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The void request could not be processed.')
+                        __($msg)
                     );
                 }
 
