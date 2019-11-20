@@ -68,6 +68,11 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     public $shopperHandler;
 
     /**
+     * @var Utilities
+     */
+    public $utilities;
+
+    /**
      * @var Logger
      */
     public $logger;
@@ -100,6 +105,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
 
@@ -111,6 +117,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
         $this->shopperHandler = $shopperHandler;
+        $this->utilities = $utilities;
         $this->logger = $logger;
     }
 
