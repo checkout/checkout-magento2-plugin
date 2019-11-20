@@ -160,7 +160,12 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
                 strtolower($this->billingAddress->getCountry()),
                 $this->quote->getQuoteCurrencyCode(),
                 $this->locale,
-                $this->quote->getGrandTotal() *100,
+                $this->quoteHandler->amountToGateway(
+                    $this->utilities->formatDecimals(
+                        $this->quote->getGrandTotal()
+                    ),
+                    $quote
+                ),
                 $response['tax_amount'],
                 $products
             );
