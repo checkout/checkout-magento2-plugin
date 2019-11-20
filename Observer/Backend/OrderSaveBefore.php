@@ -353,6 +353,16 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         // Set a registry value
         if ($this->api->isValidResponse($response)) {
             $this->registry->register('backend_capture_success', true);
+
+            // Lock the auth transaction
+            $authTransaction = $this->transactionHandler->hasTransaction(
+                Transaction::TYPE_AUTH,
+                $this->order
+            );
+            if ($authTransaction) {
+                $authTransaction->setIsClosed(1);
+                $authTransaction->save();
+            }
         }
 
         return $response;
