@@ -359,9 +359,9 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                 Transaction::TYPE_AUTH,
                 $this->order
             );
-            if ($authTransaction) {
-                $authTransaction->setIsClosed(1);
-                $authTransaction->save();
+            if (isset($authTransaction[0]) && $authTransaction[0]) {
+                $authTransaction[0]->setIsClosed(1);
+                $authTransaction[0]->save();
             }
         }
 
