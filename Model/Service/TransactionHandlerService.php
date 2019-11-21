@@ -231,6 +231,11 @@ class TransactionHandlerService
                 $order->setCanSendNewEmailFlag(true);
                 $this->orderSender->send($this->order, true);
             }
+
+            // Save the data
+            $this->payment->save();
+            $this->transaction->save();
+            $this->order->save();
         }
     }
 
@@ -300,6 +305,11 @@ class TransactionHandlerService
                     $parentTransaction->save();
                 }
             }
+
+            // Save the data
+            $this->payment->save();
+            $this->transaction->save();
+            $this->order->save();
         }
     }
 
@@ -321,13 +331,18 @@ class TransactionHandlerService
 
             // Lock the transaction
             $this->transaction->setIsClosed(1);
-        }
 
-        // Set the order status
-        $this->setOrderStatus(
-            'order_status_voided',
-            'order_status_voided'
-        );
+            // Set the order status
+            $this->setOrderStatus(
+                'order_status_voided',
+                'order_status_voided'
+            );
+
+            // Save the data
+            $this->payment->save();
+            $this->transaction->save();
+            $this->order->save();
+        }
     }
 
     /**
@@ -375,6 +390,11 @@ class TransactionHandlerService
                     'order_status_refunded_partial'
                 );
             }
+
+            // Save the data
+            $this->payment->save();
+            $this->transaction->save();
+            $this->order->save();
         }
     }
 
@@ -453,16 +473,6 @@ class TransactionHandlerService
             ->formatTxt(
                 $this->order->getGrandTotal()
             );
-    }
-    
-    /**
-     * Save the required data.
-     */
-    public function saveData()
-    {
-        $this->payment->save();
-        $this->transaction->save();
-        $this->order->save();
     }
 
     /**
