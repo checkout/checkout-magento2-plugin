@@ -114,25 +114,25 @@ class TransactionHandlerService
      */
     public function createTransaction($order, $transactionType, $data = null)
     {
-        // Prepare the needed elements
-        $this->prepareData($order, $transactionType, $data);
+        // Prepare parameters
+        $this->prepareParameters($order);
 
         // Process the transaction
-        switch ($this->transactionType) {
+        switch ($transactionType) {
             case Transaction::TYPE_AUTH:
-                $this->handleAuthorization();
+                $this->handleAuthorization($order, $transactionType, $data);
                 break;
 
             case Transaction::TYPE_CAPTURE:
-                $this->handleCapture();
+                $this->handleCapture($order, $transactionType, $data);
                 break;
 
             case Transaction::TYPE_VOID:
-                $this->handleVoid();
+                $this->handleVoid($order, $transactionType, $data);
                 break;
 
             case Transaction::TYPE_REFUND:
-                $this->handleRefund();
+                $this->handleRefund($order, $transactionType, $data);
                 break;
         }
 
@@ -173,11 +173,22 @@ class TransactionHandlerService
     /**
      * Prepare the required instance properties.
      */
-    public function prepareData($order, $transactionType, $data)
+    public function prepareParameters($order)
     {
         // Assign the order
         $this->order = $order;
 
+        // Assign the method ID
+        $this->methodId = $this->order->getPayment()
+        ->getMethodInstance()
+        ->getCode();
+    }
+
+    /**
+     * Prepare the required instance data.
+     */
+    public function prepareData($order, $transactionType, $data)
+    {
         // Assign the transaction type
         $this->transactionType = $transactionType;
 
@@ -185,9 +196,6 @@ class TransactionHandlerService
         $this->paymentData = $data
         ? $this->utilities->objectToArray($data)
         : $this->utilities->getPaymentData($this->order);
-
-        // Assign the method ID
-        $this->methodId = $this->getMethodId();
 
         // Prepare the payment
         $this->payment = $this->buildPayment();
@@ -201,13 +209,18 @@ class TransactionHandlerService
     /**
      * Process an authorization request.
      */
-    public function handleAuthorization()
+    public function handleAuthorization($order, $transactionType, $data)
     {
+        // Handle authorization
         $authTransaction = $this->hasTransaction(
             Transaction::TYPE_AUTH,
             $this->order
         );
+
         if (!$authTransaction) {
+            // Prepare the data
+            $this->prepareData($order, $transactionType, $data);
+
             // Set the order status
             $this->setOrderStatus(
                 'order_status_authorized',
@@ -239,13 +252,16 @@ class TransactionHandlerService
     /**
      * Process a capture request.
      */
-    public function handleCapture()
+    public function handleCapture($order, $transactionType, $data)
     {
         // Get the parent transaction
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
 
         // Handle the capture logic
         if ($parentTransaction) {
+            // Prepare the data
+            $this->prepareData($order, $transactionType, $data);
+
             // Close the authorization transaction
             $parentTransaction->close();
 
@@ -313,10 +329,14 @@ class TransactionHandlerService
     /**
      * Process a void request.
      */
-    public function handleVoid()
+    public function handleVoid($order, $transactionType, $data)
     {
+        // Process teh void logic
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
         if ($parentTransaction) {
+            // Prepare the data
+            $this->prepareData($order, $transactionType, $data);
+
             // Set the parent transaction id
             $parentTransaction->close();
             $this->transaction->setParentTxnId(
@@ -345,10 +365,14 @@ class TransactionHandlerService
     /**
      * Process a refund request.
      */
-    public function handleRefund()
+    public function handleRefund($order, $transactionType, $data)
     {
+        // Process the refund logic
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_CAPTURE);
         if ($parentTransaction) {
+            // Prepare the data
+            $this->prepareData($order, $transactionType, $data);
+
             // Set the parent transaction id
             $parentTransaction->close();
             $this->transaction->setParentTxnId(
@@ -449,16 +473,6 @@ class TransactionHandlerService
         );
 
         return !empty($transactions) ? $transactions : false;
-    }
-
-    /**
-     * Get the order method ID.
-     */
-    public function getMethodId()
-    {
-        return $this->order->getPayment()
-            ->getMethodInstance()
-            ->getCode();
     }
 
     /**
