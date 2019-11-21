@@ -396,20 +396,24 @@ class TransactionHandlerService
             // Refund
             $this->creditMemoService->refund($creditMemo);
 
-            // Lock the transaction
-            $this->transaction->setIsClosed(1);
-
-            // Apply the order status
+            // Update the order
             if ($this->order->getGrandTotal() == $this->order->getTotalRefunded()) {
+                // Order status
                 $this->setOrderStatus(
                     'order_status_refunded',
                     'order_status_refunded'
                 );
+
+                // Transaction state
+                $this->transaction->setIsClosed(1);
             } else {
                 $this->setOrderStatus(
                     'order_status_refunded_partial',
                     'order_status_refunded_partial'
                 );
+
+                // Transaction state
+                $this->transaction->setIsClosed(0);
             }
 
             // Save the data
