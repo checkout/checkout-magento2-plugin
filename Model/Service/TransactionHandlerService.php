@@ -136,9 +136,6 @@ class TransactionHandlerService
                 break;
         }
 
-        // Save the processed elements
-        $this->saveData();
-
         // Return the order
         return $this->order;
     }
