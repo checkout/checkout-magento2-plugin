@@ -293,9 +293,6 @@ class TransactionHandlerService
                     $this->transaction
                 );
 
-                // Set the total paid
-                $this->order->setTotalPaid($this->order->getGrandTotal());
-
                 // Add order comment
                 $this->addOrderComment('The captured amount is %1.');
             } else {
