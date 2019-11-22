@@ -31,6 +31,11 @@ class TransactionHandlerService
     public $transactionBuilder;
 
     /**
+     * @var TransactionSearchResultInterfaceFactory
+     */
+    public $transactionSearch;
+
+    /**
      * @var ManagerInterface
      */
     public $messageManager;
@@ -85,6 +90,7 @@ class TransactionHandlerService
      */
     public function __construct(
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
+        \Magento\Sales\Api\Data\TransactionSearchResultInterfaceFactory $transactionSearch,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Framework\Api\FilterBuilder $filterBuilder,
@@ -97,6 +103,7 @@ class TransactionHandlerService
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         $this->transactionBuilder    = $transactionBuilder;
+        $this->transactionSearch     = $transactionSearch;
         $this->messageManager        = $messageManager;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder         = $filterBuilder;
@@ -557,23 +564,11 @@ class TransactionHandlerService
         // Prepare the order
         $order = $order ? $order : $this->order;
 
-        // Payment filter
-        $filters[] = $this->filterBuilder->setField('payment_id')
-            ->setValue($order->getPayment()->getId())
-            ->create();
-
-        // Order filter
-        $filters[] = $this->filterBuilder->setField('order_id')
-            ->setValue($order->getId())
-            ->create();
-
-        // Build the search criteria
-        $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilters($filters)
-            ->create();
-
         // Get the list of transactions
-        $transactions = $this->transactionRepository->getList($searchCriteria)->getItems();
+        $transactions = $this->transactionSearch
+        ->create()
+        ->addOrderIdFilter($order->getId());
+        $transactions->getItems();
 
         // Filter by transaction type
         if ($transactionType && !empty($transactions)) {
