@@ -574,7 +574,9 @@ class TransactionHandlerService
         if ($transactionType && !empty($transactions)) {
             $filteredResult = [];
             foreach ($transactions as $transaction) {
-                if ($transaction->getTxnType() == $transactionType && $transaction->getIsClosed() == $isClosed) {
+                $condition = $transaction->getTxnType() == $transactionType
+                && $transaction->getIsClosed() == $isClosed;
+                if ($condition) {
                     $filteredResult[] = $transaction;
                 }
             }
