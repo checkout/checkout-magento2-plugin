@@ -144,7 +144,7 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
         $authTransactions = $this->transactionHandler->hasTransaction(
             Transaction::TYPE_AUTH,
             $this->order,
-            0
+            1
         );
 
         // Load capture transactions
