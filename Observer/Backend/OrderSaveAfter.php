@@ -141,28 +141,28 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
     public function needsCaptureOpening()
     {
         // Load authorization transactions
-        $authTransactions = $this->hasTransaction(
+        $authTransactions = $this->transactionHandler->hasTransaction(
             Transaction::TYPE_AUTH,
             $this->order,
             0
         );
 
         // Load capture transactions
-        $captureTransactions = $this->hasTransaction(
+        $captureTransactions = $this->transactionHandler->hasTransaction(
             Transaction::TYPE_CAPTURE,
             $this->order,
             1
         );
 
         // Load refund transactions
-        $refundTransactions = $this->hasTransaction(
+        $refundTransactions = $this->transactionHandler->hasTransaction(
             Transaction::TYPE_REFUND,
             $this->order,
             1
         );
 
         // Load void transactions
-        $voidTransactions = $this->hasTransaction(
+        $voidTransactions = $this->transactionHandler->hasTransaction(
             Transaction::TYPE_VOID,
             $this->order,
             1
