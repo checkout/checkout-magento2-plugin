@@ -336,8 +336,20 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         $request = new Capture($paymentInfo['id']);
         $request->amount = $this->prepareCaptureAmount();
         
+        // Prepare the metadata array
+        $request->metadata = array_merge(
+            ['methodId' => $this->methodId],
+            $this->apiHandler->getBaseMetadata()
+        );
+
         // Add the backend capture flag
         $request->metadata['isBackendCapture'] = true;
+
+        // Prepare the capture date setting
+        $captureDate = $this->config->getCaptureTime($this->methodId);
+        if ($captureDate) {
+            $request->capture_on = $this->config->getCaptureTime();
+        }
 
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
@@ -390,6 +402,9 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
 
         // Prepare the capture date setting
         $captureDate = $this->config->getCaptureTime($this->methodId);
+        if ($captureDate) {
+            $request->capture_on = $this->config->getCaptureTime();
+        }
 
         // Set the request parameters
         $request->capture = $this->config->needsAutoCapture($this->methodId);
@@ -397,9 +412,6 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         $request->reference = $this->order->getIncrementId();
         $request->payment_type = 'MOTO';
         $request->shipping = $this->api->createShippingAddress($this->order);
-        if ($captureDate) {
-            $request->capture_on = $this->config->getCaptureTime();
-        }
 
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
