@@ -30,8 +30,6 @@ class AfterSaveTransaction
      */
     public $backendAuthSession;
 
-
-
     /**
      * @var TransactionHandlerService
      */
