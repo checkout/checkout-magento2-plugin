@@ -17,7 +17,4 @@
     <event name="sales_order_save_before">
         <observer name="checkout_com_sales_order_save_before" instance="CheckoutCom\Magento2\Observer\Backend\OrderSaveBefore" />
     </event>
-    <event name="sales_order_save_after">
-        <observer name="checkout_com_sales_order_save_after" instance="CheckoutCom\Magento2\Observer\Backend\OrderSaveAfter" />
-    </event>
 </config>
