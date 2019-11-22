@@ -75,11 +75,6 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
     public $api;
 
     /**
-     * @var Object
-     */
-    public $payment;
-
-    /**
      * OrderSaveBefore constructor.
      */
     public function __construct(
@@ -108,12 +103,24 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
         // Prepare the instance properties
         $this->init($observer);
 
-        // Process capture transactions needing opening
-        $captureTransactions = $this->needsCaptureOpening();
-        if ($captureTransactions) {
-            foreach ($captureTransactions as $transaction) {
-                $transaction->setIsClosed(0);
-                $transaction->save();
+        // Run the logic
+        if ($this->needsCaptureOpening()) {
+            // Registry flag
+            $registryFlag = 'capture_transaction_opened_' . $this->order->getId();
+
+            // Process capture transactions needing opening
+            $captureTransactions = $this->getCaptureTransactions();
+            if ($captureTransactions) {
+                // Loop through the transactions
+                foreach ($captureTransactions as $transaction) {
+                    $transaction->setIsClosed(0);
+                    $transaction->save();
+                }
+
+                // Save the data
+                $this->order->getPayment()->save();
+                $this->order->save();
+                $this->registry->register($registryFlag, true);
             }
         }
 
@@ -128,25 +135,47 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
         // Get the order
         $this->order = $observer->getEvent()->getOrder();
 
-        // Get the payment
-        $this->payment = $this->order->getPayment();
-
         // Get the method id
-        $this->methodId = $this->payment->getMethodInstance()->getCode();
+        $this->methodId = $this->order
+        ->getPayment()
+        ->getMethodInstance()
+        ->getCode();
     }
 
     /**
-     * Open capture transactions if needed.
+     * Check if capture transactions opening is needed.
      */
     public function needsCaptureOpening()
     {
-        // Load authorization transactions
-        $authTransactions = $this->transactionHandler->hasTransaction(
-            Transaction::TYPE_AUTH,
+        // Prepare the registry flag
+        $registryFlag = 'capture_transaction_opened_' . $this->order->getId();
+
+        // Return the test
+        return $this->backendAuthSession->isLoggedIn()
+        && $this->hasCaptureTransactions()
+        && !$this->registry->registry($registryFlag);
+    }
+
+    /**
+     * Check if capture transactions are avaiable.
+     */
+    public function hasCaptureTransactions()
+    {
+        // Load capture transactions
+        $captureTransactions = $this->transactionHandler->hasTransaction(
+            Transaction::TYPE_CAPTURE,
             $this->order,
             1
         );
 
+        return $captureTransactions ? true : false;
+    }
+
+    /**
+     * Get capture transactions.
+     */
+    public function getCaptureTransactions()
+    {
         // Load capture transactions
         $captureTransactions = $this->transactionHandler->hasTransaction(
             Transaction::TYPE_CAPTURE,
@@ -161,19 +190,7 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
             1
         );
 
-        // Load void transactions
-        $voidTransactions = $this->transactionHandler->hasTransaction(
-            Transaction::TYPE_VOID,
-            $this->order,
-            1
-        );
-
         // Return the test
-        if (empty($voidTransactions) && empty($refundTransactions)
-        && !empty($authTransactions) && !empty($captureTransactions)) {
-            return $captureTransactions;
-        }
-
-        return null;
+        return !$refundTransactions ? $captureTransactions : null;
     }
 }
