@@ -282,11 +282,6 @@ class TransactionHandlerService
                 $this->orderSender->send($this->order, true);
             }
 
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/data.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($this->paymentData, 1));
-
             // Custom invoice handling only if it's not admin capture
             if (!isset($this->paymentData['data']['metadata']['isBackendCapture'])) {
                 // Process the invoice
