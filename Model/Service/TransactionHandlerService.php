@@ -115,24 +115,24 @@ class TransactionHandlerService
     public function createTransaction($order, $transactionType, $data = null)
     {
         // Prepare parameters
-        $this->prepareParameters($order);
+        $this->setProperties($order);
 
         // Process the transaction
         switch ($transactionType) {
             case Transaction::TYPE_AUTH:
-                $this->handleAuthorization($order, $transactionType, $data);
+                $this->handleAuthorization($transactionType, $data);
                 break;
 
             case Transaction::TYPE_CAPTURE:
-                $this->handleCapture($order, $transactionType, $data);
+                $this->handleCapture($transactionType, $data);
                 break;
 
             case Transaction::TYPE_VOID:
-                $this->handleVoid($order, $transactionType, $data);
+                $this->handleVoid($transactionType, $data);
                 break;
 
             case Transaction::TYPE_REFUND:
-                $this->handleRefund($order, $transactionType, $data);
+                $this->handleRefund($transactionType, $data);
                 break;
         }
 
@@ -173,7 +173,7 @@ class TransactionHandlerService
     /**
      * Prepare the required instance properties.
      */
-    public function prepareParameters($order)
+    public function setProperties($order)
     {
         // Assign the order
         $this->order = $order;
@@ -187,7 +187,7 @@ class TransactionHandlerService
     /**
      * Prepare the required instance data.
      */
-    public function prepareData($order, $transactionType, $data)
+    public function prepareData($transactionType, $data)
     {
         // Assign the transaction type
         $this->transactionType = $transactionType;
@@ -209,7 +209,7 @@ class TransactionHandlerService
     /**
      * Process an authorization request.
      */
-    public function handleAuthorization($order, $transactionType, $data)
+    public function handleAuthorization($transactionType, $data)
     {
         // Handle authorization
         $authTransaction = $this->hasTransaction(
@@ -219,7 +219,7 @@ class TransactionHandlerService
 
         if (!$authTransaction) {
             // Prepare the data
-            $this->prepareData($order, $transactionType, $data);
+            $this->prepareData($transactionType, $data);
 
             // Set the order status
             $this->setOrderStatus(
@@ -233,12 +233,12 @@ class TransactionHandlerService
             // Set the parent transaction id
             $this->transaction->setParentTxnId(null);
 
-            // Allow void
+            // Allow void and capture
             $this->transaction->setIsClosed(0);
 
             // Check the email sender
             if ($this->config->getValue('order_email') == 'authorize') {
-                $order->setCanSendNewEmailFlag(true);
+                $this->order->setCanSendNewEmailFlag(true);
                 $this->orderSender->send($this->order, true);
             }
 
@@ -252,7 +252,7 @@ class TransactionHandlerService
     /**
      * Process a capture request.
      */
-    public function handleCapture($order, $transactionType, $data)
+    public function handleCapture($transactionType, $data)
     {
         // Get the parent transaction
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
@@ -260,10 +260,7 @@ class TransactionHandlerService
         // Handle the capture logic
         if ($parentTransaction) {
             // Prepare the data
-            $this->prepareData($order, $transactionType, $data);
-
-            // Close the authorization transaction
-            $parentTransaction->close();
+            $this->prepareData($transactionType, $data);
 
             // Set the parent transaction id for the current transaction
             $this->transaction->setParentTxnId(
@@ -314,7 +311,25 @@ class TransactionHandlerService
                     $parentTransaction->setIsClosed(0);
                     $parentTransaction->save();
                 }
+
+                // Find the existing capture transaction
+                $captureTransactions = $this->hasTransaction(
+                    Transaction::TYPE_CAPTURE,
+                    $this->order,
+                    1
+                );
+                
+                // Update the capture transactions state
+                if (!empty($captureTransactions)) {
+                    foreach ($captureTransactions as $captureTransaction) {
+                        $captureTransaction->setIsClosed(0);
+                        $captureTransaction->save();
+                    }
+                }
             }
+
+            // Close the authorization transaction
+            $parentTransaction->close();
 
             // Save the data
             $this->payment->save();
@@ -326,13 +341,13 @@ class TransactionHandlerService
     /**
      * Process a void request.
      */
-    public function handleVoid($order, $transactionType, $data)
+    public function handleVoid($transactionType, $data)
     {
         // Process teh void logic
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
         if ($parentTransaction) {
             // Prepare the data
-            $this->prepareData($order, $transactionType, $data);
+            $this->prepareData($transactionType, $data);
 
             // Set the parent transaction id
             $parentTransaction->close();
@@ -362,13 +377,13 @@ class TransactionHandlerService
     /**
      * Process a refund request.
      */
-    public function handleRefund($order, $transactionType, $data)
+    public function handleRefund($transactionType, $data)
     {
         // Process the refund logic
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_CAPTURE);
         if ($parentTransaction) {
             // Prepare the data
-            $this->prepareData($order, $transactionType, $data);
+            $this->prepareData($transactionType, $data);
 
             // Set the parent transaction id
             $parentTransaction->close();
