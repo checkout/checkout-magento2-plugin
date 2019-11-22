@@ -311,21 +311,6 @@ class TransactionHandlerService
                     $parentTransaction->setIsClosed(0);
                     $parentTransaction->save();
                 }
-
-                // Find the existing capture transaction
-                $captureTransactions = $this->hasTransaction(
-                    Transaction::TYPE_CAPTURE,
-                    $this->order,
-                    1
-                );
-                
-                // Update the capture transactions state
-                if (!empty($captureTransactions)) {
-                    foreach ($captureTransactions as $captureTransaction) {
-                        $captureTransaction->setIsClosed(0);
-                        $captureTransaction->save();
-                    }
-                }
             }
 
             // Close the authorization transaction
