@@ -170,7 +170,7 @@ class OrderSaveAfter implements \Magento\Framework\Event\ObserverInterface
 
         // Return the test
         if (empty($voidTransactions) && empty($refundTransactions)
-        && empty($authTransactions) && !empty($captureTransactions)) {
+        && !empty($authTransactions) && !empty($captureTransactions)) {
             return $captureTransactions;
         }
 
