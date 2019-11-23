@@ -214,6 +214,22 @@ class TransactionHandlerService
     }
 
     /**
+     * Check if custom invoicing is needed.
+     */
+    public function needsCustomInvoicing()
+    {
+        return !isset($this->paymentData['data']['metadata']['isBackendCapture']);
+    }
+
+    /**
+     * Check if custom comment is needed.
+     */
+    public function needsCustomComment()
+    {
+        return isset($this->paymentData['data']['metadata']['isFrontendRequest']);
+    }
+
+    /**
      * Process an authorization request.
      */
     public function handleAuthorization($transactionType, $data)
@@ -289,25 +305,28 @@ class TransactionHandlerService
                 $this->orderSender->send($this->order, true);
             }
 
+            // Get the payment amount
+            $paymentAmount = $this->utilities->formatDecimals(
+                $this->amountFromGateway(
+                    $this->paymentData['data']['amount'],
+                    $this->order
+                )
+            );
+
+            // Add custom comment only if request is from the frontend
+            if ($this->needsCustomComment()) {
+                $this->addOrderComment('The captured amount is %1.', $paymentAmount);
+            }
+
             // Custom invoice handling only if it's not admin capture
-            if (!isset($this->paymentData['data']['metadata']['isBackendCapture'])) {
+            if ($this->needsCustomInvoicing()) {
                 // Process the invoice
                 $this->order = $this->invoiceHandler->processInvoice(
                     $this->order,
-                    $this->transaction
+                    $this->transaction,
+                    $paymentAmount
                 );
-
-                // Add order comment
-                $this->addOrderComment('The captured amount is %1.');
             } else {
-                // Get the payment amount
-                $paymentAmount = $this->utilities->formatDecimals(
-                    $this->amountFromGateway(
-                        $this->paymentData['data']['amount'],
-                        $this->order
-                    )
-                );
-
                 // Get the order amount
                 $orderAmount = $this->utilities->formatDecimals(
                     $this->order->getGrandTotal()
@@ -477,11 +496,12 @@ class TransactionHandlerService
     /**
      * Add a transaction comment to an order.
      */
-    public function addOrderComment($comment)
+    public function addOrderComment($comment, $amount = null)
     {
+        $amount = $amount ? $amount : $this->order->getGrandTotal();
         $this->payment->addTransactionCommentsToOrder(
             $this->transaction,
-            __($comment, $this->getAmount())
+            __($comment, $this->formatAmount($amount))
         );
     }
 
@@ -506,12 +526,10 @@ class TransactionHandlerService
     /**
      * Get the order amount.
      */
-    public function getAmount()
+    public function formatAmount($amount)
     {
         return $this->order->getBaseCurrency()
-            ->formatTxt(
-                $this->order->getGrandTotal()
-            );
+            ->formatTxt($amount);
     }
 
     /**
