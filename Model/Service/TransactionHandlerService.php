@@ -396,9 +396,7 @@ class TransactionHandlerService
             $creditMemo = $this->creditMemoFactory->createByOrder($this->order);
             $creditMemo->setInvoice($invoice);
             $creditMemo->setBaseGrandTotal($amount);
-
-            // Update the refunded amount
-            $this->order->setTotalRefunded($amount + $this->order->getTotalRefunded());
+            $creditMemo->setGrandTotal($amount);
 
             // Refund
             $this->creditMemoService->refund($creditMemo);
@@ -423,11 +421,30 @@ class TransactionHandlerService
                 $this->transaction->setIsClosed(0);
             }
 
+            // Update the refunded amount
+            $this->order->setTotalRefunded($this->getCreditMemosTotal());
+
             // Save the data
             $this->payment->save();
             $this->transaction->save();
             $this->order->save();
         }
+    }
+
+    /**
+     * Get the total credit memos amount.
+     */
+    public function getCreditMemosTotal()
+    {
+        $total = 0;
+        $creditMemos = $this->order->getCreditmemosCollection();
+        if (!empty($creditMemos)) {
+            foreach ($creditMemos as $creditMemo) {
+                $total += $creditMemo->getGrandTotal();
+            }
+        }
+
+        return $total;
     }
 
     /**
