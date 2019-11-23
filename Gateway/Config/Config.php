@@ -154,6 +154,26 @@ class Config
                 }
             }
         }
+
+        return $methods;
+    }
+
+    /**
+     * Returns the payment methods list.
+     *
+     * @return array
+     */
+    public function getMethodsList()
+    {
+        $methods = [];
+        if ($this->canDisplay()) {
+            foreach ($this->loader->init()->data[Loader::KEY_PAYMENT] as $methodId => $data) {
+                if ($this->getValue('active', $methodId) == 1) {
+                    $methods[] = $methodId;
+                }
+            }
+        }
+
         return $methods;
     }
 

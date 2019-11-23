@@ -36,6 +36,11 @@ class AfterSaveTransaction
     public $transactionHandler;
 
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
      * @var String
      */
     public $methodId;
@@ -56,11 +61,13 @@ class AfterSaveTransaction
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\Registry $registry,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->registry = $registry;
         $this->transactionHandler = $transactionHandler;
+        $this->config = $config;
     }
 
     /**
@@ -111,6 +118,7 @@ class AfterSaveTransaction
      */
     public function needsOpening() {
         return $this->backendAuthSession->isLoggedIn()
+        && in_array($this->methodId, $this->config->getMethodsList())
         && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE
         && !$this->registry->registry($this->getRegistryFlag())
         && !$this->orderHasRefunds();

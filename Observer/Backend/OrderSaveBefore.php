@@ -252,6 +252,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     public function needsMotoProcessing()
     {
         return $this->backendAuthSession->isLoggedIn()
+        && in_array($this->methodId, $this->config->getMethodsList())
         && isset($this->params['ckoCardToken'])
         && $this->methodId == 'checkoutcom_moto'
         && !$this->registry->registry($this->getRegistryFlag('moto'))
@@ -266,8 +267,8 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      */
     public function needsBackendCapture()
     {
-        // Return the test
         return $this->backendAuthSession->isLoggedIn()
+        && in_array($this->methodId, $this->config->getMethodsList())
         && isset($this->params['invoice']['capture_case'])
         && $this->params['invoice']['capture_case'] == 'online'
         && ($this->payment->canCapturePartial() || $this->payment->canCapture())
@@ -285,6 +286,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     {
         // Return the test
         return $this->backendAuthSession->isLoggedIn()
+        && in_array($this->methodId, $this->config->getMethodsList())
         && $this->request->getActionName() == 'voidPayment'
         && !$this->registry->registry($this->getRegistryFlag('void'));
     }
@@ -296,6 +298,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     {
         // Return the test
         return $this->backendAuthSession->isLoggedIn()
+        && in_array($this->methodId, $this->config->getMethodsList())
         && $this->request->getActionName() == 'cancel';
     }
 
