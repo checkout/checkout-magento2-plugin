@@ -66,7 +66,7 @@ class AfterSaveTransaction
     /**
      * Update a transaction after save
      */
-    public function afterSave(TransactionInterface $subject, $transaction)
+    public function beforeSave(TransactionInterface $transaction)
     {
         // Prepare the instance properties
         $this->init($transaction);
@@ -74,7 +74,6 @@ class AfterSaveTransaction
         // Open the transaction
         if ($this->needsOpening()) {
             $this->transaction->setIsClosed(0);
-            $this->transaction->save();
             $this->registry->register(
                 $this->getRegistryFlag(),
                 true
