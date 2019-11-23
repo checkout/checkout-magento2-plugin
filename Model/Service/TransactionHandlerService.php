@@ -384,7 +384,10 @@ class TransactionHandlerService
             );
             
             // Prepare the refunded amount
-            $amount = $this->paymentData['data']['amount']/100;
+            $amount = $this->amountFromGateway(
+                $this->paymentData['data']['amount'],
+                $this->order
+            );
 
             // Load the invoice
             $invoice = $this->invoiceHandler->getInvoice($this->order);
