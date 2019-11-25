@@ -49,20 +49,10 @@ define(
                  */
                 initialize: function () {
                     this._super();
-                    this.initAddressObserver();
                     Utilities.loadCss(this.getFormLayout(), 'frames');
                     Utilities.setEmail();
 
                     return this;
-                },
-
-                initAddressObserver: function () {
-                    var self = this;
-                    Quote.billingAddress.subscribe(function () {
-                        if (AdditionalValidators.validate() && Frames.isCardValid()) {
-                            Utilities.allowPlaceOrder(self.buttonId, true);
-                        }
-                    });
                 },
 
                 /**
