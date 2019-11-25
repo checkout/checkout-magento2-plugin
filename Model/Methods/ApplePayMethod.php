@@ -22,6 +22,7 @@ use \Checkout\Models\Tokens\ApplePayHeader;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\BillingDescriptor;
+use \Checkout\Library\Exceptions\CheckoutHttpException;
 
 /**
  * Class ApplePayMethod
@@ -101,7 +102,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var StoreManagerInterface
      */
-    public $storeManager; 
+    public $storeManager;
 
     /**
      * @var Logger
@@ -226,8 +227,12 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
             );
 
             // Prepare the metadata array
+            $request->metadata['methodId'] = $this->_code;
+            $request->metadata['isFrontendRequest'] = true;
+
+            // Prepare the metadata array
             $request->metadata = array_merge(
-                ['methodId' => $this->_code],
+                $request->metadata,
                 $this->apiHandler->getBaseMetadata()
             );
 
@@ -266,56 +271,12 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 ->request($request);
             
             return $response;
-        } catch (\Exception $e) {
+        } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
             return null;
         }
     }
     
-    /**
-     * { function_description }
-     *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
-     *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
-     */
-    public function void(\Magento\Payment\Model\InfoInterface $payment)
-    {
-        try {
-            if ($this->backendAuthSession->isLoggedIn()) {
-                // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
-
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
-
-                // Check the status
-                if (!$this->canVoid()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The void action is not available.')
-                    );
-                }
-
-                // Process the void request
-                $response = $api->voidOrder($payment);
-                if (!$api->isValidResponse($response)) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The void request could not be processed.')
-                    );
-                }
-
-                // Set the transaction id from response
-                $payment->setTransactionId($response->action_id);
-            }
-        } catch (\Exception $e) {
-            $this->ckoLogger->write($e->getBody());
-        } finally {
-            return $this;
-        }
-    }
-
     /**
      * Perform a void request.
      *
@@ -354,7 +315,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 // Set the transaction id from response
                 $payment->setTransactionId($response->action_id);
             }
-        } catch (\Exception $e) {
+        } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
         } finally {
             return $this;

@@ -27,7 +27,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     /**
      * @var StoreManagerInterface
      */
-    public $storeManager; 
+    public $storeManager;
 
     /**
      * @var QuoteHandlerService
@@ -150,7 +150,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 ->handleOrder($this->quote);
 
             // Process the payment
-            if ($this->orderHandler->isOrder($order)) { 
+            if ($this->orderHandler->isOrder($order)) {
                 // Get response and success
                 $response = $this->requestPayment($order);
 
@@ -160,6 +160,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 // Get the store code
                 $storeCode = $this->storeManager->getStore()->getCode();
                 
+                // Process the response
                 $api = $this->apiHandler->init($storeCode);
                 if ($api->isValidResponse($response)) {
                     // Get the payment details
@@ -174,21 +175,18 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                     // Update the response parameters
                     $success = $response->isSuccessful();
                     $url = $response->getRedirection();
-                }
-                else {
+                } else {
                     // Payment failed
                     $message = __('The transaction could not be processed.');
 
                     // Restore the quote
                     $this->quoteHandler->restoreQuote($order->getIncrementId());
                 }
-            }
-            else {
+            } else {
                 // Payment failed
                 $message = __('The order could not be processed.');
             }
-        }
-        else {
+        } else {
             // Payment failed
             $message = __('The request is invalid or there was no quote found.');
         }

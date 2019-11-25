@@ -39,23 +39,16 @@ class MadaHandlerService
     public $config;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * @param Context $context
      */
     public function __construct(
         \Magento\Framework\Module\Dir\Reader $directoryReader,
         \Magento\Framework\File\Csv $csvParser,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->directoryReader = $directoryReader;
         $this->csvParser = $csvParser;
         $this->config = $config;
-        $this->logger = $logger;
     }
 
     /**

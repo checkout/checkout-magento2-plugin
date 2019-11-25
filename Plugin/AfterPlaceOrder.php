@@ -26,11 +26,31 @@ use Magento\Sales\Api\Data\OrderInterface;
 class AfterPlaceOrder
 {
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
+     * AfterPlaceOrder constructor.
+     */
+    public function __construct(
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
+    ) {
+        $this->config = $config;
+    }
+
+    /**
      * Disable order email sending on order creation
      */
     public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
     {
-        $order->setCanSendNewEmailFlag(false);
-        return $order;
+        // Get the method ID
+        $methodId = $order->getPayment()->getMethodInstance()->getCode();
+
+        // Disable the email sending
+        if (in_array($methodId, $this->config->getMethodsList())) {
+            $order->setCanSendNewEmailFlag(false);
+            return $order;
+        }
     }
 }

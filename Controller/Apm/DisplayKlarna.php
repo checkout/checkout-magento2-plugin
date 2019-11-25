@@ -35,7 +35,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     /**
      * @var StoreManagerInterface
      */
-    public $storeManager; 
+    public $storeManager;
 
     /**
      * @var PageFactory
@@ -66,6 +66,11 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      * @var ShopperHandlerService
      */
     public $shopperHandler;
+
+    /**
+     * @var Utilities
+     */
+    public $utilities;
 
     /**
      * @var Logger
@@ -100,6 +105,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
 
@@ -111,6 +117,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
         $this->shopperHandler = $shopperHandler;
+        $this->utilities = $utilities;
         $this->logger = $logger;
     }
 
@@ -160,7 +167,12 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
                 strtolower($this->billingAddress->getCountry()),
                 $this->quote->getQuoteCurrencyCode(),
                 $this->locale,
-                $this->quote->getGrandTotal() *100,
+                $this->quoteHandler->amountToGateway(
+                    $this->utilities->formatDecimals(
+                        $this->quote->getGrandTotal()
+                    ),
+                    $quote
+                ),
                 $response['tax_amount'],
                 $products
             );

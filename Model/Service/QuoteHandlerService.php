@@ -65,11 +65,6 @@ class QuoteHandlerService
     public $shopperHandler;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * QuoteHandlerService constructor
      */
     public function __construct(
@@ -80,8 +75,7 @@ class QuoteHandlerService
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
@@ -91,7 +85,6 @@ class QuoteHandlerService
         $this->productRepository = $productRepository;
         $this->config = $config;
         $this->shopperHandler = $shopperHandler;
-        $this->logger = $logger;
     }
 
     /**
@@ -302,11 +295,9 @@ class QuoteHandlerService
         // Prepare the amount
         if (in_array($currency, $currenciesX1)) {
             return $amount;
-        }
-        else if (in_array($currency, $currenciesX1000)) {
+        } elseif (in_array($currency, $currenciesX1000)) {
             return $amount*1000;
-        }
-        else {
+        } else {
             return $amount*100;
         }
     }

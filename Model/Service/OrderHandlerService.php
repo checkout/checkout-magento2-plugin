@@ -73,11 +73,6 @@ class OrderHandlerService
     public $transactionHandler;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * @var String
      */
     public $methodId;
@@ -100,8 +95,7 @@ class OrderHandlerService
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
@@ -113,7 +107,6 @@ class OrderHandlerService
         $this->quoteHandler = $quoteHandler;
         $this->storeManager = $storeManager;
         $this->transactionHandler = $transactionHandler;
-        $this->logger = $logger;
     }
 
     /**
@@ -146,14 +139,12 @@ class OrderHandlerService
                 $order = $this->afterPlaceOrder($quote, $order);
 
                 return $order;
-            }
-            else {
+            } else {
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('There is no quote available to place an order.')
                 );
             }
-        }
-        else {
+        } else {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('A payment method ID is required to place an order.')
             );
@@ -212,11 +203,9 @@ class OrderHandlerService
         // Prepare the amount
         if (in_array($currency, $currenciesX1)) {
             return $amount;
-        }
-        else if (in_array($currency, $currenciesX1000)) {
+        } elseif (in_array($currency, $currenciesX1000)) {
             return $amount*1000;
-        }
-        else {
+        } else {
             return $amount*100;
         }
     }

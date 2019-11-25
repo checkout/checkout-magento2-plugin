@@ -32,67 +32,87 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     /**
      * @var Session
      */
-    protected $backendAuthSession;
+    public $backendAuthSession;
 
     /**
      * @var RequestInterface
      */
-    protected $request;
+    public $request;
 
     /**
      * @var ManagerInterface
      */
-    protected $messageManager;
+    public $messageManager;
+
+    /**
+     * @var Registry
+     */
+    public $registry;
 
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var OrderHandlerService
      */
-    protected $orderHandler;
+    public $orderHandler;
 
     /**
      * @var VaultHandlerService
      */
-    protected $vaultHandler;
+    public $vaultHandler;
 
     /**
      * @var TransactionHandlerService
      */
-    protected $transactionHandler;
+    public $transactionHandler;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Utilities
      */
-    protected $utilities;
+    public $utilities;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var Array
      */
-    protected $params;
+    public $params;
 
     /**
      * @var Order
      */
-    protected $order;
+    public $order;
 
     /**
      * @var String
      */
-    protected $methodId;
+    public $methodId;
+
+    /**
+     * @var String
+     */
+    public $storeCode;
+
+    /**
+     * @var Object
+     */
+    public $api;
+
+    /**
+     * @var Object
+     */
+    public $payment;
 
     /**
      * OrderSaveBefore constructor.
@@ -101,6 +121,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\App\RequestInterface $request,
         \Magento\Framework\Message\ManagerInterface $messageManager,
+        \Magento\Framework\Registry $registry,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
@@ -112,6 +133,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
         $this->messageManager = $messageManager;
+        $this->registry = $registry;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->vaultHandler = $vaultHandler;
@@ -126,107 +148,35 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        // Get the request parameters
-        $this->params = $this->request->getParams();
-
-        // Get the order
-        $this->order = $observer->getEvent()->getOrder();
-
-        // Get the payment
-        $payment = $this->order->getPayment();
-
-        // Get the store code
-        $storeCode = $this->order->getStore()->getCode();
-
-        // Get the method id
-        $this->methodId = $payment->getMethodInstance()->getCode();
-
-        // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode);
+        // Prepare the instance properties
+        $this->init($observer);
 
         // Process the payment
+        $response  = null;
         if ($this->needsMotoProcessing()) {
-            // Set the source
-            $source = $this->getSource();
+            $response = $this->handleMotoRequest();
+        } elseif ($this->needsBackendCapture()) {
+            $response = $this->handleBackendCapture();
+        } else if ($this->needsBackendVoid()) {
+            $response = $this->handleBackendVoid();
+        } else if ($this->needsBackendCancel()) {
+            return $this;
+        }
 
-            // Set the payment
-            $request = new Payment(
-                $source,
-                $this->order->getOrderCurrencyCode()
-            );
-
-            // Prepare the metadata array
-            $request->metadata = array_merge(
-                ['methodId' => $this->methodId],
-                $this->apiHandler->getBaseMetadata()
-            );
-
-            // Prepare the capture date setting
-            $captureDate = $this->config->getCaptureTime($this->methodId);
-
-            // Set the request parameters
-            $request->capture = $this->config->needsAutoCapture($this->methodId);
-            $request->amount = $this->prepareAmount();
-            $request->reference = $this->order->getIncrementId();
-            $request->payment_type = 'MOTO';
-            $request->shipping = $api->createShippingAddress($this->order);
-            if ($captureDate) {
-                $request->capture_on = $this->config->getCaptureTime();
-            }
-
-            // Billing descriptor
-            if ($this->config->needsDynamicDescriptor()) {
-                $request->billing_descriptor = new BillingDescriptor(
-                    $this->config->getValue('descriptor_name'),
-                    $this->config->getValue('descriptor_city')
-                );
-            }
-
-            // Send the charge request
-            $response = $api->checkoutApi->payments()->request($request);
-
+        // Process the response
+        if ($response) {
             // Logging
             $this->logger->display($response);
 
             // Add the response to the order
-            if ($api->isValidResponse($response)) {
+            if ($this->api->isValidResponse($response)) {
                 $this->utilities->setPaymentData($this->order, $response);
                 $this->messageManager->addSuccessMessage(
-                    __('The payment request was successfully processed.')
+                    __('The transaction was successfully processed.')
                 );
             } else {
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('The transaction could not be processed. Please check the payment details.')
-                );
-            }
-        }
-        else if ($this->needsBackendCapture()) {
-            // Get the payment info
-            $paymentInfo = $this->utilities->getPaymentData($this->order);
-
-            // Prepare the request
-            $request = new Capture($paymentInfo['id']);
-            $request->amount = $this->prepareAmount();
-            
-            // Add the backend capture flag
-            $request->metadata['isBackendCapture'] = true;
-
-            // Process the request
-            $response = $api->checkoutApi->payments()->capture($request);
-
-            // Logging
-            $this->logger->display($response);
-
-            // Process the capture request
-            if ($api->isValidResponse($response)) {
-                $this->utilities->setPaymentData($this->order, $response);
-                $this->messageManager->addSuccessMessage(
-                    __('The capture request was successfully processed.')
-                );
-            }
-            else {
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('The capture request could not be processed.')
                 );
             }
         }
@@ -235,28 +185,77 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * Prepare the payment amount for the payment request.
+     * Prepare the instance properties.
      */
-    protected function prepareAmount()
+    public function init($observer)
+    {
+        // Get the request parameters
+        $this->params = $this->request->getParams();
+
+        // Get the order
+        $this->order = $observer->getEvent()->getOrder();
+
+        // Get the payment
+        $this->payment = $this->order->getPayment();
+
+        // Get the store code
+        $this->storeCode = $this->order->getStore()->getCode();
+
+        // Initialize the API handler
+        $this->api = $this->apiHandler->init($this->storeCode);
+
+        // Get the method id
+        $this->methodId = $this->payment->getMethodInstance()->getCode();
+    }
+
+    /**
+     * Prepare the payment amount for the capture payment request.
+     */
+    public function prepareCaptureAmount()
     {
         // Get the payment instance
-        $payment = $this->order->getPayment();
+        $amount = $this->payment->getAmountPaid();
 
         // Return the formatted amount
         return $this->orderHandler->amountToGateway(
-            $this->utilities->formatDecimals($payment->getAmountPaid()),
+            $this->utilities->formatDecimals($amount),
             $this->order
         );
     }
 
     /**
+     * Prepare the payment amount for the MOTO payment request.
+     */
+    public function prepareMotoAmount()
+    {
+        // Get the payment instance
+        $amount = $this->order->getGrandTotal();
+
+        // Return the formatted amount
+        return $this->orderHandler->amountToGateway(
+            $this->utilities->formatDecimals($amount),
+            $this->order
+        );
+    }
+
+    /**
+     * Get the registry flag.
+     */
+    public function getRegistryFlag($type)
+    {
+        return 'backend_' . $type . '_success_' . $this->order->getId();
+    }
+
+    /**
      * Checks if the MOTO logic should be triggered.
      */
-    protected function needsMotoProcessing()
+    public function needsMotoProcessing()
     {
         return $this->backendAuthSession->isLoggedIn()
+        && in_array($this->methodId, $this->config->getMethodsList())
         && isset($this->params['ckoCardToken'])
         && $this->methodId == 'checkoutcom_moto'
+        && !$this->registry->registry($this->getRegistryFlag('moto'))
         && !$this->transactionHandler->hasTransaction(
             Transaction::TYPE_AUTH,
             $this->order
@@ -266,14 +265,14 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     /**
      * Checks if the backend capture logic should be triggered.
      */
-    protected function needsBackendCapture()
+    public function needsBackendCapture()
     {
-        // Get the payment instance
-        $payment = $this->order->getPayment();
-
-        // Return the test
         return $this->backendAuthSession->isLoggedIn()
-        && ($payment->canCapturePartial() || $payment->canCapture())
+        && in_array($this->methodId, $this->config->getMethodsList())
+        && isset($this->params['invoice']['capture_case'])
+        && $this->params['invoice']['capture_case'] == 'online'
+        && ($this->payment->canCapturePartial() || $this->payment->canCapture())
+        && !$this->registry->registry($this->getRegistryFlag('capture'))
         && $this->transactionHandler->hasTransaction(
             Transaction::TYPE_AUTH,
             $this->order
@@ -281,20 +280,178 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Checks if the backend void logic should be triggered.
+     */
+    public function needsBackendVoid()
+    {
+        // Return the test
+        return $this->backendAuthSession->isLoggedIn()
+        && in_array($this->methodId, $this->config->getMethodsList())
+        && $this->request->getActionName() == 'voidPayment'
+        && !$this->registry->registry($this->getRegistryFlag('void'));
+    }
+
+    /**
+     * Checks if the backend cancellation logic should be triggered.
+     */
+    public function needsBackendCancel()
+    {
+        // Return the test
+        return $this->backendAuthSession->isLoggedIn()
+        && in_array($this->methodId, $this->config->getMethodsList())
+        && $this->request->getActionName() == 'cancel';
+    }
+
+    /**
+     * Handles the backend void request.
+     */
+    public function handleBackendVoid()
+    {
+        // Check for previous captures
+        $authTransaction = $this->transactionHandler->hasTransaction(
+            Transaction::TYPE_AUTH,
+            $this->order
+        );
+
+        // Allow void only if there are no previous captures
+        if (!$authTransaction) {
+            // Send the void request
+            $response = $this->api->voidOrder($this->payment);
+            
+            // Set a success registry value
+            if ($this->api->isValidResponse($response)) {
+                $this->registry->register($this->getRegistryFlag('void'), true);
+            }
+
+            return $response;
+        }
+        else {
+            $msg  = 'An order with a previous full or partial capture ';
+            $msg .= 'cannot be voided by the gateway. ';
+            $msg .= 'Please use the cancel action instead.';
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __($msg)
+            );
+        }
+    }
+
+    /**
+     * Handles the backend capture request.
+     */
+    public function handleBackendCapture()
+    {
+        // Get the payment info
+        $paymentInfo = $this->utilities->getPaymentData($this->order);
+
+        // Prepare the request
+        $request = new Capture($paymentInfo['id']);
+        $request->amount = $this->prepareCaptureAmount();
+        
+        // Prepare the metadata array
+        $request->metadata = array_merge(
+            ['methodId' => $this->methodId],
+            $this->apiHandler->getBaseMetadata()
+        );
+
+        // Add the backend capture flag
+        $request->metadata['isBackendCapture'] = true;
+
+        // Prepare the capture date setting
+        $captureDate = $this->config->getCaptureTime($this->methodId);
+        if ($captureDate) {
+            $request->capture_on = $this->config->getCaptureTime();
+        }
+
+        // Billing descriptor
+        if ($this->config->needsDynamicDescriptor()) {
+            $request->billing_descriptor = new BillingDescriptor(
+                $this->config->getValue('descriptor_name'),
+                $this->config->getValue('descriptor_city')
+            );
+        }
+
+        // Process the request
+        $response = $this->api->checkoutApi->payments()->capture($request);
+
+        // Set a registry value
+        if ($this->api->isValidResponse($response)) {
+            $this->registry->register($this->getRegistryFlag('capture'), true);
+
+            // Lock the auth transaction
+            $authTransaction = $this->transactionHandler->hasTransaction(
+                Transaction::TYPE_AUTH,
+                $this->order
+            );
+            if (isset($authTransaction[0]) && $authTransaction[0]) {
+                $authTransaction[0]->setIsClosed(1);
+                $authTransaction[0]->save();
+            }
+        }
+
+        return $response;
+    }
+
+    /**
+     * Handles the moto request.
+     */
+    public function handleMotoRequest()
+    {
+        // Set the source
+        $source = $this->getSource();
+
+        // Set the payment
+        $request = new Payment(
+            $source,
+            $this->order->getOrderCurrencyCode()
+        );
+
+        // Prepare the metadata array
+        $request->metadata = array_merge(
+            ['methodId' => $this->methodId],
+            $this->apiHandler->getBaseMetadata()
+        );
+
+        // Prepare the capture date setting
+        $captureDate = $this->config->getCaptureTime($this->methodId);
+        if ($captureDate) {
+            $request->capture_on = $this->config->getCaptureTime();
+        }
+
+        // Set the request parameters
+        $request->capture = $this->config->needsAutoCapture($this->methodId);
+        $request->amount = $this->prepareMotoAmount();
+        $request->reference = $this->order->getIncrementId();
+        $request->payment_type = 'MOTO';
+        $request->shipping = $this->api->createShippingAddress($this->order);
+
+        // Billing descriptor
+        if ($this->config->needsDynamicDescriptor()) {
+            $request->billing_descriptor = new BillingDescriptor(
+                $this->config->getValue('descriptor_name'),
+                $this->config->getValue('descriptor_city')
+            );
+        }
+
+        // Send the charge request
+        $response = $this->api->checkoutApi->payments()->request($request);
+
+        // Set a success registry value
+        if ($this->api->isValidResponse($response)) {
+            $this->registry->register($this->getRegistryFlag('moto'), true);
+        }
+
+        return $response;
+    }
+
+    /**
      * Provide a source from request.
      */
-    protected function getSource()
+    public function getSource()
     {
         if ($this->isCardToken()) {
-            // Get the store code
-            $storeCode = $this->order->getStore()->getCode();
-
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
-
             // Create the token source
             $tokenSource = new TokenSource($this->params['ckoCardToken']);
-            $tokenSource->billing_address = $api->createBillingAddress($this->order);
+            $tokenSource->billing_address = $this->api->createBillingAddress($this->order);
 
             return $tokenSource;
         } elseif ($this->isSavedCard()) {
@@ -316,7 +473,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     /**
      * Checks if a card token is available.
      */
-    protected function isCardToken()
+    public function isCardToken()
     {
         return isset($this->params['ckoCardToken'])
         && !empty($this->params['ckoCardToken']);
@@ -325,7 +482,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     /**
      * Checks if a public hash is available.
      */
-    protected function isSavedCard()
+    public function isSavedCard()
     {
         return isset($this->params['publicHash'])
         && !empty($this->params['publicHash'])

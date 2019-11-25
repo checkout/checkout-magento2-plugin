@@ -63,11 +63,6 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
     private $paymentTokenFormatter;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * InstantPurchase constructor.
      */
     public function __construct(
@@ -78,8 +73,7 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
         \Magento\InstantPurchase\Model\Ui\CustomerAddressesFormatter $customerAddressesFormatter,
         \Magento\InstantPurchase\Model\Ui\ShippingMethodFormatter $shippingMethodFormatter,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Model\InstantPurchase\AvailabilityChecker $availabilityChecker,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Model\InstantPurchase\AvailabilityChecker $availabilityChecker
     ) {
         $this->storeManager = $storeManager;
         $this->instantPurchase = $instantPurchase;
@@ -89,7 +83,6 @@ class CustomerData implements \Magento\Customer\CustomerData\SectionSourceInterf
         $this->vaultHandler = $vaultHandler;
         $this->availabilityChecker = $availabilityChecker;
         $this->paymentTokenFormatter = $paymentTokenFormatter;
-        $this->logger = $logger;
     }
 
     /**

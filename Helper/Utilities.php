@@ -70,7 +70,7 @@ class Utilities
      */
     public function formatDecimals($amount)
     {
-        return number_format($amount, 2);
+        return floor($amount * 100) / 100;
     }
 
     /**

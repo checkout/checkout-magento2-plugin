@@ -56,6 +56,11 @@ class InvoiceHandlerService
     public $transaction;
 
     /**
+     * @var Float
+     */
+    public $amount;
+
+    /**
      * InvoiceHandlerService constructor.
      */
     public function __construct(
@@ -73,11 +78,12 @@ class InvoiceHandlerService
     /**
      * Check if the invoice can be created.
      */
-    public function processInvoice($order, $transaction = null)
+    public function processInvoice($order, $transaction = null, $amount = null)
     {
         // Set required properties
         $this->order = $order;
         $this->transaction = $transaction;
+        $this->amount = $amount ? $amount : $this->order->getGrandTotal();
 
         // Handle the invoice
         if ($this->needsInvoicing()) {
@@ -105,7 +111,8 @@ class InvoiceHandlerService
         $invoice = $this->setInvoiceState($invoice);
 
         // Finalize the invoice
-        $invoice->setBaseGrandTotal($this->order->getGrandTotal());
+        $invoice->setBaseGrandTotal($this->amount);
+        $invoice->setGrandTotal($this->amount);
         $invoice->register();
 
         // Save the invoice

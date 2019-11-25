@@ -113,7 +113,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     /**
      * @var StoreManagerInterface
      */
-    public $storeManager; 
+    public $storeManager;
 
     /**
      * @var Logger
@@ -254,8 +254,15 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $payment = new Payment($source, $currency);
 
         // Prepare the metadata array
-        $payment->metadata = ['methodId' => $methodId];
+        $payment->metadata['methodId'] = $methodId;
+        $request->metadata['isFrontendRequest'] = true;
 
+        // Add the base metadata
+        $request->metadata = array_merge(
+            $request->metadata,
+            $this->apiHandler->getBaseMetadata()
+        );
+        
         // Set the payment specifications
         $payment->capture = $this->config->needsAutoCapture($this->_code);
         $payment->amount = $amount * 100;

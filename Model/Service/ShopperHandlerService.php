@@ -45,23 +45,16 @@ class ShopperHandlerService
     public $localeResolver;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * ShopperHandlerService constructor
      */
     public function __construct(
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Framework\Locale\Resolver $localeResolver,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \Magento\Framework\Locale\Resolver $localeResolver
     ) {
         $this->localeResolver  = $localeResolver;
         $this->customerSession = $customerSession;
         $this->customerRepository  = $customerRepository;
-        $this->logger = $logger;
     }
 
     public function getCustomerData($filters = [])

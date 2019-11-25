@@ -37,7 +37,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     /**
      * @var StoreManagerInterface
      */
-    public $storeManager; 
+    public $storeManager;
 
     /**
      * @var JsonFactory

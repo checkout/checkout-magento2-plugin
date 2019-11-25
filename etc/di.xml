@@ -45,6 +45,12 @@
     </type>
     <!-- END After place order plugin -->
 
+    <!-- After save transaction plugin -->
+    <type name="Magento\Sales\Api\Data\TransactionInterface">
+        <plugin name="cko_after_save_transaction" type="CheckoutCom\Magento2\Plugin\AfterSaveTransaction" />
+    </type>
+    <!-- END After place order plugin -->
+
     <!-- Minification exclusion plugin -->
     <type name="Magento\Framework\View\Asset\Minification">
         <plugin name="cko_minification_exclude" type="CheckoutCom\Magento2\Plugin\MinificationExclude" />

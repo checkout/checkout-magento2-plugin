@@ -28,7 +28,7 @@ class Verify extends \Magento\Framework\App\Action\Action
     /**
      * @var StoreManagerInterface
      */
-    public $storeManager; 
+    public $storeManager;
 
     /**
      * @var Config
@@ -123,8 +123,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                 // Process the response
                 if ($api->isValidResponse($response)) {
                     return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
-                }
-                else {
+                } else {
                     // Restore the quote
                     $this->quoteHandler->restoreQuote($response->reference);
 
@@ -133,19 +132,17 @@ class Verify extends \Magento\Framework\App\Action\Action
                         __('The transaction could not be processed or has been cancelled.')
                     );
                 }
-            }
-            else {
+            } else {
                 // Add and error message
                 $this->messageManager->addErrorMessage(
                     __('Invalid request. No order found.')
-                );                     
+                );
             }
-        }
-        else {
+        } else {
             // Add and error message
             $this->messageManager->addErrorMessage(
                 __('Invalid request. No session ID found.')
-            );       
+            );
         }
 
         // Return to the cart

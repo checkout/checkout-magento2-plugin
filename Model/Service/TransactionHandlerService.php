@@ -31,6 +31,11 @@ class TransactionHandlerService
     public $transactionBuilder;
 
     /**
+     * @var TransactionSearchResultInterfaceFactory
+     */
+    public $transactionSearch;
+
+    /**
      * @var ManagerInterface
      */
     public $messageManager;
@@ -85,6 +90,7 @@ class TransactionHandlerService
      */
     public function __construct(
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
+        \Magento\Sales\Api\Data\TransactionSearchResultInterfaceFactory $transactionSearch,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Framework\Api\FilterBuilder $filterBuilder,
@@ -97,6 +103,7 @@ class TransactionHandlerService
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         $this->transactionBuilder    = $transactionBuilder;
+        $this->transactionSearch     = $transactionSearch;
         $this->messageManager        = $messageManager;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder         = $filterBuilder;
@@ -114,30 +121,27 @@ class TransactionHandlerService
      */
     public function createTransaction($order, $transactionType, $data = null)
     {
-        // Prepare the needed elements
-        $this->prepareData($order, $transactionType, $data);
+        // Prepare parameters
+        $this->setProperties($order);
 
         // Process the transaction
-        switch ($this->transactionType) {
+        switch ($transactionType) {
             case Transaction::TYPE_AUTH:
-                $this->handleAuthorization();
+                $this->handleAuthorization($transactionType, $data);
                 break;
 
             case Transaction::TYPE_CAPTURE:
-                $this->handleCapture();
+                $this->handleCapture($transactionType, $data);
                 break;
 
             case Transaction::TYPE_VOID:
-                $this->handleVoid();
+                $this->handleVoid($transactionType, $data);
                 break;
 
             case Transaction::TYPE_REFUND:
-                $this->handleRefund();
+                $this->handleRefund($transactionType, $data);
                 break;
         }
-
-        // Save the processed elements
-        $this->saveData();
 
         // Return the order
         return $this->order;
@@ -166,11 +170,9 @@ class TransactionHandlerService
         // Prepare the amount
         if (in_array($currency, $currenciesX1)) {
             return $amount;
-        }
-        else if (in_array($currency, $currenciesX1000)) {
+        } elseif (in_array($currency, $currenciesX1000)) {
             return $amount/1000;
-        }
-        else {
+        } else {
             return $amount/100;
         }
     }
@@ -178,11 +180,22 @@ class TransactionHandlerService
     /**
      * Prepare the required instance properties.
      */
-    public function prepareData($order, $transactionType, $data)
+    public function setProperties($order)
     {
         // Assign the order
         $this->order = $order;
 
+        // Assign the method ID
+        $this->methodId = $this->order->getPayment()
+        ->getMethodInstance()
+        ->getCode();
+    }
+
+    /**
+     * Prepare the required instance data.
+     */
+    public function prepareData($transactionType, $data)
+    {
         // Assign the transaction type
         $this->transactionType = $transactionType;
 
@@ -190,9 +203,6 @@ class TransactionHandlerService
         $this->paymentData = $data
         ? $this->utilities->objectToArray($data)
         : $this->utilities->getPaymentData($this->order);
-
-        // Assign the method ID
-        $this->methodId = $this->getMethodId();
 
         // Prepare the payment
         $this->payment = $this->buildPayment();
@@ -204,15 +214,36 @@ class TransactionHandlerService
     }
 
     /**
+     * Check if custom invoicing is needed.
+     */
+    public function needsCustomInvoicing()
+    {
+        return !isset($this->paymentData['data']['metadata']['isBackendCapture']);
+    }
+
+    /**
+     * Check if custom comment is needed.
+     */
+    public function needsCustomComment()
+    {
+        return isset($this->paymentData['data']['metadata']['isFrontendRequest']);
+    }
+
+    /**
      * Process an authorization request.
      */
-    public function handleAuthorization()
+    public function handleAuthorization($transactionType, $data)
     {
+        // Handle authorization
         $authTransaction = $this->hasTransaction(
             Transaction::TYPE_AUTH,
             $this->order
         );
+
         if (!$authTransaction) {
+            // Prepare the data
+            $this->prepareData($transactionType, $data);
+
             // Set the order status
             $this->setOrderStatus(
                 'order_status_authorized',
@@ -225,28 +256,36 @@ class TransactionHandlerService
             // Set the parent transaction id
             $this->transaction->setParentTxnId(null);
 
-            // Allow void
+            // Allow void and capture
             $this->transaction->setIsClosed(0);
 
             // Check the email sender
             if ($this->config->getValue('order_email') == 'authorize') {
-                $order->setCanSendNewEmailFlag(true);
+                $this->order->setCanSendNewEmailFlag(true);
                 $this->orderSender->send($this->order, true);
             }
+
+            // Save the data
+            $this->payment->save();
+            $this->transaction->save();
+            $this->order->save();
         }
     }
 
     /**
      * Process a capture request.
      */
-    public function handleCapture()
+    public function handleCapture($transactionType, $data)
     {
         // Get the parent transaction
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
 
         // Handle the capture logic
         if ($parentTransaction) {
-            $parentTransaction->close();
+            // Prepare the data
+            $this->prepareData($transactionType, $data);
+
+            // Set the parent transaction id for the current transaction
             $this->transaction->setParentTxnId(
                 $parentTransaction->getTxnId()
             );
@@ -257,12 +296,6 @@ class TransactionHandlerService
                 Order::STATE_PROCESSING
             );
 
-            // Add order comment
-            $this->addOrderComment('The captured amount is %1.');
-
-            // Set the total paid
-            $this->order->setTotalPaid($this->order->getGrandTotal());
-
             // Allow refund
             $this->transaction->setIsClosed(0);
 
@@ -272,22 +305,28 @@ class TransactionHandlerService
                 $this->orderSender->send($this->order, true);
             }
 
+            // Get the payment amount
+            $paymentAmount = $this->utilities->formatDecimals(
+                $this->amountFromGateway(
+                    $this->paymentData['data']['amount'],
+                    $this->order
+                )
+            );
+
+            // Add custom comment only if request is from the frontend
+            if ($this->needsCustomComment()) {
+                $this->addOrderComment('The captured amount is %1.', $paymentAmount);
+            }
+
             // Custom invoice handling only if it's not admin capture
-            if (!isset($this->paymentData['data']['metadata']['isBackendCapture'])) {
+            if ($this->needsCustomInvoicing()) {
+                // Process the invoice
                 $this->order = $this->invoiceHandler->processInvoice(
                     $this->order,
-                    $this->transaction
+                    $this->transaction,
+                    $paymentAmount
                 );
-            }
-            else {    
-                // Get the payment amount
-                $paymentAmount = $this->utilities->formatDecimals(
-                    $this->amountFromGateway(
-                        $this->paymentData['data']['amount'],
-                        $this->order
-                    )
-                );
-
+            } else {
                 // Get the order amount
                 $orderAmount = $this->utilities->formatDecimals(
                     $this->order->getGrandTotal()
@@ -299,16 +338,28 @@ class TransactionHandlerService
                     $parentTransaction->save();
                 }
             }
+
+            // Close the authorization transaction
+            $parentTransaction->close();
+
+            // Save the data
+            $this->payment->save();
+            $this->transaction->save();
+            $this->order->save();
         }
     }
 
     /**
      * Process a void request.
      */
-    public function handleVoid()
+    public function handleVoid($transactionType, $data)
     {
+        // Process teh void logic
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
         if ($parentTransaction) {
+            // Prepare the data
+            $this->prepareData($transactionType, $data);
+
             // Set the parent transaction id
             $parentTransaction->close();
             $this->transaction->setParentTxnId(
@@ -320,23 +371,31 @@ class TransactionHandlerService
 
             // Lock the transaction
             $this->transaction->setIsClosed(1);
+
+            // Set the order status
+            $this->setOrderStatus(
+                'order_status_voided',
+                'order_status_voided'
+            );
+
+            // Save the data
+            $this->payment->save();
+            $this->transaction->save();
+            $this->order->save();
         }
-
-        // Set the order status
-        $this->setOrderStatus(
-            'order_status_voided',
-            'order_status_voided'
-        );
-
     }
 
     /**
      * Process a refund request.
      */
-    public function handleRefund()
+    public function handleRefund($transactionType, $data)
     {
+        // Process the refund logic
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_CAPTURE);
         if ($parentTransaction) {
+            // Prepare the data
+            $this->prepareData($transactionType, $data);
+
             // Set the parent transaction id
             $parentTransaction->close();
             $this->transaction->setParentTxnId(
@@ -344,7 +403,10 @@ class TransactionHandlerService
             );
             
             // Prepare the refunded amount
-            $amount = $this->paymentData['data']['amount']/100;
+            $amount = $this->amountFromGateway(
+                $this->paymentData['data']['amount'],
+                $this->order
+            );
 
             // Load the invoice
             $invoice = $this->invoiceHandler->getInvoice($this->order);
@@ -353,30 +415,55 @@ class TransactionHandlerService
             $creditMemo = $this->creditMemoFactory->createByOrder($this->order);
             $creditMemo->setInvoice($invoice);
             $creditMemo->setBaseGrandTotal($amount);
-
-            // Update the refunded amount
-            $this->order->setTotalRefunded($amount + $this->order->getTotalRefunded());
+            $creditMemo->setGrandTotal($amount);
 
             // Refund
             $this->creditMemoService->refund($creditMemo);
 
-            // Lock the transaction
-            $this->transaction->setIsClosed(1);
-
-            // Apply the order status
+            // Update the order
             if ($this->order->getGrandTotal() == $this->order->getTotalRefunded()) {
+                // Order status
                 $this->setOrderStatus(
                     'order_status_refunded',
                     'order_status_refunded'
                 );
-            }
-            else {
+
+                // Transaction state
+                $this->transaction->setIsClosed(1);
+            } else {
                 $this->setOrderStatus(
                     'order_status_refunded_partial',
                     'order_status_refunded_partial'
                 );
+
+                // Transaction state
+                $this->transaction->setIsClosed(0);
+            }
+
+            // Update the refunded amount
+            $this->order->setTotalRefunded($this->getCreditMemosTotal());
+
+            // Save the data
+            $this->payment->save();
+            $this->transaction->save();
+            $this->order->save();
+        }
+    }
+
+    /**
+     * Get the total credit memos amount.
+     */
+    public function getCreditMemosTotal()
+    {
+        $total = 0;
+        $creditMemos = $this->order->getCreditmemosCollection();
+        if (!empty($creditMemos)) {
+            foreach ($creditMemos as $creditMemo) {
+                $total += $creditMemo->getGrandTotal();
             }
         }
+
+        return $total;
     }
 
     /**
@@ -397,7 +484,7 @@ class TransactionHandlerService
         if ($state && !empty($state)) {
             $this->order->setState(
                 $this->config->getValue($state)
-            );             
+            );
         }
 
         // Set the order status
@@ -409,11 +496,12 @@ class TransactionHandlerService
     /**
      * Add a transaction comment to an order.
      */
-    public function addOrderComment($comment)
+    public function addOrderComment($comment, $amount = null)
     {
+        $amount = $amount ? $amount : $this->order->getGrandTotal();
         $this->payment->addTransactionCommentsToOrder(
             $this->transaction,
-            __($comment, $this->getAmount())
+            __($comment, $this->formatAmount($amount))
         );
     }
 
@@ -436,34 +524,12 @@ class TransactionHandlerService
     }
 
     /**
-     * Get the order method ID.
-     */
-    public function getMethodId()
-    {
-        return $this->order->getPayment()
-            ->getMethodInstance()
-            ->getCode();
-    }
-
-    /**
      * Get the order amount.
      */
-    public function getAmount()
+    public function formatAmount($amount)
     {
         return $this->order->getBaseCurrency()
-            ->formatTxt(
-                $this->order->getGrandTotal()
-            );
-    }
-    
-    /**
-     * Save the required data.
-     */
-    public function saveData()
-    {
-        $this->payment->save();
-        $this->transaction->save();
-        $this->order->save();
+            ->formatTxt($amount);
     }
 
     /**
@@ -536,29 +602,19 @@ class TransactionHandlerService
         // Prepare the order
         $order = $order ? $order : $this->order;
 
-        // Payment filter
-        $filters[] = $this->filterBuilder->setField('payment_id')
-            ->setValue($order->getPayment()->getId())
-            ->create();
-
-        // Order filter
-        $filters[] = $this->filterBuilder->setField('order_id')
-            ->setValue($order->getId())
-            ->create();
-
-        // Build the search criteria
-        $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilters($filters)
-            ->create();
-
         // Get the list of transactions
-        $transactions = $this->transactionRepository->getList($searchCriteria)->getItems();
+        $transactions = $this->transactionSearch
+        ->create()
+        ->addOrderIdFilter($order->getId());
+        $transactions->getItems();
 
         // Filter by transaction type
         if ($transactionType && !empty($transactions)) {
             $filteredResult = [];
             foreach ($transactions as $transaction) {
-                if ($transaction->getTxnType() == $transactionType && $transaction->getIsClosed() == $isClosed) {
+                $condition = $transaction->getTxnType() == $transactionType
+                && $transaction->getIsClosed() == $isClosed;
+                if ($condition) {
                     $filteredResult[] = $transaction;
                 }
             }
