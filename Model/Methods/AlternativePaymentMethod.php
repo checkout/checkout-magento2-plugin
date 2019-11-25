@@ -254,8 +254,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $payment = new Payment($source, $currency);
 
         // Prepare the metadata array
-        $payment->metadata = ['methodId' => $methodId];
-        $request->metadata = ['isFrontendRequest' => true];
+        $payment->metadata['methodId'] = $methodId;
+        $request->metadata['isFrontendRequest'] = true;
 
         // Add the base metadata
         $request->metadata = array_merge(
