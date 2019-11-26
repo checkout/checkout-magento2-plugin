@@ -187,9 +187,6 @@ define(
                     // Prepare the needed variables
                     var self = this;
                     var formStyles = self.getFormStyles();
-                    var address = Utilities.getBillingAddress(),
-                        line1 = address.street[0] !== undefined ? address.street[0] : '',
-                        line2 = address.street[1] !== undefined ? address.street[1] : ''
 
                     // Restore any existing HTML
                     if (this.formClone) {
@@ -208,16 +205,7 @@ define(
                             localization: self.getValue('language_fallback'),
                             style: (formStyles) ? formStyles : {},
                             cardholder: {
-                                name: Utilities.getCustomerName(),
-                                phone: address.telephone,
-                                billingAddress: {
-                                    addressLine1: line1,
-                                    addressLine2: line2,
-                                    postcode: address.postcode,
-                                    city: address.city,
-                                    state: address.region,
-                                    country: address.countryId,
-                                }
+                                name: Utilities.getCustomerName()
                             }
                         }
                     );
