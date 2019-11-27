@@ -203,10 +203,7 @@ define(
                             publicKey: self.getValue('public_key'),
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
                             localization: self.getValue('language_fallback'),
-                            style: (formStyles) ? formStyles : {},
-                            cardholder: {
-                                name: Utilities.getCustomerName()
-                            }
+                            style: (formStyles) ? formStyles : {}
                         }
                     );
 
@@ -292,6 +289,11 @@ define(
                     if (Utilities.methodIsSelected(METHOD_ID)) {
                         // Validate the order placement
                         if (AdditionalValidators.validate() && Frames.isCardValid()) {
+                            // Add the card holder name
+                            Frames.cardholder = {
+                                name: Utilities.getCustomerName()
+                            };
+
                             // Prepare the payload
                             var payload = {
                                 methodId: METHOD_ID,
