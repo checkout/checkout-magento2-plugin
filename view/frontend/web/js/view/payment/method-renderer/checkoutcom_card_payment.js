@@ -259,6 +259,12 @@ define(
                         function (event) {
                             var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
                             if (valid) {
+                                // Add the card holder name
+                                Frames.cardholder = {
+                                    name: Utilities.getCustomerName()
+                                };
+
+                                // Submit the payment form
                                 Frames.submitCard();
                             }
                             Utilities.allowPlaceOrder(self.buttonId, false);
@@ -289,11 +295,6 @@ define(
                     if (Utilities.methodIsSelected(METHOD_ID)) {
                         // Validate the order placement
                         if (AdditionalValidators.validate() && Frames.isCardValid()) {
-                            // Add the card holder name
-                            Frames.cardholder = {
-                                name: Utilities.getCustomerName()
-                            };
-
                             // Prepare the payload
                             var payload = {
                                 methodId: METHOD_ID,
