@@ -34,12 +34,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         'payment_approved' => Transaction::TYPE_AUTH,
         'payment_captured' => Transaction::TYPE_CAPTURE,
         'payment_refunded' => Transaction::TYPE_REFUND,
-        'payment_voided' => Transaction::TYPE_VOID,
-        'payment_pending' => 'payment_pending',
-        'payment_declined' => 'payment_declined',
-        'payment_capture_pending' => 'payment_capture_pending',
-        'payment_expired' => 'payment_expired',
-        'payment_canceled' => 'payment_canceled'
+        'payment_voided' => Transaction::TYPE_VOID
     ];
 
     /**
