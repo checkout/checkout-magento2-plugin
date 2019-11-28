@@ -33,6 +33,7 @@ use \Checkout\Models\Payments\BancontactSource;
 use \Checkout\Models\Payments\KlarnaSource;
 use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
+use \Checkout\Models\Payments\PoliSource;
 
 /**
  * Class AlternativePaymentMethod

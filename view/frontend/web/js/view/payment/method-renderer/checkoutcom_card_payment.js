@@ -187,9 +187,6 @@ define(
                     // Prepare the needed variables
                     var self = this;
                     var formStyles = self.getFormStyles();
-                    var address = Utilities.getBillingAddress(),
-                        line1 = address.street[0] !== undefined ? address.street[0] : '',
-                        line2 = address.street[1] !== undefined ? address.street[1] : ''
 
                     // Restore any existing HTML
                     if (this.formClone) {
@@ -206,19 +203,7 @@ define(
                             publicKey: self.getValue('public_key'),
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
                             localization: self.getValue('language_fallback'),
-                            style: (formStyles) ? formStyles : {},
-                            cardholder: {
-                                name: Utilities.getCustomerName(),
-                                phone: address.telephone,
-                                billingAddress: {
-                                    addressLine1: line1,
-                                    addressLine2: line2,
-                                    postcode: address.postcode,
-                                    city: address.city,
-                                    state: address.region,
-                                    country: address.countryId,
-                                }
-                            }
+                            style: (formStyles) ? formStyles : {}
                         }
                     );
 
@@ -274,6 +259,12 @@ define(
                         function (event) {
                             var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
                             if (valid) {
+                                // Add the card holder name
+                                Frames.cardholder = {
+                                    name: Utilities.getCustomerName()
+                                };
+
+                                // Submit the payment form
                                 Frames.submitCard();
                             }
                             Utilities.allowPlaceOrder(self.buttonId, false);
