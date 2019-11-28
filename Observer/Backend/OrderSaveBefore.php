@@ -308,13 +308,13 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     public function handleBackendVoid()
     {
         // Check for previous captures
-        $authTransaction = $this->transactionHandler->hasTransaction(
-            Transaction::TYPE_AUTH,
+        $captureTransaction = $this->transactionHandler->hasTransaction(
+            Transaction::TYPE_CAPTURE,
             $this->order
         );
 
         // Allow void only if there are no previous captures
-        if (!$authTransaction) {
+        if (!$captureTransaction) {
             // Send the void request
             $response = $this->api->voidOrder($this->payment);
             
