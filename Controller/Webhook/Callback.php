@@ -30,7 +30,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * @var array
      */
-    public static $transactionMapper = [
+    public static $paymentTypeMapper = [
         'payment_approved' => Transaction::TYPE_AUTH,
         'payment_captured' => Transaction::TYPE_CAPTURE,
         'payment_refunded' => Transaction::TYPE_REFUND,
@@ -38,7 +38,8 @@ class Callback extends \Magento\Framework\App\Action\Action
         'payment_pending' => 'payment_pending',
         'payment_declined' => 'payment_declined',
         'payment_capture_pending' => 'payment_capture_pending',
-        'payment_expired' => 'payment_expired'
+        'payment_expired' => 'payment_expired',
+        'payment_canceled' => 'payment_canceled'
     ];
 
     /**
@@ -168,7 +169,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                         // Handle the transaction
                         $order = $this->transactionHandler->createTransaction(
                             $order,
-                            static::$transactionMapper[$this->payload->type],
+                            static::$paymentTypeMapper[$this->payload->type],
                             $this->payload
                         );
 
