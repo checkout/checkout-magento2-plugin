@@ -60,6 +60,16 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
     public $quoteHandler;
 
     /**
+     * @var Information
+     */
+    public $storeInformation;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager;
+
+    /**
      * @var Quote
      */
     public $quote;
@@ -84,7 +94,8 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \Magento\Store\Model\Information $storeManager,
+        \Magento\Store\Model\Information $storeInformation,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Store\Model\Store $storeModel
     ) {
         parent::__construct($context);
@@ -94,7 +105,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
-        $this->storeManager = $storeManager;
+        $this->storeInformation = $storeInformation;
         $this->storeModel = $storeModel;
     }
 
@@ -115,7 +126,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         // Try to load a quote
         $this->quote = $this->quoteHandler->getQuote();
         $this->billingAddress = $this->quoteHandler->getBillingAddress();
-        $this->store = $this->storeManager->getStoreInformationObject($this->storeModel);
+        $this->store = $this->storeInformation->getStoreInformationObject($this->storeModel);
 
         // Run the requested task
         if ($this->isValidRequest()) {
@@ -231,7 +242,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         $sepa = null;
 
         // Get the store code
-        $storeCode = $this->storeManager->getStore()->getCode();
+        $storeCode = $this->storeInformation->getStore()->getCode();
 
         // Initialize the API handler
         $api = $this->apiHandler->init($storeCode);
