@@ -106,6 +106,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
         $this->storeInformation = $storeInformation;
+        $this->storeManager = $storeManager;
         $this->storeModel = $storeModel;
     }
 
