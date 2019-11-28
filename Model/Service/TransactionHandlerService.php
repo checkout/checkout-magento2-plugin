@@ -397,7 +397,6 @@ class TransactionHandlerService
             $this->prepareData($transactionType, $data);
 
             // Set the parent transaction id
-            $parentTransaction->close();
             $this->transaction->setParentTxnId(
                 $parentTransaction->getTxnId()
             );
@@ -422,6 +421,9 @@ class TransactionHandlerService
 
             // Update the order
             if ($this->order->getGrandTotal() == $this->order->getTotalRefunded()) {
+
+                $parentTransaction->close();
+
                 // Order status
                 $this->setOrderStatus(
                     'order_status_refunded',
