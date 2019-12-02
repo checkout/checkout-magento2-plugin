@@ -357,7 +357,7 @@ class TransactionHandlerService
      */
     public function handleVoid($transactionType, $data)
     {
-        // Process teh void logic
+        // Process the void logic
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
         if ($parentTransaction) {
             // Prepare the data
@@ -372,14 +372,17 @@ class TransactionHandlerService
             // Add order comment
             $this->addOrderComment('The voided amount is %1.');
 
-            // Lock the transaction
-            $this->transaction->setIsClosed(1);
 
             // Set the order status
             $this->setOrderStatus(
                 'order_status_voided',
                 'order_status_voided'
             );
+
+
+            // Lock the transaction
+            $this->transaction->setIsClosed(1);
+
 
             // Save the data
             $this->payment->save();

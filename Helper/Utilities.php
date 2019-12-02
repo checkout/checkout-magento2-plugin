@@ -45,6 +45,8 @@ class Utilities
     /**
      * Utilities constructor.
      */
+
+    
     public function __construct(
         \Magento\Framework\UrlInterface $urlInterface,
         \Magento\Framework\Module\Dir\Reader $moduleDirReader,
