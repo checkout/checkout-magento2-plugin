@@ -161,7 +161,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Helper\Curl $curl,
+        \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -342,8 +342,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         ]);
 
         // Set extra CURL parameters
-        $this->curl->curlOption(CURLOPT_FAILONERROR, false);
-        $this->curl->curlOption(CURLOPT_RETURNTRANSFER, true);
+        $this->curl->setOption(CURLOPT_FAILONERROR, false);
+        $this->curl->setOption(CURLOPT_RETURNTRANSFER, true);
 
 
         // Send the request
