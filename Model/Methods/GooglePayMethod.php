@@ -221,11 +221,14 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->metadata['methodId'] = $this->_code;
             $request->metadata['isFrontendRequest'] = true;
 
-            // Prepare the capture date setting
-            $captureDate = $this->config->getCaptureTime($this->_code);
+            // Prepare the capture setting
+            $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
+            $request->capture = $needsAutoCapture;
+            if ($needsAutoCapture) {
+                $request->capture_on = $this->config->getCaptureTime($this->_code);
+            }
 
             // Set the request parameters
-            $request->capture = $this->config->needsAutoCapture($this->_code);
             $request->amount = $this->quoteHandler->amountToGateway(
                 $this->utilities->formatDecimals($amount),
                 $quote
@@ -235,9 +238,6 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->customer = $api->createCustomer($quote);
             $request->payment_type = 'Regular';
             $request->shipping = $api->createShippingAddress($quote);
-            if ($captureDate) {
-                $request->capture_on = $this->config->getCaptureTime();
-            }
 
             // Billing descriptor
             if ($this->config->needsDynamicDescriptor()) {

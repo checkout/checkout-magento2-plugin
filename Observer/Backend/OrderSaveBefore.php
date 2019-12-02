@@ -356,10 +356,11 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
         // Add the backend capture flag
         $request->metadata['isBackendCapture'] = true;
 
-        // Prepare the capture date setting
-        $captureDate = $this->config->getCaptureTime($this->methodId);
-        if ($captureDate) {
-            $request->capture_on = $this->config->getCaptureTime();
+        // Prepare the capture setting
+        $needsAutoCapture = $this->config->needsAutoCapture($this->methodId);
+        $request->capture = $needsAutoCapture;
+        if ($needsAutoCapture) {
+            $request->capture_on = $this->config->getCaptureTime($this->methodId);
         }
 
         // Billing descriptor
@@ -411,14 +412,14 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             $this->apiHandler->getBaseMetadata()
         );
 
-        // Prepare the capture date setting
-        $captureDate = $this->config->getCaptureTime($this->methodId);
-        if ($captureDate) {
-            $request->capture_on = $this->config->getCaptureTime();
+        // Prepare the capture setting
+        $needsAutoCapture = $this->config->needsAutoCapture($this->methodId);
+        $request->capture = $needsAutoCapture;
+        if ($needsAutoCapture) {
+            $request->capture_on = $this->config->getCaptureTime($this->methodId);
         }
 
         // Set the request parameters
-        $request->capture = $this->config->needsAutoCapture($this->methodId);
         $request->amount = $this->prepareMotoAmount();
         $request->reference = $this->order->getIncrementId();
         $request->payment_type = 'MOTO';
