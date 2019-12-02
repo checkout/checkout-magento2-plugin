@@ -264,7 +264,7 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_card_payment/mada_enabled</config_path>
                         <comment>
-                            Add a flag to the charge request if the payment card is MADA. Enabling the MADA feature will force auto capture for all payment requests.
+                            Add a flag to the charge request if the payment card is MADA. Enabling the MADA feature will force auto capture for all MADA payment requests.
                         </comment>
                     </field>
 
