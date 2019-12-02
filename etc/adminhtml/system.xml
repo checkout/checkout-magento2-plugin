@@ -504,27 +504,24 @@
                         <config_path>payment/checkoutcom_moto/use_default_account</config_path>
                     </field>
 
-                    <field id="secret_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="secret_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Secret Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_moto/secret_key</config_path>
                         <depends>
                             <field id="use_default_account">0</field>
                         </depends>
                     </field>
 
-                    <field id="public_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="public_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Public Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_moto/public_key</config_path>
                         <depends>
                             <field id="use_default_account">0</field>
                         </depends>
                     </field>
 
-                    <field id="private_shared_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="private_shared_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Private Shared Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_moto/private_shared_key</config_path>
                         <depends>
                             <field id="use_default_account">0</field>
