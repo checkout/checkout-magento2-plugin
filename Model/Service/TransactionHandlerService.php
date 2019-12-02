@@ -339,7 +339,7 @@ class TransactionHandlerService
                 }
             }
 
-            // Close the authorization transaction
+            // Close the parent transaction
             $parentTransaction->close();
 
             // Save the data
