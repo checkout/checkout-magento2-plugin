@@ -79,12 +79,10 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         }
 
         // Build the AJAX response
-        return $this->jsonFactory->create()->setData(
-            [
-                'success' => $success,
-                'message' => $message,
-                'url' => $url
-            ]
-        );
+        return $this->jsonFactory->create()->setData([
+            'success' => $success,
+            'message' => $message,
+            'url' => $url
+        ]);
     }
 }
