@@ -337,10 +337,11 @@ class TransactionHandlerService
                     $parentTransaction->setIsClosed(0);
                     $parentTransaction->save();
                 }
+                else {
+                    // Close the parent transaction
+                    $parentTransaction->close();                    
+                }
             }
-
-            // Close the parent transaction
-            $parentTransaction->close();
 
             // Save the data
             $this->payment->save();
