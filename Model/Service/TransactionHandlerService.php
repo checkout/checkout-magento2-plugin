@@ -361,7 +361,6 @@ class TransactionHandlerService
             $this->prepareData($transactionType, $data);
 
             // Set the parent transaction id
-            $parentTransaction->close();
             $this->transaction->setParentTxnId(
                 $parentTransaction->getTxnId()
             );
@@ -377,6 +376,9 @@ class TransactionHandlerService
                 'order_status_voided',
                 'order_status_voided'
             );
+
+            // Close the parent transaction
+            $parentTransaction->close();
 
             // Save the data
             $this->payment->save();
@@ -397,7 +399,6 @@ class TransactionHandlerService
             $this->prepareData($transactionType, $data);
 
             // Set the parent transaction id
-            $parentTransaction->close();
             $this->transaction->setParentTxnId(
                 $parentTransaction->getTxnId()
             );
@@ -442,6 +443,9 @@ class TransactionHandlerService
 
             // Update the refunded amount
             $this->order->setTotalRefunded($this->getCreditMemosTotal());
+
+            // Close the parent transaction
+            $parentTransaction->close();
 
             // Save the data
             $this->payment->save();
