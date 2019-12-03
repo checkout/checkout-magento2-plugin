@@ -398,6 +398,10 @@ class TransactionHandlerService
         $isBackendRequest = isset($this->paymentData['data']['metadata']['isBackendRequest']);
 
         if ($parentTransaction && !$isBackendRequest) {
+            // Open the transaction in case it's closed
+            $parentTransaction->setIsClosed(0);
+            $parentTransaction->save();
+
             // Prepare the data
             $this->prepareData($transactionType, $data);
 

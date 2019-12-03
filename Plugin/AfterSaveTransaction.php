@@ -82,7 +82,7 @@ class AfterSaveTransaction
         if ($this->needsCaptureOpening()) {
             $this->transaction->setIsClosed(0);
             $this->registry->register(
-                $this->getRegistryFlag(),
+                $this->getCaptureRegistryFlag(),
                 true
             );
         }
@@ -109,7 +109,7 @@ class AfterSaveTransaction
     /**
      * Get the registry flag
      */
-    public function getRegistryFlag() {
+    public function getCaptureRegistryFlag() {
         return 'backend_capture_opened_' . $this->transaction->getTxnId();
     }
 
@@ -120,8 +120,8 @@ class AfterSaveTransaction
         return $this->backendAuthSession->isLoggedIn()
         && in_array($this->methodId, $this->config->getMethodsList())
         && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE
-        && !$this->registry->registry($this->getRegistryFlag())
-        && !$this->orderHasRefunds();
+        && !$this->registry->registry($this->getCaptureRegistryFlag());
+        //&& !$this->orderHasRefunds();
     }
 
     /**
