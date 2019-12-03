@@ -395,7 +395,9 @@ class TransactionHandlerService
     {
         // Process the refund logic
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_CAPTURE);
-        if ($parentTransaction) {
+        $isBackendRequest = isset($this->paymentData['data']['metadata']['isBackendRequest']);
+
+        if ($parentTransaction && !$isBackendRequest) {
             // Prepare the data
             $this->prepareData($transactionType, $data);
 
