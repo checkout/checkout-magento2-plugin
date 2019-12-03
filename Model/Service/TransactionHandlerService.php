@@ -445,9 +445,6 @@ class TransactionHandlerService
             // Update the refunded amount
             $this->order->setTotalRefunded($this->getCreditMemosTotal());
 
-            // Close the parent transaction
-            $parentTransaction->close();
-
             // Save the data
             $this->payment->save();
             $this->transaction->save();
