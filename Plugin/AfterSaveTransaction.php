@@ -79,7 +79,7 @@ class AfterSaveTransaction
         $this->init($transaction);
 
         // Open the transaction
-        if ($this->needsOpening()) {
+        if ($this->needsCaptureOpening()) {
             $this->transaction->setIsClosed(0);
             $this->registry->register(
                 $this->getRegistryFlag(),
@@ -116,7 +116,7 @@ class AfterSaveTransaction
     /**
      * Check if a capture transaction needs opening
      */
-    public function needsOpening() {
+    public function needsCaptureOpening() {
         return $this->backendAuthSession->isLoggedIn()
         && in_array($this->methodId, $this->config->getMethodsList())
         && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE
