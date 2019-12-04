@@ -171,7 +171,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
                     $this->utilities->formatDecimals(
                         $this->quote->getGrandTotal()
                     ),
-                    $quote
+                    $this->quote
                 ),
                 $response['tax_amount'],
                 $products
@@ -191,7 +191,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
                 }
             }
         } catch (\Exception $e) {
-            $this->logger->write($e->getBody());
+            $this->logger->write($e->getMessage());
         } finally {
             return $response;
         }
