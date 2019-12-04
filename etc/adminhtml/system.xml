@@ -90,7 +90,7 @@
                             <label>Action on Failed Payment</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderActionFailedPayment</source_model>
                             <config_path>settings/checkoutcom_configuration/order_action_failed_payment</config_path>
-                            <comment>Select the action that should that should be used for orders with failed payments.</comment>
+                            <comment>Select the action that should be taken for orders with failed payments.</comment>
                         </field>
 
                         <field id="order_email" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
