@@ -82,11 +82,6 @@ class BeforeSaveTransaction
      */
     public function beforeSave(TransactionInterface $transaction)
     {
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/request.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($this->request->getParams(), 1));
-
         // Prepare the instance properties
         $this->init($transaction);
 
@@ -106,6 +101,9 @@ class BeforeSaveTransaction
      * Prepare the instance properties
      */
     public function init($transaction) {
+        // Get the request parameters
+        $this->request->getParams();
+
         // Set the loaded transaction
         $this->transaction = $transaction;
 
@@ -133,20 +131,7 @@ class BeforeSaveTransaction
         && in_array($this->methodId, $this->config->getMethodsList())
         && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE
         && !$this->registry->registry($this->getRegistryFlag())
-        && !$this->orderHasRefunds();
-    }
-
-    /**
-     * Check if an order has refunds
-     */
-    public function orderHasRefunds() {
-        // Load the refund transactions
-        $refundTransactions = $this->transactionHandler->getTransactions(
-            Transaction::TYPE_REFUND,
-            $this->order,
-            1
-        );
-        
-        return empty($refundTransactions) ? false : true;
+        && isset($this->params['invoice']['capture_case'])
+        && $this->params['invoice']['capture_case'] == 'online';
     }
 }
