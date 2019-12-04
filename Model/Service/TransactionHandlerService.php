@@ -518,9 +518,7 @@ class TransactionHandlerService
     {
         // Set the order state
         if ($state && !empty($state)) {
-            $this->order->setState(
-                $this->config->getValue($state)
-            );
+            $this->order->setState($state);
         }
 
         // Set the order status
