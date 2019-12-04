@@ -342,8 +342,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         ]);
 
         // Set extra CURL parameters
-        $this->curl->curlOption(CURLOPT_FAILONERROR, false);
-        $this->curl->curlOption(CURLOPT_RETURNTRANSFER, true);
+        $this->curl->setOption(CURLOPT_FAILONERROR, false);
+        $this->curl->setOption(CURLOPT_RETURNTRANSFER, true);
+
 
         // Send the request
         $this->curl->post($url, []);

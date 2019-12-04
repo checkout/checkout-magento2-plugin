@@ -35,9 +35,11 @@
                 <order_status_authorized>pending_payment</order_status_authorized>
                 <order_status_captured>processing</order_status_captured>
                 <order_status_voided>canceled</order_status_voided>
+                <order_status_canceled>canceled</order_status_canceled>
                 <order_status_refunded>closed</order_status_refunded>
                 <order_status_refunded_partial>processing</order_status_refunded_partial>
                 <order_status_flagged>fraud</order_status_flagged>
+                <order_action_failed_payment>cancel</order_action_failed_payment>
                 <payment_action>authorize_capture</payment_action>
                 <capture_time>0.01</capture_time>
                 <dynamic_descriptor_enabled>0</dynamic_descriptor_enabled>

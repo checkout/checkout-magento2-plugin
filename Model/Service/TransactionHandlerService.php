@@ -102,18 +102,18 @@ class TransactionHandlerService
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
-        $this->transactionBuilder    = $transactionBuilder;
-        $this->transactionSearch     = $transactionSearch;
-        $this->messageManager        = $messageManager;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->filterBuilder         = $filterBuilder;
-        $this->transactionRepository = $transactionRepository;
-        $this->creditMemoFactory     = $creditMemoFactory;
-        $this->creditMemoService     = $creditMemoService;
-        $this->orderSender           = $orderSender;
-        $this->invoiceHandler        = $invoiceHandler;
-        $this->config                = $config;
-        $this->utilities             = $utilities;
+        $this->transactionBuilder       = $transactionBuilder;
+        $this->transactionSearch        = $transactionSearch;
+        $this->messageManager           = $messageManager;
+        $this->searchCriteriaBuilder    = $searchCriteriaBuilder;
+        $this->filterBuilder            = $filterBuilder;
+        $this->transactionRepository    = $transactionRepository;
+        $this->creditMemoFactory        = $creditMemoFactory;
+        $this->creditMemoService        = $creditMemoService;
+        $this->orderSender              = $orderSender;
+        $this->invoiceHandler           = $invoiceHandler;
+        $this->config                   = $config;
+        $this->utilities                = $utilities;
     }
 
     /**
@@ -141,6 +141,9 @@ class TransactionHandlerService
             case Transaction::TYPE_REFUND:
                 $this->handleRefund($transactionType, $data);
                 break;
+
+            default:
+                $this->handleEvent($data);
         }
 
         // Return the order
@@ -374,8 +377,6 @@ class TransactionHandlerService
             // Add order comment
             $this->addOrderComment('The voided amount is %1.');
 
-            // Lock the transaction
-            $this->transaction->setIsClosed(1);
 
             // Set the order status
             $this->setOrderStatus(
@@ -434,6 +435,9 @@ class TransactionHandlerService
 
             // Update the order
             if ($this->order->getGrandTotal() == $this->order->getTotalRefunded()) {
+
+                $parentTransaction->close();
+
                 // Order status
                 $this->setOrderStatus(
                     'order_status_refunded',
@@ -460,6 +464,26 @@ class TransactionHandlerService
             $this->transaction->save();
             $this->order->save();
         }
+    }
+
+    /**
+     * Handle events needing order logging without transaction.
+     */
+    public function handleEvent($payload)
+    {
+        // Prepare the comment parameters
+        $orderStatusUpdate = false;
+        $isVisibleOnFront = false;
+        $comment = __(
+            'The payment action with ID %1 has returned a status %2',
+            $payload->data->id,
+            $payload->type
+        );
+
+        // Addt the comment and save the order
+        $order->addStatusHistoryComment($comment)
+        ->setIsCustomerNotified(false)
+        ->setEntityName('order')->save();
     }
 
     /**

@@ -30,13 +30,11 @@ class Callback extends \Magento\Framework\App\Action\Action
     /**
      * @var array
      */
-    public static $transactionMapper = [
+    public static $paymentTypeMapper = [
         'payment_approved' => Transaction::TYPE_AUTH,
         'payment_captured' => Transaction::TYPE_CAPTURE,
         'payment_refunded' => Transaction::TYPE_REFUND,
-        'payment_voided' => Transaction::TYPE_VOID,
-        'payment_pending' => 'payment_pending',
-        'payment_declined' => 'payment_declined'
+        'payment_voided' => Transaction::TYPE_VOID
     ];
 
     /**
@@ -166,7 +164,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                         // Handle the transaction
                         $order = $this->transactionHandler->createTransaction(
                             $order,
-                            static::$transactionMapper[$this->payload->type],
+                            static::$paymentTypeMapper[$this->payload->type],
                             $this->payload
                         );
 
@@ -186,6 +184,9 @@ class Callback extends \Magento\Framework\App\Action\Action
                             $this->payload,
                             $order
                         );
+
+                        //Change order status on failed payment
+                        $this->orderHandler->handleFailedPayment($order, $storeCode);
                     }
                 } else {
                     $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
