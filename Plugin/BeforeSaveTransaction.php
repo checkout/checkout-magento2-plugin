@@ -85,15 +85,22 @@ class BeforeSaveTransaction
         // Prepare the instance properties
         $this->init($transaction);
 
-        // Open the transaction
-        if ($this->needsCaptureOpening()) {
-            $this->transaction->setIsClosed(0);
+        if ($this->needsCaptureProcessing()) {
+        // Process the capture action
+        $this->transaction->setIsClosed(0);
             $this->registry->register(
-                $this->getRegistryFlag(),
+                $this->getRegistryFlag('capture'),
                 true
             );
         }
-
+        elseif ($this->needsRefundProcessing()) {
+            // Process the refund aaction
+            $this->transaction->setIsClosed(0);
+            $this->registry->register(
+                $this->getRegistryFlag('refund'),
+                true
+            );
+        }
         return $transaction;
     }
 
@@ -119,19 +126,32 @@ class BeforeSaveTransaction
     /**
      * Get the registry flag
      */
-    public function getRegistryFlag() {
-        return 'backend_capture_opened_' . $this->transaction->getTxnId();
+    public function getRegistryFlag($type) {
+        return 'backend_' . $type . '_opened_' . $this->transaction->getTxnId();
     }
 
     /**
-     * Check if a capture transaction needs opening
+     * Check if a capture action needs processing
      */
-    public function needsCaptureOpening() {
+    public function needsCaptureProcessing() {
         return $this->backendAuthSession->isLoggedIn()
         && in_array($this->methodId, $this->config->getMethodsList())
         && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE
-        && !$this->registry->registry($this->getRegistryFlag())
+        && !$this->registry->registry($this->getRegistryFlag('capture'))
         && isset($this->params['invoice']['capture_case'])
         && $this->params['invoice']['capture_case'] == 'online';
+    }
+
+
+    /**
+     * Check if a refund action needs processing
+     */
+    public function needsRefundProcessing() {
+        return $this->backendAuthSession->isLoggedIn()
+        && in_array($this->methodId, $this->config->getMethodsList())
+        && $this->transaction->getTxnType() == Transaction::TYPE_REFUND
+        && !$this->registry->registry($this->getRegistryFlag('refund'))
+        && isset($this->params['creditmemo']) && isset($this->params['creditmemo']['do_offline'])
+        && $this->params['creditmemo']['do_offline'] == 0;
     }
 }

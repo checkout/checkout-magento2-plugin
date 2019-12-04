@@ -394,14 +394,13 @@ class TransactionHandlerService
     public function handleRefund($transactionType, $data)
     {
         // Process the refund logic
-        $parentTransaction = $this->getParentTransaction(Transaction::TYPE_CAPTURE);
-        $isBackendRequest = isset($this->paymentData['data']['metadata']['isBackendRequest']);
+        $parentTransaction = $this->getParentTransaction(
+            Transaction::TYPE_CAPTURE,
+            null,
+            1
+        );
 
-        if ($parentTransaction && !$isBackendRequest) {
-            // Open the transaction in case it's closed
-            $parentTransaction->setIsClosed(0);
-            $parentTransaction->save();
-
+        if ($parentTransaction) {
             // Prepare the data
             $this->prepareData($transactionType, $data);
 
@@ -477,9 +476,9 @@ class TransactionHandlerService
     /**
      * Get a parent transaction.
      */
-    public function getParentTransaction($transactionType)
+    public function getParentTransaction($transactionType, $order = null, $isClosed = 0)
     {
-        $parentTransaction = $this->hasTransaction($transactionType);
+        $parentTransaction = $this->hasTransaction($transactionType, $order, $isClosed);
         return isset($parentTransaction[0]) ? $parentTransaction[0] : null;
     }
 
