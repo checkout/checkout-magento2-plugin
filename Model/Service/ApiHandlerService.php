@@ -131,6 +131,7 @@ class ApiHandlerService
         // Process the void request
         if (isset($paymentInfo['id'])) {
             $request = new Voids($paymentInfo['id']);
+            $request->metadata['isBackendRequest'] = true;
             $response = $this->checkoutApi
                 ->payments()
                 ->void($request);
@@ -157,6 +158,7 @@ class ApiHandlerService
         if (isset($paymentInfo['id'])) {
             $request = new Refund($paymentInfo['id']);
             $request->amount = $this->orderHandler->amountToGateway($amount, $order);
+            $request->metadata['isBackendRequest'] = true;
             $response = $this->checkoutApi
                 ->payments()
                 ->refund($request);

@@ -23,8 +23,13 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 /**
  * Class AfterSaveTransaction.
  */
-class AfterSaveTransaction
+class BeforeSaveTransaction
 {
+    /**
+     * @var RequestInterface
+     */
+    public $request;
+
     /**
      * @var Session
      */
@@ -56,14 +61,16 @@ class AfterSaveTransaction
     public $transaction;
 
     /**
-     * AfterSaveTransaction constructor.
+     * BeforeSaveTransaction constructor.
      */
     public function __construct(
+        \Magento\Framework\App\RequestInterface $request,
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\Registry $registry,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
+        $this->request = $request;
         $this->backendAuthSession = $backendAuthSession;
         $this->registry = $registry;
         $this->transactionHandler = $transactionHandler;
@@ -78,11 +85,19 @@ class AfterSaveTransaction
         // Prepare the instance properties
         $this->init($transaction);
 
-        // Open the transaction
-        if ($this->needsOpening()) {
+        if ($this->needsCaptureProcessing()) {
+        // Process the capture action
+        $this->transaction->setIsClosed(0);
+            $this->registry->register(
+                $this->getRegistryFlag('capture'),
+                true
+            );
+        }
+        elseif ($this->needsRefundProcessing()) {
+            // Process the refund aaction
             $this->transaction->setIsClosed(0);
             $this->registry->register(
-                $this->getRegistryFlag(),
+                $this->getRegistryFlag('refund'),
                 true
             );
         }
@@ -94,6 +109,9 @@ class AfterSaveTransaction
      * Prepare the instance properties
      */
     public function init($transaction) {
+        // Get the request parameters
+        $this->request->getParams();
+
         // Set the loaded transaction
         $this->transaction = $transaction;
 
@@ -109,32 +127,32 @@ class AfterSaveTransaction
     /**
      * Get the registry flag
      */
-    public function getRegistryFlag() {
-        return 'backend_capture_opened_' . $this->transaction->getTxnId();
+    public function getRegistryFlag($type) {
+        return 'backend_' . $type . '_opened_' . $this->transaction->getTxnId();
     }
 
     /**
-     * Check if a capture transaction needs opening
+     * Check if a capture action needs processing
      */
-    public function needsOpening() {
+    public function needsCaptureProcessing() {
         return $this->backendAuthSession->isLoggedIn()
         && in_array($this->methodId, $this->config->getMethodsList())
         && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE
-        && !$this->registry->registry($this->getRegistryFlag())
-        && !$this->orderHasRefunds();
+        && !$this->registry->registry($this->getRegistryFlag('capture'))
+        && isset($this->params['invoice']['capture_case'])
+        && $this->params['invoice']['capture_case'] == 'online';
     }
 
+
     /**
-     * Check if an order has refunds
+     * Check if a refund action needs processing
      */
-    public function orderHasRefunds() {
-        // Load the refund transactions
-        $refundTransactions = $this->transactionHandler->getTransactions(
-            Transaction::TYPE_REFUND,
-            $this->order,
-            1
-        );
-        
-        return empty($refundTransactions) ? false : true;
+    public function needsRefundProcessing() {
+        return $this->backendAuthSession->isLoggedIn()
+        && in_array($this->methodId, $this->config->getMethodsList())
+        && $this->transaction->getTxnType() == Transaction::TYPE_REFUND
+        && !$this->registry->registry($this->getRegistryFlag('refund'))
+        && isset($this->params['creditmemo']) && isset($this->params['creditmemo']['do_offline'])
+        && $this->params['creditmemo']['do_offline'] == 0;
     }
 }

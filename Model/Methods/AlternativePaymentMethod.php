@@ -408,7 +408,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     {
         $source = new IdealSource(
             $data['bic'],
-            __('Payment request from %1', $this->config->getStoreName())->getText()
+            $data['description']
         );
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl'));
         $source->language = $locale[0];

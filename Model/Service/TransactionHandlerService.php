@@ -340,10 +340,11 @@ class TransactionHandlerService
                     $parentTransaction->setIsClosed(0);
                     $parentTransaction->save();
                 }
+                else {
+                    // Close the parent transaction
+                    $parentTransaction->close();                    
+                }
             }
-
-            // Close the authorization transaction
-            $parentTransaction->close();
 
             // Save the data
             $this->payment->save();
@@ -358,13 +359,17 @@ class TransactionHandlerService
     public function handleVoid($transactionType, $data)
     {
         // Process the void logic
-        $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
+        $parentTransaction = $this->getParentTransaction(
+            Transaction::TYPE_AUTH,
+            null,
+            1
+        );
+
         if ($parentTransaction) {
             // Prepare the data
             $this->prepareData($transactionType, $data);
 
             // Set the parent transaction id
-            $parentTransaction->close();
             $this->transaction->setParentTxnId(
                 $parentTransaction->getTxnId()
             );
@@ -379,10 +384,8 @@ class TransactionHandlerService
                 'order_status_voided'
             );
 
-
-            // Lock the transaction
-            $this->transaction->setIsClosed(1);
-
+            // Close the parent transaction
+            $parentTransaction->close();
 
             // Save the data
             $this->payment->save();
@@ -397,7 +400,12 @@ class TransactionHandlerService
     public function handleRefund($transactionType, $data)
     {
         // Process the refund logic
-        $parentTransaction = $this->getParentTransaction(Transaction::TYPE_CAPTURE);
+        $parentTransaction = $this->getParentTransaction(
+            Transaction::TYPE_CAPTURE,
+            null,
+            1
+        );
+
         if ($parentTransaction) {
             // Prepare the data
             $this->prepareData($transactionType, $data);
@@ -497,9 +505,9 @@ class TransactionHandlerService
     /**
      * Get a parent transaction.
      */
-    public function getParentTransaction($transactionType)
+    public function getParentTransaction($transactionType, $order = null, $isClosed = 0)
     {
-        $parentTransaction = $this->hasTransaction($transactionType);
+        $parentTransaction = $this->hasTransaction($transactionType, $order, $isClosed);
         return isset($parentTransaction[0]) ? $parentTransaction[0] : null;
     }
 
