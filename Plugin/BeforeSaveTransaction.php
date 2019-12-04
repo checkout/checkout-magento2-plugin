@@ -23,8 +23,13 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 /**
  * Class AfterSaveTransaction.
  */
-class AfterSaveTransaction
+class BeforeSaveTransaction
 {
+    /**
+     * @var RequestInterface
+     */
+    public $request;
+
     /**
      * @var Session
      */
@@ -56,14 +61,16 @@ class AfterSaveTransaction
     public $transaction;
 
     /**
-     * AfterSaveTransaction constructor.
+     * BeforeSaveTransaction constructor.
      */
     public function __construct(
+        \Magento\Framework\App\RequestInterface $request,
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\Registry $registry,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
+        $this->request = $request;
         $this->backendAuthSession = $backendAuthSession;
         $this->registry = $registry;
         $this->transactionHandler = $transactionHandler;
@@ -75,6 +82,11 @@ class AfterSaveTransaction
      */
     public function beforeSave(TransactionInterface $transaction)
     {
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/request.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($this->request->getParams(), 1));
+
         // Prepare the instance properties
         $this->init($transaction);
 
