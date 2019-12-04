@@ -37,10 +37,10 @@
         require([
             "jquery",
             'CheckoutCom_Magento2/js/view/payment/utilities',
-            "domReady!",
             "Klarna",
-            ], function ($, Utilities) {
-
+            "domReady!"
+            ], function ($, Utilities, Klarna) {
+                Klarna = window.Klarna;
                 var k = {
                     /**
                      * Remove Klarna elements.
@@ -118,7 +118,7 @@
                 /**
                  * Verify if Klarna is available.
                  */
-                if (Klarna != undefined) {
+                if (window.Klarna !== undefined) {
                     $.ajax({
                             type: 'POST',
                             url: '<?= $block->escapeUrl($block->getUrl('checkout_com/apm/displayklarna'))?>',
@@ -138,7 +138,7 @@
                             }
                             k.remove();
                         },
-                        error: k.remove
+                         error: k.remove
                     });
                 } else {
                     k.remove();
