@@ -355,7 +355,7 @@ class TransactionHandlerService
      */
     public function handleVoid($transactionType, $data)
     {
-        // Process teh void logic
+        // Process the void logic
         $parentTransaction = $this->getParentTransaction(Transaction::TYPE_AUTH);
         if ($parentTransaction) {
             // Prepare the data
