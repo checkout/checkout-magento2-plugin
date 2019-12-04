@@ -29,11 +29,11 @@ class ConfigOrderActionFailedPayment implements \Magento\Framework\Option\ArrayI
         return [
             [
                 'value' => 'cancel',
-                'label' => __('Cancel Order')
+                'label' => __('Cancel the order')
             ],
             [
                 'value' => 'pending',
-                'label' => __('Stay Pending')
+                'label' => __('Do nothing')
             ]
         ];
     }
