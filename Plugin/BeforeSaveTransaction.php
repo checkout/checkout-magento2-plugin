@@ -101,6 +101,7 @@ class BeforeSaveTransaction
                 true
             );
         }
+
         return $transaction;
     }
 
