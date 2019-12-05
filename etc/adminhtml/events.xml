@@ -18,10 +18,4 @@
     <event name="sales_order_save_before">
         <observer name="checkout_com_sales_order_save_before" instance="CheckoutCom\Magento2\Observer\Backend\OrderSaveBefore" />
     </event>
-
-    <!-- Payment void event -->
-    <event name="sales_order_payment_void">
-        <observer name="checkout_com_sales_order_payment_void" instance="CheckoutCom\Magento2\Observer\Backend\OrderPaymentVoid" />
-    </event>
-
 </config>
