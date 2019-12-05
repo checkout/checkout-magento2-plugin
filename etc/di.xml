@@ -51,7 +51,7 @@
         <plugin name="cko_before_save_transaction" type="CheckoutCom\Magento2\Plugin\BeforeSaveTransaction" />
     </type>
     -->
-    <!-- END After place order plugin -->
+    <!-- END Before place order plugin -->
 
     <!-- Minification exclusion plugin -->
     <type name="Magento\Framework\View\Asset\Minification">
