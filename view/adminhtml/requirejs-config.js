@@ -18,6 +18,5 @@ var config = {
         '*': {
             framesjs: 'https://cdn.checkout.com/js/framesv2.min.js'
         }
-    },
-    urlArgs: "bust=" + (new Date()).getTime()
+    }
 };
