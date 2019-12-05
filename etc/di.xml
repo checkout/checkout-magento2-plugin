@@ -45,7 +45,7 @@
     </type>
     <!-- END After place order plugin -->
 
-    <!-- After save transaction plugin -->
+    <!-- Before save transaction plugin -->
     <!--
     <type name="Magento\Sales\Api\Data\TransactionInterface">
         <plugin name="cko_before_save_transaction" type="CheckoutCom\Magento2\Plugin\BeforeSaveTransaction" />
