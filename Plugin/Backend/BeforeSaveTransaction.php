@@ -36,11 +36,6 @@ class BeforeSaveTransaction
     public $backendAuthSession;
 
     /**
-     * @var TransactionHandlerService
-     */
-    public $transactionHandler;
-
-    /**
      * @var Config
      */
     public $config;
@@ -67,13 +62,11 @@ class BeforeSaveTransaction
         \Magento\Framework\App\RequestInterface $request,
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\Registry $registry,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->request = $request;
         $this->backendAuthSession = $backendAuthSession;
         $this->registry = $registry;
-        $this->transactionHandler = $transactionHandler;
         $this->config = $config;
     }
 
