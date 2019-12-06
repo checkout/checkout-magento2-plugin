@@ -155,7 +155,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                         }
 
                         // Save the webhook
-                        $this->webhookHandler->handle($this->payload);
+                        $this->webhookHandler->save($this->payload);
 
                         // Set a valid response
                         $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);

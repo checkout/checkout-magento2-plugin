@@ -23,11 +23,6 @@ namespace CheckoutCom\Magento2\Model\Service;
 class WebhookHandlerService
 {
     /**
-     * @var TransactionHandlerService
-     */
-    public $transactionHandler;
-
-    /**
      * @var OrderHandlerService
      */
     public $orderHandler;
@@ -46,12 +41,10 @@ class WebhookHandlerService
      * WebhookHandlerService constructor
      */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\FileEntityFactory $webhookEntityFactory,
+        \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
-        $this->transactionHandler = $transactionHandler;
         $this->orderHandler = $orderHandler;
         $this->webhookEntityFactory = $webhookEntityFactory;
         $this->logger = $logger;
@@ -115,6 +108,13 @@ class WebhookHandlerService
      */
     public function save($payload)
     {
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/payload.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($payload, 1));
+
+
         try {
             // Get the order id from the payload
             $order = $this->orderHandler->getOrder([
@@ -127,10 +127,10 @@ class WebhookHandlerService
                 $entity = $this->webhookEntityFactory->create();
 
                 // Set the fields values
-                $entity->setData('entity_id', $payload->id);
-                $entity->setData('entity_type', $payload->type);
+                $entity->setData('event_id', $payload->id);
+                $entity->setData('event_type', $payload->type);
                 $entity->setData(
-                    'entity_data',
+                    'event_data',
                     json_encode($payload)
                 );
                 $entity->setData('order_id', $order->getId());
