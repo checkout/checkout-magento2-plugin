@@ -38,16 +38,23 @@ class WebhookHandlerService
     protected $logger;
 
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
      * WebhookHandlerService constructor
      */
     public function __construct(
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->orderHandler = $orderHandler;
         $this->webhookEntityFactory = $webhookEntityFactory;
         $this->logger = $logger;
+        $this->config = $config;
     }
 
     /**
