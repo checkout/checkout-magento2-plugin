@@ -108,13 +108,6 @@ class WebhookHandlerService
      */
     public function save($payload)
     {
-
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/payload.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($payload, 1));
-
-
         try {
             // Get the order id from the payload
             $order = $this->orderHandler->getOrder([
