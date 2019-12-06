@@ -28,14 +28,34 @@ class WebhookHandlerService
     public $transactionHandler;
 
     /**
+     * @var OrderHandlerService
+     */
+    public $orderHandler;
+
+    /**
+     * @var WebhookEntityFactory
+     */
+    public $webhookEntityFactory;
+
+    /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * WebhookHandlerService constructor
      */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\FileEntityFactory $webhookEntityFactory,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->transactionHandler = $transactionHandler;
+        $this->orderHandler = $orderHandler;
+        $this->webhookEntityFactory = $webhookEntityFactory;
+        $this->logger = $logger;
     }
-
 
     /**
      * handle an incoming webhook.
@@ -69,6 +89,58 @@ class WebhookHandlerService
 
         // Return the order
         return $this->order;
+    }
+
+    /**
+     * Handle the incoming webhook.
+     */
+    public function handle($data)
+    {
+        try {
+            // Get a webhook entity instance
+            $entity = $this->webhookEntityFactory->create();
+
+            // Set the fields values
+            $entity->setData($key, $value);
+
+            // Save the entity
+            $entity->save();
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        }
+    }
+
+    /**
+     * Save the incoming webhook.
+     */
+    public function save($payload)
+    {
+        try {
+            // Get the order id from the payload
+            $order = $this->orderHandler->getOrder([
+                'increment_id' => $payload->data->reference
+            ]);
+
+            // Save the webhook
+            if ($this->orderHandler->isOrder($order)) {
+                // Get a webhook entity instance
+                $entity = $this->webhookEntityFactory->create();
+
+                // Set the fields values
+                $entity->setData('entity_id', $payload->id);
+                $entity->setData('entity_type', $payload->type);
+                $entity->setData(
+                    'entity_data',
+                    json_encode($payload)
+                );
+                $entity->setData('order_id', $order->getId());
+
+                // Save the entity
+                $entity->save();
+            }
+        } catch (\Exception $e) {
+            $this->logger->write($e->getMessage());
+        }
     }
 
     /**

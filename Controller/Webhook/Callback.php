@@ -43,11 +43,6 @@ class Callback extends \Magento\Framework\App\Action\Action
     public $storeManager;
 
     /**
-     * @var OrderRepositoryInterface
-     */
-    public $orderRepository;
-
-    /**
      * @var apiHandler
      */
     public $apiHandler;
@@ -98,7 +93,6 @@ class Callback extends \Magento\Framework\App\Action\Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
@@ -112,7 +106,6 @@ class Callback extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
 
         $this->storeManager = $storeManager;
-        $this->orderRepository = $orderRepository;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->quoteHandler = $quoteHandler;
@@ -161,15 +154,8 @@ class Callback extends \Magento\Framework\App\Action\Action
                             $this->saveCard($response);
                         }
 
-                        // Handle the webhook
-                        $order = $this->webhookHandler->handleWebhook(
-                            $order,
-                            static::$paymentTypeMapper[$this->payload->type],
-                            $this->payload
-                        );
-
-                        // Save the order
-                        $order = $this->orderRepository->save($order);
+                        // Save the webhook
+                        $this->webhookHandler->handle($this->payload);
 
                         // Set a valid response
                         $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
