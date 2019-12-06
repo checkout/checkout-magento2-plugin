@@ -15,7 +15,7 @@
  * @link      https://docs.checkout.com/
  */
 
-namespace CheckoutCom\Magento2\Plugin\Global;
+namespace CheckoutCom\Magento2\Plugin;
 
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\Data\OrderInterface;

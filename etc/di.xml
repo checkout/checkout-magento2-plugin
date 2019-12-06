@@ -41,7 +41,7 @@
 
     <!-- After place order plugin -->
     <type name="Magento\Sales\Api\OrderManagementInterface">
-        <plugin name="cko_after_place_order" type="CheckoutCom\Magento2\Plugin\Global\AfterPlaceOrder" />
+        <plugin name="cko_after_place_order" type="CheckoutCom\Magento2\Plugin\AfterPlaceOrder" />
     </type>
     <!-- END After place order plugin -->
 
@@ -55,7 +55,7 @@
 
     <!-- Minification exclusion plugin -->
     <type name="Magento\Framework\View\Asset\Minification">
-        <plugin name="cko_minification_exclude" type="CheckoutCom\Magento2\Plugin\Global\MinificationExclude" />
+        <plugin name="cko_minification_exclude" type="CheckoutCom\Magento2\Plugin\MinificationExclude" />
     </type>
     <!-- END Minification exclusion plugin -->
 </config>
