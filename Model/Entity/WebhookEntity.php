@@ -128,7 +128,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      * @param bool $eventId
      * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setEventId($eventId);
+    public function setEventId($eventId)
     {
         return $this->setData(self::EVENT_ID, $eventId);
     }
@@ -139,7 +139,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      * @param bool $eventType
      * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setEventType($eventType);
+    public function setEventType($eventType)
     {
         return $this->setData(self::EVENT_TYPE, $eventType);
     }
@@ -150,7 +150,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      * @param string $eventData
      * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setEventData($eventData);
+    public function setEventData($eventData)
     {
         return $this->setData(self::EVENT_DATA, $eventData);
     }
@@ -161,7 +161,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      * @param string $orderId
      * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setOrderId($orderId);
+    public function setOrderId($orderId)
     {
         return $this->setData(self::ORDER_ID, $orderId);
     }
