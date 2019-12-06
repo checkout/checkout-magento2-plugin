@@ -68,9 +68,9 @@ class Callback extends \Magento\Framework\App\Action\Action
     public $shopperHandler;
 
     /**
-     * @var TransactionHandlerService
+     * @var WebhookHandlerService
      */
-    public $transactionHandler;
+    public $webhookHandler;
 
     /**
      * @var VaultHandlerService
@@ -103,7 +103,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
+        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
@@ -117,7 +117,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         $this->orderHandler = $orderHandler;
         $this->quoteHandler = $quoteHandler;
         $this->shopperHandler = $shopperHandler;
-        $this->transactionHandler = $transactionHandler;
+        $this->webhookHandler = $webhookHandler;
         $this->vaultHandler = $vaultHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
         $this->config = $config;
@@ -161,8 +161,8 @@ class Callback extends \Magento\Framework\App\Action\Action
                             $this->saveCard($response);
                         }
 
-                        // Handle the transaction
-                        $order = $this->transactionHandler->createTransaction(
+                        // Handle the webhook
+                        $order = $this->webhookHandler->handleWebhook(
                             $order,
                             static::$paymentTypeMapper[$this->payload->type],
                             $this->payload
