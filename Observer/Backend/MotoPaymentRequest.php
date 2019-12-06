@@ -24,9 +24,9 @@ use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\BillingDescriptor;
 
 /**
- * Class OrderSaveBefore.
+ * Class MotoPaymentRequest.
  */
-class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
+class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
 {
     /**
      * @var Session
@@ -121,7 +121,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * OrderSaveBefore constructor.
+     * MotoPaymentRequest constructor.
      */
     public function execute(Observer $observer)
     {
@@ -135,15 +135,13 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             // Get the method id
             $this->methodId = $this->order->getPayment()->getMethodInstance()->getCode();
 
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/osave.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($this->params, 1));
+            // Get the store code
+            $storeCode = $this->order->getStore()->getCode();
 
             // Process the payment
             if ($this->needsMotoProcessing()) {
                 // Initialize the API handler
-                $api = $this->apiHandler->init();
+                $api = $this->apiHandler->init($storeCode);
 
                 // Set the source
                 $source = $this->getSource();
@@ -160,18 +158,19 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                     $this->apiHandler->getBaseMetadata()
                 );
 
-                // Prepare the capture date setting
-                $captureDate = $this->config->getCaptureTime($this->methodId);
+                // Prepare the capture setting
+                $needsAutoCapture = $this->config->needsAutoCapture($this->methodId);
+                $request->capture = $needsAutoCapture;
+                if ($needsAutoCapture) {
+                    $request->capture_on = $this->config->getCaptureTime($this->methodId);
+                }
 
                 // Set the request parameters
                 $request->capture = $this->config->needsAutoCapture($this->methodId);
-                $request->amount = $this->order->getGrandTotal()*100;
+                $request->amount = $this->prepareMotoAmount();
                 $request->reference = $this->order->getIncrementId();
                 $request->payment_type = 'MOTO';
                 $request->shipping = $api->createShippingAddress($this->order);
-                if ($captureDate) {
-                    $request->capture_on = $this->config->getCaptureTime();
-                }
 
                 // Billing descriptor
                 if ($this->config->needsDynamicDescriptor()) {
@@ -200,7 +199,7 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
                         __('The transaction could not be processed. Please check the payment details.')
                     );
                     throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The gateway declined a MOTO payment request.')
+                        __('The gateway declined the MOTO payment request.')
                     );
                 }
             }
@@ -216,11 +215,6 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
      */
     protected function needsMotoProcessing()
     {
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/osave.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($this->methodId, 1));
-
         try {
             return $this->backendAuthSession->isLoggedIn()
             && isset($this->params['ckoCardToken'])
@@ -229,6 +223,20 @@ class OrderSaveBefore implements \Magento\Framework\Event\ObserverInterface
             $this->logger->write($e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Prepare the payment amount for the MOTO payment request.
+     */
+    protected function prepareMotoAmount()
+    {
+        // Get the payment instance
+        $amount = $this->order->getGrandTotal();
+        // Return the formatted amount
+        return $this->orderHandler->amountToGateway(
+            $this->utilities->formatDecimals($amount),
+            $this->order
+        );
     }
 
     /**
