@@ -77,6 +77,26 @@ class WebhookHandlerService
     }
 
     /**
+     * Load a webhook collection.
+     */
+    public function load($fields = [])
+    {
+        // Create the collection
+        $entity = $this->webhookEntityFactory->create();
+        $collection = $entity->getCollection();
+
+        // Add the field filters if needed
+        if (!empty($fields)) {
+            foreach ($fields as $key => $value) {
+                $collection->addFieldToFilter($key, $value);
+            }
+        }
+
+        return $collection->getData();
+    }
+
+
+    /**
      * Save the incoming webhook.
      */
     public function save($payload)
