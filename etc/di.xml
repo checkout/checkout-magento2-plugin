@@ -33,26 +33,6 @@
     <preference for="Magento\InstantPurchase\CustomerData\InstantPurchase" type="CheckoutCom\Magento2\Model\InstantPurchase\CustomerData" />
     <!-- END Instant Purchase override -->
 
-    <!-- CSRF bypass from 2.3.x series -->
-    <type name="Magento\Framework\App\Request\CsrfValidator">
-        <plugin name="cko_csrf_validator_skip" type="CheckoutCom\Magento2\Plugin\Frontend\CsrfValidatorSkip" />
-    </type>
-    <!-- End CSRF bypass -->
-
-    <!-- After place order plugin -->
-    <type name="Magento\Sales\Api\OrderManagementInterface">
-        <plugin name="cko_after_place_order" type="CheckoutCom\Magento2\Plugin\AfterPlaceOrder" />
-    </type>
-    <!-- END After place order plugin -->
-
-    <!-- Before save transaction plugin -->
-    <!--
-    <type name="Magento\Sales\Api\Data\TransactionInterface">
-        <plugin name="cko_before_save_transaction" type="CheckoutCom\Magento2\Plugin\Backend\BeforeSaveTransaction" />
-    </type>
-    -->
-    <!-- END Before place order plugin -->
-
     <!-- Minification exclusion plugin -->
     <type name="Magento\Framework\View\Asset\Minification">
         <plugin name="cko_minification_exclude" type="CheckoutCom\Magento2\Plugin\MinificationExclude" />

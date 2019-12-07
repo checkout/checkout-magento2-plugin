@@ -28,4 +28,11 @@
         </arguments>
     </type>
     <!-- End Custom UI Messages -->
+
+    <!-- After save order plugin -->
+    <type name="Magento\Sales\Api\OrderRepositoryInterface">
+        <plugin name="cko_after_save_order" type="CheckoutCom\Magento2\Plugin\Backend\OrderAfterSave" />
+    </type>
+    <!-- END After save order plugin -->
+    
 </config>

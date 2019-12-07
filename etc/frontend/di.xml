@@ -49,4 +49,17 @@
         </arguments>
     </type>
     <!-- End Custom UI Messages -->
+
+    <!-- CSRF bypass from 2.3.x series -->
+    <type name="Magento\Framework\App\Request\CsrfValidator">
+        <plugin name="cko_csrf_validator_skip" type="CheckoutCom\Magento2\Plugin\Frontend\CsrfValidatorSkip" />
+    </type>
+    <!-- End CSRF bypass -->
+
+    <!-- After place order plugin -->
+    <type name="Magento\Sales\Api\OrderManagementInterface">
+        <plugin name="cko_after_place_order" type="CheckoutCom\Magento2\Plugin\Frontend\AfterPlaceOrder" />
+    </type>
+    <!-- END After place order plugin -->
+
 </config>
