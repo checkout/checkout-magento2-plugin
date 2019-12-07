@@ -51,7 +51,7 @@ class AfterPlaceOrder
      */
     public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
     {
-        if ($this->backendAuthSession->isLoggedIn()) {        // Get the method ID
+        if (!$this->backendAuthSession->isLoggedIn()) {        // Get the method ID
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
             // Disable the email sending
