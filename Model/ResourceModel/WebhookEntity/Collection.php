@@ -31,7 +31,7 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
     public function _construct()
     {
         $this->_init(
-            \CheckoutCom\Magento2\Model\WebhookEntity::class,
+            \CheckoutCom\Magento2\Model\Entity\WebhookEntity::class,
             \CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity::class
         );
     }

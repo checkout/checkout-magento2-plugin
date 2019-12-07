@@ -26,6 +26,11 @@ use Magento\Sales\Api\Data\OrderInterface;
 class AfterPlaceOrder
 {
     /**
+     * @var Session
+     */
+    public $backendAuthSession;
+
+    /**
      * @var Config
      */
     public $config;
@@ -34,8 +39,10 @@ class AfterPlaceOrder
      * AfterPlaceOrder constructor.
      */
     public function __construct(
+        \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
+        $this->backendAuthSession = $backendAuthSession;
         $this->config = $config;
     }
 
@@ -44,13 +51,14 @@ class AfterPlaceOrder
      */
     public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
     {
-        // Get the method ID
-        $methodId = $order->getPayment()->getMethodInstance()->getCode();
+        if ($this->backendAuthSession->isLoggedIn()) {        // Get the method ID
+            $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
-        // Disable the email sending
-        if (in_array($methodId, $this->config->getMethodsList())) {
-            $order->setCanSendNewEmailFlag(false);
-            return $order;
+            // Disable the email sending
+            if (in_array($methodId, $this->config->getMethodsList())) {
+                $order->setCanSendNewEmailFlag(false);
+                return $order;
+            }
         }
     }
 }

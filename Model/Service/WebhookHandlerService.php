@@ -79,7 +79,7 @@ class WebhookHandlerService
     /**
      * Load a webhook collection.
      */
-    public function load($fields = [])
+    public function loadEntities($fields = [])
     {
         // Create the collection
         $entity = $this->webhookEntityFactory->create();
