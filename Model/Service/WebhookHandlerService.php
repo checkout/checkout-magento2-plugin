@@ -58,40 +58,6 @@ class WebhookHandlerService
     }
 
     /**
-     * handle an incoming webhook.
-     */
-    public function handleWebhook($order, $transactionType, $data = null)
-    {
-        // Prepare parameters
-        $this->setProperties($order);
-
-        // Process the transaction
-        switch ($transactionType) {
-            case Transaction::TYPE_AUTH:
-                $this->handleAuthorization($transactionType, $data);
-                break;
-
-            case Transaction::TYPE_CAPTURE:
-                $this->handleCapture($transactionType, $data);
-                break;
-
-            case Transaction::TYPE_VOID:
-                $this->handleVoid($transactionType, $data);
-                break;
-
-            case Transaction::TYPE_REFUND:
-                $this->handleRefund($transactionType, $data);
-                break;
-
-            default:
-                $this->handleEvent($data);
-        }
-
-        // Return the order
-        return $this->order;
-    }
-
-    /**
      * Handle the incoming webhook.
      */
     public function handle($data)
