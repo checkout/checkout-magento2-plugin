@@ -17,16 +17,13 @@
 
 namespace CheckoutCom\Magento2\Plugin\Backend;
 
+use Magento\Sales\Api\OrderRepositoryInterface;
+
 /**
  * Class OrderAfterSave.
  */
 class OrderAfterSave
 {
-    /**
-     * @var OrderRepositoryInterface
-     */
-    public $orderRepositoryInterface;
-
     /**
      * @var WebhookHandlerService
      */
@@ -41,11 +38,9 @@ class OrderAfterSave
      * AfterPlaceOrder constructor.
      */
     public function __construct(
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepositoryInterface,
         \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
-        $this->orderRepositoryInterface = $orderRepositoryInterface;
         $this->webhookHandler = $webhookHandler;
         $this->config = $config;
     }
@@ -53,15 +48,14 @@ class OrderAfterSave
     /**
      * Disable order email sending on order creation
      */
-    public function afterSave($order)
+    public function afterSave(OrderRepositoryInterface $orderRepo, $order)
     {
+        // Get the webhook entities
+        $entities = $this->webhookHandler->loadEntities([
+            'order_id' => $order->getId()
+        ]);
 
-        $entities = $this->webhookHandler->loadEntities();
 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/w.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($entities, 1));
         
 
         return $order;
