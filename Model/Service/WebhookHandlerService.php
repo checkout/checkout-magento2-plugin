@@ -119,6 +119,8 @@ class WebhookHandlerService
                     'event_data',
                     json_encode($payload)
                 );
+                $entity->setData('action_id', $payload->data->action_id);
+                $entity->setData('transaction_id', $payload->data->id);
                 $entity->setData('order_id', $order->getId());
 
                 // Save the entity

@@ -48,6 +48,8 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
             ->addColumn('event_id', Table::TYPE_TEXT, 255, ['nullable' => false])
             ->addColumn('event_type', Table::TYPE_TEXT, 255, ['nullable' => false])
             ->addColumn('event_data', Table::TYPE_TEXT, null, ['nullable' => false])
+            ->addColumn('action_id', Table::TYPE_TEXT, 255, ['nullable' => false])
+            ->addColumn('transaction_id', Table::TYPE_TEXT, 255, ['nullable' => false])
             ->addColumn('order_id', Table::TYPE_INTEGER, null, ['nullable' => false])
             ->addIndex($installer->getIdxName('checkoutcom_webhooks_index', ['id']), ['id'])
             ->setComment('Webhooks table');
