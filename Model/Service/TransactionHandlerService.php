@@ -30,6 +30,11 @@ class TransactionHandlerService
     public $transactionSearch;
 
     /**
+     * @var SearchCriteriaBuilder
+     */
+    public $searchCriteriaBuilder;
+
+    /**
      * @var BuilderInterface
      */
     public $transactionBuilder;
@@ -39,45 +44,70 @@ class TransactionHandlerService
      */
     public function __construct(
         \Magento\Sales\Api\Data\TransactionSearchResultInterfaceFactory $transactionSearch,
+        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder
     ) {
         $this->transactionSearch  = $transactionSearch;
+        $this->searchCriteriaBuilder  = $searchCriteriaBuilder;
         $this->transactionBuilder = $transactionBuilder;
     }
 
     /**
      * Get the transactions for an order.
      */
-    public function getTransactions($order, $transactionType = null)
+    public function getTransactions($orderId, $fields = null)
     {
-        // Get the list of transactions
-        $transactions = $this->transactionSearch
-        ->create()
-        ->addOrderIdFilter($order->getId());
-        $transactions->getItems();
-
-        // Filter by transaction type
-        if ($transactionType && !empty($transactions)) {
-            $filteredResult = [];
-            foreach ($transactions as $transaction) {
-                $condition = $transaction->getTxnType() == $transactionType
-                && $transaction->getIsClosed() == $isClosed;
-                if ($condition) {
-                    $filteredResult[] = $transaction;
-                }
+        // Set the filters
+        if (!empty($fields)) {
+            foreach ($fields as $key => $value) {
+                $this->searchCriteriaBuilder->addFilter(
+                    $key,
+                    $value,
+                    'eq'
+                );
             }
-
-            return $filteredResult;
         }
 
-        return $transactions;
+        // Create the search filters
+        $filters = $this->searchCriteriaBuilder->create();
+
+        // Get the list of transactions
+        $transactions = $this->transactionSearch->create()
+        ->addOrderIdFilter($orderId)
+        ->setSearchCriteria($filters);
+
+        return  $transactions->getItems();        ;
+    }
+
+    /**
+     * Get the transactions for an order.
+     */
+    public function hasTransaction($order, $transactionId)
+    {
+        // Set the filter
+        $this->searchCriteriaBuilder->addFilter(
+            'txn_id',
+            $transactionId,
+            'eq'
+        );
+
+        // Create the search filter
+        $filter = $this->searchCriteriaBuilder->create();
+
+        // Get the transaction
+        $transaction = $this->transactionSearch->create()
+        ->addOrderIdFilter($orderId)
+        ->setSearchCriteria($filter);
+
+        return !empty($transaction->getItems())
+        ? true : false;  
     }
 
     /**
      * Create a transaction for an order.
      */
     public function createTransaction($order, $transactionId, $transactionType)
-    {
+    {        
         return $this->transactionBuilder
             ->setPayment($order->getPayment())
             ->setOrder($order)
