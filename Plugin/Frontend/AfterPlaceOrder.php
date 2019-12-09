@@ -36,14 +36,28 @@ class AfterPlaceOrder
     public $config;
 
     /**
+     * @var WebhookHandlerService
+     */
+    public $webhookHandler;
+
+    /**
+     * @var TransactionHandlerService
+     */
+    public $transactionHandler;
+
+    /**
      * AfterPlaceOrder constructor.
      */
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->config = $config;
+        $this->webhookHandler = $webhookHandler;
+        $this->transactionHandler = $transactionHandler;
     }
 
     /**
@@ -51,7 +65,8 @@ class AfterPlaceOrder
      */
     public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
     {
-        if (!$this->backendAuthSession->isLoggedIn()) {        // Get the method ID
+        if (!$this->backendAuthSession->isLoggedIn()) {        
+            // Get the method ID
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
             // Disable the email sending
@@ -59,6 +74,17 @@ class AfterPlaceOrder
                 $order->setCanSendNewEmailFlag(false);
                 return $order;
             }
+
+            // Get the webhook entities
+            $webhooks = $this->webhookHandler->loadEntities([
+                'order_id' => $order->getId()
+            ]);
+
+            // Create the transactions
+            $this->transactionHandler->webhooksToTransactions(
+                $order,
+                $webhooks
+            );
         }
     }
 }
