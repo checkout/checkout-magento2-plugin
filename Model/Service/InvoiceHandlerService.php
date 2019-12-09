@@ -88,9 +88,6 @@ class InvoiceHandlerService
         if ($this->needsInvoicing()) {
             $this->createInvoice();
         }
-
-        // Return the order
-        return $this->order;
     }
 
     /**

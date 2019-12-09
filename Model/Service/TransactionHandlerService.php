@@ -113,6 +113,13 @@ class TransactionHandlerService
 
             // Update to order status
             $this->setOrderStatus($transaction);
+
+            // Process the invoice
+            $this->invoiceHandler->processInvoice(
+                $order,
+                $transaction,
+                $payload->data->amount
+            );
         }
     }
 
