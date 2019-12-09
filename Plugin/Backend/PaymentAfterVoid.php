@@ -16,8 +16,6 @@
 
 namespace CheckoutCom\Magento2\Plugin\Backend;
 
-use Magento\Sales\Api\OrderRepositoryInterface;
-
 /**
  * Class PaymentAfterVoid.
  */
@@ -72,6 +70,6 @@ class PaymentAfterVoid
             }
         }
 
-        return $order;
+        return $method;
     }
 }
