@@ -109,6 +109,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $apiHandler;
 
     /**
+     * @var TransactionHandlerService
+     */
+    public $transactionHandler;
+
+    /**
      * @var Utilities
      */
     public $utilities;
@@ -154,6 +159,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
@@ -191,6 +197,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->sessionQuote       = $sessionQuote;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
+        $this->transactionHandler = $transactionHandler;
         $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;
         $this->quoteHandler       = $quoteHandler;
@@ -340,6 +347,14 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
                 // Set the transaction id from response
                 $payment->setTransactionId($response->action_id);
+
+                // Set the order status
+                $this->transactionHandler->setOrderStatus(
+                    $this->transactionHandler->getTransactions(
+                        $order->getId(),
+                        $response->action_id
+                    )               
+                );
             }
         } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());

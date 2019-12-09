@@ -84,6 +84,22 @@ class TransactionHandlerService
     }
 
     /**
+     * Generate transactions from webhooks.
+     */
+    public function webhooksToTransactions($order, $webhooks = [])
+    {
+        // Create the transactions
+        if (!empty($webhooks)) {
+            foreach ($webhooks as $webhook) {
+                $this->handleTransaction(
+                    $order,
+                    $webhook
+                );
+            }
+        }
+    }
+    
+    /**
      * Handle a webhook transaction.
      */
     public function handleTransaction($order, $webhook)
@@ -166,22 +182,6 @@ class TransactionHandlerService
         );
 
         return !empty($transaction) ? true : false;  
-    }
-
-    /**
-     * Generate transactions from webhooks.
-     */
-    public function webhooksToTransactions($order, $webhooks = [])
-    {
-        // Create the transactions
-        if (!empty($webhooks)) {
-            foreach ($webhooks as $webhook) {
-                $this->handleTransaction(
-                    $order,
-                    $webhook
-                );
-            }
-        }
     }
 
     /**
@@ -313,6 +313,12 @@ class TransactionHandlerService
         $order->setStatus($this->config->getValue($status));
 
         // Set the order state
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/o.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($status, 1));
+        $logger->info(print_r($state, 1));
+
         if ($state) {
             $order->setState($state);
         }
