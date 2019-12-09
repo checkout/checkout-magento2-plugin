@@ -148,7 +148,7 @@ define(
                     }
                 }
 
-                    return result;
+                return result;
             },
 
             /**
