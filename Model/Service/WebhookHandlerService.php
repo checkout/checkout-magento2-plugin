@@ -84,7 +84,6 @@ class WebhookHandlerService
                 $order,
                 $webhook
             );
-
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
@@ -108,7 +107,6 @@ class WebhookHandlerService
 
         return $collection->getData();
     }
-
 
     /**
      * Save the incoming webhook.

@@ -45,14 +45,35 @@ class TransactionHandlerService
     public $transactionBuilder;
 
     /**
+     * @var Repository
+     */
+    public $transactionRepository;
+
+    /**
+     * @var Utilities
+     */
+    public $utilities;
+
+    /**
+     * @var InvoiceHandlerService
+     */
+    public $invoiceHandler;
+
+    /**
      * TransactionHandlerService constructor.
      */
     public function __construct(
         \Magento\Sales\Api\Data\TransactionSearchResultInterfaceFactory $transactionSearch,
-        \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder
+        \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
+        \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler
     ) {
-        $this->transactionSearch  = $transactionSearch;
-        $this->transactionBuilder = $transactionBuilder;
+        $this->transactionSearch     = $transactionSearch;
+        $this->transactionBuilder    = $transactionBuilder;
+        $this->transactionRepository = $transactionRepository;
+        $this->utilities             = $utilities;
+        $this->invoiceHandler        = $invoiceHandler;
     }
 
     /**
@@ -115,7 +136,7 @@ class TransactionHandlerService
      */
     public function handleTransaction($order, $webhook)
     {
-        // Prepare the test condition
+        // Check if a transaction aleady exists
         $condition = $this->hasTransaction(
             $order,
             $webhook['action_id']
@@ -123,37 +144,115 @@ class TransactionHandlerService
 
         // Create a transaction if needed
         if (!$condition) {
-            $this->buildTransaction(
-                $order,
-                $webhook['action_id'],
-                self::$transactionMapper[$webhook['event_type']]
-            );
+            $this->buildTransaction($order, $webhook);
         }
     }
 
     /**
      * Create a transaction for an order.
      */
-    public function buildTransaction($order, $transactionId, $transactionType)
+    public function buildTransaction($order, $webhook)
     {        
         // Get the order payment
         $payment = $order->getPayment();
+
+        // Prepare the data array
+        $data = $this->utilities->objectToArray(
+            json_decode($webhook['event_data'])
+        );
 
         // Create the transaction
         $transaction = $this->transactionBuilder
         ->setPayment($payment)
         ->setOrder($order)
-        ->setTransactionId($transactionId)
-        /*->setAdditionalInformation(
+        ->setTransactionId($webhook['action_id'])
+        ->setAdditionalInformation(
             [
-                Transaction::RAW_DETAILS => $this->buildDataArray($this->paymentData)
+                Transaction::RAW_DETAILS => $this->buildDataArray($data)
             ]
-        )*/
+        )
         ->setFailSafe(true)
-        ->build($transactionType);
+        ->build(self::$transactionMapper[$webhook['event_type']]);
+
+        // Set the parent transaction id
+        $transaction->setParentTxnId(
+            $this->setParentTransactionId($transaction)
+        );
+
+        // Handle the transaction state
+        $transaction->setIsClosed(
+            $this->setTransactionState($transaction)
+        );
 
         // Save 
         $transaction->save();
         $payment->save();
+    }
+
+    /**
+     * Set a transaction parent id.
+     */
+    public function setParentTransactionId($transaction)
+    {
+        // Get the order
+        $order = $transaction->getOrder();
+
+        // Handle the capture parent transaction logic
+        $isCapture = $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+        $parentAuth = $this->transactionRepository->getByTransactionType(
+            Transaction::TYPE_AUTH,
+            $order->getPayment()->getId()
+        );       
+        if ($isCapture && $parentAuth) {
+            return $parentAuth->getTxnId();
+        }
+        
+        return null;
+    }
+
+    /**
+     * Set a transaction state.
+     */
+    public function setTransactionState($transaction)
+    {
+        // Get the order
+        $order = $transaction->getOrder();
+
+        // Handle the first authorization transaction
+        $noAuth = !$this->hasTransaction($order, $transaction->getTxnId());
+        $isAuth = $transaction->getTxnType() == Transaction::TYPE_AUTH;
+        if ($noAuth && $isAuth) {
+            return 0;
+        }
+
+        // Handle a capture after authorization
+        $isCapture = $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+        $parentAuth = $this->transactionRepository->getByTransactionType(
+            Transaction::TYPE_AUTH,
+            $order->getPayment()->getId()
+        );    
+        if ($isCapture && $parentAuth) {
+            $parentAuth->close()->save();
+            return 0;
+        }         
+    }
+
+    /**
+     * Build a flat array from the gateway response.
+     */
+    public function buildDataArray($data)
+    {
+        // Prepare the fields to remove
+        $remove = [
+            '_links',
+            'risk',
+            'metadata',
+            'customer',
+            'source',
+            'data'
+        ];
+
+        // Return the clean array
+        return array_diff_key($data, array_flip($remove));
     }
 }
