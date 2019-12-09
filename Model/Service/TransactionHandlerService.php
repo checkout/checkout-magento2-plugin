@@ -60,6 +60,11 @@ class TransactionHandlerService
     public $invoiceHandler;
 
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
      * TransactionHandlerService constructor.
      */
     public function __construct(
@@ -67,13 +72,15 @@ class TransactionHandlerService
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
         \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler
+        \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->transactionSearch     = $transactionSearch;
         $this->transactionBuilder    = $transactionBuilder;
         $this->transactionRepository = $transactionRepository;
         $this->utilities             = $utilities;
         $this->invoiceHandler        = $invoiceHandler;
+        $this->config                = $config;
     }
 
     /**
@@ -235,6 +242,41 @@ class TransactionHandlerService
             $parentAuth->close()->save();
             return 0;
         }         
+    }
+
+    /**
+     * Set the current order status.
+     */
+    public function setOrderStatus($transaction)
+    {
+        // Get the order
+        $order = $transaction->getOrder();
+
+        // Get the transaction type
+        $type = $transaction->getTxnType();
+
+        // Get the needed order status
+        switch ($type) {
+            case Transaction::TYPE_AUTH:
+                $status = 'order_status_authorized';
+                break;
+
+            case Transaction::TYPE_CAPTURE:
+                $status = 'order_status_captured';
+                break;
+
+            case Transaction::TYPE_VOID:
+                $status = 'order_status_voided';
+                break;
+
+            case Transaction::TYPE_REFUND:
+                $status = 'order_status_refunded';
+                break;
+        }   
+
+        // Set the order status
+        $order->setStatus($this->config->getValue($status));
+        $order->save();
     }
 
     /**
