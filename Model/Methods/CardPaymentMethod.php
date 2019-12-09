@@ -305,6 +305,51 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
+     * Perform a capture request.
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param float $amount
+     * 
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return self
+     */
+    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    {
+        try {
+            if ($this->backendAuthSession->isLoggedIn()) {
+                // Get the store code
+                $storeCode = $payment->getOrder()->getStore()->getCode();
+
+                // Initialize the API handler
+                $api = $this->apiHandler->init($storeCode);
+
+                // Check the status
+                if (!$this->canCapture()) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('The capture action is not available.')
+                    );
+                }
+
+                // Process the void request
+                $response = $api->captureOrder($payment, $amount);
+                if (!$api->isValidResponse($response)) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('The capture request could not be processed.')
+                    );
+                }
+
+                // Set the transaction id from response
+                $payment->setTransactionId($response->action_id);
+            }
+        } catch (CheckoutHttpException $e) {
+            $this->ckoLogger->write($e->getBody());
+        } finally {
+            return $this;
+        }
+    }
+
+    /**
      * Perform a void request.
      *
      * @param \Magento\Payment\Model\InfoInterface $payment The payment

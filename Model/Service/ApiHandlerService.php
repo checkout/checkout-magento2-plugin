@@ -120,6 +120,38 @@ class ApiHandlerService
     /**
      * Voids a transaction.
      */
+    public function captureOrder($payment, $amount)
+    {
+        // Get the order
+        $order = $payment->getOrder();
+
+        // Get the payment info
+        $paymentInfo = $this->utilities->getPaymentData($order);
+
+        // Process the capture request
+        if (isset($paymentInfo['id'])) {
+            // Prepare the request
+            $request = new Capture($paymentInfo['id']);
+            $request->amount = $this->orderHandler->amountToGateway(
+                $this->utilities->formatDecimals($amount),
+                $order
+            );
+
+            // Get the response
+            $response = $this->checkoutApi
+                ->payments()
+                ->capture($request);
+
+            // Logging
+            $this->logger->display($response);
+
+            return $response;
+        }
+    }
+
+    /**
+     * Voids a transaction.
+     */
     public function voidOrder($payment)
     {
         // Get the order
