@@ -480,8 +480,8 @@ class TransactionHandlerService
             $payload->type
         );
 
-        // Addt the comment and save the order
-        $order->addStatusHistoryComment($comment)
+        // Add the comment and save the order
+        $this->order->addStatusHistoryComment($comment)
         ->setIsCustomerNotified(false)
         ->setEntityName('order')->save();
     }
