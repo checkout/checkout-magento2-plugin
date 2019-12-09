@@ -129,18 +129,12 @@ class TransactionHandlerService
                 $amount
             );
 
-            // Update the order status
-            $this->setOrderStatus($transaction);
-
             // Process the invoice
             $this->processInvoice($transaction, $amount);
         }
-        else {
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/transaction.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($transaction->getTxnId(), 1));        
-        }
+
+        // Update the order status
+        $this->setOrderStatus($transaction);
     }
 
     /**
