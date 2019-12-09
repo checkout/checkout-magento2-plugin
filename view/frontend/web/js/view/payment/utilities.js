@@ -122,7 +122,8 @@ define(
                 .off('click', self.getRestQuoteData)
                 .on('click', self.getRestQuoteData);
 
-                for (let i = 0; i < 2; i++) {
+                for (let i = 0; i <= 2; i++) {
+                    console.log(restUrl);
                     // Send the AJAX request
                     $.ajax({
                         url: restUrl,
@@ -142,7 +143,8 @@ define(
                     if (result == null) {
                         //Rebuild URL if using M2 Guest API
                         restUrl = window.BASE_URL;
-                        restUrl += 'guest-carts/'+ window.checkoutConfig.quoteItemData[0].quote_id +'/payment-information';
+                        restUrl += 'rest/all/V1/guest-carts/'+ window.checkoutConfig.quoteData.entity_id +'/payment-information';
+                        restUrl += '?form_key=' + window.checkoutConfig.formKey;
                     } else {
                         break;
                     }
