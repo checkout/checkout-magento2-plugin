@@ -264,7 +264,18 @@ class TransactionHandlerService
         if ($isCapture && $parentAuth) {
             $parentAuth->close()->save();
             return 0;
-        }         
+        }
+        
+        // Hanle a void after authorization
+        $isVoid = $transaction->getTxnType() == Transaction::TYPE_VOID;
+        $parentAuth = $this->transactionRepository->getByTransactionType(
+            Transaction::TYPE_AUTH,
+            $order->getPayment()->getId()
+        );
+        if ($isVoid && $parentAuth) {
+            $parentAuth->close()->save();
+            return 1;
+        }  
     }
 
     /**
