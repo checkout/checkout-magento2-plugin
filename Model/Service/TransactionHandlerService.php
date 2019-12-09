@@ -118,7 +118,7 @@ class TransactionHandlerService
     /**
      * Generate transactions from webhooks.
      */
-    public function webhookToTransaction($order, $webhook = [])
+    public function webhooksToTransactions($order, $webhooks = [])
     {
         // Create the transactions
         if (!empty($webhooks)) {

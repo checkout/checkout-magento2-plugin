@@ -56,7 +56,7 @@ class OrderAfterSave
         ]);
 
         // Create the transactions
-        $this->transactionHandler->webhookToTransaction(
+        $this->transactionHandler->webhooksToTransactions(
             $order,
             $webhooks
         );
