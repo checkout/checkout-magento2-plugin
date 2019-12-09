@@ -102,13 +102,16 @@ class TransactionHandlerService
             // Load the webhook data
             $payload = json_decode($webhook['event_data']);
 
+            // Format the amount
+            $amount = $this->amountFromGateway(
+                $payload->data->amount,
+                $order
+            );
+
             // Add the order comment
             $this->addTransactionComment(
                 $transaction,
-                $this->amountFromGateway(
-                    $payload->data->amount,
-                    $order
-                )
+                $amount
             );
 
             // Update to order status
@@ -118,7 +121,7 @@ class TransactionHandlerService
             $this->invoiceHandler->processInvoice(
                 $order,
                 $transaction,
-                $payload->data->amount
+                $amount
             );
         }
     }
