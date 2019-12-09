@@ -28,16 +28,6 @@ use Magento\Framework\Webapi\Rest\Response as WebResponse;
 class Callback extends \Magento\Framework\App\Action\Action
 {
     /**
-     * @var array
-     */
-    public static $paymentTypeMapper = [
-        'payment_approved' => Transaction::TYPE_AUTH,
-        'payment_captured' => Transaction::TYPE_CAPTURE,
-        'payment_refunded' => Transaction::TYPE_REFUND,
-        'payment_voided' => Transaction::TYPE_VOID
-    ];
-
-    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
@@ -155,7 +145,10 @@ class Callback extends \Magento\Framework\App\Action\Action
                         }
 
                         // Save the webhook
-                        $this->webhookHandler->save($this->payload);
+                        $this->webhookHandler->processWebhook(
+                            $order,
+                            $this->payload
+                        );
 
                         // Set a valid response
                         $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);

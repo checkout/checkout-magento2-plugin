@@ -28,6 +28,11 @@ class WebhookHandlerService
     public $orderHandler;
 
     /**
+     * @var TransactionHandlerService
+     */
+    public $transactionHandler;
+
+    /**
      * @var WebhookEntityFactory
      */
     public $webhookEntityFactory;
@@ -47,11 +52,13 @@ class WebhookHandlerService
      */
     public function __construct(
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory,
         \CheckoutCom\Magento2\Helper\Logger $logger,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->orderHandler = $orderHandler;
+        $this->transactionHandler = $transactionHandler;
         $this->webhookEntityFactory = $webhookEntityFactory;
         $this->logger = $logger;
         $this->config = $config;
@@ -60,17 +67,24 @@ class WebhookHandlerService
     /**
      * Handle the incoming webhook.
      */
-    public function handle($data)
+    public function processWebhook($order, $payload)
     {
         try {
-            // Get a webhook entity instance
-            $entity = $this->webhookEntityFactory->create();
+            // Save the payload
+            $this->saveEntity($payload);
 
-            // Set the fields values
-            $entity->setData($key, $value);
+            // Get the saved webhook
+            $webhooks = $this->loadEntities([
+                'order_id' => $order->getId(),
+                'action_id' => $payload->data->action_id
+            ]);
 
-            // Save the entity
-            $entity->save();
+            // Handle transaction for the webhook
+            $this->transactionHandler->webhookToTransaction(
+                $order,
+                $webhook
+            );
+
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
         }
@@ -82,8 +96,8 @@ class WebhookHandlerService
     public function loadEntities($fields = [])
     {
         // Create the collection
-        $entity = $this->webhookEntityFactory->create();
-        $collection = $entity->getCollection();
+        $entities = $this->webhookEntityFactory->create();
+        $collection = $entities->getCollection();
 
         // Add the field filters if needed
         if (!empty($fields)) {
@@ -99,7 +113,7 @@ class WebhookHandlerService
     /**
      * Save the incoming webhook.
      */
-    public function save($payload)
+    public function saveEntity($payload)
     {
         try {
             // Get the order id from the payload
@@ -120,7 +134,7 @@ class WebhookHandlerService
                     json_encode($payload)
                 );
                 $entity->setData('action_id', $payload->data->action_id);
-                $entity->setData('transaction_id', $payload->data->id);
+                $entity->setData('payment_id', $payload->data->id);
                 $entity->setData('order_id', $order->getId());
 
                 // Save the entity

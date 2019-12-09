@@ -30,33 +30,36 @@ class OrderAfterSave
     public $webhookHandler;
 
     /**
-     * @var Config
+     * @var TransactionHandlerService
      */
-    public $config;
+    public $transactionHandler;
 
     /**
      * AfterPlaceOrder constructor.
      */
     public function __construct(
         \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
     ) {
         $this->webhookHandler = $webhookHandler;
-        $this->config = $config;
+        $this->transactionHandler = $transactionHandler;
     }
 
     /**
-     * Disable order email sending on order creation
+     * Create transactions for the order.
      */
-    public function afterSave(OrderRepositoryInterface $orderRepo, $order)
+    public function afterSave(OrderRepositoryInterface $orderRepository, $order)
     {
         // Get the webhook entities
-        $entities = $this->webhookHandler->loadEntities([
+        $webhooks = $this->webhookHandler->loadEntities([
             'order_id' => $order->getId()
         ]);
 
-
-        
+        // Create the transactions
+        $this->transactionHandler->webhookToTransaction(
+            $order,
+            $webhook
+        );
 
         return $order;
     }

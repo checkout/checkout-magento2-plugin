@@ -25,14 +25,19 @@ use Magento\Sales\Model\Order\Invoice;
 class TransactionHandlerService
 {
     /**
+     * @var array
+     */
+    public static $transactionMapper = [
+        'payment_approved' => Transaction::TYPE_AUTH,
+        'payment_captured' => Transaction::TYPE_CAPTURE,
+        'payment_refunded' => Transaction::TYPE_REFUND,
+        'payment_voided' => Transaction::TYPE_VOID
+    ];
+
+    /**
      * @var TransactionSearchResultInterfaceFactory
      */
     public $transactionSearch;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
-    public $searchCriteriaBuilder;
 
     /**
      * @var BuilderInterface
@@ -44,39 +49,36 @@ class TransactionHandlerService
      */
     public function __construct(
         \Magento\Sales\Api\Data\TransactionSearchResultInterfaceFactory $transactionSearch,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder
     ) {
         $this->transactionSearch  = $transactionSearch;
-        $this->searchCriteriaBuilder  = $searchCriteriaBuilder;
         $this->transactionBuilder = $transactionBuilder;
     }
 
     /**
      * Get the transactions for an order.
      */
-    public function getTransactions($orderId, $fields = null)
+    public function getTransactions($orderId, $transactionId = null)
     {
-        // Set the filters
-        if (!empty($fields)) {
-            foreach ($fields as $key => $value) {
-                $this->searchCriteriaBuilder->addFilter(
-                    $key,
-                    $value,
-                    'eq'
-                );
-            }
-        }
-
-        // Create the search filters
-        $filters = $this->searchCriteriaBuilder->create();
-
         // Get the list of transactions
         $transactions = $this->transactionSearch->create()
-        ->addOrderIdFilter($orderId)
-        ->setSearchCriteria($filters);
+        ->addOrderIdFilter($orderId);
+        $transactions->getItems(); 
 
-        return  $transactions->getItems();        ;
+        // Filter the transactions
+        if ($transactionId && !empty($transactions)) {
+            $filteredResult = [];
+            foreach ($transactions as $transaction) {
+                $condition = $transaction->getTxnId() == $transactionId;
+                if ($condition) {
+                    $filteredResult[] = $transaction;
+                }
+            }
+
+            return $filteredResult;
+        }
+
+        return $transactions;
     }
 
     /**
@@ -84,40 +86,74 @@ class TransactionHandlerService
      */
     public function hasTransaction($order, $transactionId)
     {
-        // Set the filter
-        $this->searchCriteriaBuilder->addFilter(
-            'txn_id',
-            $transactionId,
-            'eq'
+        $transaction = $this->getTransactions(
+            $order->getId(),
+            $transactionId
         );
 
-        // Create the search filter
-        $filter = $this->searchCriteriaBuilder->create();
+        return !empty($transaction) ? true : false;  
+    }
 
-        // Get the transaction
-        $transaction = $this->transactionSearch->create()
-        ->addOrderIdFilter($orderId)
-        ->setSearchCriteria($filter);
+    /**
+     * Generate transactions from webhooks.
+     */
+    public function webhookToTransaction($order, $webhook = [])
+    {
+        // Create the transactions
+        if (!empty($webhooks)) {
+            foreach ($webhooks as $webhook) {
+                $this->handleTransaction(
+                    $order,
+                    $webhook
+                );
+            }
+        }
+    }
 
-        return !empty($transaction->getItems())
-        ? true : false;  
+    /**
+     * Handle a webhook transaction.
+     */
+    public function handleTransaction($order, $webhook)
+    {
+        // Prepare the test condition
+        $condition = $this->hasTransaction(
+            $order,
+            $webhook['action_id']
+        );
+
+        // Create a transaction if needed
+        if (!$condition) {
+            $this->buildTransaction(
+                $order,
+                $webhook['action_id'],
+                self::$transactionMapper[$webhook['event_type']]
+            );
+        }
     }
 
     /**
      * Create a transaction for an order.
      */
-    public function createTransaction($order, $transactionId, $transactionType)
+    public function buildTransaction($order, $transactionId, $transactionType)
     {        
-        return $this->transactionBuilder
-            ->setPayment($order->getPayment())
-            ->setOrder($order)
-            ->setTransactionId($transactionId)
-            /*->setAdditionalInformation(
-                [
-                    Transaction::RAW_DETAILS => $this->buildDataArray($this->paymentData)
-                ]
-            )*/
-            ->setFailSafe(true)
-            ->build($transactionType);
+        // Get the order payment
+        $payment = $order->getPayment();
+
+        // Create the transaction
+        $transaction = $this->transactionBuilder
+        ->setPayment($payment)
+        ->setOrder($order)
+        ->setTransactionId($transactionId)
+        /*->setAdditionalInformation(
+            [
+                Transaction::RAW_DETAILS => $this->buildDataArray($this->paymentData)
+            ]
+        )*/
+        ->setFailSafe(true)
+        ->build($transactionType);
+
+        // Save 
+        $transaction->save();
+        $payment->save();
     }
 }
