@@ -75,26 +75,15 @@ class InvoiceHandlerService
     }
 
     /**
-     * Check if the invoice can be created.
-     */
-    public function processInvoice($order, $transaction = null, $amount = null)
-    {
-        // Set required properties
-        $this->order = $order;
-        $this->transaction = $transaction;
-        $this->amount = $amount ? $amount : $this->order->getGrandTotal();
-
-        // Handle the invoice
-        if ($this->needsInvoicing()) {
-            $this->createInvoice();
-        }
-    }
-
-    /**
      * Create an invoice.
      */
-    public function createInvoice()
+    public function createInvoice($transaction, $amount)
     {
+        // Set required properties
+        $this->order = $transaction->getOrder();
+        $this->transaction = $transaction;
+        $this->amount = $amount;
+
         // Prepare the invoice
         $invoice = $this->invoiceService->prepareInvoice($this->order);
 

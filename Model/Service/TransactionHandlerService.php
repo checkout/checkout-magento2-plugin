@@ -88,7 +88,6 @@ class TransactionHandlerService
      */
     public function webhooksToTransactions($order, $webhooks = [])
     {
-        // Create the transactions
         if (!empty($webhooks)) {
             foreach ($webhooks as $webhook) {
                 $this->handleTransaction(
@@ -105,13 +104,13 @@ class TransactionHandlerService
     public function handleTransaction($order, $webhook)
     {
         // Check if a transaction aleady exists
-        $condition = $this->hasTransaction(
+        $transaction = $this->hasTransaction(
             $order,
             $webhook['action_id']
         );
 
         // Create a transaction if needed
-        if (!$condition) {
+        if (!$transaction) {
             // Build the transaction
             $transaction = $this->buildTransaction($order, $webhook);
 
@@ -133,15 +132,14 @@ class TransactionHandlerService
             // Update the order status
             $this->setOrderStatus($transaction);
 
-            // Process the invoice in needed
-            $isCapture = $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
-            if ($isCapture) {
-                $this->invoiceHandler->processInvoice(
-                    $order,
-                    $transaction,
-                    $amount
-                );
-            }
+            // Process the invoice
+            $this->processInvoice($transaction, $amount);
+        }
+        else {
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/transaction.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($transaction->getTxnId(), 1));        
         }
     }
 
@@ -181,7 +179,7 @@ class TransactionHandlerService
             $transactionId
         );
 
-        return !empty($transaction) ? true : false;  
+        return isset($transaction[0]) ? $transaction[0] : false;  
     }
 
     /**
@@ -313,12 +311,6 @@ class TransactionHandlerService
         $order->setStatus($this->config->getValue($status));
 
         // Set the order state
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/o.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($status, 1));
-        $logger->info(print_r($state, 1));
-
         if ($state) {
             $order->setState($state);
         }
@@ -394,6 +386,20 @@ class TransactionHandlerService
             return $amount/1000;
         } else {
             return $amount/100;
+        }
+    }
+
+    /**
+     * Create an invoice for a captured transaction.
+     */
+    public function processInvoice($transaction, $amount)
+    {
+        $isCapture = $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+        if ($isCapture) {
+            $this->invoiceHandler->createInvoice(
+                $transaction,
+                $amount
+            );
         }
     }
 
