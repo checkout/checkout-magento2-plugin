@@ -118,7 +118,8 @@ class TransactionHandlerService
             $this->setOrderStatus($transaction);
 
             // Process the invoice in needed
-            if ($transaction->getTxnType() == Transaction::TYPE_CAPTURE) {
+            $isCapture = $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+            if ($isCapture) {
                 $this->invoiceHandler->processInvoice(
                     $order,
                     $transaction,
