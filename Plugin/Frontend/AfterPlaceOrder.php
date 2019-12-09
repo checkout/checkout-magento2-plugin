@@ -72,19 +72,20 @@ class AfterPlaceOrder
             // Disable the email sending
             if (in_array($methodId, $this->config->getMethodsList())) {
                 $order->setCanSendNewEmailFlag(false);
-                return $order;
+
+                // Get the webhook entities
+                $webhooks = $this->webhookHandler->loadEntities([
+                    'order_id' => $order->getId()
+                ]);
+
+                // Create the transactions
+                $this->transactionHandler->webhooksToTransactions(
+                    $order,
+                    $webhooks
+                );
             }
-
-            // Get the webhook entities
-            $webhooks = $this->webhookHandler->loadEntities([
-                'order_id' => $order->getId()
-            ]);
-
-            // Create the transactions
-            $this->transactionHandler->webhooksToTransactions(
-                $order,
-                $webhooks
-            );
         }
+
+        return $order;
     }
 }

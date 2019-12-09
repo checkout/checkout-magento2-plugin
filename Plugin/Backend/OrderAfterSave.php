@@ -25,6 +25,11 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 class OrderAfterSave
 {
     /**
+     * @var Session
+     */
+    public $backendAuthSession;
+
+    /**
      * @var WebhookHandlerService
      */
     public $webhookHandler;
@@ -35,14 +40,23 @@ class OrderAfterSave
     public $transactionHandler;
 
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
      * AfterPlaceOrder constructor.
      */
     public function __construct(
+        \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
+        $this->backendAuthSession = $backendAuthSession;
         $this->webhookHandler = $webhookHandler;
         $this->transactionHandler = $transactionHandler;
+        $this->config = $config;
     }
 
     /**
@@ -50,16 +64,24 @@ class OrderAfterSave
      */
     public function afterSave(OrderRepositoryInterface $orderRepository, $order)
     {
-        // Get the webhook entities
-        $webhooks = $this->webhookHandler->loadEntities([
-            'order_id' => $order->getId()
-        ]);
+        if ($this->backendAuthSession->isLoggedIn()) {        
+            // Get the method ID
+            $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
-        // Create the transactions
-        $this->transactionHandler->webhooksToTransactions(
-            $order,
-            $webhooks
-        );
+            // Disable the email sending
+            if (in_array($methodId, $this->config->getMethodsList())) {
+                // Get the webhook entities
+                $webhooks = $this->webhookHandler->loadEntities([
+                    'order_id' => $order->getId()
+                ]);
+
+                // Create the transactions
+                $this->transactionHandler->webhooksToTransactions(
+                    $order,
+                    $webhooks
+                );
+            }
+        }
 
         return $order;
     }
