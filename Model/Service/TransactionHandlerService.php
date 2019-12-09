@@ -280,6 +280,46 @@ class TransactionHandlerService
     }
 
     /**
+     * Add a transaction comment to an order.
+     */
+    public function addTransactionComment($transaction, $amount)
+    {
+        // Get the order
+        $order = $transaction->getOrder();
+        
+        // Get the order payment
+        $payment = $order->getPayment();
+
+        // Get the transaction type
+        $type = $transaction->getTxnType();
+
+        // Prepare the comment
+        switch ($type) {
+            case Transaction::TYPE_AUTH:
+                $comment = 'The authorized amount is %1.';
+                break;
+
+            case Transaction::TYPE_CAPTURE:
+                $comment = 'The captured amount is %1.';
+                break;
+
+            case Transaction::TYPE_VOID:
+                $comment = 'The voided amount is %1.';
+                break;
+
+            case Transaction::TYPE_REFUND:
+                $comment = 'The refunded amount is %1.';
+                break;
+        }   
+
+        // Add the transaction comment
+        $payment->addTransactionCommentsToOrder(
+            $transaction,
+            __($comment, $this->getFormattedAmount($order, $amount))
+        );
+    }
+
+    /**
      * Build a flat array from the gateway response.
      */
     public function buildDataArray($data)
@@ -296,5 +336,13 @@ class TransactionHandlerService
 
         // Return the clean array
         return array_diff_key($data, array_flip($remove));
+    }
+
+    /**
+     * Format an amount with curerency.
+     */
+    public function getFormattedAmount($order, $amount)
+    {
+        return $order->getBaseCurrency()->formatTxt($amount);
     }
 }
