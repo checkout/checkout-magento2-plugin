@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -15,25 +14,19 @@
  * @link      https://docs.checkout.com/
  */
 
-namespace CheckoutCom\Magento2\Plugin\Frontend;
+namespace CheckoutCom\Magento2\Plugin\Backend;
 
-use Magento\Sales\Api\OrderManagementInterface;
-use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
- * Class AfterPlaceOrder.
+ * Class PaymentAfterVoid.
  */
-class AfterPlaceOrder
+class PaymentAfterVoid
 {
     /**
      * @var Session
      */
     public $backendAuthSession;
-
-    /**
-     * @var Config
-     */
-    public $config;
 
     /**
      * @var WebhookHandlerService
@@ -46,35 +39,42 @@ class AfterPlaceOrder
     public $transactionHandler;
 
     /**
-     * AfterPlaceOrder constructor.
+     * @var Config
+     */
+    public $config;
+
+    /**
+     * PaymentAfterVoid constructor.
      */
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->config = $config;
         $this->webhookHandler = $webhookHandler;
         $this->transactionHandler = $transactionHandler;
+        $this->config = $config;
     }
 
     /**
-     * Disable order email sending on order creation
+     * Create transactions for the order.
      */
-    public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
+    public function afterVoid(\Magento\Payment\Model\Method\AbstractMethod $method)
     {
-        if (!$this->backendAuthSession->isLoggedIn()) {        
-            // Get the method ID
-            $methodId = $order->getPayment()->getMethodInstance()->getCode();
+        if ($this->backendAuthSession->isLoggedIn()) { 
+            // Get the payment
+            $payment = $method->getInfoInstance();
 
-            // If can proceed
+            // Get the order
+            $order = $payment->getOrder();
+
+            // Get the method id
+            $methodId = $payment->getMethodInstance()->getCode();
+
+            // Process the webhooks
             if (in_array($methodId, $this->config->getMethodsList())) {
-                // Disable the email sending
-                $order->setCanSendNewEmailFlag(false);
-
-                // Process the webhooks
                 $this->webhookHandler->processAllWebhooks($order);
             }
         }

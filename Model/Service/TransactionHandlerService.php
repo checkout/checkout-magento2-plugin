@@ -114,15 +114,17 @@ class TransactionHandlerService
                 $amount
             );
 
-            // Update to order status
+            // Update the order status
             $this->setOrderStatus($transaction);
 
-            // Process the invoice
-            $this->invoiceHandler->processInvoice(
-                $order,
-                $transaction,
-                $amount
-            );
+            // Process the invoice in needed
+            if ($transaction->getTxnType() == Transaction::TYPE_CAPTURE) {
+                $this->invoiceHandler->processInvoice(
+                    $order,
+                    $transaction,
+                    $amount
+                );
+            }
         }
     }
 
@@ -283,6 +285,9 @@ class TransactionHandlerService
         // Get the transaction type
         $type = $transaction->getTxnType();
 
+        // Set the default order state
+        $state = null;
+
         // Get the needed order status
         switch ($type) {
             case Transaction::TYPE_AUTH:
@@ -295,6 +300,7 @@ class TransactionHandlerService
 
             case Transaction::TYPE_VOID:
                 $status = 'order_status_voided';
+                $state = 'order_status_voided';
                 break;
 
             case Transaction::TYPE_REFUND:
@@ -304,6 +310,13 @@ class TransactionHandlerService
 
         // Set the order status
         $order->setStatus($this->config->getValue($status));
+
+        // Set the order state
+        if ($state) {
+            $order->setState($state);
+        }
+
+        // Save the order
         $order->save();
     }
 

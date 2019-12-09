@@ -58,9 +58,9 @@ class WebhookHandlerService
     }
 
     /**
-     * Handle the incoming webhook.
+     * Process a single incoming webhook.
      */
-    public function processWebhook($order, $payload)
+    public function processSingleWebhook($order, $payload)
     {
         // Save the payload
         $this->saveEntity($payload);
@@ -72,6 +72,23 @@ class WebhookHandlerService
         ]);
 
         // Handle transaction for the webhook
+        $this->transactionHandler->webhooksToTransactions(
+            $order,
+            $webhooks
+        );
+    }
+
+    /**
+     * Process all webhooks for an order.
+     */
+    public function processAllWebhooks($order)
+    {
+        // Get the webhook entities
+        $webhooks = $this->loadEntities([
+            'order_id' => $order->getId()
+        ]);
+
+        // Create the transactions
         $this->transactionHandler->webhooksToTransactions(
             $order,
             $webhooks

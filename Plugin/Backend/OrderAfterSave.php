@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -64,22 +63,13 @@ class OrderAfterSave
      */
     public function afterSave(OrderRepositoryInterface $orderRepository, $order)
     {
-        if ($this->backendAuthSession->isLoggedIn()) {        
+        if ($this->backendAuthSession->isLoggedIn()) {     
             // Get the method ID
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
             // Disable the email sending
             if (in_array($methodId, $this->config->getMethodsList())) {
-                // Get the webhook entities
-                $webhooks = $this->webhookHandler->loadEntities([
-                    'order_id' => $order->getId()
-                ]);
-
-                // Create the transactions
-                $this->transactionHandler->webhooksToTransactions(
-                    $order,
-                    $webhooks
-                );
+                $this->webhookHandler->processAllWebhooks($order);
             }
         }
 

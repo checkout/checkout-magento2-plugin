@@ -145,7 +145,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                         }
 
                         // Save the webhook
-                        $this->webhookHandler->processWebhook(
+                        $this->webhookHandler->processSingleWebhook(
                             $order,
                             $this->payload
                         );
