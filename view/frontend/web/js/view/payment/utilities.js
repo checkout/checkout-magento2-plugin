@@ -101,54 +101,7 @@ define(
 
                 return amount.toFixed(2);
             },
-
-            // /**
-            //  * Get the updated quote data from the core REST API.
-            //  *
-            //  * @return {object}  The quote data.
-            //  */
-            // getRestQuoteData: function (isNewApi) {
-            //     // Prepare the required parameters
-            //     var self = this;
-            //     var result = null;
-            //
-            //     // Build the URL
-            //     var restUrl = window.BASE_URL + 'rest/default/V1/';
-            //
-            //     if (isNewApi) {
-            //         restUrl += 'guest-carts/'+ window.checkoutConfig.quoteItemData[0].quote_id +'/payment-information';
-            //     } else {
-            //         restUrl += 'carts/mine/payment-information';
-            //         restUrl += '?form_key=' + window.checkoutConfig.formKey;
-            //     }
-            //
-            //     // Set the event to update data on any button click
-            //     $('button[type="submit"]')
-            //     .off('click', isNewApi, self.getRestQuoteData)
-            //     .on('click', isNewApi, self.getRestQuoteData);
-            //
-            //     // Send the AJAX request
-            //     $.ajax({
-            //         url: restUrl,
-            //         type: 'GET',
-            //         contentType: "application/json",
-            //         dataType: "json",
-            //         async: false,
-            //         showLoader: true,
-            //         success: function (data, status, xhr) {
-            //             result = data;
-            //         },
-            //         error: function (request, status, error) {
-            //             self.log(error);
-            //         }
-            //     });
-            //
-            //     if (result == null) {
-            //        return self.getRestQuoteData(true);
-            //     } else {
-            //         return result;
-            //     }
-            // },
+            
             /**
              * Get the updated quote data from the core REST API.
              *
