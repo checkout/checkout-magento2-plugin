@@ -82,7 +82,7 @@ class WebhookHandlerService
             // Handle transaction for the webhook
             $this->transactionHandler->webhookToTransaction(
                 $order,
-                $webhook
+                $webhooks
             );
         } catch (\Exception $e) {
             $this->logger->write($e->getMessage());
