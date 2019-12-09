@@ -127,34 +127,4 @@ class WebhookHandlerService
             $entity->save();
         }
     }
-
-    /**
-     * Convert a gateway to decimal value for processing.
-     */
-    public function amountFromGateway($amount, $order)
-    {
-        // Get the quote currency
-        $currency = $order->getOrderCurrencyCode();
-
-        // Get the x1 currency calculation mapping
-        $currenciesX1 = explode(
-            ',',
-            $this->config->getValue('currencies_x1')
-        );
-
-        // Get the x1000 currency calculation mapping
-        $currenciesX1000 = explode(
-            ',',
-            $this->config->getValue('currencies_x1000')
-        );
-
-        // Prepare the amount
-        if (in_array($currency, $currenciesX1)) {
-            return $amount;
-        } elseif (in_array($currency, $currenciesX1000)) {
-            return $amount/1000;
-        } else {
-            return $amount/100;
-        }
-    }
 }

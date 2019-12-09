@@ -23,9 +23,9 @@ namespace CheckoutCom\Magento2\Model\Service;
 class PaymentErrorHandlerService
 {
     /**
-     * @var WebhookHandlerService
+     * @var TransactionHandlerService
      */
-    public $webhookHandler;
+    public $transactionHandler;
 
     /**
      * @var OrderHandlerService
@@ -46,10 +46,10 @@ class PaymentErrorHandlerService
      * PaymentErrorHandlerService constructor.
      */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler
     ) {
-        $this->webhookHandler = $webhookHandler;
+        $this->transactionHandler = $transactionHandler;
         $this->orderHandler = $orderHandler;
     }
     
@@ -93,7 +93,7 @@ class PaymentErrorHandlerService
     public function prepareAmount($amount)
     {
         // Prepare the amount
-        $amount = $this->webhookHandler->amountFromGateway(
+        $amount = $this->transactionHandler->amountFromGateway(
             $amount,
             $this->order
         );

@@ -84,6 +84,39 @@ class TransactionHandlerService
     }
 
     /**
+     * Handle a webhook transaction.
+     */
+    public function handleTransaction($order, $webhook)
+    {
+        // Check if a transaction aleady exists
+        $condition = $this->hasTransaction(
+            $order,
+            $webhook['action_id']
+        );
+
+        // Create a transaction if needed
+        if (!$condition) {
+            // Build the transaction
+            $transaction = $this->buildTransaction($order, $webhook);
+
+            // Load the webhook data
+            $payload = json_decode($webhook['event_data']);
+
+            // Add the order comment
+            $this->addTransactionComment(
+                $transaction,
+                $this->amountFromGateway(
+                    $payload->data->amount,
+                    $order
+                )
+            );
+
+            // Update to order status
+            $this->setOrderStatus($transaction);
+        }
+    }
+
+    /**
      * Get the transactions for an order.
      */
     public function getTransactions($orderId, $transactionId = null)
@@ -139,23 +172,6 @@ class TransactionHandlerService
     }
 
     /**
-     * Handle a webhook transaction.
-     */
-    public function handleTransaction($order, $webhook)
-    {
-        // Check if a transaction aleady exists
-        $condition = $this->hasTransaction(
-            $order,
-            $webhook['action_id']
-        );
-
-        // Create a transaction if needed
-        if (!$condition) {
-            $this->buildTransaction($order, $webhook);
-        }
-    }
-
-    /**
      * Create a transaction for an order.
      */
     public function buildTransaction($order, $webhook)
@@ -194,6 +210,8 @@ class TransactionHandlerService
         // Save 
         $transaction->save();
         $payment->save();
+
+        return $transaction;
     }
 
     /**
@@ -204,7 +222,7 @@ class TransactionHandlerService
         // Get the order
         $order = $transaction->getOrder();
 
-        // Handle the capture parent transaction logic
+        // Handle the capture's parent auth logic
         $isCapture = $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
         $parentAuth = $this->transactionRepository->getByTransactionType(
             Transaction::TYPE_AUTH,
@@ -317,6 +335,36 @@ class TransactionHandlerService
             $transaction,
             __($comment, $this->getFormattedAmount($order, $amount))
         );
+    }
+
+    /**
+     * Convert a gateway to decimal value for processing.
+     */
+    public function amountFromGateway($amount, $order)
+    {
+        // Get the quote currency
+        $currency = $order->getOrderCurrencyCode();
+
+        // Get the x1 currency calculation mapping
+        $currenciesX1 = explode(
+            ',',
+            $this->config->getValue('currencies_x1')
+        );
+
+        // Get the x1000 currency calculation mapping
+        $currenciesX1000 = explode(
+            ',',
+            $this->config->getValue('currencies_x1000')
+        );
+
+        // Prepare the amount
+        if (in_array($currency, $currenciesX1)) {
+            return $amount;
+        } elseif (in_array($currency, $currenciesX1000)) {
+            return $amount/1000;
+        } else {
+            return $amount/100;
+        }
     }
 
     /**
