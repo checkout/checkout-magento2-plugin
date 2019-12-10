@@ -257,9 +257,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     {
         $payment = null;
 
-        // Get the quote
-        $quote = $this->quoteHandler->getQuote();
-        
         // Create payment object
         $payment = new Payment($source, $currency);
 
@@ -275,10 +272,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         
         // Set the payment specifications
         $payment->capture = $this->config->needsAutoCapture($this->_code);
-        $payment->amount = $this->quoteHandler->amountToGateway(
-            $this->utilities->formatDecimals($amount),
-            $quote
-        );
+        $payment->amount = $amount * 100;
         $payment->reference = $reference;
         $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
         $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
@@ -546,10 +540,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $product = new Product();
             $product->description = $item->getName();
             $product->quantity = $item->getQty();
-            $product->price = $this->quoteHandler->amountToGateway(
-                $this->utilities->formatDecimals($item->getPriceInclTax()),
-                $quote
-            );
+            $product->price = $item->getPriceInclTax() *100;
             $product->product_id = $item->getId();
             $products []= $product;
         }
@@ -561,10 +552,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $product = new Product();
             $product->description = $shipping->getShippingDescription();
             $product->quantity = 1;
-            $product->price = $this->quoteHandler->amountToGateway(
-                $this->utilities->formatDecimals($shipping->getShippingInclTax()),
-                $quote
-            );
+            $product->price = $shipping->getShippingInclTax() *100;
             $product->product_id = 0;
 
             $products []= $product;
@@ -588,6 +576,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function knet($data)
     {
+
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('en'));
         return new KnetSource($locale[0]);
     }
@@ -639,7 +628,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 );
             }
 
-            // Process the capture request
+            // Process the void request
             $response = $api->captureOrder($payment, $amount);
             if (!$api->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(
