@@ -50,6 +50,16 @@ class TransactionHandlerService
     public $transactionRepository;
 
     /**
+     * @var CreditmemoFactory
+     */
+    public $creditMemoFactory;
+
+    /**
+     * @var CreditmemoService
+     */
+    public $creditMemoService;
+
+    /**
      * @var Utilities
      */
     public $utilities;
@@ -71,6 +81,8 @@ class TransactionHandlerService
         \Magento\Sales\Api\Data\TransactionSearchResultInterfaceFactory $transactionSearch,
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
         \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository,
+        \Magento\Sales\Model\Order\CreditmemoFactory $creditMemoFactory,
+        \Magento\Sales\Model\Service\CreditmemoService $creditMemoService,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
@@ -78,6 +90,8 @@ class TransactionHandlerService
         $this->transactionSearch     = $transactionSearch;
         $this->transactionBuilder    = $transactionBuilder;
         $this->transactionRepository = $transactionRepository;
+        $this->creditMemoFactory     = $creditMemoFactory;
+        $this->creditMemoService     = $creditMemoService;
         $this->utilities             = $utilities;
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
@@ -129,7 +143,10 @@ class TransactionHandlerService
                 $amount
             );
 
-            // Process the invoice
+            // Process the credit memo case
+            $this->processCreditMemo($transaction, $amount);
+
+            // Process the invoice case
             $this->processInvoice($transaction, $amount);
         }
 
@@ -283,7 +300,7 @@ class TransactionHandlerService
             $parentAuth->close()->save();
             return 1;
         }
-        
+
         // Handle a capture after authorization
         $isCapture = $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
         $parentAuth = $this->transactionRepository->getByTransactionType(
@@ -420,6 +437,31 @@ class TransactionHandlerService
             return $amount/1000;
         } else {
             return $amount/100;
+        }
+    }
+
+    /**
+     * Create a credit memo for a refunded transaction.
+     */
+    public function processCreditMemo($transaction, $amount)
+    {
+        // Process the credit memo
+        $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
+        if ($isRefund) {
+            // Get the order
+            $order = $transaction->getOrder();
+
+            // Get the invoice
+            $invoice = $this->invoiceHandler->getInvoice($order);
+
+            // Create a credit memo
+            $creditMemo = $this->creditMemoFactory->createByOrder($order);
+            $creditMemo->setInvoice($invoice);
+            $creditMemo->setBaseGrandTotal($amount);
+            $creditMemo->setGrandTotal($amount);
+
+            // Refund
+            $this->creditMemoService->refund($creditMemo);
         }
     }
 
