@@ -68,11 +68,6 @@ class OrderHandlerService
     public $storeManager;
 
     /**
-     * @var TransactionHandlerService
-     */
-    public $transactionHandler;
-
-    /**
      * @var String
      */
     public $methodId;
@@ -94,8 +89,7 @@ class OrderHandlerService
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
@@ -106,7 +100,6 @@ class OrderHandlerService
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
         $this->storeManager = $storeManager;
-        $this->transactionHandler = $transactionHandler;
     }
 
     /**

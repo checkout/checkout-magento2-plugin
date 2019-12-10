@@ -15,7 +15,7 @@
  * @link      https://docs.checkout.com/
  */
 
-namespace CheckoutCom\Magento2\Plugin;
+namespace CheckoutCom\Magento2\Plugin\Frontend;
 
 /**
  * Class CsrfValidatorSkip.

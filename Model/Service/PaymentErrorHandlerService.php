@@ -22,7 +22,6 @@ namespace CheckoutCom\Magento2\Model\Service;
  */
 class PaymentErrorHandlerService
 {
-
     /**
      * @var TransactionHandlerService
      */
