@@ -187,94 +187,89 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function sendPaymentRequest($data, $amount, $currency, $reference = '')
     {
-        try {
-            // Get the store code
-            $storeCode = $this->storeManager->getStore()->getCode();
+        // Get the store code
+        $storeCode = $this->storeManager->getStore()->getCode();
 
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+        // Initialize the API handler
+        $api = $this->apiHandler->init($storeCode);
 
-            // Get the quote
-            $quote = $this->quoteHandler->getQuote();
+        // Get the quote
+        $quote = $this->quoteHandler->getQuote();
 
-            // Create the Apple Pay header
-            $applePayHeader = new ApplePayHeader(
-                $data['cardToken']['paymentData']['header']['transactionId'],
-                $data['cardToken']['paymentData']['header']['publicKeyHash'],
-                $data['cardToken']['paymentData']['header']['ephemeralPublicKey']
-            );
+        // Create the Apple Pay header
+        $applePayHeader = new ApplePayHeader(
+            $data['cardToken']['paymentData']['header']['transactionId'],
+            $data['cardToken']['paymentData']['header']['publicKeyHash'],
+            $data['cardToken']['paymentData']['header']['ephemeralPublicKey']
+        );
 
-            // Create the Apple Pay data instance
-            $applePayData = new ApplePay(
-                $data['cardToken']['paymentData']['version'],
-                $data['cardToken']['paymentData']['signature'],
-                $data['cardToken']['paymentData']['data'],
-                $applePayHeader
-            );
+        // Create the Apple Pay data instance
+        $applePayData = new ApplePay(
+            $data['cardToken']['paymentData']['version'],
+            $data['cardToken']['paymentData']['signature'],
+            $data['cardToken']['paymentData']['data'],
+            $applePayHeader
+        );
 
-            // Get the token data
-            $tokenData = $api->checkoutApi
-                ->tokens()
-                ->request($applePayData);
+        // Get the token data
+        $tokenData = $api->checkoutApi
+            ->tokens()
+            ->request($applePayData);
 
-            // Create the Apple Pay token source
-            $tokenSource = new TokenSource($tokenData->getId());
+        // Create the Apple Pay token source
+        $tokenSource = new TokenSource($tokenData->getId());
 
-            // Set the payment
-            $request = new Payment(
-                $tokenSource,
-                $currency
-            );
+        // Set the payment
+        $request = new Payment(
+            $tokenSource,
+            $currency
+        );
 
-            // Prepare the metadata array
-            $request->metadata['methodId'] = $this->_code;
-            $request->metadata['isFrontendRequest'] = true;
+        // Prepare the metadata array
+        $request->metadata['methodId'] = $this->_code;
+        $request->metadata['isFrontendRequest'] = true;
 
-            // Prepare the metadata array
-            $request->metadata = array_merge(
-                $request->metadata,
-                $this->apiHandler->getBaseMetadata()
-            );
+        // Prepare the metadata array
+        $request->metadata = array_merge(
+            $request->metadata,
+            $this->apiHandler->getBaseMetadata()
+        );
 
-            // Prepare the capture setting
-            $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
-            $request->capture = $needsAutoCapture;
-            if ($needsAutoCapture) {
-                $request->capture_on = $this->config->getCaptureTime($this->_code);
-            }
-
-            // Set the request parameters
-            $request->amount = $this->quoteHandler->amountToGateway(
-                $this->utilities->formatDecimals($amount),
-                $quote
-            );
-            $request->reference = $reference;
-            $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
-            $request->customer = $api->createCustomer($quote);
-            $request->payment_type = 'Regular';
-            $request->shipping = $api->createShippingAddress($quote);
-
-            // Billing descriptor
-            if ($this->config->needsDynamicDescriptor()) {
-                $request->billing_descriptor = new BillingDescriptor(
-                    $this->config->getValue('descriptor_name'),
-                    $this->config->getValue('descriptor_city')
-                );
-            }
-
-            // Add the quote metadata
-            $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
-
-            // Send the charge request
-            $response = $api->checkoutApi
-                ->payments()
-                ->request($request);
-            
-            return $response;
-        } catch (CheckoutHttpException $e) {
-            $this->ckoLogger->write($e->getBody());
-            return null;
+        // Prepare the capture setting
+        $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
+        $request->capture = $needsAutoCapture;
+        if ($needsAutoCapture) {
+            $request->capture_on = $this->config->getCaptureTime($this->_code);
         }
+
+        // Set the request parameters
+        $request->amount = $this->quoteHandler->amountToGateway(
+            $this->utilities->formatDecimals($amount),
+            $quote
+        );
+        $request->reference = $reference;
+        $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
+        $request->customer = $api->createCustomer($quote);
+        $request->payment_type = 'Regular';
+        $request->shipping = $api->createShippingAddress($quote);
+
+        // Billing descriptor
+        if ($this->config->needsDynamicDescriptor()) {
+            $request->billing_descriptor = new BillingDescriptor(
+                $this->config->getValue('descriptor_name'),
+                $this->config->getValue('descriptor_city')
+            );
+        }
+
+        // Add the quote metadata
+        $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
+
+        // Send the charge request
+        $response = $api->checkoutApi
+            ->payments()
+            ->request($request);
+        
+        return $response;
     }
 
     /**
@@ -289,39 +284,35 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
-        try {
-            if ($this->backendAuthSession->isLoggedIn()) {
-                // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $storeCode = $payment->getOrder()->getStore()->getCode();
 
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
 
-                // Check the status
-                if (!$this->canCapture()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The capture action is not available.')
-                    );
-                }
-
-                // Process the void request
-                $response = $api->captureOrder($payment, $amount);
-                if (!$api->isValidResponse($response)) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The capture request could not be processed.')
-                    );
-                }
-
-                // Set the transaction id from response
-                $payment->setTransactionId($response->action_id);
+            // Check the status
+            if (!$this->canCapture()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The capture action is not available.')
+                );
             }
-        } catch (CheckoutHttpException $e) {
-            $this->ckoLogger->write($e->getBody());
-        } finally {
-            return $this;
+
+            // Process the void request
+            $response = $api->captureOrder($payment, $amount);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The capture request could not be processed.')
+                );
+            }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
         }
+
+        return $this;
     }
-    
+
     /**
      * Perform a void request.
      *
@@ -333,37 +324,33 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
-        try {
-            if ($this->backendAuthSession->isLoggedIn()) {
-                // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $storeCode = $payment->getOrder()->getStore()->getCode();
 
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
 
-                // Check the status
-                if (!$this->canVoid()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The void action is not available.')
-                    );
-                }
-
-                // Process the void request
-                $response = $api->voidOrder($payment);
-                if (!$api->isValidResponse($response)) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The void request could not be processed.')
-                    );
-                }
-
-                // Set the transaction id from response
-                $payment->setTransactionId($response->action_id);
+            // Check the status
+            if (!$this->canVoid()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void action is not available.')
+                );
             }
-        } catch (CheckoutHttpException $e) {
-            $this->ckoLogger->write($e->getBody());
-        } finally {
-            return $this;
+
+            // Process the void request
+            $response = $api->voidOrder($payment);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void request could not be processed.')
+                );
+            }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
         }
+
+        return $this;
     }
     
     /**
@@ -378,37 +365,33 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
-        try {
-            if ($this->backendAuthSession->isLoggedIn()) {
-                // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $storeCode = $payment->getOrder()->getStore()->getCode();
 
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
 
-                // Check the status
-                if (!$this->canRefund()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The refund action is not available.')
-                    );
-                }
-
-                // Process the refund request
-                $response = $api->refundOrder($payment, $amount);
-                if (!$api->isValidResponse($response)) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The refund request could not be processed.')
-                    );
-                }
-
-                // Set the transaction id from response
-                $payment->setTransactionId($response->action_id);
+            // Check the status
+            if (!$this->canRefund()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The refund action is not available.')
+                );
             }
-        } catch (CheckoutHttpException $e) {
-            $this->ckoLogger->write($e->getBody());
-        } finally {
-            return $this;
+
+            // Process the refund request
+            $response = $api->refundOrder($payment, $amount);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The refund request could not be processed.')
+                );
+            }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
         }
+
+        return $this;
     }
     
     /**

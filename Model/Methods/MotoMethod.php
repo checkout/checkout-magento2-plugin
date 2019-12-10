@@ -171,37 +171,33 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
-        try {
-            if ($this->backendAuthSession->isLoggedIn()) {
-                // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $storeCode = $payment->getOrder()->getStore()->getCode();
 
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
 
-                // Check the status
-                if (!$this->canVoid()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The void action is not available.')
-                    );
-                }
-
-                // Process the void request
-                $response = $api->voidOrder($payment);
-                if (!$api->isValidResponse($response)) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The void request could not be processed.')
-                    );
-                }
-
-                // Set the transaction id from response
-                $payment->setTransactionId($response->action_id);
+            // Check the status
+            if (!$this->canVoid()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void action is not available.')
+                );
             }
-        } catch (CheckoutHttpException $e) {
-            $this->ckoLogger->write($e->getBody());
-        } finally {
-            return $this;
+
+            // Process the void request
+            $response = $api->voidOrder($payment);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void request could not be processed.')
+                );
+            }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
         }
+
+        return $this;
     }
 
     /**
@@ -216,39 +212,35 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
-        try {
-            if ($this->backendAuthSession->isLoggedIn()) {
-                // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $storeCode = $payment->getOrder()->getStore()->getCode();
 
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
 
-                // Check the status
-                if (!$this->canCapture()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The capture action is not available.')
-                    );
-                }
-
-                // Process the void request
-                $response = $api->captureOrder($payment, $amount);
-                if (!$api->isValidResponse($response)) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The capture request could not be processed.')
-                    );
-                }
-
-                // Set the transaction id from response
-                $payment->setTransactionId($response->action_id);
+            // Check the status
+            if (!$this->canCapture()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The capture action is not available.')
+                );
             }
-        } catch (CheckoutHttpException $e) {
-            $this->ckoLogger->write($e->getBody());
-        } finally {
-            return $this;
+
+            // Process the void request
+            $response = $api->captureOrder($payment, $amount);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The capture request could not be processed.')
+                );
+            }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
         }
+
+        return $this;
     }
-    
+
     /**
      * Perform a refund request.
      *
@@ -261,37 +253,33 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
-        try {
-            if ($this->backendAuthSession->isLoggedIn()) {
-                // Get the store code
-                $storeCode = $payment->getOrder()->getStore()->getCode();
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $storeCode = $payment->getOrder()->getStore()->getCode();
 
-                // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
 
-                // Check the status
-                if (!$this->canRefund()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The refund action is not available.')
-                    );
-                }
-
-                // Process the refund request
-                $response = $api->refundOrder($payment, $amount);
-                if (!$api->isValidResponse($response)) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The refund request could not be processed.')
-                    );
-                }
-
-                // Set the transaction id from response
-                $payment->setTransactionId($response->action_id);
+            // Check the status
+            if (!$this->canRefund()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The refund action is not available.')
+                );
             }
-        } catch (CheckoutHttpException $e) {
-            $this->ckoLogger->write($e->getBody());
-        } finally {
-            return $this;
+
+            // Process the refund request
+            $response = $api->refundOrder($payment, $amount);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The refund request could not be processed.')
+                );
+            }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
         }
+
+        return $this;
     }
 
     /**
