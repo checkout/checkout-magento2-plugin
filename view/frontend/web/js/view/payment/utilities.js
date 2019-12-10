@@ -101,7 +101,7 @@ define(
 
                 return amount.toFixed(2);
             },
-
+            
             /**
              * Get the updated quote data from the core REST API.
              *
@@ -113,30 +113,42 @@ define(
                 var result = null;
 
                 // Build the URL
-                var restUrl = window.BASE_URL;
-                restUrl += 'rest/default/V1/carts/mine/payment-information';
-                restUrl += '?form_key=' + window.checkoutConfig.formKey;
+                var restUrl = window.BASE_URL + 'rest/default/V1/';
+                    restUrl += 'carts/mine/payment-information';
+                    restUrl += '?form_key=' + window.checkoutConfig.formKey;
 
                 // Set the event to update data on any button click
                 $('button[type="submit"]')
                 .off('click', self.getRestQuoteData)
                 .on('click', self.getRestQuoteData);
 
-                // Send the AJAX request
-                $.ajax({
-                    url: restUrl,
-                    type: 'GET',
-                    contentType: "application/json",
-                    dataType: "json",
-                    async: false,
-                    showLoader: true,
-                    success: function (data, status, xhr) {
-                        result = data;
-                    },
-                    error: function (request, status, error) {
-                        self.log(error);
+                for (let i = 0; i <= 2; i++) {
+                    console.log(restUrl);
+                    // Send the AJAX request
+                    $.ajax({
+                        url: restUrl,
+                        type: 'GET',
+                        contentType: "application/json",
+                        dataType: "json",
+                        async: false,
+                        showLoader: true,
+                        success: function (data, status, xhr) {
+                            result = data;
+                        },
+                        error: function (request, status, error) {
+                            self.log(error);
+                        }
+                    });
+
+                    if (result == null) {
+                        //Rebuild URL if using M2 Guest API
+                        restUrl = window.BASE_URL;
+                        restUrl += 'rest/all/V1/guest-carts/'+ window.checkoutConfig.quoteData.entity_id +'/payment-information';
+                        restUrl += '?form_key=' + window.checkoutConfig.formKey;
+                    } else {
+                        break;
                     }
-                });
+                }
 
                 return result;
             },
