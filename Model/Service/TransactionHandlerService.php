@@ -225,7 +225,17 @@ class TransactionHandlerService
         // Get the order
         $order = $transaction->getOrder();
 
-        // Handle the capture's parent auth logic
+        // Handle the void parent auth logic
+        $isVoid = $transaction->getTxnType() == Transaction::TYPE_VOID;
+        $parentAuth = $this->transactionRepository->getByTransactionType(
+            Transaction::TYPE_AUTH,
+            $order->getPayment()->getId()
+        );       
+        if ($isVoid && $parentAuth) {
+            return $parentAuth->getTxnId();
+        }
+
+        // Handle the capture parent auth logic
         $isCapture = $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
         $parentAuth = $this->transactionRepository->getByTransactionType(
             Transaction::TYPE_AUTH,
@@ -234,7 +244,17 @@ class TransactionHandlerService
         if ($isCapture && $parentAuth) {
             return $parentAuth->getTxnId();
         }
-        
+       
+        // Handle the refund parent capture logic
+        $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
+        $parentCapture = $this->transactionRepository->getByTransactionType(
+            Transaction::TYPE_CAPTURE,
+            $order->getPayment()->getId()
+        );       
+        if ($isRefund && $parentCapture) {
+            return $parentCapture->getTxnId();
+        }
+
         return null;
     }
 
@@ -253,6 +273,17 @@ class TransactionHandlerService
             return 0;
         }
 
+        // Handle a void after authorization
+        $isVoid = $transaction->getTxnType() == Transaction::TYPE_VOID;
+        $parentAuth = $this->transactionRepository->getByTransactionType(
+            Transaction::TYPE_AUTH,
+            $order->getPayment()->getId()
+        );
+        if ($isVoid && $parentAuth) {
+            $parentAuth->close()->save();
+            return 1;
+        }
+        
         // Handle a capture after authorization
         $isCapture = $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
         $parentAuth = $this->transactionRepository->getByTransactionType(
@@ -263,15 +294,15 @@ class TransactionHandlerService
             $parentAuth->close()->save();
             return 0;
         }
-        
-        // Hanle a void after authorization
-        $isVoid = $transaction->getTxnType() == Transaction::TYPE_VOID;
-        $parentAuth = $this->transactionRepository->getByTransactionType(
-            Transaction::TYPE_AUTH,
+
+        // Handle a refund after capture
+        $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
+        $parentCapture = $this->transactionRepository->getByTransactionType(
+            Transaction::TYPE_CAPTURE,
             $order->getPayment()->getId()
         );
-        if ($isVoid && $parentAuth) {
-            $parentAuth->close()->save();
+        if ($isRefund && $parentCapture) {
+            $parentCapture->close()->save();
             return 1;
         }  
     }
