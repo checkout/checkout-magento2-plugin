@@ -211,7 +211,7 @@ class OrderHandlerService
         if (in_array($currency, $currenciesX1)) {
             return $amount;
         } elseif (in_array($currency, $currenciesX1000)) {
-            return $amount*1000;
+            return $amount/1000;
         } else {
             return $amount*100;
         }
