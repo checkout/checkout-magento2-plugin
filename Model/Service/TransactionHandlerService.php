@@ -455,6 +455,15 @@ class TransactionHandlerService
 
             // Refund
             $this->creditMemoService->refund($creditMemo);
+
+            // Remove the core core duplicate credit memo comment
+            foreach ($order->getAllStatusHistory() as $orderComment) {
+                $condition1 = $orderComment->getStatus() == 'closed';
+                $condition2 = $orderComment->getEntityName() == 'creditmemo';
+                if ($condition1 && $condition2) {
+                    $orderComment->delete();
+                }
+            } 
         }
     }
 
