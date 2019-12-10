@@ -334,7 +334,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 );
             }
 
-            // Process the void request
+            // Process the capture request
             $response = $api->captureOrder($payment, $amount);
             if (!$api->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(
