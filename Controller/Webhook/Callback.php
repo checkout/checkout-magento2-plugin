@@ -28,24 +28,9 @@ use Magento\Framework\Webapi\Rest\Response as WebResponse;
 class Callback extends \Magento\Framework\App\Action\Action
 {
     /**
-     * @var array
-     */
-    public static $paymentTypeMapper = [
-        'payment_approved' => Transaction::TYPE_AUTH,
-        'payment_captured' => Transaction::TYPE_CAPTURE,
-        'payment_refunded' => Transaction::TYPE_REFUND,
-        'payment_voided' => Transaction::TYPE_VOID
-    ];
-
-    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
-
-    /**
-     * @var OrderRepositoryInterface
-     */
-    public $orderRepository;
 
     /**
      * @var apiHandler
@@ -68,9 +53,9 @@ class Callback extends \Magento\Framework\App\Action\Action
     public $shopperHandler;
 
     /**
-     * @var TransactionHandlerService
+     * @var WebhookHandlerService
      */
-    public $transactionHandler;
+    public $webhookHandler;
 
     /**
      * @var VaultHandlerService
@@ -98,12 +83,11 @@ class Callback extends \Magento\Framework\App\Action\Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
+        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
@@ -112,12 +96,11 @@ class Callback extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
 
         $this->storeManager = $storeManager;
-        $this->orderRepository = $orderRepository;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->quoteHandler = $quoteHandler;
         $this->shopperHandler = $shopperHandler;
-        $this->transactionHandler = $transactionHandler;
+        $this->webhookHandler = $webhookHandler;
         $this->vaultHandler = $vaultHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
         $this->config = $config;
@@ -161,15 +144,11 @@ class Callback extends \Magento\Framework\App\Action\Action
                             $this->saveCard($response);
                         }
 
-                        // Handle the transaction
-                        $order = $this->transactionHandler->createTransaction(
+                        // Save the webhook
+                        $this->webhookHandler->processSingleWebhook(
                             $order,
-                            static::$paymentTypeMapper[$this->payload->type],
                             $this->payload
                         );
-
-                        // Save the order
-                        $order = $this->orderRepository->save($order);
 
                         // Set a valid response
                         $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);

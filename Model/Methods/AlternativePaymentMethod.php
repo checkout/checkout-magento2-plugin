@@ -117,11 +117,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     public $storeManager;
 
     /**
-     * @var Logger
-     */
-    public $ckoLogger;
-
-    /**
      * @var Curl
      */
     public $curl;
@@ -158,7 +153,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\shopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\HTTP\Client\Curl $curl,
@@ -195,7 +189,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->config             = $config;
         $this->shopperHandler     = $shopperHandler;
         $this->apiHandler         = $apiHandler;
-        $this->ckoLogger          = $ckoLogger;
         $this->quoteHandler       = $quoteHandler;
         $this->storeManager       = $storeManager;
         $this->curl               = $curl;
@@ -344,7 +337,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         // Set extra CURL parameters
         $this->curl->setOption(CURLOPT_FAILONERROR, false);
         $this->curl->setOption(CURLOPT_RETURNTRANSFER, true);
-
 
         // Send the request
         $this->curl->post($url, []);
@@ -585,7 +577,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function bancontact($data)
     {
-
         $billingAddress = $this->quoteHandler->getBillingAddress();
 
         $name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
@@ -599,11 +590,48 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     }
 
     /**
-     * Magento
+     * Perform a capture request.
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param float $amount
+     * 
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return self
      */
+    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    {
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $storeCode = $payment->getOrder()->getStore()->getCode();
+
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
+
+            // Check the status
+            if (!$this->canCapture()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The capture action is not available.')
+                );
+            }
+
+            // Process the void request
+            $response = $api->captureOrder($payment, $amount);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The capture request could not be processed.')
+                );
+            }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
+        }
+
+        return $this;
+    }
 
     /**
-     * { function_description }
+     * Perform a void request.
      *
      * @param \Magento\Payment\Model\InfoInterface $payment The payment
      *
@@ -634,11 +662,24 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                     __('The void request could not be processed.')
                 );
             }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
         }
 
         return $this;
     }
 
+    /**
+     * Perform a refund request.
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param float $amount The amount
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return self
+     */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
@@ -647,7 +688,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode);
-
+            
             // Check the status
             if (!$this->canRefund()) {
                 throw new \Magento\Framework\Exception\LocalizedException(
@@ -657,11 +698,15 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
             // Process the refund request
             $response = $api->refundOrder($payment, $amount);
+
             if (!$api->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('The refund request could not be processed.')
                 );
             }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
         }
 
         return $this;
