@@ -223,10 +223,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $source = $this->{$method}($data);
             $payment = $this->createPayment(
                 $source,
-                $this->quoteHandler->amountToGateway(
-                    $this->utilities->formatDecimals($amount),
-                    $quote
-                ),
+                $amount,
                 $currency,
                 $reference,
                 $this->_code
