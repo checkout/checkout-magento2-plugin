@@ -43,4 +43,9 @@
         <plugin name="cko_payment_after_void" type="CheckoutCom\Magento2\Plugin\Backend\PaymentAfterVoid" />
     </type>
 
+    <!-- After refund payment plugin -->
+    <type name="Magento\Payment\Model\Method\AbstractMethod">
+        <plugin name="cko_payment_after_refund" type="CheckoutCom\Magento2\Plugin\Backend\PaymentAfterRefund" />
+    </type>
+
 </config>

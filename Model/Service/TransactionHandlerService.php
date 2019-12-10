@@ -350,7 +350,6 @@ class TransactionHandlerService
 
             case Transaction::TYPE_VOID:
                 $status = 'order_status_voided';
-                $state = 'order_status_voided';
                 break;
 
             case Transaction::TYPE_REFUND:
@@ -360,11 +359,6 @@ class TransactionHandlerService
 
         // Set the order status
         $order->setStatus($this->config->getValue($status));
-
-        // Set the order state
-        if ($state) {
-            $order->setState($state);
-        }
 
         // Save the order
         $order->save();
