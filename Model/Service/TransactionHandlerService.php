@@ -133,6 +133,9 @@ class TransactionHandlerService
             $this->processInvoice($transaction, $amount);
         }
 
+        // Add webhook data to the transaction
+        $this->addTransactionInfo($transaction, $payload);
+
         // Update the order status
         $this->setOrderStatus($transaction);
     }
@@ -184,21 +187,11 @@ class TransactionHandlerService
         // Get the order payment
         $payment = $order->getPayment();
 
-        // Prepare the data array
-        $data = $this->utilities->objectToArray(
-            json_decode($webhook['event_data'])
-        );
-
         // Create the transaction
         $transaction = $this->transactionBuilder
         ->setPayment($payment)
         ->setOrder($order)
         ->setTransactionId($webhook['action_id'])
-        ->setAdditionalInformation(
-            [
-                Transaction::RAW_DETAILS => $this->buildDataArray($data)
-            ]
-        )
         ->setFailSafe(true)
         ->build(self::$transactionMapper[$webhook['event_type']]);
 
@@ -217,6 +210,20 @@ class TransactionHandlerService
         $payment->save();
 
         return $transaction;
+    }
+
+    /**
+     * Add webhook data to a transaction.
+     */
+    public function addTransactionInfo($transaction, $payload)
+    {     
+        // Add the data to the transaction
+        $transaction->setAdditionalInformation([
+            Transaction::RAW_DETAILS => $this->buildDataArray($payload)
+        ]);
+
+        // Save the transaction
+        $transaction->save();
     }
 
     /**
