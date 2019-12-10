@@ -188,7 +188,10 @@ class ApiHandlerService
         // Process the refund request
         if (isset($paymentInfo['id'])) {
             $request = new Refund($paymentInfo['id']);
-            $request->amount = $this->orderHandler->amountToGateway($amount, $order);
+            $request->amount = $this->orderHandler->amountToGateway(
+                $this->utilities->formatDecimals($amount),
+                $order
+            );
             $response = $this->checkoutApi
                 ->payments()
                 ->refund($request);
