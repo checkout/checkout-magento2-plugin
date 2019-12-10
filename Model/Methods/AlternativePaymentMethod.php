@@ -112,6 +112,11 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     public $quoteHandler;
 
     /**
+     * @var Utilities
+     */
+    public $utilities;
+
+    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
@@ -154,6 +159,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \CheckoutCom\Magento2\Model\Service\shopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -190,6 +196,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->shopperHandler     = $shopperHandler;
         $this->apiHandler         = $apiHandler;
         $this->quoteHandler       = $quoteHandler;
+        $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;
         $this->curl               = $curl;
     }
@@ -206,6 +213,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             // Get the store code
             $storeCode = $this->storeManager->getStore()->getCode();
 
+            // Get the quote
+            $quote = $this->quoteHandler->getQuote();
+
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode);
 
@@ -213,7 +223,10 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $source = $this->{$method}($data);
             $payment = $this->createPayment(
                 $source,
-                $amount,
+                $this->quoteHandler->amountToGateway(
+                    $this->utilities->formatDecimals($amount),
+                    $quote
+                ),
                 $currency,
                 $reference,
                 $this->_code
@@ -244,6 +257,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     {
         $payment = null;
 
+        // Get the quote
+        $quote = $this->quoteHandler->getQuote();
+        
         // Create payment object
         $payment = new Payment($source, $currency);
 
@@ -259,7 +275,10 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         
         // Set the payment specifications
         $payment->capture = $this->config->needsAutoCapture($this->_code);
-        $payment->amount = $amount * 100;
+        $payment->amount = $this->quoteHandler->amountToGateway(
+            $this->utilities->formatDecimals($amount),
+            $quote
+        );
         $payment->reference = $reference;
         $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
         $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
@@ -527,7 +546,10 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $product = new Product();
             $product->description = $item->getName();
             $product->quantity = $item->getQty();
-            $product->price = $item->getPriceInclTax() *100;
+            $product->price = $this->quoteHandler->amountToGateway(
+                $this->utilities->formatDecimals($item->getPriceInclTax()),
+                $quote
+            );
             $product->product_id = $item->getId();
             $products []= $product;
         }
@@ -539,7 +561,10 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $product = new Product();
             $product->description = $shipping->getShippingDescription();
             $product->quantity = 1;
-            $product->price = $shipping->getShippingInclTax() *100;
+            $product->price = $this->quoteHandler->amountToGateway(
+                $this->utilities->formatDecimals($shipping->getShippingInclTax()),
+                $quote
+            );
             $product->product_id = 0;
 
             $products []= $product;
@@ -615,7 +640,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                 );
             }
 
-            // Process the void request
+            // Process the capture request
             $response = $api->captureOrder($payment, $amount);
             if (!$api->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(
