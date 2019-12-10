@@ -52,7 +52,7 @@ class PaymentAfterRefund
     /**
      * Create transactions for the order.
      */
-    public function afterVoid(\Magento\Payment\Model\Method\AbstractMethod $method)
+    public function afterRefund(\Magento\Payment\Model\Method\AbstractMethod $method, $amount)
     {
         if ($this->backendAuthSession->isLoggedIn()) { 
             // Get the payment
