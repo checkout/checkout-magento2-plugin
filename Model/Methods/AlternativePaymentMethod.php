@@ -588,7 +588,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function knet($data)
     {
-
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('en'));
         return new KnetSource($locale[0]);
     }
