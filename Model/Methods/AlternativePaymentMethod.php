@@ -117,11 +117,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     public $storeManager;
 
     /**
-     * @var Logger
-     */
-    public $ckoLogger;
-
-    /**
      * @var Curl
      */
     public $curl;
@@ -158,7 +153,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\shopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\HTTP\Client\Curl $curl,
@@ -195,7 +189,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->config             = $config;
         $this->shopperHandler     = $shopperHandler;
         $this->apiHandler         = $apiHandler;
-        $this->ckoLogger          = $ckoLogger;
         $this->quoteHandler       = $quoteHandler;
         $this->storeManager       = $storeManager;
         $this->curl               = $curl;

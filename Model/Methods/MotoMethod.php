@@ -84,11 +84,6 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $_canRefundInvoicePartial = true;
 
     /**
-     * @var Logger
-     */
-    public $ckoLogger;
-
-    /**
      * @var ApiHandlerService
      */
     public $apiHandler;
@@ -124,7 +119,6 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -157,7 +151,6 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->sessionQuote       = $sessionQuote;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
-        $this->ckoLogger          = $ckoLogger;
     }
 
     /**

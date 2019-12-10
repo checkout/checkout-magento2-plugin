@@ -99,11 +99,6 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $utilities;
 
     /**
-     * @var Logger
-     */
-    public $ckoLogger;
-
-    /**
      * @var QuoteHandlerService
      */
     public $quoteHandler;
@@ -141,7 +136,6 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -177,7 +171,6 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->apiHandler         = $apiHandler;
         $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;
-        $this->ckoLogger          = $ckoLogger;
         $this->quoteHandler       = $quoteHandler;
     }
 

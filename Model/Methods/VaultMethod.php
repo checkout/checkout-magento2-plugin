@@ -99,11 +99,6 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $cardHandler;
 
     /**
-     * @var Logger
-     */
-    public $ckoLogger;
-
-    /**
      * @var Config
      */
     public $config;
@@ -163,7 +158,6 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto $motoBlock,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -199,7 +193,6 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->utilities          = $utilities;
-        $this->ckoLogger          = $ckoLogger;
         $this->storeManager       = $storeManager;
         $this->vaultHandler       = $vaultHandler;
         $this->cardHandler        = $cardHandler;

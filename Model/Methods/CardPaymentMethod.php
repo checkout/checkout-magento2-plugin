@@ -84,11 +84,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $_canRefundInvoicePartial = true;
 
     /**
-     * @var Logger
-     */
-    public $ckoLogger;
-
-    /**
      * @var QuoteHandlerService
      */
     public $quoteHandler;
@@ -156,7 +151,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -195,7 +189,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->storeManager       = $storeManager;
         $this->quoteHandler       = $quoteHandler;
         $this->cardHandler        = $cardHandler;
-        $this->ckoLogger          = $ckoLogger;
     }
 
     /**
