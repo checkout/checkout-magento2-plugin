@@ -247,7 +247,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return     \Checkout\Models\Payments\Payment
      */
-    public function createPayment($source, int $amount, string $currency, string $reference, string $methodId)
+    public function createPayment($source, $amount, string $currency, string $reference, string $methodId)
     {
         $payment = null;
 
