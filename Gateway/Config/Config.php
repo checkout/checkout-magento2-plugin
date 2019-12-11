@@ -90,16 +90,44 @@ class Config
     /**
      * Checks if an external request is valid.
      */
-    public function isValidAuth()
+    public function isValidAuth($type)
     {
         // Get the authorization header
-        $authorization = $this->request->getHeader('Authorization');
+        $key = $this->request->getHeader('Authorization');
 
-        // Get the secret key from config
+        // Validate the header
+        switch ($type) {
+            case 'pk':
+                return $this->isValidPublicKey($key);
+
+            case 'psk':
+                return $this->isValidPrivateSharedKey($key);
+        }
+    }
+
+    /**
+     * Checks if a private shared key request is valid.
+     */
+    public function isValidPrivateSharedKey($key)
+    {
+        // Get the private shared key from config
         $privateSharedKey = $this->getValue('private_shared_key');
 
         // Return the validity check
-        return $authorization == $privateSharedKey
+        return $key == $privateSharedKey
+        && $this->request->isPost();
+    }
+
+    /**
+     * Checks if a public key is valid.
+     */
+    public function isValidPublicKey($key)
+    {
+        // Get the public key from config
+        $publicKey = $this->getValue('c');
+
+        // Return the validity check
+        return $key == $publicKey
         && $this->request->isPost();
     }
 

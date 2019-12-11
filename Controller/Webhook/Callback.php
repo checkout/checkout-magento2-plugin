@@ -119,7 +119,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         $resultFactory = $this->resultFactory->create(ResultFactory::TYPE_JSON);
 
         // Process the request
-        if ($this->config->isValidAuth()) {
+        if ($this->config->isValidAuth('psk')) {
             // Process the request
             if (isset($this->payload->data->id)) {
                 // Get the store code

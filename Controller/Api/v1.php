@@ -198,7 +198,7 @@ class V1 extends \Magento\Framework\App\Action\Action
      */
     public function isValidRequest()
     {
-        return $this->config->isValidAuth()
+        return $this->config->isValidAuth('pk')
         && $this->dataIsValid();
     }
 
