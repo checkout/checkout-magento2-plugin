@@ -269,7 +269,10 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         
         // Set the payment specifications
         $payment->capture = $this->config->needsAutoCapture($this->_code);
-        $payment->amount = $amount * 100;
+        $payment->amount = $this->quoteHandler->amountToGateway(
+            $this->utilities->formatDecimals($amount),
+            $quote
+        );
         $payment->reference = $reference;
         $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
         $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
@@ -552,7 +555,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $product->price = $shipping->getShippingInclTax() *100;
             $product->product_id = 0;
 
-            $products []= $product;
+            $products[] = $product;
         }
 
         /* Billing */
@@ -573,7 +576,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function knet($data)
     {
-
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('en'));
         return new KnetSource($locale[0]);
     }
