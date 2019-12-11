@@ -213,9 +213,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             // Get the store code
             $storeCode = $this->storeManager->getStore()->getCode();
 
-            // Get the quote
-            $quote = $this->quoteHandler->getQuote();
-
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode);
 
@@ -260,6 +257,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         // Prepare the metadata array
         $payment->metadata['methodId'] = $methodId;
         $request->metadata['isFrontendRequest'] = true;
+
+        // Get the quote
+        $quote = $this->quoteHandler->getQuote();
 
         // Add the base metadata
         $request->metadata = array_merge(
