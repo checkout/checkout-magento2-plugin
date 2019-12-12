@@ -53,7 +53,7 @@
             <checkoutcom_vault>
                 <model>CheckoutCom\Magento2\Model\Methods\VaultMethod</model>
                 <title>Stored Cards with Checkout.com</title>
-                <active>0</active>
+                <active>1</active>
                 <sort_order>0</sort_order>
                 <request_currency>USD</request_currency>
                 <three_ds>0</three_ds>
