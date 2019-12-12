@@ -114,7 +114,7 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * MotoPaymentRequest constructor.
+     * Run the observer.
      */
     public function execute(Observer $observer)
     {
