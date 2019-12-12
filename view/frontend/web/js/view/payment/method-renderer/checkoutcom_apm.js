@@ -101,21 +101,21 @@ define(
                 placeOrder: function () {
                     if (Utilities.methodIsSelected(METHOD_ID)) {
                         var id = $("#apm-container div[aria-selected=true]").attr('id'),
-                            $form = $("#cko-apm-form-" + id),
+                            form = $("#cko-apm-form-" + id),
                             data = {methodId: METHOD_ID};
 
                         // Start the loader
                         FullScreenLoader.startLoader()
 
                         // Serialize data
-                        $("#cko-apm-form-" + id).serializeArray().forEach(
+                        form.serializeArray().forEach(
                             function (e) {
                                 data[e.name] = e.value;
                             }
                         );
 
                         // Place the order
-                        if (AdditionalValidators.validate() && $form.valid() && this.custom(data)) {
+                        if (AdditionalValidators.validate() && form.valid() && this.custom(data)) {
                             Utilities.placeOrder(
                                 data,
                                 METHOD_ID,
