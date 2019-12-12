@@ -31,62 +31,62 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
     /**
      * @var Session
      */
-    protected $backendAuthSession;
+    public $backendAuthSession;
 
     /**
      * @var RequestInterface
      */
-    protected $request;
+    public $request;
 
     /**
      * @var ManagerInterface
      */
-    protected $messageManager;
+    public $messageManager;
 
     /**
      * @var ApiHandlerService
      */
-    protected $apiHandler;
+    public $apiHandler;
 
     /**
      * @var OrderHandlerService
      */
-    protected $orderHandler;
+    public $orderHandler;
 
     /**
      * @var VaultHandlerService
      */
-    protected $vaultHandler;
+    public $vaultHandler;
 
     /**
      * @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      * @var Utilities
      */
-    protected $utilities;
+    public $utilities;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    public $logger;
 
     /**
      * @var Array
      */
-    protected $params;
+    public $params;
 
     /**
      * @var Order
      */
-    protected $order;
+    public $order;
 
     /**
      * @var String
      */
-    protected $methodId;
+    public $methodId;
 
     /**
      * OrderSaveBefore constructor.
@@ -206,7 +206,7 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
     /**
      * Checks if the MOTO logic should be triggered.
      */
-    protected function needsMotoProcessing()
+    public function needsMotoProcessing()
     {
         try {
             return $this->backendAuthSession->isLoggedIn()
@@ -221,7 +221,7 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
     /**
      * Prepare the payment amount for the MOTO payment request.
      */
-    protected function prepareMotoAmount()
+    public function prepareMotoAmount()
     {
         // Get the payment instance
         $amount = $this->order->getGrandTotal();
@@ -235,7 +235,7 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
     /**
      * Provide a source from request.
      */
-    protected function getSource()
+    public function getSource()
     {
         try {
             if ($this->isCardToken()) {
@@ -273,7 +273,7 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
     /**
      * Checks if a card token is available.
      */
-    protected function isCardToken()
+    public function isCardToken()
     {
         return isset($this->params['ckoCardToken'])
         && !empty($this->params['ckoCardToken']);
@@ -282,7 +282,7 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
     /**
      * Checks if a public hash is available.
      */
-    protected function isSavedCard()
+    public function isSavedCard()
     {
         return isset($this->params['publicHash'])
         && !empty($this->params['publicHash'])
