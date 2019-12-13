@@ -93,7 +93,6 @@ class WebhookHandlerService
             );
             $this->logger->write($msg);
         } 
-
     }
 
     /**
