@@ -155,13 +155,13 @@ class TransactionHandlerService
 
             // Process the invoice case
             $this->processInvoice($transaction, $amount);
-
-            // Process the order email case
-            $this->processEmail($transaction);
         }
 
         // Update the order status
         $this->setOrderStatus($transaction);
+
+        // Process the order email case
+        $this->processEmail($transaction);
     }
 
     /**
