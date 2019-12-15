@@ -44,7 +44,7 @@ class OrderAfterSave
     public $config;
 
     /**
-     * AfterPlaceOrder constructor.
+     * OrderAfterSave constructor.
      */
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
@@ -67,7 +67,7 @@ class OrderAfterSave
             // Get the method ID
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
-            // Disable the email sending
+            // Process the webhooks
             if (in_array($methodId, $this->config->getMethodsList())) {
                 $this->webhookHandler->processAllWebhooks($order);
             }
