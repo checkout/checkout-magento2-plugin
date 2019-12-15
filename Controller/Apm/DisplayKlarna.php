@@ -155,46 +155,42 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         // Prepare the output array
         $response = ['source' => false];
 
-        try {
-            // Get the store code
-            $storeCode = $this->storeManager->getStore()->getCode();
+        // Get the store code
+        $storeCode = $this->storeManager->getStore()->getCode();
 
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+        // Initialize the API handler
+        $api = $this->apiHandler->init($storeCode);
 
-            $products = $this->getProducts($response);
-            $klarna = new Klarna(
-                strtolower($this->billingAddress->getCountry()),
-                $this->quote->getQuoteCurrencyCode(),
-                $this->locale,
-                $this->quoteHandler->amountToGateway(
-                    $this->utilities->formatDecimals(
-                        $this->quote->getGrandTotal()
-                    ),
-                    $this->quote
+        $products = $this->getProducts($response);
+        $klarna = new Klarna(
+            strtolower($this->billingAddress->getCountry()),
+            $this->quote->getQuoteCurrencyCode(),
+            $this->locale,
+            $this->quoteHandler->amountToGateway(
+                $this->utilities->formatDecimals(
+                    $this->quote->getGrandTotal()
                 ),
-                $response['tax_amount'],
-                $products
-            );
+                $this->quote
+            ),
+            $response['tax_amount'],
+            $products
+        );
 
-            $source = $api->checkoutApi->sources()->add($klarna);
+        $source = $api->checkoutApi->sources()->add($klarna);
 
-            if ($source->isSuccessful()) {
-                // Prepare the response
-                $response['source'] = $source->getValues();
-                $response['billing'] = $this->billingAddress->toArray();
-                $response['quote'] = $this->quote->toArray();
+        if ($source->isSuccessful()) {
+            // Prepare the response
+            $response['source'] = $source->getValues();
+            $response['billing'] = $this->billingAddress->toArray();
+            $response['quote'] = $this->quote->toArray();
 
-                // Handle missing email for guest checkout
-                if ($response['billing']['email'] === null || empty($response['billing']['email'])) {
-                    $response['billing']['email'] = $this->quoteHandler->findEmail();
-                }
+            // Handle missing email for guest checkout
+            if ($response['billing']['email'] === null || empty($response['billing']['email'])) {
+                $response['billing']['email'] = $this->quoteHandler->findEmail();
             }
-        } catch (\Exception $e) {
-            $this->logger->write(__($e->getMessage()));
-        } finally {
-            return $response;
         }
+
+        return $response;
     }
 
     /**
