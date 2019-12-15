@@ -338,7 +338,7 @@ class TransactionHandlerService
         );
         if ($isPartialRefund && $parentCapture) {
             $parentCapture->setIsClosed(0)->save();
-            return 0;
+            return 1;
         }
         else if ($isRefund && $parentCapture) {
             $parentCapture->setIsClosed(1)->save();
