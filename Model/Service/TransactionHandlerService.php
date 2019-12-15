@@ -498,6 +498,7 @@ class TransactionHandlerService
         // Send the order email
         if ($condition1 || $condition2) {
             $order->setCanSendNewEmailFlag(true);
+            $order->setIsCustomerNotified(true);
             $this->orderSender->send($order, true);
         }
     }
