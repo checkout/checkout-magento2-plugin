@@ -119,6 +119,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $quoteHandler;
 
     /**
+     * @var ManagerInterface
+     */
+    public $messageManager;
+
+    /**
      * @var Moto
      */
     public $motoBlock;
@@ -159,6 +164,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto $motoBlock,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -197,6 +203,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->vaultHandler       = $vaultHandler;
         $this->cardHandler        = $cardHandler;
         $this->quoteHandler       = $quoteHandler;
+        $this->messageManager     = $messageManager;
         $this->motoBlock          = $motoBlock;
     }
 
@@ -339,6 +346,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
+
+            // Display a message
+            $this->messageManager->addSuccessMessage(__(
+                'Please reload the page to view the updated order information.'
+            ));
         }
 
         return $this;
@@ -379,6 +391,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
+    
+            // Display a message
+            $this->messageManager->addSuccessMessage(__(
+                'Please reload the page to view the updated order information.'
+            ));
         }
 
         return $this;
@@ -420,6 +437,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
+
+            // Display a message
+            $this->messageManager->addSuccessMessage(__(
+                'Please reload the page to view the updated order information.'
+            ));
         }
 
         return $this;

@@ -104,6 +104,11 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $quoteHandler;
 
     /**
+     * @var ManagerInterface
+     */
+    public $messageManager;
+
+    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
@@ -137,6 +142,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -172,6 +178,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;
         $this->quoteHandler       = $quoteHandler;
+        $this->messageManager     = $messageManager;
     }
 
     /**
@@ -287,6 +294,11 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
+
+            // Display a message
+            $this->messageManager->addSuccessMessage(__(
+                'Please reload the page to view the updated order information.'
+            ));
         }
 
         return $this;
@@ -327,6 +339,11 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
+
+            // Display a message
+            $this->messageManager->addSuccessMessage(__(
+                'Please reload the page to view the updated order information.'
+            ));
         }
 
         return $this;
@@ -368,6 +385,11 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
+
+            // Display a message
+            $this->messageManager->addSuccessMessage(__(
+                'Please reload the page to view the updated order information.'
+            ));
         }
 
         return $this;

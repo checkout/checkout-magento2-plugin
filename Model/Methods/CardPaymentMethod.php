@@ -94,6 +94,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $cardHandler;
 
     /**
+     * @var ManagerInterface
+     */
+    public $messageManager;
+
+    /**
      * @var Config
      */
     public $config;
@@ -153,6 +158,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -189,6 +195,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->storeManager       = $storeManager;
         $this->quoteHandler       = $quoteHandler;
         $this->cardHandler        = $cardHandler;
+        $this->messageManager     = $messageManager;
     }
 
     /**
@@ -323,6 +330,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
+
+            // Display a message
+            $this->messageManager->addSuccessMessage(__(
+                'Please reload the page to view the updated order information.'
+            ));
         }
 
         return $this;
@@ -363,6 +375,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
+
+            // Display a message
+            $this->messageManager->addSuccessMessage(__(
+                'Please reload the page to view the updated order information.'
+            ));
         }
 
         return $this;
@@ -405,6 +422,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
+
+            // Display a message
+            $this->messageManager->addSuccessMessage(__(
+                'Please reload the page to view the updated order information.'
+            ));
         }
 
         return $this;

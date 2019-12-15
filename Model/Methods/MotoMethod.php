@@ -89,6 +89,11 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $apiHandler;
 
     /**
+     * @var ManagerInterface
+     */
+    public $messageManager;
+
+    /**
      * @var Config
      */
     public $config;
@@ -119,6 +124,7 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -151,6 +157,7 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->sessionQuote       = $sessionQuote;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
+        $this->messageManager     = $messageManager;
     }
 
     /**
@@ -188,6 +195,11 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
+
+            // Display a message
+            $this->messageManager->addSuccessMessage(__(
+                'Please reload the page to view the updated order information.'
+            ));
         }
 
         return $this;
@@ -229,6 +241,11 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
+
+            // Display a message
+            $this->messageManager->addSuccessMessage(__(
+                'Please reload the page to view the updated order information.'
+            ));
         }
 
         return $this;
@@ -270,6 +287,11 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
+
+            // Display a message
+            $this->messageManager->addSuccessMessage(__(
+                'Please reload the page to view the updated order information.'
+            ));
         }
 
         return $this;

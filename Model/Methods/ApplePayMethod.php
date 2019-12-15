@@ -110,6 +110,11 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $quoteHandler;
 
     /**
+     * @var ManagerInterface
+     */
+    public $messageManager;
+
+    /**
      * ApplePayMethod constructor.
      */
     public function __construct(
@@ -138,6 +143,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -173,6 +179,7 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;
         $this->quoteHandler       = $quoteHandler;
+        $this->messageManager     = $messageManager;
     }
 
     /**
