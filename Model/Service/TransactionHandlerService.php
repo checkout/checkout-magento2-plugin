@@ -321,7 +321,7 @@ class TransactionHandlerService
             $order->getPayment()->getId()
         );
         if ($isPartialCapture && $parentAuth) {
-            $parentAuth->setIsClosed(1)->save();
+            $parentAuth->setIsClosed(0)->save();
             return 0;
         }
         else if ($isCapture && $parentAuth) {
