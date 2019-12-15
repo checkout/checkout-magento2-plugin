@@ -54,11 +54,6 @@
         <plugin name="cko_csrf_validator_skip" type="CheckoutCom\Magento2\Plugin\Frontend\CsrfValidatorSkip" />
     </type>
 
-    <!-- After place order plugin -->
-    <type name="Magento\Sales\Api\OrderManagementInterface">
-        <plugin name="cko_after_place_order" type="CheckoutCom\Magento2\Plugin\Frontend\AfterPlaceOrder" />
-    </type>
-
     <!-- Stored cards link display -->
     <type name="Magento\Framework\View\Element\AbstractBlock">
         <plugin name="cko_stored_cards_link" type="CheckoutCom\Magento2\Plugin\Frontend\StoredCardsLink" />

@@ -114,7 +114,7 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function handleOrder($quote = null)
+    public function handleOrder($quote = null, $external = false)
     {
         if ($this->methodId) {
             // Prepare the quote
@@ -129,7 +129,9 @@ class OrderHandlerService
                 $order = $this->quoteManagement->submit($quote);
 
                 // Perform after place order tasks
-                $order = $this->afterPlaceOrder($quote, $order);
+                if (!$external) {
+                    $order = $this->afterPlaceOrder($quote, $order);
+                }
 
                 return $order;
             } else {

@@ -35,6 +35,11 @@ class TransactionHandlerService
     ];
 
     /**
+     * @var OrderSender
+     */
+    public $orderSender;
+
+    /**
      * @var TransactionSearchResultInterfaceFactory
      */
     public $transactionSearch;
@@ -78,6 +83,7 @@ class TransactionHandlerService
      * TransactionHandlerService constructor.
      */
     public function __construct(
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Sales\Api\Data\TransactionSearchResultInterfaceFactory $transactionSearch,
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
         \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository,
@@ -87,6 +93,7 @@ class TransactionHandlerService
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
+        $this->orderSender           = $orderSender;
         $this->transactionSearch     = $transactionSearch;
         $this->transactionBuilder    = $transactionBuilder;
         $this->transactionRepository = $transactionRepository;
@@ -95,21 +102,6 @@ class TransactionHandlerService
         $this->utilities             = $utilities;
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
-    }
-
-    /**
-     * Generate transactions from webhooks.
-     */
-    public function webhooksToTransactions($order, $webhooks = [])
-    {
-        if (!empty($webhooks)) {
-            foreach ($webhooks as $webhook) {
-                $this->handleTransaction(
-                    $order,
-                    $webhook
-                );
-            }
-        }
     }
     
     /**
@@ -152,6 +144,9 @@ class TransactionHandlerService
 
         // Update the order status
         $this->setOrderStatus($transaction);
+
+        // Process the order email case
+        $this->processEmail($transaction);
     }
 
     /**
@@ -478,6 +473,33 @@ class TransactionHandlerService
                 $transaction,
                 $amount
             );
+        }
+    }
+
+    /**
+     * Send the order email.
+     */
+    public function processEmail($transaction)
+    {
+        // Get the transaction type
+        $type = $transaction->getTxnType();
+
+        // Get the order
+        $order = $transaction->getOrder();
+
+        // Prepare the authorization condition
+        $condition1 = $this->config->getValue('order_email') == 'authorize'
+        && $transaction->getTxnType() == Transaction::TYPE_AUTH;
+
+        // Prepare the capture condition
+        $condition2 = $this->config->getValue('order_email') == 'authorize_capture'
+        && $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+
+        // Send the order email
+        if ($condition1 || $condition2) {
+            $order->setCanSendNewEmailFlag(true);
+            $order->setIsCustomerNotified(true);
+            $this->orderSender->send($order, true);
         }
     }
 

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -15,7 +14,7 @@
  * @link      https://docs.checkout.com/
  */
 
-namespace CheckoutCom\Magento2\Plugin\Frontend;
+namespace CheckoutCom\Magento2\Plugin;
 
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -25,11 +24,6 @@ use Magento\Sales\Api\Data\OrderInterface;
  */
 class AfterPlaceOrder
 {
-    /**
-     * @var Session
-     */
-    public $backendAuthSession;
-
     /**
      * @var Config
      */
@@ -49,12 +43,10 @@ class AfterPlaceOrder
      * AfterPlaceOrder constructor.
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
     ) {
-        $this->backendAuthSession = $backendAuthSession;
         $this->config = $config;
         $this->webhookHandler = $webhookHandler;
         $this->transactionHandler = $transactionHandler;
@@ -65,18 +57,16 @@ class AfterPlaceOrder
      */
     public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
     {
-        if (!$this->backendAuthSession->isLoggedIn()) {        
-            // Get the method ID
-            $methodId = $order->getPayment()->getMethodInstance()->getCode();
+        // Get the method ID
+        $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
-            // If can proceed
-            if (in_array($methodId, $this->config->getMethodsList())) {
-                // Disable the email sending
-                $order->setCanSendNewEmailFlag(false);
+        // If can proceed
+        if (in_array($methodId, $this->config->getMethodsList())) {
+            // Disable the email sending
+            $order->setCanSendNewEmailFlag(false);
 
-                // Process the webhooks
-                $this->webhookHandler->processAllWebhooks($order);
-            }
+            // Process the webhooks
+            $this->webhookHandler->processAllWebhooks($order);
         }
 
         return $order;

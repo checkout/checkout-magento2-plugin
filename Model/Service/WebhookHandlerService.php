@@ -43,18 +43,25 @@ class WebhookHandlerService
     public $config;
 
     /**
+     * @var Logger
+     */
+    public $logger;
+
+    /**
      * WebhookHandlerService constructor
      */
     public function __construct(
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->orderHandler = $orderHandler;
         $this->transactionHandler = $transactionHandler;
         $this->webhookEntityFactory = $webhookEntityFactory;
         $this->config = $config;
+        $this->logger = $logger;
     }
 
     /**
@@ -62,20 +69,30 @@ class WebhookHandlerService
      */
     public function processSingleWebhook($order, $payload)
     {
-        // Save the payload
-        $this->saveEntity($payload);
+        if (isset($payload->data->action_id)) {
+            // Save the payload
+            $this->saveEntity($payload);
 
-        // Get the saved webhook
-        $webhooks = $this->loadEntities([
-            'order_id' => $order->getId(),
-            'action_id' => $payload->data->action_id
-        ]);
+            // Get the saved webhook
+            $webhooks = $this->loadEntities([
+                'order_id' => $order->getId(),
+                'action_id' => $payload->data->action_id
+            ]);
 
-        // Handle transaction for the webhook
-        $this->transactionHandler->webhooksToTransactions(
-            $order,
-            $webhooks
-        );
+            // Handle transaction for the webhook
+            $this->webhooksToTransactions(
+                $order,
+                $webhooks
+            );
+        }
+        else {
+            // Handle missing action ID
+            $msg = _(
+                'Missing action ID for webhook with payment ID %',
+                $payload->data->id
+            );
+            $this->logger->write($msg);
+        } 
     }
 
     /**
@@ -89,10 +106,25 @@ class WebhookHandlerService
         ]);
 
         // Create the transactions
-        $this->transactionHandler->webhooksToTransactions(
+        $this->webhooksToTransactions(
             $order,
             $webhooks
         );
+    }
+
+    /**
+     * Generate transactions from webhooks.
+     */
+    public function webhooksToTransactions($order, $webhooks = [])
+    {
+        if (!empty($webhooks)) {
+            foreach ($webhooks as $webhook) {
+                $this->transactionHandler->handleTransaction(
+                    $order,
+                    $webhook
+                );
+            }
+        }
     }
 
     /**
