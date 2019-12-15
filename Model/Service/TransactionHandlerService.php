@@ -75,6 +75,11 @@ class TransactionHandlerService
     public $invoiceHandler;
 
     /**
+     * @var WebhookEntityFactory
+     */
+    public $webhookEntityFactory;
+
+    /**
      * @var Config
      */
     public $config;
@@ -91,6 +96,7 @@ class TransactionHandlerService
         \Magento\Sales\Model\Service\CreditmemoService $creditMemoService,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
+        \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->orderSender           = $orderSender;
@@ -101,9 +107,37 @@ class TransactionHandlerService
         $this->creditMemoService     = $creditMemoService;
         $this->utilities             = $utilities;
         $this->invoiceHandler        = $invoiceHandler;
+        $this->webhookEntityFactory  = $webhookEntityFactory;
         $this->config                = $config;
     }
 
+    /**
+     * Generate transactions from webhooks.
+     */
+    public function webhooksToTransactions($order, $webhooks = [])
+    {
+        if (!empty($webhooks)) {
+            foreach ($webhooks as $webhook) {
+                // Handle the transaction
+                $transaction = $this->handleTransaction(
+                    $order,
+                    $webhook
+                );
+
+                // Delete the webhook from database
+                if ($transaction) {
+                    // Load the webhook entity
+                    $entity = $this->webhookEntityFactory
+                    ->create()
+                    ->load('action_id', $webhook['action_id']);
+
+                    // Delete the webhook entity
+                    $entity->delete();
+                }
+            }
+        }
+    }
+    
     /**
      * Handle a webhook transaction.
      */

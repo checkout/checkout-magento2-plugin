@@ -80,19 +80,18 @@ class WebhookHandlerService
             ]);
 
             // Handle transaction for the webhook
-            $this->webhooksToTransactions(
+            $this->transactionHandler->webhooksToTransactions(
                 $order,
                 $webhooks
             );
         }
         else {
             // Handle missing action ID
-            $this->logger->write(
-                __(
-                    'Missing action ID for webhook with payment ID %',
-                    $payload->data->id
-                )
+            $msg = _(
+                'Missing action ID for webhook with payment ID %',
+                $payload->data->id
             );
+            $this->logger->write($msg);
         } 
     }
 
@@ -107,73 +106,10 @@ class WebhookHandlerService
         ]);
 
         // Create the transactions
-        $this->webhooksToTransactions(
+        $this->transactionHandler->webhooksToTransactions(
             $order,
             $webhooks
         );
-    }
-
-    /**
-     * Generate transactions from webhooks.
-     */
-    public function webhooksToTransactions($order, $webhooks = [])
-    {
-        if (!empty($webhooks)) {
-            // Prepare the webhooks deletion list
-            $toDelete = [];
-
-            // Create a transaction for each webhook
-            foreach ($webhooks as $webhook) {
-                // Handle the transaction
-                $transaction = $this->transactionHandler
-                ->handleTransaction(
-                    $order,
-                    $webhook
-                );
-
-                // Update the deletion list
-                if ($transaction) {
-                    $toDelete[] = $transaction;
-                }
-                else {
-                    $toDelete[] = null;
-                    $this->logger->write(
-                        __(
-                            'Failed to create a transaction for webhook with action ID %',
-                            $webhook['action_id']
-                        )
-                    );
-                }
-            }
-
-            // Delete the webhooks
-            $this->deleteWebhooks($toDelete);
-        }
-    }
-
-    /**
-     * Delete webhooks from database.
-     */
-    public function deleteWebhooks($toDelete)
-    {
-        // Filter empty and null values
-        $transactions = array_filter($toDelete);
-
-        // Delete items if no empty or null values found
-        if (count($transactions) == count($toDelete)) {
-            foreach ($transactions as $transaction) {
-                // Load the webhook entity
-                $entity = $this->webhookEntityFactory
-                ->create()
-                ->load(
-                    'action_id',
-                    $transaction->getTxnId()
-                );
-
-                // Delete the webhook entity
-                $entity->delete();
-            }
-        }
     }
 
     /**
