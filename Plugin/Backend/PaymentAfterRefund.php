@@ -58,14 +58,15 @@ class PaymentAfterRefund
             // Get the payment
             $payment = $method->getInfoInstance();
 
-            // Get the order
-            $order = $payment->getOrder();
-
             // Get the method id
             $methodId = $payment->getMethodInstance()->getCode();
 
             // Process the webhooks
             if (in_array($methodId, $this->config->getMethodsList())) {
+                // Get the order
+                $order = $payment->getOrder();
+
+                // Process the webhooks
                 $this->webhookHandler->processAllWebhooks($order);
             }
         }
