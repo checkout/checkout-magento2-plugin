@@ -166,8 +166,8 @@ class WebhookHandlerService
                 $entity = $this->webhookEntityFactory
                 ->create()
                 ->load(
-                    $transaction->getTxnId(),
-                    'action_id'
+                    'action_id',
+                    $transaction->getTxnId()
                 );
 
                 // Delete the webhook entity
