@@ -75,6 +75,11 @@ class TransactionHandlerService
     public $invoiceHandler;
 
     /**
+     * @var WebhookEntityFactory
+     */
+    public $webhookEntityFactory;
+
+    /**
      * @var Config
      */
     public $config;
@@ -91,6 +96,7 @@ class TransactionHandlerService
         \Magento\Sales\Model\Service\CreditmemoService $creditMemoService,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
+        \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->orderSender           = $orderSender;
@@ -101,6 +107,7 @@ class TransactionHandlerService
         $this->creditMemoService     = $creditMemoService;
         $this->utilities             = $utilities;
         $this->invoiceHandler        = $invoiceHandler;
+        $this->webhookEntityFactory  = $webhookEntityFactory;
         $this->config                = $config;
     }
 
@@ -111,10 +118,25 @@ class TransactionHandlerService
     {
         if (!empty($webhooks)) {
             foreach ($webhooks as $webhook) {
-                $this->handleTransaction(
+                // Handle the transaction
+                $transaction = $this->handleTransaction(
                     $order,
                     $webhook
                 );
+
+                // Delete the webhook from database
+                if ($transaction) {
+                    // Load the webhook entity
+                    $entity = $this->webhookEntityFactory->create()
+                    ->getCollection()
+                    ->addFieldToFilter(
+                        'action_id',
+                        $webhook['action_id']
+                    );
+
+                    // Delete the webhook entity
+                    $entity->delete();
+                }
             }
         }
     }
@@ -162,6 +184,8 @@ class TransactionHandlerService
 
         // Process the order email case
         $this->processEmail($transaction);
+
+        return $transaction;
     }
 
     /**
