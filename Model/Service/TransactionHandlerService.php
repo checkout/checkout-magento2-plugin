@@ -487,13 +487,16 @@ class TransactionHandlerService
         // Get the order
         $order = $transaction->getOrder();
 
+        // Get the email sent flag
+        $emailSent = $order->getEmailSent();
+
         // Prepare the authorization condition
         $condition1 = $this->config->getValue('order_email') == 'authorize'
-        && $transaction->getTxnType() == Transaction::TYPE_AUTH;
+        && $transaction->getTxnType() == Transaction::TYPE_AUTH && $emailSent == 0;
 
         // Prepare the capture condition
         $condition2 = $this->config->getValue('order_email') == 'authorize_capture'
-        && $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+        && $transaction->getTxnType() == Transaction::TYPE_CAPTURE && $emailSent == 0;
 
         // Send the order email
         if ($condition1 || $condition2) {
