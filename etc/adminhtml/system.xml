@@ -58,7 +58,7 @@
                                 <field id="payment_action">authorize_capture</field>
                             </depends>
                             <config_path>settings/checkoutcom_configuration/capture_time</config_path>
-                            <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30, 0.01 for capture after 36 seconds. A value lower than 0.005 (20 seconds) is not recommended.</comment>
+                            <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30, 0.01 for capture after 36 seconds. A value lower than 0.003 (10 seconds) is not recommended.</comment>
                         </field>
 
                         <field id="dynamic_descriptor_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
