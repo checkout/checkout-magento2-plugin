@@ -144,23 +144,20 @@
                     </group>
                     <group id="account_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Account Settings</label>
-                        <field id="secret_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="secret_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Secret Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/secret_key</config_path>
                             <validate>required-entry</validate>
                         </field>
 
-                        <field id="public_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="public_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Public Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/public_key</config_path>
                             <validate>required-entry</validate>
                         </field>
 
-                        <field id="private_shared_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="private_shared_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Private Shared Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
                             <validate>required-entry</validate>
                         </field>
