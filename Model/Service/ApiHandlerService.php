@@ -198,15 +198,6 @@ class ApiHandlerService
 
             // Logging
             $this->logger->display($response);
-            
-            // Apply the order status
-            if ($order->getGrandTotal() == $order->getTotalRefunded()) {
-                $order->setState('order_status_refunded');
-                $order->setStatus($this->config->getValue('order_status_refunded'));
-            } else {
-                $order->setState($this->config->getValue('order_status_refunded_partial'));
-                $order->setStatus($this->config->getValue('order_status_refunded_partial'));
-            }
 
             // Return the response
             return $response;

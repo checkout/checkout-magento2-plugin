@@ -128,13 +128,6 @@
                             <comment>Select the status that should be used for orders with successful payment refund. Works only for refund per items.</comment>
                         </field>
 
-                        <field id="order_status_refunded_partial" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Partial Refund Order Status</label>
-                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatusRefundedPartial</source_model>
-                            <config_path>settings/checkoutcom_configuration/order_status_refunded_partial</config_path>
-                            <comment>Select the status that should be used for orders with successful payment partial refund. Works only for refund per items.</comment>
-                        </field>
-
                         <field id="order_status_flagged" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Flagged Order Status</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
