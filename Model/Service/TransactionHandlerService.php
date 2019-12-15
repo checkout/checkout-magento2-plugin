@@ -364,7 +364,8 @@ class TransactionHandlerService
             case Transaction::TYPE_REFUND:
                 $isPartialRefund = $this->isPartialRefund(
                     $transaction,
-                    $amount
+                    $amount,
+                    true
                 );
                 $status = $isPartialRefund ? 'order_status_captured' : 'order_status_refunded';
                 break;
