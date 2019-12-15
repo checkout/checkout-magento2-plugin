@@ -191,7 +191,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
                 }
             }
         } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
+            $this->logger->write(__($e->getMessage()));
         } finally {
             return $response;
         }

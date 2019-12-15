@@ -193,7 +193,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             }
         } catch (\Exception $e) {
             $success = false;
-            $message = $e->getMessage();
+            $message = __($e->getMessage());
             $this->logger->write($message);
         } finally {
             return $this->jsonFactory->create()->setData([

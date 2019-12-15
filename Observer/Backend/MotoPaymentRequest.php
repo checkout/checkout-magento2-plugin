@@ -193,7 +193,7 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
                 }
             }
         } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
+            $this->logger->write(__($e->getMessage()));
         } finally {
             return $this;
         }
@@ -209,7 +209,7 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
             && isset($this->params['ckoCardToken'])
             && $this->methodId == 'checkoutcom_moto';
         } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
+            $this->logger->write(__($e->getMessage()));
             return false;
         }
     }
@@ -261,7 +261,7 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
                 );
             }
         } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
+            $this->logger->write(__($e->getMessage()));
             return null;
         }
     }
