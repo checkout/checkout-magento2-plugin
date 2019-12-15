@@ -127,12 +127,9 @@ class TransactionHandlerService
                 // Delete the webhook from database
                 if ($transaction) {
                     // Load the webhook entity
-                    $entity = $this->webhookEntityFactory->create()
-                    ->getCollection()
-                    ->addFieldToFilter(
-                        'action_id',
-                        $webhook['action_id']
-                    );
+                    $entity = $this->webhookEntityFactory
+                    ->create()
+                    ->load('action_id', $webhook['action_id']);
 
                     // Delete the webhook entity
                     $entity->delete();
