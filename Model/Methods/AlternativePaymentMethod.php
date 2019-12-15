@@ -256,7 +256,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
         // Prepare the metadata array
         $payment->metadata['methodId'] = $methodId;
-        $request->metadata['isFrontendRequest'] = true;
 
         // Get the quote
         $quote = $this->quoteHandler->getQuote();

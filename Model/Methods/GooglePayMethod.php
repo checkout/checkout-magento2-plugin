@@ -211,7 +211,6 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
         // Prepare the metadata array
         $request->metadata['methodId'] = $this->_code;
-        $request->metadata['isFrontendRequest'] = true;
 
         // Prepare the capture setting
         $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
