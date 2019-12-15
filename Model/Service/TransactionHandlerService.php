@@ -115,17 +115,17 @@ class TransactionHandlerService
             $webhook['action_id']
         );
 
+        // Load the webhook data
+        $payload = json_decode($webhook['event_data']);
+
+        // Format the amount
+        $amount = $this->amountFromGateway(
+            $payload->data->amount,
+            $order
+        );
+
         // Create a transaction if needed
         if (!$transaction) {
-            // Load the webhook data
-            $payload = json_decode($webhook['event_data']);
-
-            // Format the amount
-            $amount = $this->amountFromGateway(
-                $payload->data->amount,
-                $order
-            );
-
             // Build the transaction
             $transaction = $this->buildTransaction(
                 $order,
