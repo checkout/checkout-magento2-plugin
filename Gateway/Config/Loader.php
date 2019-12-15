@@ -238,16 +238,15 @@ class Loader
      */
     public function isEncrypted($field)
     {
-        return in_array(
-            $field,
-            explode(
-                ',',
-                $this->scopeConfig->getValue(
-                    'settings/checkoutcom_configuration/fields_encrypted',
-                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                )
+        $encryptedFields = explode(
+            ',',
+            $this->scopeConfig->getValue(
+                'settings/checkoutcom_configuration/fields_encrypted',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             )
         );
+
+        return in_array($field, $encryptedFields);
     }
 
     /**
