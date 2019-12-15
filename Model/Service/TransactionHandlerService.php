@@ -103,21 +103,6 @@ class TransactionHandlerService
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
     }
-
-    /**
-     * Generate transactions from webhooks.
-     */
-    public function webhooksToTransactions($order, $webhooks = [])
-    {
-        if (!empty($webhooks)) {
-            foreach ($webhooks as $webhook) {
-                $this->handleTransaction(
-                    $order,
-                    $webhook
-                );
-            }
-        }
-    }
     
     /**
      * Handle a webhook transaction.

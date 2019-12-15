@@ -80,7 +80,7 @@ class WebhookHandlerService
             ]);
 
             // Handle transaction for the webhook
-            $this->transactionHandler->webhooksToTransactions(
+            $this->webhooksToTransactions(
                 $order,
                 $webhooks
             );
@@ -106,10 +106,25 @@ class WebhookHandlerService
         ]);
 
         // Create the transactions
-        $this->transactionHandler->webhooksToTransactions(
+        $this->webhooksToTransactions(
             $order,
             $webhooks
         );
+    }
+
+    /**
+     * Generate transactions from webhooks.
+     */
+    public function webhooksToTransactions($order, $webhooks = [])
+    {
+        if (!empty($webhooks)) {
+            foreach ($webhooks as $webhook) {
+                $this->transactionHandler->handleTransaction(
+                    $order,
+                    $webhook
+                );
+            }
+        }
     }
 
     /**
