@@ -213,11 +213,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $request->metadata['methodId'] = $this->_code;
 
         // Prepare the capture setting
-        $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
-        $request->capture = $needsAutoCapture;
-        if ($needsAutoCapture) {
-            $request->capture_on = $this->config->getCaptureTime($this->_code);
-        }
+        $request = $this->config->addCaptureTime($request, $this->_code);
 
         // Set the request parameters
         $request->amount = $this->quoteHandler->amountToGateway(
