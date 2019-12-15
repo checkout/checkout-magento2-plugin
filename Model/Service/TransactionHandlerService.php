@@ -145,6 +145,12 @@ class TransactionHandlerService
             // Process the invoice case
             $this->processInvoice($transaction, $amount);
         }
+        else {
+            // Update the existing transaction state
+            $transaction->setIsClosed(
+                $this->setTransactionState($transaction, $amount)
+            )->save();
+        }
 
         // Update the order status
         $this->setOrderStatus($transaction, $amount);
