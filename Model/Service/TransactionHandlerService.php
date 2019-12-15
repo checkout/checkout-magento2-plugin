@@ -336,7 +336,7 @@ class TransactionHandlerService
             Transaction::TYPE_CAPTURE,
             $order->getPayment()->getId()
         );
-        if ($isPartialCapture && $parentCapture) {
+        if ($isPartialRefund && $parentCapture) {
             $parentCapture->setIsClosed(0)->save();
             return 0;
         }
