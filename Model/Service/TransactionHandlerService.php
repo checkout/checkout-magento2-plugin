@@ -143,7 +143,7 @@ class TransactionHandlerService
         }
 
         // Update the order status
-        $this->setOrderStatus($transaction);
+        $this->setOrderStatus($transaction, $amount);
 
         // Process the order email case
         $this->processEmail($transaction);
@@ -322,7 +322,7 @@ class TransactionHandlerService
     /**
      * Set the current order status.
      */
-    public function setOrderStatus($transaction)
+    public function setOrderStatus($transaction, $amount)
     {
         // Get the order
         $order = $transaction->getOrder();
@@ -348,7 +348,11 @@ class TransactionHandlerService
                 break;
 
             case Transaction::TYPE_REFUND:
-                $status = 'order_status_refunded';
+                $isPartialRefund = $this->isPartialRefund(
+                    $transaction,
+                    $amount
+                );
+                $status = $isPartialRefund ? 'order_status_captured' : 'order_status_refunded';
                 break;
         }   
 
@@ -531,5 +535,39 @@ class TransactionHandlerService
     public function getFormattedAmount($order, $amount)
     {
         return $order->getBaseCurrency()->formatTxt($amount);
+    }
+
+    /**
+     * Check if a refund is partial.
+     */
+    public function isPartialRefund($transaction, $amount)
+    {
+        // Get the total refunded
+        $totalRefunded = $this->getCreditMemosTotal($transaction);
+
+        // Check the partial refund case
+        $isPartialRefund = $order->getGrandTotal() > ($totalRefunded + $amount);
+        
+        return $isPartialRefund ? true : false;
+    }
+
+    /**
+     * Get the total credit memos amount.
+     */
+    public function getCreditMemosTotal($transaction)
+    {
+        // Get the order
+        $order = $transaction->getOrder();
+
+        // Calculate the credit memos total
+        $total = 0;
+        $creditMemos = $order->getCreditmemosCollection();
+        if (!empty($creditMemos)) {
+            foreach ($creditMemos as $creditMemo) {
+                $total += $creditMemo->getGrandTotal();
+            }
+        }
+
+        return $total;
     }
 }
