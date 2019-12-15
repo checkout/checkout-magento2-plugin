@@ -278,7 +278,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->metadata,
             $this->apiHandler->getBaseMetadata()
         );
-
+        
         // Send the charge request
         $response = $api->checkoutApi
             ->payments()
