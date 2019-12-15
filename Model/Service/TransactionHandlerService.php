@@ -117,9 +117,6 @@ class TransactionHandlerService
 
         // Create a transaction if needed
         if (!$transaction) {
-            // Build the transaction
-            $transaction = $this->buildTransaction($order, $webhook);
-
             // Load the webhook data
             $payload = json_decode($webhook['event_data']);
 
@@ -127,6 +124,13 @@ class TransactionHandlerService
             $amount = $this->amountFromGateway(
                 $payload->data->amount,
                 $order
+            );
+
+            // Build the transaction
+            $transaction = $this->buildTransaction(
+                $order,
+                $webhook,
+                $amount
             );
 
             // Add the order comment
@@ -191,7 +195,7 @@ class TransactionHandlerService
     /**
      * Create a transaction for an order.
      */
-    public function buildTransaction($order, $webhook)
+    public function buildTransaction($order, $webhook, $amount)
     {        
         // Get the order payment
         $payment = $order->getPayment();
@@ -219,7 +223,7 @@ class TransactionHandlerService
 
         // Handle the transaction state
         $transaction->setIsClosed(
-            $this->setTransactionState($transaction)
+            $this->setTransactionState($transaction, $amount)
         );
 
         // Save 
@@ -273,7 +277,7 @@ class TransactionHandlerService
     /**
      * Set a transaction state.
      */
-    public function setTransactionState($transaction)
+    public function setTransactionState($transaction, $amount)
     {
         // Get the order
         $order = $transaction->getOrder();
@@ -292,29 +296,39 @@ class TransactionHandlerService
             $order->getPayment()->getId()
         );
         if ($isVoid && $parentAuth) {
-            $parentAuth->close()->save();
+            $parentAuth->setIsClosed(1)->save();
             return 1;
         }
 
         // Handle a capture after authorization
         $isCapture = $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+        $isPartialCapture = $this->isPartialCapture($transaction, $amount, $isCapture);
         $parentAuth = $this->transactionRepository->getByTransactionType(
             Transaction::TYPE_AUTH,
             $order->getPayment()->getId()
-        );    
-        if ($isCapture && $parentAuth) {
-            $parentAuth->close()->save();
+        );
+        if ($isPartialCapture && $parentAuth) {
+            $parentAuth->setIsClosed(0)->save();
+            return 0;
+        }
+        else if ($isCapture && $parentAuth) {
+            $parentAuth->setIsClosed(1)->save();
             return 0;
         }
 
         // Handle a refund after capture
         $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
+        $isPartialRefund = $this->isPartialRefund($transaction, $amount, $isRefund);
         $parentCapture = $this->transactionRepository->getByTransactionType(
             Transaction::TYPE_CAPTURE,
             $order->getPayment()->getId()
         );
-        if ($isRefund && $parentCapture) {
-            $parentCapture->close()->save();
+        if ($isPartialCapture && $parentCapture) {
+            $parentCapture->setIsClosed(0)->save();
+            return 0;
+        }
+        else if ($isRefund && $parentCapture) {
+            $parentCapture->setIsClosed(1)->save();
             return 1;
         }  
     }
@@ -540,34 +554,34 @@ class TransactionHandlerService
     /**
      * Check if a refund is partial.
      */
-    public function isPartialRefund($transaction, $amount)
-    {
-        // Get the total refunded
-        $totalRefunded = $this->getCreditMemosTotal($transaction);
-
-        // Check the partial refund case
-        $isPartialRefund = $order->getGrandTotal() > ($totalRefunded + $amount);
-        
-        return $isPartialRefund ? true : false;
-    }
-
-    /**
-     * Get the total credit memos amount.
-     */
-    public function getCreditMemosTotal($transaction)
+    public function isPartialRefund($transaction, $amount, $isRefund)
     {
         // Get the order
         $order = $transaction->getOrder();
 
-        // Calculate the credit memos total
-        $total = 0;
-        $creditMemos = $order->getCreditmemosCollection();
-        if (!empty($creditMemos)) {
-            foreach ($creditMemos as $creditMemo) {
-                $total += $creditMemo->getGrandTotal();
-            }
-        }
+        // Get the total refunded
+        $totalRefunded = $order->getTotalRefunded();
 
-        return $total;
+        // Check the partial refund case
+        $isPartialRefund = $order->getGrandTotal() > ($totalRefunded + $amount);
+        
+        return $isPartialRefund && $isRefund ? true : false;
+    }
+
+    /**
+     * Check if a capture is partial.
+     */
+    public function isPartialCapture($transaction, $amount, $isCapture)
+    {
+        // Get the order
+        $order = $transaction->getOrder();
+
+        // Get the total captured
+        $totalCaptured = $order->getTotalInvoiced();
+
+        // Check the partial capture case
+        $isPartialCapture = $order->getGrandTotal() > ($totalCaptured + $amount);
+        
+        return $isPartialCapture && $isCapture? true : false;
     }
 }
