@@ -25,6 +25,11 @@ use Magento\Sales\Api\Data\OrderInterface;
 class AfterPlaceOrder
 {
     /**
+     * @var Session
+     */
+    public $backendAuthSession;
+
+    /**
      * @var Config
      */
     public $config;
@@ -43,10 +48,12 @@ class AfterPlaceOrder
      * AfterPlaceOrder constructor.
      */
     public function __construct(
+        \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
     ) {
+        $this->backendAuthSession = $backendAuthSession;
         $this->config = $config;
         $this->webhookHandler = $webhookHandler;
         $this->transactionHandler = $transactionHandler;
@@ -65,8 +72,10 @@ class AfterPlaceOrder
             // Disable the email sending
             $order->setCanSendNewEmailFlag(false);
 
-            // Process the webhooks
-            $this->webhookHandler->processAllWebhooks($order);
+            // Process the webhooks for frontend orders
+            if (!$this->backendAuthSession->isLoggedIn()) {
+                $this->webhookHandler->processAllWebhooks($order);
+            }
         }
 
         return $order;

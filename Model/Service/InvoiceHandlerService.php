@@ -98,7 +98,6 @@ class InvoiceHandlerService
         // Finalize the invoice
         $invoice->setBaseGrandTotal($this->amount);
         $invoice->setGrandTotal($this->amount);
-        $invoice->register();
 
         // Save the invoice
         $this->invoiceRepository->save($invoice);
@@ -120,6 +119,7 @@ class InvoiceHandlerService
     {
         if ($this->needsInvoicing()) {
             $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+            $invoice->setState(Invoice::STATE_PAID);
             $invoice->setCanVoidFlag(false);
         }
 

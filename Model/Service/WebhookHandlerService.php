@@ -79,7 +79,7 @@ class WebhookHandlerService
                 'action_id' => $payload->data->action_id
             ]);
 
-            // Handle transaction for the webhook
+            // Handle the transaction for the webhook
             $this->webhooksToTransactions(
                 $order,
                 $webhooks
@@ -87,7 +87,7 @@ class WebhookHandlerService
         }
         else {
             // Handle missing action ID
-            $msg = _(
+            $msg = __(
                 'Missing action ID for webhook with payment ID %',
                 $payload->data->id
             );

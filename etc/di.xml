@@ -29,14 +29,14 @@
     </type>
     <!-- END Method handler configurations -->
 
+    <!-- Instant Purchase override -->
+    <preference for="Magento\InstantPurchase\CustomerData\InstantPurchase" type="CheckoutCom\Magento2\Model\InstantPurchase\CustomerData" />
+    <!-- END Instant Purchase override -->
+    
     <!-- After place order plugin -->
     <type name="Magento\Sales\Api\OrderManagementInterface">
         <plugin name="cko_after_place_order" type="CheckoutCom\Magento2\Plugin\AfterPlaceOrder" />
     </type>
-
-    <!-- Instant Purchase override -->
-    <preference for="Magento\InstantPurchase\CustomerData\InstantPurchase" type="CheckoutCom\Magento2\Model\InstantPurchase\CustomerData" />
-    <!-- END Instant Purchase override -->
 
     <!-- Minification exclusion plugin -->
     <type name="Magento\Framework\View\Asset\Minification">

@@ -322,6 +322,22 @@ class Config
     }
 
     /**
+     * Add a capture time to a payment request.
+     *
+     * @return bool
+     */
+    public function addCaptureTime($request, $methodId)
+    {
+        $needsAutoCapture = $this->needsAutoCapture($methodId);
+        $request->capture = $needsAutoCapture;
+        if ($needsAutoCapture) {
+            $request->capture_on = $this->getCaptureTime();
+        }
+
+        return $request;
+    }
+
+    /**
      * Determines if the payment method needs auto capture.
      *
      * @return bool
