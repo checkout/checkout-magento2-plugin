@@ -160,7 +160,7 @@ define(
                                     )
                                     .catch(
                                         function (err) {
-                                            //self.logEvent(err);
+                                            Utilities.log(err);
                                         }
                                     );
                                 }
