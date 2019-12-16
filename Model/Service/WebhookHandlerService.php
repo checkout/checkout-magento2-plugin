@@ -79,7 +79,7 @@ class WebhookHandlerService
                 'action_id' => $payload->data->action_id
             ]);
 
-            // Handle transaction for the webhook
+            // Handle the transaction for the webhook
             $this->webhooksToTransactions(
                 $order,
                 $webhooks
