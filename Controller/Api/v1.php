@@ -125,22 +125,18 @@ class V1 extends \Magento\Framework\App\Action\Action
                         // Update the response parameters
                         $success = $response->isSuccessful();
                         $orderId = $order->getId();
-                    }
-                    else {
+                    } else {
                         $errorMessage = __('The payment request was declined by the gateway.');
                     }
-                }
-                else {
+                } else {
                     $errorMessage = __('The order could not be created.');
                 }
-            }
-            else {
+            } else {
                 $errorMessage = __('The request is invalid.');
             }
         } catch (\Exception $e) {
             $errorMessage = $e->getMessage();
-        }
-        finally {
+        } finally {
             // Return the json response
             return $this->jsonFactory->create()->setData([
                 'success' => $success,

@@ -54,7 +54,7 @@ class PaymentAfterVoid
      */
     public function afterVoid(\Magento\Payment\Model\Method\AbstractMethod $method)
     {
-        if ($this->backendAuthSession->isLoggedIn()) { 
+        if ($this->backendAuthSession->isLoggedIn()) {
             // Get the payment
             $payment = $method->getInfoInstance();
 

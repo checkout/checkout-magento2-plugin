@@ -149,11 +149,12 @@ class OrderHandlerService
     /**
      * Sets status/deletes order based on user config if payment fails
      */
-    public function handleFailedPayment($order, $storeId) {
+    public function handleFailedPayment($order, $storeId)
+    {
         //Get config for failed payments
         $config = $this->config->getValue('order_action_failed_payment', null, $storeId);
 
-        if($config == 'cancel') {
+        if ($config == 'cancel') {
             $order->setStatus($this->config->getValue('order_status_canceled'));
             $order->setState($this->config->getValue('order_status_canceled'));
             $order->save();
@@ -161,8 +162,8 @@ class OrderHandlerService
     }
 
         /**
-     * Checks if an order exists and is valid
-     */
+         * Checks if an order exists and is valid
+         */
     public function isOrder($order)
     {
         return $order

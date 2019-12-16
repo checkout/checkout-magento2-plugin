@@ -84,15 +84,14 @@ class WebhookHandlerService
                 $order,
                 $webhooks
             );
-        }
-        else {
+        } else {
             // Handle missing action ID
             $msg = __(
                 'Missing action ID for webhook with payment ID %',
                 $payload->data->id
             );
             $this->logger->write($msg);
-        } 
+        }
     }
 
     /**

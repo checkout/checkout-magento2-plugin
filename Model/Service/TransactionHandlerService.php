@@ -141,8 +141,7 @@ class TransactionHandlerService
 
             // Process the invoice case
             $this->processInvoice($transaction, $amount);
-        }
-        else {
+        } else {
             // Get the payment
             $payment = $transaction->getOrder()->getPayment();
 
@@ -174,7 +173,7 @@ class TransactionHandlerService
         // Get the list of transactions
         $transactions = $this->transactionSearch->create()
         ->addOrderIdFilter($orderId);
-        $transactions->getItems(); 
+        $transactions->getItems();
 
         // Filter the transactions
         if ($transactionId && !empty($transactions)) {
@@ -202,14 +201,14 @@ class TransactionHandlerService
             $transactionId
         );
 
-        return isset($transaction[0]) ? $transaction[0] : false;  
+        return isset($transaction[0]) ? $transaction[0] : false;
     }
 
     /**
      * Create a transaction for an order.
      */
     public function buildTransaction($order, $webhook, $amount)
-    {        
+    {
         // Get the order payment
         $payment = $order->getPayment();
 
@@ -239,7 +238,7 @@ class TransactionHandlerService
             $this->setTransactionState($transaction, $amount)
         );
 
-        // Save 
+        // Save
         $transaction->save();
         $payment->save();
 
@@ -259,7 +258,7 @@ class TransactionHandlerService
         $parentAuth = $this->transactionRepository->getByTransactionType(
             Transaction::TYPE_AUTH,
             $order->getPayment()->getId()
-        );       
+        );
         if ($isVoid && $parentAuth) {
             return $parentAuth->getTxnId();
         }
@@ -269,7 +268,7 @@ class TransactionHandlerService
         $parentAuth = $this->transactionRepository->getByTransactionType(
             Transaction::TYPE_AUTH,
             $order->getPayment()->getId()
-        );       
+        );
         if ($isCapture && $parentAuth) {
             return $parentAuth->getTxnId();
         }
@@ -279,7 +278,7 @@ class TransactionHandlerService
         $parentCapture = $this->transactionRepository->getByTransactionType(
             Transaction::TYPE_CAPTURE,
             $order->getPayment()->getId()
-        );       
+        );
         if ($isRefund && $parentCapture) {
             return $parentCapture->getTxnId();
         }
@@ -323,8 +322,7 @@ class TransactionHandlerService
         if ($isPartialCapture && $parentAuth) {
             $parentAuth->setIsClosed(1)->save();
             return 0;
-        }
-        else if ($isCapture && $parentAuth) {
+        } elseif ($isCapture && $parentAuth) {
             $parentAuth->setIsClosed(1)->save();
             return 0;
         }
@@ -339,11 +337,10 @@ class TransactionHandlerService
         if ($isPartialRefund && $parentCapture) {
             $parentCapture->setIsClosed(0)->save();
             return 1;
-        }
-        else if ($isRefund && $parentCapture) {
+        } elseif ($isRefund && $parentCapture) {
             $parentCapture->setIsClosed(1)->save();
             return 1;
-        }  
+        }
 
         return 0;
     }
@@ -384,7 +381,7 @@ class TransactionHandlerService
                 );
                 $status = $isPartialRefund ? 'order_status_captured' : 'order_status_refunded';
                 break;
-        }   
+        }
 
         // Set the order status
         $order->setStatus($this->config->getValue($status));
@@ -424,7 +421,7 @@ class TransactionHandlerService
             case Transaction::TYPE_REFUND:
                 $comment = 'The refunded amount is %1.';
                 break;
-        }   
+        }
 
         // Add the transaction comment
         $payment->addTransactionCommentsToOrder(
@@ -497,7 +494,7 @@ class TransactionHandlerService
                 if ($condition1 && $condition2) {
                     $orderComment->delete();
                 }
-            } 
+            }
 
             // Update the refunded amount
             $order->setTotalRefunded($this->getCreditMemosTotal($order));
@@ -510,8 +507,8 @@ class TransactionHandlerService
     }
 
    /**
-     * Get the total credit memos amount.
-     */
+    * Get the total credit memos amount.
+    */
     public function getCreditMemosTotal($order)
     {
         $total = 0;

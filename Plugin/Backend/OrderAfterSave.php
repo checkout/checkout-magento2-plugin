@@ -63,7 +63,7 @@ class OrderAfterSave
      */
     public function afterSave(OrderRepositoryInterface $orderRepository, $order)
     {
-        if ($this->backendAuthSession->isLoggedIn()) {     
+        if ($this->backendAuthSession->isLoggedIn()) {
             // Get the method ID
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
