@@ -16,7 +16,6 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Invoice;
 
 /**
@@ -119,6 +118,7 @@ class InvoiceHandlerService
     {
         if ($this->needsInvoicing()) {
             $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+            $invoice->setState(Invoice::STATE_PAID);
             $invoice->setCanVoidFlag(false);
         }
 
