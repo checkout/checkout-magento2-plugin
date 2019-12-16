@@ -470,7 +470,7 @@ class TransactionHandlerService
         $order = $transaction->getOrder();
 
         // Check if the credit memo alreay exists
-        $creditMemos = $this->order->getCreditmemosCollection();
+        $creditMemos = $order->getCreditmemosCollection();
         $creditMemos->addFieldToFilter(
             'transaction_id',
             $transaction->getTxnId()
