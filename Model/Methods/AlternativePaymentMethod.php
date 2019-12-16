@@ -539,7 +539,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $product = new Product();
             $product->description = $item->getName();
             $product->quantity = $item->getQty();
-            $product->price = $item->getPriceInclTax() *100;
+            $product->price = ($item->getPrice() - $item->getDiscountAmount() + $item->getTaxAmount()) *100;
             $product->product_id = $item->getId();
             $products []= $product;
         }

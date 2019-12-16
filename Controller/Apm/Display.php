@@ -113,7 +113,7 @@ class Display extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Generate and APM block.
+     * Generate an APM block.
      *
      * @param string $apmId
      * @param string $title
