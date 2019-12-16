@@ -97,7 +97,7 @@ define(
              */
             getQuoteValue: function () {
                 var data = this.getRestQuoteData();
-                var amount = parseFloat(data.totals.grand_total);
+                var amount = parseFloat(data.totals.base_grand_total);
 
                 return amount.toFixed(2);
             },
@@ -140,7 +140,7 @@ define(
                     });
 
                     if (result == null) {
-                        // Rebuild URL if using M2 Guest API
+                        //Rebuild URL if using M2 Guest API
                         restUrl = window.BASE_URL;
                         restUrl += 'rest/all/V1/guest-carts/'+ window.checkoutConfig.quoteData.entity_id +'/payment-information';
                         restUrl += '?form_key=' + window.checkoutConfig.formKey;
@@ -158,8 +158,7 @@ define(
              * @return {string}  The quote currency.
              */
             getQuoteCurrency: function () {
-                var data = this.getRestQuoteData();
-                return data.totals.quote_currency_code;
+                return Config[KEY_DATA].quote.currency;
             },
 
             /**
