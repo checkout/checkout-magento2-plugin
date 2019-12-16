@@ -98,6 +98,7 @@ class InvoiceHandlerService
         // Finalize the invoice
         $invoice->setBaseGrandTotal($this->amount);
         $invoice->setGrandTotal($this->amount);
+        $invoice->register();
 
         // Save the invoice
         $this->invoiceRepository->save($invoice);

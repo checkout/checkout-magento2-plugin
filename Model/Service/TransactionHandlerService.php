@@ -474,29 +474,18 @@ class TransactionHandlerService
         // Get the order payment
         $payment = $order->getPayment();
 
-        // Check if the credit memo alreay exists
-        $creditMemos = $order->getCreditmemosCollection();
-        $creditMemos->addFieldToFilter(
-            'transaction_id',
-            $transaction->getTxnId()
-        );
-        $creditMemos->setPageSize(1);
-        $creditMemos->getLastItem();
-
         // Process the credit memo
         $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
-        if ($isRefund && !$creditMemos) {
+        $hasCreditMemo = $this->orderHasCreditMemo($transaction);
+        if ($isRefund && !$hasCreditMemo) {
             // Get the invoice
             $invoice = $this->invoiceHandler->getInvoice($order);
 
             // Create a credit memo
             $creditMemo = $this->creditMemoFactory->createByOrder($order);
-            //$creditMemo->setInvoice($invoice);
-            //$creditMemo->setBaseGrandTotal($amount);
+            $creditMemo->setInvoice($invoice);
+            $creditMemo->setBaseGrandTotal($amount);
             $creditMemo->setGrandTotal($amount);
-
-            // Update the refunded amount
-            //$order->setTotalRefunded($amount + $order->getTotalRefunded());
 
             // Refund
             $this->creditMemoService->refund($creditMemo);
@@ -510,11 +499,52 @@ class TransactionHandlerService
                 }
             } 
 
+            // Update the refunded amount
+            $order->setTotalRefunded($this->getCreditMemosTotal($order));
+
             // Save the data
             $payment->save();
             $transaction->save();
             $order->save();
         }
+    }
+
+   /**
+     * Get the total credit memos amount.
+     */
+    public function getCreditMemosTotal($order)
+    {
+        $total = 0;
+        $creditMemos = $order->getCreditmemosCollection();
+        if (!empty($creditMemos)) {
+            foreach ($creditMemos as $creditMemo) {
+                $total += $creditMemo->getGrandTotal();
+            }
+        }
+
+        return $total;
+    }
+
+    /**
+     * Check if an order has a credit memo.
+     */
+    public function orderHasCreditMemo($transaction)
+    {
+        // Get the order
+        $order = $transaction->getOrder();
+        
+        // Loop through the items
+        $result = 0;
+        $creditMemos = $order->getCreditmemosCollection();
+        if (!empty($creditMemos)) {
+            foreach ($creditMemos as $creditMemo) {
+                if ($creditMemo->getTransactionId() == $transaction->getTxnId()) {
+                    $result++;
+                }
+            }
+        }
+
+        return $result > 0 ? true : false;
     }
 
     /**
