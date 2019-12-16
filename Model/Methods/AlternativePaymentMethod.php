@@ -261,8 +261,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $quote = $this->quoteHandler->getQuote();
 
         // Add the base metadata
-        $request->metadata = array_merge(
-            $request->metadata,
+        $payment->metadata = array_merge(
+            $payment->metadata,
             $this->apiHandler->getBaseMetadata()
         );
         
