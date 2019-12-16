@@ -474,27 +474,15 @@ class TransactionHandlerService
         // Get the order payment
         $payment = $order->getPayment();
 
-        // Check if the credit memo alreay exists
-        $creditMemos = $order->getCreditmemosCollection();
-        $creditMemos->addFieldToFilter(
-            'transaction_id',
-            $transaction->getTxnId()
-        );
-
         // Process the credit memo
         $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
-        if ($isRefund && $creditMemos->count() == 0) {
+        if ($isRefund) {
             // Get the invoice
             $invoice = $this->invoiceHandler->getInvoice($order);
 
             // Create a credit memo
             $creditMemo = $this->creditMemoFactory->createByOrder($order);
-            //$creditMemo->setInvoice($invoice);
-            //$creditMemo->setBaseGrandTotal($amount);
             $creditMemo->setGrandTotal($amount);
-
-            // Update the refunded amount
-            //$order->setTotalRefunded($amount + $order->getTotalRefunded());
 
             // Refund
             $this->creditMemoService->refund($creditMemo);
