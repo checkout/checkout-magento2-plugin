@@ -151,7 +151,11 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
             );
 
             // Prepare the capture setting
-            $request = $this->config->addCaptureTime($request, $this->methodId);
+            $needsAutoCapture = $this->config->needsAutoCapture($this->methodId);
+            $request->capture = $needsAutoCapture;
+            if ($needsAutoCapture) {
+                $request->capture_on = $this->config->getCaptureTime($this->methodId);
+            }
 
             // Set the request parameters
             $request->capture = $this->config->needsAutoCapture($this->methodId);

@@ -255,7 +255,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $request->metadata['methodId'] = $this->_code;
 
         // Prepare the capture setting
-        $request = $this->config->addCaptureTime($request, $this->_code);
+        $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
+        $request->capture = $needsAutoCapture;
+        if ($needsAutoCapture) {
+            $request->capture_on = $this->config->getCaptureTime($this->_code);
+        }
 
         // Prepare the MADA setting
         $madaEnabled = (bool) $this->config->getValue('mada_enabled', $this->_code);
