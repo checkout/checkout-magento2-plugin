@@ -139,9 +139,6 @@ class TransactionHandlerService
                 $amount
             );
 
-            // Process the credit memo case
-            $this->processCreditMemo($transaction, $amount);
-
             // Process the invoice case
             $this->processInvoice($transaction, $amount);
         }
@@ -158,6 +155,9 @@ class TransactionHandlerService
             $transaction->save();
             $payment->save();
         }
+
+        // Process the credit memo case
+        $this->processCreditMemo($transaction, $amount);
 
         // Update the order status
         $this->setOrderStatus($transaction, $amount);
@@ -466,12 +466,21 @@ class TransactionHandlerService
      */
     public function processCreditMemo($transaction, $amount)
     {
+        // Get the order
+        $order = $transaction->getOrder();
+
+        // Check if the credit memo alreay exists
+        $creditMemos = $this->order->getCreditmemosCollection();
+        $creditMemos->addFieldToFilter(
+            'transaction_id',
+            $transaction->getTxnId()
+        );
+        $creditMemos->setPageSize(1);
+        $creditMemos->getLastItem();
+
         // Process the credit memo
         $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
-        if ($isRefund) {
-            // Get the order
-            $order = $transaction->getOrder();
-
+        if ($isRefund && !$creditMemos) {
             // Get the invoice
             $invoice = $this->invoiceHandler->getInvoice($order);
 
