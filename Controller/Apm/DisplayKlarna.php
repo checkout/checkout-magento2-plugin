@@ -186,7 +186,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
 
             // Handle missing email for guest checkout
             if ($response['billing']['email'] === null || empty($response['billing']['email'])) {
-                $response['billing']['email'] = $this->quoteHandler->findEmail();
+                $response['billing']['email'] = $this->quoteHandler->findEmail($this->quote);
             }
         }
 
