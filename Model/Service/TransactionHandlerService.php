@@ -255,9 +255,9 @@ class TransactionHandlerService
 
         // Handle the void parent auth logic
         $isVoid = $transaction->getTxnType() == Transaction::TYPE_VOID;
-        $parentAuth = $this->transactionRepository->getByTransactionType(
+        $parentAuth = $this->getTransactionByType(
             Transaction::TYPE_AUTH,
-            $order->getPayment()->getId()
+            $order
         );
         if ($isVoid && $parentAuth) {
             return $parentAuth->getTxnId();
@@ -265,9 +265,9 @@ class TransactionHandlerService
 
         // Handle the capture parent auth logic
         $isCapture = $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
-        $parentAuth = $this->transactionRepository->getByTransactionType(
+        $parentAuth = $this->getTransactionByType(
             Transaction::TYPE_AUTH,
-            $order->getPayment()->getId()
+            $order
         );
         if ($isCapture && $parentAuth) {
             return $parentAuth->getTxnId();
@@ -275,9 +275,9 @@ class TransactionHandlerService
        
         // Handle the refund parent capture logic
         $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
-        $parentCapture = $this->transactionRepository->getByTransactionType(
+        $parentCapture = $this->getTransactionByType(
             Transaction::TYPE_CAPTURE,
-            $order->getPayment()->getId()
+            $order
         );
         if ($isRefund && $parentCapture) {
             return $parentCapture->getTxnId();
@@ -303,9 +303,9 @@ class TransactionHandlerService
 
         // Handle a void after authorization
         $isVoid = $transaction->getTxnType() == Transaction::TYPE_VOID;
-        $parentAuth = $this->transactionRepository->getByTransactionType(
+        $parentAuth = $this->getTransactionByType(
             Transaction::TYPE_AUTH,
-            $order->getPayment()->getId()
+            $order
         );
         if ($isVoid && $parentAuth) {
             $parentAuth->setIsClosed(1)->save();
@@ -315,9 +315,9 @@ class TransactionHandlerService
         // Handle a capture after authorization
         $isCapture = $transaction->getTxnType() == Transaction::TYPE_CAPTURE;
         $isPartialCapture = $this->isPartialCapture($transaction, $amount, $isCapture);
-        $parentAuth = $this->transactionRepository->getByTransactionType(
+        $parentAuth = $this->getTransactionByType(
             Transaction::TYPE_AUTH,
-            $order->getPayment()->getId()
+            $order
         );
         if ($isPartialCapture && $parentAuth) {
             $parentAuth->setIsClosed(1)->save();
@@ -330,9 +330,9 @@ class TransactionHandlerService
         // Handle a refund after capture
         $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
         $isPartialRefund = $this->isPartialRefund($transaction, $amount, $isRefund);
-        $parentCapture = $this->transactionRepository->getByTransactionType(
+        $parentCapture = $this->getTransactionByType(
             Transaction::TYPE_CAPTURE,
-            $order->getPayment()->getId()
+            $order
         );
         if ($isPartialRefund && $parentCapture) {
             $parentCapture->setIsClosed(0)->save();
@@ -343,6 +343,39 @@ class TransactionHandlerService
         }
 
         return 0;
+    }
+
+    /**
+     * Get transactions for an order.
+     */
+    public function getTransactionByType($transactionType, $order)
+    {
+        // Payment filter
+        $filters[] = $this->filterBuilder->setField('payment_id')
+            ->setValue($order->getPayment()->getId())
+            ->create();
+            
+        // Order filter
+        $filters[] = $this->filterBuilder->setField('order_id')
+            ->setValue($order->getId())
+            ->create();
+
+        // Type filter
+        $filters[] = $this->filterBuilder->setField('txn_type')
+            ->setValue($transactionType)
+            ->create();
+
+        // Build the search criteria
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilters($filters)
+            ->create();
+
+        // Get the list of transactions
+        $transactions = $this->transactionRepository
+        ->getList($searchCriteria)
+        ->getItems();
+
+        return isset($transactions[0]) ? $transactions[0] : false;
     }
 
     /**
