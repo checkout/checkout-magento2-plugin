@@ -476,7 +476,8 @@ class TransactionHandlerService
 
         // Process the credit memo
         $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
-        if ($isRefund) {
+        $hasCreditMemo = $this->orderHasCreditMemo($transaction);
+        if ($isRefund && !$hasCreditMemo) {
             // Get the invoice
             $invoice = $this->invoiceHandler->getInvoice($order);
 
@@ -522,6 +523,28 @@ class TransactionHandlerService
         }
 
         return $total;
+    }
+
+    /**
+     * Check if an order has a credit memo.
+     */
+    public function orderHasCreditMemo($transaction)
+    {
+        // Get the order
+        $order = $transaction->getOrder();
+        
+        // Loop through the items
+        $result = 0;
+        $creditMemos = $order->getCreditmemosCollection();
+        if (!empty($creditMemos)) {
+            foreach ($creditMemos as $creditMemo) {
+                if ($creditMemo->getTransactionId() == $transaction->getTxnId()) {
+                    $result++;
+                }
+            }
+        }
+
+        return $result > 0 ? true : false;
     }
 
     /**
