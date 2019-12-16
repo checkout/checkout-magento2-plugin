@@ -344,6 +344,8 @@ class TransactionHandlerService
             $parentCapture->setIsClosed(1)->save();
             return 1;
         }  
+
+        return 0;
     }
 
     /**
@@ -469,6 +471,9 @@ class TransactionHandlerService
         // Get the order
         $order = $transaction->getOrder();
 
+        // Get the order payment
+        $payment = $order->getPayment();
+
         // Check if the credit memo alreay exists
         $creditMemos = $order->getCreditmemosCollection();
         $creditMemos->addFieldToFilter(
@@ -486,8 +491,10 @@ class TransactionHandlerService
 
             // Create a credit memo
             $creditMemo = $this->creditMemoFactory->createByOrder($order);
-            $creditMemo->setBaseGrandTotal($amount);
             $creditMemo->setGrandTotal($amount);
+
+            // Update the refunded amount
+            $order->setTotalRefunded($amount + $order->getTotalRefunded());
 
             // Refund
             $this->creditMemoService->refund($creditMemo);
@@ -500,6 +507,12 @@ class TransactionHandlerService
                     $orderComment->delete();
                 }
             } 
+
+            // Save the data
+            $payment->save();
+            $transaction->save();
+            $order->save();
+
         }
     }
 
