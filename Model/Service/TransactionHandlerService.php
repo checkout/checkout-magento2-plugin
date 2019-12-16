@@ -480,12 +480,10 @@ class TransactionHandlerService
             'transaction_id',
             $transaction->getTxnId()
         );
-        $creditMemos->setPageSize(1);
-        $creditMemos->getLastItem();
 
         // Process the credit memo
         $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
-        if ($isRefund && !$creditMemos) {
+        if ($isRefund && $creditMemos->count() == 0) {
             // Get the invoice
             $invoice = $this->invoiceHandler->getInvoice($order);
 
