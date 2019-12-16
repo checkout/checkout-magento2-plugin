@@ -16,6 +16,7 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Invoice;
 
 /**
