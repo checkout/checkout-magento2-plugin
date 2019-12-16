@@ -491,10 +491,12 @@ class TransactionHandlerService
 
             // Create a credit memo
             $creditMemo = $this->creditMemoFactory->createByOrder($order);
+            //$creditMemo->setInvoice($invoice);
+            //$creditMemo->setBaseGrandTotal($amount);
             $creditMemo->setGrandTotal($amount);
 
             // Update the refunded amount
-            $order->setTotalRefunded($amount + $order->getTotalRefunded());
+            //$order->setTotalRefunded($amount + $order->getTotalRefunded());
 
             // Refund
             $this->creditMemoService->refund($creditMemo);
@@ -512,7 +514,6 @@ class TransactionHandlerService
             $payment->save();
             $transaction->save();
             $order->save();
-
         }
     }
 
