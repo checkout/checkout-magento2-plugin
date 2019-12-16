@@ -480,7 +480,6 @@ class TransactionHandlerService
 
             // Create a credit memo
             $creditMemo = $this->creditMemoFactory->createByOrder($order);
-            $creditMemo->setInvoice($invoice);
             $creditMemo->setBaseGrandTotal($amount);
             $creditMemo->setGrandTotal($amount);
 
