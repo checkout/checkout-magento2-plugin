@@ -4,7 +4,12 @@ Close,Close
 "View Demo","View Demo"
 "The card could not be saved.","The card could not be saved."
 "The payment card has been stored successfully.","The payment card has been stored successfully."
-"A valid customer ID or email is required to place an order.","A valid customer ID or email is required to place an order."
+"The payment request was declined by the gateway.","The payment request was declined by the gateway."
+"The order could not be created.","The order could not be created."
+"The request is invalid.","The request is invalid."
+"No quote was found with the provided ID.","No quote was found with the provided ID."
+"The quote ID is missing or invalid.","The quote ID is missing or invalid."
+"The payment token is missing or invalid.","The payment token is missing or invalid."
 "An error occurred and the order could not be created.","An error occurred and the order could not be created."
 "Your order number %1 has been created successfully.","Your order number %1 has been created successfully."
 "The transaction could not be processed.","The transaction could not be processed."
@@ -38,6 +43,8 @@ Korean,Korean
 French,French
 Italian,Italian
 Dutch,Dutch
+"Cancel the order","Cancel the order"
+"Do nothing","Do nothing"
 Processing,Processing
 Pending,Pending
 Authorize,Authorize
@@ -45,10 +52,13 @@ Authorize,Authorize
 "Single iframe","Single iframe"
 "Multiple iframes","Multiple iframes"
 "Payment request from %1","Payment request from %1"
+"The capture action is not available.","The capture action is not available."
+"The capture request could not be processed.","The capture request could not be processed."
 "The void action is not available.","The void action is not available."
 "The void request could not be processed.","The void request could not be processed."
 "The refund action is not available.","The refund action is not available."
 "The refund request could not be processed.","The refund request could not be processed."
+"Please reload the page to view the updated order information.","Please reload the page to view the updated order information."
 "The CVV value is required.","The CVV value is required."
 "There is no quote available to place an order.","There is no quote available to place an order."
 "A payment method ID is required to place an order.","A payment method ID is required to place an order."
@@ -56,11 +66,12 @@ Authorize,Authorize
 "This card is already saved.","This card is already saved."
 ending,ending
 expires,expires
+"Missing action ID for webhook with payment ID %","Missing action ID for webhook with payment ID %"
 "The payment request was successfully processed.","The payment request was successfully processed."
 "The transaction could not be processed. Please check the payment details.","The transaction could not be processed. Please check the payment details."
-"The capture request was successfully processed.","The capture request was successfully processed."
-"The capture request could not be processed.","The capture request could not be processed."
+"The gateway declined the MOTO payment request.","The gateway declined the MOTO payment request."
 "Please provide the required card information for the MOTO payment.","Please provide the required card information for the MOTO payment."
+"Missing required card information for the MOTO payment.","Missing required card information for the MOTO payment."
 CVV,CVV
 "Get your credentials <a href=""https://www.checkout.com/"">here</a>.","Get your credentials <a href=""https://www.checkout.com/"">here</a>."
 "Add a card","Add a card"
@@ -74,7 +85,7 @@ Delete,Delete
 "Delete a card","Delete a card"
 Name,Name
 "Cadastro de Pessoas Físicas","Cadastro de Pessoas Físicas"
-"Birth date","Birth date"
+"Birth date (YYYY-MM-DD)","Birth date (YYYY-MM-DD)"
 BIC,BIC
 Description,Description
 "Could not load the Klarna script.","Could not load the Klarna script."
@@ -93,3 +104,4 @@ Debitor,Debitor
 "Expiry date","Expiry date"
 "Security code","Security code"
 "Save this card for later use.","Save this card for later use."
+"Stored Payment Methods","Stored Payment Methods"
