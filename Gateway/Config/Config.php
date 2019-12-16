@@ -331,7 +331,7 @@ class Config
         $needsAutoCapture = $this->needsAutoCapture($methodId);
         $request->capture = $needsAutoCapture;
         if ($needsAutoCapture) {
-            $request->capture_on = $this->getCaptureTime($methodId);
+            $request->capture_on = $this->getCaptureTime();
         }
 
         return $request;
