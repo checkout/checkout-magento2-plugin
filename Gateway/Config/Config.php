@@ -124,7 +124,7 @@ class Config
     public function isValidPublicKey($key)
     {
         // Get the public key from config
-        $publicKey = $this->getValue('c');
+        $publicKey = $this->getValue('public_key');
 
         // Return the validity check
         return $key == $publicKey
