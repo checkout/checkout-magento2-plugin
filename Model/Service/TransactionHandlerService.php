@@ -65,6 +65,11 @@ class TransactionHandlerService
     public $creditMemoService;
 
     /**
+     * @var FilterBuilder
+     */
+    public $filterBuilder;
+
+    /**
      * @var Utilities
      */
     public $utilities;
@@ -89,6 +94,7 @@ class TransactionHandlerService
         \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository,
         \Magento\Sales\Model\Order\CreditmemoFactory $creditMemoFactory,
         \Magento\Sales\Model\Service\CreditmemoService $creditMemoService,
+        \Magento\Framework\Api\FilterBuilder $filterBuilder,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
@@ -99,6 +105,7 @@ class TransactionHandlerService
         $this->transactionRepository = $transactionRepository;
         $this->creditMemoFactory     = $creditMemoFactory;
         $this->creditMemoService     = $creditMemoService;
+        $this->filterBuilder         = $filterBuilder;
         $this->utilities             = $utilities;
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
