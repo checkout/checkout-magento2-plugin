@@ -536,10 +536,12 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $products = [];
         $quote = $this->quoteHandler->getQuote();
         foreach ($quote->getAllVisibleItems() as $item) {
+            $lineTotal = (($item->getPrice() * $item->getQty()) - $item->getDiscountAmount() + $item->getTaxAmount());
+            $price =  ($lineTotal * 100) / $item->getQty();
             $product = new Product();
             $product->description = $item->getName();
             $product->quantity = $item->getQty();
-            $product->price = ((($item->getPrice() * $item->getQty()) - $item->getDiscountAmount() + $item->getTaxAmount()) *100) / $item->getQty();
+            $product->price = $price;
             $product->product_id = $item->getId();
             $products []= $product;
         }
