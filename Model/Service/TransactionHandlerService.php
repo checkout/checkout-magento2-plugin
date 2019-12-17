@@ -70,6 +70,11 @@ class TransactionHandlerService
     public $filterBuilder;
 
     /**
+     * @var SearchCriteriaBuilder
+     */
+    public $searchCriteriaBuilder;
+
+    /**
      * @var Utilities
      */
     public $utilities;
@@ -95,6 +100,7 @@ class TransactionHandlerService
         \Magento\Sales\Model\Order\CreditmemoFactory $creditMemoFactory,
         \Magento\Sales\Model\Service\CreditmemoService $creditMemoService,
         \Magento\Framework\Api\FilterBuilder $filterBuilder,
+        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
@@ -106,6 +112,7 @@ class TransactionHandlerService
         $this->creditMemoFactory     = $creditMemoFactory;
         $this->creditMemoService     = $creditMemoService;
         $this->filterBuilder         = $filterBuilder;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->utilities             = $utilities;
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
