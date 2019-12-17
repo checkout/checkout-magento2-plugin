@@ -18,9 +18,7 @@
 namespace CheckoutCom\Magento2\Controller\Api;
 
 use Magento\Framework\Controller\ResultFactory;
-use Magento\Framework\Webapi\Exception as WebException;
-use Magento\Framework\Webapi\Rest\Response as WebResponse;
-use Magento\Checkout\Model\Type\Onepage;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Class V1
@@ -28,14 +26,9 @@ use Magento\Checkout\Model\Type\Onepage;
 class V1 extends \Magento\Framework\App\Action\Action
 {
     /**
-     * @var CustomerRepositoryInterface
+     * @var JsonFactory
      */
-    public $customerRepository;
-
-    /**
-     * @var QuoteManagement
-     */
-    public $quoteManagement;
+    public $jsonFactory;
 
     /**
      * @var Config
@@ -43,32 +36,49 @@ class V1 extends \Magento\Framework\App\Action\Action
     public $config;
 
     /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * @var QuoteHandlerService
      */
     public $quoteHandler;
+
+    /**
+     * @var OrderHandlerService
+     */
+    public $orderHandler;
+
+    /**
+     * @var MethodHandlerService
+     */
+    public $methodHandler;
+
+    /**
+     * @var ApiHandlerService
+     */
+    public $apiHandler;
+
+    /**
+     * @var Array
+     */
+    public $data;
 
     /**
      * Callback constructor
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Quote\Model\QuoteManagement $quoteManagement,
+        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Logger $logger,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
+        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler
     ) {
         parent::__construct($context);
-        $this->customerRepository  = $customerRepository;
-        $this->quoteManagement = $quoteManagement;
+        $this->jsonFactory = $jsonFactory;
         $this->config = $config;
-        $this->logger = $logger;
         $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
+        $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
     }
 
     /**
@@ -77,76 +87,136 @@ class V1 extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         try {
-            // Set the payload data
-            $this->getPayload();
+            // Set the response parameters
+            $success = false;
+            $orderId = 0;
+            $errorMessage = '';
 
-            // Prepare the response handler
-            $resultFactory = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+            // Get the request parameters
+            $this->data = $this->getRequest()->getParams();
 
-            // Process the request
-            if ($this->config->isValidAuth()) {
-                // Create the quote
-                $quote = $this->quoteHandler->createQuote(
-                    $this->data->currency,
-                    $this->getCustomer()
-                );
+            // Validate the request
+            if ($this->isValidRequest()) {
+                // Load the quote
+                $quote = $this->loadQuote();
 
-                // Add the products
-                $quote = $this->quoteHandler->addItems(
-                    $quote,
-                    $this->data
-                );
+                // Create an order
+                $order = $this->orderHandler
+                    ->setMethodId('checkoutcom_card_payment')
+                    ->handleOrder($quote);
 
-                // Inventory
-                $quote->setInventoryProcessed(false);
+                // Process the payment
+                if ($this->orderHandler->isOrder($order)) {
+                    // Get response and success
+                    $response = $this->requestPayment($order);
 
-                // Create the order
-                $order = $this->quoteManagement->submit($quote);
+                    // Process the response
+                    $api = $this->apiHandler->init($storeCode);
+                    if ($api->isValidResponse($response)) {
+                        // Get the payment details
+                        $paymentDetails = $api->getPaymentDetails($response->id);
+            
+                        // Add the payment info to the order
+                        $order = $this->utilities->setPaymentData($order, $response);
+            
+                        // Save the order
+                        $order->save();
 
-                // Set a valid response
-                $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
-
-                // Return the order id
-                return $order->getId();
+                        // Update the response parameters
+                        $success = $response->isSuccessful();
+                        $orderId = $order->getId();
+                    } else {
+                        $errorMessage = __('The payment request was declined by the gateway.');
+                    }
+                } else {
+                    $errorMessage = __('The order could not be created.');
+                }
             } else {
-                $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
+                $errorMessage = __('The request is invalid.');
             }
         } catch (\Exception $e) {
-            $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
-            $this->logger->write($e->getMessage());
-            return $resultFactory->setData(['error_message' => $e->getMessage()]);
+            $errorMessage = $e->getMessage();
+        } finally {
+            // Return the json response
+            return $this->jsonFactory->create()->setData([
+                'success' => $success,
+                'order_id' => $orderId,
+                'error_message' => $errorMessage
+            ]);
         }
     }
 
     /**
-     * Returns a JSON payload from request.
+     * Request payment to API handler.
      *
-     * @return string
+     * @return Response
      */
-    public function getPayload()
+    public function requestPayment($order)
     {
-        $this->data = json_decode($this->getRequest()->getContent());
+        // Prepare the payment request payload
+        $payload = [
+            'cardToken' => $this->data['payment_token']
+        ];
+        
+        // Send the charge request
+        return $this->methodHandler
+        ->get('checkoutcom_card_payment')
+        ->sendPaymentRequest(
+            $payload,
+            $order->getGrandTotal(),
+            $order->getOrderCurrencyCode(),
+            $order->getIncrementId()
+        );
     }
 
     /**
-     * Load a customer
-     *
-     * @return string
+     * Load the quote.
      */
-    public function getCustomer()
+    public function loadQuote()
     {
-        try {
-            if (isset($this->payload->customer->id) && (int) $this->payload->customer->id > 0) {
-                return $this->customerRepository->getById($this->payload->customer->id);
-            } elseif (isset($this->payload->customer->email)) {
-                return $this->customerRepository->get($this->payload->customer->email);
-            } else {
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('A valid customer ID or email is required to place an order.')
-                );
-            }
-        } catch (\Exception $e) {
-            $this->logger->write($e->getMessage());
+        // Load the quote
+        $quote = $this->quoteHandler->getQuote([
+            'entity_id' => $this->data['quote_id']
+        ]);
+
+        // Handle a quote not found
+        if (!$this->quoteHandler->isQuote($quote)) {
+            throw new LocalizedException(
+                __('No quote was found with the provided ID.')
+            );
         }
+
+        return $quote;
+    }
+
+    /**
+     * Check if the request is valid.
+     */
+    public function isValidRequest()
+    {
+        return $this->config->isValidAuth('pk')
+        && $this->dataIsValid();
+    }
+
+    /**
+     * Check if the data is valid.
+     */
+    public function dataIsValid()
+    {
+        // Check the quote ID
+        if (!isset($this->data['quote_id']) || (int) $this->data['quote_id'] == 0) {
+            throw new LocalizedException(
+                __('The quote ID is missing or invalid.')
+            );
+        }
+
+        // Check the payment token
+        if (!isset($this->data['payment_token']) || empty($this->data['payment_token'])) {
+            throw new LocalizedException(
+                __('The payment token is missing or invalid.')
+            );
+        }
+
+        return true;
     }
 }

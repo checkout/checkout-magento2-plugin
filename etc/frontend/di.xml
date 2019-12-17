@@ -48,5 +48,15 @@
             </argument>
         </arguments>
     </type>
-    <!-- End Custom UI Messages -->
+
+    <!-- CSRF bypass from 2.3.x series -->
+    <type name="Magento\Framework\App\Request\CsrfValidator">
+        <plugin name="cko_csrf_validator_skip" type="CheckoutCom\Magento2\Plugin\Frontend\CsrfValidatorSkip" />
+    </type>
+
+    <!-- Stored cards link display -->
+    <type name="Magento\Framework\View\Element\AbstractBlock">
+        <plugin name="cko_stored_cards_link" type="CheckoutCom\Magento2\Plugin\Frontend\StoredCardsLink" />
+    </type>
+
 </config>

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -26,11 +25,59 @@ use Magento\Sales\Api\Data\OrderInterface;
 class AfterPlaceOrder
 {
     /**
+     * @var Session
+     */
+    public $backendAuthSession;
+
+    /**
+     * @var Config
+     */
+    public $config;
+
+    /**
+     * @var WebhookHandlerService
+     */
+    public $webhookHandler;
+
+    /**
+     * @var TransactionHandlerService
+     */
+    public $transactionHandler;
+
+    /**
+     * AfterPlaceOrder constructor.
+     */
+    public function __construct(
+        \Magento\Backend\Model\Auth\Session $backendAuthSession,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
+    ) {
+        $this->backendAuthSession = $backendAuthSession;
+        $this->config = $config;
+        $this->webhookHandler = $webhookHandler;
+        $this->transactionHandler = $transactionHandler;
+    }
+
+    /**
      * Disable order email sending on order creation
      */
     public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
     {
-        $order->setCanSendNewEmailFlag(false);
+        // Get the method ID
+        $methodId = $order->getPayment()->getMethodInstance()->getCode();
+
+        // If can proceed
+        if (in_array($methodId, $this->config->getMethodsList())) {
+            // Disable the email sending
+            $order->setCanSendNewEmailFlag(false);
+
+            // Process the webhooks for frontend orders
+            if (!$this->backendAuthSession->isLoggedIn()) {
+                $this->webhookHandler->processAllWebhooks($order);
+            }
+        }
+
         return $order;
     }
 }

@@ -120,6 +120,38 @@ class ApiHandlerService
     /**
      * Voids a transaction.
      */
+    public function captureOrder($payment, $amount)
+    {
+        // Get the order
+        $order = $payment->getOrder();
+
+        // Get the payment info
+        $paymentInfo = $this->utilities->getPaymentData($order);
+
+        // Process the capture request
+        if (isset($paymentInfo['id'])) {
+            // Prepare the request
+            $request = new Capture($paymentInfo['id']);
+            $request->amount = $this->orderHandler->amountToGateway(
+                $this->utilities->formatDecimals($amount),
+                $order
+            );
+
+            // Get the response
+            $response = $this->checkoutApi
+                ->payments()
+                ->capture($request);
+
+            // Logging
+            $this->logger->display($response);
+
+            return $response;
+        }
+    }
+
+    /**
+     * Voids a transaction.
+     */
     public function voidOrder($payment)
     {
         // Get the order
@@ -156,22 +188,16 @@ class ApiHandlerService
         // Process the refund request
         if (isset($paymentInfo['id'])) {
             $request = new Refund($paymentInfo['id']);
-            $request->amount = $this->orderHandler->amountToGateway($amount, $order);
+            $request->amount = $this->orderHandler->amountToGateway(
+                $this->utilities->formatDecimals($amount),
+                $order
+            );
             $response = $this->checkoutApi
                 ->payments()
                 ->refund($request);
 
             // Logging
             $this->logger->display($response);
-            
-            // Apply the order status
-            if ($order->getGrandTotal() == $order->getTotalRefunded()) {
-                $order->setState('order_status_refunded');
-                $order->setStatus($this->config->getValue('order_status_refunded'));
-            } else {
-                $order->setState($this->config->getValue('order_status_refunded_partial'));
-                $order->setStatus($this->config->getValue('order_status_refunded_partial'));
-            }
 
             // Return the response
             return $response;

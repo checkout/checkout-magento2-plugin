@@ -17,7 +17,7 @@
     <default>
         <settings>
             <checkoutcom_configuration>
-                <fields_encrypted>secret_key,public_key,private_shared_key</fields_encrypted>
+                <fields_encrypted></fields_encrypted>
                 <fields_hidden>secret_key,private_shared_key</fields_hidden>
                 <active>1</active>
                 <debug>0</debug>
@@ -35,11 +35,13 @@
                 <order_status_authorized>pending_payment</order_status_authorized>
                 <order_status_captured>processing</order_status_captured>
                 <order_status_voided>canceled</order_status_voided>
+                <order_status_canceled>canceled</order_status_canceled>
                 <order_status_refunded>closed</order_status_refunded>
-                <order_status_refunded_partial>processing</order_status_refunded_partial>
                 <order_status_flagged>fraud</order_status_flagged>
+                <order_action_failed_payment>cancel</order_action_failed_payment>
                 <payment_action>authorize_capture</payment_action>
-                <capture_time>0</capture_time>
+                <capture_time>0.003</capture_time>
+                <min_capture_time>0.003</min_capture_time>
                 <dynamic_descriptor_enabled>0</dynamic_descriptor_enabled>
                 <descriptor_name></descriptor_name>
                 <descriptor_city></descriptor_city>
@@ -51,7 +53,7 @@
             <checkoutcom_vault>
                 <model>CheckoutCom\Magento2\Model\Methods\VaultMethod</model>
                 <title>Stored Cards with Checkout.com</title>
-                <active>0</active>
+                <active>1</active>
                 <sort_order>0</sort_order>
                 <request_currency>USD</request_currency>
                 <three_ds>0</three_ds>

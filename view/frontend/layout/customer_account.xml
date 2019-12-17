@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2019 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="customer_account_navigation">
+            <block class="Magento\Customer\Block\Account\SortLinkInterface" name="stored-cards-link">
+                <arguments>
+                    <argument name="path" xsi:type="string">vault/cards/listaction</argument>
+                    <argument name="label" xsi:type="string" translate="true">Stored Payment Methods</argument>
+                    <argument name="sortOrder" xsi:type="number">160</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

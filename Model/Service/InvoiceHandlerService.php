@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -56,6 +55,11 @@ class InvoiceHandlerService
     public $transaction;
 
     /**
+     * @var Float
+     */
+    public $amount;
+
+    /**
      * InvoiceHandlerService constructor.
      */
     public function __construct(
@@ -71,28 +75,15 @@ class InvoiceHandlerService
     }
 
     /**
-     * Check if the invoice can be created.
-     */
-    public function processInvoice($order, $transaction = null)
-    {
-        // Set required properties
-        $this->order = $order;
-        $this->transaction = $transaction;
-
-        // Handle the invoice
-        if ($this->needsInvoicing()) {
-            $this->createInvoice();
-        }
-
-        // Return the order
-        return $this->order;
-    }
-
-    /**
      * Create an invoice.
      */
-    public function createInvoice()
+    public function createInvoice($transaction, $amount)
     {
+        // Set required properties
+        $this->order = $transaction->getOrder();
+        $this->transaction = $transaction;
+        $this->amount = $amount;
+
         // Prepare the invoice
         $invoice = $this->invoiceService->prepareInvoice($this->order);
 
@@ -105,7 +96,8 @@ class InvoiceHandlerService
         $invoice = $this->setInvoiceState($invoice);
 
         // Finalize the invoice
-        $invoice->setBaseGrandTotal($this->order->getGrandTotal());
+        $invoice->setBaseGrandTotal($this->amount);
+        $invoice->setGrandTotal($this->amount);
         $invoice->register();
 
         // Save the invoice
@@ -128,6 +120,7 @@ class InvoiceHandlerService
     {
         if ($this->needsInvoicing()) {
             $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+            $invoice->setState(Invoice::STATE_PAID);
             $invoice->setCanVoidFlag(false);
         }
 

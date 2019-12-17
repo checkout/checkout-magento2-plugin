@@ -131,72 +131,77 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        // Prepare some parameters
-        $url = '';
-        $message = '';
-        $success = false;
+        try {
+            // Prepare some parameters
+            $url = '';
+            $message = '';
+            $success = false;
 
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
+            // Try to load a quote
+            $this->quote = $this->quoteHandler->getQuote();
 
-        // Set some required properties
-        $this->data = $this->getRequest()->getParams();
+            // Set some required properties
+            $this->data = $this->getRequest()->getParams();
 
-        // Process the request
-        if ($this->getRequest()->isAjax() && $this->quote) {
-            // Create an order
-            $order = $this->orderHandler
-                ->setMethodId($this->data['methodId'])
-                ->handleOrder($this->quote);
+            // Process the request
+            if ($this->getRequest()->isAjax() && $this->quote) {
+                // Create an order
+                $order = $this->orderHandler
+                    ->setMethodId($this->data['methodId'])
+                    ->handleOrder($this->quote);
 
-            // Process the payment
-            if ($this->orderHandler->isOrder($order)) {
-                // Get response and success
-                $response = $this->requestPayment($order);
+                // Process the payment
+                if ($this->orderHandler->isOrder($order)) {
+                    // Get response and success
+                    $response = $this->requestPayment($order);
 
-                // Logging
-                $this->logger->display($response);
+                    // Logging
+                    $this->logger->display($response);
 
-                // Get the store code
-                $storeCode = $this->storeManager->getStore()->getCode();
-                
-                // Process the response
-                $api = $this->apiHandler->init($storeCode);
-                if ($api->isValidResponse($response)) {
-                    // Get the payment details
-                    $paymentDetails = $api->getPaymentDetails($response->id);
-        
-                    // Add the payment info to the order
-                    $order = $this->utilities->setPaymentData($order, $response);
-        
-                    // Save the order
-                    $order->save();
+                    // Get the store code
+                    $storeCode = $this->storeManager->getStore()->getCode();
+                    
+                    // Process the response
+                    $api = $this->apiHandler->init($storeCode);
+                    if ($api->isValidResponse($response)) {
+                        // Get the payment details
+                        $paymentDetails = $api->getPaymentDetails($response->id);
+            
+                        // Add the payment info to the order
+                        $order = $this->utilities->setPaymentData($order, $response);
+            
+                        // Save the order
+                        $order->save();
 
-                    // Update the response parameters
-                    $success = $response->isSuccessful();
-                    $url = $response->getRedirection();
+                        // Update the response parameters
+                        $success = $response->isSuccessful();
+                        $url = $response->getRedirection();
+                    } else {
+                        // Payment failed
+                        $message = __('The transaction could not be processed.');
+
+                        // Restore the quote
+                        $this->quoteHandler->restoreQuote($order->getIncrementId());
+                    }
                 } else {
                     // Payment failed
-                    $message = __('The transaction could not be processed.');
-
-                    // Restore the quote
-                    $this->quoteHandler->restoreQuote($order->getIncrementId());
+                    $message = __('The order could not be processed.');
                 }
             } else {
                 // Payment failed
-                $message = __('The order could not be processed.');
+                $message = __('The request is invalid or there was no quote found.');
             }
-        } else {
-            // Payment failed
-            $message = __('The request is invalid or there was no quote found.');
+        } catch (\Exception $e) {
+            $success = false;
+            $message = __($e->getMessage());
+            $this->logger->write($message);
+        } finally {
+            return $this->jsonFactory->create()->setData([
+                'success' => $success,
+                'message' => $message,
+                'url' => $url
+            ]);
         }
-
-        // Return the json response
-        return $this->jsonFactory->create()->setData([
-            'success' => $success,
-            'message' => $message,
-            'url' => $url
-        ]);
     }
 
     /**

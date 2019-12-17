@@ -58,7 +58,7 @@
                                 <field id="payment_action">authorize_capture</field>
                             </depends>
                             <config_path>settings/checkoutcom_configuration/capture_time</config_path>
-                            <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30.</comment>
+                            <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30, 0.01 for capture after 36 seconds. A value lower than 0.003 (10 seconds) is not recommended.</comment>
                         </field>
 
                         <field id="dynamic_descriptor_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -85,6 +85,13 @@
                     </group>
                     <group id="order_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Order Settings</label>
+
+                        <field id="order_action_failed_payment" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Action on Failed Payment</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderActionFailedPayment</source_model>
+                            <config_path>settings/checkoutcom_configuration/order_action_failed_payment</config_path>
+                            <comment>Select the action that should be taken for orders with failed payments.</comment>
+                        </field>
 
                         <field id="order_email" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Order confirmation email</label>
@@ -121,13 +128,6 @@
                             <comment>Select the status that should be used for orders with successful payment refund. Works only for refund per items.</comment>
                         </field>
 
-                        <field id="order_status_refunded_partial" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Partial Refund Order Status</label>
-                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatusRefundedPartial</source_model>
-                            <config_path>settings/checkoutcom_configuration/order_status_refunded_partial</config_path>
-                            <comment>Select the status that should be used for orders with successful payment partial refund. Works only for refund per items.</comment>
-                        </field>
-
                         <field id="order_status_flagged" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Flagged Order Status</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigOrderStatus</source_model>
@@ -137,23 +137,20 @@
                     </group>
                     <group id="account_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Account Settings</label>
-                        <field id="secret_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="secret_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Secret Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/secret_key</config_path>
                             <validate>required-entry</validate>
                         </field>
 
-                        <field id="public_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="public_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Public Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/public_key</config_path>
                             <validate>required-entry</validate>
                         </field>
 
-                        <field id="private_shared_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="private_shared_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Private Shared Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
                             <validate>required-entry</validate>
                         </field>
@@ -264,7 +261,7 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_card_payment/mada_enabled</config_path>
                         <comment>
-                            Add a flag to the charge request if the payment card is MADA.
+                            Add a flag to the charge request if the payment card is MADA. Enabling the MADA feature will force auto capture and 3D Secure for all MADA payment requests.
                         </comment>
                     </field>
 
@@ -504,27 +501,24 @@
                         <config_path>payment/checkoutcom_moto/use_default_account</config_path>
                     </field>
 
-                    <field id="secret_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="secret_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Secret Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_moto/secret_key</config_path>
                         <depends>
                             <field id="use_default_account">0</field>
                         </depends>
                     </field>
 
-                    <field id="public_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="public_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Public Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_moto/public_key</config_path>
                         <depends>
                             <field id="use_default_account">0</field>
                         </depends>
                     </field>
 
-                    <field id="private_shared_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="private_shared_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Private Shared Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_moto/private_shared_key</config_path>
                         <depends>
                             <field id="use_default_account">0</field>

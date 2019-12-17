@@ -14,7 +14,8 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!-- Order save before event -->
     <event name="sales_order_save_before">
-        <observer name="checkout_com_sales_order_save_before" instance="CheckoutCom\Magento2\Observer\Backend\OrderSaveBefore" />
+        <observer name="cko_order_save_before" instance="CheckoutCom\Magento2\Observer\Backend\MotoPaymentRequest" />
     </event>
 </config>

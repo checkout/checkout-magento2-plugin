@@ -68,16 +68,6 @@ class OrderHandlerService
     public $storeManager;
 
     /**
-     * @var TransactionHandlerService
-     */
-    public $transactionHandler;
-
-    /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
      * @var String
      */
     public $methodId;
@@ -99,9 +89,7 @@ class OrderHandlerService
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
@@ -112,8 +100,6 @@ class OrderHandlerService
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
         $this->storeManager = $storeManager;
-        $this->transactionHandler = $transactionHandler;
-        $this->logger = $logger;
     }
 
     /**
@@ -128,7 +114,7 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      */
-    public function handleOrder($quote = null)
+    public function handleOrder($quote = null, $external = false)
     {
         if ($this->methodId) {
             // Prepare the quote
@@ -143,7 +129,9 @@ class OrderHandlerService
                 $order = $this->quoteManagement->submit($quote);
 
                 // Perform after place order tasks
-                $order = $this->afterPlaceOrder($quote, $order);
+                if (!$external) {
+                    $order = $this->afterPlaceOrder($quote, $order);
+                }
 
                 return $order;
             } else {
@@ -159,8 +147,23 @@ class OrderHandlerService
     }
 
     /**
-     * Checks if an order exists and is valid
+     * Sets status/deletes order based on user config if payment fails
      */
+    public function handleFailedPayment($order, $storeId)
+    {
+        //Get config for failed payments
+        $config = $this->config->getValue('order_action_failed_payment', null, $storeId);
+
+        if ($config == 'cancel') {
+            $order->setStatus($this->config->getValue('order_status_canceled'));
+            $order->setState($this->config->getValue('order_status_canceled'));
+            $order->save();
+        }
+    }
+
+        /**
+         * Checks if an order exists and is valid
+         */
     public function isOrder($order)
     {
         return $order

@@ -90,16 +90,44 @@ class Config
     /**
      * Checks if an external request is valid.
      */
-    public function isValidAuth()
+    public function isValidAuth($type)
     {
         // Get the authorization header
-        $authorization = $this->request->getHeader('Authorization');
+        $key = $this->request->getHeader('Authorization');
 
-        // Get the secret key from config
+        // Validate the header
+        switch ($type) {
+            case 'pk':
+                return $this->isValidPublicKey($key);
+
+            case 'psk':
+                return $this->isValidPrivateSharedKey($key);
+        }
+    }
+
+    /**
+     * Checks if a private shared key request is valid.
+     */
+    public function isValidPrivateSharedKey($key)
+    {
+        // Get the private shared key from config
         $privateSharedKey = $this->getValue('private_shared_key');
 
         // Return the validity check
-        return $authorization == $privateSharedKey
+        return $key == $privateSharedKey
+        && $this->request->isPost();
+    }
+
+    /**
+     * Checks if a public key is valid.
+     */
+    public function isValidPublicKey($key)
+    {
+        // Get the public key from config
+        $publicKey = $this->getValue('public_key');
+
+        // Return the validity check
+        return $key == $publicKey
         && $this->request->isPost();
     }
 
@@ -154,6 +182,26 @@ class Config
                 }
             }
         }
+
+        return $methods;
+    }
+
+    /**
+     * Returns the payment methods list.
+     *
+     * @return array
+     */
+    public function getMethodsList()
+    {
+        $methods = [];
+        if ($this->canDisplay()) {
+            foreach ($this->loader->init()->data[Loader::KEY_PAYMENT] as $methodId => $data) {
+                if ($this->getValue('active', $methodId) == 1) {
+                    $methods[] = $methodId;
+                }
+            }
+        }
+
         return $methods;
     }
 
@@ -226,9 +274,9 @@ class Config
         // Get the capture time from config
         $captureTime = (float) $this->getValue('capture_time');
 
-        // Force capture time to a minimum of 10 seconds
-        $min = 0.0027;
-        $captureTime = $captureTime >= 0.0027 ? $captureTime : $min;
+        // Force capture time to a minimum of 36 seconds
+        $min = (float) $this->getValue('min_capture_time');
+        $captureTime = $captureTime >= $min ? $captureTime : $min;
 
         // Check the setting
         if ($this->needsAutoCapture()) {
