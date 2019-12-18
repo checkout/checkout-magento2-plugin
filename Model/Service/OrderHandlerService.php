@@ -17,6 +17,10 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Framework\Registry;
+use Magento\Sales\Api\OrderItemRepositoryInterface;
+use Magento\Sales\Model\Order;
+
 /**
  * Class OrderHandlerService.
  */
@@ -78,6 +82,15 @@ class OrderHandlerService
     public $paymentData;
 
     /**
+     * @var Registry
+     */
+    public $registry;
+
+    /**
+     * @var Order
+     */
+    public $orderModel;
+    /**
      * OrderHandler constructor
      */
     public function __construct(
@@ -86,6 +99,8 @@ class OrderHandlerService
         \Magento\Sales\Api\Data\OrderInterface $orderInterface,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        \Magento\Sales\Model\Order $orderModel,
+        \Magento\Framework\Registry $registry,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
@@ -96,6 +111,8 @@ class OrderHandlerService
         $this->orderInterface  = $orderInterface;
         $this->quoteManagement = $quoteManagement;
         $this->orderRepository = $orderRepository;
+        $this->orderModel = $orderModel;
+        $this->registry = $registry;
         $this->searchBuilder = $searchBuilder;
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
@@ -154,14 +171,22 @@ class OrderHandlerService
         //Get config for failed payments
         $config = $this->config->getValue('order_action_failed_payment', null, $storeId);
 
-        if ($config == 'cancel') {
+
+        if ($config == 'cancel' || $config == 'delete') {
+            $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();
             $order->setStatus($this->config->getValue('order_status_canceled'));
             $order->setState($this->config->getValue('order_status_canceled'));
             $order->save();
+
+            if ($config == 'delete') {
+                $this->registry->register('isSecureArea', true);
+                $this->orderRepository->delete($order);
+                $this->registry->unregister('isSecureArea');
+            }
         }
     }
 
-        /**
+    /**
          * Checks if an order exists and is valid
          */
     public function isOrder($order)
