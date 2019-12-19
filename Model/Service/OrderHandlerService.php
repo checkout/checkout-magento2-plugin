@@ -171,7 +171,6 @@ class OrderHandlerService
         //Get config for failed payments
         $config = $this->config->getValue('order_action_failed_payment', null, $storeId);
 
-
         if ($config == 'cancel' || $config == 'delete') {
             $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();
             $order->setStatus($this->config->getValue('order_status_canceled'));
