@@ -174,7 +174,7 @@ class OrderHandlerService
         if ($config == 'cancel' || $config == 'delete') {
             $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();
             $order->setStatus($this->config->getValue('order_status_canceled'));
-            $order->setState($this->config->getValue('order_status_canceled'));
+            $order->setState($this->orderModel::STATE_CANCELED);
             $order->save();
 
             if ($config == 'delete') {
