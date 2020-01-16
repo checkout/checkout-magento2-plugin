@@ -65,22 +65,15 @@ define(
                     // Start the loader
                     FullScreenLoader.startLoader();
 
+                    let self = this;
+
                     // Send the AJAX request
                     $.ajax(
                         {
                             type: "POST",
                             url: Utilities.getUrl('apm/display'),
                             success: function (data) {
-                                $('#apm-container').append(data.html)
-                                .accordion(
-                                    {
-                                        heightStyle: 'content',
-                                        animate: {
-                                            duration: 200
-                                        }
-                                    }
-                                )
-                                .show();
+                                    self.animateRender(data);
 
                                 // Stop the loader
                                 FullScreenLoader.stopLoader();
@@ -96,16 +89,33 @@ define(
                 },
 
                 /**
+                 * Animate opening of APM accordion
+                 */
+                animateRender: function (data) {
+                    $('#apm-container').append(data.html)
+                        .accordion(
+                            {
+                                heightStyle: 'content',
+                                animate: {
+                                    duration: 200
+                                }
+                            }
+                        )
+                        .show();
+                },
+
+                /**
                  * @returns {void}
                  */
                 placeOrder: function () {
-                    if (Utilities.methodIsSelected(METHOD_ID)) {
-                        var id = $("#apm-container div[aria-selected=true]").attr('id'),
-                            form = $("#cko-apm-form-" + id),
+                    let id = $("#apm-container div[aria-selected=true]").attr('id')
+                   
+                    if (Utilities.methodIsSelected(METHOD_ID) && id) {
+                           let form = $("#cko-apm-form-" + id),
                             data = {methodId: METHOD_ID};
 
                         // Start the loader
-                        FullScreenLoader.startLoader()
+                        FullScreenLoader.startLoader();
 
                         // Serialize data
                         form.serializeArray().forEach(
