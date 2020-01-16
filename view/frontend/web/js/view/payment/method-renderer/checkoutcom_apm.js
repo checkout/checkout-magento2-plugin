@@ -109,10 +109,10 @@ define(
                  */
                 placeOrder: function () {
                     let id = $("#apm-container div[aria-selected=true]").attr('id')
-                   
+
                     if (Utilities.methodIsSelected(METHOD_ID) && id) {
                            let form = $("#cko-apm-form-" + id),
-                            data = {methodId: METHOD_ID};
+                               data = {methodId: METHOD_ID};
 
                         // Start the loader
                         FullScreenLoader.startLoader();
