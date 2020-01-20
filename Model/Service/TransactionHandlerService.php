@@ -35,6 +35,11 @@ class TransactionHandlerService
     ];
 
     /**
+     * @var \Magento\Sales\Model\Order
+     */
+    public $orderModel;
+
+    /**
      * @var OrderSender
      */
     public $orderSender;
@@ -93,6 +98,7 @@ class TransactionHandlerService
      * TransactionHandlerService constructor.
      */
     public function __construct(
+        \Magento\Sales\Model\Order $orderModel,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Sales\Api\Data\TransactionSearchResultInterfaceFactory $transactionSearch,
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
@@ -105,6 +111,7 @@ class TransactionHandlerService
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
+        $this->orderModel            = $orderModel;
         $this->orderSender           = $orderSender;
         $this->transactionSearch     = $transactionSearch;
         $this->transactionBuilder    = $transactionBuilder;
@@ -174,6 +181,9 @@ class TransactionHandlerService
 
         // Update the order status
         $this->setOrderStatus($transaction, $amount);
+
+        // Update the order state
+        $this->setOrderState($transaction, $amount);
 
         // Process the order email case
         $this->processEmail($transaction);
@@ -403,9 +413,6 @@ class TransactionHandlerService
         // Get the transaction type
         $type = $transaction->getTxnType();
 
-        // Set the default order state
-        $state = null;
-
         // Get the needed order status
         switch ($type) {
             case Transaction::TYPE_AUTH:
@@ -435,6 +442,51 @@ class TransactionHandlerService
 
         // Save the order
         $order->save();
+    }
+
+
+    /**
+     * Set the current order status.
+     */
+    public function setOrderState($transaction, $amount)
+    {
+        // Get the order
+        $order = $transaction->getOrder();
+
+        // Get the transaction type
+        $type = $transaction->getTxnType();
+
+        // Initialise state to avoid setting it to null
+        $state = false; 
+
+        // Get the needed order status
+        switch ($type) {
+
+            case Transaction::TYPE_CAPTURE:
+                $state = $this->orderModel::STATE_PROCESSING;
+                break;
+
+            case Transaction::TYPE_VOID:
+                $state = $this->orderModel::STATE_CANCELLED;
+                break;
+
+            case Transaction::TYPE_REFUND:
+                $isPartialRefund = $this->isPartialRefund(
+                    $transaction,
+                    $amount,
+                    true
+                );
+                $state = $isPartialRefund ? $this->orderModel::STATE_PROCESSING : $this->orderModel::STATE_CLOSED;
+                break;
+        }
+
+        if($state) {
+            // Set the order state
+            $order->setState($state);
+
+            // Save the order
+            $order->save();
+        }
     }
 
     /**
