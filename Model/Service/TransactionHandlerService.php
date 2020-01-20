@@ -416,6 +416,8 @@ class TransactionHandlerService
         // Get the transaction type
         $type = $transaction->getTxnType();
 
+        $state = null;
+
         // Get the needed order status
         switch ($type) {
             case Transaction::TYPE_AUTH:
