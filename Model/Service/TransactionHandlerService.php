@@ -181,7 +181,7 @@ class TransactionHandlerService
 
         // Update the order status
         $this->setOrderStatus($transaction, $amount);
-        
+
         // Process the order email case
         $this->processEmail($transaction);
     }
@@ -448,7 +448,6 @@ class TransactionHandlerService
         // Save the order
         $order->save();
     }
-
 
     /**
      * Add a transaction comment to an order.
