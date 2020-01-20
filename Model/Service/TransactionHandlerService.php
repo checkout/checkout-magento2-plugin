@@ -365,23 +365,29 @@ class TransactionHandlerService
     public function getTransactionByType($transactionType, $order)
     {
         // Payment filter
-        $filters[] = $this->filterBuilder->setField('payment_id')
+        $filter1 = $this->filterBuilder
+            ->setField('payment_id')
             ->setValue($order->getPayment()->getId())
             ->create();
             
         // Order filter
-        $filters[] = $this->filterBuilder->setField('order_id')
+        $filter2 = $this->filterBuilder
+            ->setField('order_id')
             ->setValue($order->getId())
             ->create();
 
         // Type filter
-        $filters[] = $this->filterBuilder->setField('txn_type')
+        $filter3 = $this->filterBuilder
+            ->setField('txn_type')
             ->setValue($transactionType)
             ->create();
 
         // Build the search criteria
         $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilters($filters)
+            ->addFilters([$filter1])
+            ->addFilters([$filter2])
+            ->addFilters([$filter3])
+            ->setPageSize(1)
             ->create();
 
         // Get the list of transactions
