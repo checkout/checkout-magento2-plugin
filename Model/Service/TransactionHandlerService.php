@@ -182,9 +182,6 @@ class TransactionHandlerService
         // Update the order status
         $this->setOrderStatus($transaction, $amount);
 
-        // Update the order state
-        $this->setOrderState($transaction, $amount);
-
         // Process the order email case
         $this->processEmail($transaction);
     }
@@ -427,52 +424,11 @@ class TransactionHandlerService
 
             case Transaction::TYPE_CAPTURE:
                 $status = 'order_status_captured';
-                break;
-
-            case Transaction::TYPE_VOID:
-                $status = 'order_status_voided';
-                break;
-
-            case Transaction::TYPE_REFUND:
-                $isPartialRefund = $this->isPartialRefund(
-                    $transaction,
-                    $amount,
-                    true
-                );
-                $status = $isPartialRefund ? 'order_status_captured' : 'order_status_refunded';
-                break;
-        }
-
-        // Set the order status
-        $order->setStatus($this->config->getValue($status));
-
-        // Save the order
-        $order->save();
-    }
-
-
-    /**
-     * Set the current order status.
-     */
-    public function setOrderState($transaction, $amount)
-    {
-        // Get the order
-        $order = $transaction->getOrder();
-
-        // Get the transaction type
-        $type = $transaction->getTxnType();
-
-        // Initialise state to avoid setting it to null
-        $state = false; 
-
-        // Get the needed order status
-        switch ($type) {
-
-            case Transaction::TYPE_CAPTURE:
                 $state = $this->orderModel::STATE_PROCESSING;
                 break;
 
             case Transaction::TYPE_VOID:
+                $status = 'order_status_voided';
                 $state = $this->orderModel::STATE_CANCELLED;
                 break;
 
@@ -482,17 +438,21 @@ class TransactionHandlerService
                     $amount,
                     true
                 );
+                $status = $isPartialRefund ? 'order_status_captured' : 'order_status_refunded';
                 $state = $isPartialRefund ? $this->orderModel::STATE_PROCESSING : $this->orderModel::STATE_CLOSED;
                 break;
         }
 
+        // Set the order status
+        $order->setStatus($this->config->getValue($status));
+
         if($state) {
             // Set the order state
             $order->setState($state);
-
-            // Save the order
-            $order->save();
         }
+
+        // Save the order
+        $order->save();
     }
 
     /**
