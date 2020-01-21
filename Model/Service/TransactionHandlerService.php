@@ -35,6 +35,11 @@ class TransactionHandlerService
     ];
 
     /**
+     * @var \Magento\Sales\Model\Order
+     */
+    public $orderModel;
+
+    /**
      * @var OrderSender
      */
     public $orderSender;
@@ -93,6 +98,7 @@ class TransactionHandlerService
      * TransactionHandlerService constructor.
      */
     public function __construct(
+        \Magento\Sales\Model\Order $orderModel,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Sales\Api\Data\TransactionSearchResultInterfaceFactory $transactionSearch,
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
@@ -105,6 +111,7 @@ class TransactionHandlerService
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
+        $this->orderModel            = $orderModel;
         $this->orderSender           = $orderSender;
         $this->transactionSearch     = $transactionSearch;
         $this->transactionBuilder    = $transactionBuilder;
@@ -365,23 +372,29 @@ class TransactionHandlerService
     public function getTransactionByType($transactionType, $order)
     {
         // Payment filter
-        $filters[] = $this->filterBuilder->setField('payment_id')
+        $filter1 = $this->filterBuilder
+            ->setField('payment_id')
             ->setValue($order->getPayment()->getId())
             ->create();
             
         // Order filter
-        $filters[] = $this->filterBuilder->setField('order_id')
+        $filter2 = $this->filterBuilder
+            ->setField('order_id')
             ->setValue($order->getId())
             ->create();
 
         // Type filter
-        $filters[] = $this->filterBuilder->setField('txn_type')
+        $filter3 = $this->filterBuilder
+            ->setField('txn_type')
             ->setValue($transactionType)
             ->create();
 
         // Build the search criteria
         $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilters($filters)
+            ->addFilters([$filter1])
+            ->addFilters([$filter2])
+            ->addFilters([$filter3])
+            ->setPageSize(1)
             ->create();
 
         // Get the list of transactions
@@ -403,7 +416,6 @@ class TransactionHandlerService
         // Get the transaction type
         $type = $transaction->getTxnType();
 
-        // Set the default order state
         $state = null;
 
         // Get the needed order status
@@ -414,10 +426,12 @@ class TransactionHandlerService
 
             case Transaction::TYPE_CAPTURE:
                 $status = 'order_status_captured';
+                $state = $this->orderModel::STATE_PROCESSING;
                 break;
 
             case Transaction::TYPE_VOID:
                 $status = 'order_status_voided';
+                $state = $this->orderModel::STATE_CANCELLED;
                 break;
 
             case Transaction::TYPE_REFUND:
@@ -427,11 +441,17 @@ class TransactionHandlerService
                     true
                 );
                 $status = $isPartialRefund ? 'order_status_captured' : 'order_status_refunded';
+                $state = $isPartialRefund ? $this->orderModel::STATE_PROCESSING : $this->orderModel::STATE_CLOSED;
                 break;
         }
 
         // Set the order status
         $order->setStatus($this->config->getValue($status));
+
+        if($state) {
+            // Set the order state
+            $order->setState($state);
+        }
 
         // Save the order
         $order->save();

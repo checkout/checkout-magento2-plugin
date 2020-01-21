@@ -36,6 +36,11 @@ class V1 extends \Magento\Framework\App\Action\Action
     public $config;
 
     /**
+     * @var StoreManagerInterface
+     */
+    public $storeManager;
+    
+    /**
      * @var QuoteHandlerService
      */
     public $quoteHandler;
@@ -67,6 +72,7 @@ class V1 extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
@@ -75,6 +81,7 @@ class V1 extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
+        $this->storeManager = $storeManager;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
         $this->methodHandler = $methodHandler;
@@ -109,6 +116,9 @@ class V1 extends \Magento\Framework\App\Action\Action
                 if ($this->orderHandler->isOrder($order)) {
                     // Get response and success
                     $response = $this->requestPayment($order);
+
+                    // Get the store code
+                    $storeCode = $this->storeManager->getStore()->getCode();
 
                     // Process the response
                     $api = $this->apiHandler->init($storeCode);
