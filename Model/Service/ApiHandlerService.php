@@ -278,8 +278,8 @@ class ApiHandlerService
         $sdkData = 'PHP v' . phpversion() . ', SDK v' . CheckoutAPI::VERSION;
 
         // Get the integration data
-        $integrationData  = 'Checkout.com Magento 2 Module v';
-        $integrationData .= $this->config->getModuleVersion();
+        $integrationData  = 'Checkout.com Magento 2 Module ';
+        $integrationData .= $this->utilities->getModuleVersion('v');
 
         // Get the Magento version
         $platformData = 'Magento ' . $this->productMeta->getVersion();
