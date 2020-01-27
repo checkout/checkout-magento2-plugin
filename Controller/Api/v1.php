@@ -61,6 +61,11 @@ class V1 extends \Magento\Framework\App\Action\Action
     public $apiHandler;
 
     /**
+     * @var Utilities
+     */
+    public $utilities;
+
+    /**
      * @var Array
      */
     public $data;
@@ -76,7 +81,8 @@ class V1 extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         parent::__construct($context);
         $this->jsonFactory = $jsonFactory;
@@ -86,6 +92,7 @@ class V1 extends \Magento\Framework\App\Action\Action
         $this->orderHandler = $orderHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
     }
 
     /**
