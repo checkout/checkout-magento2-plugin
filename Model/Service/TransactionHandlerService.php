@@ -431,7 +431,7 @@ class TransactionHandlerService
 
             case Transaction::TYPE_VOID:
                 $status = 'order_status_voided';
-                $state = $this->orderModel::STATE_CANCELLED;
+                $state = $this->orderModel::STATE_CANCELED;
                 break;
 
             case Transaction::TYPE_REFUND:
