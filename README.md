@@ -72,6 +72,7 @@ bin/magento setup:di:compile && php bin/magento cache:clean
 In order to update the Checkout.com Magento 2 extension please run the following commands in a terminal, from your Magento 2 root directory:
 
 ```bash
+composer clearcache
 composer update checkoutcom/magento2 |OR| composer require checkoutcom/magento2:*
 bin/magento setup:upgrade
 rm -rf var/cache var/generation/ var/di
