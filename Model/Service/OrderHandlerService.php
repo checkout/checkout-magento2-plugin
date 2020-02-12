@@ -168,7 +168,7 @@ class OrderHandlerService
      */
     public function handleFailedPayment($order, $storeId)
     {
-        //Get config for failed payments
+        // Get config for failed payments
         $config = $this->config->getValue('order_action_failed_payment', null, $storeId);
 
         if ($config == 'cancel' || $config == 'delete') {
