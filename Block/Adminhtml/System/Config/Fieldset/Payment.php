@@ -27,9 +27,9 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     public $_backendConfig;
 
     /**
-     * @var Utilities
+     * @var \CheckoutCom\Magento2\Model\Service\VersionHandlerService
      */
-    public $utilities;
+    public $versionHandler;
 
     /**
      * @param \Magento\Backend\Block\Context $context
@@ -43,11 +43,11 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
         \Magento\Backend\Model\Auth\Session $authSession,
         \Magento\Framework\View\Helper\Js $jsHelper,
         \Magento\Config\Model\Config $backendConfig,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Model\Service\VersionHandlerService $versionHandler,
         array $data = []
     ) {
         $this->_backendConfig = $backendConfig;
-        $this->utilities = $utilities;
+        $this->versionHandler = $versionHandler;
         parent::__construct($context, $authSession, $jsHelper, $data);
     }
 
@@ -104,7 +104,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
         $disabledClassString = $this->_isPaymentEnabled($element) ? '' : ' disabled';
         $htmlId = $element->getHtmlId();
         $html .= '<div class="button-container">' .
-            $this->utilities->getModuleVersion('v') . '&nbsp;&nbsp;' .
+            $this->versionHandler->getModuleVersion('v') . '&nbsp;&nbsp;' .
             '<button type="button"' .
             $disabledAttributeString .
             ' class="button action-configure' .
