@@ -28,6 +28,14 @@
         </arguments>
     </type>
 
+    <type name="Magento\Framework\Notification\MessageList">
+        <arguments>
+            <argument name="messages" xsi:type="array">
+                <item name="VersionNotification" xsi:type="string">CheckoutCom\Magento2\Block\Adminhtml\Alerts\VersionNotification</item>
+            </argument>
+        </arguments>
+    </type>
+
     <!-- After save order plugin -->
     <type name="Magento\Sales\Api\OrderRepositoryInterface">
         <plugin name="cko_order_after_save" type="CheckoutCom\Magento2\Plugin\Backend\OrderAfterSave" />
