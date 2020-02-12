@@ -165,6 +165,8 @@ class Callback extends \Magento\Framework\App\Action\Action
                                 $this->payload,
                                 $order
                             );
+          
+                            $this->orderHandler->handleFailedPayment($order, $storeCode, $this->payload->type); 
                         }
                     } else {
                         $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);

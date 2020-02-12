@@ -166,21 +166,32 @@ class OrderHandlerService
     /**
      * Sets status/deletes order based on user config if payment fails
      */
-    public function handleFailedPayment($order, $storeId)
+    public function handleFailedPayment($order, $storeId, $webhook = false)
     {
-        // Get config for failed payments
-        $config = $this->config->getValue('order_action_failed_payment', null, $storeId);
+        $failedWebhooks = [
+            "payment_declined",
+            "payment_expired",
+            "payment_cancelled",
+            "payment_voided",
+            "payment_capture_declined"
+        ];
 
-        if ($config == 'cancel' || $config == 'delete') {
-            $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();
-            $order->setStatus($this->config->getValue('order_status_canceled'));
-            $order->setState($this->orderModel::STATE_CANCELED);
-            $order->save();
+        if (!$webhook || in_array($webhook, $failedWebhooks)) {
 
-            if ($config == 'delete') {
-                $this->registry->register('isSecureArea', true);
-                $this->orderRepository->delete($order);
-                $this->registry->unregister('isSecureArea');
+            // Get config for failed payments
+            $config = $this->config->getValue('order_action_failed_payment', null, $storeId);
+
+            if ($config == 'cancel' || $config == 'delete') {
+                $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();
+                $order->setStatus($this->config->getValue('order_status_canceled'));
+                $order->setState($this->orderModel::STATE_CANCELED);
+                $order->save();
+
+                if ($config == 'delete') {
+                    $this->registry->register('isSecureArea', true);
+                    $this->orderRepository->delete($order);
+                    $this->registry->unregister('isSecureArea');
+                }
             }
         }
     }
