@@ -177,7 +177,6 @@ class OrderHandlerService
         ];
 
         if (!$webhook || in_array($webhook, $failedWebhooks)) {
-
             // Get config for failed payments
             $config = $this->config->getValue('order_action_failed_payment', null, $storeId);
 
@@ -197,8 +196,8 @@ class OrderHandlerService
     }
 
     /**
-         * Checks if an order exists and is valid
-         */
+     * Checks if an order exists and is valid
+     */
     public function isOrder($order)
     {
         return $order

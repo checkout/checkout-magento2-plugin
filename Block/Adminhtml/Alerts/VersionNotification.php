@@ -29,8 +29,7 @@ class VersionNotification implements \Magento\Framework\Notification\MessageInte
 
     public function __construct(
         \CheckoutCom\Magento2\Model\Service\VersionHandlerService $versionHandler
-    )
-    {
+    ) {
         $this->versionHandler = $versionHandler;
         $this->versions = $this->versionHandler->getVersions();
     }
@@ -52,12 +51,12 @@ class VersionNotification implements \Magento\Framework\Notification\MessageInte
 
     public function isDisplayed()
     {
-            if (isset($this->versions[0]['tag_name'])){
+        if (isset($this->versions[0]['tag_name'])) {
             $this->current = $this->versionHandler->getModuleVersion();
             $this->latest = $this->versionHandler->getLatestVersion($this->versions);
-        if ($this->versionHandler->needsUpdate($this->current, $this->latest)) {
-            return true;
-        }
+            if ($this->versionHandler->needsUpdate($this->current, $this->latest)) {
+                return true;
+            }
         } else {
             return false;
         }

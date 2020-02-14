@@ -74,7 +74,8 @@ class VersionHandlerService
     /*
      * Returns type of version update
      */
-    public function getVersionType($currentVersion, $latestVersion) {
+    public function getVersionType($currentVersion, $latestVersion)
+    {
         $versions = [explode('.', $currentVersion), explode('.', $latestVersion)];
 
         // Compare version numbers - major, minor and then revision
@@ -100,7 +101,8 @@ class VersionHandlerService
     /*
      * Check if module needs updating
      */
-    public function needsUpdate($currentVersion, $latestVersion) {
+    public function needsUpdate($currentVersion, $latestVersion)
+    {
         $versions = [explode('.', $currentVersion), explode('.', $latestVersion)];
 
         // Compare version numbers - major, minor and then revision
@@ -115,7 +117,8 @@ class VersionHandlerService
     /*
      * Get array of releases from Github
      */
-    public function getVersions() {
+    public function getVersions()
+    {
         $this->curl->setHeaders([
             'User-Agent' => 'checkout-magento2-plugin'
         ]);
@@ -133,10 +136,11 @@ class VersionHandlerService
     /*
      * Get latest version number
      */
-    public function getLatestVersion($versions) {
+    public function getLatestVersion($versions)
+    {
         foreach ($versions as $version) {
             // Find latest release that is not beta
-            if(isset($version['tag_name']) && count(explode('-', $version['tag_name']) == 1)) {
+            if (isset($version['tag_name']) && count(explode('-', $version['tag_name']) == 1)) {
                 return $version['tag_name'];
             }
         }
@@ -149,9 +153,9 @@ class VersionHandlerService
     {
         // Build the composer file path
         $filePath = $this->moduleDirReader->getModuleDir(
-                '',
-                'CheckoutCom_Magento2'
-            ) . '/composer.json';
+            '',
+            'CheckoutCom_Magento2'
+        ) . '/composer.json';
 
         // Get the composer file content
         $fileContent = json_decode(

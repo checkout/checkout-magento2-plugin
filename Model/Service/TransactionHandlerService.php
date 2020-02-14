@@ -448,7 +448,7 @@ class TransactionHandlerService
         // Set the order status
         $order->setStatus($this->config->getValue($status));
 
-        if($state) {
+        if ($state) {
             // Set the order state
             $order->setState($state);
         }

@@ -121,7 +121,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         // Process the request
         if ($this->config->isValidAuth('psk')) {
             // Filter out verification requests
-            if($this->payload->type !== "card_verified") {
+            if ($this->payload->type !== "card_verified") {
                 // Process the request
                 if (isset($this->payload->data->id)) {
                     // Get the store code
@@ -166,7 +166,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                                 $order
                             );
           
-                            $this->orderHandler->handleFailedPayment($order, $storeCode, $this->payload->type); 
+                            $this->orderHandler->handleFailedPayment($order, $storeCode, $this->payload->type);
                         }
                     } else {
                         $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
