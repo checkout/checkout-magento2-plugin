@@ -72,6 +72,11 @@ class ApiHandlerService
     public $orderHandler;
 
     /**
+     * @var VersionHandlerService
+     */
+    public $versionHandler;
+
+    /**
      * ApiHandlerService constructor.
      */
     public function __construct(
@@ -81,7 +86,8 @@ class ApiHandlerService
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\VersionHandlerService $versionHandler
     ) {
         $this->encryptor = $encryptor;
         $this->storeManager = $storeManager;
@@ -90,6 +96,7 @@ class ApiHandlerService
         $this->utilities = $utilities;
         $this->logger = $logger;
         $this->orderHandler = $orderHandler;
+        $this->versionHandler = $versionHandler;
     }
 
     /**
@@ -278,8 +285,8 @@ class ApiHandlerService
         $sdkData = 'PHP v' . phpversion() . ', SDK v' . CheckoutAPI::VERSION;
 
         // Get the integration data
-        $integrationData  = 'Checkout.com Magento 2 Module v';
-        $integrationData .= $this->config->getModuleVersion();
+        $integrationData  = 'Checkout.com Magento 2 Module ';
+        $integrationData .= $this->versionHandler->getModuleVersion('v');
 
         // Get the Magento version
         $platformData = 'Magento ' . $this->productMeta->getVersion();

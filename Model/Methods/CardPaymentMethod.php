@@ -211,7 +211,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
         // Get the quote
         $quote = $this->quoteHandler->getQuote();
-
+        
         // Set the token source
         $tokenSource = new TokenSource($data['cardToken']);
         $tokenSource->billing_address = $api->createBillingAddress($quote);
@@ -226,15 +226,20 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $request->metadata['methodId'] = $this->_code;
 
         // Prepare the capture setting
-        $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
-        $request->capture = $needsAutoCapture;
-        if ($needsAutoCapture) {
-            $request->capture_on = $this->config->getCaptureTime($this->_code);
+        $madaEnabled = $this->config->getValue('mada_enabled', $this->_code);
+        if (isset($data['cardBin'])
+            && $this->cardHandler->isMadaBin($data['cardBin'])
+            && $madaEnabled
+        ) {
+            $request->metadata['udf1'] = 'MADA';
+        } else {
+            $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
+            $request->capture = $needsAutoCapture;
+            if ($needsAutoCapture) {
+                $request->capture_on = $this->config->getCaptureTime($this->_code);
+            }
         }
         
-        // Prepare the MADA setting
-        $madaEnabled = $this->config->getValue('mada_enabled', $this->_code);
-
         // Prepare the save card setting
         $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code);
 
@@ -252,14 +257,6 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
         $request->shipping = $api->createShippingAddress($quote);
-
-        // Mada BIN Check
-        if (isset($data['cardBin'])
-            && $this->cardHandler->isMadaBin($data['cardBin'])
-            && $madaEnabled
-        ) {
-            $request->metadata['udf1'] = 'MADA';
-        }
 
         // Save card check
         if (isset($data['saveCard'])

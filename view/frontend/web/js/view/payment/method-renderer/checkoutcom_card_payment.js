@@ -87,7 +87,7 @@ define(
                  * @returns {bool}
                  */
                 shouldDisplayCardIcons: function () {
-                    return this.getValue('display_card_icons');
+                    return this.getValue('display_card_icons') == true;
                 },
 
                 /**

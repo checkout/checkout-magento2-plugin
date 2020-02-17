@@ -17,7 +17,7 @@
 
 namespace CheckoutCom\Magento2\Controller\Api;
 
-use Magento\Framework\Controller\ResultFactory;
+use CheckoutCom\Magento2\Model\Service\CardHandlerService;
 use Magento\Framework\Exception\LocalizedException;
 
 /**
@@ -39,7 +39,7 @@ class V1 extends \Magento\Framework\App\Action\Action
      * @var StoreManagerInterface
      */
     public $storeManager;
-    
+
     /**
      * @var QuoteHandlerService
      */
@@ -60,6 +60,16 @@ class V1 extends \Magento\Framework\App\Action\Action
      */
     public $apiHandler;
 
+    /*
+     * @var CardHandlerService
+     */
+    public $cardHandler;
+
+    /**
+     * @var Utilities
+     */
+    public $utilities;
+
     /**
      * @var Array
      */
@@ -76,7 +86,9 @@ class V1 extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         parent::__construct($context);
         $this->jsonFactory = $jsonFactory;
@@ -86,6 +98,8 @@ class V1 extends \Magento\Framework\App\Action\Action
         $this->orderHandler = $orderHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
+        $this->cardHandler = $cardHandler;
+        $this->utilities = $utilities;
     }
 
     /**
@@ -125,10 +139,10 @@ class V1 extends \Magento\Framework\App\Action\Action
                     if ($api->isValidResponse($response)) {
                         // Get the payment details
                         $paymentDetails = $api->getPaymentDetails($response->id);
-            
+
                         // Add the payment info to the order
                         $order = $this->utilities->setPaymentData($order, $response);
-            
+
                         // Save the order
                         $order->save();
 
@@ -167,7 +181,11 @@ class V1 extends \Magento\Framework\App\Action\Action
         $payload = [
             'cardToken' => $this->data['payment_token']
         ];
-        
+
+        if (isset($this->data['cardBin'])) {
+            $payload['cardBin'] = $this->data['cardBin'];
+        }
+
         // Send the charge request
         return $this->methodHandler
         ->get('checkoutcom_card_payment')
