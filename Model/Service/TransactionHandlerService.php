@@ -180,7 +180,7 @@ class TransactionHandlerService
         $this->processCreditMemo($transaction, $amount);
 
         // Update the order status
-        $this->setOrderStatus($transaction, $amount);
+        $this->setOrderStatus($transaction, $amount, $webhook['event_type']);
 
         // Process the order email case
         $this->processEmail($transaction);
@@ -408,29 +408,29 @@ class TransactionHandlerService
     /**
      * Set the current order status.
      */
-    public function setOrderStatus($transaction, $amount, $webhook = false)
+    public function setOrderStatus($transaction, $amount, $webhook)
     {
         // Get the order
         $order = $transaction->getOrder();
 
         // Get the event type
-        $type = $webhook ? $webhook : $transaction->getTxnType();
+        $type = $webhook === 'payment_capture_pending' ? $webhook : $transaction->getTxnType();
 
         $state = null;
 
         // Get the needed order status
         switch ($type) {
             case Transaction::TYPE_AUTH:
-                $status = 'order_status_authorized';
+                $status = $this->config->getValue('order_status_authorized');
                 break;
 
             case Transaction::TYPE_CAPTURE:
-                $status = 'order_status_captured';
+                $status = $this->config->getValue('order_status_captured');
                 $state = $this->orderModel::STATE_PROCESSING;
                 break;
 
             case Transaction::TYPE_VOID:
-                $status = 'order_status_voided';
+                $status = $this->config->getValue('order_status_voided');
                 $state = $this->orderModel::STATE_CANCELED;
                 break;
 
@@ -441,16 +441,21 @@ class TransactionHandlerService
                     true
                 );
                 $status = $isPartialRefund ? 'order_status_captured' : 'order_status_refunded';
+                $status = $this->config->getValue($status);
                 $state = $isPartialRefund ? $this->orderModel::STATE_PROCESSING : $this->orderModel::STATE_CLOSED;
                 break;
-            case 'payment_capture_pending':
 
+            case 'payment_capture_pending':
+                $status = 'pending_payment';
+                $state = $this->orderModel::STATE_PENDING_PAYMENT;
+                $order->addStatusHistoryComment('Payment recieved');
+                break;
         }
 
 
         if ($state) {
             // Set the order status
-            $order->setStatus();
+            $order->setStatus($status);
 
             // Set the order state
             $order->setState($state);
