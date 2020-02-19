@@ -408,13 +408,13 @@ class TransactionHandlerService
     /**
      * Set the current order status.
      */
-    public function setOrderStatus($transaction, $amount)
+    public function setOrderStatus($transaction, $amount, $webhook = false)
     {
         // Get the order
         $order = $transaction->getOrder();
 
-        // Get the transaction type
-        $type = $transaction->getTxnType();
+        // Get the event type
+        $type = $webhook ? $webhook : $transaction->getTxnType();
 
         $state = null;
 
@@ -443,12 +443,15 @@ class TransactionHandlerService
                 $status = $isPartialRefund ? 'order_status_captured' : 'order_status_refunded';
                 $state = $isPartialRefund ? $this->orderModel::STATE_PROCESSING : $this->orderModel::STATE_CLOSED;
                 break;
+            case 'payment_capture_pending':
+
         }
 
-        // Set the order status
-        $order->setStatus($this->config->getValue($status));
 
         if ($state) {
+            // Set the order status
+            $order->setStatus();
+
             // Set the order state
             $order->setState($state);
         }
