@@ -45,7 +45,7 @@ class VersionNotification implements \Magento\Framework\Notification\MessageInte
 
     public function getIdentity()
     {
-        return md5('Checkout.com' . time());
+        return hash('sha256', 'Checkout.com' . time());
     }
 
 
