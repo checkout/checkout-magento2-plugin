@@ -140,7 +140,7 @@ class VersionHandlerService
     {
         foreach ($versions as $version) {
             // Find latest release that is not beta
-            if (isset($version['tag_name']) && count(explode('-', $version['tag_name']) == 1)) {
+            if (isset($version['tag_name']) && count(explode('-', $version['tag_name'])) == 1) {
                 return $version['tag_name'];
             }
         }
