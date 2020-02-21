@@ -146,7 +146,7 @@ class TransactionHandlerService
         );
 
         // Create a transaction if needed
-        if (!$transaction || $webhook !== 'payment_capture_pending') {
+        if (!$transaction || $webhook['event_type'] !== 'payment_capture_pending') {
             // Build the transaction
             $transaction = $this->buildTransaction(
                 $order,
