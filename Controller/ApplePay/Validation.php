@@ -23,6 +23,11 @@ namespace CheckoutCom\Magento2\Controller\ApplePay;
 class Validation extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var JsonFactory
+     */
+    public $jsonFactory;
+
+    /**
      * @var RawFactory
      */
     public $rawFactory;
@@ -42,12 +47,14 @@ class Validation extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\Controller\Result\RawFactory $rawFactory,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         parent::__construct($context);
 
+        $this->jsonFactory = $jsonFactory;
         $this->rawFactory = $rawFactory;
         $this->curl = $curl;
         $this->config = $config;
