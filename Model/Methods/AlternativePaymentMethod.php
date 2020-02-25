@@ -157,7 +157,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\shopperHandlerService $shopperHandler,
-        \CheckoutCom\Magento2\Model\Service\apiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
