@@ -198,7 +198,7 @@ define(
                                 // Build the payment request
                                 var paymentRequest = {
                                     currencyCode: Utilities.getQuoteCurrency(),
-                                    countryCode: billingAddress.countryId,
+                                    countryCode: window.checkoutConfig.defaultCountryId,
                                     total: {
                                         label: Utilities.getStoreName(),
                                         amount: runningTotal
