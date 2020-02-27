@@ -447,8 +447,8 @@ class TransactionHandlerService
                 break;
 
             case 'payment_capture_pending':
-                $status = 'pending_payment';
                 $state = $this->orderModel::STATE_PENDING_PAYMENT;
+                $status = $order->getConfig()->getStateDefaultStatus($state);
                 $order->addStatusHistoryComment(_('Payment capture initiated, awaiting capture confirmation.'));
                 break;
         }
@@ -463,6 +463,8 @@ class TransactionHandlerService
 
         // Save the order
         $order->save();
+
+        $order->getStatus();
     }
 
     /**
