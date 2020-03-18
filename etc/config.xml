@@ -178,9 +178,9 @@
                 <can_void>1</can_void>
                 <can_use_internal>0</can_use_internal>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
-                <processing_certificate>/path/to/cert</processing_certificate>
+                <processing_certificate>/absolute/path/to/cert.key</processing_certificate>
                 <processing_certificate_password></processing_certificate_password>
-                <merchant_id_certificate>/path/to/cert</merchant_id_certificate>
+                <merchant_id_certificate>/absolute/path/to/cert.pem</merchant_id_certificate>
                 <merchant_id></merchant_id>
                 <supported_networks>amex,masterCard,visa</supported_networks>
                 <merchant_capabilities>supportsCredit,supportsDebit</merchant_capabilities>
