@@ -72,7 +72,8 @@ bin/magento setup:di:compile && php bin/magento cache:clean
 In order to update the Checkout.com Magento 2 extension please run the following commands in a terminal, from your Magento 2 root directory:
 
 ```bash
-composer update checkoutcom/magento2:*
+composer clearcache
+composer update checkoutcom/magento2 |OR| composer require checkoutcom/magento2:*
 bin/magento setup:upgrade
 rm -rf var/cache var/generation/ var/di
 bin/magento setup:di:compile && php bin/magento cache:clean
@@ -88,7 +89,7 @@ Contact your [Checkout.com](https://www.checkout.com "Checkout.com") account man
 Dedicated technical support is available to all Merchants using Checkout.com via the public GitHub repositories or directly by email at integration@checkout.com. Checkout.com does not provide support for third party plugins or any alterations made to the official Checkout.com plugins.
 
 ## Webhook URL
-In order to allow the [Checkout.com](https://www.checkout.com "Checkout.com") payment gateway to send payment notifications to your Magenot 2 installation, you will have to configure the following URL as a Webhook URL in the Hub:
+In order to allow the [Checkout.com](https://www.checkout.com "Checkout.com") payment gateway to send payment notifications to your Magento 2 installation, you will have to configure the following URL as a Webhook URL in the Hub:
 
 ```bash
 yoursite.com/checkout_com/webhook/callback
