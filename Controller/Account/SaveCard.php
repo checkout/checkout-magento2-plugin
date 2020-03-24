@@ -39,19 +39,27 @@ class SaveCard extends \Magento\Framework\App\Action\Action
     public $vaultHandler;
 
     /**
+     * @var \Magento\Framework\Controller\Result\Redirect
+     */
+    public $redirectFactory;
+
+    /**
      * SaveCard constructor.
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\UrlInterface $urlInterface,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \Magento\Framework\Controller\Result\Redirect $redirectFactory
+
     ) {
         parent::__construct($context);
 
         $this->jsonFactory = $jsonFactory;
         $this->urlInterface = $urlInterface;
         $this->vaultHandler = $vaultHandler;
+        $this->redirectFactory = $redirectFactory;
     }
 
     /**
@@ -68,12 +76,17 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         // Process the request
         if ($this->getRequest()->isAjax() && !empty($ckoCardToken)) {
             // Save the card
-            $success = $this->vaultHandler
-                ->setCardToken($ckoCardToken)
-                ->setCustomerId()
-                ->setCustomerEmail()
-                ->authorizeTransaction()
-                ->saveCard();
+            $this->vaultHandler->setCardToken($ckoCardToken);
+            $this->vaultHandler->setCustomerId();
+            $this->vaultHandler->setCustomerEmail();
+            $authResponse = $this->vaultHandler->authorizeTransaction();
+            if (isset($authResponse->_links->redirect->href)) {
+                $redirect = $this->redirectFactory->create();
+                $threeDsUrl = $authResponse->_links->redirect->href;
+                $redirect->setUrl($threeDsUrl);
+                return $redirect;
+            }
+            $success = $this->vaultHandler->saveCard();
 
             $this->messageManager->addSuccessMessage(__('The payment card has been stored successfully.'));
         }

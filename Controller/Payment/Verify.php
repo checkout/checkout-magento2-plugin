@@ -17,9 +17,6 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use \Checkout\Models\Payments\Refund;
-use \Checkout\Models\Payments\Voids;
-
 /**
  * Class Verify
  */
@@ -51,6 +48,11 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $quoteHandler;
 
     /**
+     * @var VaultHandlerService
+     */
+    public $vaultHandler;
+
+    /**
      * @var Utilities
      */
     public $utilities;
@@ -70,6 +72,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
@@ -80,6 +83,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->quoteHandler = $quoteHandler;
+        $this->vaultHandler = $vaultHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
     }
@@ -104,39 +108,44 @@ class Verify extends \Magento\Framework\App\Action\Action
             // Set the method ID
             $this->methodId = $response->metadata['methodId'];
 
-            // Find the order from increment id
-            $order = $this->orderHandler->getOrder([
+            // Check for zero dollar auth
+            if ($response->amount !== 0) {
+                // Find the order from increment id
+                $order = $this->orderHandler->getOrder([
                 'increment_id' => $response->reference
             ]);
 
-            // Process the order
-            if ($this->orderHandler->isOrder($order)) {
-                // Add the payment info to the order
-                $order = $this->utilities->setPaymentData($order, $response);
+                // Process the order
+                if ($this->orderHandler->isOrder($order)) {
+                    // Add the payment info to the order
+                    $order = $this->utilities->setPaymentData($order, $response);
 
-                // Save the order
-                $order->save();
+                    // Save the order
+                    $order->save();
 
-                // Logging
-                $this->logger->display($response);
+                    // Logging
+                    $this->logger->display($response);
 
-                // Process the response
-                if ($api->isValidResponse($response)) {
-                    return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
-                } else {
-                    // Restore the quote
-                    $this->quoteHandler->restoreQuote($response->reference);
+                    // Process the response
+                    if ($api->isValidResponse($response)) {
+                        return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+                    } else {
+                        // Restore the quote
+                        $this->quoteHandler->restoreQuote($response->reference);
 
-                    // Add and error message
-                    $this->messageManager->addErrorMessage(
+                        // Add and error message
+                        $this->messageManager->addErrorMessage(
                         __('The transaction could not be processed or has been cancelled.')
                     );
-                }
-            } else {
-                // Add and error message
-                $this->messageManager->addErrorMessage(
+                    }
+                } else {
+                    // Add and error message
+                    $this->messageManager->addErrorMessage(
                     __('Invalid request. No order found.')
                 );
+                }
+            } else {
+                return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
             }
         } else {
             // Add and error message
