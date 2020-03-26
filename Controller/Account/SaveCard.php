@@ -17,6 +17,8 @@
 
 namespace CheckoutCom\Magento2\Controller\Account;
 
+use Magento\Framework\Controller\ResultFactory;
+
 /**
  * Class SaveCard
  */
@@ -51,7 +53,7 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\UrlInterface $urlInterface,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \Magento\Framework\Controller\Result\Redirect $redirectFactory
+        \Magento\Framework\Controller\ResultFactory $redirectFactory
 
     ) {
         parent::__construct($context);
@@ -80,9 +82,10 @@ class SaveCard extends \Magento\Framework\App\Action\Action
             $this->vaultHandler->setCustomerId();
             $this->vaultHandler->setCustomerEmail();
             $authResponse = $this->vaultHandler->authorizeTransaction();
-            if (isset($authResponse->_links->redirect->href)) {
-                $redirect = $this->redirectFactory->create();
-                $threeDsUrl = $authResponse->_links->redirect->href;
+
+            if (isset($authResponse->response->_links['redirect']['href'])) {
+                $redirect = $this->redirectFactory->create(ResultFactory::TYPE_REDIRECT);
+                $threeDsUrl = $authResponse->response->_links['redirect']['href'];
                 $redirect->setUrl($threeDsUrl);
                 return $redirect;
             }

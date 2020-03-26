@@ -75,7 +75,8 @@ class Verify extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    ) {
+    )
+    {
         parent::__construct($context);
 
         $this->storeManager = $storeManager;
@@ -112,8 +113,8 @@ class Verify extends \Magento\Framework\App\Action\Action
             if ($response->amount !== 0) {
                 // Find the order from increment id
                 $order = $this->orderHandler->getOrder([
-                'increment_id' => $response->reference
-            ]);
+                    'increment_id' => $response->reference
+                ]);
 
                 // Process the order
                 if ($this->orderHandler->isOrder($order)) {
@@ -135,16 +136,17 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                         // Add and error message
                         $this->messageManager->addErrorMessage(
-                        __('The transaction could not be processed or has been cancelled.')
-                    );
+                            __('The transaction could not be processed or has been cancelled.')
+                        );
                     }
                 } else {
                     // Add and error message
                     $this->messageManager->addErrorMessage(
-                    __('Invalid request. No order found.')
-                );
+                        __('Invalid request. No order found.')
+                    );
                 }
             } else {
+
                 return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
             }
         } else {
@@ -157,4 +159,22 @@ class Verify extends \Magento\Framework\App\Action\Action
         // Return to the cart
         return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
+
+    publuc function saveCard($response){
+
+    // Get the customer
+    $customer = $this->shopperHandler->getCustomerData(
+        ['id' => $this->payload->data->metadata->customerId]
+    );
+
+    // Save the card
+    $success = $this->vaultHandler
+        ->setCardToken($this->payload->data->source->id)
+        ->setCustomerId($customer->getId())
+        ->setCustomerEmail($customer->getEmail())
+        ->setResponse($response)
+        ->saveCard();
+
+    return $success;
+}
 }
