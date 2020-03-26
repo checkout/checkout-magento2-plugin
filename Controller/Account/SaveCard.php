@@ -78,18 +78,18 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         // Process the request
         if ($this->getRequest()->isAjax() && !empty($ckoCardToken)) {
             // Save the card
-            $this->vaultHandler->setCardToken($ckoCardToken);
-            $this->vaultHandler->setCustomerId();
-            $this->vaultHandler->setCustomerEmail();
-            $authResponse = $this->vaultHandler->authorizeTransaction();
+            $success = $this->vaultHandler->setCardToken($ckoCardToken)
+            ->setCustomerId()
+            ->setCustomerEmail()
+            ->authorizeTransaction();
 
-            if (isset($authResponse->response->_links['redirect']['href'])) {
+            if (isset($success->response->_links['redirect']['href'])) {
                 $redirect = $this->redirectFactory->create(ResultFactory::TYPE_REDIRECT);
-                $threeDsUrl = $authResponse->response->_links['redirect']['href'];
+                $threeDsUrl = $success->response->_links['redirect']['href'];
                 $redirect->setUrl($threeDsUrl);
                 return $redirect;
             }
-            $success = $this->vaultHandler->saveCard();
+            $success->saveCard();
 
             $this->messageManager->addSuccessMessage(__('The payment card has been stored successfully.'));
         }
