@@ -96,7 +96,10 @@
                 type: 'POST',
                 url: '<?= $block->escapeHtml($block->getUrl('checkout_com/account/savecard')); ?>',
                 data: {cardToken: cardTokenField.val()},
+                contentType: "application/json",
+                dataType: "json",
                 success: function (data) {
+                    console.log(data);
                     if (!data.success) {
                         $('body').trigger('processStop');
                         //self.showMessage('error', data.message);
