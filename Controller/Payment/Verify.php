@@ -160,7 +160,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 
-    publuc function saveCard($response){
+    public function saveCard($response){
 
     // Get the customer
     $customer = $this->shopperHandler->getCustomerData(
