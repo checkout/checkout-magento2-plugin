@@ -109,6 +109,11 @@ class Verify extends \Magento\Framework\App\Action\Action
             // Set the method ID
             $this->methodId = $response->metadata['methodId'];
 
+            echo "<pre>";
+            var_dump($response);
+            echo "</pre>";
+            exit();
+
             // Check for zero dollar auth
             if ($response->amount !== 0) {
                 // Find the order from increment id
@@ -161,20 +166,19 @@ class Verify extends \Magento\Framework\App\Action\Action
     }
 
     public function saveCard($response){
+        // Get the customer
+        $customer = $this->shopperHandler->getCustomerData(
+            ['id' => $this->payload->data->metadata->customerId]
+        );
 
-    // Get the customer
-    $customer = $this->shopperHandler->getCustomerData(
-        ['id' => $this->payload->data->metadata->customerId]
-    );
+        // Save the card
+        $success = $this->vaultHandler
+            ->setCardToken($this->payload->data->source->id)
+            ->setCustomerId($customer->getId())
+            ->setCustomerEmail($customer->getEmail())
+            ->setResponse($response)
+            ->saveCard();
 
-    // Save the card
-    $success = $this->vaultHandler
-        ->setCardToken($this->payload->data->source->id)
-        ->setCustomerId($customer->getId())
-        ->setCustomerEmail($customer->getEmail())
-        ->setResponse($response)
-        ->saveCard();
-
-    return $success;
-}
+        return $success;
+    }
 }
