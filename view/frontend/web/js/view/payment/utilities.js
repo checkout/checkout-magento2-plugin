@@ -338,7 +338,7 @@ define(
                             self.showMessage('error', data.message, methodId);
                         } else if (data.success && data.url) {
                             // Handle 3DS redirection
-                            window.location.href = data.url
+                            window.location.href = data.url;
                         } else {
                             // Normal redirection
                             RedirectOnSuccessAction.execute();
