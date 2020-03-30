@@ -84,11 +84,6 @@ class SaveCard extends \Magento\Framework\App\Action\Action
             ->authorizeTransaction();
 
             // Test the 3DS redirection case
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/r.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($result->response, 1));
-
             if (isset($result->response->_links['redirect']['href'])) {
                 return $this->jsonFactory->create()->setData([
                     'success' => true,
