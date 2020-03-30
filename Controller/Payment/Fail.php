@@ -23,6 +23,11 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 class Fail extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var ManagerInterface
+     */
+    public $messageManager;
+
+    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
@@ -47,6 +52,7 @@ class Fail extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
@@ -54,6 +60,7 @@ class Fail extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
+        $this->messageManager = $messageManager;
         $this->storeManager = $storeManager;
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;

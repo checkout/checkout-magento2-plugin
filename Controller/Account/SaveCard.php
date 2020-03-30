@@ -24,6 +24,10 @@ use Magento\Framework\Controller\ResultFactory;
  */
 class SaveCard extends \Magento\Framework\App\Action\Action
 {
+    /**
+     * @var ManagerInterface
+     */
+    public $messageManager;
 
     /**
      * @var JsonFactory
@@ -50,6 +54,7 @@ class SaveCard extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\UrlInterface $urlInterface,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
@@ -58,6 +63,7 @@ class SaveCard extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
+        $this->messageManager = $messageManager;
         $this->jsonFactory = $jsonFactory;
         $this->urlInterface = $urlInterface;
         $this->vaultHandler = $vaultHandler;

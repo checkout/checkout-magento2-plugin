@@ -23,6 +23,11 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 class Verify extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var ManagerInterface
+     */
+    public $messageManager;
+
+    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
@@ -67,6 +72,7 @@ class Verify extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
@@ -79,6 +85,7 @@ class Verify extends \Magento\Framework\App\Action\Action
     {
         parent::__construct($context);
 
+        $this->messageManager = $messageManager;
         $this->storeManager = $storeManager;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
