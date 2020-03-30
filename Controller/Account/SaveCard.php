@@ -72,7 +72,6 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         // Prepare the parameters
         $success = false;
         $url = $this->urlInterface->getUrl('vault/cards/listaction');
-        $req = $this->getRequest();
         $ckoCardToken = $this->getRequest()->getParam('cardToken');
 
         // Process the request
