@@ -98,7 +98,7 @@
                 data: {cardToken: cardTokenField.val()},
                 contentType: "application/json",
                 dataType: "json",
-                success: function (response) {
+                success: function (data) {
                     window.location.href = data.url;
                 },
                 error: function (request, status, error) {
