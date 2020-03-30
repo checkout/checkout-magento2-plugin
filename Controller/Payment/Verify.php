@@ -17,14 +17,18 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use \Checkout\Models\Payments\Refund;
-use \Checkout\Models\Payments\Voids;
+use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
 
 /**
  * Class Verify
  */
 class Verify extends \Magento\Framework\App\Action\Action
 {
+    /**
+     * @var ManagerInterface
+     */
+    public $messageManager;
+
     /**
      * @var StoreManagerInterface
      */
@@ -51,6 +55,16 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $quoteHandler;
 
     /**
+     * @var VaultHandlerService
+     */
+    public $vaultHandler;
+
+    /**
+     * @var ShopperHandlerService
+     */
+    public $shopperHandler;
+
+    /**
      * @var Utilities
      */
     public $utilities;
@@ -65,21 +79,28 @@ class Verify extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    ) {
+    )
+    {
         parent::__construct($context);
 
+        $this->messageManager = $messageManager;
         $this->storeManager = $storeManager;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->quoteHandler = $quoteHandler;
+        $this->vaultHandler = $vaultHandler;
+        $this->shopperHandler = $shopperHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
     }
@@ -104,39 +125,48 @@ class Verify extends \Magento\Framework\App\Action\Action
             // Set the method ID
             $this->methodId = $response->metadata['methodId'];
 
-            // Find the order from increment id
-            $order = $this->orderHandler->getOrder([
-                'increment_id' => $response->reference
-            ]);
+            // Check for zero dollar auth
+            if ($response->amount !== 0) {
+                // Find the order from increment id
+                $order = $this->orderHandler->getOrder([
+                    'increment_id' => $response->reference
+                ]);
 
-            // Process the order
-            if ($this->orderHandler->isOrder($order)) {
-                // Add the payment info to the order
-                $order = $this->utilities->setPaymentData($order, $response);
+                // Process the order
+                if ($this->orderHandler->isOrder($order)) {
+                    // Add the payment info to the order
+                    $order = $this->utilities->setPaymentData($order, $response);
 
-                // Save the order
-                $order->save();
+                    // Save the order
+                    $order->save();
 
-                // Logging
-                $this->logger->display($response);
+                    // Logging
+                    $this->logger->display($response);
 
-                // Process the response
-                if ($api->isValidResponse($response)) {
-                    return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+                    // Process the response
+                    if ($api->isValidResponse($response)) {
+                        return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+                    } else {
+                        // Restore the quote
+                        $this->quoteHandler->restoreQuote($response->reference);
+
+                        // Add and error message
+                        $this->messageManager->addErrorMessage(
+                            __('The transaction could not be processed or has been cancelled.')
+                        );
+                    }
                 } else {
-                    // Restore the quote
-                    $this->quoteHandler->restoreQuote($response->reference);
-
                     // Add and error message
                     $this->messageManager->addErrorMessage(
-                        __('The transaction could not be processed or has been cancelled.')
+                        __('Invalid request. No order found.')
                     );
                 }
             } else {
-                // Add and error message
-                $this->messageManager->addErrorMessage(
-                    __('Invalid request. No order found.')
-                );
+                // Save the card
+                $this->saveCard($response);
+
+                // Redirect to the
+                return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
             }
         } else {
             // Add and error message
@@ -147,5 +177,32 @@ class Verify extends \Magento\Framework\App\Action\Action
 
         // Return to the cart
         return $this->_redirect('checkout/cart', ['_secure' => true]);
+    }
+
+    public function saveCard($response) {
+        // Get the customer
+        $customer = $this->shopperHandler->getCustomerData(
+            ['id' => $response->metadata['customerId']]
+        );
+
+        // Save the card
+        $success = $this->vaultHandler
+            ->setCardToken($response->data->source->id)
+            ->setCustomerId($customer->getId())
+            ->setCustomerEmail($customer->getEmail())
+            ->setResponse($response)
+            ->saveCard();
+
+        // Prepare the response UI message
+        if ($success) {
+            $this->messageManager->addSuccessMessage(
+                __('The payment card has been stored successfully.')
+            );
+        } 
+        else {
+            $this->messageManager->addErrorMessage(
+                __('The card could not be saved.')
+            );
+        }
     }
 }

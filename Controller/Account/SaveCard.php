@@ -17,11 +17,17 @@
 
 namespace CheckoutCom\Magento2\Controller\Account;
 
+use Magento\Framework\Controller\ResultFactory;
+
 /**
  * Class SaveCard
  */
 class SaveCard extends \Magento\Framework\App\Action\Action
 {
+    /**
+     * @var ManagerInterface
+     */
+    public $messageManager;
 
     /**
      * @var JsonFactory
@@ -39,19 +45,30 @@ class SaveCard extends \Magento\Framework\App\Action\Action
     public $vaultHandler;
 
     /**
+     * @var \Magento\Framework\Controller\Result\Redirect
+     */
+    public $redirectFactory;
+
+    /**
      * SaveCard constructor.
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\UrlInterface $urlInterface,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
-    ) {
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \Magento\Framework\Controller\ResultFactory $redirectFactory
+
+    )
+    {
         parent::__construct($context);
 
+        $this->messageManager = $messageManager;
         $this->jsonFactory = $jsonFactory;
         $this->urlInterface = $urlInterface;
         $this->vaultHandler = $vaultHandler;
+        $this->redirectFactory = $redirectFactory;
     }
 
     /**
@@ -62,27 +79,44 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         // Prepare the parameters
         $success = false;
         $url = $this->urlInterface->getUrl('vault/cards/listaction');
-        $message = __('The card could not be saved.');
         $ckoCardToken = $this->getRequest()->getParam('cardToken');
 
         // Process the request
         if ($this->getRequest()->isAjax() && !empty($ckoCardToken)) {
             // Save the card
-            $success = $this->vaultHandler
-                ->setCardToken($ckoCardToken)
+            $result = $this->vaultHandler->setCardToken($ckoCardToken)
                 ->setCustomerId()
                 ->setCustomerEmail()
-                ->authorizeTransaction()
-                ->saveCard();
+                ->authorizeTransaction();
 
-            $this->messageManager->addSuccessMessage(__('The payment card has been stored successfully.'));
+            // Test the 3DS redirection case
+            if (isset($result->response->_links['redirect']['href'])) {
+                return $this->jsonFactory->create()->setData([
+                    'success' => true,
+                    'url' => $result->response->_links['redirect']['href']
+                ]);
+            } else {
+                // Try to save the card
+                $success = $result->saveCard();
+
+                // Prepare the response UI message
+                if ($success) {
+                    $this->messageManager->addSuccessMessage(
+                        __('The payment card has been stored successfully.')
+                    );
+                } else {
+                    $this->messageManager->addErrorMessage(
+                        __('The card could not be saved.')
+                    );
+                }
+            }
+
+
+            // Build the AJAX response
+            return $this->jsonFactory->create()->setData([
+                'success' => $success,
+                'url' => $url
+            ]);
         }
-
-        // Build the AJAX response
-        return $this->jsonFactory->create()->setData([
-            'success' => $success,
-            'message' => $message,
-            'url' => $url
-        ]);
     }
 }

@@ -96,18 +96,13 @@
                 type: 'POST',
                 url: '<?= $block->escapeHtml($block->getUrl('checkout_com/account/savecard')); ?>',
                 data: {cardToken: cardTokenField.val()},
+                contentType: "application/json",
+                dataType: "json",
                 success: function (data) {
-                    if (!data.success) {
-                        $('body').trigger('processStop');
-                        //self.showMessage('error', data.message);
-                    }
-                    else if (data.success && data.url) {
-                        window.location.href = data.url
-                    }
+                    window.location.href = data.url;
                 },
                 error: function (request, status, error) {
                    $('body').trigger('processStop');
-                   // self.showMessage('error', error);
                 }
             });
         });
