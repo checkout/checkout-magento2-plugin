@@ -177,6 +177,16 @@ class Verify extends \Magento\Framework\App\Action\Action
             ->setResponse($response)
             ->saveCard();
 
-        return $success;
+        // Prepare the response UI message
+        if ($success) {
+            $this->messageManager->addSuccessMessage(
+                __('The payment card has been stored successfully.')
+            );
+        } 
+        else {
+            $this->messageManager->addErrorMessage(
+                __('The card could not be saved.')
+            );
+        }
     }
 }
