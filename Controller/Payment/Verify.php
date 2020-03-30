@@ -146,7 +146,10 @@ class Verify extends \Magento\Framework\App\Action\Action
                     );
                 }
             } else {
+                // Save the card
+                $this->saveCard($response);
 
+                // Redirect to the
                 return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
             }
         } else {
@@ -160,7 +163,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 
-    public function saveCard($response){
+    public function saveCard($response) {
         // Get the customer
         $customer = $this->shopperHandler->getCustomerData(
             ['id' => $this->payload->data->metadata->customerId]
