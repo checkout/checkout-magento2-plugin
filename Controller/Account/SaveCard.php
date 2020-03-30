@@ -72,7 +72,6 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         // Prepare the parameters
         $success = false;
         $url = $this->urlInterface->getUrl('vault/cards/listaction');
-        $message = '';
         $ckoCardToken = $this->getRequest()->getParam('cardToken');
 
         // Process the request
@@ -87,7 +86,6 @@ class SaveCard extends \Magento\Framework\App\Action\Action
             if (isset($result->response->_links['redirect']['href'])) {
                 return $this->jsonFactory->create()->setData([
                     'success' => true,
-                    'message' => '',
                     'url' => $resutl->response->_links['redirect']['href']
                 ]);
             }
@@ -95,24 +93,23 @@ class SaveCard extends \Magento\Framework\App\Action\Action
                 // Try to save the card
                 $success = $result->saveCard();
 
-                // Prepare the response message
-                $message = ($success)
-                ? $this->messageManager->addSuccessMessage(
-                    __('The payment card has been stored successfully.')
-                )
-                : $this->messageManager->addErrorMessage(
-                    __('The card could not be saved.')
-                );
-
-                // Add the message display
-                $this->messageManager->addSuccessMessage($message);
+                // Prepare the response UI message
+                if ($success) {
+                    $this->messageManager->addSuccessMessage(
+                        __('The payment card has been stored successfully.')
+                    );
+                } 
+                else {
+                    $this->messageManager->addErrorMessage(
+                        __('The card could not be saved.')
+                    );
+                }
             }
         }
 
         // Build the AJAX response
         return $this->jsonFactory->create()->setData([
             'success' => $success,
-            'message' => $message,
             'url' => $url
         ]);
     }
