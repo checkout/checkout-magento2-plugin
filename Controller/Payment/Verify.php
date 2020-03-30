@@ -126,7 +126,7 @@ class Verify extends \Magento\Framework\App\Action\Action
             $this->methodId = $response->metadata['methodId'];
 
             // Check for zero dollar auth
-            if ($response->amount !== 0) {
+            if ($response->data->amount !== 0) {
                 // Find the order from increment id
                 $order = $this->orderHandler->getOrder([
                     'increment_id' => $response->reference

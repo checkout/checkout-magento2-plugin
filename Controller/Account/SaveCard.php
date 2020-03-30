@@ -45,11 +45,6 @@ class SaveCard extends \Magento\Framework\App\Action\Action
     public $vaultHandler;
 
     /**
-     * @var \Magento\Framework\Controller\Result\Redirect
-     */
-    public $redirectFactory;
-
-    /**
      * SaveCard constructor.
      */
     public function __construct(
@@ -57,8 +52,7 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\UrlInterface $urlInterface,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \Magento\Framework\Controller\ResultFactory $redirectFactory
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
 
     )
     {
@@ -68,7 +62,6 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         $this->jsonFactory = $jsonFactory;
         $this->urlInterface = $urlInterface;
         $this->vaultHandler = $vaultHandler;
-        $this->redirectFactory = $redirectFactory;
     }
 
     /**
@@ -98,6 +91,8 @@ class SaveCard extends \Magento\Framework\App\Action\Action
             } else {
                 // Try to save the card
                 $success = $result->saveCard();
+            }
+        }
 
                 // Prepare the response UI message
                 if ($success) {
@@ -109,7 +104,7 @@ class SaveCard extends \Magento\Framework\App\Action\Action
                         __('The card could not be saved.')
                     );
                 }
-            }
+
 
 
             // Build the AJAX response
@@ -118,5 +113,4 @@ class SaveCard extends \Magento\Framework\App\Action\Action
                 'url' => $url
             ]);
         }
-    }
 }
