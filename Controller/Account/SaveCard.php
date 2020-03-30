@@ -72,26 +72,46 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         // Prepare the parameters
         $success = false;
         $url = $this->urlInterface->getUrl('vault/cards/listaction');
-        $message = __('The card could not be saved.');
+        $message = '';
         $ckoCardToken = $this->getRequest()->getParam('cardToken');
 
         // Process the request
         if ($this->getRequest()->isAjax() && !empty($ckoCardToken)) {
             // Save the card
-            $success = $this->vaultHandler->setCardToken($ckoCardToken)
+            $result = $this->vaultHandler->setCardToken($ckoCardToken)
             ->setCustomerId()
             ->setCustomerEmail()
             ->authorizeTransaction();
 
-            if (isset($success->response->_links['redirect']['href'])) {
-                $redirect = $this->redirectFactory->create(ResultFactory::TYPE_REDIRECT);
-                $threeDsUrl = $success->response->_links['redirect']['href'];
-                $redirect->setUrl($threeDsUrl);
-                return $redirect;
-            }
-            $success->saveCard();
+            // Test the 3DS redirection case
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/r.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info(print_r($result->response, 1));
 
-            $this->messageManager->addSuccessMessage(__('The payment card has been stored successfully.'));
+            if (isset($result->response->_links['redirect']['href'])) {
+                return $this->jsonFactory->create()->setData([
+                    'success' => true,
+                    'message' => '',
+                    'url' => $resutl->response->_links['redirect']['href']
+                ]);
+            }
+            else {
+                // Try to save the card
+                $success = $result->saveCard();
+
+                // Prepare the response message
+                $message = ($success)
+                ? $this->messageManager->addSuccessMessage(
+                    __('The payment card has been stored successfully.')
+                )
+                : $this->messageManager->addErrorMessage(
+                    __('The card could not be saved.')
+                );
+
+                // Add the message display
+                $this->messageManager->addSuccessMessage($message);
+            }
         }
 
         // Build the AJAX response
