@@ -109,11 +109,6 @@ class Verify extends \Magento\Framework\App\Action\Action
             // Set the method ID
             $this->methodId = $response->metadata['methodId'];
 
-            echo "<pre>";
-            var_dump($response);
-            echo "</pre>";
-            exit();
-
             // Check for zero dollar auth
             if ($response->amount !== 0) {
                 // Find the order from increment id
