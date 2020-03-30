@@ -60,7 +60,8 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \Magento\Framework\Controller\ResultFactory $redirectFactory
 
-    ) {
+    )
+    {
         parent::__construct($context);
 
         $this->messageManager = $messageManager;
@@ -84,18 +85,17 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         if ($this->getRequest()->isAjax() && !empty($ckoCardToken)) {
             // Save the card
             $result = $this->vaultHandler->setCardToken($ckoCardToken)
-            ->setCustomerId()
-            ->setCustomerEmail()
-            ->authorizeTransaction();
+                ->setCustomerId()
+                ->setCustomerEmail()
+                ->authorizeTransaction();
 
             // Test the 3DS redirection case
             if (isset($result->response->_links['redirect']['href'])) {
                 return $this->jsonFactory->create()->setData([
                     'success' => true,
-                    'url' => $resutl->response->_links['redirect']['href']
+                    'url' => $result->response->_links['redirect']['href']
                 ]);
-            }
-            else {
+            } else {
                 // Try to save the card
                 $success = $result->saveCard();
 
@@ -104,19 +104,19 @@ class SaveCard extends \Magento\Framework\App\Action\Action
                     $this->messageManager->addSuccessMessage(
                         __('The payment card has been stored successfully.')
                     );
-                } 
-                else {
+                } else {
                     $this->messageManager->addErrorMessage(
                         __('The card could not be saved.')
                     );
                 }
             }
-        }
 
-        // Build the AJAX response
-        return $this->jsonFactory->create()->setData([
-            'success' => $success,
-            'url' => $url
-        ]);
+
+            // Build the AJAX response
+            return $this->jsonFactory->create()->setData([
+                'success' => $success,
+                'url' => $url
+            ]);
+        }
     }
 }

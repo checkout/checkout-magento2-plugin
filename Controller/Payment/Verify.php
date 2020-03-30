@@ -17,6 +17,8 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
+use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
+
 /**
  * Class Verify
  */
@@ -58,6 +60,11 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $vaultHandler;
 
     /**
+     * @var ShopperHandlerService
+     */
+    public $shopperHandler;
+
+    /**
      * @var Utilities
      */
     public $utilities;
@@ -79,6 +86,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
     )
@@ -92,6 +100,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         $this->orderHandler = $orderHandler;
         $this->quoteHandler = $quoteHandler;
         $this->vaultHandler = $vaultHandler;
+        $this->shopperHandler = $shopperHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
     }
@@ -173,12 +182,12 @@ class Verify extends \Magento\Framework\App\Action\Action
     public function saveCard($response) {
         // Get the customer
         $customer = $this->shopperHandler->getCustomerData(
-            ['id' => $this->payload->data->metadata->customerId]
+            ['id' => $response->metadata['customerId']]
         );
 
         // Save the card
         $success = $this->vaultHandler
-            ->setCardToken($this->payload->data->source->id)
+            ->setCardToken($response->data->source->id)
             ->setCustomerId($customer->getId())
             ->setCustomerEmail($customer->getEmail())
             ->setResponse($response)
