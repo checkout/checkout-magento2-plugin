@@ -121,7 +121,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         // Process the request
         if ($this->config->isValidAuth('psk')) {
             // Filter out verification requests
-            if ($this->payload->type !== "card_verified") {
+
                 // Process the request
                 if (isset($this->payload->data->id)) {
                     // Get the store code
@@ -133,48 +133,73 @@ class Callback extends \Magento\Framework\App\Action\Action
                     // Get the payment details
                     $response = $api->getPaymentDetails($this->payload->data->id);
 
-                    // Find the order from increment id
-                    $order = $this->orderHandler->getOrder([
-                        'increment_id' => $response->reference
-                    ]);
+                    if ($this->payload->type !== "card_verified") {
+                        // Find the order from increment id
+                        $order = $this->orderHandler->getOrder([
+                            'increment_id' => $response->reference
+                        ]);
 
-                    // Process the order
-                    if ($this->orderHandler->isOrder($order)) {
-                        if ($api->isValidResponse($response)) {
-                            // Handle the save card request
-                            if ($this->cardNeedsSaving()) {
-                                $this->saveCard($response);
+                        // Process the order
+                        if ($this->orderHandler->isOrder($order)) {
+                            if ($api->isValidResponse($response)) {
+                                // Handle the save card request
+                                if ($this->cardNeedsSaving()) {
+                                    $this->saveCard($response);
+                                }
+
+                                // Save the webhook
+                                $this->webhookHandler->processSingleWebhook(
+                                    $order,
+                                    $this->payload
+                                );
+
+                                // Set a valid response
+                                $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
+
+                                // Return the 200 success response
+                                return $resultFactory->setData([
+                                    'result' => __('Webhook and order successfully processed.')
+                                ]);
+                            } else {
+                                // Log the payment error
+                                $this->paymentErrorHandler->logError(
+                                    $this->payload,
+                                    $order
+                                );
+
+                                $this->orderHandler->handleFailedPayment($order, $storeCode, $this->payload->type);
                             }
-
-                            // Save the webhook
-                            $this->webhookHandler->processSingleWebhook(
-                                $order,
-                                $this->payload
-                            );
-
-                            // Set a valid response
-                            $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
-
-                            // Return the 200 success response
-                            return $resultFactory->setData([
-                                'result' => __('Webhook and order successfully processed.')
-                            ]);
                         } else {
-                            // Log the payment error
-                            $this->paymentErrorHandler->logError(
-                                $this->payload,
-                                $order
-                            );
-          
-                            $this->orderHandler->handleFailedPayment($order, $storeCode, $this->payload->type);
+                            $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
+                            return $resultFactory->setData([
+                                'error_message' => __(
+                                    'The order creation failed. Please check the error logs.'
+                                )
+                            ]);
                         }
                     } else {
-                        $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
-                        return $resultFactory->setData([
-                            'error_message' => __(
-                                'The order creation failed. Please check the error logs.'
-                            )
-                        ]);
+                        // Save the card
+                     $success = $this->vaultHandler
+                           ->setCardToken($this->payload->data->source->id)
+                           ->setCustomerId()
+                           ->setCustomerEmail()
+                           ->setResponse($response)
+                           ->saveCard();
+
+                        // Prepare the response UI message
+                        if ($success) {
+                            $this->messageManager->addSuccessMessage(
+                                __('The payment card has been stored successfully.')
+                            );
+                        }
+                        else {
+                            $this->messageManager->addErrorMessage(
+                                __('The card could not be saved.')
+                            );
+                        }
+
+                        // Redirect to the saved card page
+                        return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
                     }
                 } else {
                     $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
@@ -182,7 +207,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                         ['error_message' => __('The webhook payment response is invalid.')]
                     );
                 }
-            }
+
         } else {
             $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
             return $resultFactory->setData([

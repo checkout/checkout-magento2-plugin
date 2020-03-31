@@ -125,8 +125,6 @@ class Verify extends \Magento\Framework\App\Action\Action
             // Set the method ID
             $this->methodId = $response->metadata['methodId'];
 
-            // Check for zero dollar auth
-            if ($response->data->amount !== 0) {
                 // Find the order from increment id
                 $order = $this->orderHandler->getOrder([
                     'increment_id' => $response->reference
@@ -161,13 +159,6 @@ class Verify extends \Magento\Framework\App\Action\Action
                         __('Invalid request. No order found.')
                     );
                 }
-            } else {
-                // Save the card
-                $this->saveCard($response);
-
-                // Redirect to the
-                return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
-            }
         } else {
             // Add and error message
             $this->messageManager->addErrorMessage(
@@ -177,32 +168,5 @@ class Verify extends \Magento\Framework\App\Action\Action
 
         // Return to the cart
         return $this->_redirect('checkout/cart', ['_secure' => true]);
-    }
-
-    public function saveCard($response) {
-        // Get the customer
-        $customer = $this->shopperHandler->getCustomerData(
-            ['id' => $response->metadata['customerId']]
-        );
-
-        // Save the card
-        $success = $this->vaultHandler
-            ->setCardToken($response->data->source->id)
-            ->setCustomerId($customer->getId())
-            ->setCustomerEmail($customer->getEmail())
-            ->setResponse($response)
-            ->saveCard();
-
-        // Prepare the response UI message
-        if ($success) {
-            $this->messageManager->addSuccessMessage(
-                __('The payment card has been stored successfully.')
-            );
-        } 
-        else {
-            $this->messageManager->addErrorMessage(
-                __('The card could not be saved.')
-            );
-        }
     }
 }
