@@ -17,8 +17,6 @@
 
 namespace CheckoutCom\Magento2\Controller\Account;
 
-use Magento\Framework\Controller\ResultFactory;
-
 /**
  * Class SaveCard
  */
@@ -53,9 +51,7 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\UrlInterface $urlInterface,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
-
-    )
-    {
+    ) {
         parent::__construct($context);
 
         $this->messageManager = $messageManager;
@@ -72,7 +68,8 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         // Prepare the parameters
         $success = false;
         $url = $this->urlInterface->getUrl('vault/cards/listaction');
-        $ckoCardToken = $this->getRequest()->getParam('cardToken');
+        $requestContent =  $this->getRequest()->getContent();
+        $ckoCardToken = explode("=", $requestContent)[1];
 
         // Process the request
         if ($this->getRequest()->isAjax() && !empty($ckoCardToken)) {
@@ -94,23 +91,21 @@ class SaveCard extends \Magento\Framework\App\Action\Action
             }
         }
 
-                // Prepare the response UI message
-                if ($success) {
-                    $this->messageManager->addSuccessMessage(
+        // Prepare the response UI message
+        if ($success) {
+            $this->messageManager->addSuccessMessage(
                         __('The payment card has been stored successfully.')
                     );
-                } else {
-                    $this->messageManager->addErrorMessage(
+        } else {
+            $this->messageManager->addErrorMessage(
                         __('The card could not be saved.')
                     );
-                }
+        }
 
-
-
-            // Build the AJAX response
-            return $this->jsonFactory->create()->setData([
+        // Build the AJAX response
+        return $this->jsonFactory->create()->setData([
                 'success' => $success,
                 'url' => $url
             ]);
-        }
+    }
 }
