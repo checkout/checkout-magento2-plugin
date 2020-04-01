@@ -35,6 +35,11 @@ use \Checkout\Models\Payments\Voids;
 class PlaceOrder extends \Magento\Framework\App\Action\Action
 {
     /**
+     * @var ManagerInterface
+     */
+    public $messageManager;
+
+    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
@@ -94,6 +99,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Catalog\Model\Product $productModel,
@@ -108,6 +114,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
+        $this->messageManager = $messageManager;
         $this->storeManager = $storeManager;
         $this->jsonFactory = $jsonFactory;
         $this->productModel = $productModel;
