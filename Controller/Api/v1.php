@@ -202,6 +202,10 @@ class V1 extends \Magento\Framework\App\Action\Action
      */
     public function loadQuote()
     {
+        if (!isset($this->data->quote_id)) {
+            $this->data->quote_id = $this->data['quote_id'];
+        }
+
         // Load the quote
         $quote = $this->quoteHandler->getQuote([
             'entity_id' => $this->data->quote_id
@@ -232,7 +236,7 @@ class V1 extends \Magento\Framework\App\Action\Action
     public function dataIsValid()
     {
         // Check the quote ID
-        if (!isset($this->data->quote_id) || (int) $this->data->quote_id == 0) {
+        if ((!isset($this->data->quote_id) && !isset($this->data['quote_id']))|| (int) $this->data->quote_id == 0) {
             throw new LocalizedException(
                 __('The quote ID is missing or invalid.')
             );
