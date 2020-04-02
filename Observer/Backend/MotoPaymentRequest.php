@@ -22,6 +22,7 @@ use \Checkout\Models\Payments\TokenSource;
 use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\BillingDescriptor;
+use \Checkout\Library\Exceptions\CheckoutHttpException;
 
 /**
  * Class MotoPaymentRequest.
@@ -173,26 +174,28 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
             }
 
             // Send the charge request
-            $response = $api->checkoutApi
-                ->payments()
-                ->request($request);
+            try {
+                $response = $api->checkoutApi
+                    ->payments()->request($request);
+            }
+            catch (CheckoutHttpException $e) {
+                $this->logger->write($e->getBody());
+            }
+            finally {
+                // Logging
+                $this->logger->display($response);
 
-            // Logging
-            $this->logger->display($response);
-
-            // Add the response to the order
-            if ($api->isValidResponse($response)) {
-                $this->utilities->setPaymentData($this->order, $response);
-                $this->messageManager->addSuccessMessage(
-                    __('The payment request was successfully processed.')
-                );
-            } else {
-                $this->messageManager->addErrorMessage(
-                    __('The transaction could not be processed. Please check the payment details.')
-                );
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('The gateway declined the MOTO payment request.')
-                );
+                // Add the response to the order
+                if ($api->isValidResponse($response)) {
+                    $this->utilities->setPaymentData($this->order, $response);
+                    $this->messageManager->addSuccessMessage(
+                        __('The payment request was successfully processed.')
+                    );
+                } else {
+                    $this->messageManager->addErrorMessage(
+                        __('The transaction could not be processed. Please check the payment details.')
+                    );
+                }
             }
         }
 
