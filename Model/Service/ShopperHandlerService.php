@@ -30,6 +30,16 @@ class ShopperHandlerService
     const DEFAULT_LOCALE = 'en_US';
 
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
+     * @var ConfigLanguageFallback
+     */
+    public $languageCallbackConfig;  
+    
+    /**
      * @var Session
      */
     public $customerSession;
@@ -48,13 +58,17 @@ class ShopperHandlerService
      * ShopperHandlerService constructor
      */
     public function __construct(
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigLanguageFallback $languageCallbackConfig,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
         \Magento\Framework\Locale\Resolver $localeResolver
     ) {
-        $this->localeResolver  = $localeResolver;
+        $this->config = $config;
+        $this->languageCallbackConfig = $languageCallbackConfig;
         $this->customerSession = $customerSession;
         $this->customerRepository  = $customerRepository;
+        $this->localeResolver  = $localeResolver;
     }
 
     public function getCustomerData($filters = [])
@@ -85,5 +99,28 @@ class ShopperHandlerService
         }
 
         return $locale;
+    }
+
+    /**
+     * Retrieves the customer language fallback for the card payments form.
+     */
+    public function getLanguageFallback($default = 'en_GB')
+    {
+        // Get and format customer locale
+        $customerLocale = strtoupper($this->getCustomerLocale());
+
+        // Return the customer locale is available
+        $availableLanguages = $this->languageCallbackConfig->toOptionArray();
+        foreach ($availableLanguages as $lg) {
+            if ($lg['value'] == $customerLocale) {
+                return $customerLocale;
+            }
+        }
+
+        // Language fallback
+        return $this->config->getValue(
+            'language_fallback',
+            'checkoutcom_card_payment'
+        );
     }
 }

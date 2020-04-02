@@ -38,7 +38,7 @@ define(
                 },
 
                 /**
-                 * @returns {exports}
+                 * @return {exports}
                  */
                 initialize: function () {
                     this._super();
@@ -53,14 +53,14 @@ define(
                  */
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 getCode: function () {
                     return METHOD_ID;
                 },
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 getValue: function (field) {
                     return Utilities.getValue(METHOD_ID, field);
@@ -70,14 +70,14 @@ define(
                  * Google Pay
                  */
                 /**
-                 * @returns {array}
+                 * @return {array}
                  */
                 getAllowedNetworks: function () {
                     return this.getValue('allowed_card_networks').split(',');
                 },
 
                 /**
-                 * @returns {bool}
+                 * @return {bool}
                  */
                 launchGooglePay: function () {
                     // Prepare the parameters
@@ -133,7 +133,7 @@ define(
                                 /**
                                  * Initialize a Google Pay API client
                                  *
-                                 * @returns {google.payments.api.PaymentsClient} Google Pay API client
+                                 * @return {google.payments.api.PaymentsClient} Google Pay API client
                                  */
                                 function getGooglePaymentsClient()
                                 {
@@ -169,7 +169,7 @@ define(
                                  * Configure support for the Google Pay API
                                  *
                                  * @see     {@link https://developers.google.com/pay/api/web/reference/object#PaymentDataRequest|PaymentDataRequest}
-                                 * @returns {object} PaymentDataRequest fields
+                                 * @return {object} PaymentDataRequest fields
                                  */
                                 function getGooglePaymentDataConfiguration()
                                 {
@@ -187,7 +187,7 @@ define(
                                  * Provide Google Pay API with a payment amount, currency, and amount status
                                  *
                                  * @see     {@link https://developers.google.com/pay/api/web/reference/object#TransactionInfo|TransactionInfo}
-                                 * @returns {object} transaction info, suitable for use as transactionInfo property of PaymentDataRequest
+                                 * @return {object} transaction info, suitable for use as transactionInfo property of PaymentDataRequest
                                  */
                                 function getGoogleTransactionInfo()
                                 {
@@ -262,7 +262,7 @@ define(
                  */
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 beforePlaceOrder: function () {
                     // Start the loader

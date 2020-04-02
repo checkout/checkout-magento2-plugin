@@ -37,7 +37,7 @@ define(
                 },
 
                 /**
-                 * @returns {exports}
+                 * @return {exports}
                  */
                 initialize: function () {
                     this._super();
@@ -52,14 +52,14 @@ define(
                  */
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 getCode: function () {
                     return METHOD_ID;
                 },
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 getValue: function (field) {
                     return Utilities.getValue(METHOD_ID, field);
@@ -70,21 +70,21 @@ define(
                  */
 
                 /**
-                 * @returns {array}
+                 * @return {array}
                  */
                 getLineItems: function () {
                     return [];
                 },
 
                 /**
-                 * @returns {array}
+                 * @return {array}
                  */
                 getSupportedNetworks: function () {
                     return this.getValue('supported_networks').split(',');
                 },
 
                 /**
-                 * @returns {array}
+                 * @return {array}
                  */
                 getMerchantCapabilities: function () {
                     var output = ['supports3DS'];
@@ -94,7 +94,7 @@ define(
                 },
 
                 /**
-                 * @returns {object}
+                 * @return {object}
                  */
                 performValidation: function (valURL) {
                     var controllerUrl = Utilities.getUrl('applepay/validation');
@@ -116,7 +116,7 @@ define(
                 },
 
                 /**
-                 * @returns {object}
+                 * @return {object}
                  */
                 sendPaymentRequest: function (paymentData) {
                     return new Promise(
@@ -142,7 +142,7 @@ define(
                 },
 
                 /**
-                 * @returns {bool}
+                 * @return {bool}
                  */
                 launchApplePay: function () {
                     // Prepare the parameters

@@ -414,7 +414,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $data['bic'],
             $data['description']
         );
-        $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl'));
+        $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl_NL'));
         $source->language = $locale[0];
         return $source;
     }
@@ -579,7 +579,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function knet($data)
     {
-        $locale = explode('_', $this->shopperHandler->getCustomerLocale('en'));
+        $locale = explode('_', $this->shopperHandler->getCustomerLocale('en_GB'));
         return new KnetSource($locale[0]);
     }
 
