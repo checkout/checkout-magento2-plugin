@@ -47,6 +47,7 @@
                 <descriptor_city></descriptor_city>
                 <currencies_x1>BIF,DJF,GNF,ISK,KMF,XAF,CLF,XPF,JPY,PYG,RWF,KRW,VUV,VND,XOF</currencies_x1>
                 <currencies_x1000>BHD,LYD,JOD,KWD,OMR,TND</currencies_x1000>
+                <default_method>checkoutcom_card_payment</default_method>
             </checkoutcom_configuration>
         </settings>
         <payment>
