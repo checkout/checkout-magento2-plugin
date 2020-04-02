@@ -121,9 +121,9 @@ define(
                     // Option click event
                     $('.payment-method input[type="radio"]').on('click', function () {
                         if ($(this).attr('id') == METHOD_ID) {
-                            self.getPaymentForm();
+                            self.getCkoPaymentForm();
                         } else {
-                            self.removePaymentForm();
+                            self.removeCkoPaymentForm();
                         }
                     });
                 },
@@ -133,7 +133,7 @@ define(
                  */
                 handleFormState: function () {
                     if (Utilities.methodIsSelected(METHOD_ID)) {
-                        this.getPaymentForm();
+                        this.getCkoPaymentForm();
                     }
                 },
 
@@ -183,7 +183,7 @@ define(
                  *
                  * @return {void}
                  */
-                getPaymentForm: function () {
+                getCkoPaymentForm: function () {
                     // Prepare the needed variables
                     var self = this;
                     var formStyles = self.getFormStyles();
@@ -233,7 +233,7 @@ define(
                  *
                  * @return {void}
                  */
-                removePaymentForm: function () {
+                removeCkoPaymentForm: function () {
                     // Remove the events
                     Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
                     Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENIZED);
