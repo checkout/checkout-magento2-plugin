@@ -202,7 +202,7 @@ define(
                         {
                             publicKey: self.getValue('public_key'),
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
-                            localization: self.getValue('language_fallback'),
+                            localization: Utilities.getLangageFallback(),
                             style: (formStyles) ? formStyles : {}
                         }
                     );
