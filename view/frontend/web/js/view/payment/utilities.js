@@ -171,6 +171,15 @@ define(
             },
 
             /**
+             * Gets the card form language fallback.
+             *
+             * @return {bool}
+             */
+            getLangageFallback: function () {
+                return Config[KEY_DATA].user.language_fallback;
+            },
+
+            /**
              * Get the supported cards.
              *
              * @return {array}
@@ -216,7 +225,7 @@ define(
             },
 
             /**
-             * @returns {string}
+             * @return {string}
              */
             getEmail: function () {
                 var emailCookieName = this.getValue(null, 'email_cookie_name');
@@ -227,7 +236,7 @@ define(
             },
 
             /**
-             * @returns {void}
+             * @return {void}
              */
             setEmail: function () {
                 var userEmail = this.getEmail();
@@ -244,7 +253,7 @@ define(
             },
 
             /**
-             * @returns {object}
+             * @return {object}
              */
             getPhone: function () {
                 var billingAddress = Quote.billingAddress();
@@ -319,7 +328,7 @@ define(
             /**
              * Place a new order.
              *
-             * @returns {void}
+             * @return {void}
              */
             placeOrder: function (payload, methodId) {
                 var self = this;
