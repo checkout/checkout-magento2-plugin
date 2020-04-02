@@ -167,7 +167,7 @@ define(
              * @return {bool}
              */
             userHasCards: function () {
-                return Config[KEY_DATA].user.hasCards;
+                return Config[KEY_DATA].user.has_cards;
             },
 
             /**
