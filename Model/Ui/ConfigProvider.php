@@ -29,7 +29,7 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
     public $config;
 
     /**
-     * @var ShopperHandler
+     * @var ShopperHandlerService
      */
     public $shopperHandler;
 
@@ -53,7 +53,7 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
      */
     public function __construct(
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ShopperHandler $shopperHandler,
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler
