@@ -122,11 +122,12 @@ class Verify extends \Magento\Framework\App\Action\Action
             // Get the payment details
             $response = $api->getPaymentDetails($sessionId);
 
-            // Set the method ID
-            $this->methodId = $response->metadata['methodId'];
-
             // Check for zero dollar auth
-            if ($response->data->amount !== 0) {
+            if ($response->status !== "Card Verified" && $response->amount > 100) {
+
+                // Set the method ID
+                $this->methodId = $response->metadata['methodId'];
+
                 // Find the order from increment id
                 $order = $this->orderHandler->getOrder([
                     'increment_id' => $response->reference
@@ -180,16 +181,12 @@ class Verify extends \Magento\Framework\App\Action\Action
     }
 
     public function saveCard($response) {
-        // Get the customer
-        $customer = $this->shopperHandler->getCustomerData(
-            ['id' => $response->metadata['customerId']]
-        );
 
         // Save the card
         $success = $this->vaultHandler
-            ->setCardToken($response->data->source->id)
-            ->setCustomerId($customer->getId())
-            ->setCustomerEmail($customer->getEmail())
+            ->setCardToken($response->source['id'])
+            ->setCustomerId()
+            ->setCustomerEmail()
             ->setResponse($response)
             ->saveCard();
 

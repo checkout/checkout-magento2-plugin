@@ -253,6 +253,8 @@ class  VaultHandlerService
         $request->threeDs = new ThreeDs($this->config->needs3ds('checkoutcom_vault'));
         $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', 'checkoutcom_vault');
         // $request->description = __('Save card authorization request from %1', $this->config->getStoreName());
+        $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+        $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
 
         // Send the charge request and get the response
         $this->response = $api->checkoutApi
