@@ -34,6 +34,7 @@ use \Checkout\Models\Payments\KlarnaSource;
 use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
 use \Checkout\Models\Payments\PoliSource;
+use \Checkout\Library\Exceptions\CheckoutHttpException;
 
 /**
  * Class AlternativePaymentMethod
@@ -112,6 +113,11 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     public $quoteHandler;
 
     /**
+     * @var Logger
+     */
+    public $ckoLogger;
+
+    /**
      * @var Utilities
      */
     public $utilities;
@@ -159,6 +165,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \CheckoutCom\Magento2\Model\Service\shopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\HTTP\Client\Curl $curl,
@@ -196,6 +203,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->shopperHandler     = $shopperHandler;
         $this->apiHandler         = $apiHandler;
         $this->quoteHandler       = $quoteHandler;
+        $this->ckoLogger          = $ckoLogger;
         $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;
         $this->curl               = $curl;
@@ -227,10 +235,16 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             );
 
             // Send the charge request
-            $response = $api->checkoutApi
-                ->payments()->request($payment);
-
-            return $response;
+            try {
+                $response = $api->checkoutApi
+                    ->payments()->request($payment);
+            }
+            catch (CheckoutHttpException $e) {
+                $this->ckoLogger->write($e->getBody());
+            }
+            finally {
+                return $response;
+            }
         }
 
         return $response;

@@ -104,6 +104,11 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $quoteHandler;
 
     /**
+     * @var Logger
+     */
+    public $ckoLogger;
+    
+    /**
      * @var ManagerInterface
      */
     public $messageManager;
@@ -142,6 +147,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -178,6 +184,7 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;
         $this->quoteHandler       = $quoteHandler;
+        $this->ckoLogger          = $ckoLogger;
         $this->messageManager     = $messageManager;
     }
 
@@ -255,11 +262,16 @@ class GooglePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         );
         
         // Send the charge request
-        $response = $api->checkoutApi
-            ->payments()
-            ->request($request);
-
-        return $response;
+        try {
+            $response = $api->checkoutApi
+                ->payments()->request($request);
+        }
+        catch (CheckoutHttpException $e) {
+            $this->ckoLogger->write($e->getBody());
+        }
+        finally {
+            return $response;
+        }
     }
 
     /**
