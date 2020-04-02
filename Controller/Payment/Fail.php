@@ -84,17 +84,29 @@ class Fail extends \Magento\Framework\App\Action\Action
             // Get the payment details
             $response = $api->getPaymentDetails($sessionId);
 
-            // Restore the quote
-            $this->quoteHandler->restoreQuote($response->reference);
-
             // Logging
             $this->logger->display($response);
         }
 
-        // Display the message
-        $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
+        // Don't restore quote if saved card request
+        if ($response->amount !== 0 && $response->amount !== 100) {
+            // Restore the quote
+            $this->quoteHandler->restoreQuote($response->reference);
 
-        // Return to the cart
-        return $this->_redirect('checkout/cart', ['_secure' => true]);
+            // Display the message
+            $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
+
+            // Return to the cart
+            return $this->_redirect('checkout/cart', ['_secure' => true]);
+
+        } else {
+
+            $this->messageManager->addErrorMessage(
+                __('The card could not be saved.')
+            );
+
+            // Return to the cart
+            return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
+        }
     }
 }
