@@ -17,9 +17,9 @@
 
 namespace CheckoutCom\Magento2\Controller\Apm;
 
-use Checkout\CheckoutApi;
-use Checkout\Models\Product;
-use Checkout\Models\Sources\Klarna;
+use \Checkout\Models\Product;
+use \Checkout\Models\Sources\Klarna;
+use \Checkout\Library\Exceptions\CheckoutHttpException;
 
 /**
  * Class DisplayKlarna
@@ -176,21 +176,25 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
             $products
         );
 
-        $source = $api->checkoutApi->sources()->add($klarna);
-
-        if ($source->isSuccessful()) {
-            // Prepare the response
-            $response['source'] = $source->getValues();
-            $response['billing'] = $this->billingAddress->toArray();
-            $response['quote'] = $this->quote->toArray();
-
-            // Handle missing email for guest checkout
-            if ($response['billing']['email'] === null || empty($response['billing']['email'])) {
-                $response['billing']['email'] = $this->quoteHandler->findEmail($this->quote);
+        try {
+            $source = $api->checkoutApi->sources()->add($klarna);
+            if ($source->isSuccessful()) {
+                // Prepare the response
+                $response['source'] = $source->getValues();
+                $response['billing'] = $this->billingAddress->toArray();
+                $response['quote'] = $this->quote->toArray();
+    
+                // Handle missing email for guest checkout
+                if ($response['billing']['email'] === null || empty($response['billing']['email'])) {
+                    $response['billing']['email'] = $this->quoteHandler->findEmail($this->quote);
+                }
             }
-        }
 
-        return $response;
+            return $response;
+        }
+        catch (CheckoutHttpException $e) {
+            $this->logger->write($e->getBody());
+        }
     }
 
     /**

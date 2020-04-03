@@ -17,11 +17,10 @@
 
 namespace CheckoutCom\Magento2\Controller\Apm;
 
-use Checkout\CheckoutApi;
-use Checkout\Library\HttpHandler;
-use Checkout\Models\Sources\Sepa;
-use Checkout\Models\Sources\SepaData;
-use Checkout\Models\Sources\SepaAddress;
+use \Checkout\Models\Sources\Sepa;
+use \Checkout\Models\Sources\SepaData;
+use \Checkout\Models\Sources\SepaAddress;
+use \Checkout\Library\Exceptions\CheckoutHttpException;
 
 /**
  * Class DisplaySepa
@@ -70,6 +69,11 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
     public $storeManager;
 
     /**
+     * @var Logger
+     */
+    public $logger;
+
+    /**
      * @var Quote
      */
     public $quote;
@@ -96,6 +100,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Store\Model\Information $storeInformation,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \CheckoutCom\Magento2\Helper\Logger $logger,
         \Magento\Store\Model\Store $storeModel
     ) {
         parent::__construct($context);
@@ -107,6 +112,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
         $this->quoteHandler = $quoteHandler;
         $this->storeInformation = $storeInformation;
         $this->storeManager = $storeManager;
+        $this->logger = $logger;
         $this->storeModel = $storeModel;
     }
 
@@ -269,12 +275,18 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
             'single'
         );
 
-        // Build and addthe source
-        $source = new Sepa($address, $data);
-        $sepa = $api->checkoutApi
-            ->sources()
-            ->add($source);
-
-        return $sepa;
+        try {
+            // Build and add the source
+            $source = new Sepa($address, $data);
+            $sepa = $api->checkoutApi
+                ->sources()
+                ->add($source);
+        }
+        catch (CheckoutHttpException $e) {
+            $this->logger->write($e->getBody());
+        }
+        finally {
+            return $sepa;
+        }
     }
 }
