@@ -64,6 +64,13 @@ define(
                 },
 
                 /**
+                 * @return {void}
+                 */
+                checkDefaultEnabled: function () {
+                    return Utilities.checkDefaultEnabled(METHOD_ID);
+                },
+                
+                /**
                  * @return {string}
                  */
                 getPublicHash: function () {

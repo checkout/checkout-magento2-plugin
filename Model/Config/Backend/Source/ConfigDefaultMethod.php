@@ -45,8 +45,16 @@ class ConfigDefaultMethod implements \Magento\Framework\Option\ArrayInterface
      */
     public function toOptionArray()
     {
-        $options = [];
+        // Prepare the default array
+        $options = [
+            'value' => '',
+            'label' => __('None')     
+        ];
+
+        // Get the available payment methods
         $methods = $this->config->getMethodsConfig();
+
+        // Build an array of optionss
         foreach ($methods as $id => $data) {
             $options[] = [
                 'value' => $id,

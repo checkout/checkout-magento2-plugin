@@ -66,6 +66,13 @@ define(
                 },
 
                 /**
+                 * @return {void}
+                 */
+                checkDefaultEnabled: function () {
+                    return Utilities.checkDefaultEnabled(METHOD_ID);
+                },
+                
+                /**
                  * Apple Pay
                  */
 

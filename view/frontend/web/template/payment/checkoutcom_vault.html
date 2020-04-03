@@ -42,6 +42,9 @@
             <!--/ko-->
         </div>
 
+        <!-- Handle the default option selected -->
+        <div data-bind="afterRender: checkDefaultEnabled()">
+            
         <!-- Agreements form -->
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->

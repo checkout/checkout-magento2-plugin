@@ -61,6 +61,13 @@ define(
                 /**
                  * @return {void}
                  */
+                checkDefaultEnabled: function () {
+                    return Utilities.checkDefaultEnabled(METHOD_ID);
+                },
+                
+                /**
+                 * @return {void}
+                 */
                 initWidget: function () {
                     // Start the loader
                     FullScreenLoader.startLoader();
