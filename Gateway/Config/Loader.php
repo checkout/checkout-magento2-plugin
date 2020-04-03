@@ -167,7 +167,8 @@ class Loader
             $output[] = [
                 'value' => $row['id'],
                 'label' => $row['title'],
-                'currencies' => $row['currencies']
+                'currencies' => $row['currencies'],
+                'countries' => $row['countries']
             ];
         }
 

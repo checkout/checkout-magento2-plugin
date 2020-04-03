@@ -84,8 +84,9 @@ class Display extends \Magento\Framework\App\Action\Action
             $apms = $this->config->getApms();
 
             // Load block data for each APM
+            $billingAddress = $this->quoteHandler->getBillingAddress()->getData();
             foreach ($apms as $apm) {
-                if ($this->isValidApm($apm, $apmEnabled)) {
+                if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
                     $html .= $this->loadBlock($apm['value'], $apm['label']);
                 }
             }
@@ -103,9 +104,13 @@ class Display extends \Magento\Framework\App\Action\Action
      * @param array $apmEnabled
      * @return boolean
      */
-    public function isValidApm($apm, $apmEnabled)
+    public function isValidApm($apm, $apmEnabled, $billingAddress)
     {
         return in_array($apm['value'], $apmEnabled)
+        && strpos(
+            $apm['countries'],
+            $billingAddress['country_id']
+        ) !== false
         && strpos(
             $apm['currencies'],
             $this->quoteHandler->getQuoteCurrency()
