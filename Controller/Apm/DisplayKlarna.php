@@ -178,11 +178,6 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
 
         try {
             $source = $api->checkoutApi->sources()->add($klarna);
-        }
-        catch (CheckoutHttpException $e) {
-            $this->logger->write($e->getBody());
-        }
-        finally {
             if ($source->isSuccessful()) {
                 // Prepare the response
                 $response['source'] = $source->getValues();
@@ -194,8 +189,11 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
                     $response['billing']['email'] = $this->quoteHandler->findEmail($this->quote);
                 }
             }
-    
+
             return $response;
+        }
+        catch (CheckoutHttpException $e) {
+            $this->logger->write($e->getBody());
         }
     }
 
