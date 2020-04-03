@@ -274,12 +274,11 @@ class ApplePayMethod extends \Magento\Payment\Model\Method\AbstractMethod
         try {
             $response = $api->checkoutApi
                 ->payments()->request($request);
+
+            return $response;
         }
         catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
-        }
-        finally {
-            return $response;
         }
     }
 

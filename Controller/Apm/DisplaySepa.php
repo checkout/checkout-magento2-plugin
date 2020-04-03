@@ -281,12 +281,11 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
             $sepa = $api->checkoutApi
                 ->sources()
                 ->add($source);
+
+            return $sepa;
         }
         catch (CheckoutHttpException $e) {
             $this->logger->write($e->getBody());
-        }
-        finally {
-            return $sepa;
         }
     }
 }

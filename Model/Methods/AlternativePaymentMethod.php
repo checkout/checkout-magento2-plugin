@@ -238,12 +238,11 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             try {
                 $response = $api->checkoutApi
                     ->payments()->request($payment);
+
+                return $response;
             }
             catch (CheckoutHttpException $e) {
                 $this->ckoLogger->write($e->getBody());
-            }
-            finally {
-                return $response;
             }
         }
 
