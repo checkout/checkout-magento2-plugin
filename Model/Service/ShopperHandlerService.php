@@ -23,13 +23,6 @@ namespace CheckoutCom\Magento2\Model\Service;
 class ShopperHandlerService
 {
     /**
-     * Default locale code.
-     *
-     * @var string
-     */
-    const DEFAULT_LOCALE = 'en_US';
-
-    /**
      * @var Config
      */
     public $config;

@@ -162,6 +162,20 @@ define(
             },
 
             /**
+             * Check if the payment method should be enabled by default.
+             *
+             * @return {void}
+             */
+            checkDefaultEnabled: function (methodId) {
+                var condition1 = this.getValue(null, 'default_method') == methodId;
+                var condition2 = $('.payment-methods .payment-method._active').length == 0;
+
+                if (condition1 && condition2) {
+                    $('input#' + methodId).trigger('click');
+                }
+            },
+
+            /**
              * Checks if user has saved cards.
              *
              * @return {bool}
