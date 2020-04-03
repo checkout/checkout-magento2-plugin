@@ -18,6 +18,7 @@
         <id>alipay</id>
         <title>Alipay</title>
         <currencies>USD</currencies>
+        <countries>CN,US</countries>
     </item>
     <item>
         <id>boleto</id>
