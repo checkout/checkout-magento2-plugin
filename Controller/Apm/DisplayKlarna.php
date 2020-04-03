@@ -152,31 +152,31 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      */
     public function getKlarna()
     {
-        // Prepare the output array
-        $response = ['source' => false];
-
-        // Get the store code
-        $storeCode = $this->storeManager->getStore()->getCode();
-
-        // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode);
-
-        $products = $this->getProducts($response);
-        $klarna = new Klarna(
-            strtolower($this->billingAddress->getCountry()),
-            $this->quote->getQuoteCurrencyCode(),
-            $this->locale,
-            $this->quoteHandler->amountToGateway(
-                $this->utilities->formatDecimals(
-                    $this->quote->getGrandTotal()
-                ),
-                $this->quote
-            ),
-            $response['tax_amount'],
-            $products
-        );
-
         try {
+            // Prepare the output array
+            $response = ['source' => false];
+
+            // Get the store code
+            $storeCode = $this->storeManager->getStore()->getCode();
+
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
+
+            $products = $this->getProducts($response);
+            $klarna = new Klarna(
+                strtolower($this->billingAddress->getCountry()),
+                $this->quote->getQuoteCurrencyCode(),
+                $this->locale,
+                $this->quoteHandler->amountToGateway(
+                    $this->utilities->formatDecimals(
+                        $this->quote->getGrandTotal()
+                    ),
+                    $this->quote
+                ),
+                $response['tax_amount'],
+                $products
+            );
+
             $source = $api->checkoutApi->sources()->add($klarna);
             if ($source->isSuccessful()) {
                 // Prepare the response

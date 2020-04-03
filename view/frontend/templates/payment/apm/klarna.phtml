@@ -128,7 +128,7 @@
                                 store_id: window.checkoutConfig.quoteData.store_id
                             },
                             success: function (data) {
-                            if (data.source) {
+                            if (data && data.hasOwnProperty('source')) {
                                 $("#klarna_container").html("");
                                 k.load(
                                     data,
