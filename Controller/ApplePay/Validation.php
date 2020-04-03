@@ -108,7 +108,7 @@ class Validation extends \Magento\Framework\App\Action\Action
      */
     public function getParams()
     {
-        return $this->jsonFactory->create()->setData([
+        return [
             'merchantId' => $this->config->getValue(
                 'merchant_id',
                 $this->methodId
@@ -127,6 +127,6 @@ class Validation extends \Magento\Framework\App\Action\Action
                 'merchant_id_certificate',
                 $this->methodId
             )
-        ]);
+        ];
     }
 }

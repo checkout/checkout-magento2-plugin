@@ -114,7 +114,7 @@ class V1 extends \Magento\Framework\App\Action\Action
             $errorMessage = '';
 
             // Get the request parameters
-            $this->data = $this->getRequest()->getParams();
+            $this->data = json_decode($this->getRequest()->getContent());
 
             // Validate the request
             if ($this->isValidRequest()) {
@@ -179,11 +179,11 @@ class V1 extends \Magento\Framework\App\Action\Action
     {
         // Prepare the payment request payload
         $payload = [
-            'cardToken' => $this->data['payment_token']
+            'cardToken' => $this->data->payment_token
         ];
 
-        if (isset($this->data['cardBin'])) {
-            $payload['cardBin'] = $this->data['cardBin'];
+        if (isset($this->data->card_bin)) {
+            $payload['cardBin'] = $this->data->card_bin;
         }
 
         // Send the charge request
@@ -204,7 +204,7 @@ class V1 extends \Magento\Framework\App\Action\Action
     {
         // Load the quote
         $quote = $this->quoteHandler->getQuote([
-            'entity_id' => $this->data['quote_id']
+            'entity_id' => $this->data->quote_id
         ]);
 
         // Handle a quote not found
@@ -232,14 +232,14 @@ class V1 extends \Magento\Framework\App\Action\Action
     public function dataIsValid()
     {
         // Check the quote ID
-        if (!isset($this->data['quote_id']) || (int) $this->data['quote_id'] == 0) {
+        if (!isset($this->data->quote_id) || (int) $this->data->quote_id == 0) {
             throw new LocalizedException(
                 __('The quote ID is missing or invalid.')
             );
         }
 
         // Check the payment token
-        if (!isset($this->data['payment_token']) || empty($this->data['payment_token'])) {
+        if (!isset($this->data->payment_token) || empty($this->data->payment_token)) {
             throw new LocalizedException(
                 __('The payment token is missing or invalid.')
             );

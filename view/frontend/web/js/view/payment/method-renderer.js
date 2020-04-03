@@ -26,12 +26,16 @@ define(
     ) {
         // Render the active payment methods
         for (var method in Config) {
-            rendererList.push(
-                {
-                    type: method,
-                    component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/' + method
-                }
-            );
+            if (method === 'checkoutcom_apple_pay' && !window.ApplePaySession) {
+                continue; // Skip render if Apple Pay is run in wrong browser
+            } else {
+                rendererList.push(
+                    {
+                        type: method,
+                        component: 'CheckoutCom_Magento2/js/view/payment/method-renderer/' + method
+                    }
+                );
+            }
         }
 
         return Component.extend({});
