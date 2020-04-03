@@ -68,7 +68,7 @@
                         url: '<?= $block->escapeUrl($block->getUrl('checkout_com/apm/displaysepa'))?>',
                         data: formData,
                         success: function (data) {
-                            if(data.html) {
+                            if(data && data.hasOwnProperty('html')) {
                                 sepaForm.html(data.html);
                                 sepaForm.trigger('reset');
                             } else {
