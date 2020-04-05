@@ -414,7 +414,11 @@ class TransactionHandlerService
         $order = $transaction->getOrder();
 
         // Get the event type
-        $type = $webhook === 'payment_capture_pending' ? $webhook : $transaction->getTxnType();
+        if ($webhook == 'payment_capture_pending') {
+            $type = $webhook;
+        } else {
+            $type = $transaction->getTxnType();
+        }
 
         // Initialise state
         $state = null;
@@ -463,8 +467,6 @@ class TransactionHandlerService
 
         // Save the order
         $order->save();
-
-        $order->getStatus();
     }
 
     /**
