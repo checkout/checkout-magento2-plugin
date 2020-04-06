@@ -145,46 +145,45 @@ class TransactionHandlerService
             $order
         );
 
-        if($webhook['event_type'] !== 'payment_capture_pending') {
-            // Create a transaction if needed
-            if (!$transaction) {
-                // Build the transaction
-                $transaction = $this->buildTransaction(
-                    $order,
-                    $webhook,
-                    $amount
-                );
+        // Create a transaction if needed
+        if (!$transaction && $webhook['event_type'] !== 'payment_capture_pending') {
+            // Build the transaction
+            $transaction = $this->buildTransaction(
+                $order,
+                $webhook,
+                $amount
+            );
 
-                // Add the order comment
-                $this->addTransactionComment(
-                    $transaction,
-                    $amount
-                );
+            // Add the order comment
+            $this->addTransactionComment(
+                $transaction,
+                $amount
+            );
 
-                // Process the invoice case
-                $this->processInvoice($transaction, $amount);
-            } else {
-                // Get the payment
-                $payment = $transaction->getOrder()->getPayment();
+            // Process the invoice case
+            $this->processInvoice($transaction, $amount);
+        } else {
+            // Get the payment
+            $payment = $transaction->getOrder()->getPayment();
 
-                // Update the existing transaction state
-                $transaction->setIsClosed(
-                    $this->setTransactionState($transaction, $amount)
-                );
+            // Update the existing transaction state
+            $transaction->setIsClosed(
+                $this->setTransactionState($transaction, $amount)
+            );
 
-                // Save
-                $transaction->save();
-                $payment->save();
-            }
-
-            // Process the credit memo case
-            $this->processCreditMemo($transaction, $amount);
-
-            // Process the order email case
-            $this->processEmail($transaction);
+            // Save
+            $transaction->save();
+            $payment->save();
         }
+
+        // Process the credit memo case
+        $this->processCreditMemo($transaction, $amount);
+
         // Update the order status
-        $this->setOrderStatus($transaction, $amount, $webhook['event_type']);
+        $this->setOrderStatus($transaction, $amount);
+
+        // Process the order email case
+        $this->processEmail($transaction);
     }
 
     /**
@@ -409,17 +408,13 @@ class TransactionHandlerService
     /**
      * Set the current order status.
      */
-    public function setOrderStatus($transaction, $amount, $webhook)
+    public function setOrderStatus($transaction, $amount)
     {
         // Get the order
         $order = $transaction->getOrder();
 
         // Get the event type
-        if ($webhook == 'payment_capture_pending') {
-            $type = $webhook;
-        } else {
-            $type = $transaction->getTxnType();
-        }
+        $type = $transaction->getTxnType();
 
         // Initialise state
         $state = null;
@@ -449,12 +444,6 @@ class TransactionHandlerService
                 $status = $isPartialRefund ? 'order_status_captured' : 'order_status_refunded';
                 $status = $this->config->getValue($status);
                 $state = $isPartialRefund ? $this->orderModel::STATE_PROCESSING : $this->orderModel::STATE_CLOSED;
-                break;
-
-            case 'payment_capture_pending':
-                $state = $this->orderModel::STATE_PENDING_PAYMENT;
-                $status = $order->getConfig()->getStateDefaultStatus($state);
-                $order->addStatusHistoryComment(_('Payment capture initiated, awaiting capture confirmation.'));
                 break;
         }
 
