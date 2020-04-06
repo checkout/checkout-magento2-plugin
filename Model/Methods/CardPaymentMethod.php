@@ -94,6 +94,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $cardHandler;
 
     /**
+     * @var Logger
+     */
+    public $ckoLogger;
+
+    /**
      * @var ManagerInterface
      */
     public $messageManager;
@@ -158,6 +163,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -195,6 +201,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->storeManager       = $storeManager;
         $this->quoteHandler       = $quoteHandler;
         $this->cardHandler        = $cardHandler;
+        $this->ckoLogger          = $ckoLogger;
         $this->messageManager     = $messageManager;
     }
 
@@ -288,11 +295,15 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         );
         
         // Send the charge request
-        $response = $api->checkoutApi
-            ->payments()
-            ->request($request);
+        try {
+            $response = $api->checkoutApi
+                ->payments()->request($request);
 
-        return $response;
+            return $response;
+        }
+        catch (CheckoutHttpException $e) {
+            $this->ckoLogger->write($e->getBody());
+        }
     }
 
     /**

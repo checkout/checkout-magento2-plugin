@@ -162,12 +162,35 @@ define(
             },
 
             /**
+             * Check if the payment method should be enabled by default.
+             *
+             * @return {void}
+             */
+            checkDefaultEnabled: function (methodId) {
+                var condition1 = this.getValue(null, 'default_method') == methodId;
+                var condition2 = $('.payment-methods .payment-method._active').length == 0;
+
+                if (condition1 && condition2) {
+                    $('input#' + methodId).trigger('click');
+                }
+            },
+
+            /**
              * Checks if user has saved cards.
              *
              * @return {bool}
              */
             userHasCards: function () {
-                return Config[KEY_DATA].user.hasCards;
+                return Config[KEY_DATA].user.has_cards;
+            },
+
+            /**
+             * Gets the card form language fallback.
+             *
+             * @return {bool}
+             */
+            getLangageFallback: function () {
+                return Config[KEY_DATA].user.language_fallback;
             },
 
             /**
@@ -216,7 +239,7 @@ define(
             },
 
             /**
-             * @returns {string}
+             * @return {string}
              */
             getEmail: function () {
                 var emailCookieName = this.getValue(null, 'email_cookie_name');
@@ -227,7 +250,7 @@ define(
             },
 
             /**
-             * @returns {void}
+             * @return {void}
              */
             setEmail: function () {
                 var userEmail = this.getEmail();
@@ -244,7 +267,7 @@ define(
             },
 
             /**
-             * @returns {object}
+             * @return {object}
              */
             getPhone: function () {
                 var billingAddress = Quote.billingAddress();
@@ -319,7 +342,7 @@ define(
             /**
              * Place a new order.
              *
-             * @returns {void}
+             * @return {void}
              */
             placeOrder: function (payload, methodId) {
                 var self = this;
@@ -338,7 +361,7 @@ define(
                             self.showMessage('error', data.message, methodId);
                         } else if (data.success && data.url) {
                             // Handle 3DS redirection
-                            window.location.href = data.url
+                            window.location.href = data.url;
                         } else {
                             // Normal redirection
                             RedirectOnSuccessAction.execute();

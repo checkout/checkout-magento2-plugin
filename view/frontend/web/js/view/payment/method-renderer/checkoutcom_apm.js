@@ -37,7 +37,7 @@ define(
                 },
 
                 /**
-                 * @returns {exports}
+                 * @return {exports}
                  */
                 initialize: function () {
                     this._super();
@@ -45,21 +45,28 @@ define(
                 },
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 getCode: function () {
                     return METHOD_ID;
                 },
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 getValue: function (field) {
                     return Utilities.getValue(METHOD_ID, field);
                 },
 
                 /**
-                 * @returns {void}
+                 * @return {void}
+                 */
+                checkDefaultEnabled: function () {
+                    return Utilities.checkDefaultEnabled(METHOD_ID);
+                },
+                
+                /**
+                 * @return {void}
                  */
                 initWidget: function () {
                     // Start the loader
@@ -105,7 +112,7 @@ define(
                 },
 
                 /**
-                 * @returns {void}
+                 * @return {void}
                  */
                 placeOrder: function () {
                     let id = $("#apm-container div[aria-selected=true]").attr('id')
@@ -162,7 +169,7 @@ define(
                 },
 
                 /**
-                 * @returns {boolean}
+                 * @return {boolean}
                  */
                 klarna: function (data) {
                     try {
@@ -195,7 +202,7 @@ define(
                 },
 
                 /**
-                 * @returns {boolean}
+                 * @return {boolean}
                  */
                 sepa: function (data) {
                     return data.hasOwnProperty('accepted');
