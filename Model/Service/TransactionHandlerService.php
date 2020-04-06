@@ -145,45 +145,46 @@ class TransactionHandlerService
             $order
         );
 
-        // Create a transaction if needed
-        if (!$transaction && $webhook['event_type'] !== 'payment_capture_pending') {
-            // Build the transaction
-            $transaction = $this->buildTransaction(
-                $order,
-                $webhook,
-                $amount
-            );
+        if($webhook['event_type'] !== 'payment_capture_pending') {
+            // Create a transaction if needed
+            if (!$transaction) {
+                // Build the transaction
+                $transaction = $this->buildTransaction(
+                    $order,
+                    $webhook,
+                    $amount
+                );
 
-            // Add the order comment
-            $this->addTransactionComment(
-                $transaction,
-                $amount
-            );
+                // Add the order comment
+                $this->addTransactionComment(
+                    $transaction,
+                    $amount
+                );
 
-            // Process the invoice case
-            $this->processInvoice($transaction, $amount);
-        } else {
-            // Get the payment
-            $payment = $transaction->getOrder()->getPayment();
+                // Process the invoice case
+                $this->processInvoice($transaction, $amount);
+            } else {
+                // Get the payment
+                $payment = $transaction->getOrder()->getPayment();
 
-            // Update the existing transaction state
-            $transaction->setIsClosed(
-                $this->setTransactionState($transaction, $amount)
-            );
+                // Update the existing transaction state
+                $transaction->setIsClosed(
+                    $this->setTransactionState($transaction, $amount)
+                );
 
-            // Save
-            $transaction->save();
-            $payment->save();
+                // Save
+                $transaction->save();
+                $payment->save();
+            }
+
+            // Process the credit memo case
+            $this->processCreditMemo($transaction, $amount);
+
+            // Process the order email case
+            $this->processEmail($transaction);
         }
-
-        // Process the credit memo case
-        $this->processCreditMemo($transaction, $amount);
-
         // Update the order status
         $this->setOrderStatus($transaction, $amount, $webhook['event_type']);
-
-        // Process the order email case
-        $this->processEmail($transaction);
     }
 
     /**
