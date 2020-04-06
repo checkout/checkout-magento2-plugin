@@ -119,6 +119,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     public $quoteHandler;
 
     /**
+     * @var Logger
+     */
+    public $ckoLogger;
+
+    /**
      * @var ManagerInterface
      */
     public $messageManager;
@@ -164,6 +169,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto $motoBlock,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -203,6 +209,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $this->vaultHandler       = $vaultHandler;
         $this->cardHandler        = $cardHandler;
         $this->quoteHandler       = $quoteHandler;
+        $this->ckoLogger          = $ckoLogger;
         $this->messageManager     = $messageManager;
         $this->motoBlock          = $motoBlock;
     }
@@ -307,11 +314,15 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
         );
         
         // Send the charge request
-        $response = $api->checkoutApi
-            ->payments()
-            ->request($request);
+        try {
+            $response = $api->checkoutApi
+                ->payments()->request($request);
 
-        return $response;
+            return $response;
+        }
+        catch (CheckoutHttpException $e) {
+            $this->ckoLogger->write($e->getBody());
+        }
     }
 
     /**

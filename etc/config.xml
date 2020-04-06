@@ -47,6 +47,7 @@
                 <descriptor_city></descriptor_city>
                 <currencies_x1>BIF,DJF,GNF,ISK,KMF,XAF,CLF,XPF,JPY,PYG,RWF,KRW,VUV,VND,XOF</currencies_x1>
                 <currencies_x1000>BHD,LYD,JOD,KWD,OMR,TND</currencies_x1000>
+                <default_method>checkoutcom_card_payment</default_method>
             </checkoutcom_configuration>
         </settings>
         <payment>
@@ -83,7 +84,7 @@
                 <active>1</active>
                 <display_card_icons>0</display_card_icons>
                 <card_icons>VI,MC,AE,DN,DI,JCB</card_icons>
-                <language_fallback>EN-EN</language_fallback>
+                <language_fallback>EN-GB</language_fallback>
                 <sort_order>1</sort_order>
                 <three_ds>0</three_ds>
                 <attempt_n3d>0</attempt_n3d>

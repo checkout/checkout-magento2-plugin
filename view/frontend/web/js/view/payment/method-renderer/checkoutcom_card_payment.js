@@ -45,7 +45,7 @@ define(
                 },
 
                 /**
-                 * @returns {exports}
+                 * @return {exports}
                  */
                 initialize: function () {
                     this._super();
@@ -56,56 +56,63 @@ define(
                 },
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 getCode: function () {
                     return METHOD_ID;
                 },
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 getValue: function (field) {
                     return Utilities.getValue(METHOD_ID, field);
                 },
 
                 /**
-                 * @returns {string}
+                 * @return {void}
+                 */
+                checkDefaultEnabled: function () {
+                    return Utilities.checkDefaultEnabled(METHOD_ID);
+                },
+
+                /**
+                 * @return {string}
                  */
                 isVaultEnabled: function () {
                     return this.getValue('active');
                 },
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 isSaveCardEnabled: function () {
                     return this.getValue('save_card_option');
                 },
 
                 /**
-                 * @returns {bool}
+                 * @return {bool}
                  */
                 shouldDisplayCardIcons: function () {
                     return this.getValue('display_card_icons') == true;
                 },
 
                 /**
-                 * @returns {array}
+                 * @return {array}
                  */
                 getCardIcons: function () {
                     return Utilities.getSupportedCards();
                 },
 
                 /**
-                 * @returns {bool}
+                 * @return {bool}
                  */
                 isLoggedIn: function () {
                     return Customer.isLoggedIn();
                 },
 
                 /**
-                 * @returns {void}
+                 * @return {void}
                  */
                 initEvents: function () {
                     var self = this;
@@ -121,19 +128,19 @@ define(
                     // Option click event
                     $('.payment-method input[type="radio"]').on('click', function () {
                         if ($(this).attr('id') == METHOD_ID) {
-                            self.getPaymentForm();
+                            self.getCkoPaymentForm();
                         } else {
-                            self.removePaymentForm();
+                            self.removeCkoPaymentForm();
                         }
                     });
                 },
 
                 /**
-                 * @returns {void}
+                 * @return {void}
                  */
                 handleFormState: function () {
                     if (Utilities.methodIsSelected(METHOD_ID)) {
-                        this.getPaymentForm();
+                        this.getCkoPaymentForm();
                     }
                 },
 
@@ -183,7 +190,7 @@ define(
                  *
                  * @return {void}
                  */
-                getPaymentForm: function () {
+                getCkoPaymentForm: function () {
                     // Prepare the needed variables
                     var self = this;
                     var formStyles = self.getFormStyles();
@@ -202,7 +209,7 @@ define(
                         {
                             publicKey: self.getValue('public_key'),
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
-                            localization: self.getValue('language_fallback'),
+                            localization: Utilities.getLangageFallback(),
                             style: (formStyles) ? formStyles : {}
                         }
                     );
@@ -216,7 +223,7 @@ define(
 
                 /**
                  * Loads a Frames component.
-                 * @returns {void}
+                 * @return {void}
                  */
                 addFramesComponent: function (framesInstance) {
                     if (this.getFormLayout() == 'multi') {
@@ -233,7 +240,7 @@ define(
                  *
                  * @return {void}
                  */
-                removePaymentForm: function () {
+                removeCkoPaymentForm: function () {
                     // Remove the events
                     Frames.removeAllEventHandlers(Frames.Events.CARD_VALIDATION_CHANGED);
                     Frames.removeAllEventHandlers(Frames.Events.CARD_TOKENIZED);
@@ -248,7 +255,7 @@ define(
 
                 /**
                  * Add events to Frames.
-                 * @returns {void}
+                 * @return {void}
                  */
                 addFramesEvents: function () {
                     var self = this;
@@ -289,7 +296,7 @@ define(
                 },
 
                 /**
-                 * @returns {void}
+                 * @return {void}
                  */
                 placeOrder: function () {
                     if (Utilities.methodIsSelected(METHOD_ID)) {

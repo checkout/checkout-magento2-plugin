@@ -18,60 +18,72 @@
         <id>alipay</id>
         <title>Alipay</title>
         <currencies>USD</currencies>
+        <countries>CN,US</countries>
     </item>
     <item>
         <id>boleto</id>
         <title>Boleto</title>
         <currencies>BRL,USD</currencies>
+        <countries>BR</countries>
     </item>
     <item>
         <id>giropay</id>
         <title>Giropay</title>
         <currencies>EUR</currencies>
+        <countries>DE</countries>
     </item>
     <item>
         <id>ideal</id>
         <title>iDEAL</title>
         <currencies>EUR</currencies>
+        <countries>NL</countries>
     </item>
     <item>
         <id>poli</id>
         <title>Poli</title>
         <currencies>AUD,NZD</currencies>
+        <countries>AU,NZ</countries>
     </item>
     <item>
         <id>sepa</id>
         <title>Sepa</title>
         <currencies>EUR</currencies>
+        <countries>AT,BE,CY,DE,EE,ES,FI,FR,GR,IE,IT,LT,LU,LV,MT,NL,PT,SI,SK,AD,BG,CH,CZ,DK,GB,HR,HU,IS,LI,MC,NO,PL,RO,SM,SE,VA</countries>
     </item>
     <item>
         <id>sofort</id>
         <title>Sofort</title>
         <currencies>EUR</currencies>
+        <countries>AT,BE,DE,ES,IT,NL</countries>
     </item>
     <item>
         <id>klarna</id>
         <title>Klarna</title>
         <currencies>EUR,DKK,GBP,NOK,SEK</currencies>
+        <countries>AT,DK,FI,DE,NL,NO,SE,UK,GB</countries>
     </item>
     <item>
         <id>eps</id>
         <title>EPS</title>
         <currencies>EUR</currencies>
+        <countries>AT</countries>
     </item>
     <item>
         <id>fawry</id>
         <title>Fawry</title>
         <currencies>EGP</currencies>
+        <countries>EG</countries>
     </item>
     <item>
         <id>bancontact</id>
         <title>Bancontact</title>
         <currencies>EUR</currencies>
+        <countries>BE</countries>
     </item>
     <item>
         <id>knet</id>
         <title>KNet</title>
         <currencies>KWD</currencies>
+        <countries>KW</countries>
     </item>
 </config>

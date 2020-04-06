@@ -29,6 +29,11 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
     public $config;
 
     /**
+     * @var ShopperHandlerService
+     */
+    public $shopperHandler;
+
+    /**
      * @var QuoteHandlerService
      */
     public $quoteHandler;
@@ -48,11 +53,13 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
      */
     public function __construct(
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler
     ) {
         $this->config = $config;
+        $this->shopperHandler = $shopperHandler;
         $this->quoteHandler = $quoteHandler;
         $this->vaultHandler = $vaultHandler;
         $this->cardHandler = $cardHandler;
@@ -89,7 +96,8 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
                         'name' => $this->config->getStoreName()
                     ],
                     'user' => [
-                        'hasCards' => $this->vaultHandler->userHasCards()
+                        'has_cards' => $this->vaultHandler->userHasCards(),
+                        'language_fallback' => $this->shopperHandler->getLanguageFallback()
                     ],
                     'cards' => $this->cardHandler->getCardIcons(),
                     'images_path' => $this->config->getImagesPath(),

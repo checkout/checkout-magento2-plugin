@@ -39,7 +39,7 @@ define(
                 },
 
                 /**
-                 * @returns {exports}
+                 * @return {exports}
                  */
                 initialize: function () {
                     this._super();
@@ -50,21 +50,28 @@ define(
                 },
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 getCode: function () {
                     return METHOD_ID;
                 },
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 getValue: function (field) {
                     return Utilities.getValue(METHOD_ID, field);
                 },
 
                 /**
-                 * @returns {string}
+                 * @return {void}
+                 */
+                checkDefaultEnabled: function () {
+                    return Utilities.checkDefaultEnabled(METHOD_ID);
+                },
+                
+                /**
+                 * @return {string}
                  */
                 getPublicHash: function () {
                     var row = this.getActiveRow();
@@ -72,7 +79,7 @@ define(
                 },
 
                 /**
-                 * @returns {string}
+                 * @return {string}
                  */
                 getCvvValue: function () {
                     var row = this.getActiveRow();
@@ -80,21 +87,21 @@ define(
                 },
 
                 /**
-                 * @returns {bool}
+                 * @return {bool}
                  */
                 isCvvRequired: function () {
                     return JSON.parse(this.getValue('require_cvv'));
                 },
 
                 /**
-                 * @returns {object}
+                 * @return {object}
                  */
                 getActiveRow: function () {
                     return $(this.containerId).find('.card-selected');
                 },
 
                 /**
-                 * @returns {bool}
+                 * @return {bool}
                  */
                 isCvvValid: function () {
                     // Get the active row
@@ -115,7 +122,7 @@ define(
                 },
 
                 /**
-                 * @returns {bool}
+                 * @return {bool}
                  */
                 canEnableButton: function () {
                     if (this.getActiveRow().length) {
@@ -128,7 +135,7 @@ define(
                 },
 
                 /**
-                 * @returns {void}
+                 * @return {void}
                  */
                 enableCvvHandling: function () {
                     // Prepare some variables
@@ -155,7 +162,7 @@ define(
                 },
 
                 /**
-                 * @returns {void}
+                 * @return {void}
                  */
                 initWidget: function () {
                     // Prepare some variables
@@ -186,7 +193,7 @@ define(
                 },
 
                 /**
-                 * @returns {void}
+                 * @return {void}
                  */
                 initEvents: function () {
                     // Prepare some variables
@@ -238,7 +245,7 @@ define(
                 },
 
                 /**
-                 * @returns {void}
+                 * @return {void}
                  */
                 placeOrder: function () {
                     if (Utilities.methodIsSelected(METHOD_ID)) {
