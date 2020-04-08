@@ -29,11 +29,6 @@ class Callback extends \Magento\Framework\App\Action\Action
 {
 
     /**
-     * @var orderModel
-     */
-    public $orderModel;
-
-    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
@@ -87,7 +82,6 @@ class Callback extends \Magento\Framework\App\Action\Action
      * Callback constructor
      */
     public function __construct(
-        \Magento\Sales\Model\Order $orderModel,
         \Magento\Framework\App\Action\Context $context,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
@@ -102,7 +96,6 @@ class Callback extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
-        $this->orderModel = $orderModel;
         $this->storeManager = $storeManager;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
@@ -154,21 +147,11 @@ class Callback extends \Magento\Framework\App\Action\Action
                                 $this->saveCard($response);
                             }
 
-                            // Handle deferred APM states
-                            if ($this->payload->type === 'payment_capture_pending') {
-                                $state = $this->orderModel::STATE_PENDING_PAYMENT;
-                                $status = $order->getConfig()->getStateDefaultStatus($state);
-                                $order->setState($state);
-                                $order->setStatus($status);
-                                $order->addStatusHistoryComment(_('Payment capture initiated, awaiting capture confirmation.'));
-                                $order->save();
-                            } else {
-                                // Save the webhook
-                                $this->webhookHandler->processSingleWebhook(
-                                    $order,
-                                    $this->payload
-                                );
-                            }
+                            // Save the webhook
+                            $this->webhookHandler->processSingleWebhook(
+                                $order,
+                                $this->payload
+                            );
 
                             // Set a valid response
                             $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
