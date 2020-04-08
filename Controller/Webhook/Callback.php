@@ -155,20 +155,20 @@ class Callback extends \Magento\Framework\App\Action\Action
                             }
 
                             // Handle deferred APM states
-                            if ($this->payload->type = 'payment_capture_pending') {
+                            if ($this->payload->type === 'payment_capture_pending') {
                                 $state = $this->orderModel::STATE_PENDING_PAYMENT;
                                 $status = $order->getConfig()->getStateDefaultStatus($state);
                                 $order->setState($state);
                                 $order->setStatus($status);
                                 $order->addStatusHistoryComment(_('Payment capture initiated, awaiting capture confirmation.'));
                                 $order->save();
+                            } else {
+                                // Save the webhook
+                                $this->webhookHandler->processSingleWebhook(
+                                    $order,
+                                    $this->payload
+                                );
                             }
-
-                            // Save the webhook
-                            $this->webhookHandler->processSingleWebhook(
-                                $order,
-                                $this->payload
-                            );
 
                             // Set a valid response
                             $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
