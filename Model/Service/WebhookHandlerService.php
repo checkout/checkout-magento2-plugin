@@ -71,7 +71,7 @@ class WebhookHandlerService
     {
         if (isset($payload->data->action_id)) {
             // Save the payload
-            $this->saveEntity($payload);
+            $this->saveEntity($payload, $order);
 
             // Get the saved webhook
             $webhooks = $this->loadEntities([
@@ -148,13 +148,8 @@ class WebhookHandlerService
     /**
      * Save the incoming webhook.
      */
-    public function saveEntity($payload)
+    public function saveEntity($payload, $order)
     {
-        // Get the order id from the payload
-        $order = $this->orderHandler->getOrder([
-            'increment_id' => $payload->data->reference
-        ]);
-
         // Save the webhook
         if ($this->orderHandler->isOrder($order)) {
             // Get a webhook entity instance
