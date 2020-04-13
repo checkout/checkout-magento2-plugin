@@ -89,9 +89,10 @@ class CardHandlerService
      */
     public function getCardScheme($code)
     {
-        return self::$cardMapper[$code];
+        if (isset(self::$cardMapper[$code])) {
+            return self::$cardMapper[$code];
+        }
     }
-
     /**
      * Get a card icon.
      *
