@@ -22,6 +22,12 @@ namespace CheckoutCom\Magento2\Model\Service;
  */
 class WebhookHandlerService
 {
+
+    /**
+     * @var orderModel
+     */
+    public $orderModel;
+
     /**
      * @var OrderHandlerService
      */
@@ -51,12 +57,14 @@ class WebhookHandlerService
      * WebhookHandlerService constructor
      */
     public function __construct(
+        \Magento\Sales\Model\Order $orderModel,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
+        $this->orderModel = $orderModel;
         $this->orderHandler = $orderHandler;
         $this->transactionHandler = $transactionHandler;
         $this->webhookEntityFactory = $webhookEntityFactory;
@@ -71,7 +79,7 @@ class WebhookHandlerService
     {
         if (isset($payload->data->action_id)) {
             // Save the payload
-            $this->saveEntity($payload);
+            $this->saveEntity($payload, $order);
 
             // Get the saved webhook
             $webhooks = $this->loadEntities([
@@ -79,11 +87,15 @@ class WebhookHandlerService
                 'action_id' => $payload->data->action_id
             ]);
 
-            // Handle the transaction for the webhook
-            $this->webhooksToTransactions(
-                $order,
-                $webhooks
-            );
+            if ($payload->type === 'payment_capture_pending') {
+                $this->setStatusCapturePending($order, $payload->type);
+            } else {
+                // Handle the transaction for the webhook
+                $this->webhooksToTransactions(
+                    $order,
+                    $webhooks
+                );
+            }
         } else {
             // Handle missing action ID
             $msg = __(
@@ -148,13 +160,8 @@ class WebhookHandlerService
     /**
      * Save the incoming webhook.
      */
-    public function saveEntity($payload)
+    public function saveEntity($payload, $order)
     {
-        // Get the order id from the payload
-        $order = $this->orderHandler->getOrder([
-            'increment_id' => $payload->data->reference
-        ]);
-
         // Save the webhook
         if ($this->orderHandler->isOrder($order)) {
             // Get a webhook entity instance
@@ -173,6 +180,19 @@ class WebhookHandlerService
 
             // Save the entity
             $entity->save();
+        }
+    }
+
+    public function setStatusCapturePending($order, $webhook)
+    {
+        // Handle deferred APM states
+        if ($webhook === 'payment_capture_pending') {
+            $state = $this->orderModel::STATE_PENDING_PAYMENT;
+            $status = $order->getConfig()->getStateDefaultStatus($state);
+            $order->setState($state);
+            $order->setStatus($status);
+            $order->addStatusHistoryComment(_('Payment capture initiated, awaiting capture confirmation.'));
+            $order->save();
         }
     }
 }

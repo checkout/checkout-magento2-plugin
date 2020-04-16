@@ -29,11 +29,6 @@ class Callback extends \Magento\Framework\App\Action\Action
 {
 
     /**
-     * @var orderModel
-     */
-    public $orderModel;
-
-    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
@@ -87,7 +82,6 @@ class Callback extends \Magento\Framework\App\Action\Action
      * Callback constructor
      */
     public function __construct(
-        \Magento\Sales\Model\Order $orderModel,
         \Magento\Framework\App\Action\Context $context,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
@@ -102,7 +96,6 @@ class Callback extends \Magento\Framework\App\Action\Action
     ) {
         parent::__construct($context);
 
-        $this->orderModel = $orderModel;
         $this->storeManager = $storeManager;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
@@ -141,58 +134,55 @@ class Callback extends \Magento\Framework\App\Action\Action
                     // Get the payment details
                     $response = $api->getPaymentDetails($this->payload->data->id);
 
-                    // Find the order from increment id
-                    $order = $this->orderHandler->getOrder([
-                        'increment_id' => $response->reference
-                    ]);
+                    if(isset($response->reference)) {
+                        // Find the order from increment id
+                        $order = $this->orderHandler->getOrder([
+                            'increment_id' => $response->reference
+                        ]);
 
-                    // Process the order
-                    if ($this->orderHandler->isOrder($order)) {
-                        if ($api->isValidResponse($response)) {
-                            // Handle the save card request
-                            if ($this->cardNeedsSaving()) {
-                                $this->saveCard($response);
+                        // Process the order
+                        if ($this->orderHandler->isOrder($order)) {
+                            if ($api->isValidResponse($response)) {
+                                // Handle the save card request
+                                if ($this->cardNeedsSaving()) {
+                                    $this->saveCard($response);
+                                }
+
+                                // Save the webhook
+                                $this->webhookHandler->processSingleWebhook(
+                                    $order,
+                                    $this->payload
+                                );
+
+                                // Set a valid response
+                                $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
+
+                                // Return the 200 success response
+                                return $resultFactory->setData([
+                                    'result' => __('Webhook and order successfully processed.')
+                                ]);
+                            } else {
+                                // Log the payment error
+                                $this->paymentErrorHandler->logError(
+                                    $this->payload,
+                                    $order
+                                );
+
+                                $this->orderHandler->handleFailedPayment($order, $storeCode, $this->payload->type);
                             }
-
-                            // Handle deferred APM states
-                            if ($this->payload->type = 'payment_capture_pending') {
-                                $state = $this->orderModel::STATE_PENDING_PAYMENT;
-                                $status = $order->getConfig()->getStateDefaultStatus($state);
-                                $order->setState($state);
-                                $order->setStatus($status);
-                                $order->addStatusHistoryComment(_('Payment capture initiated, awaiting capture confirmation.'));
-                                $order->save();
-                            }
-
-                            // Save the webhook
-                            $this->webhookHandler->processSingleWebhook(
-                                $order,
-                                $this->payload
-                            );
-
-                            // Set a valid response
-                            $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
-
-                            // Return the 200 success response
-                            return $resultFactory->setData([
-                                'result' => __('Webhook and order successfully processed.')
-                            ]);
                         } else {
-                            // Log the payment error
-                            $this->paymentErrorHandler->logError(
-                                $this->payload,
-                                $order
-                            );
-          
-                            $this->orderHandler->handleFailedPayment($order, $storeCode, $this->payload->type);
+                            $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
+                            return $resultFactory->setData([
+                                'error_message' => __(
+                                    'The order creation failed. Please check the error logs.'
+                                )
+                            ]);
                         }
                     } else {
-                        $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
-                        return $resultFactory->setData([
-                            'error_message' => __(
-                                'The order creation failed. Please check the error logs.'
-                            )
-                        ]);
+                        $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
+                        return $resultFactory->setData(
+                            ['error_message' => __('The webhook response is invalid.')]
+                        );
                     }
                 } else {
                     $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);

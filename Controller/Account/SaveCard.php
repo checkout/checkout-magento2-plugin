@@ -68,8 +68,10 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         // Prepare the parameters
         $success = false;
         $url = $this->urlInterface->getUrl('vault/cards/listaction');
-        $requestContent =  $this->getRequest()->getContent();
-        $ckoCardToken = explode("=", $requestContent)[1];
+        $requestContent = explode("=", $this->getRequest()->getContent());
+        if (isset($requestContent[1])) {
+            $ckoCardToken = $requestContent[1];
+        }
 
         // Process the request
         if ($this->getRequest()->isAjax() && !empty($ckoCardToken)) {
