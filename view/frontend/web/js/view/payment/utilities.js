@@ -359,6 +359,7 @@ define(
                         if (!data.success) {
                             FullScreenLoader.stopLoader();
                             self.showMessage('error', data.message, methodId);
+                            self.allowPlaceOrder(methodId + '_btn', false)
                         } else if (data.success && data.url) {
                             // Handle 3DS redirection
                             window.location.href = data.url;
