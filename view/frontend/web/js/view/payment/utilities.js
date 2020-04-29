@@ -167,10 +167,7 @@ define(
              * @return {void}
              */
             checkDefaultEnabled: function (methodId) {
-                var condition1 = this.getValue(null, 'default_method') == methodId;
-                var condition2 = $('.payment-methods .payment-method._active').length == 0;
-
-                if (condition1 && condition2) {
+                if (this.getValue(null, 'default_method') == methodId) {
                     $('input#' + methodId).trigger('click');
                 }
             },
