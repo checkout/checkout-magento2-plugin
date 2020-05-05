@@ -18,6 +18,7 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
+use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
 
 /**
  * Class PlaceOrder
@@ -48,6 +49,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      * @var ApiHandlerService
      */
     public $apiHandler;
+
+    /**
+     * @var PaymentErrorHandler
+     */
+    public $paymentErrorHandler;
 
     /**
      * @var JsonFactory
@@ -106,6 +112,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
@@ -118,6 +125,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->orderHandler = $orderHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
+        $this->paymentErrorHandler = $paymentErrorHandler;
         $this->checkoutSession = $checkoutSession;
         $this->utilities = $utilities;
         $this->config = $config;
@@ -177,8 +185,13 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                         $success = $response->isSuccessful();
                         $url = $response->getRedirection();
                     } else {
+
                         // Payment failed
-                        $message = __('The transaction could not be processed.');
+                        if(isset($response->response_code)){
+                            $message = __($this->paymentErrorHandler->getErrorMessage($response->response_code));
+                        } else {
+                            $message = __('The transaction could not be processed.');
+                        }
 
                         // Restore the quote
                         $this->quoteHandler->restoreQuote($order->getIncrementId());

@@ -103,4 +103,23 @@ class PaymentErrorHandlerService
 
         return $amount . ' ' . $currency;
     }
+
+    public function getErrorMessage($responseCode) {
+        $messageMapper = [
+            "20005" => "Problem processing the payment. Check card details or contact card provider if this problem persists.",
+            "20012" => "Problem processing the payment. Check card details then contact card provider if this problem persists.",
+            "20014" => "Card number invalid. Check card details then please try again.",
+            "20030" => "Problem processing payment. Please check card details",
+            "20046" => "Payment declined by bank. Try another card or contact card provider.",
+            "20051" => "Payment declined by bank. Try another card or contact card provider.",
+            "20054" => "Problem processing payment: expired card.",
+            "20087" => "Card details invalid. Check CVV and expiry date then please try again.",
+        ];
+
+        if(isset($messageMapper[$responseCode])) {
+            return $messageMapper[$responseCode];
+        } else {
+            return "The transaction could not be processed";
+        }
+    }
 }
