@@ -122,9 +122,6 @@ class Verify extends \Magento\Framework\App\Action\Action
             // Get the payment details
             $response = $api->getPaymentDetails($sessionId);
 
-            $rsp  = json_encode($response, JSON_PRETTY_PRINT);
-
-            $this->logger->write("response for api-getPaymentDetails in verify controller:  $rsp");
             // Check for zero dollar auth
             if ($response->status !== "Card Verified") {
 
