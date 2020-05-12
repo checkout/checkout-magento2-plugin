@@ -122,8 +122,11 @@ class Verify extends \Magento\Framework\App\Action\Action
             // Get the payment details
             $response = $api->getPaymentDetails($sessionId);
 
+            $rsp  = json_encode($response, JSON_PRETTY_PRINT);
+
+            $this->logger->write("response for api-getPaymentDetails in verify controller:  $rsp");
             // Check for zero dollar auth
-            if ($response->status !== "Card Verified" && $response->amount > 100) {
+            if ($response->status !== "Card Verified") {
 
                 // Set the method ID
                 $this->methodId = $response->metadata['methodId'];
@@ -146,6 +149,8 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                     // Process the response
                     if ($api->isValidResponse($response)) {
+
+
                         return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                     } else {
                         // Restore the quote
