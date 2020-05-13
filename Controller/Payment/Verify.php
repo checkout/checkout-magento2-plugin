@@ -123,7 +123,7 @@ class Verify extends \Magento\Framework\App\Action\Action
             $response = $api->getPaymentDetails($sessionId);
 
             // Check for zero dollar auth
-            if ($response->status !== "Card Verified" && $response->amount > 100) {
+            if ($response->status !== "Card Verified") {
 
                 // Set the method ID
                 $this->methodId = $response->metadata['methodId'];
@@ -146,6 +146,8 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                     // Process the response
                     if ($api->isValidResponse($response)) {
+
+
                         return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                     } else {
                         // Restore the quote
