@@ -41,11 +41,6 @@ class Config
     public $scopeConfig;
 
     /**
-     * @var ScopeInterface
-     */
-    public $scopeInterface;
-
-    /**
      * @var RequestInterface
      */
     public $request;
@@ -67,7 +62,6 @@ class Config
         \Magento\Framework\View\Asset\Repository $assetRepository,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Store\Model\ScopeInterface $scopeInterface,
         \Magento\Framework\App\RequestInterface $request,
         \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
@@ -75,7 +69,6 @@ class Config
         $this->assetRepository = $assetRepository;
         $this->storeManager = $storeManager;
         $this->scopeConfig = $scopeConfig;
-        $this->scopeInterface = $scopeInterface;
         $this->request = $request;
         $this->loader = $loader;
         $this->utilities = $utilities;
@@ -308,7 +301,7 @@ class Config
     public function getStoreLanguage() {
         $storeId =  $this->storeManager->getStore()->getId();
 
-       return  $this->scopeConfig->getValue('general/locale/code', scopeInterface::SCOPE_STORE, $storeId);
+       return  $this->scopeConfig->getValue('general/locale/code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**

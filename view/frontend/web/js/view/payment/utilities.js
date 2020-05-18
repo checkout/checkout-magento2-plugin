@@ -184,10 +184,24 @@ define(
             /**
              * Gets the card form language fallback.
              *
-             * @return {bool}
+             * @return {string}
              */
             getLangageFallback: function () {
                 return Config[KEY_DATA].user.language_fallback;
+            },
+
+            /**
+             * Get the card form shop language
+             *
+             * @return {string}
+             */
+            getShopLanguage() {
+                let mageShopLanguage = Config[KEY_DATA].store.language;
+                let framesLanguage = mageShopLanguage.toUpperCase().split("_").join('-');
+                if (framesLanguage == 'KO-KR') {
+                    framesLanguage = 'KR-KR'
+                }
+                return framesLanguage;
             },
 
             /**
