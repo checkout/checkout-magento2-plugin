@@ -20,7 +20,7 @@
                class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
         <label data-bind="attr: {'for': getCode()}" class="label">
-            <span data-bind="text: getTitle()"></span>
+            <span data-bind="i18n: getTitle()"></span>
         </label>
     </div>
     <div class="payment-method-content">
