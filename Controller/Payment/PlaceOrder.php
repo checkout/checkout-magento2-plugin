@@ -188,7 +188,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
                         // Payment failed
                         if(isset($response->response_code)){
-                            $message = __($this->paymentErrorHandler->getErrorMessage($response->response_code));
+                            $message = $this->paymentErrorHandler->getErrorMessage($response->response_code);
                         } else {
                             $message = __('The transaction could not be processed.');
                         }

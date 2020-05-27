@@ -110,7 +110,7 @@ class PaymentErrorHandlerService
             [
             "20067", "20099"
         ],
-            "The payment was declined, please try again. If the problem persists, try another card or payment method."
+            __('The payment was declined, please try again. If the problem persists, try another card or payment method.')
         );
 
         $fundingErrors = array_fill_keys(
@@ -120,7 +120,7 @@ class PaymentErrorHandlerService
             "200O5", "200P1", "200P9", "200R1", "200R3", "200S4", "200T3", "200T5", "20103", "20108", "20150",
             "30004", "30021", "30022", "30035", "30036", "30038"
         ],
-            "You have reached the limit allowed for this card/account, please try again with another card or payment method."
+            __('You have reached the limit allowed for this card/account, please try again with another card or payment method.')
         );
 
         $technicalErrors = array_fill_keys(
@@ -133,28 +133,28 @@ class PaymentErrorHandlerService
             "20119", "20120", "20123", "30015", "30020",
             "20059", "20063", "20066", "20082", "30007", "30034", "30037", "4XXXX" // Fraud response codes
         ],
-            "Something went wrong, please try again later"
+            __('Something went wrong, please try again later')
         );
 
         $invalidCardErrors = array_fill_keys(
             [
             "20014", "20054", "20055", "20056", "20087", "200N7", "20100", "30033", "30041", "30043"
         ],
-            "It looks like your card is invalid or blocked, please try with another card"
+            __('It looks like your card is invalid or blocked, please try with another card')
         );
 
         $blockedCardErrors = array_fill_keys(
             [
             "20017", "20018", "20057"
         ],
-            "It looks like this transaction has been blocked due to account holder action, please contact your bank or use another card or payment method"
+            __('It looks like this transaction has been blocked due to account holder action, please contact your bank or use another card or payment method')
         );
 
         $threeDsErrors = array_fill_keys(
             [
             "20151", "20152", "20154"
         ],
-            "3DS has expired or authentication failed, please try again"
+            __("3DS has expired or authentication failed, please try again")
         );
 
         $messageMapper = $generalErrors + $fundingErrors + $technicalErrors + $invalidCardErrors + $blockedCardErrors + $threeDsErrors;
@@ -162,7 +162,7 @@ class PaymentErrorHandlerService
         if (isset($messageMapper[$responseCode])) {
             return $messageMapper[$responseCode];
         } else {
-            return "The transaction could not be processed";
+            return __("The transaction could not be processed");
         }
     }
 }
