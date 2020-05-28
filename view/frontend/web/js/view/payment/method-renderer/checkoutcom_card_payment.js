@@ -133,6 +133,11 @@ define(
                             self.removeCkoPaymentForm();
                         }
                     });
+
+                    // Clear frames after update billing event
+                     $(document).on('click', '.action-update', function () {
+                         Frames.init()
+                     })
                 },
 
                 /**
@@ -143,6 +148,7 @@ define(
                         this.getCkoPaymentForm();
                     }
                 },
+
 
                 /**
                  * Gets the payment form styles
