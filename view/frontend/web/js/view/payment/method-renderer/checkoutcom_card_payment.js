@@ -149,7 +149,6 @@ define(
                     }
                 },
 
-
                 /**
                  * Gets the payment form styles
                  *
