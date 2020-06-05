@@ -16,8 +16,8 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Payment\Transaction;
 
 /**
  * Class TransactionHandlerService.
@@ -124,7 +124,7 @@ class TransactionHandlerService
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
     }
-    
+
     /**
      * Handle a webhook transaction.
      */
@@ -154,14 +154,21 @@ class TransactionHandlerService
                 $amount
             );
 
-            // Add the order comment
-            $this->addTransactionComment(
-                $transaction,
-                $amount
-            );
+            $eventData = json_decode($webhook['event_data']);
+            $isBackendCapture = false;
+            if (isset($eventData->data->metadata->isBackendCapture)) {
+                $isBackendCapture = $eventData->data->metadata->isBackendCapture;
+            }
+            if (!$isBackendCapture) {
+                // Add the order comment
+                $this->addTransactionComment(
+                    $transaction,
+                    $amount
+                );
 
-            // Process the invoice case
-            $this->processInvoice($transaction, $amount);
+                // Process the invoice case
+                $this->processInvoice($transaction, $amount);
+            }
         } else {
             // Get the payment
             $payment = $transaction->getOrder()->getPayment();
@@ -293,7 +300,7 @@ class TransactionHandlerService
         if ($isCapture && $parentAuth) {
             return $parentAuth->getTxnId();
         }
-       
+
         // Handle the refund parent capture logic
         $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
         $parentCapture = $this->getTransactionByType(
@@ -376,7 +383,7 @@ class TransactionHandlerService
             ->setField('payment_id')
             ->setValue($order->getPayment()->getId())
             ->create();
-            
+
         // Order filter
         $filter2 = $this->filterBuilder
             ->setField('order_id')
@@ -466,7 +473,7 @@ class TransactionHandlerService
     {
         // Get the order
         $order = $transaction->getOrder();
-        
+
         // Get the order payment
         $payment = $order->getPayment();
 
@@ -574,9 +581,9 @@ class TransactionHandlerService
         }
     }
 
-   /**
-    * Get the total credit memos amount.
-    */
+    /**
+     * Get the total credit memos amount.
+     */
     public function getCreditMemosTotal($order)
     {
         $total = 0;
@@ -597,7 +604,7 @@ class TransactionHandlerService
     {
         // Get the order
         $order = $transaction->getOrder();
-        
+
         // Loop through the items
         $result = 0;
         $creditMemos = $order->getCreditmemosCollection();
@@ -696,7 +703,7 @@ class TransactionHandlerService
 
         // Check the partial refund case
         $isPartialRefund = $order->getGrandTotal() > ($totalRefunded + $amount);
-        
+
         return $isPartialRefund && $isRefund ? true : false;
     }
 
@@ -713,7 +720,7 @@ class TransactionHandlerService
 
         // Check the partial capture case
         $isPartialCapture = $order->getGrandTotal() > ($totalCaptured + $amount);
-        
-        return $isPartialCapture && $isCapture? true : false;
+
+        return $isPartialCapture && $isCapture ? true : false;
     }
 }
