@@ -16,8 +16,8 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Payment\Transaction;
 
 /**
  * Class TransactionHandlerService.
@@ -124,7 +124,7 @@ class TransactionHandlerService
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
     }
-    
+
     /**
      * Handle a webhook transaction.
      */
@@ -293,7 +293,7 @@ class TransactionHandlerService
         if ($isCapture && $parentAuth) {
             return $parentAuth->getTxnId();
         }
-       
+
         // Handle the refund parent capture logic
         $isRefund = $transaction->getTxnType() == Transaction::TYPE_REFUND;
         $parentCapture = $this->getTransactionByType(
@@ -376,7 +376,7 @@ class TransactionHandlerService
             ->setField('payment_id')
             ->setValue($order->getPayment()->getId())
             ->create();
-            
+
         // Order filter
         $filter2 = $this->filterBuilder
             ->setField('order_id')
@@ -412,17 +412,19 @@ class TransactionHandlerService
     {
         // Get the order
         $order = $transaction->getOrder();
-
         // Get the event type
         $type = $transaction->getTxnType();
 
-        // Initialise state
+        // Initialise state and status
         $state = null;
+        $status = null;
 
         // Get the needed order status
         switch ($type) {
             case Transaction::TYPE_AUTH:
-                $status = $this->config->getValue('order_status_authorized');
+                if ($order->getState() !== 'processing') {
+                    $status = $this->config->getValue('order_status_authorized');
+                }
                 break;
 
             case Transaction::TYPE_CAPTURE:
@@ -452,8 +454,10 @@ class TransactionHandlerService
             $order->setState($state);
         }
 
-        // Set the order status
-        $order->setStatus($status);
+        if ($status) {
+            // Set the order status
+            $order->setStatus($status);
+        }
 
         // Save the order
         $order->save();
@@ -466,7 +470,7 @@ class TransactionHandlerService
     {
         // Get the order
         $order = $transaction->getOrder();
-        
+
         // Get the order payment
         $payment = $order->getPayment();
 
@@ -574,9 +578,9 @@ class TransactionHandlerService
         }
     }
 
-   /**
-    * Get the total credit memos amount.
-    */
+    /**
+     * Get the total credit memos amount.
+     */
     public function getCreditMemosTotal($order)
     {
         $total = 0;
@@ -597,7 +601,7 @@ class TransactionHandlerService
     {
         // Get the order
         $order = $transaction->getOrder();
-        
+
         // Loop through the items
         $result = 0;
         $creditMemos = $order->getCreditmemosCollection();
@@ -696,7 +700,7 @@ class TransactionHandlerService
 
         // Check the partial refund case
         $isPartialRefund = $order->getGrandTotal() > ($totalRefunded + $amount);
-        
+
         return $isPartialRefund && $isRefund ? true : false;
     }
 
@@ -713,7 +717,7 @@ class TransactionHandlerService
 
         // Check the partial capture case
         $isPartialCapture = $order->getGrandTotal() > ($totalCaptured + $amount);
-        
-        return $isPartialCapture && $isCapture? true : false;
+
+        return $isPartialCapture && $isCapture ? true : false;
     }
 }
