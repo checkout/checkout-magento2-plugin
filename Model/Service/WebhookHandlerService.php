@@ -186,7 +186,7 @@ class WebhookHandlerService
     public function setStatusCapturePending($order, $webhook)
     {
         // Handle deferred APM states
-        if ($webhook === 'payment_capture_pending') {
+        if ($webhook === 'payment_capture_pending' && $order->getState !== 'processing') {
             $state = $this->orderModel::STATE_PENDING_PAYMENT;
             $status = $order->getConfig()->getStateDefaultStatus($state);
             $order->setState($state);
