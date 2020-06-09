@@ -151,7 +151,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             // Set some required properties
             $this->data = $this->getRequest()->getParams();
 
-            if ($this->isEmptyCardToken($this->data)) {
+            if (!$this->isEmptyCardToken($this->data)) {
                 // Process the request
                 if ($this->getRequest()->isAjax() && $this->quote) {
                     // Create an order
