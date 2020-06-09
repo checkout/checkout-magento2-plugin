@@ -154,14 +154,21 @@ class TransactionHandlerService
                 $amount
             );
 
-            // Add the order comment
-            $this->addTransactionComment(
-                $transaction,
-                $amount
-            );
+            $eventData = json_decode($webhook['event_data']);
+            $isBackendCapture = false;
+            if (isset($eventData->data->metadata->isBackendCapture)) {
+                $isBackendCapture = $eventData->data->metadata->isBackendCapture;
+            }
+            if (!$isBackendCapture) {
+                // Add the order comment
+                $this->addTransactionComment(
+                    $transaction,
+                    $amount
+                );
 
-            // Process the invoice case
-            $this->processInvoice($transaction, $amount);
+                // Process the invoice case
+                $this->processInvoice($transaction, $amount);
+            }
         } else {
             // Get the payment
             $payment = $transaction->getOrder()->getPayment();

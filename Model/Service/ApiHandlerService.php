@@ -127,7 +127,7 @@ class ApiHandlerService
     /**
      * Voids a transaction.
      */
-    public function captureOrder($payment, $amount)
+    public function captureOrder($payment, $amount, $isBackendCapture = false)
     {
         // Get the order
         $order = $payment->getOrder();
@@ -143,6 +143,7 @@ class ApiHandlerService
                 $this->utilities->formatDecimals($amount),
                 $order
             );
+            $request->metadata['isBackendCapture'] = $isBackendCapture;
 
             // Get the response
             $response = $this->checkoutApi
