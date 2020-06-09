@@ -249,7 +249,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     }
 
     public function isEmptyCardToken($paymentData) {
-        if (!isset($paymentData->cardToken) || empty($paymentData->cardToken) || $paymentData->cardToken = "" ) {
+        if (!isset($paymentData['cardToken']) || empty($paymentData['cardToken']) || $paymentData['cardToken'] = "" ) {
             return true;
         }
         return false;
