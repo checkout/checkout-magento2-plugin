@@ -191,7 +191,7 @@ class WebhookHandlerService
             $status = $order->getConfig()->getStateDefaultStatus($state);
             $order->setState($state);
             $order->setStatus($status);
-            $order->addStatusHistoryComment(_('Payment capture initiated, awaiting capture confirmation.'));
+            $order->addStatusHistoryComment(__('Payment capture initiated, awaiting capture confirmation.'));
             $order->save();
         }
     }
