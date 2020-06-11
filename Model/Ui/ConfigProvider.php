@@ -93,7 +93,8 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
                 'checkoutcom_data' => [
                     'quote' => $this->quoteHandler->getQuoteData(),
                     'store' => [
-                        'name' => $this->config->getStoreName()
+                        'name' => $this->config->getStoreName(),
+                        'language' => $this->config->getStoreLanguage()
                     ],
                     'user' => [
                         'has_cards' => $this->vaultHandler->userHasCards(),

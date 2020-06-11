@@ -133,6 +133,11 @@ define(
                             self.removeCkoPaymentForm();
                         }
                     });
+
+                    // Clear frames after update billing event
+                     $(document).on('click', '.action-update', function () {
+                         Frames.init()
+                     })
                 },
 
                 /**
@@ -209,7 +214,7 @@ define(
                         {
                             publicKey: self.getValue('public_key'),
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
-                            localization: Utilities.getLangageFallback(),
+                            localization: Utilities.getShopLanguage(),
                             style: (formStyles) ? formStyles : {}
                         }
                     );

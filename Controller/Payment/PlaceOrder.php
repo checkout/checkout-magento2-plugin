@@ -18,6 +18,7 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
+use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
 
 /**
  * Class PlaceOrder
@@ -48,6 +49,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
      * @var ApiHandlerService
      */
     public $apiHandler;
+
+    /**
+     * @var PaymentErrorHandler
+     */
+    public $paymentErrorHandler;
 
     /**
      * @var JsonFactory
@@ -106,6 +112,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
+        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
@@ -118,6 +125,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->orderHandler = $orderHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
+        $this->paymentErrorHandler = $paymentErrorHandler;
         $this->checkoutSession = $checkoutSession;
         $this->utilities = $utilities;
         $this->config = $config;
@@ -143,56 +151,66 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             // Set some required properties
             $this->data = $this->getRequest()->getParams();
 
-            // Process the request
-            if ($this->getRequest()->isAjax() && $this->quote) {
-                // Create an order
-                $order = $this->orderHandler
-                    ->setMethodId($this->data['methodId'])
-                    ->handleOrder($this->quote);
+            if (!$this->isEmptyCardToken($this->data)) {
+                // Process the request
+                if ($this->getRequest()->isAjax() && $this->quote) {
+                    // Create an order
+                    $order = $this->orderHandler
+                        ->setMethodId($this->data['methodId'])
+                        ->handleOrder($this->quote);
 
-                // Process the payment
-                if ($this->orderHandler->isOrder($order)) {
-                    // Get response and success
-                    $response = $this->requestPayment($order);
+                    // Process the payment
+                    if ($this->orderHandler->isOrder($order)) {
+                        // Get response and success
+                        $response = $this->requestPayment($order);
 
-                    // Logging
-                    $this->logger->display($response);
+                        // Logging
+                        $this->logger->display($response);
 
-                    // Get the store code
-                    $storeCode = $this->storeManager->getStore()->getCode();
-                    
-                    // Process the response
-                    $api = $this->apiHandler->init($storeCode);
-                    if ($api->isValidResponse($response)) {
-                        // Get the payment details
-                        $paymentDetails = $api->getPaymentDetails($response->id);
-            
-                        // Add the payment info to the order
-                        $order = $this->utilities->setPaymentData($order, $response);
-            
-                        // Save the order
-                        $order->save();
+                        // Get the store code
+                        $storeCode = $this->storeManager->getStore()->getCode();
 
-                        // Update the response parameters
-                        $success = $response->isSuccessful();
-                        $url = $response->getRedirection();
+                        // Process the response
+                        $api = $this->apiHandler->init($storeCode);
+                        if ($api->isValidResponse($response)) {
+                            // Get the payment details
+                            $paymentDetails = $api->getPaymentDetails($response->id);
+
+                            // Add the payment info to the order
+                            $order = $this->utilities->setPaymentData($order, $response);
+
+                            // Save the order
+                            $order->save();
+
+                            // Update the response parameters
+                            $success = $response->isSuccessful();
+                            $url = $response->getRedirection();
+                        } else {
+
+                            // Payment failed
+                            if (isset($response->response_code)) {
+                                $message = $this->paymentErrorHandler->getErrorMessage($response->response_code);
+                            } else {
+                                $message = __('The transaction could not be processed.');
+                            }
+
+                            // Restore the quote
+                            $this->quoteHandler->restoreQuote($order->getIncrementId());
+
+                            // Handle order on failed payment
+                            $this->orderHandler->handleFailedPayment($order, $storeCode);
+                        }
                     } else {
                         // Payment failed
-                        $message = __('The transaction could not be processed.');
-
-                        // Restore the quote
-                        $this->quoteHandler->restoreQuote($order->getIncrementId());
-
-                        // Handle order on failed payment
-                        $this->orderHandler->handleFailedPayment($order, $storeCode);
+                        $message = __('The order could not be processed.');
                     }
                 } else {
                     // Payment failed
-                    $message = __('The order could not be processed.');
+                    $message = __('The request is invalid or there was no quote found.');
                 }
             } else {
-                // Payment failed
-                $message = __('The request is invalid or there was no quote found.');
+                // No token found
+                $message = __("Please enter valid card details.");
             }
         } catch (\Exception $e) {
             $success = false;
@@ -228,5 +246,17 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $order->getOrderCurrencyCode(),
             $order->getIncrementId()
         );
+    }
+
+    public function isEmptyCardToken($paymentData) {
+        if ($paymentData['methodId'] == "checkoutcom_card_payment") {
+            if (!isset($paymentData['cardToken'])
+                || empty($paymentData['cardToken'])
+                || $paymentData['cardToken'] == ""
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 }
