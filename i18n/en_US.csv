@@ -1,9 +1,14 @@
+"Please keep your website safe! Your checkout plugin (v' . . ') is not the latest version (v' . . ').
+         Update now to get the latest features and security updates. 
+         See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.","Please keep your website safe! Your checkout plugin (v' . . ') is not the latest version (v' . . ').
+         Update now to get the latest features and security updates. 
+         See https://github.com/checkout/checkout-magento2-plugin for detailed instructions."
 Configure,Configure
 Close,Close
 "Learn More","Learn More"
 "View Demo","View Demo"
-"The card could not be saved.","The card could not be saved."
 "The payment card has been stored successfully.","The payment card has been stored successfully."
+"The card could not be saved.","The card could not be saved."
 "The payment request was declined by the gateway.","The payment request was declined by the gateway."
 "The order could not be created.","The order could not be created."
 "The request is invalid.","The request is invalid."
@@ -15,11 +20,13 @@ Close,Close
 "The transaction could not be processed.","The transaction could not be processed."
 "The order could not be processed.","The order could not be processed."
 "The request is invalid or there was no quote found.","The request is invalid or there was no quote found."
+"Please enter valid card details.","Please enter valid card details."
 "The transaction could not be processed or has been cancelled.","The transaction could not be processed or has been cancelled."
 "Invalid request. No order found.","Invalid request. No order found."
 "Invalid request. No session ID found.","Invalid request. No session ID found."
 "Webhook and order successfully processed.","Webhook and order successfully processed."
 "The order creation failed. Please check the error logs.","The order creation failed. Please check the error logs."
+"The webhook response is invalid.","The webhook response is invalid."
 "The webhook payment response is invalid.","The webhook payment response is invalid."
 "Unauthorized request. No matching private shared key.","Unauthorized request. No matching private shared key."
 Black,Black
@@ -30,6 +37,8 @@ White,White
 Visa,Visa
 Mastercard,Mastercard
 "American Express","American Express"
+None,None
+title,title
 Test,Test
 Production,Production
 Standard,Standard
@@ -44,6 +53,7 @@ French,French
 Italian,Italian
 Dutch,Dutch
 "Cancel the order","Cancel the order"
+"Delete the order","Delete the order"
 "Do nothing","Do nothing"
 Processing,Processing
 Pending,Pending
@@ -63,13 +73,20 @@ Authorize,Authorize
 "There is no quote available to place an order.","There is no quote available to place an order."
 "A payment method ID is required to place an order.","A payment method ID is required to place an order."
 " for an amount of %1. Action ID: %2. Event ID: %3. Payment ID: %4. Error: %5 %6"," for an amount of %1. Action ID: %2. Event ID: %3. Payment ID: %4. Error: %5 %6"
+"The payment was declined, please try again. If the problem persists, try another card or payment method.","The payment was declined, please try again. If the problem persists, try another card or payment method."
+"You have reached the limit allowed for this card/account, please try again with another card or payment method.","You have reached the limit allowed for this card/account, please try again with another card or payment method."
+"Something went wrong, please try again later","Something went wrong, please try again later"
+"It looks like your card is invalid or blocked, please try with another card","It looks like your card is invalid or blocked, please try with another card"
+"It looks like this transaction has been blocked due to account holder action, please contact your bank or use another card or payment method","It looks like this transaction has been blocked due to account holder action, please contact your bank or use another card or payment method"
+"3DS has expired or authentication failed, please try again","3DS has expired or authentication failed, please try again"
+"The transaction could not be processed","The transaction could not be processed"
 "This card is already saved.","This card is already saved."
 ending,ending
 expires,expires
 "Missing action ID for webhook with payment ID %","Missing action ID for webhook with payment ID %"
+"Payment capture initiated, awaiting capture confirmation.","Payment capture initiated, awaiting capture confirmation."
 "The payment request was successfully processed.","The payment request was successfully processed."
 "The transaction could not be processed. Please check the payment details.","The transaction could not be processed. Please check the payment details."
-"The gateway declined the MOTO payment request.","The gateway declined the MOTO payment request."
 "Please provide the required card information for the MOTO payment.","Please provide the required card information for the MOTO payment."
 "Missing required card information for the MOTO payment.","Missing required card information for the MOTO payment."
 CVV,CVV
@@ -78,7 +95,6 @@ CVV,CVV
 "Save the card","Save the card"
 "Card Number","Card Number"
 "Expiration Date","Expiration Date"
-"Security Code","Security Code"
 Type,Type
 Actions,Actions
 Delete,Delete
@@ -102,11 +118,5 @@ Debitor,Debitor
 "Your rights regarding the above mandate are explained in a statement that you can obtain from your bank.","Your rights regarding the above mandate are explained in a statement that you can obtain from your bank."
 "Place Order","Place Order"
 "Card number","Card number"
-"Expiry date","Expiry date"
-"Security code","Security code"
 "Save this card for later use.","Save this card for later use."
 "Stored Payment Methods","Stored Payment Methods"
-"Stored Cards with Checkout.com","Stored Cards with Checkout.com"
-"Pay by Card with Checkout.com","Pay by Card with Checkout.com"
-"Alternative Payments with Checkout.com","Alternative Payments with Checkout.com"
-"Google Pay with Checkout.com","Google Pay with Checkout.com"
