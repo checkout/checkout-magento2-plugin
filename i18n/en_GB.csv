@@ -78,6 +78,7 @@ CVV,CVV
 "Save the card","Save the card"
 "Card Number","Card Number"
 "Expiration Date","Expiration Date"
+"Security Code","Security Code"
 Type,Type
 Actions,Actions
 Delete,Delete
@@ -105,3 +106,8 @@ Debitor,Debitor
 "Security code","Security code"
 "Save this card for later use.","Save this card for later use."
 "Stored Payment Methods","Stored Payment Methods"
+"Stored Cards with Checkout.com","Stored Cards with Checkout.com"
+"Pay by Card with Checkout.com","Pay by Card with Checkout.com"
+"Alternative Payments with Checkout.com","Alternative Payments with Checkout.com"
+"Google Pay with Checkout.com","Google Pay with Checkout.com"
+

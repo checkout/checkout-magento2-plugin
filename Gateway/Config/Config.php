@@ -18,6 +18,7 @@
 namespace CheckoutCom\Magento2\Gateway\Config;
 
 use CheckoutCom\Magento2\Gateway\Config\Loader;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class Config
@@ -295,6 +296,12 @@ class Config
     public function getStoreUrl()
     {
         return $this->storeManager->getStore()->getBaseUrl();
+    }
+
+    public function getStoreLanguage() {
+        $storeId =  $this->storeManager->getStore()->getId();
+
+       return  $this->scopeConfig->getValue('general/locale/code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**

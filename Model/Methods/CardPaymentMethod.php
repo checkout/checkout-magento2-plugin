@@ -333,7 +333,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Process the capture request
-            $response = $api->captureOrder($payment, $amount);
+            $response = $api->captureOrder($payment, $amount, true);
             if (!$api->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('The capture request could not be processed.')

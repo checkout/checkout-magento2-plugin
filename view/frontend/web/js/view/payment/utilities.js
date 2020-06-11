@@ -184,10 +184,47 @@ define(
             /**
              * Gets the card form language fallback.
              *
-             * @return {bool}
+             * @return {string}
              */
             getLangageFallback: function () {
                 return Config[KEY_DATA].user.language_fallback;
+            },
+
+            /**
+             * Get the card form shop language
+             *
+             * @return {string}
+             */
+            getShopLanguage() {
+                let mageShopLanguage = Config[KEY_DATA].store.language;
+                let framesLanguage;
+                switch(mageShopLanguage) {
+                    case 'nl_NL':
+                        framesLanguage = 'NL-NL';
+                        break;
+                    case 'en_GB':
+                         framesLanguage = 'EN-GB';
+                        break;
+                    case 'fr_FR':
+                         framesLanguage = 'FR-FR';
+                        break;
+                    case 'de_DE':
+                        framesLanguage = 'DE-DE';
+                        break;
+                    case 'it_IT':
+                        framesLanguage = 'IT-IT';
+                        break;
+                    case 'ko_KR':
+                        framesLanguage = 'KR-KR';
+                        break;
+                    case 'es_ES':
+                        framesLanguage = 'ES-ES';
+                        break;
+                    default:
+                      framesLanguage = this.getLangageFallback().toUpperCase().split("_").join('-');
+                }
+
+                return framesLanguage;
             },
 
             /**

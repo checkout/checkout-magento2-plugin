@@ -20,7 +20,7 @@
                class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
         <label data-bind="attr: {'for': getCode()}" class="label">
-            <span data-bind="text: getTitle()"></span>
+            <span data-bind="i18n: getTitle()"></span>
         </label>
 
         <!-- Card Icons -->
@@ -73,7 +73,7 @@
                             <!-- Date field -->
                             <div>
                                 <label for="expiry-date">
-                                    <!-- ko i18n: 'Expiry date'--><!-- /ko -->
+                                    <span translate="'Expiration Date'"></span>
                                 </label>
                                 <div class="input-container expiry-date">
                                     <div class="icon-container">
@@ -89,7 +89,7 @@
                             <!-- Code field -->
                             <div>
                                 <label for="cvv">
-                                    <!-- ko i18n: 'Security code'--><!-- /ko -->
+                                    <span translate="'Card Verification Number'"></span>
                                 </label>
                                 <div class="input-container cvv">
                                     <div class="icon-container">
