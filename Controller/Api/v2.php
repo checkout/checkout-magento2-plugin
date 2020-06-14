@@ -119,13 +119,8 @@ class V2 extends \Magento\Framework\App\Action\Action
 
         // Validate the request
         if ($this->isValidRequest()) {
-            // Load the quote
-            $quote = $this->loadQuote();
-
-            // Create an order
-            $order = $this->orderHandler
-                ->setMethodId('checkoutcom_card_payment')
-                ->handleOrder($quote);
+            // Create the order
+            $order = $this->createOrder();
 
             // Process the payment
             if ($this->orderHandler->isOrder($order)) {
@@ -139,6 +134,24 @@ class V2 extends \Magento\Framework\App\Action\Action
 
         // Return the json response
         return $this->jsonFactory->create()->setData($result);
+    }
+
+    /**
+     * Create an order.
+     *
+     * @return Order
+     */
+    public function createOrder()
+    {
+        // Load the quote
+        $quote = $this->loadQuote();
+
+        // Create an order
+        $order = $this->orderHandler
+            ->setMethodId('checkoutcom_card_payment')
+            ->handleOrder($quote);
+
+        return $order;
     }
 
     /**
