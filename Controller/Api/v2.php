@@ -242,29 +242,6 @@ class V2 extends \Magento\Framework\App\Action\Action
      */
     public function isValidRequest()
     {
-        return $this->config->isValidAuth('pk')
-        && $this->dataIsValid();
-    }
-
-    /**
-     * Check if the data is valid.
-     */
-    public function dataIsValid()
-    {
-        // Check the quote ID
-        if ((!isset($this->data->quote_id) && !isset($this->data['quote_id']))|| (int) $this->data->quote_id == 0) {
-            throw new LocalizedException(
-                __('The quote ID is missing or invalid.')
-            );
-        }
-
-        // Check the payment token
-        if (!isset($this->data->payment_token) || empty($this->data->payment_token)) {
-            throw new LocalizedException(
-                __('The payment token is missing or invalid.')
-            );
-        }
-
-        return true;
+        return $this->config->isValidAuth('pk');
     }
 }
