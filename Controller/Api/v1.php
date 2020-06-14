@@ -147,7 +147,7 @@ class V1 extends \Magento\Framework\App\Action\Action
      */
     public function processPayment($order, $result)
     {
-        // Get response and success
+        // Send the payment request and get the response
         $response = $this->requestPayment($order);
 
         // Get the store code
