@@ -165,14 +165,13 @@ class V1 extends \Magento\Framework\App\Action\Action
             // Save the order
             $order->save();
 
-            $result = [
-                'success' => $response->isSuccessful(),
-                'order_id' => $order->getId(),
-                'error_message' => ''
-            ];
+            // Update the result
+            $result['success'] = $response->isSuccessful();
+            $result['order_id'] = $order->getId();
+            $result['error_message'] = '';
         } 
 
-        // Return an error message by default
+        // Return the result
         return $result;
     }
 
