@@ -18,7 +18,6 @@
 namespace CheckoutCom\Magento2\Controller\Api;
 
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
-use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Class V1
@@ -107,67 +106,74 @@ class V1 extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        try {
-            // Set the response parameters
-            $success = false;
-            $orderId = 0;
-            $errorMessage = '';
+        // Prepare the default response
+        $result = [
+            'success' => false,
+            'order_id' => 0,
+            'error_message' => __('The payment request was declined by the gateway.')
+        ];
 
-            // Get the request parameters
-            $this->data = json_decode($this->getRequest()->getContent());
+        // Get the request parameters
+        $this->data = json_decode($this->getRequest()->getContent());
 
-            // Validate the request
-            if ($this->isValidRequest()) {
-                // Load the quote
-                $quote = $this->loadQuote();
+        // Validate the request
+        if ($this->isValidRequest()) {
+            // Load the quote
+            $quote = $this->loadQuote();
 
-                // Create an order
-                $order = $this->orderHandler
-                    ->setMethodId('checkoutcom_card_payment')
-                    ->handleOrder($quote);
+            // Create an order
+            $order = $this->orderHandler
+                ->setMethodId('checkoutcom_card_payment')
+                ->handleOrder($quote);
 
-                // Process the payment
-                if ($this->orderHandler->isOrder($order)) {
-                    // Get response and success
-                    $response = $this->requestPayment($order);
-
-                    // Get the store code
-                    $storeCode = $this->storeManager->getStore()->getCode();
-
-                    // Process the response
-                    $api = $this->apiHandler->init($storeCode);
-                    if ($api->isValidResponse($response)) {
-                        // Get the payment details
-                        $paymentDetails = $api->getPaymentDetails($response->id);
-
-                        // Add the payment info to the order
-                        $order = $this->utilities->setPaymentData($order, $response);
-
-                        // Save the order
-                        $order->save();
-
-                        // Update the response parameters
-                        $success = $response->isSuccessful();
-                        $orderId = $order->getId();
-                    } else {
-                        $errorMessage = __('The payment request was declined by the gateway.');
-                    }
-                } else {
-                    $errorMessage = __('The order could not be created.');
-                }
+            // Process the payment
+            if ($this->orderHandler->isOrder($order)) {
+                $result = $this->processPayment($order, $result);
             } else {
-                $errorMessage = __('The request is invalid.');
+                $result['error_message'] = __('The order could not be created.');
             }
-        } catch (\Exception $e) {
-            $errorMessage = $e->getMessage();
-        } finally {
-            // Return the json response
-            return $this->jsonFactory->create()->setData([
-                'success' => $success,
-                'order_id' => $orderId,
-                'error_message' => $errorMessage
-            ]);
+        } else {
+            $result['error_message'] = __('The request is invalid.');
         }
+
+        // Return the json response
+        return $this->jsonFactory->create()->setData($result);
+    }
+
+    /**
+     * Process the payment request and handle the response.
+     *
+     * @return Array
+     */
+    public function processPayment($order, $result)
+    {
+        // Get response and success
+        $response = $this->requestPayment($order);
+
+        // Get the store code
+        $storeCode = $this->storeManager->getStore()->getCode();
+
+        // Process the response
+        $api = $this->apiHandler->init($storeCode);
+        if ($api->isValidResponse($response)) {
+            // Get the payment details
+            $paymentDetails = $api->getPaymentDetails($response->id);
+
+            // Add the payment info to the order
+            $order = $this->utilities->setPaymentData($order, $response);
+
+            // Save the order
+            $order->save();
+
+            $result = [
+                'success' => $response->isSuccessful(),
+                'order_id' => $order->getId(),
+                'error_message' => ''
+            ];
+        } 
+
+        // Return an error message by default
+        return $result;
     }
 
     /**
