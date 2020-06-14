@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -18,6 +17,7 @@
 namespace CheckoutCom\Magento2\Controller\Api;
 
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Class V2
@@ -75,6 +75,16 @@ class V2 extends \Magento\Framework\App\Action\Action
     public $data;
 
     /**
+     * @var Array
+     */
+    public $result;
+
+    /**
+     * @var Object
+     */
+    public $api;
+
+    /**
      * Callback constructor
      */
     public function __construct(
@@ -106,67 +116,43 @@ class V2 extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
+        // Prepare the V2 object
+        $this->init();
+ 
+        // Process the payment
+        if ($this->isValidRequest()) {
+            $this->result = $this->processPayment();
+            if (!$this->result['success']) {
+                $this->result['error_message'] = __('The order could not be created.');
+            }
+        } else {
+            $this->result['error_message'] = __('The request is invalid.');
+        }
+
+        // Return the json response
+        return $this->jsonFactory->create()->setData($this->result);
+    }
+
+    /**
+     * Get an API handler instance and the request data.
+     */
+    public function init()
+    {
+        // Get the request parameters
+        $this->data = json_decode($this->getRequest()->getContent());
+
+        // Get an API handler instance
+        $this->api = $this->apiHandler->init(
+            $this->storeManager->getStore()->getCode()
+        );
+
         // Prepare the default response
-        $result = [
+        $this->result = [
             'success' => false,
             'order_id' => 0,
             'redirect_url' => '',
             'error_message' => __('The payment request was declined by the gateway.')
         ];
-
-        // Get the request parameters
-        $this->data = json_decode($this->getRequest()->getContent());
-
-        // Validate the request
-        if ($this->isValidRequest()) {
-            // Create the order
-            $order = $this->createOrder();
-
-            // Process the payment
-            if ($this->orderHandler->isOrder($order)) {
-                $result = $this->processPayment($order, $result);
-            } else {
-                $result['error_message'] = __('The order could not be created.');
-            }
-        } else {
-            $result['error_message'] = __('The request is invalid.');
-        }
-
-        // Return the json response
-        return $this->jsonFactory->create()->setData($result);
-    }
-
-    /**
-     * Create an order.
-     *
-     * @return Order
-     */
-    public function createOrder()
-    {
-        // Load the quote
-        $quote = $this->loadQuote();
-
-        // Create an order
-        $order = $this->orderHandler
-            ->setMethodId('checkoutcom_card_payment')
-            ->handleOrder($quote);
-
-        return $order;
-    }
-
-    /**
-     * Get a payment response.
-     *
-     * @return Object
-     */
-    public function getResponse($order)
-    {
-        if ($this->data->session_id) {
-            return $api->getPaymentDetails($sessionId); 
-        }
-        else {
-            return $this->requestPayment($order);
-        }
     }
 
     /**
@@ -174,43 +160,39 @@ class V2 extends \Magento\Framework\App\Action\Action
      *
      * @return Array
      */
-    public function processPayment($order, $result)
+    public function processPayment()
     {
-        // Get the payment response
-        $response = $this->getResponse($order);
+        $order = $this->createOrder();
+        if ($this->orderHandler->isOrder($order)) {
+            // Get the payment response
+            $response = $this->getResponse($order);
 
-        // Get the store code
-        $storeCode = $this->storeManager->getStore()->getCode();
+            // Process the payment response
+            $is3ds = property_exists($response, '_links')
+            && isset($response->_links['redirect'])
+            && isset($response->_links['redirect']['href']);
+            if ($is3ds) {
+                $this->result['success'] = true;
+                $this->result['redirect_url'] = $response->_links['redirect']['href'];
+                $this->result['error_message'] = '';
+            }
+            else if ($this->api->isValidResponse($response)) {
+                // Get the payment details
+                $paymentDetails = $api->getPaymentDetails($response->id);
 
-        // Get an API handler instance
-        $api = $this->apiHandler->init($storeCode);
+                // Add the payment info to the order
+                $order = $this->utilities->setPaymentData($order, $response);
 
-        // Process the payment response
-        $is3ds = property_exists($response, '_links')
-        && isset($response->_links['redirect'])
-        && isset($response->_links['redirect']['href']);
-        if ($is3ds) {
-            $result['success'] = true;
-            $result['redirect_url'] = $response->_links['redirect']['href'];
-            $result['error_message'] = '';
-        }
-        else if ($api->isValidResponse($response)) {
-            // Get the payment details
-            $paymentDetails = $api->getPaymentDetails($response->id);
+                // Save the order
+                $order->save();
 
-            // Add the payment info to the order
-            $order = $this->utilities->setPaymentData($order, $response);
-
-            // Save the order
-            $order->save();
-
-            // Update the result
-            $result['success'] = $response->isSuccessful();
-            $result['order_id'] = $order->getId();
-            $result['error_message'] = '';
+                // Update the result
+                $this->result['success'] = $response->isSuccessful();
+                $this->result['order_id'] = $order->getId();
+                $this->result['error_message'] = '';
+            }
         }
 
-        // Return the result
         return $result;
     }
 
@@ -242,10 +224,23 @@ class V2 extends \Magento\Framework\App\Action\Action
     }
 
     /**
+     * Get a payment response.
+     *
+     * @return Object
+     */
+    public function getResponse($order)
+    {
+        return ($this->data->session_id && !empty($this->data->session_id))
+        ? $this->api->getPaymentDetails($this->data->session_id)
+        : $this->requestPayment($order);
+    }
+
+    /**
      * Load the quote.
      */
     public function loadQuote()
     {
+        // Get the quote id
         if (!isset($this->data->quote_id)) {
             $this->data->quote_id = $this->data['quote_id'];
         }
@@ -271,5 +266,23 @@ class V2 extends \Magento\Framework\App\Action\Action
     public function isValidRequest()
     {
         return $this->config->isValidAuth('pk');
+    }
+
+    /**
+     * Create an order.
+     *
+     * @return Order
+     */
+    public function createOrder()
+    {
+        // Load the quote
+        $quote = $this->loadQuote();
+
+        // Create an order
+        $order = $this->orderHandler
+            ->setMethodId('checkoutcom_card_payment')
+            ->handleOrder($quote);
+
+        return $order;
     }
 }
