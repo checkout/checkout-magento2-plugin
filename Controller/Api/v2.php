@@ -155,14 +155,29 @@ class V2 extends \Magento\Framework\App\Action\Action
     }
 
     /**
+     * Get a payment response.
+     *
+     * @return Object
+     */
+    public function getResponse($order)
+    {
+        if ($this->data->session_id) {
+            return $api->getPaymentDetails($sessionId); 
+        }
+        else {
+            return $this->requestPayment($order);
+        }
+    }
+
+    /**
      * Process the payment request and handle the response.
      *
      * @return Array
      */
     public function processPayment($order, $result)
     {
-        // Send the payment request and get the response
-        $response = $this->requestPayment($order);
+        // Get the payment response
+        $response = $this->getResponse($order);
 
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
