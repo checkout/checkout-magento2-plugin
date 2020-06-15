@@ -230,8 +230,9 @@ class V2 extends \Magento\Framework\App\Action\Action
      */
     public function getPaymentResponse($order)
     {
-        return ($this->data->session_id && !empty($this->data->session_id))
-        ? $this->api->getPaymentDetails($this->data->session_id)
+        $sessionId = $this->getRequest()->getParam('cko-session-id');
+        return ($sessionId && !empty($sessionId))
+        ? $this->api->getPaymentDetails($sessionId)
         : $this->requestPayment($order);
     }
 
