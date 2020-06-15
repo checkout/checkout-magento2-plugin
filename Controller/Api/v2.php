@@ -178,7 +178,7 @@ class V2 extends \Magento\Framework\App\Action\Action
             }
             else if ($this->api->isValidResponse($response)) {
                 // Get the payment details
-                $paymentDetails = $api->getPaymentDetails($response->id);
+                $paymentDetails = $this->api->getPaymentDetails($response->id);
 
                 // Add the payment info to the order
                 $order = $this->utilities->setPaymentData($order, $response);
