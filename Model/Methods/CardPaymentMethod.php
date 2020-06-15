@@ -256,8 +256,8 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $quote
         );
         $request->reference = $reference;
-        $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
-        $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+        $request->success_url = $this->getSuccessUrl($data);
+        $request->failure_url = $this->getFailureUrl($data);
         $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
         $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
         $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
@@ -304,6 +304,34 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
         }
+    }
+
+    /**
+     * Get the success redirection URL for the payment request.
+     * 
+     * @return string
+     */
+    public function getSuccessUrl($data)
+    {
+        if (isset($data['successUrl'])) {
+            return $data['successUrl'];
+        }
+
+        return $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+    }
+
+    /**
+     * Get the failure redirection URL for the payment request.
+     * 
+     * @return string
+     */
+    public function getFailureUrl($data)
+    {
+        if (isset($data['failureUrl'])) {
+            return $data['failureUrl'];
+        }
+        
+        return $this->config->getStoreUrl() . 'checkout_com/payment/fail';
     }
 
     /**
