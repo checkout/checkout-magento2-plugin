@@ -193,7 +193,7 @@ class V2 extends \Magento\Framework\App\Action\Action
             }
         }
 
-        return $result;
+        return $this->result;
     }
 
     /**
