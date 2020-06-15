@@ -133,6 +133,9 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
 
         // Process the payment
         if ($this->needsMotoProcessing()) {
+            // Prepare the response container
+            $response = null;
+
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode);
 
