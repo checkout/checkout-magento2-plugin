@@ -165,7 +165,7 @@ class V2 extends \Magento\Framework\App\Action\Action
         $order = $this->createOrder();
         if ($this->orderHandler->isOrder($order)) {
             // Get the payment response
-            $response = $this->getResponse($order);
+            $response = $this->getPaymentResponse($order);
 
             // Process the payment response
             $is3ds = property_exists($response, '_links')
@@ -228,7 +228,7 @@ class V2 extends \Magento\Framework\App\Action\Action
      *
      * @return Object
      */
-    public function getResponse($order)
+    public function getPaymentResponse($order)
     {
         return ($this->data->session_id && !empty($this->data->session_id))
         ? $this->api->getPaymentDetails($this->data->session_id)
