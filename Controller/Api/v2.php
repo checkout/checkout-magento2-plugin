@@ -208,9 +208,20 @@ class V2 extends \Magento\Framework\App\Action\Action
             'cardToken' => $this->data->payment_token
         ];
 
-        if (isset($this->data->card_bin)) {
+        // Set the card bin
+        if (isset($this->data->card_bin) && !empty($this->data->card_bin)) {
             $payload['cardBin'] = $this->data->card_bin;
         }
+
+        // Set the success URL
+        if (isset($this->data->success_url) && !empty($this->data->success_url)) {
+            $payload['successUrl'] = $this->data->success_url;
+        }  
+
+        // Set the failure URL
+        if (isset($this->data->failure_url) && !empty($this->data->failure_url)) {
+            $payload['failureUrl'] = $this->data->failure_url;
+        }  
 
         // Send the charge request
         return $this->methodHandler
