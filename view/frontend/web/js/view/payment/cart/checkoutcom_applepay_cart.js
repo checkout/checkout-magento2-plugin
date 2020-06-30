@@ -15,59 +15,74 @@
 
 require([
     'jquery',
+    'Magento_Checkout/js/view/payment/default',
     'CheckoutCom_Magento2/js/view/payment/utilities',
-], function($, Utilities) {$(function() {
+    'Magento_Checkout/js/model/full-screen-loader',
+    'Magento_Checkout/js/model/payment/additional-validators',
+    'Magento_Checkout/js/action/redirect-on-success',
+    'mage/translate'
+], function($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, __) {$(function() {
    let checkoutConfig = window.checkoutConfig.payment['checkoutcom_magento2'];
    const buttonTarget =  '#ckoApplePayButton';
-
+    const methodId = 'checkoutcom_apple_pay';
 
 
       if(checkoutConfig['checkoutcom_apple_pay']['enabled_on_cart'] = 1) {
-launchApplePay()
+        launchApplePay()
       }
 
+    /**
+     * @return {array}
+     */
+     function getLineItems() {
+        return [];
+    }
+
+    /**
+     * @return {array}
+     */
+     function getSupportedNetworks() {
+        return getValue('supported_networks').split(',');
+    }
+
+    /**
+     * @return {string}
+     */
+     function getValue(field) {
+        return Utilities.getValue(methodId, field);
+    }
 
     /**
      * @return {bool}
      */
     function launchApplePay() {
         // Prepare the parameters
-        var self = this;
 
         // Check if the session is available
         if (window.ApplePaySession) {
-            var merchantIdentifier = self.getValue('merchant_id');
-            var promise = ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
-            promise.then(
-                function (canMakePayments) {
+            var merchantIdentifier = getValue('merchant_id');
+            console.log(merchantIdentifier);
+            var canMakePayments = window.ApplePaySession.canMakePayments(merchantIdentifier);
+            console.log(canMakePayments);
+
                     if (canMakePayments) {
                         $(buttonTarget).css('display', 'block');
+                        $(buttonTarget).css('display', 'block');
                     } else {
-                        Utilities.showMessage(
-                            'warning',
-                            __('Apple Pay is available but not currently active.'),
-                            METHOD_ID
-                        );
+                      console.log("apple pay couldn't load")
                     }
-                }
-            ).catch(
-                function (error) {
-                    Utilities.log(error);
-                }
-            );
         } else {
             $(buttonTarget).css('display', 'none');
             Utilities.showMessage(
                 'warning',
                 __('Apple Pay is not available for this browser.'),
-                METHOD_ID
+                methodId
             );
         }
 
         // Handle the events
         $(buttonTarget).click(
             function (evt) {
-                if (Utilities.methodIsSelected(METHOD_ID)) {
                     // Validate T&C submission
                     if (!AdditionalValidators.validate()) {
                         return;
@@ -85,8 +100,9 @@ launchApplePay()
                             label: Utilities.getStoreName(),
                             amount: runningTotal
                         },
-                        supportedNetworks: self.getSupportedNetworks(),
-                        merchantCapabilities: self.getMerchantCapabilities()
+                        supportedNetworks: getSupportedNetworks(),
+                        merchantCapabilities: getMerchantCapabilities()
+
                     };
 
                     // Start the payment session
@@ -94,7 +110,7 @@ launchApplePay()
 
                     // Merchant Validation
                     session.onvalidatemerchant = function (event) {
-                        var promise = self.performValidation(event.validationURL);
+                        var promise = performValidation(event.validationURL);
                         promise.then(
                             function (merchantSession) {
                                 session.completeMerchantValidation(merchantSession);
@@ -119,8 +135,8 @@ launchApplePay()
                             amount: runningTotal
                         };
 
-                        session.completeShippingContactSelection(status, shippingOptions, newTotal, self.getLineItems());
-                    }
+                        session.completeShippingContactSelection(status, shippingOptions, newTotal, getLineItems());
+                    };
 
                     // Shipping method selection
                     session.onshippingmethodselected = function (event) {
@@ -131,8 +147,8 @@ launchApplePay()
                             amount: runningTotal
                         };
 
-                        session.completeShippingMethodSelection(status, newTotal, self.getLineItems());
-                    }
+                        session.completeShippingMethodSelection(status, newTotal, getLineItems());
+                    };
 
                     // Payment method selection
                     session.onpaymentmethodselected = function (event) {
@@ -142,20 +158,20 @@ launchApplePay()
                             amount: runningTotal
                         };
 
-                        session.completePaymentMethodSelection(newTotal, self.getLineItems());
+                        session.completePaymentMethodSelection(newTotal, getLineItems());
                     };
 
                     // Payment method authorization
                     session.onpaymentauthorized = function (event) {
                         // Prepare the payload
                         var payload = {
-                            methodId: METHOD_ID,
+                            methodId: methodId,
                             cardToken: event.payment.token,
-                            source: METHOD_ID
+                            source: methodId
                         };
 
                         // Send the request
-                        var promise = self.sendPaymentRequest(payload);
+                        var promise = sendPaymentRequest(payload);
                         promise.then(
                             function (success) {
                                 var status;
@@ -178,7 +194,7 @@ launchApplePay()
                                 Utilities.log(error);
                             }
                         );
-                    }
+                    };
 
                     // Session cancellation
                     session.oncancel = function (event) {
@@ -187,7 +203,6 @@ launchApplePay()
 
                     // Begin session
                     session.begin();
-                }
             }
         );
     }
@@ -224,7 +239,7 @@ launchApplePay()
      */
      function performValidation(valURL) {
         var controllerUrl = Utilities.getUrl('applepay/validation');
-        var validationUrl = controllerUrl + '?u=' + valURL + '&method_id=' + METHOD_ID;
+        var validationUrl = controllerUrl + '?u=' + valURL + '&method_id=' + methodId;
 
         return new Promise(
             function (resolve, reject) {
@@ -246,7 +261,7 @@ launchApplePay()
      */
      function getMerchantCapabilities() {
         var output = ['supports3DS'];
-        var capabilities = this.getValue('merchant_capabilities').split(',');
+        var capabilities = getValue('merchant_capabilities').split(',');
 
         return output.concat(capabilities);
     }
