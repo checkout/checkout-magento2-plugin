@@ -86,8 +86,11 @@ class Utilities
             ->getMethodInstance()
             ->getInfoInstance()
             ->getData();
-
-        return $paymentData['additional_information']['transaction_info'];
+        if (isset($paymentData['additional_information']['transaction_info'])) {
+            return $paymentData['additional_information']['transaction_info'];
+        } else {
+            return null;
+        }
     }
 
     /**
