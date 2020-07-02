@@ -20,8 +20,10 @@ require([
     'Magento_Checkout/js/model/full-screen-loader',
     'Magento_Checkout/js/model/payment/additional-validators',
     'Magento_Checkout/js/action/redirect-on-success',
+    'Magento_Checkout/js/model/shipping-service',
+    'Magento_Customer/js/model/customer',
     'mage/translate'
-], function($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, __) {$(function() {
+], function($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, shippingService, Customer,  __) {$(function() {
    let checkoutConfig = window.checkoutConfig.payment['checkoutcom_magento2'];
    const buttonTarget =  '#ckoApplePayButton';
     const methodId = 'checkoutcom_apple_pay';
@@ -52,22 +54,68 @@ require([
         return Utilities.getValue(methodId, field);
     }
 
+    function getShippingMethods () {
+        let result = null;
+        let restUrl = window.BASE_URL;
+        restUrl += 'rest/all/V1/guest-carts/' + window.checkoutConfig.quoteData.entity_id + '/shipping-methods';
+        restUrl += '?form_key=' + window.checkoutConfig.formKey;
+
+        if (Customer.isLoggedIn()) {
+            restUrl = window.BASE_URL + 'rest/default/V1/';
+            restUrl += 'carts/mine/shipping-methods';
+            restUrl += '?form_key=' + window.checkoutConfig.formKey;
+        }
+
+        // Send the AJAX request
+        $.ajax({
+            url: restUrl,
+            type: 'GET',
+            contentType: "application/json",
+            dataType: "json",
+            async: false,
+            showLoader: true,
+            success: function (data, status, xhr) {
+                result = data;
+            },
+            error: function (request, status, error) {
+                console.log(error);
+            }
+        });
+
+        return formatShipping(result);
+    }
+
+    function formatShipping(shippingData) {
+         let formatted = [];
+         
+         shippingData.forEach(function (shippingMethod) {
+           if (shippingMethod.available) {
+               formatted.push(
+                   {
+                       "label": shippingMethod.method_title,
+                       "amount": shippingMethod.price_incl_tax,
+                       "identifier": shippingMethod.method_code,
+                       "detail": "Shipping Method"
+                   }
+               )
+           }
+         });
+        return formatted;
+    }
+    
     /**
      * @return {bool}
      */
     function launchApplePay() {
         // Prepare the parameters
-
+        
+        
         // Check if the session is available
         if (window.ApplePaySession) {
             var merchantIdentifier = getValue('merchant_id');
-            console.log(merchantIdentifier);
             var canMakePayments = window.ApplePaySession.canMakePayments(merchantIdentifier);
-            console.log(canMakePayments);
-
                     if (canMakePayments) {
-                        $(buttonTarget).css('display', 'block');
-                        $(buttonTarget).css('display', 'block');
+                        $(buttonTarget).css('display', 'inline-block');
                     } else {
                       console.log("apple pay couldn't load")
                     }
@@ -83,11 +131,7 @@ require([
         // Handle the events
         $(buttonTarget).click(
             function (evt) {
-                    // Validate T&C submission
-                    if (!AdditionalValidators.validate()) {
-                        return;
-                    }
-
+                let event = shippingService.getShippingRates();
                     // Prepare the parameters
                     var runningTotal         = Utilities.getQuoteValue();
                     var billingAddress       = Utilities.getBillingAddress();
@@ -101,13 +145,22 @@ require([
                             amount: runningTotal
                         },
                         supportedNetworks: getSupportedNetworks(),
-                        merchantCapabilities: getMerchantCapabilities()
-
+                        merchantCapabilities: getMerchantCapabilities(),
+                        requiredShippingContactFields: [
+                            "postalAddress",
+                            "name",
+                            "phone",
+                            "email"
+                        ],
+                        requiredBillingContactFields: [
+                            "postalAddress"
+                        ],
+                        shippingMethods: getShippingMethods()
                     };
 
                     // Start the payment session
                     var session = new ApplePaySession(1, paymentRequest);
-
+                    console.log(session);
                     // Merchant Validation
                     session.onvalidatemerchant = function (event) {
                         var promise = performValidation(event.validationURL);
