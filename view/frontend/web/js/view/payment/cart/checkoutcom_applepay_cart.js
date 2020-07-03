@@ -32,84 +32,11 @@ require([
       if(checkoutConfig['checkoutcom_apple_pay']['enabled_on_cart'] = 1) {
         launchApplePay()
       }
-
-    /**
-     * @return {array}
-     */
-     function getLineItems() {
-        return [];
-    }
-
-    /**
-     * @return {array}
-     */
-     function getSupportedNetworks() {
-        return getValue('supported_networks').split(',');
-    }
-
-    /**
-     * @return {string}
-     */
-     function getValue(field) {
-        return Utilities.getValue(methodId, field);
-    }
-
-    function getShippingMethods () {
-        let result = null;
-        let restUrl = window.BASE_URL;
-        restUrl += 'rest/all/V1/guest-carts/' + window.checkoutConfig.quoteData.entity_id + '/shipping-methods';
-        restUrl += '?form_key=' + window.checkoutConfig.formKey;
-
-        if (Customer.isLoggedIn()) {
-            restUrl = window.BASE_URL + 'rest/default/V1/';
-            restUrl += 'carts/mine/shipping-methods';
-            restUrl += '?form_key=' + window.checkoutConfig.formKey;
-        }
-
-        // Send the AJAX request
-        $.ajax({
-            url: restUrl,
-            type: 'GET',
-            contentType: "application/json",
-            dataType: "json",
-            async: false,
-            showLoader: true,
-            success: function (data, status, xhr) {
-                result = data;
-            },
-            error: function (request, status, error) {
-                console.log(error);
-            }
-        });
-
-        return formatShipping(result);
-    }
-
-    function formatShipping(shippingData) {
-         let formatted = [];
-         
-         shippingData.forEach(function (shippingMethod) {
-           if (shippingMethod.available) {
-               formatted.push(
-                   {
-                       "label": shippingMethod.method_title,
-                       "amount": shippingMethod.price_incl_tax,
-                       "identifier": shippingMethod.method_code,
-                       "detail": "Shipping Method"
-                   }
-               )
-           }
-         });
-        return formatted;
-    }
     
     /**
      * @return {bool}
      */
     function launchApplePay() {
-        // Prepare the parameters
-        
-        
         // Check if the session is available
         if (window.ApplePaySession) {
             var merchantIdentifier = getValue('merchant_id');
@@ -153,9 +80,12 @@ require([
                             "email"
                         ],
                         requiredBillingContactFields: [
-                            "postalAddress"
+                            "postalAddress",
+                            "name",
+                            "phone",
+                            "email"
                         ],
-                        shippingMethods: getShippingMethods()
+                        shippingMethods: []
                     };
 
                     // Start the payment session
@@ -180,7 +110,8 @@ require([
                         var status = ApplePaySession.STATUS_SUCCESS;
 
                         // Shipping info
-                        var shippingOptions = [];
+                        var shippingAddress = event.shippingContact;
+                        var shippingOptions = getShippingMethods(shippingAddress);
 
                         var newTotal = {
                             type: 'final',
@@ -222,6 +153,8 @@ require([
                             cardToken: event.payment.token,
                             source: methodId
                         };
+
+                        setShippingAndBilling(event.payment);
 
                         // Send the request
                         var promise = sendPaymentRequest(payload);
@@ -307,6 +240,142 @@ require([
                 xhr.send();
             }
         );
+    }
+
+    /**
+     * @return {array}
+     */
+    function getLineItems() {
+        return [];
+    }
+
+    /**
+     * @return {array}
+     */
+    function getSupportedNetworks() {
+        return getValue('supported_networks').split(',');
+    }
+
+    /**
+     * @return {string}
+     */
+    function getValue(field) {
+        return Utilities.getValue(methodId, field);
+    }
+
+    function getShippingMethods (shippingAddress) {
+        let requestBody = {
+            "address": {
+                "country_id": shippingAddress.countryCode,
+                "postcode": shippingAddress.postalCode,
+                "city": shippingAddress.locality,
+            }
+        };
+        let result = null;
+        let restUrl = window.BASE_URL;
+        restUrl += 'rest/all/V1/guest-carts/' + window.checkoutConfig.quoteData.entity_id + '/estimate-shipping-methods';
+        restUrl += '?form_key=' + window.checkoutConfig.formKey;
+
+        if (Customer.isLoggedIn()) {
+            restUrl = window.BASE_URL + 'rest/default/V1/';
+            restUrl += 'carts/mine/estimate-shipping-methods';
+            restUrl += '?form_key=' + window.checkoutConfig.formKey;
+        }
+
+        // Send the AJAX request
+        $.ajax({
+            url: restUrl,
+            type: 'POST',
+            body: requestBody,
+            contentType: "application/json",
+            dataType: "json",
+            async: false,
+            showLoader: true,
+            success: function (data, status, xhr) {
+                result = data;
+            },
+            error: function (request, status, error) {
+                console.log(error);
+            }
+        });
+
+        return formatShipping(result);
+    }
+
+    function formatShipping(shippingData) {
+        let formatted = [];
+
+        shippingData.forEach(function (shippingMethod) {
+            if (shippingMethod.available) {
+                formatted.push(
+                    {
+                        "label": shippingMethod.method_title,
+                        "amount": shippingMethod.price_incl_tax,
+                        "identifier": shippingMethod.method_code,
+                        "detail": "Shipping Method"
+                    }
+                )
+            }
+        });
+        return formatted;
+    }
+
+    function setShippingAndBilling(paymentData) {
+        let shippingDetails = paymentData.shippingContact;
+        let billingDetails = paymentData.billingContact;
+        let requestBody = {
+            "addressInformation": {
+                "shipping_address": {
+                    "country_id": shippingDetails.countryCode,
+                    "street": shippingDetails.addressLines,
+                    "postcode": shippingDetails.postalCode,
+                    "city": shippingDetails.locality,
+                    "firstname": shippingDetails.givenName,
+                    "lastname": shippingDetails.familyName,
+                    "email": shippingDetails.emailAddress,
+                    "telephone": shippingDetails.phoneNumber
+                },
+                "billing_address": {
+                    "country_id": billingDetails.countryCode,
+                    "street": billingDetails.addressLines,
+                    "postcode": billingDetails.postalCode,
+                    "city": billingDetails.locality,
+                    "firstname": billingDetails.givenName,
+                    "lastname": billingDetails.familyName,
+                    "email": billingDetails.emailAddress,
+                    "telephone": billingDetails.phoneNumber
+                },
+                "shipping_carrier_code": "flatrate",
+                "shipping_method_code": "flatrate"
+            }
+        };
+        let result = null;
+        let restUrl = window.BASE_URL;
+        restUrl += 'rest/all/V1/guest-carts/' + window.checkoutConfig.quoteData.entity_id + '/shipping-information';
+        restUrl += '?form_key=' + window.checkoutConfig.formKey;
+
+        if (Customer.isLoggedIn()) {
+            restUrl = window.BASE_URL + 'rest/default/V1/';
+            restUrl += 'carts/mine/shipping-information';
+            restUrl += '?form_key=' + window.checkoutConfig.formKey;
+        }
+
+        // Send the AJAX request
+        $.ajax({
+            url: restUrl,
+            type: 'POST',
+            body: requestBody,
+            contentType: "application/json",
+            dataType: "json",
+            async: false,
+            showLoader: true,
+            success: function (data, status, xhr) {
+                result = data;
+            },
+            error: function (request, status, error) {
+                console.log(error);
+            }
+        });
     }
 
     /**
