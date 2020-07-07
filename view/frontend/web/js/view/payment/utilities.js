@@ -22,10 +22,11 @@ define(
         'mage/url',
         'Magento_Checkout/js/action/redirect-on-success',
         'Magento_Checkout/js/model/full-screen-loader',
+        'Magento_Customer/js/model/customer',
         'mage/translate',
         'mage/cookies'
     ],
-    function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction, FullScreenLoader, __) {
+    function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction, FullScreenLoader, Customer, __) {
         'use strict';
 
         const KEY_CONFIG = 'checkoutcom_configuration';
@@ -113,16 +114,20 @@ define(
                 var result = null;
 
                 // Build the URL
-                var restUrl = window.BASE_URL + 'rest/default/V1/';
+                var restUrl = window.BASE_URL;
+                restUrl += 'rest/all/V1/guest-carts/' + window.checkoutConfig.quoteData.entity_id + '/payment-information';
+                restUrl += '?form_key=' + window.checkoutConfig.formKey;
+
+                if (Customer.isLoggedIn()) {
+                   restUrl = window.BASE_URL + 'rest/default/V1/';
                     restUrl += 'carts/mine/payment-information';
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
-
+                }
                 // Set the event to update data on any button click
                 $('button[type="submit"]')
                 .off('click', self.getRestQuoteData)
                 .on('click', self.getRestQuoteData);
 
-                for (let i = 0; i <= 2; i++) {
                     // Send the AJAX request
                     $.ajax({
                         url: restUrl,
@@ -138,16 +143,6 @@ define(
                             self.log(error);
                         }
                     });
-
-                    if (result == null) {
-                        //Rebuild URL if using M2 Guest API
-                        restUrl = window.BASE_URL;
-                        restUrl += 'rest/all/V1/guest-carts/'+ window.checkoutConfig.quoteData.entity_id +'/payment-information';
-                        restUrl += '?form_key=' + window.checkoutConfig.formKey;
-                    } else {
-                        break;
-                    }
-                }
 
                 return result;
             },
