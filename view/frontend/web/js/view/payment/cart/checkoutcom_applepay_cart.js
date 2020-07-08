@@ -35,11 +35,10 @@ require([
     __
 ) {
     $(function () {
-        let checkoutConfig =
-            window.checkoutConfig.payment["checkoutcom_magento2"];
+        let checkoutConfig = window.checkoutConfig.payment["checkoutcom_magento2"];
         const buttonTarget = "#ckoApplePayButton";
         const methodId = "checkoutcom_apple_pay";
-        let shippingMethod = null;
+        let selectedShippingMethod = null;
         let shippingMethodsAvailable = null;
 
         if ((checkoutConfig["checkoutcom_apple_pay"]["enabled_on_cart"] = 1)) {
@@ -92,13 +91,13 @@ require([
                         "postalAddress",
                         "name",
                         "phone",
-                        "email"
+                        "email",
                     ],
                     requiredBillingContactFields: [
                         "postalAddress",
                         "name",
                         "phone",
-                        "email"
+                        "email",
                     ],
                     shippingMethods: [],
                 };
@@ -129,7 +128,7 @@ require([
                     var newTotal = {
                         type: "final",
                         label: "implementation",
-                        amount: runningTotal
+                        amount: runningTotal,
                     };
 
                     session.completeShippingContactSelection(
@@ -142,12 +141,23 @@ require([
 
                 // Shipping method selection
                 session.onshippingmethodselected = function (event) {
-
                     var status = ApplePaySession.STATUS_SUCCESS;
+
+                    // Update the selected method
+                    Object.keys(shippingMethodsAvailable).forEach(function (key) {
+                        if (
+                            shippingMethodsAvailable[key].method_code ==
+                            event.shippingMethod.identifier
+                        ) {
+                            selectedShippingMethod = shippingMethodsAvailable[key];
+                        }
+                    });
+
                     runningTotal = (
-                        Utilities.getQuoteValue() +
-                        parseFloat(shippingMethod.amount)
+                        parseFloat(Utilities.getQuoteValue()) +
+                        parseFloat(event.shippingMethod.amount)
                     ).toFixed(2);
+
                     var newTotal = {
                         type: "final",
                         label: "implementation",
@@ -166,13 +176,10 @@ require([
                     var newTotal = {
                         type: "final",
                         label: window.location.host,
-                        amount: runningTotal
+                        amount: runningTotal,
                     };
 
-                    session.completePaymentMethodSelection(
-                        newTotal,
-                        getLineItems()
-                    );
+                    session.completePaymentMethodSelection(newTotal, getLineItems());
                 };
 
                 // Payment method authorization
@@ -181,7 +188,7 @@ require([
                     var payload = {
                         methodId: methodId,
                         cardToken: event.payment.token,
-                        source: methodId
+                        source: methodId,
                     };
 
                     setShippingAndBilling(event.payment);
@@ -274,7 +281,6 @@ require([
             return [];
         }
 
-
         /**
          * @return {array}
          */
@@ -288,7 +294,7 @@ require([
         function getValue(field) {
             return Utilities.getValue(methodId, field);
         }
-        
+
         function getShippingMethods(shippingAddress) {
             let requestBody = {
                 address: {
@@ -298,16 +304,20 @@ require([
             };
 
             let restUrl = window.BASE_URL;
-            restUrl += "rest/all/V1/guest-carts/"
-                + window.checkoutConfig.quoteData.entity_id
-                + "/estimate-shipping-methods"
-                + "?form_key=" + window.checkoutConfig.formKey;
+            restUrl +=
+                "rest/all/V1/guest-carts/" +
+                window.checkoutConfig.quoteData.entity_id +
+                "/estimate-shipping-methods" +
+                "?form_key=" +
+                window.checkoutConfig.formKey;
 
             if (Customer.isLoggedIn()) {
-                restUrl = window.BASE_URL
-                    + "rest/default/V1/carts/mine"
-                    + "/estimate-shipping-methods"
-                    + "?form_key=" + window.checkoutConfig.formKey;
+                restUrl =
+                    window.BASE_URL +
+                    "rest/default/V1/carts/mine" +
+                    "/estimate-shipping-methods" +
+                    "?form_key=" +
+                    window.checkoutConfig.formKey;
             }
 
             // Send the AJAX request
@@ -323,7 +333,9 @@ require([
                 data: JSON.stringify(requestBody),
                 success: function (data, status, xhr) {
                     result = formatShipping(data);
+                    // Set current shipping method selected to be the first method available
                     shippingMethodsAvailable = data;
+                    selectedShippingMethod = data[0];
                 },
                 error: function (request, status, error) {
                     Utilities.log(error);
@@ -331,23 +343,6 @@ require([
             });
             return result;
         }
-        
-        function getShippingCarrierCode(identifier) {
-            shippingMethodsAvailable.foreach(function (method) {
-                if(method.method_code == identifier) {
-                    return method.carrier_code
-                }
-            })
-        }
-
-        function getShippingMethodCode(identifier) {
-            shippingMethodsAvailable.foreach(function (method) {
-                if(method.method_code == identifier) {
-                    return method.method_code
-                }
-            })
-        }
-
 
         function formatShipping(shippingData) {
             let formatted = [];
@@ -358,7 +353,7 @@ require([
                         label: shippingMethod.method_title,
                         amount: shippingMethod.price_incl_tax,
                         identifier: shippingMethod.method_code,
-                        detail: shippingMethod.carrier_title
+                        detail: shippingMethod.carrier_title,
                     });
                 }
             });
@@ -379,7 +374,7 @@ require([
                         firstname: shippingDetails.givenName,
                         lastname: shippingDetails.familyName,
                         email: shippingDetails.emailAddress,
-                        telephone: shippingDetails.phoneNumber
+                        telephone: shippingDetails.phoneNumber,
                     },
                     billing_address: {
                         country_id: billingDetails.countryCode.toUpperCase(),
@@ -389,24 +384,28 @@ require([
                         firstname: billingDetails.givenName,
                         lastname: billingDetails.familyName,
                         email: shippingDetails.emailAddress,
-                        telephone: shippingDetails.phoneNumber
+                        telephone: shippingDetails.phoneNumber,
                     },
-                    shipping_carrier_code: getShippingCarrierCode(),
-                    shipping_method_code: getShippingMethodCode()
+                    shipping_carrier_code: selectedShippingMethod.carrier_code,
+                    shipping_method_code: selectedShippingMethod.method_code,
                 },
             };
 
             let restUrl = window.BASE_URL;
-            restUrl += "rest/all/V1/guest-carts/"
-                + window.checkoutConfig.quoteData.entity_id
-                + "/shipping-information"
-                + "?form_key=" + window.checkoutConfig.formKey;
+            restUrl +=
+                "rest/all/V1/guest-carts/" +
+                window.checkoutConfig.quoteData.entity_id +
+                "/shipping-information" +
+                "?form_key=" +
+                window.checkoutConfig.formKey;
 
             if (Customer.isLoggedIn()) {
-                restUrl = window.BASE_URL
-                    + "rest/default/V1/"
-                    + "carts/mine/shipping-information"
-                    + "?form_key=" + window.checkoutConfig.formKey;
+                restUrl =
+                    window.BASE_URL +
+                    "rest/default/V1/" +
+                    "carts/mine/shipping-information" +
+                    "?form_key=" +
+                    window.checkoutConfig.formKey;
             }
 
             let result = null;
@@ -419,10 +418,9 @@ require([
                 data: JSON.stringify(requestBody),
                 success: function (data, status, xhr) {
                     result = data;
-                    console.log("setShippingAndBilling AJAX RESPONSE ", data);
                 },
                 error: function (request, status, error) {
-                    console.log("setShippingAndBilling AJAX ERROR ", error);
+                    Utilities.log(error);
                 },
             });
         }
