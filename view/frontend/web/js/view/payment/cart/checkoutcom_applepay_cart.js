@@ -40,6 +40,7 @@ require([
         const buttonTarget = "#ckoApplePayButton";
         const methodId = "checkoutcom_apple_pay";
         let shippingMethod = null;
+        let shippingMethodsAvailable = null;
 
         if ((checkoutConfig["checkoutcom_apple_pay"]["enabled_on_cart"] = 1)) {
             launchApplePay();
@@ -74,6 +75,7 @@ require([
                 let event = shippingService.getShippingRates();
                 // Prepare the parameters
                 var runningTotal = Utilities.getQuoteValue();
+                currentPrice = runningTotal;
                 var billingAddress = Utilities.getBillingAddress();
 
                 // Build the payment request
@@ -81,7 +83,7 @@ require([
                     currencyCode: Utilities.getQuoteCurrency(),
                     countryCode: window.checkoutConfig.defaultCountryId,
                     total: {
-                        label: Utilities.getStoreName(),
+                        label: window.location.host,
                         amount: runningTotal,
                     },
                     supportedNetworks: getSupportedNetworks(),
@@ -90,20 +92,20 @@ require([
                         "postalAddress",
                         "name",
                         "phone",
-                        "email",
+                        "email"
                     ],
                     requiredBillingContactFields: [
                         "postalAddress",
                         "name",
                         "phone",
-                        "email",
+                        "email"
                     ],
                     shippingMethods: [],
                 };
 
                 // Start the payment session
                 var session = new ApplePaySession(1, paymentRequest);
-                console.log(session);
+
                 // Merchant Validation
                 session.onvalidatemerchant = function (event) {
                     var promise = performValidation(event.validationURL);
@@ -122,23 +124,14 @@ require([
 
                     // Shipping info
                     var shippingAddress = event.shippingContact;
-                    console.log("onshippingcontactselected:", event);
-                    console.log(
-                        "shippingAddress that we get :",
-                        shippingAddress
-                    );
                     var shippingOptions = getShippingMethods(shippingAddress);
 
                     var newTotal = {
                         type: "final",
                         label: "implementation",
-                        amount: runningTotal,
+                        amount: runningTotal
                     };
 
-                    console.log("status", status);
-                    console.log("shippingOptions", shippingOptions);
-                    console.log("newTotal", newTotal);
-                    console.log("getLineItems", getLineItems());
                     session.completeShippingContactSelection(
                         0,
                         shippingOptions,
@@ -149,8 +142,12 @@ require([
 
                 // Shipping method selection
                 session.onshippingmethodselected = function (event) {
+
                     var status = ApplePaySession.STATUS_SUCCESS;
-                    shippingMethod = event.shippingMethod;
+                    runningTotal = (
+                        Utilities.getQuoteValue() +
+                        parseFloat(shippingMethod.amount)
+                    ).toFixed(2);
                     var newTotal = {
                         type: "final",
                         label: "implementation",
@@ -168,8 +165,8 @@ require([
                 session.onpaymentmethodselected = function (event) {
                     var newTotal = {
                         type: "final",
-                        label: Utilities.getStoreName(),
-                        amount: runningTotal,
+                        label: window.location.host,
+                        amount: runningTotal
                     };
 
                     session.completePaymentMethodSelection(
@@ -184,7 +181,7 @@ require([
                     var payload = {
                         methodId: methodId,
                         cardToken: event.payment.token,
-                        source: methodId,
+                        source: methodId
                     };
 
                     setShippingAndBilling(event.payment);
@@ -210,6 +207,8 @@ require([
                         })
                         .catch(function (error) {
                             Utilities.log(error);
+                            status = ApplePaySession.STATUS_FAILURE;
+                            session.completePayment(status);
                         });
                 };
 
@@ -236,12 +235,12 @@ require([
                         if (data.success === true) {
                             resolve(data.success);
                         } else {
-                            reject;
+                            reject();
                         }
                     },
                     error: function (xhr, textStatus, error) {
                         Utilities.log(error);
-                        reject;
+                        reject();
                     },
                 });
             });
@@ -275,6 +274,7 @@ require([
             return [];
         }
 
+
         /**
          * @return {array}
          */
@@ -288,47 +288,28 @@ require([
         function getValue(field) {
             return Utilities.getValue(methodId, field);
         }
-
+        
         function getShippingMethods(shippingAddress) {
-            console.log("what we send to backend", {
-                country_id: shippingAddress.countryCode,
-                postcode: shippingAddress.postalCode,
-                city: shippingAddress.locality,
-            });
             let requestBody = {
                 address: {
-                    region: "",
-                    region_id: 43,
-                    region_code: "NY",
-                    country_id: "US",
-                    street: [""],
-                    postcode: "10577",
-                    city: "",
-                    firstname: "",
-                    lastname: "",
-                    customer_id: 4,
-                    email: "",
-                    telephone: "",
-                    same_as_billing: 1,
+                    country_id: shippingAddress.countryCode,
+                    postcode: shippingAddress.postalCode,
                 },
             };
 
             let restUrl = window.BASE_URL;
-            restUrl +=
-                "rest/all/V1/guest-carts/" +
-                window.checkoutConfig.quoteData.entity_id +
-                "/estimate-shipping-methods";
-            restUrl += "?form_key=" + window.checkoutConfig.formKey;
+            restUrl += "rest/all/V1/guest-carts/"
+                + window.checkoutConfig.quoteData.entity_id
+                + "/estimate-shipping-methods"
+                + "?form_key=" + window.checkoutConfig.formKey;
 
             if (Customer.isLoggedIn()) {
-                restUrl = window.BASE_URL + "rest/default/V1/";
-                restUrl += "carts/mine/estimate-shipping-methods";
-                restUrl += "?form_key=" + window.checkoutConfig.formKey;
+                restUrl = window.BASE_URL
+                    + "rest/default/V1/carts/mine"
+                    + "/estimate-shipping-methods"
+                    + "?form_key=" + window.checkoutConfig.formKey;
             }
 
-            console.log("What we send", restUrl, requestBody);
-            console.log("MAGENTO SHIPPING");
-            console.log(restUrl);
             // Send the AJAX request
 
             var result = null;
@@ -342,41 +323,52 @@ require([
                 data: JSON.stringify(requestBody),
                 success: function (data, status, xhr) {
                     result = formatShipping(data);
-                    console.log("AJAX RESPONSE ", data);
+                    shippingMethodsAvailable = data;
                 },
                 error: function (request, status, error) {
-                    console.log(error);
-                    console.log("AJAX ERROR ", error);
+                    Utilities.log(error);
                 },
             });
-
-            console.log("result", result);
             return result;
         }
+        
+        function getShippingCarrierCode(identifier) {
+            shippingMethodsAvailable.foreach(function (method) {
+                if(method.method_code == identifier) {
+                    return method.carrier_code
+                }
+            })
+        }
+
+        function getShippingMethodCode(identifier) {
+            shippingMethodsAvailable.foreach(function (method) {
+                if(method.method_code == identifier) {
+                    return method.method_code
+                }
+            })
+        }
+
 
         function formatShipping(shippingData) {
-            console.log("shippingData ", shippingData);
             let formatted = [];
 
-            console.log("before formatted ");
             shippingData.forEach(function (shippingMethod) {
                 if (shippingMethod.available) {
                     formatted.push({
                         label: shippingMethod.method_title,
                         amount: shippingMethod.price_incl_tax,
                         identifier: shippingMethod.method_code,
-                        detail: shippingMethod.carrier_title,
+                        detail: shippingMethod.carrier_title
                     });
                 }
             });
-            console.log("formatted ", formatted);
             return formatted;
         }
 
         function setShippingAndBilling(paymentData) {
             let shippingDetails = paymentData.shippingContact;
             let billingDetails = paymentData.billingContact;
-            console.log("paymentData", paymentData);
+
             let requestBody = {
                 addressInformation: {
                     shipping_address: {
@@ -387,7 +379,7 @@ require([
                         firstname: shippingDetails.givenName,
                         lastname: shippingDetails.familyName,
                         email: shippingDetails.emailAddress,
-                        telephone: shippingDetails.phoneNumber,
+                        telephone: shippingDetails.phoneNumber
                     },
                     billing_address: {
                         country_id: billingDetails.countryCode.toUpperCase(),
@@ -396,25 +388,25 @@ require([
                         city: billingDetails.locality,
                         firstname: billingDetails.givenName,
                         lastname: billingDetails.familyName,
-                        email: billingDetails.emailAddress,
-                        telephone: billingDetails.phoneNumber,
+                        email: shippingDetails.emailAddress,
+                        telephone: shippingDetails.phoneNumber
                     },
-                    shipping_carrier_code: shippingMethod,
-                    shipping_method_code: shippingMethod,
+                    shipping_carrier_code: getShippingCarrierCode(),
+                    shipping_method_code: getShippingMethodCode()
                 },
             };
 
             let restUrl = window.BASE_URL;
-            restUrl +=
-                "rest/all/V1/guest-carts/" +
-                window.checkoutConfig.quoteData.entity_id +
-                "/shipping-information";
-            restUrl += "?form_key=" + window.checkoutConfig.formKey;
+            restUrl += "rest/all/V1/guest-carts/"
+                + window.checkoutConfig.quoteData.entity_id
+                + "/shipping-information"
+                + "?form_key=" + window.checkoutConfig.formKey;
 
             if (Customer.isLoggedIn()) {
-                restUrl = window.BASE_URL + "rest/default/V1/";
-                restUrl += "carts/mine/shipping-information";
-                restUrl += "?form_key=" + window.checkoutConfig.formKey;
+                restUrl = window.BASE_URL
+                    + "rest/default/V1/"
+                    + "carts/mine/shipping-information"
+                    + "?form_key=" + window.checkoutConfig.formKey;
             }
 
             let result = null;
@@ -427,15 +419,12 @@ require([
                 data: JSON.stringify(requestBody),
                 success: function (data, status, xhr) {
                     result = data;
-                    console.log("AJAX RESPONSE ", data);
+                    console.log("setShippingAndBilling AJAX RESPONSE ", data);
                 },
                 error: function (request, status, error) {
-                    console.log(error);
-                    console.log("AJAX ERROR ", error);
+                    console.log("setShippingAndBilling AJAX ERROR ", error);
                 },
             });
-
-
         }
 
         /**
