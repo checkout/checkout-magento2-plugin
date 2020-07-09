@@ -41,6 +41,7 @@ require([
         let selectedShippingMethod = null;
         let shippingMethodsAvailable = null;
 
+        // If enabled launch Apple Pay
         if ((checkoutConfig["checkoutcom_apple_pay"]["enabled_on_cart"] = 1)) {
             launchApplePay();
         }
@@ -57,25 +58,15 @@ require([
                 );
                 if (canMakePayments) {
                     $(buttonTarget).css("display", "inline-block");
-                } else {
-                    console.log("apple pay couldn't load");
                 }
             } else {
                 $(buttonTarget).css("display", "none");
-                Utilities.showMessage(
-                    "warning",
-                    __("Apple Pay is not available for this browser."),
-                    methodId
-                );
             }
 
             // Handle the events
             $(buttonTarget).click(function (evt) {
-                let event = shippingService.getShippingRates();
                 // Prepare the parameters
                 var runningTotal = Utilities.getQuoteValue();
-                currentPrice = runningTotal;
-                var billingAddress = Utilities.getBillingAddress();
 
                 // Build the payment request
                 var paymentRequest = {
@@ -119,7 +110,6 @@ require([
 
                 // Shipping contact
                 session.onshippingcontactselected = function (event) {
-                    var status = ApplePaySession.STATUS_SUCCESS;
 
                     // Shipping info
                     var shippingAddress = event.shippingContact;
@@ -303,8 +293,7 @@ require([
                 },
             };
 
-            let restUrl = window.BASE_URL;
-            restUrl +=
+            let restUrl = window.BASE_URL +
                 "rest/all/V1/guest-carts/" +
                 window.checkoutConfig.quoteData.entity_id +
                 "/estimate-shipping-methods" +
@@ -321,7 +310,6 @@ require([
             }
 
             // Send the AJAX request
-
             var result = null;
 
             $.ajax({
@@ -391,8 +379,7 @@ require([
                 },
             };
 
-            let restUrl = window.BASE_URL;
-            restUrl +=
+            let restUrl = window.BASE_URL +
                 "rest/all/V1/guest-carts/" +
                 window.checkoutConfig.quoteData.entity_id +
                 "/shipping-information" +
