@@ -112,17 +112,19 @@ define(
                 // Prepare the required parameters
                 var self = this;
                 var result = null;
-
-                // Build the URL
                 var restUrl = window.BASE_URL;
-                restUrl += 'rest/all/V1/guest-carts/' + window.checkoutConfig.quoteData.entity_id + '/payment-information';
-                restUrl += '?form_key=' + window.checkoutConfig.formKey;
 
+                // Build the rest URL
                 if (Customer.isLoggedIn()) {
-                   restUrl = window.BASE_URL + 'rest/default/V1/';
+                    restUrl += 'rest/default/V1/';
                     restUrl += 'carts/mine/payment-information';
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
                 }
+                else {
+                    restUrl += 'rest/all/V1/guest-carts/' + window.checkoutConfig.quoteData.entity_id + '/payment-information';
+                    restUrl += '?form_key=' + window.checkoutConfig.formKey;
+                }
+
                 // Set the event to update data on any button click
                 $('button[type="submit"]')
                 .off('click', self.getRestQuoteData)
