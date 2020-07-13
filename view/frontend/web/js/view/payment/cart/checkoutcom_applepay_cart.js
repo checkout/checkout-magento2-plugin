@@ -488,7 +488,7 @@ require([
         
         function getAreaCode(zipCode, countryCode) {
             // Ensure we have exactly 5 characters to parse
-            if (zipCode.length !== 5 && countryCode === 'us') {
+            if (zipCode.length === 5 && countryCode === 'us') {
                 // Ensure we don't parse strings starting with 0 as octal values
                 const thiszip = parseInt(zipCode, 10);
 
