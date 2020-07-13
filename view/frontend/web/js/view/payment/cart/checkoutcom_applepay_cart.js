@@ -40,6 +40,7 @@ require([
         const methodId = "checkoutcom_apple_pay";
         let selectedShippingMethod = null;
         let shippingMethodsAvailable = null;
+        let shippingAddress = null;
 
         Utilities.log("Apple Pay javascript loaded");
 
@@ -131,8 +132,9 @@ require([
                 // Shipping contact
                 session.onshippingcontactselected = function (event) {
                     // Shipping info
-                    var shippingAddress = event.shippingContact;
-                    var shippingOptions = getShippingMethods(shippingAddress);
+                    shippingAddress = event.shippingContact;
+                    var shippingOptions = getShippingMethods(shippingAddress.countryCode, shippingAddress.postalCode);
+                    runningTotal = getCartTotal(shippingAddress.countryCode, shippingAddress.postalCode);
 
                     var newTotal = {
                         type: "final",
@@ -162,10 +164,7 @@ require([
                         }
                     });
 
-                    runningTotal = (
-                        parseFloat(Utilities.getQuoteValue()) +
-                        parseFloat(event.shippingMethod.amount)
-                    ).toFixed(2);
+                    runningTotal = getCartTotal(shippingAddress.countryCode, shippingAddress.postalCode());
 
                     var newTotal = {
                         type: "final",
@@ -200,7 +199,7 @@ require([
                         source: methodId,
                     };
 
-                    setShippingAndBilling(event.payment);
+                    setShippingAndBilling(event.payment.shippingContact, event.payment.billingContact);
 
                     // Send the request
                     var promise = sendPaymentRequest(payload);
@@ -304,15 +303,11 @@ require([
             return Utilities.getValue(methodId, field);
         }
 
-        function getButtonStyle(field) {
-            alert(getValue("button_style"));
-        }
-
-        function getShippingMethods(shippingAddress) {
+        function getShippingMethods(countryId, postCode) {
             let requestBody = {
                 address: {
-                    country_id: shippingAddress.countryCode,
-                    postcode: shippingAddress.postalCode,
+                    country_id: countryId.toUpperCase(),
+                    postcode: postCode,
                 },
             };
 
@@ -372,9 +367,27 @@ require([
             return formatted;
         }
 
-        function setShippingAndBilling(paymentData) {
-            let shippingDetails = paymentData.shippingContact;
-            let billingDetails = paymentData.billingContact;
+        function getCartTotal(countryId, postCode){
+            let requestBody = {
+                addressInformation: {
+                    shipping_address: {
+                        country_id: countryId.toUpperCase(),
+                        postcode: postCode,
+                    },
+                    billing_address: {
+                        country_id: countryId.toUpperCase(),
+                        postcode: postCode.postalCode,
+                    },
+                    shipping_carrier_code: selectedShippingMethod.carrier_code,
+                    shipping_method_code: selectedShippingMethod.method_code,
+                },
+            };
+          let shippingInfo = getShippingInformation(requestBody);
+
+          return shippingInfo.totals.base_grand_total.toFixed(2)
+        }
+
+        function setShippingAndBilling(shippingDetails, billingDetails) {
 
             let requestBody = {
                 addressInformation: {
@@ -402,7 +415,10 @@ require([
                     shipping_method_code: selectedShippingMethod.method_code,
                 },
             };
+            getShippingInformation(requestBody)
+        }
 
+        function getShippingInformation(requestBody) {
             let restUrl =
                 window.BASE_URL +
                 "rest/all/V1/guest-carts/" +
@@ -435,6 +451,7 @@ require([
                     Utilities.log(error);
                 },
             });
+            return result;
         }
 
         /**
