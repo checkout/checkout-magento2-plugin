@@ -172,7 +172,6 @@ require([
                     console.log("shippingAddress", shippingAddress);
                     console.log("countryCode", shippingAddress.countryCode);
                     console.log("postalCode", shippingAddress.postalCode);
-                    console.log(Utilities.getTotals());
                     runningTotal = getCartTotal(shippingAddress);
 
                     var newTotal = {
@@ -323,44 +322,9 @@ require([
                 },
             };
 
-            let restUrl =
-                window.BASE_URL +
-                "rest/all/V1/guest-carts/" +
-                window.checkoutConfig.quoteData.entity_id +
-                "/estimate-shipping-methods" +
-                "?form_key=" +
-                window.checkoutConfig.formKey;
-
-            if (Customer.isLoggedIn()) {
-                restUrl =
-                    window.BASE_URL +
-                    "rest/default/V1/carts/mine" +
-                    "/estimate-shipping-methods" +
-                    "?form_key=" +
-                    window.checkoutConfig.formKey;
-            }
-
-            // Send the AJAX request
-            var result = null;
-
-            $.ajax({
-                url: restUrl,
-                type: "POST",
-                async: false,
-                dataType: "json",
-                contentType: "application/json",
-                data: JSON.stringify(requestBody),
-                success: function (data, status, xhr) {
-                    result = formatShipping(data);
-                    // Set current shipping method selected to be the first method available
-                    shippingMethodsAvailable = data;
-                    selectedShippingMethod = data[0];
-                },
-                error: function (request, status, error) {
-                    Utilities.log(error);
-                },
-            });
-            return result;
+            shippingMethodsAvailable = getRestData(requestBody, "estimate-shipping-information");
+            selectedShippingMethod = shippingMethodsAvailable[0];
+            return formatShipping(result);
         }
 
         function formatShipping(shippingData) {
@@ -379,30 +343,23 @@ require([
             return formatted;
         }
 
-        function getCartTotal(sh) {
-            //   "region_code": "NY",
-            //         "country_id": "US",
-            //         "postcode": "10577"
-            console.log("shippingAddress", sh); // region_code
-            let countryId = sh.countryCode;
-            let postCode = sh.postalCode;
+        function getCartTotal(address) {
+            console.log("shippingAddress", address);
+            let countryId = address.countryCode;
+            let postCode = address.postalCode;
 
             let requestBody = {
                 addressInformation: {
-                    shipping_address: {
+                  address: {
                         country_id: countryId.toUpperCase(),
                         postcode: postCode,
                         region_code: getAreaCode(postCode, countryId)
-                    },
-                    billing_address: {
-                        country_id: countryId.toUpperCase(),
-                        postcode: postCode.postalCode,
                     },
                     shipping_carrier_code: selectedShippingMethod.carrier_code,
                     shipping_method_code: selectedShippingMethod.method_code,
                 },
             };
-            let shippingInfo = getShippingInformation(requestBody);
+            let shippingInfo = getRestData(requestBody, "totals-information");
 
             return shippingInfo.totals.base_grand_total.toFixed(2);
         }
@@ -434,31 +391,29 @@ require([
                     shipping_method_code: selectedShippingMethod.method_code,
                 },
             };
-            getShippingInformation(requestBody);
+            getRestData(requestBody, "shipping-information");
         }
 
-        function getShippingInformation(requestBody) {
+        function getRestData(requestBody, m2ApiEndpoint) {
             let restUrl =
                 window.BASE_URL +
                 "rest/all/V1/guest-carts/" +
                 window.checkoutConfig.quoteData.entity_id +
-                "/shipping-information" +
+                "/" + m2ApiEndpoint
                 "?form_key=" +
                 window.checkoutConfig.formKey;
 
             if (Customer.isLoggedIn()) {
                 restUrl =
                     window.BASE_URL +
-                    "rest/default/V1/" +
-                    "carts/mine/shipping-information" +
+                    "rest/default/V1/carts/mine/" +
+                    m2ApiEndpoint +
                     "?form_key=" +
                     window.checkoutConfig.formKey;
             }
 
             let result = null;
 
-            console.log(restUrl);
-            console.log(requestBody);
             $.ajax({
                 url: restUrl,
                 type: "POST",
