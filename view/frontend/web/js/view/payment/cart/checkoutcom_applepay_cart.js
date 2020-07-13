@@ -41,9 +41,26 @@ require([
         let selectedShippingMethod = null;
         let shippingMethodsAvailable = null;
 
+        Utilities.log("Apple Pay javascript loaded");
+
         // If enabled launch Apple Pay
         if ((checkoutConfig["checkoutcom_apple_pay"]["enabled_on_cart"] = 1)) {
+            Utilities.log("Apple Pay is enabled in the plugin");
+
+            // set the button theme and mode
+            let button = document.querySelector("#ckoApplePayButton");
+            button.style["-apple-pay-button-style"] = getButtonTheme();
+
             launchApplePay();
+        }
+
+        /**
+         * @return {string}
+         */
+        function getButtonTheme() {
+            let theme = Utilities.getValue(methodId, "button_style");
+            if (theme === "white-with-line") return "white-outline";
+            return theme;
         }
 
         /**
@@ -57,9 +74,11 @@ require([
                     merchantIdentifier
                 );
                 if (canMakePayments) {
+                    Utilities.log("Apple Pay can be used for the merchant id provided");
                     $(buttonTarget).css("display", "inline-block");
                 }
             } else {
+                Utilities.log("Apple Pay can not be used for the merchant id provided");
                 $(buttonTarget).css("display", "none");
             }
 
@@ -94,13 +113,14 @@ require([
                 };
 
                 // Start the payment session
-                var session = new ApplePaySession(1, paymentRequest);
+                var session = new ApplePaySession(6, paymentRequest);
 
                 // Merchant Validation
                 session.onvalidatemerchant = function (event) {
                     var promise = performValidation(event.validationURL);
                     promise
                         .then(function (merchantSession) {
+                            Utilities.log("The Apple Pay session was generated");
                             session.completeMerchantValidation(merchantSession);
                         })
                         .catch(function (error) {
@@ -110,7 +130,6 @@ require([
 
                 // Shipping contact
                 session.onshippingcontactselected = function (event) {
-
                     // Shipping info
                     var shippingAddress = event.shippingContact;
                     var shippingOptions = getShippingMethods(shippingAddress);
@@ -285,6 +304,10 @@ require([
             return Utilities.getValue(methodId, field);
         }
 
+        function getButtonStyle(field) {
+            alert(getValue("button_style"));
+        }
+
         function getShippingMethods(shippingAddress) {
             let requestBody = {
                 address: {
@@ -293,7 +316,8 @@ require([
                 },
             };
 
-            let restUrl = window.BASE_URL +
+            let restUrl =
+                window.BASE_URL +
                 "rest/all/V1/guest-carts/" +
                 window.checkoutConfig.quoteData.entity_id +
                 "/estimate-shipping-methods" +
@@ -379,7 +403,8 @@ require([
                 },
             };
 
-            let restUrl = window.BASE_URL +
+            let restUrl =
+                window.BASE_URL +
                 "rest/all/V1/guest-carts/" +
                 window.checkoutConfig.quoteData.entity_id +
                 "/shipping-information" +
