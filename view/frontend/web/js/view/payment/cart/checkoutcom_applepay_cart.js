@@ -322,7 +322,7 @@ require([
                 },
             };
 
-            shippingMethodsAvailable = getRestData(requestBody, "estimate-shipping-information");
+            shippingMethodsAvailable = getRestData(requestBody, "estimate-shipping-methods");
             selectedShippingMethod = shippingMethodsAvailable[0];
             return formatShipping(result);
         }
