@@ -127,6 +127,9 @@ class Verify extends \Magento\Framework\App\Action\Action
                 $this->messageManager->addErrorMessage(
                     __($e->getBody())
                 );
+
+                // Redirect to the account
+                return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
             }
             
             // Check for zero dollar auth
@@ -174,7 +177,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                 // Save the card
                 $this->saveCard($response);
 
-                // Redirect to the cart
+                // Redirect to the account
                 return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
             }
         } else {
