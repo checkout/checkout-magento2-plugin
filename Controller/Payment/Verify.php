@@ -120,11 +120,17 @@ class Verify extends \Magento\Framework\App\Action\Action
             $api = $this->apiHandler->init($storeCode);
 
             // Get the payment details
-            $response = $api->getPaymentDetails($sessionId);
-
+            try {
+                $response = $api->getPaymentDetails($sessionId);
+            }
+            catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
+                $this->messageManager->addErrorMessage(
+                    __($e->getBody())
+                );
+            }
+            
             // Check for zero dollar auth
             if ($response->status !== "Card Verified") {
-
                 // Set the method ID
                 $this->methodId = $response->metadata['methodId'];
 
