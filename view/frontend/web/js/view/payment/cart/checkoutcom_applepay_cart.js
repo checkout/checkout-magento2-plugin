@@ -362,9 +362,7 @@ require([
                     shipping_method_code: selectedShippingMethod.method_code,
                 },
             };
-            console.log("region_code", getAreaCode(postCode, countryId));
-            console.log("postCode", postCode);
-            console.log("countryId", countryId);
+
             let shippingInfo = getRestData(requestBody, "totals-information");
 
             let breakdown = [];
