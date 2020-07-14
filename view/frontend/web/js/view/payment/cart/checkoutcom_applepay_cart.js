@@ -402,6 +402,7 @@ require([
                     shipping_address: {
                         country_id: shippingDetails.countryCode.toUpperCase(),
                         region_code: getAreaCode(shippingDetails.postalCode, shippingDetails.countryCode),
+                        region_id: 0,
                         street: shippingDetails.addressLines,
                         postcode: shippingDetails.postalCode,
                         city: shippingDetails.locality,
@@ -476,12 +477,11 @@ require([
 
         function getAreaCode(zipCode, countryCode) {
             // Ensure we have exactly 5 characters to parse
-            if (zipCode.length === 5 && countryCode === "us") {
+            if (zipCode.length === 5 && countryCode.toLowerCase() === "us") {
                 // Ensure we don't parse strings starting with 0 as octal values
                 const thiszip = parseInt(zipCode, 10);
 
                 let st = null;
-                // Code blocks alphabetized by state
                 if (thiszip >= 35000 && thiszip <= 36999) {
                     st = "AL";
                 } else if (thiszip >= 99500 && thiszip <= 99999) {
