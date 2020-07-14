@@ -41,10 +41,11 @@ require([
         let selectedShippingMethod = null;
         let shippingMethodsAvailable = null;
         let shippingAddress = null;
+        let totalsBreakdown = null;
 
         Utilities.log("Apple Pay javascript loaded");
 
-        // If enabled launch Apple Pay
+        // If Apple Pay is enabled on the card inject the button
         if ((checkoutConfig["checkoutcom_apple_pay"]["enabled_on_cart"] = 1)) {
             Utilities.log("Apple Pay is enabled in the plugin");
 
@@ -56,24 +57,18 @@ require([
         }
 
         /**
-         * @return {string}
-         */
-        function getButtonTheme() {
-            let theme = Utilities.getValue(methodId, "button_style");
-            if (theme === "white-with-line") return "white-outline";
-            return theme;
-        }
-
-        /**
-         * @return {bool}
+         * Initialize Apple Pay and handle session events
+         *
+         * @return {undefined}
          */
         function launchApplePay() {
-            // Check if the session is available
+            // Check if Apple Pay is available in the browser
             if (window.ApplePaySession) {
                 var merchantIdentifier = getValue("merchant_id");
                 var canMakePayments = window.ApplePaySession.canMakePayments(
                     merchantIdentifier
                 );
+                // If Apple Pay is possible for the merchant id, display the button
                 if (canMakePayments) {
                     Utilities.log("Apple Pay can be used for the merchant id provided");
                     $(buttonTarget).css("display", "inline-block");
@@ -83,18 +78,15 @@ require([
                 $(buttonTarget).css("display", "none");
             }
 
-            // Handle the events
+            // Handle the Apple Pay button being pressed
             $(buttonTarget).click(function (evt) {
-                // Prepare the parameters
-                var runningTotal = Utilities.getQuoteValue();
-
                 // Build the payment request
                 var paymentRequest = {
                     currencyCode: Utilities.getQuoteCurrency(),
                     countryCode: window.checkoutConfig.defaultCountryId,
                     total: {
                         label: window.location.host,
-                        amount: runningTotal,
+                        amount: Utilities.getQuoteValue(),
                     },
                     supportedNetworks: getSupportedNetworks(),
                     merchantCapabilities: getMerchantCapabilities(),
@@ -129,76 +121,60 @@ require([
                         });
                 };
 
-                // Shipping contact
+                // When the shipping contact details are populated/selected
                 session.onshippingcontactselected = function (event) {
-                    // Shipping info
                     shippingAddress = event.shippingContact;
-                    var shippingOptions = getShippingMethods(
+                    // Get a list of available shipping methods for the shipping address of the customer
+                    let shippingOptions = getShippingMethods(
                         shippingAddress.countryCode,
                         shippingAddress.postalCode
                     );
 
-                    console.log(runningTotal); //100
-                    runningTotal = getCartTotal(shippingAddress);
+                    // Update the totals, so they reflect the all total items (shipping, tax...etc)
+                    let totals = getCartTotals(shippingAddress);
 
-                    var newTotal = {
-                        type: "final",
-                        label: "implementation",
-                        amount: runningTotal,
-                    };
+                    // Update the current totals breakdown
+                    totalsBreakdown = totals;
 
                     session.completeShippingContactSelection(
-                        0,
+                        ApplePaySession.STATUS_SUCCESS,
                         shippingOptions,
-                        newTotal,
-                        getLineItems()
+                        totals.total,
+                        totals.breakdown
                     );
                 };
 
-                // Shipping method selection
+                // When the shipping method is populate/selected
                 session.onshippingmethodselected = function (event) {
                     var status = ApplePaySession.STATUS_SUCCESS;
 
                     // Update the selected method
-                    Object.keys(shippingMethodsAvailable).forEach(function (key) {
-                        if (
-                            shippingMethodsAvailable[key].method_code ==
-                            event.shippingMethod.identifier
-                        ) {
-                            selectedShippingMethod = shippingMethodsAvailable[key];
+                    shippingMethodsAvailable.forEach(function (method) {
+                        if (method.method_code == event.shippingMethod.identifier) {
+                            selectedShippingMethod = method;
                         }
                     });
 
-                    console.log("shippingAddress", shippingAddress);
-                    console.log("countryCode", shippingAddress.countryCode);
-                    console.log("postalCode", shippingAddress.postalCode);
-                    runningTotal = getCartTotal(shippingAddress);
-
-                    var newTotal = {
-                        type: "final",
-                        label: "implementation",
-                        amount: runningTotal,
-                    };
+                    // Update the total to reflect the shipping method change
+                    totals = getCartTotals(shippingAddress);
+                    totalsBreakdown = totals;
 
                     session.completeShippingMethodSelection(
                         status,
-                        newTotal,
-                        getLineItems()
+                        totals.total,
+                        totals.breakdown
                     );
                 };
 
-                // Payment method selection
+                // When the payment method is populated/selected
                 session.onpaymentmethodselected = function (event) {
-                    var newTotal = {
-                        type: "final",
-                        label: window.location.host,
-                        amount: runningTotal,
-                    };
-
-                    session.completePaymentMethodSelection(newTotal, getLineItems());
+                    session.completePaymentMethodSelection(
+                        totalsBreakdown.total,
+                        totalsBreakdown.breakdown
+                    );
                 };
 
-                // Payment method authorization
+                // When the payment is authorized via biometrics
                 session.onpaymentauthorized = function (event) {
                     // Prepare the payload
                     var payload = {
@@ -248,7 +224,18 @@ require([
             });
         }
 
+        /** Get the configured theme for the button
+         * @return {string}
+         */
+        function getButtonTheme() {
+            let theme = Utilities.getValue(methodId, "button_style");
+            if (theme === "white-with-line") return "white-outline";
+            return theme;
+        }
+
         /**
+         * Submit a payment for authorization
+         *
          * @return {object}
          */
         function sendPaymentRequest(paymentData) {
@@ -273,6 +260,8 @@ require([
         }
 
         /**
+         * Call the back end controller with the validation URL to generate an Apple Session
+         *
          * @return {object}
          */
         function performValidation(valURL) {
@@ -294,13 +283,8 @@ require([
         }
 
         /**
-         * @return {array}
-         */
-        function getLineItems() {
-            return [];
-        }
-
-        /**
+         * Get the schemes enabled in the plugin settings
+         *
          * @return {array}
          */
         function getSupportedNetworks() {
@@ -308,12 +292,19 @@ require([
         }
 
         /**
+         * Get the value of a plugin setting based on the field name
+         *
          * @return {string}
          */
         function getValue(field) {
             return Utilities.getValue(methodId, field);
         }
 
+        /**
+         * Get a list of available shipping methods based on the countryId and postCode
+         *
+         * @return {array}
+         */
         function getShippingMethods(countryId, postCode) {
             let requestBody = {
                 address: {
@@ -322,11 +313,19 @@ require([
                 },
             };
 
-            shippingMethodsAvailable = getRestData(requestBody, "estimate-shipping-methods");
+            shippingMethodsAvailable = getRestData(
+                requestBody,
+                "estimate-shipping-methods"
+            );
             selectedShippingMethod = shippingMethodsAvailable[0];
-            return formatShipping(result);
+            return formatShipping(shippingMethodsAvailable);
         }
 
+        /**
+         * Format the shipping methods from Magento format to Apple accepted format
+         *
+         * @return {array}
+         */
         function formatShipping(shippingData) {
             let formatted = [];
 
@@ -343,32 +342,66 @@ require([
             return formatted;
         }
 
-        function getCartTotal(address) {
-            console.log("shippingAddress", address);
+        /**
+         * Return the cart totals (grand total, and breakdown)
+         *
+         * @return {object}
+         */
+        function getCartTotals(address) {
             let countryId = address.countryCode;
             let postCode = address.postalCode;
 
             let requestBody = {
                 addressInformation: {
-                  address: {
+                    address: {
                         country_id: countryId.toUpperCase(),
                         postcode: postCode,
-                        region_code: getAreaCode(postCode, countryId)
+                        region_code: getAreaCode(postCode, countryId),
                     },
                     shipping_carrier_code: selectedShippingMethod.carrier_code,
                     shipping_method_code: selectedShippingMethod.method_code,
                 },
             };
+            console.log("region_code", getAreaCode(postCode, countryId));
+            console.log("postCode", postCode);
+            console.log("countryId", countryId);
             let shippingInfo = getRestData(requestBody, "totals-information");
 
-            return shippingInfo.totals.base_grand_total.toFixed(2);
+            let breakdown = [];
+
+            shippingInfo.total_segments.forEach(function (totalItem) {
+                // ignore the grand total since it's handled separately
+                if (totalItem.code === "grand_total") return;
+                // if there is not tax applied, remove it from the line items
+                if (totalItem.code === "tax" && totalItem.value === 0) return;
+                breakdown.push({
+                    type: "final",
+                    label: totalItem.title,
+                    amount: totalItem.value,
+                });
+            });
+
+            return {
+                breakdown: breakdown,
+                total: {
+                    type: "final",
+                    label: window.location.host,
+                    amount: shippingInfo.base_grand_total.toFixed(2),
+                },
+            };
         }
 
+        /**
+         * Update the cart to include updated shipping/billing methods
+         *
+         * @return {undefined}
+         */
         function setShippingAndBilling(shippingDetails, billingDetails) {
             let requestBody = {
                 addressInformation: {
                     shipping_address: {
                         country_id: shippingDetails.countryCode.toUpperCase(),
+                        region_code: getAreaCode(shippingDetails.postalCode, shippingDetails.countryCode),
                         street: shippingDetails.addressLines,
                         postcode: shippingDetails.postalCode,
                         city: shippingDetails.locality,
@@ -399,9 +432,9 @@ require([
                 window.BASE_URL +
                 "rest/all/V1/guest-carts/" +
                 window.checkoutConfig.quoteData.entity_id +
-                "/" + m2ApiEndpoint
-                "?form_key=" +
-                window.checkoutConfig.formKey;
+                "/" +
+                m2ApiEndpoint;
+            "?form_key=" + window.checkoutConfig.formKey;
 
             if (Customer.isLoggedIn()) {
                 restUrl =
@@ -440,124 +473,127 @@ require([
 
             return output.concat(capabilities);
         }
-        
+
         function getAreaCode(zipCode, countryCode) {
             // Ensure we have exactly 5 characters to parse
-            if (zipCode.length === 5 && countryCode === 'us') {
+            if (zipCode.length === 5 && countryCode === "us") {
                 // Ensure we don't parse strings starting with 0 as octal values
                 const thiszip = parseInt(zipCode, 10);
 
-                let st  = null;
+                let st = null;
                 // Code blocks alphabetized by state
                 if (thiszip >= 35000 && thiszip <= 36999) {
-                    st = 'AL';
+                    st = "AL";
                 } else if (thiszip >= 99500 && thiszip <= 99999) {
-                    st = 'AK';
+                    st = "AK";
                 } else if (thiszip >= 85000 && thiszip <= 86999) {
-                    st = 'AZ';
+                    st = "AZ";
                 } else if (thiszip >= 71600 && thiszip <= 72999) {
-                    st = 'AR';
+                    st = "AR";
                 } else if (thiszip >= 90000 && thiszip <= 96699) {
-                    st = 'CA';
+                    st = "CA";
                 } else if (thiszip >= 80000 && thiszip <= 81999) {
-                    st = 'CO';
+                    st = "CO";
                 } else if (thiszip >= 6000 && thiszip <= 6999) {
-                    st = 'CT';
+                    st = "CT";
                 } else if (thiszip >= 19700 && thiszip <= 19999) {
-                    st = 'DE';
+                    st = "DE";
                 } else if (thiszip >= 32000 && thiszip <= 34999) {
-                    st = 'FL';
+                    st = "FL";
                 } else if (thiszip >= 30000 && thiszip <= 31999) {
-                    st = 'GA';
+                    st = "GA";
                 } else if (thiszip >= 96700 && thiszip <= 96999) {
-                    st = 'HI';
+                    st = "HI";
                 } else if (thiszip >= 83200 && thiszip <= 83999) {
-                    st = 'ID';
+                    st = "ID";
                 } else if (thiszip >= 60000 && thiszip <= 62999) {
-                    st = 'IL';
+                    st = "IL";
                 } else if (thiszip >= 46000 && thiszip <= 47999) {
-                    st = 'IN';
+                    st = "IN";
                 } else if (thiszip >= 50000 && thiszip <= 52999) {
-                    st = 'IA';
+                    st = "IA";
                 } else if (thiszip >= 66000 && thiszip <= 67999) {
-                    st = 'KS';
+                    st = "KS";
                 } else if (thiszip >= 40000 && thiszip <= 42999) {
-                    st = 'KY';
+                    st = "KY";
                 } else if (thiszip >= 70000 && thiszip <= 71599) {
-                    st = 'LA';
+                    st = "LA";
                 } else if (thiszip >= 3900 && thiszip <= 4999) {
-                    st = 'ME';
+                    st = "ME";
                 } else if (thiszip >= 20600 && thiszip <= 21999) {
-                    st = 'MD';
+                    st = "MD";
                 } else if (thiszip >= 1000 && thiszip <= 2799) {
-                    st = 'MA';
+                    st = "MA";
                 } else if (thiszip >= 48000 && thiszip <= 49999) {
-                    st = 'MI';
+                    st = "MI";
                 } else if (thiszip >= 55000 && thiszip <= 56999) {
-                    st = 'MN';
+                    st = "MN";
                 } else if (thiszip >= 38600 && thiszip <= 39999) {
-                    st = 'MS';
+                    st = "MS";
                 } else if (thiszip >= 63000 && thiszip <= 65999) {
-                    st = 'MO';
+                    st = "MO";
                 } else if (thiszip >= 59000 && thiszip <= 59999) {
-                    st = 'MT';
+                    st = "MT";
                 } else if (thiszip >= 27000 && thiszip <= 28999) {
-                    st = 'NC';
+                    st = "NC";
                 } else if (thiszip >= 58000 && thiszip <= 58999) {
-                    st = 'ND';
+                    st = "ND";
                 } else if (thiszip >= 68000 && thiszip <= 69999) {
-                    st = 'NE';
+                    st = "NE";
                 } else if (thiszip >= 88900 && thiszip <= 89999) {
-                    st = 'NV';
+                    st = "NV";
                 } else if (thiszip >= 3000 && thiszip <= 3899) {
-                    st = 'NH';
+                    st = "NH";
                 } else if (thiszip >= 7000 && thiszip <= 8999) {
-                    st = 'NJ';
+                    st = "NJ";
                 } else if (thiszip >= 87000 && thiszip <= 88499) {
-                    st = 'NM';
+                    st = "NM";
                 } else if (thiszip >= 10000 && thiszip <= 14999) {
-                    st = 'NY';
+                    st = "NY";
                 } else if (thiszip >= 43000 && thiszip <= 45999) {
-                    st = 'OH';
+                    st = "OH";
                 } else if (thiszip >= 73000 && thiszip <= 74999) {
-                    st = 'OK';
+                    st = "OK";
                 } else if (thiszip >= 97000 && thiszip <= 97999) {
-                    st = 'OR';
+                    st = "OR";
                 } else if (thiszip >= 15000 && thiszip <= 19699) {
-                    st = 'PA';
+                    st = "PA";
                 } else if (thiszip >= 300 && thiszip <= 999) {
-                    st = 'PR';
+                    st = "PR";
                 } else if (thiszip >= 2800 && thiszip <= 2999) {
-                    st = 'RI';
+                    st = "RI";
                 } else if (thiszip >= 29000 && thiszip <= 29999) {
-                    st = 'SC';
+                    st = "SC";
                 } else if (thiszip >= 57000 && thiszip <= 57999) {
-                    st = 'SD';
+                    st = "SD";
                 } else if (thiszip >= 37000 && thiszip <= 38599) {
-                    st = 'TN';
-                } else if ((thiszip >= 75000 && thiszip <= 79999) || (thiszip >= 88500 && thiszip <= 88599)) {
-                    st = 'TX';
+                    st = "TN";
+                } else if (
+                    (thiszip >= 75000 && thiszip <= 79999) ||
+                    (thiszip >= 88500 && thiszip <= 88599)
+                ) {
+                    st = "TX";
                 } else if (thiszip >= 84000 && thiszip <= 84999) {
-                    st = 'UT';
+                    st = "UT";
                 } else if (thiszip >= 5000 && thiszip <= 5999) {
-                    st = 'VT';
+                    st = "VT";
                 } else if (thiszip >= 22000 && thiszip <= 24699) {
-                    st = 'VA';
+                    st = "VA";
                 } else if (thiszip >= 20000 && thiszip <= 20599) {
-                    st = 'DC';
+                    st = "DC";
                 } else if (thiszip >= 98000 && thiszip <= 99499) {
-                    st = 'WA';
+                    st = "WA";
                 } else if (thiszip >= 24700 && thiszip <= 26999) {
-                    st = 'WV';
+                    st = "WV";
                 } else if (thiszip >= 53000 && thiszip <= 54999) {
-                    st = 'WI';
+                    st = "WI";
                 } else if (thiszip >= 82000 && thiszip <= 83199) {
-                    st = 'WY';
+                    st = "WY";
                 }
 
                 return st;
             } else {
-                return '';
+                return "";
             }
         }
     });
