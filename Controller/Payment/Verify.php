@@ -174,7 +174,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                 // Save the card
                 $this->saveCard($response);
 
-                // Redirect to the
+                // Redirect to the cart
                 return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
             }
         } else {
