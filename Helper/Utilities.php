@@ -66,7 +66,7 @@ class Utilities
      */
     public function formatDecimals($amount)
     {
-        return ceil($amount * 100) / 100;
+        return round($amount * 100) / 100;
     }
 
     /**
