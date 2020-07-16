@@ -48,7 +48,15 @@ class VersionHandlerService
      */
     public $curl;
 
+    /*
+     * @var ModuleDirReader
+     */
     public $moduleDirReader;
+
+    /*
+     * @var $storeManager
+     */
+    public $storeManager;
 
     /**
      * ApiHandlerService constructor.
@@ -60,7 +68,8 @@ class VersionHandlerService
         \Checkout\Library\HttpHandler $httpHandler,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\Module\Dir\Reader $moduleDirReader,
-        \Magento\Framework\Filesystem\Driver\File $fileDriver
+        \Magento\Framework\Filesystem\Driver\File $fileDriver,
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->config = $config;
         $this->utilities = $utilities;
@@ -69,6 +78,7 @@ class VersionHandlerService
         $this->curl = $curl;
         $this->moduleDirReader = $moduleDirReader;
         $this->fileDriver = $fileDriver;
+        $this->storeManager = $storeManager;
     }
 
     /*
@@ -123,8 +133,13 @@ class VersionHandlerService
             'User-Agent' => 'checkout-magento2-plugin'
         ]);
 
+        $storeCode = $this->storeManager->getStore()->getCode();
+
+        // Get Github API URL from config
+        $gitApiUrl = $this->config->getValue('github_api_url', null, $storeCode);
+
         // Send the request
-        $this->curl->get('https://api.github.com/repos/checkout/checkout-magento2-plugin/releases');
+        $this->curl->get($gitApiUrl);
 
         // Get the response
         $content = $this->curl->getBody();

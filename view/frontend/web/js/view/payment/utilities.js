@@ -31,7 +31,7 @@ define(
 
         const KEY_CONFIG = 'checkoutcom_configuration';
         const KEY_DATA = 'checkoutcom_data';
-
+        
         return {
             /**
              * Gets a field value.
@@ -102,7 +102,7 @@ define(
 
                 return amount.toFixed(2);
             },
-
+            
             /**
              * Get the updated quote data from the core REST API.
              *
@@ -127,24 +127,24 @@ define(
 
                 // Set the event to update data on any button click
                 $('button[type="submit"]')
-                    .off('click', self.getRestQuoteData)
-                    .on('click', self.getRestQuoteData);
+                .off('click', self.getRestQuoteData)
+                .on('click', self.getRestQuoteData);
 
-                // Send the AJAX request
-                $.ajax({
-                    url: restUrl,
-                    type: 'GET',
-                    contentType: "application/json",
-                    dataType: "json",
-                    async: false,
-                    showLoader: true,
-                    success: function (data, status, xhr) {
-                        result = data;
-                    },
-                    error: function (request, status, error) {
-                        self.log(error);
-                    }
-                });
+                    // Send the AJAX request
+                    $.ajax({
+                        url: restUrl,
+                        type: 'GET',
+                        contentType: "application/json",
+                        dataType: "json",
+                        async: false,
+                        showLoader: true,
+                        success: function (data, status, xhr) {
+                            result = data;
+                        },
+                        error: function (request, status, error) {
+                            self.log(error);
+                        }
+                    });
 
                 return result;
             },
@@ -200,10 +200,10 @@ define(
                         framesLanguage = 'NL-NL';
                         break;
                     case 'en_GB':
-                        framesLanguage = 'EN-GB';
+                         framesLanguage = 'EN-GB';
                         break;
                     case 'fr_FR':
-                        framesLanguage = 'FR-FR';
+                         framesLanguage = 'FR-FR';
                         break;
                     case 'de_DE':
                         framesLanguage = 'DE-DE';
@@ -218,7 +218,7 @@ define(
                         framesLanguage = 'ES-ES';
                         break;
                     default:
-                        framesLanguage = this.getLangageFallback().toUpperCase().split("_").join('-');
+                      framesLanguage = this.getLangageFallback().toUpperCase().split("_").join('-');
                 }
 
                 return framesLanguage;
@@ -275,9 +275,9 @@ define(
             getEmail: function () {
                 var emailCookieName = this.getValue(null, 'email_cookie_name');
                 return window.checkoutConfig.customerData.email
-                    || Quote.guestEmail
-                    || CheckoutData.getValidatedEmailValue()
-                    || $.cookie(emailCookieName);
+                || Quote.guestEmail
+                || CheckoutData.getValidatedEmailValue()
+                || $.cookie(emailCookieName);
             },
 
             /**

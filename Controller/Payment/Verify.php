@@ -110,75 +110,82 @@ class Verify extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        // Get the session id
-        $sessionId = $this->getRequest()->getParam('cko-session-id', null);
-        if ($sessionId) {
-            // Get the store code
-            $storeCode = $this->storeManager->getStore()->getCode();
+        // Return to the cart
+        try {
+            // Get the session id
+            $sessionId = $this->getRequest()->getParam('cko-session-id', null);
+            if ($sessionId) {
+                // Get the store code
+                $storeCode = $this->storeManager->getStore()->getCode();
 
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+                // Initialize the API handler
+                $api = $this->apiHandler->init($storeCode);
 
-            // Get the payment details
-            $response = $api->getPaymentDetails($sessionId);
+                // Get the payment details
+                $response = $api->getPaymentDetails($sessionId);
+                
+                // Check for zero dollar auth
+                if ($response->status !== "Card Verified") {
+                    // Set the method ID
+                    $this->methodId = $response->metadata['methodId'];
 
-            // Check for zero dollar auth
-            if ($response->status !== "Card Verified") {
+                    // Find the order from increment id
+                    $order = $this->orderHandler->getOrder([
+                        'increment_id' => $response->reference
+                    ]);
 
-                // Set the method ID
-                $this->methodId = $response->metadata['methodId'];
+                    // Process the order
+                    if ($this->orderHandler->isOrder($order)) {
+                        // Add the payment info to the order
+                        $order = $this->utilities->setPaymentData($order, $response);
 
-                // Find the order from increment id
-                $order = $this->orderHandler->getOrder([
-                    'increment_id' => $response->reference
-                ]);
+                        // Save the order
+                        $order->save();
 
-                // Process the order
-                if ($this->orderHandler->isOrder($order)) {
-                    // Add the payment info to the order
-                    $order = $this->utilities->setPaymentData($order, $response);
+                        // Logging
+                        $this->logger->display($response);
 
-                    // Save the order
-                    $order->save();
-
-                    // Logging
-                    $this->logger->display($response);
-
-                    // Process the response
-                    if ($api->isValidResponse($response)) {
+                        // Process the response
+                        if ($api->isValidResponse($response)) {
 
 
-                        return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+                            return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+                        } else {
+                            // Restore the quote
+                            $this->quoteHandler->restoreQuote($response->reference);
+
+                            // Add and error message
+                            $this->messageManager->addErrorMessage(
+                                __('The transaction could not be processed or has been cancelled.')
+                            );
+                        }
                     } else {
-                        // Restore the quote
-                        $this->quoteHandler->restoreQuote($response->reference);
-
                         // Add and error message
                         $this->messageManager->addErrorMessage(
-                            __('The transaction could not be processed or has been cancelled.')
+                            __('Invalid request. No order found.')
                         );
                     }
                 } else {
-                    // Add and error message
-                    $this->messageManager->addErrorMessage(
-                        __('Invalid request. No order found.')
-                    );
+                    // Save the card
+                    $this->saveCard($response);
+
+                    // Redirect to the account
+                    return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
                 }
             } else {
-                // Save the card
-                $this->saveCard($response);
-
-                // Redirect to the
-                return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
+                // Add and error message
+                $this->messageManager->addErrorMessage(
+                    __('Invalid request. No session ID found.')
+                );
             }
-        } else {
-            // Add and error message
+        }
+        catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
             $this->messageManager->addErrorMessage(
-                __('Invalid request. No session ID found.')
+                __($e->getBody())
             );
+            return $this->_redirect('checkout/cart', ['_secure' => true]);
         }
 
-        // Return to the cart
         return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 
