@@ -188,9 +188,11 @@ class V2 extends \Magento\Framework\App\Action\Action
 
                 // Update the result
                 $this->result['success'] = $response->isSuccessful();
-                $this->result['order_id'] = $order->getId();
                 $this->result['error_message'] = '';
             }
+
+            // Update the order id
+            $this->result['order_id'] = $order->getId();
         }
 
         return $this->result;
