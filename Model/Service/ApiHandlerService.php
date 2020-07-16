@@ -293,7 +293,7 @@ class ApiHandlerService
         $platformData = 'Magento ' . $this->productMeta->getVersion();
 
         return [
-          'udf5' => serialize([
+          'udf5' => json_encode([
               'server_url' => $serverUrl,
               'sdk_data' => $sdkData,
               'integration_data' => $integrationData,
