@@ -46,7 +46,7 @@ require([
         Utilities.log("Apple Pay javascript loaded");
 
         // If Apple Pay is enabled on the card inject the button
-        if ((checkoutConfig["checkoutcom_apple_pay"]["enabled_on_cart"] = 1)) {
+        if (checkoutConfig["checkoutcom_apple_pay"]["enabled_on_cart"] = 1) {
             Utilities.log("Apple Pay is enabled in the plugin");
 
             // set the button theme and mode
