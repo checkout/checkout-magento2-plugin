@@ -45,17 +45,19 @@ require([
 
         Utilities.log("Apple Pay javascript loaded");
 
-        // If Apple Pay is enabled on the card inject the button
-        if (checkoutConfig["checkoutcom_apple_pay"]["enabled_on_cart"] == 1) {
-            Utilities.log("Apple Pay is enabled in the plugin");
+        //  Check Apple Pay is enabled for the merchant
+        if (typeof checkoutConfig["checkoutcom_apple_pay"] !== 'undefined') {
+            // If Apple Pay is enabled on the cart inject the button
+            if (checkoutConfig["checkoutcom_apple_pay"]["enabled_on_cart"] == 1) {
+                Utilities.log("Apple Pay is enabled in the plugin");
 
-            // set the button theme and mode
-            let button = document.querySelector("#ckoApplePayButton");
-            button.style["-apple-pay-button-style"] = getButtonTheme();
+                // set the button theme and mode
+                let button = document.querySelector("#ckoApplePayButton");
+                button.style["-apple-pay-button-style"] = getButtonTheme();
 
-            launchApplePay();
+                launchApplePay();
+            }
         }
-
         /**
          * Initialize Apple Pay and handle session events
          *
