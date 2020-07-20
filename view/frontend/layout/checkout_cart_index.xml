@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="CheckoutCom_Magento2::css/apple-pay/apple-pay.css"/>
+    </head>
+    <body>
+        <referenceContainer name="checkout.cart.methods">
+            <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::cart/applepay.phtml" name="apple.pay.button" after="-"/>
+        </referenceContainer>
+    </body>
+</page>

@@ -13,7 +13,7 @@
  * @link      https://docs.checkout.com/
  */
 
- @supports (-webkit-appearance: -apple-pay-button) {
+@supports (-webkit-appearance: -apple-pay-button) {
     .apple-pay-button {
         display: inline-block;
         -webkit-appearance: -apple-pay-button;
@@ -58,12 +58,19 @@
 }
 
 /* make ApplePay button larger*/
-#ckoApplePayButton {
+
+.ap-checkout {
     width: 138px !important;
     height: 52px !important;
 }
 
+.ap-cart {
+    width: 100% !important;
+    height: 52px !important;
+}
+
 /* For mobile */
+
 @media only screen and (max-width: 600px) {
     #ckoApplePayButton {
         width: 100% !important;

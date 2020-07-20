@@ -48,6 +48,7 @@
                 <currencies_x1>BIF,DJF,GNF,ISK,KMF,XAF,CLF,XPF,JPY,PYG,RWF,KRW,VUV,VND,XOF</currencies_x1>
                 <currencies_x1000>BHD,LYD,JOD,KWD,OMR,TND</currencies_x1000>
                 <default_method>checkoutcom_card_payment</default_method>
+                <github_api_url>https://api.github.com/repos/checkout/checkout-magento2-plugin/releases</github_api_url>
             </checkoutcom_configuration>
         </settings>
         <payment>
@@ -169,6 +170,7 @@
                 <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
                 <title>Apple Pay with Checkout.com</title>
                 <active>0</active>
+                <enabled_on_cart>0</enabled_on_cart>
                 <sort_order>4</sort_order>
                 <is_gateway>1</is_gateway>
                 <can_use_checkout>1</can_use_checkout>
