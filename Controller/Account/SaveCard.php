@@ -96,18 +96,18 @@ class SaveCard extends \Magento\Framework\App\Action\Action
         // Prepare the response UI message
         if ($success) {
             $this->messageManager->addSuccessMessage(
-                        __('The payment card has been stored successfully.')
-                    );
+                __('The payment card has been stored successfully.')
+            );
         } else {
             $this->messageManager->addErrorMessage(
-                        __('The card could not be saved.')
-                    );
+                __('The card could not be saved.')
+            );
         }
 
         // Build the AJAX response
         return $this->jsonFactory->create()->setData([
-                'success' => $success,
-                'url' => $url
-            ]);
+            'success' => $success,
+            'url' => $url
+        ]);
     }
 }

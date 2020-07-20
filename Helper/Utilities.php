@@ -66,7 +66,7 @@ class Utilities
      */
     public function formatDecimals($amount)
     {
-        return floor($amount * 100) / 100;
+        return round($amount * 100) / 100;
     }
 
     /**
@@ -86,8 +86,11 @@ class Utilities
             ->getMethodInstance()
             ->getInfoInstance()
             ->getData();
-
-        return $paymentData['additional_information']['transaction_info'];
+        if (isset($paymentData['additional_information']['transaction_info'])) {
+            return $paymentData['additional_information']['transaction_info'];
+        } else {
+            return null;
+        }
     }
 
     /**
