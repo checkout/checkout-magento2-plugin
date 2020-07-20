@@ -36,6 +36,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var string
      */
+    protected $_infoBlockType = \CheckoutCom\Magento2\Block\Info::class;
+
+    /**
+     * @var string
+     */
     public $_code = self::CODE;
 
     /**
@@ -218,7 +223,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
         // Get the quote
         $quote = $this->quoteHandler->getQuote();
-        
+
         // Set the token source
         $tokenSource = new TokenSource($data['cardToken']);
         $tokenSource->billing_address = $api->createBillingAddress($quote);
@@ -246,7 +251,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 $request->capture_on = $this->config->getCaptureTime($this->_code);
             }
         }
-        
+
         // Prepare the save card setting
         $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code);
 
@@ -293,7 +298,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->metadata,
             $this->apiHandler->getBaseMetadata()
         );
-        
+
         // Send the charge request
         try {
             $response = $api->checkoutApi
@@ -308,7 +313,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
     /**
      * Get the success redirection URL for the payment request.
-     * 
+     *
      * @return string
      */
     public function getSuccessUrl($data)
@@ -322,7 +327,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
     /**
      * Get the failure redirection URL for the payment request.
-     * 
+     *
      * @return string
      */
     public function getFailureUrl($data)
@@ -330,7 +335,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         if (isset($data['failureUrl'])) {
             return $data['failureUrl'];
         }
-        
+
         return $this->config->getStoreUrl() . 'checkout_com/payment/fail';
     }
 
@@ -443,7 +448,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode);
-            
+
             // Check the status
             if (!$this->canRefund()) {
                 throw new \Magento\Framework\Exception\LocalizedException(

@@ -36,6 +36,11 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var string
      */
+    protected $_infoBlockType = \CheckoutCom\Magento2\Block\Info::class;
+
+    /**
+     * @var string
+     */
     public $_code = self::CODE;
 
     /**
@@ -312,7 +317,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $request->metadata,
             $this->apiHandler->getBaseMetadata()
         );
-        
+
         // Send the charge request
         try {
             $response = $api->checkoutApi
@@ -406,7 +411,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-    
+
             // Display a message
             $this->messageManager->addSuccessMessage(__(
                 'Please reload the page to view the updated order information.'
@@ -415,7 +420,7 @@ class VaultMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
         return $this;
     }
-    
+
     /**
      * Perform a refund request.
      *

@@ -31,6 +31,11 @@ class MotoMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var string
      */
+    protected $_infoBlockType = \CheckoutCom\Magento2\Block\Info::class;
+
+    /**
+     * @var string
+     */
     public $_code = self::CODE;
 
     /**
