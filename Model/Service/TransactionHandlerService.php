@@ -187,7 +187,7 @@ class TransactionHandlerService
         $this->processCreditMemo($transaction, $amount);
 
         // Update the order status
-        $this->setOrderStatus($transaction, $amount);
+        $this->setOrderStatus($transaction, $amount, $payload);
 
         // Process the order email case
         $this->processEmail($transaction);
@@ -415,7 +415,7 @@ class TransactionHandlerService
     /**
      * Set the current order status.
      */
-    public function setOrderStatus($transaction, $amount)
+    public function setOrderStatus($transaction, $amount, $payload)
     {
         // Get the order
         $order = $transaction->getOrder();
@@ -431,6 +431,10 @@ class TransactionHandlerService
             case Transaction::TYPE_AUTH:
                 if ($order->getState() !== 'processing') {
                     $status = $this->config->getValue('order_status_authorized');
+                }
+                // Flag order if potential fraud
+                if ($this->isFlagged($payload)) {
+                    $status = $this->config->getValue('order_status_flagged');
                 }
                 break;
 
@@ -726,5 +730,15 @@ class TransactionHandlerService
         $isPartialCapture = $order->getGrandTotal() > ($totalCaptured + $amount);
 
         return $isPartialCapture && $isCapture ? true : false;
+    }
+
+    /**
+     * @param $payload
+     * @return bool
+     * Check if payment has been flagged for potential fraud
+     */
+    public function isFlagged($payload) {
+        return isset($payload->data->risk->flagged)
+            && $payload->data->risk->flagged == true;
     }
 }
