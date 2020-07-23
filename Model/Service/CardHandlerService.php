@@ -76,6 +76,10 @@ class CardHandlerService
      */
     public function getCardCode($scheme)
     {
+        if($scheme == 'Amex') {
+            $scheme = 'American Express';
+        }
+
         return array_search(
             $scheme,
             self::$cardMapper
