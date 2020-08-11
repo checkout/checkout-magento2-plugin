@@ -379,4 +379,14 @@ class Config
         return $this->assetRepository
         ->getUrl('CheckoutCom_Magento2::css');
     }
+
+    /**
+     * Determines if risk rules should be enabled for a payment request.
+     *
+     * @return bool
+     */
+    public function needsRiskRules($methodId)
+    {
+        return ((bool) !$this->getValue('risk_rules_enabled', $methodId) === true);
+    }
 }
