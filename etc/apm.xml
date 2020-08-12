@@ -41,8 +41,8 @@
     <item>
         <id>paypal</id>
         <title>PayPal</title>
-        <currencies>EUR,DKK,GBP,NOK,SEK</currencies>
-        <countries>AT,BE,CY,DE,EE,ES,FI,FR,GR,IE,IT,LT,LU,LV,MT,NL,PT,SI,SK,AD,BG,CH,CZ,DK,GB,HR,HU,IS,LI,MC,NO,PL,RO,SM,SE,VA</countries>
+        <currencies>AUD,BRL,CAD,CNY,CZK,DKK,EUR,HKD,HUF,INR,ILS,JPY,MXN,TWD,NZD,NOK,PHP,PLN,GBP,RUB,SGD,SEK,CHF,THB,USD</currencies>
+        <countries>AT,BE,CY,DE,EE,ES,FI,FR,GR,IE,IT,LT,LU,LV,MT,NL,PT,SI,SK,AD,BG,CH,CZ,DK,GB,HR,HU,IS,LI,MC,NO,PL,RO,SM,SE,VA,ZW</countries>
     </item>
     <item>
         <id>poli</id>

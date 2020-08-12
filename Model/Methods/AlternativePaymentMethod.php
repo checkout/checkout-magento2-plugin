@@ -34,6 +34,7 @@ use \Checkout\Models\Payments\KlarnaSource;
 use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
 use \Checkout\Models\Payments\PoliSource;
+use \Checkout\Models\Payments\PaypalSource;
 use \Checkout\Library\Exceptions\CheckoutHttpException;
 
 /**
@@ -225,7 +226,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $api = $this->apiHandler->init($storeCode);
 
             // Create source object
-            $source = $this->{$method}($data);
+            $source = $this->{$method}($data, $reference);
             $payment = $this->createPayment(
                 $source,
                 $amount,
@@ -439,9 +440,9 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return TokenSource
      */
-    public function paypal($data)
+    public function paypal($data, $reference)
     {
-        return new PaypalSource();
+        return new PaypalSource($reference);
     }
 
     /**
