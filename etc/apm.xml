@@ -39,6 +39,12 @@
         <countries>NL</countries>
     </item>
     <item>
+        <id>paypal</id>
+        <title>PayPal</title>
+        <currencies>EUR,DKK,GBP,NOK,SEK</currencies>
+        <countries>AT,BE,CY,DE,EE,ES,FI,FR,GR,IE,IT,LT,LU,LV,MT,NL,PT,SI,SK,AD,BG,CH,CZ,DK,GB,HR,HU,IS,LI,MC,NO,PL,RO,SM,SE,VA</countries>
+    </item>
+    <item>
         <id>poli</id>
         <title>Poli</title>
         <currencies>AUD,NZD</currencies>

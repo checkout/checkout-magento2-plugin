@@ -439,6 +439,18 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return TokenSource
      */
+    public function paypal($data)
+    {
+        return new PaypalSource();
+    }
+
+    /**
+     * Create source.
+     *
+     * @param $source  The source
+     *
+     * @return TokenSource
+     */
     public function poli($data)
     {
         return new PoliSource();

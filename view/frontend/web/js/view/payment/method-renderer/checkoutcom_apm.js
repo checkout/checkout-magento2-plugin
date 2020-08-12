@@ -115,7 +115,7 @@ define(
                  * @return {void}
                  */
                 placeOrder: function () {
-                    let id = $("#apm-container div[aria-selected=true]").attr('id')
+                    let id = $("#apm-container div[aria-selected=true]").attr('id');
 
                     if (Utilities.methodIsSelected(METHOD_ID) && id) {
                            let form = $("#cko-apm-form-" + id),
