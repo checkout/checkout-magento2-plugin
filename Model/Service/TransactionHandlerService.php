@@ -145,52 +145,55 @@ class TransactionHandlerService
             $order
         );
 
-        // Create a transaction if needed
-        if (!$transaction && $webhook['event_type'] !== 'payment_capture_pending') {
-            // Build the transaction
-            $transaction = $this->buildTransaction(
-                $order,
-                $webhook,
-                $amount
-            );
-
-            $eventData = json_decode($webhook['event_data']);
-            $isBackendCapture = false;
-            if (isset($eventData->data->metadata->isBackendCapture)) {
-                $isBackendCapture = $eventData->data->metadata->isBackendCapture;
-            }
-            if (!$isBackendCapture) {
-                // Add the order comment
-                $this->addTransactionComment(
-                    $transaction,
+        // Check to see if webhook is supported
+        if (isset(self::$transactionMapper[$webhook['event_type']]) || $webhook['event_type'] == 'payment_capture_pending') {
+            // Create a transaction if needed
+            if (!$transaction && $webhook['event_type'] !== 'payment_capture_pending') {
+                // Build the transaction
+                $transaction = $this->buildTransaction(
+                    $order,
+                    $webhook,
                     $amount
                 );
 
-                // Process the invoice case
-                $this->processInvoice($transaction, $amount);
+                $eventData = json_decode($webhook['event_data']);
+                $isBackendCapture = false;
+                if (isset($eventData->data->metadata->isBackendCapture)) {
+                    $isBackendCapture = $eventData->data->metadata->isBackendCapture;
+                }
+                if (!$isBackendCapture) {
+                    // Add the order comment
+                    $this->addTransactionComment(
+                        $transaction,
+                        $amount
+                    );
+
+                    // Process the invoice case
+                    $this->processInvoice($transaction, $amount);
+                }
+            } else {
+                // Get the payment
+                $payment = $transaction->getOrder()->getPayment();
+
+                // Update the existing transaction state
+                $transaction->setIsClosed(
+                    $this->setTransactionState($transaction, $amount)
+                );
+
+                // Save
+                $transaction->save();
+                $payment->save();
             }
-        } else {
-            // Get the payment
-            $payment = $transaction->getOrder()->getPayment();
 
-            // Update the existing transaction state
-            $transaction->setIsClosed(
-                $this->setTransactionState($transaction, $amount)
-            );
+            // Process the credit memo case
+            $this->processCreditMemo($transaction, $amount);
 
-            // Save
-            $transaction->save();
-            $payment->save();
+            // Update the order status
+            $this->setOrderStatus($transaction, $amount, $payload);
+
+            // Process the order email case
+            $this->processEmail($transaction);
         }
-
-        // Process the credit memo case
-        $this->processCreditMemo($transaction, $amount);
-
-        // Update the order status
-        $this->setOrderStatus($transaction, $amount, $payload);
-
-        // Process the order email case
-        $this->processEmail($transaction);
     }
 
     /**
