@@ -289,7 +289,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $payment->reference = $reference;
         $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
         $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-
+        $payment->customer = $this->apiHandler->createCustomer($quote);
+        $payment->shipping = $this->apiHandler->createShippingAddress($quote);
         $payment->description = __(
             'Payment request from %1',
             $this->config->getStoreName()
@@ -442,7 +443,11 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function paypal($data, $reference)
     {
-        return new PaypalSource($reference);
+        $quote = $this->quoteHandler->getQuote();
+        $shippingData = $quote->getShippingAddress()->getData();
+        $source = new PaypalSource($reference);
+        $source->recipient_name = $shippingData['firstname'] . ' ' . $shippingData['lastname'];
+        return $source;
     }
 
     /**
