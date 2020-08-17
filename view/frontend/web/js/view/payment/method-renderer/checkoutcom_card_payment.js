@@ -130,6 +130,7 @@ define(
                         if ($(this).attr('id') == METHOD_ID) {
                             self.getCkoPaymentForm();
                         } else {
+                            Utilities.allowPlaceOrder(self.buttonId, false);
                             self.removeCkoPaymentForm();
                         }
                     });
