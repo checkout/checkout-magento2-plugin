@@ -127,10 +127,10 @@ define(
 
                     // Option click event
                     $('.payment-method input[type="radio"]').on('click', function () {
+                        Utilities.allowPlaceOrder(self.buttonId, false);
                         if ($(this).attr('id') == METHOD_ID) {
                             self.getCkoPaymentForm();
                         } else {
-                            Utilities.allowPlaceOrder(self.buttonId, false);
                             self.removeCkoPaymentForm();
                         }
                     });
