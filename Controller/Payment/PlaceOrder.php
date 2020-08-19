@@ -198,7 +198,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                             $this->quoteHandler->restoreQuote($order->getIncrementId());
 
                             // Handle order on failed payment
-                            $this->orderHandler->handleFailedPayment($order, $storeCode);
+                            $this->orderHandler->handleFailedPayment($order);
                         }
                     } else {
                         // Payment failed

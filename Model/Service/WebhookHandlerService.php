@@ -87,18 +87,12 @@ class WebhookHandlerService
                 'action_id' => $payload->data->action_id
             ]);
 
-            if ($payload->type === 'payment_capture_pending'
-                && isset($payload->data->metadata->methodId)
-                && $payload->data->metadata->methodId === 'checkoutcom_apm'
-            ) {
-                $this->setStatusCapturePending($order);
-            } else {
                 // Handle the transaction for the webhook
                 $this->webhooksToTransactions(
                     $order,
                     $webhooks
                 );
-            }
+
         } else {
             // Handle missing action ID
             $msg = __(
@@ -184,16 +178,5 @@ class WebhookHandlerService
             // Save the entity
             $entity->save();
         }
-    }
-
-    public function setStatusCapturePending($order)
-    {
-        // Handle deferred APM states
-            $state = $this->orderModel::STATE_PENDING_PAYMENT;
-            $status = $order->getConfig()->getStateDefaultStatus($state);
-            $order->setState($state);
-            $order->setStatus($status);
-            $order->addStatusHistoryComment(__('Payment capture initiated, awaiting capture confirmation.'));
-            $order->save();
     }
 }
