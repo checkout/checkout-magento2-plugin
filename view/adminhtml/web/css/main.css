@@ -102,3 +102,36 @@
 .simplepath-wrapper-set.active .admin__collapsible-block { display:none; }
 .checkout-payment-section.section-config.active > .admin__collapsible-block + input + fieldset { margin-left: 40px; }
 
+.webhook-message:before {
+    -webkit-font-smoothing: antialiased;
+    font-family: 'Admin Icons';
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    speak: none;
+    border-radius: 100%;
+    color: #ffffff;
+    display: block;
+    float: left;
+    font-size: 1.6rem;
+    font-weight: 400;
+    height: 1em;
+    margin-top: .2rem;
+    overflow: hidden;
+    width: 1em;
+    margin-right: 8px;
+    padding: 5px;
+}
+.webhook-message {
+    line-height: 30px;
+    margin: 15px 0;
+}
+.no-webhook:before {
+    background-color: #e22626;
+    content: '\e632';
+}
+.webhook-set:before {
+    background-color: #79a22e;
+    content: '\e62d';
+}
+
