@@ -255,7 +255,9 @@ define(
 
                     // Remove the HTML
                     var container = $('#' + this.formId);
-                    this.formClone = $('#' + this.formId).html();
+                    if( $('#' + this.formId).html().length > 0 ) {
+                        this.formClone = $('#' + this.formId).html();
+                    }
                     container.empty();
                 },
 
