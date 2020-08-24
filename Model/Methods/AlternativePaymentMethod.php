@@ -564,7 +564,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         // Shipping fee
         $shipping = $quote->getShippingAddress();
 
-        if ($shipping->getShippingDescription()) {
+        if ($shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
             $product = new Product();
             $product->description = $shipping->getShippingDescription();
             $product->quantity = 1;

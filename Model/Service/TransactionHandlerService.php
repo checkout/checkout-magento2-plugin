@@ -409,7 +409,7 @@ class TransactionHandlerService
         ->getList($searchCriteria)
         ->getItems();
 
-        return isset($transactions[0]) ? $transactions[0] : false;
+        return !empty(current($transactions)) ? current($transactions) : false;
     }
 
     /**
