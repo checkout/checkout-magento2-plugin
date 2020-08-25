@@ -482,7 +482,7 @@ class TransactionHandlerService
                 break;
 
             case 'payment_expired':
-                $order = $this->orderHandler->handleFailedPayment($order);
+                $this->orderHandler->handleFailedPayment($order);
                 break;
         }
 
