@@ -208,6 +208,7 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <saved_cards_enabled>0</saved_cards_enabled>
                 <use_default_account>1</use_default_account>
+                <risk_rules_enabled>0</risk_rules_enabled>
                 <environment>1</environment>
                 <secret_key></secret_key>
                 <public_key></public_key>

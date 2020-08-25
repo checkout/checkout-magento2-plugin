@@ -514,6 +514,12 @@
                         <comment>Allows the use of customer saved cards for payment. Requires Vault Payments enabled.</comment>
                     </field>
 
+                    <field id="risk_rules_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Ignore Risk Rules For MOTO</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_moto/risk_rules_enabled</config_path>
+                    </field>
+                    
                     <field id="use_default_account" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Use Default Account</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
