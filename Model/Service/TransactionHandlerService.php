@@ -95,6 +95,11 @@ class TransactionHandlerService
     public $config;
 
     /**
+     * @var OrderHandlerService
+     */
+    public $orderHandler;
+
+    /**
      * TransactionHandlerService constructor.
      */
     public function __construct(
@@ -109,7 +114,8 @@ class TransactionHandlerService
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler
     ) {
         $this->orderModel            = $orderModel;
         $this->orderSender           = $orderSender;
@@ -123,6 +129,7 @@ class TransactionHandlerService
         $this->utilities             = $utilities;
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
+        $this->orderHandler          = $orderHandler;
     }
 
     /**
@@ -130,11 +137,9 @@ class TransactionHandlerService
      */
     public function handleTransaction($order, $webhook)
     {
-        // Check if a transaction aleady exists
-        $transaction = $this->hasTransaction(
-            $order,
-            $webhook['action_id']
-        );
+
+        //Initialise $transaction
+        $transaction = null;
 
         // Load the webhook data
         $payload = json_decode($webhook['event_data']);
@@ -418,12 +423,15 @@ class TransactionHandlerService
     /**
      * Set the current order status.
      */
-    public function setOrderStatus($transaction, $amount, $payload)
+    public function setOrderStatus($transaction, $amount, $payload, $order)
     {
-        // Get the order
-        $order = $transaction->getOrder();
-        // Get the event type
-        $type = $transaction->getTxnType();
+       if ($transaction) {
+           // Get the transaction type
+           $type = $transaction->getTxnType();
+       } else {
+           // Get the webhook type if transaction does not exist
+           $type = $payload->type;
+       }
 
         // Initialise state and status
         $state = null;
@@ -461,6 +469,21 @@ class TransactionHandlerService
                 $status = $this->config->getValue($status);
                 $state = $isPartialRefund ? $this->orderModel::STATE_PROCESSING : $this->orderModel::STATE_CLOSED;
                 break;
+
+            case 'payment_capture_pending':
+                if (isset($payload->data->metadata->methodId)
+                    && $payload->data->metadata->methodId === 'checkoutcom_apm'
+                ) {
+                    $state = $this->orderModel::STATE_PENDING_PAYMENT;
+                    $status = $order->getConfig()->getStateDefaultStatus($state);
+                    $order->addStatusHistoryComment(__('Payment capture initiated, awaiting capture confirmation.'));
+                }
+                break;
+
+            case 'payment_expired':
+                $order->addStatusHistoryComment(__('3DS payment expired.'));
+                $this->orderHandler->handleFailedPayment($order);
+                break;
         }
 
         if ($state) {
@@ -473,8 +496,11 @@ class TransactionHandlerService
             $order->setStatus($status);
         }
 
-        // Save the order
-        $order->save();
+        // Check if order has not been deleted
+        if ($this->orderHandler->isOrder($order)) {
+            // Save the order
+            $order->save();
+        }
     }
 
     /**
@@ -743,5 +769,10 @@ class TransactionHandlerService
     public function isFlagged($payload) {
         return isset($payload->data->risk->flagged)
             && $payload->data->risk->flagged == true;
+    }
+
+    public function needsTransaction($payload)
+    {
+        return isset(self::$transactionMapper[$payload->type]);
     }
 }

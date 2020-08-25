@@ -43,6 +43,11 @@ class Fail extends \Magento\Framework\App\Action\Action
     public $quoteHandler;
 
     /**
+     * @var OrderHandlerService
+     */
+    public $orderHandler;
+
+    /**
      * @var Logger
      */
     public $logger;
@@ -61,6 +66,7 @@ class Fail extends \Magento\Framework\App\Action\Action
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandlerService 
     ) {
@@ -70,6 +76,7 @@ class Fail extends \Magento\Framework\App\Action\Action
         $this->storeManager = $storeManager;
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
         $this->logger = $logger;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
     }
@@ -97,6 +104,14 @@ class Fail extends \Magento\Framework\App\Action\Action
 
         // Don't restore quote if saved card request
         if ($response->amount !== 0 && $response->amount !== 100) {
+            // Find the order from increment id
+            $order = $this->orderHandler->getOrder([
+                'increment_id' => $response->reference
+            ]);
+
+            // Handle the failed order
+            $this->orderHandler->handleFailedPayment($order);
+
             // Restore the quote
             $this->quoteHandler->restoreQuote($response->reference);
 
@@ -117,7 +132,7 @@ class Fail extends \Magento\Framework\App\Action\Action
                 __('The card could not be saved.')
             );
 
-            // Return to the cart
+            // Return to the saved card page
             return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
         }
     }
