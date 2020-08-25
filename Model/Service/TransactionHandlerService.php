@@ -485,6 +485,7 @@ class TransactionHandlerService
                 break;
 
             case 'payment_expired':
+                $order->addStatusHistoryComment(__('Payment expired.'));
                 $this->orderHandler->handleFailedPayment($order);
                 break;
         }
