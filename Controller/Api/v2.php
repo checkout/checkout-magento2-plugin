@@ -45,6 +45,11 @@ class V2 extends \Magento\Framework\App\Action\Action
     public $quoteHandler;
 
     /**
+     * @var QuoteIdMaskFactory
+     */
+    public $quoteIdMaskFactory;
+
+    /**
      * @var OrderHandlerService
      */
     public $orderHandler;
@@ -93,6 +98,7 @@ class V2 extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
@@ -104,6 +110,7 @@ class V2 extends \Magento\Framework\App\Action\Action
         $this->config = $config;
         $this->storeManager = $storeManager;
         $this->quoteHandler = $quoteHandler;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->orderHandler = $orderHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
@@ -257,6 +264,13 @@ class V2 extends \Magento\Framework\App\Action\Action
         // Get the quote id
         if (!isset($this->data->quote_id)) {
             $this->data->quote_id = $this->data['quote_id'];
+        }
+
+
+        // Convert masked quote ID hash to quote ID int
+        if (preg_match("/([A-Za-z])\w+/", $this->data->quote_id)) {
+            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($this->data->quote_id, 'masked_id');
+            $this->data->quote_id = $quoteIdMask->getQuoteId();
         }
 
         // Load the quote
