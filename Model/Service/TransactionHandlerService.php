@@ -202,7 +202,7 @@ class TransactionHandlerService
         }
 
         // Update the order status
-        $this->setOrderStatus($transaction, $amount, $payload);
+        $this->setOrderStatus($transaction, $amount, $payload, $order);
     }
 
     /**
@@ -427,12 +427,12 @@ class TransactionHandlerService
     /**
      * Set the current order status.
      */
-    public function setOrderStatus($transaction, $amount, $payload)
+    public function setOrderStatus($transaction, $amount, $payload, $order)
     {
-        // Get the order
-        $order = $transaction->getOrder();
-        // Get the event type
-        $type = $transaction->getTxnType();
+       if ($transaction) {
+           // Get the event type
+           $type = $transaction->getTxnType();
+       }
 
         // Initialise state and status
         $state = null;
