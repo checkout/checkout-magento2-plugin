@@ -430,8 +430,11 @@ class TransactionHandlerService
     public function setOrderStatus($transaction, $amount, $payload, $order)
     {
        if ($transaction) {
-           // Get the event type
+           // Get the transaction type
            $type = $transaction->getTxnType();
+       } else {
+           // Get the webhook type if transaction does not exist
+           $type = $payload->type;
        }
 
         // Initialise state and status
