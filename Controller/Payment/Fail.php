@@ -53,6 +53,11 @@ class Fail extends \Magento\Framework\App\Action\Action
     public $paymentErrorHandlerService;
 
     /**
+     * @var OrderHandlerService
+     */
+    public $orderHandler;
+
+    /**
      * PlaceOrder constructor
      */
     public function __construct(
@@ -62,7 +67,8 @@ class Fail extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger,
-        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandlerService 
+        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandlerService,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler
     ) {
         parent::__construct($context);
 
@@ -72,6 +78,7 @@ class Fail extends \Magento\Framework\App\Action\Action
         $this->quoteHandler = $quoteHandler;
         $this->logger = $logger;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
+        $this->orderHandler = $orderHandler;
     }
 
     /**
@@ -107,7 +114,18 @@ class Fail extends \Magento\Framework\App\Action\Action
             
             // Display the message
             $this->messageManager->addErrorMessage($errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.'));
+            
+            // Find the order from increment id
+            $order = $this->orderHandler->getOrder([
+                'increment_id' => $response->reference
+            ]);
 
+            // Get the store code
+            $storeCode = $this->storeManager->getStore()->getCode();
+            
+            // Handle order on failed payment
+            $this->orderHandler->handleFailedPayment($order, $storeCode);
+            
             // Return to the cart
             return $this->_redirect('checkout/cart', ['_secure' => true]);
 
