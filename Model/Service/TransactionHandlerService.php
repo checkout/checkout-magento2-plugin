@@ -150,14 +150,10 @@ class TransactionHandlerService
             $order
         );
 
-        if($this->needsTransaction($payload)) {
-            // Check if a transaction aleady exists
-            $transaction = $this->hasTransaction(
-                $order,
-                $webhook['action_id']
-            );
+        // Check to see if webhook is supported
+        if (isset(self::$transactionMapper[$webhook['event_type']]) || $webhook['event_type'] == 'payment_capture_pending') {
             // Create a transaction if needed
-            if (!$transaction) {
+            if (!$transaction && $webhook['event_type'] !== 'payment_capture_pending') {
                 // Build the transaction
                 $transaction = $this->buildTransaction(
                     $order,
@@ -197,12 +193,12 @@ class TransactionHandlerService
             // Process the credit memo case
             $this->processCreditMemo($transaction, $amount);
 
+            // Update the order status
+            $this->setOrderStatus($transaction, $amount, $payload);
+
             // Process the order email case
             $this->processEmail($transaction);
         }
-
-        // Update the order status
-        $this->setOrderStatus($transaction, $amount, $payload, $order);
     }
 
     /**
@@ -421,7 +417,7 @@ class TransactionHandlerService
         ->getList($searchCriteria)
         ->getItems();
 
-        return isset($transactions[0]) ? $transactions[0] : false;
+        return !empty(current($transactions)) ? current($transactions) : false;
     }
 
     /**

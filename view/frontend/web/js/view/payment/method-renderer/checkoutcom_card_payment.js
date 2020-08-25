@@ -127,6 +127,7 @@ define(
 
                     // Option click event
                     $('.payment-method input[type="radio"]').on('click', function () {
+                        Utilities.allowPlaceOrder(self.buttonId, false);
                         if ($(this).attr('id') == METHOD_ID) {
                             self.getCkoPaymentForm();
                         } else {
@@ -254,7 +255,9 @@ define(
 
                     // Remove the HTML
                     var container = $('#' + this.formId);
-                    this.formClone = $('#' + this.formId).html();
+                    if( $('#' + this.formId).html().length > 0 ) {
+                        this.formClone = $('#' + this.formId).html();
+                    }
                     container.empty();
                 },
 
