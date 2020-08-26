@@ -34,11 +34,18 @@
         <policy id="connect-src">
             <values>
                 <value id="cko-cdn" type="host">https://js.checkout.com</value>
+                <value id="klarna-cdn" type="host">https://eu.playground.klarnaevt.com</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
                 <value id="cko-cdn" type="host">https://js.checkout.com</value>
+                <value id="klarna" type="host">https://klarna-payments-eu.playground.klarna.com</value>
+            </values>
+        </policy>
+        <policy id="img-src">
+            <values>
+                <value id="data" type="host">data:</value>
             </values>
         </policy>
     </policies>
