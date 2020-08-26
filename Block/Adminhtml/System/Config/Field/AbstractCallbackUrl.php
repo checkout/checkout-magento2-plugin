@@ -97,7 +97,10 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
             $api = $this->apiHandler->init($storeCode);
 
             $callbackUrl= $this->getBaseUrl() . 'checkout_com/' . $this->getControllerUrl();
-            $privateSharedKey = $this->scopeConfig->getValue('settings/checkoutcom_configuration/private_shared_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+            $privateSharedKey = $this->scopeConfig->getValue(
+                'settings/checkoutcom_configuration/private_shared_key',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
 
             // Retrieve all configured webhooks
             $webhooks = $api->checkoutApi->webhooks()->retrieve();
@@ -107,12 +110,13 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                     $webhook = $list;
                 }
             }
-            
+
             // Get available webhook events
             $events = $api->checkoutApi->events()->types(['version' => '2.0']);
             $eventTypes = $events->list[0]->event_types;
+            $headers = array_change_key_case($webhook->headers);
 
-            if (!isset($webhook) || $webhook->event_types != $eventTypes || $webhook->headers['authorization'] != $privateSharedKey) {
+            if (!isset($webhook) || $webhook->event_types != $eventTypes || $headers['authorization'] != $privateSharedKey) {
                 // Webhook not configured
                 $element->setData('value', $callbackUrl);
                 $element->setReadonly('readonly');

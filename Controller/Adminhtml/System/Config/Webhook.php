@@ -110,7 +110,10 @@ class Webhook extends Action
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode);
 
-            $webhookUrl = $this->scopeConfig->getValue('payment/checkoutcom/module/account_settings/webhook_url', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+            $webhookUrl = $this->scopeConfig->getValue(
+                'payment/checkoutcom/module/account_settings/webhook_url',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
             $events = $api->checkoutApi->events()->types(['version' => '2.0']);
             $eventTypes = $events->list[0]->event_types;
             $webhooks = $api->checkoutApi->webhooks()->retrieve();
