@@ -16,7 +16,6 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
 /**
@@ -137,9 +136,11 @@ class TransactionHandlerService
      */
     public function handleTransaction($order, $webhook)
     {
-
-        //Initialise $transaction
-        $transaction = null;
+        // Check if a transaction aleady exists
+        $transaction = $this->hasTransaction(
+            $order,
+            $webhook['action_id']
+        );
 
         // Load the webhook data
         $payload = json_decode($webhook['event_data']);
@@ -194,7 +195,7 @@ class TransactionHandlerService
             $this->processCreditMemo($transaction, $amount);
 
             // Update the order status
-            $this->setOrderStatus($transaction, $amount, $payload);
+            $this->setOrderStatus($transaction, $amount, $payload, $order);
 
             // Process the order email case
             $this->processEmail($transaction);
