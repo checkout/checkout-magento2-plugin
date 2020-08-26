@@ -444,9 +444,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     public function paypal($data, $reference)
     {
         $quote = $this->quoteHandler->getQuote();
-        $shippingData = $quote->getShippingAddress()->getData();
         $source = new PaypalSource($reference);
-        $source->recipient_name = $shippingData['firstname'] . ' ' . $shippingData['lastname'];
         return $source;
     }
 
