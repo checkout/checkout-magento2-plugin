@@ -104,7 +104,7 @@ class PaymentErrorHandlerService
         return $amount . ' ' . $currency;
     }
 
-    public function getErrorMessage($responseCode)
+    public function getErrorMessage($responseCode, $responseSummary = null)
     {
         $generalErrors = array_fill_keys(
             [
@@ -161,6 +161,8 @@ class PaymentErrorHandlerService
 
         if (isset($messageMapper[$responseCode])) {
             return $messageMapper[$responseCode];
+        } else if (isset($responseSummary)) {
+            return $responseSummary;
         } else {
             return __('The transaction could not be processed');
         }
