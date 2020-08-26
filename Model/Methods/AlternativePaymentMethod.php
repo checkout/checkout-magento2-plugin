@@ -443,7 +443,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function paypal($data, $reference)
     {
-        $quote = $this->quoteHandler->getQuote();
         $source = new PaypalSource($reference);
         return $source;
     }
