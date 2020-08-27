@@ -125,11 +125,15 @@ class Webhook extends Action
             }
 
             if (isset($webhookId)) {
-                $api->checkoutApi->webhooks()->remove($webhookId);
-                $webhook = new \Checkout\Models\Webhooks\Webhook($webhookUrl);
-                $response = $api->checkoutApi->webhooks()->register($webhook, $eventTypes);
-
-                $this->configWriter->save('settings/checkoutcom_configuration/private_shared_key', $response->headers['authorization']);
+                $privateSharedKey = $this->scopeConfig->getValue(
+                    'settings/checkoutcom_configuration/private_shared_key',
+                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                );
+                $webhook = new \Checkout\Models\Webhooks\Webhook($webhookUrl, $webhookId);
+                $webhook->event_types = $eventTypes;
+                $response = $api->checkoutApi->webhooks()->update($webhook, true);
+                
+                $this->configWriter->save('settings/checkoutcom_configuration/private_shared_key', $response->headers['Authorization']);
             } else {
                 $webhook = new \Checkout\Models\Webhooks\Webhook($webhookUrl);
                 $response = $api->checkoutApi->webhooks()->register($webhook, $eventTypes);
