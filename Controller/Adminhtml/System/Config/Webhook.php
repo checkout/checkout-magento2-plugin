@@ -129,12 +129,12 @@ class Webhook extends Action
                 $webhook->event_types = $eventTypes;
                 $response = $api->checkoutApi->webhooks()->update($webhook, true);
                 
-                $this->configWriter->save('settings/checkoutcom_configuration/private_shared_key', $response->headers['Authorization']);
+                $this->configWriter->save('settings/checkoutcom_configuration/private_shared_key', $response->headers->authorization);
             } else {
                 $webhook = new \Checkout\Models\Webhooks\Webhook($webhookUrl);
                 $response = $api->checkoutApi->webhooks()->register($webhook, $eventTypes);
 
-                $this->configWriter->save('settings/checkoutcom_configuration/private_shared_key', $response->headers['authorization']);
+                $this->configWriter->save('settings/checkoutcom_configuration/private_shared_key', $response->headers->authorization);
             }
             $success = $response->isSuccessful();
             
