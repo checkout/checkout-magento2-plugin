@@ -136,7 +136,7 @@ class TransactionHandlerService
      */
     public function handleTransaction($order, $webhook)
     {
-        // Check if a transaction aleady exists
+        // Check if a transaction already exists
         $transaction = $this->hasTransaction(
             $order,
             $webhook['action_id']
@@ -199,6 +199,9 @@ class TransactionHandlerService
 
             // Process the order email case
             $this->processEmail($transaction);
+        } else {
+            // Update the order status
+            $this->setOrderStatus($transaction, $amount, $payload, $order);
         }
     }
 

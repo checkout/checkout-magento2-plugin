@@ -179,4 +179,15 @@ class WebhookHandlerService
             $entity->save();
         }
     }
+
+    /**
+     * Delete a webhook by id.
+     */
+    public function deleteEntity($id)
+    {
+        // Create the collection
+        $entity = $this->webhookEntityFactory->create();
+        $entity->load($id);
+        $entity->delete();
+    }
 }
