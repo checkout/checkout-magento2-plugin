@@ -24,7 +24,6 @@ use Magento\Sales\Model\Order\Payment\Transaction;
  */
 class WebhookHandlerService
 {
-
     /**
      * @var orderModel
      */

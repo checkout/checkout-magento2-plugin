@@ -79,11 +79,17 @@ class Callback extends \Magento\Framework\App\Action\Action
     protected $utilities;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    public $scopeConfig;
+
+    /**
      * Callback constructor
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
@@ -97,6 +103,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
 
         $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->quoteHandler = $quoteHandler;
@@ -148,9 +155,21 @@ class Callback extends \Magento\Framework\App\Action\Action
                                     $this->saveCard($response);
                                 }
 
-                                // Clean the webhook table
-                                $this->webhookHandler->clean();
-                                
+                                // Clean the webhooks table
+                                $clean = $this->scopeConfig->getValue(
+                                    'settings/checkoutcom_configuration/webhooks_table_clean',
+                                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                                );
+
+                                $cleanOn = $this->scopeConfig->getValue(
+                                    'settings/checkoutcom_configuration/webhooks_clean_on',
+                                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                                );
+
+                                if ($clean && $cleanOn == 'webhook') {
+                                    $this->webhookHandler->clean();
+                                }
+
                                 // Save the webhook
                                 $this->webhookHandler->processSingleWebhook(
                                     $order,

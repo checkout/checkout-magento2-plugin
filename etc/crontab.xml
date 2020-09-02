@@ -2,7 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="default">
         <job name="webhooks_clean" instance="CheckoutCom\Magento2\Cron\Webhooks" method="execute">
-            <schedule>* * * * *</schedule>
+            <schedule>0 * * * *</schedule>
         </job>
     </group>
 </config>
