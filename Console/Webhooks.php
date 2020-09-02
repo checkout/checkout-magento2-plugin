@@ -66,13 +66,19 @@ class Webhooks extends Command
             ->setDescription('Remove processed webhooks from the webhooks table.')
             ->setDefinition($options);
     }
-    
+
+    /**
+     * Executes "cko:webhooks:clean" command.
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $date = $input->getOption(self::DATE);
         $startDate = $input->getOption(self::START_DATE);
         $endDate = $input->getOption(self::END_DATE);
-        
+
         $webhooks = $this->webhookHandler->loadEntities();
 
         foreach ($webhooks as $webhook) {
@@ -97,12 +103,14 @@ class Webhooks extends Command
                     }
                 }
             }
-            
+
+            $deleted = 0;
+
             if (isset($this->transactionHandler::$transactionMapper[$webhook['event_type']])) {
                 $order = $this->orderHandler->getOrder([
                     'entity_id' => $webhook['order_id']
                 ]);
-                
+
                 $transaction = $this->transactionHandler->hasTransaction(
                     $order,
                     $webhook['action_id']
@@ -110,7 +118,7 @@ class Webhooks extends Command
 
                 if ($transaction) {
                     $type = $transaction->getTxnType();
-                    
+
                     switch ($type) {
                         case 'authorization':
                             $childCapture = $this->transactionHandler->getTransactionByType(
@@ -124,7 +132,9 @@ class Webhooks extends Command
                             );
 
                             if ($childCapture || $childVoid) {
+                                $this->outputWebhook($output, $webhook);
                                 $this->webhookHandler->deleteEntity($webhook['id']);
+                                $deleted++;
                             }
                             break;
 
@@ -135,7 +145,9 @@ class Webhooks extends Command
                             );
 
                             if ($parentAuth) {
+                                $this->outputWebhook($output, $webhook);
                                 $this->webhookHandler->deleteEntity($webhook['id']);
+                                $deleted++;
                             }
                             break;
 
@@ -146,7 +158,9 @@ class Webhooks extends Command
                             );
 
                             if ($parentAuth) {
+                                $this->outputWebhook($output, $webhook);
                                 $this->webhookHandler->deleteEntity($webhook['id']);
+                                $deleted++;
                             }
                             break;
 
@@ -162,15 +176,40 @@ class Webhooks extends Command
                             );
 
                             if ($parentAuth && $parentCapture) {
+                                $this->outputWebhook($output, $webhook);
                                 $this->webhookHandler->deleteEntity($webhook['id']);
+                                $deleted++;
                             }
                             break;
                     }
                 }
             } else {
+                $this->outputWebhook($output, $webhook);
                 $this->webhookHandler->deleteEntity($webhook['id']);
+                $deleted++;
             }
         }
-        $output->writeln("Webhook table has been cleaned successfully.");
+        if ($output->isVerbose()) {
+            $output->writeln('Removed ' . $deleted . ' entries from the webhook table.');
+        } else {
+            $output->writeln("Webhook table has been cleaned.");
+        }
+    }
+    
+    /**
+     * Output a webhook to the console.
+     *
+     * @param OutputInterface $output
+     * @return OutputInterface
+     */
+    protected function outputWebhook(OutputInterface $output, $webhook) {
+        if ($output->isDebug()) {
+            $output->writeln('Deleting Webhook: ');
+            $output->writeln(var_dump($webhook));
+        } elseif ($output->isVeryVerbose()) {
+            $output->writeln('Deleting Webhook ID = ' . $webhook['id']);
+        }
+        
+        return $output;
     }
 }
