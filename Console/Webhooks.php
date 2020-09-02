@@ -4,11 +4,15 @@ namespace CheckoutCom\Magento2\Console;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Webhooks extends Command
 {
 
+    private const DATE = 'date';
+    private const START_DATE = 'start-date';
+    private const END_DATE = 'end-date';
     /**
      * @var WebhookHandlerService
      */
@@ -37,15 +41,63 @@ class Webhooks extends Command
     
     protected function configure() 
     {
-        $this->setName('cko:webhooks:clean');
-        $this->setDescription('Remove processed webhooks from the webhooks table.');
+        $options = [
+            new InputOption(
+                self::DATE,
+                'd',
+                InputOption::VALUE_OPTIONAL,
+                'Date (Y-m-d)'
+            ),
+            new InputOption(
+                self::START_DATE,
+                's',
+                InputOption::VALUE_OPTIONAL,
+                'Start Date (Y-m-d)'
+            ),
+            new InputOption(
+                self::END_DATE,
+                'e',
+                InputOption::VALUE_OPTIONAL,
+                'End Date (Y-m-d)'
+            )
+        ];
+
+        $this->setName('cko:webhooks:clean')
+            ->setDescription('Remove processed webhooks from the webhooks table.')
+            ->setDefinition($options);
     }
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $date = $input->getOption(self::DATE);
+        $startDate = $input->getOption(self::START_DATE);
+        $endDate = $input->getOption(self::END_DATE);
+        
         $webhooks = $this->webhookHandler->loadEntities();
 
         foreach ($webhooks as $webhook) {
+            $payload = json_decode($webhook['event_data'], true);
+            $webhookDate = date('Y-m-d', strtotime($payload['created_on']));
+            if ($date) {
+                if ($date != $webhookDate) {
+                    continue;
+                }
+            } elseif ($startDate || $endDate) {
+                if ($startDate && $endDate) {
+                    if ($startDate >= $webhookDate || $endDate <= $webhookDate ) {
+                        continue;
+                    }
+                } elseif ($startDate) {
+                    if ($startDate >= $webhookDate) {
+                        continue;
+                    }
+                } else {
+                    if ($endDate <= $webhookDate) {
+                        continue;
+                    }
+                }
+            }
+            
             if (isset($this->transactionHandler::$transactionMapper[$webhook['event_type']])) {
                 $order = $this->orderHandler->getOrder([
                     'entity_id' => $webhook['order_id']
