@@ -148,6 +148,9 @@ class Callback extends \Magento\Framework\App\Action\Action
                                     $this->saveCard($response);
                                 }
 
+                                // Clean the webhook table
+                                $this->webhookHandler->clean();
+                                
                                 // Save the webhook
                                 $this->webhookHandler->processSingleWebhook(
                                     $order,

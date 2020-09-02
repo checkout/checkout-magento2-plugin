@@ -17,6 +17,8 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Sales\Model\Order\Payment\Transaction;
+
 /**
  * Class WebhookHandlerService.
  */
@@ -189,5 +191,88 @@ class WebhookHandlerService
         $entity = $this->webhookEntityFactory->create();
         $entity->load($id);
         $entity->delete();
+    }
+
+    /**
+     * Clean the webhooks table.
+     */
+    public function clean()
+    {
+        $webhooks = $this->loadEntities();
+
+        foreach ($webhooks as $webhook) {
+            if (isset($this->transactionHandler::$transactionMapper[$webhook['event_type']])) {
+                $order = $this->orderHandler->getOrder([
+                    'entity_id' => $webhook['order_id']
+                ]);
+
+                $transaction = $this->transactionHandler->hasTransaction(
+                    $order,
+                    $webhook['action_id']
+                );
+
+                if ($transaction) {
+                    $type = $transaction->getTxnType();
+
+                    switch ($type) {
+                        case 'authorization':
+                            $childCapture = $this->transactionHandler->getTransactionByType(
+                                Transaction::TYPE_CAPTURE,
+                                $order
+                            );
+
+                            $childVoid = $this->transactionHandler->getTransactionByType(
+                                Transaction::TYPE_VOID,
+                                $order
+                            );
+
+                            if ($childCapture || $childVoid) {
+                                $this->deleteEntity($webhook['id']);
+                            }
+                            break;
+
+                        case 'capture':
+                            $parentAuth = $this->transactionHandler->getTransactionByType(
+                                Transaction::TYPE_AUTH,
+                                $order
+                            );
+
+                            if ($parentAuth) {
+                                $this->deleteEntity($webhook['id']);
+                            }
+                            break;
+
+                        case 'void':
+                            $parentAuth = $this->transactionHandler->getTransactionByType(
+                                Transaction::TYPE_AUTH,
+                                $order
+                            );
+
+                            if ($parentAuth) {
+                                $this->deleteEntity($webhook['id']);
+                            }
+                            break;
+
+                        case 'refund':
+                            $parentAuth = $this->transactionHandler->getTransactionByType(
+                                Transaction::TYPE_AUTH,
+                                $order
+                            );
+
+                            $parentCapture = $this->transactionHandler->getTransactionByType(
+                                Transaction::TYPE_CAPTURE,
+                                $order
+                            );
+
+                            if ($parentAuth && $parentCapture) {
+                                $this->deleteEntity($webhook['id']);
+                            }
+                            break;
+                    }
+                }
+            } else {
+                $this->deleteEntity($webhook['id']);
+            }
+        }
     }
 }
