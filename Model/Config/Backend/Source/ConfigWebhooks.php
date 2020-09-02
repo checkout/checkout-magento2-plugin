@@ -18,7 +18,7 @@
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
 /**
- * Class ConfigEnvironment
+ * Class ConfigWebhooks
  */
 class ConfigWebhooks implements \Magento\Framework\Option\ArrayInterface
 {

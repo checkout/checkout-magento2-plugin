@@ -199,9 +199,6 @@ class TransactionHandlerService
 
             // Process the order email case
             $this->processEmail($transaction);
-        } else {
-            // Update the order status
-            $this->setOrderStatus($transaction, $amount, $payload, $order);
         }
     }
 
