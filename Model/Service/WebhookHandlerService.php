@@ -88,11 +88,11 @@ class WebhookHandlerService
                 'action_id' => $payload->data->action_id
             ]);
 
-                // Handle the transaction for the webhook
-                $this->webhooksToTransactions(
-                    $order,
-                    $webhooks
-                );
+            // Handle the transaction for the webhook
+            $this->webhooksToTransactions(
+                $order,
+                $webhooks
+            );
 
         } else {
             // Handle missing action ID
@@ -212,6 +212,7 @@ class WebhookHandlerService
 
                 if ($transaction) {
                     $type = $transaction->getTxnType();
+                    $paymentMethod = $order->getPayment()->getMethodInstance()->getCode();
 
                     switch ($type) {
                         case 'authorization':
@@ -236,7 +237,7 @@ class WebhookHandlerService
                                 $order
                             );
 
-                            if ($parentAuth) {
+                            if ($parentAuth || $paymentMethod == 'checkoutcom_apm') {
                                 $this->deleteEntity($webhook['id']);
                             }
                             break;

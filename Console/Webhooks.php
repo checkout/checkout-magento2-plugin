@@ -143,6 +143,7 @@ class Webhooks extends Command
 
                 if ($transaction) {
                     $type = $transaction->getTxnType();
+                    $paymentMethod = $order->getPayment()->getMethodInstance()->getCode();
 
                     switch ($type) {
                         case 'authorization':
@@ -169,7 +170,7 @@ class Webhooks extends Command
                                 $order
                             );
 
-                            if ($parentAuth) {
+                            if ($parentAuth || $paymentMethod == 'checkoutcom_apm') {
                                 $this->outputWebhook($output, $webhook);
                                 $this->webhookHandler->deleteEntity($webhook['id']);
                                 $deleted++;
