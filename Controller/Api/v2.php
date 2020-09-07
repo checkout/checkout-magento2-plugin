@@ -128,9 +128,11 @@ class V2 extends \Magento\Framework\App\Action\Action
 
         // Process the payment
         if ($this->isValidPublicKey()) {
-            $this->result = $this->processPayment();
-            if (!$this->result['success']) {
-                $this->result['error_message'] = __('The order could not be created.');
+            if($this->hasValidFields()) {
+                $this->result = $this->processPayment();
+                if (!$this->result['success']) {
+                    $this->result['error_message'] = __('The order could not be created.');
+                }
             }
         } else {
             $this->result['error_message'] = __('The public key is invalid.');
@@ -308,52 +310,52 @@ class V2 extends \Magento\Framework\App\Action\Action
 
         if (isset($this->data->payment_token)) {
             if (gettype($this->data->payment_token) !== 'string') {
-                $this->result['error_message'][] = "Payment token provided is not a string";
+                $this->result['error_message'][] = __('Payment token provided is not a string');
                 $isValid = false;
             } elseif ($this->data->payment_token == '') {
-                $this->result['error_message'][] = "Payment token provided is empty string";
+                $this->result['error_message'][] = __('Payment token provided is empty string');
                 $isValid = false;
             }
         } else {
-            $this->result['error_message'][] = "Payment token is missing from request body";
+            $this->result['error_message'][] = __('Payment token is missing from request body');
             $isValid = false;
         }
 
         if (isset($this->data->quote_id)) {
             if (gettype($this->data->quote_id) !== 'integer') {
-                $this->result['error_message'][] = "Quote ID provided is not an integer";
+                $this->result['error_message'][] = __('Quote ID provided is not an integer');
                 $isValid = false;
             } elseif ($this->data->quote_id < 1) {
-                $this->result['error_message'][] = "Quote ID provided must be a positive integer";
+                $this->result['error_message'][] = __('Quote ID provided must be a positive integer');
                 $isValid = false;
             }
         } else {
-            $this->result['error_message'][] = "Quote ID is missing from request body";
+            $this->result['error_message'][] = __('Quote ID is missing from request body');
             $isValid = false;
         }
 
         if (isset($this->data->card_bin)) {
             if ($this->data->card_bin == '') {
-                $this->result['error_message'][] = "Card BIN is empty string";
+                $this->result['error_message'][] = __('Card BIN is empty string');
                 $isValid = false;
             }
 
             if (isset($this->data->success_url)) {
                 if (gettype($this->data->success_url) !== 'string') {
-                    $this->result['error_message'][] = "Success URL provided is not a string";
+                    $this->result['error_message'][] = __('Success URL provided is not a string');
                     $isValid = false;
                 } elseif ($this->data->success_url == '') {
-                    $this->result['error_message'][] = "Success URL is empty string";
+                    $this->result['error_message'][] = __('Success URL is empty string');
                     $isValid = false;
                 }
             }
 
             if (isset($this->data->failure_url)) {
                 if (gettype($this->data->failure_url) !== 'string') {
-                    $this->result['error_message'][] = "Failure URL provided is not a string";
+                    $this->result['error_message'][] = __('Failure URL provided is not a string');
                     $isValid = false;
                 } elseif ($this->data->failure_url == '') {
-                    $this->result['error_message'][] = "Failure URL is empty string";
+                    $this->result['error_message'][] = __('Failure URL is empty string');
                     $isValid = false;
                 }
             }
