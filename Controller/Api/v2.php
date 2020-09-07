@@ -125,15 +125,15 @@ class V2 extends \Magento\Framework\App\Action\Action
     {
         // Prepare the V2 object
         $this->init();
- 
+
         // Process the payment
-        if ($this->isValidRequest()) {
+        if ($this->isValidPublicKey()) {
             $this->result = $this->processPayment();
             if (!$this->result['success']) {
                 $this->result['error_message'] = __('The order could not be created.');
             }
         } else {
-            $this->result['error_message'] = __('The request is invalid.');
+            $this->result['error_message'] = __('The public key is invalid.');
         }
 
         // Return the json response
@@ -158,7 +158,7 @@ class V2 extends \Magento\Framework\App\Action\Action
             'success' => false,
             'order_id' => 0,
             'redirect_url' => '',
-            'error_message' => __('The payment request was declined by the gateway.')
+            'error_message' => []
         ];
     }
 
@@ -174,16 +174,16 @@ class V2 extends \Magento\Framework\App\Action\Action
             // Get the payment response
             $response = $this->getPaymentResponse($order);
 
-            // Process the payment response
-            $is3ds = property_exists($response, '_links')
+            if ($this->api->isValidResponse($response)) {
+                // Process the payment response
+                $is3ds = property_exists($response, '_links')
             && isset($response->_links['redirect'])
             && isset($response->_links['redirect']['href']);
-            if ($is3ds) {
-                $this->result['success'] = true;
-                $this->result['redirect_url'] = $response->_links['redirect']['href'];
-                $this->result['error_message'] = '';
-            }
-            else if ($this->api->isValidResponse($response)) {
+                if ($is3ds) {
+                    $this->result['success'] = true;
+                    $this->result['redirect_url'] = $response->_links['redirect']['href'];
+                }
+
                 // Get the payment details
                 $paymentDetails = $this->api->getPaymentDetails($response->id);
 
@@ -195,7 +195,14 @@ class V2 extends \Magento\Framework\App\Action\Action
 
                 // Update the result
                 $this->result['success'] = $response->isSuccessful();
-                $this->result['error_message'] = '';
+            } else {
+                // Payment failed
+                if (isset($response->response_code)) {
+                    $this->result['error_message'][] = $this->paymentErrorHandler->getErrorMessage($response->response_code);
+                }
+
+                // Handle order on failed payment
+                $this->orderHandler->handleFailedPayment($order);
             }
 
             // Update the order id
@@ -225,12 +232,12 @@ class V2 extends \Magento\Framework\App\Action\Action
         // Set the success URL
         if (isset($this->data->success_url) && !empty($this->data->success_url)) {
             $payload['successUrl'] = $this->data->success_url;
-        }  
+        }
 
         // Set the failure URL
         if (isset($this->data->failure_url) && !empty($this->data->failure_url)) {
             $payload['failureUrl'] = $this->data->failure_url;
-        }  
+        }
 
         // Send the charge request
         return $this->methodHandler
@@ -266,7 +273,6 @@ class V2 extends \Magento\Framework\App\Action\Action
             $this->data->quote_id = $this->data['quote_id'];
         }
 
-
         // Convert masked quote ID hash to quote ID int
         if (preg_match("/([A-Za-z])\w+/", $this->data->quote_id)) {
             $quoteIdMask = $this->quoteIdMaskFactory->create()->load($this->data->quote_id, 'masked_id');
@@ -291,9 +297,68 @@ class V2 extends \Magento\Framework\App\Action\Action
     /**
      * Check if the request is valid.
      */
-    public function isValidRequest()
+    public function isValidPublicKey()
     {
         return $this->config->isValidAuth('pk');
+    }
+
+    public function hasValidFields()
+    {
+        $isValid = true;
+
+        if (isset($this->data->payment_token)) {
+            if (gettype($this->data->payment_token) !== 'string') {
+                $this->result['error_message'][] = "Payment token provided is not a string";
+                $isValid = false;
+            } elseif ($this->data->payment_token == '') {
+                $this->result['error_message'][] = "Payment token provided is empty string";
+                $isValid = false;
+            }
+        } else {
+            $this->result['error_message'][] = "Payment token is missing from request body";
+            $isValid = false;
+        }
+
+        if (isset($this->data->quote_id)) {
+            if (gettype($this->data->quote_id) !== 'integer') {
+                $this->result['error_message'][] = "Quote ID provided is not an integer";
+                $isValid = false;
+            } elseif ($this->data->quote_id < 1) {
+                $this->result['error_message'][] = "Quote ID provided must be a positive integer";
+                $isValid = false;
+            }
+        } else {
+            $this->result['error_message'][] = "Quote ID is missing from request body";
+            $isValid = false;
+        }
+
+        if (isset($this->data->card_bin)) {
+            if ($this->data->card_bin == '') {
+                $this->result['error_message'][] = "Card BIN is empty string";
+                $isValid = false;
+            }
+
+            if (isset($this->data->success_url)) {
+                if (gettype($this->data->success_url) !== 'string') {
+                    $this->result['error_message'][] = "Success URL provided is not a string";
+                    $isValid = false;
+                } elseif ($this->data->success_url == '') {
+                    $this->result['error_message'][] = "Success URL is empty string";
+                    $isValid = false;
+                }
+            }
+
+            if (isset($this->data->failure_url)) {
+                if (gettype($this->data->failure_url) !== 'string') {
+                    $this->result['error_message'][] = "Failure URL provided is not a string";
+                    $isValid = false;
+                } elseif ($this->data->failure_url == '') {
+                    $this->result['error_message'][] = "Failure URL is empty string";
+                    $isValid = false;
+                }
+            }
+        }
+        return $isValid;
     }
 
     /**
