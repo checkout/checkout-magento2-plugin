@@ -69,6 +69,11 @@ class V2 extends \Magento\Framework\App\Action\Action
      */
     public $cardHandler;
 
+    /*
+     * @var PaymentErrorHandlerService
+     */
+    public $paymentErrorHandler;
+
     /**
      * @var Utilities
      */
@@ -103,6 +108,7 @@ class V2 extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         parent::__construct($context);
@@ -115,6 +121,7 @@ class V2 extends \Magento\Framework\App\Action\Action
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->cardHandler = $cardHandler;
+        $this->paymentErrorhandler = $paymentErrorHandler;
         $this->utilities = $utilities;
     }
 
@@ -288,12 +295,11 @@ class V2 extends \Magento\Framework\App\Action\Action
 
         // Handle a quote not found
         if (!$this->quoteHandler->isQuote($quote)) {
-            throw new LocalizedException(
-                __('No quote was found with the provided ID.')
-            );
+            $this->result['error_message'][] = __('No quote found with the provided ID');
+            $quote = null;
         }
 
-        return $quote;
+            return $quote;
     }
 
     /**
@@ -372,12 +378,14 @@ class V2 extends \Magento\Framework\App\Action\Action
     {
         // Load the quote
         $quote = $this->loadQuote();
+        $order = null;
 
-        // Create an order
-        $order = $this->orderHandler
-            ->setMethodId('checkoutcom_card_payment')
-            ->handleOrder($quote);
-
+        if ($quote) {
+            // Create an order
+            $order = $this->orderHandler
+                ->setMethodId('checkoutcom_card_payment')
+                ->handleOrder($quote);
+        }
         return $order;
     }
 }
