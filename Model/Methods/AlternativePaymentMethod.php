@@ -173,6 +173,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Model\Service\VersionHandlerService $versionHandler,
+        \CheckoutCom\Magento2\Controller\Apm\Display $display,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -214,6 +215,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->storeManager       = $storeManager;
         $this->curl               = $curl;
         $this->versionHandler     = $versionHandler;
+        $this->display            = $display;
     }
 
     /**
@@ -755,10 +757,29 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
+        $enabled = false;
+
+        // Get the list of enabled apms.
+        $apmEnabled = explode(
+            ',',
+            $this->config->getValue('apm_enabled', 'checkoutcom_apm')
+        );
+
+        $apms = $this->config->getApms();
+        $billingAddress = $this->quoteHandler->getBillingAddress()->getData();
+
+        if (isset($billingAddress['country_id'])) {
+            foreach ($apms as $apm) {
+                if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress)) {
+                    $enabled = true;
+                }
+            }
+        }
         if (parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code)
             && count($this->config->getApms()) > 0
-            && !$this->backendAuthSession->isLoggedIn();
+            && !$this->backendAuthSession->isLoggedIn() 
+            && $enabled;
         }
 
         return false;

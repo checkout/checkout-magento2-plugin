@@ -84,7 +84,12 @@ class Display extends \Magento\Framework\App\Action\Action
             $apms = $this->config->getApms();
 
             // Load block data for each APM
-            $billingAddress = $this->quoteHandler->getBillingAddress()->getData();
+            if ($this->getRequest()->getParam('country_id')) {
+                $billingAddress = ['country_id' => $this->getRequest()->getParam('country_id')];
+            } else {
+                $billingAddress = $this->quoteHandler->getBillingAddress()->getData();
+            }
+            
             foreach ($apms as $apm) {
                 if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
                     $html .= $this->loadBlock($apm['value'], $apm['label']);
