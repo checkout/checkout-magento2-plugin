@@ -29,6 +29,7 @@ define(
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_apm';
+        let loadEvents = true;
 
         return Component.extend(
             {
@@ -100,19 +101,23 @@ define(
                  * @return {void}
                  */
                 initEvents: function () {
-                    var self = this;
-                    var prevAddress;
+                    if (loadEvents) {
+                        let self = this;
+                        let prevAddress;
 
-                    Quote.billingAddress.subscribe(
-                        function(newAddress) {
-                            if (!newAddress || !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
-                                prevAddress = newAddress;
-                                if (newAddress) {
-                                    self.reloadApms(Quote.billingAddress().countryId);
+                        Quote.billingAddress.subscribe(
+                            function(newAddress) {
+                                if (!newAddress || !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
+                                    prevAddress = newAddress;
+                                    if (newAddress) {
+                                        self.reloadApms(Quote.billingAddress().countryId);
+                                    }
                                 }
                             }
-                        }
-                    );
+                        );
+
+                        loadEvents = false   
+                    }
                 },
 
                 reloadApms: function (countryId) {
