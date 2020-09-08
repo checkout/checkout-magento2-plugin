@@ -82,6 +82,7 @@ define(
                             type: "POST",
                             url: Utilities.getUrl('apm/display'),
                             success: function (data) {
+                                    $('#apm-container').empty();
                                     self.animateRender(data);
 
                                 // Stop the loader
