@@ -82,7 +82,6 @@ define(
                             type: "POST",
                             url: Utilities.getUrl('apm/display'),
                             success: function (data) {
-                                    $('#apm-container').empty();
                                     self.animateRender(data);
 
                                 // Stop the loader
@@ -122,7 +121,6 @@ define(
                 },
 
                 reloadApms: function (countryId) {
-                    $('#apm-container').empty();
                     let self = this;
 
                     // Start the loader
@@ -158,6 +156,7 @@ define(
                  * Animate opening of APM accordion
                  */
                 animateRender: function (data) {
+                    $('#apm-container').empty();
                     $('#apm-container').append(data.html)
                         .accordion(
                             {
