@@ -139,9 +139,10 @@ class Display extends \Magento\Framework\App\Action\Action
             ) {
                 return true;
             }
+            return false;
+        } else{
+            return true;
         }
-        
-        return false;
     }
 
     /**
