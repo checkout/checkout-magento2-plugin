@@ -119,7 +119,29 @@ class Display extends \Magento\Framework\App\Action\Action
         && strpos(
             $apm['currencies'],
             $this->quoteHandler->getQuoteCurrency()
-        ) !== false;
+        ) !== false
+        && $this->countryCurrencyMapping($apm['value'], $billingAddress['country_id'], $this->quoteHandler->getQuoteCurrency());
+    }
+
+    /**
+     * Check for specific country & currency mappings.
+     *
+     * @param string $apmValue
+     * @param string $billingCountry
+     * @param string $currency
+     * @return boolean
+     */
+    public function countryCurrencyMapping($apmValue, $billingCountry, $currency)
+    {
+        if ($apmValue == 'poli') {
+            if (($billingCountry == 'AU' && $currency == 'AUD') 
+                || ($billingCountry == 'NZ' && $currency == 'NZD')
+            ) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     /**
