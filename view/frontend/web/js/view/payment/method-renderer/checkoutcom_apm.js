@@ -24,7 +24,7 @@ define(
         'mage/translate',
         'jquery/ui'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, Quote,  __) {
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, Quote, __) {
 
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
