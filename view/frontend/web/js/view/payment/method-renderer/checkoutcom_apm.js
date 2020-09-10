@@ -153,7 +153,7 @@ define(
                  * Animate opening of APM accordion
                  */
                 animateRender: function (data) {
-                    $('#apm-container').empty();
+                    $('#apm-container').empty().hide();
                     $('#apm-container').append(data.html)
                         .accordion(
                             {
