@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2019 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
+ */
+-->
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="style-src">
+            <values>
+                <value id="cko-cdn" type="host">https://cdn.checkout.com</value>
+            </values>
+        </policy>
+        <policy id="font-src">
+            <values>
+                <value id="cko-cdn" type="host">https://cdn.checkout.com</value>
+            </values>
+        </policy>
+        <policy id="script-src">
+            <values>
+                <value id="cko-cdn" type="host">https://cdn.checkout.com</value>
+                <value id="klarna-cdn" type="host">https://x.klarnacdn.net/kp/lib/v1/api.js</value>
+            </values>
+        </policy>
+        <policy id="connect-src">
+            <values>
+                <value id="cko-cdn" type="host">https://js.checkout.com</value>
+                <value id="klarna-cdn" type="host">https://eu.playground.klarnaevt.com</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="cko-cdn" type="host">https://js.checkout.com</value>
+                <value id="klarna" type="host">https://klarna-payments-eu.playground.klarna.com</value>
+            </values>
+        </policy>
+        <policy id="img-src">
+            <values>
+                <value id="data" type="host">data:</value>
+            </values>
+        </policy>
+    </policies>
+</csp_whitelist>
