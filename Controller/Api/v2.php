@@ -95,6 +95,11 @@ class V2 extends \Magento\Framework\App\Action\Action
     public $api;
 
     /**
+     * @var Object
+     */
+    public $order;
+
+    /**
      * Callback constructor
      */
     public function __construct(
@@ -139,6 +144,8 @@ class V2 extends \Magento\Framework\App\Action\Action
                 $this->result = $this->processPayment();
                 if (!$this->result['success']) {
                     $this->result['error_message'] = __('The order could not be created.');
+                    // Handle order on failed payment
+                    $this->orderHandler->handleFailedPayment($this->order);
                 }
             }
         } else {
@@ -180,6 +187,7 @@ class V2 extends \Magento\Framework\App\Action\Action
     {
         $order = $this->createOrder();
         if ($this->orderHandler->isOrder($order)) {
+            $this->order = $order;
             // Get the payment response
             $response = $this->getPaymentResponse($order);
 
