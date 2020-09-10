@@ -85,15 +85,19 @@ class Display extends \Magento\Framework\App\Action\Action
 
             // Load block data for each APM
             $billingAddress = $this->quoteHandler->getBillingAddress()->getData();
+            $klarna = false;
             foreach ($apms as $apm) {
                 if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
+                    if ($apm['value'] == 'klarna') {
+                        $klarna = true;
+                    }
                     $html .= $this->loadBlock($apm['value'], $apm['label']);
                 }
             }
         }
 
         return $this->jsonFactory->create()->setData(
-            ['html' => $html]
+            ['html' => $html, 'klarna' => $klarna]
         );
     }
 
