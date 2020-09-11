@@ -194,7 +194,7 @@ class TransactionHandlerService
             $this->processCreditMemo($transaction, $amount);
 
             // Update the order status
-            $this->setOrderStatus($transaction, $amount, $payload);
+            $this->setOrderStatus($transaction, $amount, $payload, $order);
 
             // Process the order email case
             $this->processEmail($transaction);

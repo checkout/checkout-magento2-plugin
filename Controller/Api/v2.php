@@ -199,6 +199,9 @@ class V2 extends \Magento\Framework\App\Action\Action
                 if ($is3ds) {
                     $this->result['success'] = true;
                     $this->result['redirect_url'] = $response->_links['redirect']['href'];
+                } else {
+                    // Update the result
+                    $this->result['success'] = $response->isSuccessful();    
                 }
 
                 // Get the payment details
@@ -209,9 +212,7 @@ class V2 extends \Magento\Framework\App\Action\Action
 
                 // Save the order
                 $order->save();
-
-                // Update the result
-                $this->result['success'] = $response->isSuccessful();
+                
             } else {
                 // Payment failed
                 if (isset($response->response_code)) {
