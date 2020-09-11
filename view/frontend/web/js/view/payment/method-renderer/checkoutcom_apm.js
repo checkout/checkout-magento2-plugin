@@ -20,14 +20,16 @@ define(
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
+        'Magento_Checkout/js/model/quote',
         'mage/translate',
         'jquery/ui'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, __) {
+    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, Quote, __) {
 
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_apm';
+        let loadEvents = true;
 
         return Component.extend(
             {
@@ -96,9 +98,65 @@ define(
                 },
 
                 /**
+                 * @return {void}
+                 */
+                initEvents: function () {
+                    if (loadEvents) {
+                        let self = this;
+                        let prevAddress;
+
+                        Quote.billingAddress.subscribe(
+                            function(newAddress) {
+                                if (!newAddress || !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
+                                    prevAddress = newAddress;
+                                    if (newAddress) {
+                                        self.reloadApms(Quote.billingAddress().countryId);
+                                    }
+                                }
+                            }
+                        );
+
+                        loadEvents = false   
+                    }
+                },
+
+                reloadApms: function (countryId) {
+                    let self = this;
+
+                    // Start the loader
+                    FullScreenLoader.startLoader();
+
+                    // Send the AJAX request
+                    $.ajax(
+                        {
+                            type: "POST",
+                            url: Utilities.getUrl('apm/display'),
+                            data: {
+                                country_id: countryId
+                            },
+                            success: function (data) {
+                                self.animateRender(data);
+                                $( "#apm-container" ).accordion( "refresh" );
+
+                                // Stop the loader
+                                FullScreenLoader.stopLoader();
+                            },
+                            error: function (request, status, error) {
+                                Utilities.log(error);
+
+                                // Stop the loader
+                                FullScreenLoader.stopLoader();
+                            }
+                        }
+                    );
+
+                },
+
+                /**
                  * Animate opening of APM accordion
                  */
                 animateRender: function (data) {
+                    $('#apm-container').empty();
                     $('#apm-container').append(data.html)
                         .accordion(
                             {
