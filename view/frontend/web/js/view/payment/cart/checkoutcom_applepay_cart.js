@@ -135,7 +135,7 @@ require([
                     // Update the totals, so they reflect the all total items (shipping, tax...etc)
                     let totals = getCartTotals(shippingAddress);
                     totalsBreakdown = totals;
-                    console.log(selectedShippingMethod);
+
                     // Update the current totals breakdown
                     if (selectedShippingMethod) {
                         // Update the current totals breakdown
@@ -172,7 +172,7 @@ require([
                     });
                     let totals = getCartTotals(shippingAddress);
                     totalsBreakdown = totals;
-                    console.log(selectedShippingMethod);
+
                     // Update the total to reflect the shipping method change
                     if(selectedShippingMethod) {
                         session.completeShippingMethodSelection(
