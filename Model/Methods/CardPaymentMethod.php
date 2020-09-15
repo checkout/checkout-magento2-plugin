@@ -208,7 +208,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * Send a charge request.
      */
-    public function sendPaymentRequest($data, $amount, $currency, $reference = '', $quote = null)
+    public function sendPaymentRequest($data, $amount, $currency, $reference = '', $quote = null, $isApiOrder = null)
     {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
@@ -305,6 +305,9 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         }
         catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
+            if ($isApiOrder) {
+                return $e;
+            }
         }
     }
 

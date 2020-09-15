@@ -130,7 +130,7 @@ class V2 extends \Magento\Framework\App\Action\Action
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->cardHandler = $cardHandler;
-        $this->paymentErrorhandler = $paymentErrorHandler;
+        $this->paymentErrorHandler = $paymentErrorHandler;
         $this->utilities = $utilities;
     }
 
@@ -147,13 +147,13 @@ class V2 extends \Magento\Framework\App\Action\Action
             if ($this->hasValidFields()) {
                 $this->result = $this->processPayment();
                 if (!$this->result['success']) {
-                    $this->result['error_message'] = __('The order could not be created.');
+                    $this->result['error_message'][] = __('The order could not be created.');
                     // Handle order on failed payment
                     $this->orderHandler->handleFailedPayment($this->order);
                 }
             }
         } else {
-            $this->result['error_message'] = __('The public key is invalid.');
+            $this->result['error_message'][] = __('The public key is invalid.');
         }
 
         // Return the json response
@@ -196,10 +196,12 @@ class V2 extends \Magento\Framework\App\Action\Action
             $response = $this->getPaymentResponse($order);
 
             if ($this->api->isValidResponse($response)) {
+
                 // Process the payment response
                 $is3ds = property_exists($response, '_links')
                     && isset($response->_links['redirect'])
                     && isset($response->_links['redirect']['href']);
+
                 if ($is3ds) {
                     $this->result['redirect_url'] = $response->_links['redirect']['href'];
                 }
@@ -213,11 +215,16 @@ class V2 extends \Magento\Framework\App\Action\Action
                 $order->save();
 
                 // Update the result
-                $this->result['success'] = true;
+                $this->result['success'] = $response->isSuccessful();
             } else {
                 // Payment failed
                 if (isset($response->response_code)) {
                     $this->result['error_message'][] = $this->paymentErrorHandler->getErrorMessage($response->response_code);
+                }
+
+                //  Token invalid/expired
+                if (method_exists($response, 'getErrors')) {
+                    $this->result['error_message'] = array_merge($this->result['error_message'], $response->getErrors());
                 }
 
                 // Handle order on failed payment
@@ -266,7 +273,8 @@ class V2 extends \Magento\Framework\App\Action\Action
             $order->getGrandTotal(),
             $order->getOrderCurrencyCode(),
             $order->getIncrementId(),
-            $this->quote
+            $this->quote,
+            true
         );
     }
 
@@ -378,7 +386,6 @@ class V2 extends \Magento\Framework\App\Action\Action
             }
         }
 
-        $this->result['success'] = $isValid;
         return $isValid;
     }
 
