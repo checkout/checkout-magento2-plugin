@@ -17,7 +17,6 @@
 namespace CheckoutCom\Magento2\Controller\Api;
 
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
-use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Class V2
@@ -100,6 +99,11 @@ class V2 extends \Magento\Framework\App\Action\Action
     public $order;
 
     /**
+     * @var Object
+     */
+    public $quote;
+
+    /**
      * Callback constructor
      */
     public function __construct(
@@ -140,7 +144,7 @@ class V2 extends \Magento\Framework\App\Action\Action
 
         // Process the payment
         if ($this->isValidPublicKey()) {
-            if($this->hasValidFields()) {
+            if ($this->hasValidFields()) {
                 $this->result = $this->processPayment();
                 if (!$this->result['success']) {
                     $this->result['error_message'] = __('The order could not be created.');
@@ -194,10 +198,9 @@ class V2 extends \Magento\Framework\App\Action\Action
             if ($this->api->isValidResponse($response)) {
                 // Process the payment response
                 $is3ds = property_exists($response, '_links')
-            && isset($response->_links['redirect'])
-            && isset($response->_links['redirect']['href']);
+                    && isset($response->_links['redirect'])
+                    && isset($response->_links['redirect']['href']);
                 if ($is3ds) {
-                    $this->result['success'] = true;
                     $this->result['redirect_url'] = $response->_links['redirect']['href'];
                 }
                 // Get the payment details
@@ -210,8 +213,7 @@ class V2 extends \Magento\Framework\App\Action\Action
                 $order->save();
 
                 // Update the result
-                $this->result['success'] = $response->isSuccessful();
-                
+                $this->result['success'] = true;
             } else {
                 // Payment failed
                 if (isset($response->response_code)) {
@@ -263,7 +265,8 @@ class V2 extends \Magento\Framework\App\Action\Action
             $payload,
             $order->getGrandTotal(),
             $order->getOrderCurrencyCode(),
-            $order->getIncrementId()
+            $order->getIncrementId(),
+            $this->quote
         );
     }
 
@@ -307,7 +310,7 @@ class V2 extends \Magento\Framework\App\Action\Action
             $quote = null;
         }
 
-            return $quote;
+        return $quote;
     }
 
     /**
@@ -374,6 +377,8 @@ class V2 extends \Magento\Framework\App\Action\Action
                 }
             }
         }
+
+        $this->result['success'] = $isValid;
         return $isValid;
     }
 
@@ -385,14 +390,14 @@ class V2 extends \Magento\Framework\App\Action\Action
     public function createOrder()
     {
         // Load the quote
-        $quote = $this->loadQuote();
+        $this->quote = $this->loadQuote();
         $order = null;
 
-        if ($quote) {
+        if ($this->quote) {
             // Create an order
             $order = $this->orderHandler
                 ->setMethodId('checkoutcom_card_payment')
-                ->handleOrder($quote);
+                ->handleOrder($this->quote);
         }
         return $order;
     }
