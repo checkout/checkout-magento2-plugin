@@ -58,11 +58,6 @@ class Fail extends \Magento\Framework\App\Action\Action
     public $paymentErrorHandlerService;
 
     /**
-     * @var OrderHandlerService
-     */
-    public $orderHandler;
-
-    /**
      * PlaceOrder constructor
      */
     public function __construct(
@@ -73,8 +68,7 @@ class Fail extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger,
-        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandlerService,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler
+        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandlerService
     ) {
         parent::__construct($context);
 
@@ -85,7 +79,6 @@ class Fail extends \Magento\Framework\App\Action\Action
         $this->orderHandler = $orderHandler;
         $this->logger = $logger;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
-        $this->orderHandler = $orderHandler;
     }
 
     /**
