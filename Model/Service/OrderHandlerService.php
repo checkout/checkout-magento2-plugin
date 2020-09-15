@@ -166,7 +166,7 @@ class OrderHandlerService
     /**
      * Sets status/deletes order based on user config if payment fails
      */
-    public function handleFailedPayment($order, $storeId, $webhook = false)
+    public function handleFailedPayment($order, $webhook = false)
     {
         $failedWebhooks = [
             "payment_declined",
@@ -177,8 +177,11 @@ class OrderHandlerService
         ];
 
         if (!$webhook || in_array($webhook, $failedWebhooks)) {
+            // Get store code
+            $storeCode = $this->storeManager->getStore()->getCode();
+
             // Get config for failed payments
-            $config = $this->config->getValue('order_action_failed_payment', null, $storeId);
+            $config = $this->config->getValue('order_action_failed_payment', null, $storeCode);
 
             if ($config == 'cancel' || $config == 'delete') {
                 $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();

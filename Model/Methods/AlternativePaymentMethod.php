@@ -138,6 +138,11 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
     public $backendAuthSession;
 
     /**
+     * @var VersionHandler
+     */
+    public $versionHandler;
+
+    /**
      * AlternativePaymentMethod constructor.
      */
     public function __construct(
@@ -167,6 +172,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Model\Service\VersionHandlerService $versionHandler,
+        \CheckoutCom\Magento2\Controller\Apm\Display $display,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -207,6 +214,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;
         $this->curl               = $curl;
+        $this->versionHandler     = $versionHandler;
+        $this->display            = $display;
     }
 
     /**
@@ -356,7 +365,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             'Content-type: ' . HttpHandler::MIME_TYPE_JSON,
             'Accept: ' . HttpHandler::MIME_TYPE_JSON,
             'Authorization: ' . $secret,
-            'User-Agent: checkout-magento2-plugin/1.0.0'
+            'User-Agent: checkout-magento2-plugin/' . $this->versionHandler->getModuleVersion()
         ]);
 
         // Set extra CURL parameters
@@ -564,7 +573,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         // Shipping fee
         $shipping = $quote->getShippingAddress();
 
-        if ($shipping->getShippingDescription()) {
+        if ($shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
             $product = new Product();
             $product->description = $shipping->getShippingDescription();
             $product->quantity = 1;
@@ -748,10 +757,29 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
+        $enabled = false;
+
+        // Get the list of enabled apms.
+        $apmEnabled = explode(
+            ',',
+            $this->config->getValue('apm_enabled', 'checkoutcom_apm')
+        );
+
+        $apms = $this->config->getApms();
+        $billingAddress = $this->quoteHandler->getBillingAddress()->getData();
+
+        if (isset($billingAddress['country_id'])) {
+            foreach ($apms as $apm) {
+                if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress)) {
+                    $enabled = true;
+                }
+            }
+        }
         if (parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code)
             && count($this->config->getApms()) > 0
-            && !$this->backendAuthSession->isLoggedIn();
+            && !$this->backendAuthSession->isLoggedIn() 
+            && $enabled;
         }
 
         return false;

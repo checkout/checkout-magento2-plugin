@@ -324,9 +324,29 @@ define(
              */
             showMessage: function (type, message, methodId) {
                 this.clearMessages(methodId);
-                var messageContainer = this.getMethodContainer(methodId).find('.message');
+                var messageContainer = this.getMethodContainer(methodId).find('.message-cko');
                 messageContainer.addClass('message-' + type + ' ' + type);
                 messageContainer.append('<div>' + __(message) + '</div>');
+                messageContainer.show();
+            },
+
+            /**
+             * Show debug message.
+             */
+            showDebugMessage: function (type, message, methodId) {
+                var messageContainer = this.getMethodContainer(methodId).find('.debug-message');
+                messageContainer.addClass('message-' + type + ' ' + type);
+                messageContainer.append('<div><pre style="white-space:pre-wrap;word-break: break-word;">' + __(message) + '</pre></div>');
+                messageContainer.show();
+            },
+
+            /**
+             * Show response code.
+             */
+            showResponseCode: function (type, message, methodId) {
+                var messageContainer = this.getMethodContainer(methodId).find('.message-response-code');
+                messageContainer.addClass('message-' + type + ' ' + type);
+                messageContainer.append('<div>Response Code: ' + __(message) + '</div>');
                 messageContainer.show();
             },
 
@@ -367,7 +387,7 @@ define(
             methodIsSelected: function (idSelector) {
                 var id = idSelector.replace('#', '');
                 var selected = CheckoutData.getSelectedPaymentMethod();
-                return id == selected;
+                return id == selected || selected == null;
             },
 
             /**
@@ -390,6 +410,12 @@ define(
                         if (!data.success) {
                             FullScreenLoader.stopLoader();
                             self.showMessage('error', data.message, methodId);
+                            if (data.debugMessage) {
+                                self.showDebugMessage('error', data.debugMessage, methodId);
+                            }
+                            if (data.responseCode) {
+                                self.showResponseCode('error', data.responseCode, methodId);
+                            }
                             self.allowPlaceOrder(methodId + '_btn', false)
                         } else if (data.success && data.url) {
                             // Handle 3DS redirection
