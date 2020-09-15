@@ -43,4 +43,9 @@
         <plugin name="cko_minification_exclude" type="CheckoutCom\Magento2\Plugin\MinificationExclude" />
     </type>
     <!-- END Minification exclusion plugin -->
+
+    <!-- After invoice creation plugin -->
+    <type name="Magento\Sales\Model\ResourceModel\Order\Handler\State">
+    <plugin name="cko_after_invoice" type="CheckoutCom\Magento2\Plugin\Backend\OrderAfterInvoice" sortOrder="10" disabled="false"  />
+    </type>
 </config>
