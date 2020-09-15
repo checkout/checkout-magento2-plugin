@@ -134,16 +134,30 @@ require([
 
                     // Update the totals, so they reflect the all total items (shipping, tax...etc)
                     let totals = getCartTotals(shippingAddress);
-
-                    // Update the current totals breakdown
                     totalsBreakdown = totals;
-
-                    session.completeShippingContactSelection(
-                        ApplePaySession.STATUS_SUCCESS,
-                        shippingOptions,
-                        totals.total,
-                        totals.breakdown
-                    );
+                    console.log(selectedShippingMethod);
+                    // Update the current totals breakdown
+                    if (selectedShippingMethod) {
+                        // Update the current totals breakdown
+                        session.completeShippingContactSelection(
+                            ApplePaySession.STATUS_SUCCESS,
+                            shippingOptions,
+                            totals.total,
+                            totals.breakdown
+                        );
+                    } else {
+                        session.completeShippingContactSelection({
+                            status: "STATUS_FAILURE",
+                            errors: [
+                                new ApplePayError(
+                                    "addressUnserviceable",
+                                    "country",
+                                    "No shipping methods available."
+                                ),
+                            ],
+                            newTotal: totals.total,
+                        });
+                    }
                 };
 
                 // When the shipping method is populate/selected
@@ -156,16 +170,21 @@ require([
                             selectedShippingMethod = method;
                         }
                     });
-
-                    // Update the total to reflect the shipping method change
-                    totals = getCartTotals(shippingAddress);
+                    let totals = getCartTotals(shippingAddress);
                     totalsBreakdown = totals;
-
-                    session.completeShippingMethodSelection(
-                        status,
-                        totals.total,
-                        totals.breakdown
-                    );
+                    console.log(selectedShippingMethod);
+                    // Update the total to reflect the shipping method change
+                    if(selectedShippingMethod) {
+                        session.completeShippingMethodSelection(
+                            status,
+                            totals.total,
+                            totals.breakdown
+                        );
+                    } else {
+                        session.completeShippingMethodSelection(
+                            ApplePaySession.STATUS_FAILURE
+                        );
+                    }
                 };
 
                 // When the payment method is populated/selected
@@ -360,8 +379,8 @@ require([
                         postcode: postCode,
                         region_code: getAreaCode(postCode, countryId),
                     },
-                    shipping_carrier_code: selectedShippingMethod.carrier_code,
-                    shipping_method_code: selectedShippingMethod.method_code,
+                    shipping_carrier_code: selectedShippingMethod ? selectedShippingMethod.carrier_code : "",
+                    shipping_method_code: selectedShippingMethod ? selectedShippingMethod.method_code : "",
                 },
             };
 
