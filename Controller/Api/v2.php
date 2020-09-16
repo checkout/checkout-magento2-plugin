@@ -226,9 +226,6 @@ class V2 extends \Magento\Framework\App\Action\Action
                 if (method_exists($response, 'getErrors')) {
                     $this->result['error_message'] = array_merge($this->result['error_message'], $response->getErrors());
                 }
-
-                // Handle order on failed payment
-                $this->orderHandler->handleFailedPayment($order);
             }
 
             // Update the order id
