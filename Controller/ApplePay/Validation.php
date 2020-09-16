@@ -64,6 +64,10 @@ class Validation extends \Magento\Framework\App\Action\Action
         $this->methodId = $this->getRequest()->getParam('method_id');
         $this->url = $this->getRequest()->getParam('u');
 
+        if (substr($this->url, 0, 5) == 'https' && substr($this->url, 0, 8) !== 'https://') {
+            $this->url = 'https://' . substr($this->url, 7);
+        }
+
         // Prepare the configuration parameters
         $params = $this->getParams();
 
