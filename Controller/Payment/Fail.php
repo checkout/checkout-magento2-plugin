@@ -56,7 +56,7 @@ class Fail extends \Magento\Framework\App\Action\Action
      * @var PaymentErrorHandlerService
      */
     public $paymentErrorHandlerService;
-    
+
     /**
      * PlaceOrder constructor
      */
