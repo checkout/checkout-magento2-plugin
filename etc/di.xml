@@ -43,9 +43,19 @@
         <plugin name="cko_minification_exclude" type="CheckoutCom\Magento2\Plugin\MinificationExclude" />
     </type>
     <!-- END Minification exclusion plugin -->
+    
+    <!-- Command line interface -->
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="webhooks" xsi:type="object">CheckoutCom\Magento2\Console\Webhooks</item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- END Command line interface -->
 
     <!-- After invoice creation plugin -->
     <type name="Magento\Sales\Model\ResourceModel\Order\Handler\State">
-    <plugin name="cko_after_invoice" type="CheckoutCom\Magento2\Plugin\Backend\OrderAfterInvoice" sortOrder="10" disabled="false"  />
+        <plugin name="cko_after_invoice" type="CheckoutCom\Magento2\Plugin\Backend\OrderAfterInvoice" sortOrder="10" disabled="false"  />
     </type>
 </config>

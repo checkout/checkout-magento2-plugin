@@ -89,6 +89,21 @@
                             </depends>
                             <config_path>settings/checkoutcom_configuration/descriptor_city</config_path>
                         </field>
+
+                        <field id="webhooks_table_clean_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Enable Webhook Table Clean</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>settings/checkoutcom_configuration/webhooks_table_clean</config_path>
+                        </field>
+
+                        <field id="webhooks_webhook_clean" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Clean Webhook Table On</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigWebhooks</source_model>
+                            <depends>
+                                <field id="webhooks_table_clean_enabled">1</field>
+                            </depends>
+                            <config_path>settings/checkoutcom_configuration/webhooks_clean_on</config_path>
+                        </field>
                     </group>
                     <group id="order_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Order Settings</label>
