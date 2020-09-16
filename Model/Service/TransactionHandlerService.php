@@ -136,7 +136,7 @@ class TransactionHandlerService
      */
     public function handleTransaction($order, $webhook)
     {
-        // Check if a transaction aleady exists
+        // Check if a transaction already exists
         $transaction = $this->hasTransaction(
             $order,
             $webhook['action_id']
@@ -162,10 +162,9 @@ class TransactionHandlerService
                     $amount
                 );
 
-                $eventData = json_decode($webhook['event_data']);
                 $isBackendCapture = false;
-                if (isset($eventData->data->metadata->isBackendCapture)) {
-                    $isBackendCapture = $eventData->data->metadata->isBackendCapture;
+                if (isset($payload->data->metadata->isBackendCapture)) {
+                    $isBackendCapture = $payload->data->metadata->isBackendCapture;
                 }
                 if (!$isBackendCapture) {
                     // Add the order comment
