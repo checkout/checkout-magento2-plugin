@@ -71,7 +71,9 @@ class PaymentErrorHandlerService
             $response->data->action_id,
             $response->id,
             $response->data->id,
-            $response->data->response_code,
+            !empty($response->data->response_code) 
+            ? $response->data->response_code 
+            : __('Not specified.'),
             !empty($response->data->response_summary)
             ? $response->data->response_summary
             : __('Not specified.')
