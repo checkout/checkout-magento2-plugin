@@ -100,51 +100,38 @@ class Fail extends \Magento\Framework\App\Action\Action
 
             // Logging
             $this->logger->display($response);
-        }
 
-        // Don't restore quote if saved card request
-        if ($response->amount !== 0 && $response->amount !== 100) {
-            // Find the order from increment id
-            $order = $this->orderHandler->getOrder([
-                'increment_id' => $response->reference
-            ]);
+            // Don't restore quote if saved card request
+            if ($response->amount !== 0 && $response->amount !== 100) {
+                // Find the order from increment id
+                $order = $this->orderHandler->getOrder([
+                    'increment_id' => $response->reference
+                ]);
 
-            // Handle the failed order
-            $this->orderHandler->handleFailedPayment($order);
+                // Handle the failed order
+                $this->orderHandler->handleFailedPayment($order);
 
-            // Restore the quote
-            $this->quoteHandler->restoreQuote($response->reference);
+                // Restore the quote
+                $this->quoteHandler->restoreQuote($response->reference);
 
-            $errorMessage = null;
-            if (isset($response->actions[0]['response_code'])) {
-                $errorMessage = $this->paymentErrorHandlerService->getErrorMessage($response->actions[0]['response_code']);
+                $errorMessage = null;
+                if (isset($response->actions[0]['response_code'])) {
+                    $errorMessage = $this->paymentErrorHandlerService->getErrorMessage($response->actions[0]['response_code']);
+                }
+
+                // Display the message
+                $this->messageManager->addErrorMessage($errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.'));
+
+                // Return to the cart
+                return $this->_redirect('checkout/cart', ['_secure' => true]);
+            } else {
+                $this->messageManager->addErrorMessage(
+                    __('The card could not be saved.')
+                );
+
+                // Return to the saved card page
+                return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
             }
-            
-            // Display the message
-            $this->messageManager->addErrorMessage($errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.'));
-            
-            // Find the order from increment id
-            $order = $this->orderHandler->getOrder([
-                'increment_id' => $response->reference
-            ]);
-
-            // Get the store code
-            $storeCode = $this->storeManager->getStore()->getCode();
-            
-            // Handle order on failed payment
-            $this->orderHandler->handleFailedPayment($order, $storeCode);
-            
-            // Return to the cart
-            return $this->_redirect('checkout/cart', ['_secure' => true]);
-
-        } else {
-
-            $this->messageManager->addErrorMessage(
-                __('The card could not be saved.')
-            );
-
-            // Return to the saved card page
-            return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
         }
     }
 }
