@@ -208,7 +208,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * Send a charge request.
      */
-    public function sendPaymentRequest($data, $amount, $currency, $reference = '')
+    public function sendPaymentRequest($data, $amount, $currency, $reference = '', $quote = null, $isApiOrder = null)
     {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
@@ -216,9 +216,11 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         // Initialize the API handler
         $api = $this->apiHandler->init($storeCode);
 
-        // Get the quote
-        $quote = $this->quoteHandler->getQuote();
-        
+        if (!$quote) {
+            // Get the quote
+            $quote = $this->quoteHandler->getQuote();
+        }
+
         // Set the token source
         $tokenSource = new TokenSource($data['cardToken']);
         $tokenSource->billing_address = $api->createBillingAddress($quote);
@@ -303,6 +305,9 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         }
         catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
+            if ($isApiOrder) {
+                return $e;
+            }
         }
     }
 

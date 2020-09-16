@@ -162,10 +162,9 @@ class TransactionHandlerService
                     $amount
                 );
 
-                $eventData = json_decode($webhook['event_data']);
                 $isBackendCapture = false;
-                if (isset($eventData->data->metadata->isBackendCapture)) {
-                    $isBackendCapture = $eventData->data->metadata->isBackendCapture;
+                if (isset($payload->data->metadata->isBackendCapture)) {
+                    $isBackendCapture = $payload->data->metadata->isBackendCapture;
                 }
                 if (!$isBackendCapture) {
                     // Add the order comment
@@ -199,6 +198,9 @@ class TransactionHandlerService
 
             // Process the order email case
             $this->processEmail($transaction);
+        } else {
+            // Update the order status
+            $this->setOrderStatus($transaction, $amount, $payload, $order);
         }
     }
 

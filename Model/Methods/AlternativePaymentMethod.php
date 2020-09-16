@@ -34,6 +34,7 @@ use \Checkout\Models\Payments\KlarnaSource;
 use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
 use \Checkout\Models\Payments\PoliSource;
+use \Checkout\Models\Payments\PaypalSource;
 use \Checkout\Library\Exceptions\CheckoutHttpException;
 
 /**
@@ -173,6 +174,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Model\Service\VersionHandlerService $versionHandler,
+        \CheckoutCom\Magento2\Controller\Apm\Display $display,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -214,6 +216,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $this->storeManager       = $storeManager;
         $this->curl               = $curl;
         $this->versionHandler     = $versionHandler;
+        $this->display            = $display;
     }
 
     /**
@@ -232,7 +235,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $api = $this->apiHandler->init($storeCode);
 
             // Create source object
-            $source = $this->{$method}($data);
+            $source = $this->{$method}($data, $reference);
             $payment = $this->createPayment(
                 $source,
                 $amount,
@@ -295,7 +298,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $payment->reference = $reference;
         $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
         $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-
+        $payment->customer = $this->apiHandler->createCustomer($quote);
+        $payment->shipping = $this->apiHandler->createShippingAddress($quote);
         $payment->description = __(
             'Payment request from %1',
             $this->config->getStoreName()
@@ -436,6 +440,19 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         );
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl_NL'));
         $source->language = $locale[0];
+        return $source;
+    }
+
+    /**
+     * Create source.
+     *
+     * @param $source  The source
+     *
+     * @return TokenSource
+     */
+    public function paypal($data, $reference)
+    {
+        $source = new PaypalSource($reference);
         return $source;
     }
 
@@ -755,10 +772,29 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
+        $enabled = false;
+
+        // Get the list of enabled apms.
+        $apmEnabled = explode(
+            ',',
+            $this->config->getValue('apm_enabled', 'checkoutcom_apm')
+        );
+
+        $apms = $this->config->getApms();
+        $billingAddress = $this->quoteHandler->getBillingAddress()->getData();
+
+        if (isset($billingAddress['country_id'])) {
+            foreach ($apms as $apm) {
+                if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress)) {
+                    $enabled = true;
+                }
+            }
+        }
         if (parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code)
             && count($this->config->getApms()) > 0
-            && !$this->backendAuthSession->isLoggedIn();
+            && !$this->backendAuthSession->isLoggedIn() 
+            && $enabled;
         }
 
         return false;
