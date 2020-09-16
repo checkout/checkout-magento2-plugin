@@ -229,7 +229,7 @@ class V2 extends \Magento\Framework\App\Action\Action
             }
 
             // Update the order id
-            $this->result['order_id'] = $order->getId();
+            $this->result['order_id'] = $order->getIncrementId();
         }
 
         return $this->result;
