@@ -251,6 +251,7 @@ class ApiHandlerService
         $address->city = $billingAddress->getCity();
         $address->zip = $billingAddress->getPostcode();
         $address->country = $billingAddress->getCountry();
+        $address->state = $billingAddress->getRegion();
 
         return $address;
     }
@@ -261,7 +262,7 @@ class ApiHandlerService
     public function createShippingAddress($entity)
     {
         // Get the billing address
-        $shippingAddress = $entity->getBillingAddress();
+        $shippingAddress = $entity->getShippingAddress();
 
         // Create the address
         $address = new Address();
@@ -270,6 +271,7 @@ class ApiHandlerService
         $address->city = $shippingAddress->getCity();
         $address->zip = $shippingAddress->getPostcode();
         $address->country = $shippingAddress->getCountry();
+        $address->state = $shippingAddress->getRegion();
         
         return new Shipping($address);
     }

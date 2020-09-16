@@ -34,6 +34,7 @@ use \Checkout\Models\Payments\KlarnaSource;
 use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
 use \Checkout\Models\Payments\PoliSource;
+use \Checkout\Models\Payments\PaypalSource;
 use \Checkout\Library\Exceptions\CheckoutHttpException;
 
 /**
@@ -234,7 +235,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
             $api = $this->apiHandler->init($storeCode);
 
             // Create source object
-            $source = $this->{$method}($data);
+            $source = $this->{$method}($data, $reference);
             $payment = $this->createPayment(
                 $source,
                 $amount,
@@ -297,7 +298,8 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $payment->reference = $reference;
         $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
         $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-
+        $payment->customer = $this->apiHandler->createCustomer($quote);
+        $payment->shipping = $this->apiHandler->createShippingAddress($quote);
         $payment->description = __(
             'Payment request from %1',
             $this->config->getStoreName()
@@ -438,6 +440,19 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         );
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl_NL'));
         $source->language = $locale[0];
+        return $source;
+    }
+
+    /**
+     * Create source.
+     *
+     * @param $source  The source
+     *
+     * @return TokenSource
+     */
+    public function paypal($data, $reference)
+    {
+        $source = new PaypalSource($reference);
         return $source;
     }
 
