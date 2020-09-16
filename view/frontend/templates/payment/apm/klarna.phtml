@@ -38,8 +38,9 @@
             "jquery",
             'CheckoutCom_Magento2/js/view/payment/utilities',
             "Klarna",
+            'Magento_Checkout/js/model/full-screen-loader',
             "domReady!"
-            ], function ($, Utilities, Klarna) {
+            ], function ($, Utilities, Klarna, FullScreenLoader) {
                 Klarna = window.Klarna;
                 var k = {
                     /**
@@ -48,6 +49,8 @@
                     remove: function() {
                         $("#klarna").remove();
                         $("#body-klarna").remove();
+                        $('#apm-container').show();
+                        FullScreenLoader.stopLoader();
                     },
                     /**
                      * Load Klarna object.
@@ -89,6 +92,8 @@
                                 if (!response.show_form) {
                                     self.remove();
                                 }
+                                $('#apm-container').show();
+                                FullScreenLoader.stopLoader();
                             });
 
                         } catch(er) {

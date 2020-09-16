@@ -72,7 +72,8 @@ class Display extends \Magento\Framework\App\Action\Action
     {
         // Prepare the output
         $html = '';
-
+        $klarna = false;
+        
         // Process the request
         if ($this->getRequest()->isAjax()) {
             // Get the list of APM
@@ -89,16 +90,19 @@ class Display extends \Magento\Framework\App\Action\Action
             } else {
                 $billingAddress = $this->quoteHandler->getBillingAddress()->getData();
             }
-            
+
             foreach ($apms as $apm) {
                 if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
+                    if ($apm['value'] == 'klarna') {
+                        $klarna = true;
+                    }
                     $html .= $this->loadBlock($apm['value'], $apm['label']);
                 }
             }
         }
 
         return $this->jsonFactory->create()->setData(
-            ['html' => $html]
+            ['html' => $html, 'klarna' => $klarna]
         );
     }
 

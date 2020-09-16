@@ -82,10 +82,7 @@ define(
                             type: "POST",
                             url: Utilities.getUrl('apm/display'),
                             success: function (data) {
-                                    self.animateRender(data);
-
-                                // Stop the loader
-                                FullScreenLoader.stopLoader();
+                                self.animateRender(data);
                             },
                             error: function (request, status, error) {
                                 Utilities.log(error);
@@ -156,7 +153,7 @@ define(
                  * Animate opening of APM accordion
                  */
                 animateRender: function (data) {
-                    $('#apm-container').empty();
+                    $('#apm-container').empty().hide();
                     $('#apm-container').append(data.html)
                         .accordion(
                             {
@@ -165,8 +162,12 @@ define(
                                     duration: 200
                                 }
                             }
-                        )
-                        .show();
+                        );
+                    if (data.klarna != true) {
+                        // Stop the loader
+                        $('#apm-container').show();
+                        FullScreenLoader.stopLoader();
+                    }
                 },
 
                 /**
@@ -176,8 +177,8 @@ define(
                     let id = $("#apm-container div[aria-selected=true]").attr('id');
 
                     if (Utilities.methodIsSelected(METHOD_ID) && id) {
-                           let form = $("#cko-apm-form-" + id),
-                               data = {methodId: METHOD_ID};
+                        let form = $("#cko-apm-form-" + id), 
+                            data = {methodId: METHOD_ID};
 
                         // Start the loader
                         FullScreenLoader.startLoader();
@@ -211,12 +212,12 @@ define(
                  * Custom "before place order" flows.
                  */
 
-                 /**
-                  * Dynamic function handler.
-                  *
-                  * @param  {String}   id      The identifier
-                  * @return {boolean}
-                  */
+                /**
+                 * Dynamic function handler.
+                 *
+                 * @param  {String}   id      The identifier
+                 * @return {boolean}
+                 */
                 custom: function (data) {
                     var result = true;
                     if (typeof this[data.source] == 'function') {
