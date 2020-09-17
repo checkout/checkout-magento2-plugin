@@ -596,7 +596,7 @@ class TransactionHandlerService
 
             // Create a credit memo
             $creditMemo = $this->creditMemoFactory->createByOrder($order);
-            $creditMemo->setBaseGrandTotal($amount);
+            $creditMemo->setBaseGrandTotal($amount/$order->getBaseToOrderRate());
             $creditMemo->setGrandTotal($amount);
 
             // Refund
@@ -723,11 +723,11 @@ class TransactionHandlerService
     }
 
     /**
-     * Format an amount with curerency.
+     * Format an amount with currency.
      */
     public function getFormattedAmount($order, $amount)
     {
-        return $order->getBaseCurrency()->formatTxt($amount);
+        return $order->getOrderCurrency()->formatTxt($amount);
     }
 
     /**
