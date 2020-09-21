@@ -176,6 +176,18 @@ class TransactionHandlerService
                     // Process the invoice case
                     $this->processInvoice($transaction, $amount);
                 }
+            } else {
+                // Get the payment
+                $payment = $transaction->getOrder()->getPayment();
+
+                // Update the existing transaction state
+                $transaction->setIsClosed(
+                    $this->setTransactionState($transaction, $amount)
+                );
+
+                // Save
+                $transaction->save();
+                $payment->save();
             }
             // Process the credit memo case
             $this->processCreditMemo($transaction, $amount);
