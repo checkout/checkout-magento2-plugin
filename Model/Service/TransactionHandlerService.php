@@ -154,7 +154,7 @@ class TransactionHandlerService
         // Check to see if webhook is supported
         if (isset(self::$transactionMapper[$webhook['event_type']])) {
             // Create a transaction if needed
-            if (!$transaction && $webhook['event_type']) {
+            if (!$transaction) {
                 // Build the transaction
                 $transaction = $this->buildTransaction(
                     $order,
