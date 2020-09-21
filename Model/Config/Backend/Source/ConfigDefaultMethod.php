@@ -20,7 +20,7 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 /**
  * Class ConfigDefaultMethod
  */
-class ConfigDefaultMethod implements \Magento\Framework\Option\ArrayInterface
+class ConfigDefaultMethod implements \Magento\Framework\Data\OptionSourceInterface
 {
     /**
      * @var Config

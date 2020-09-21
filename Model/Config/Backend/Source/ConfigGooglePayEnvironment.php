@@ -20,7 +20,7 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 /**
  * Class ConfigGooglePayEnvironment
  */
-class ConfigGooglePayEnvironment implements \Magento\Framework\Option\ArrayInterface
+class ConfigGooglePayEnvironment implements \Magento\Framework\Data\OptionSourceInterface
 {
 
     const ENVIRONMENT_TEST = 'TEST';
