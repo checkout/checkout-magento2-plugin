@@ -80,14 +80,14 @@ define(
                  * @return {string}
                  */
                 isVaultEnabled: function () {
-                    return this.getValue('active');
+                    return parseInt(this.getValue('active'));
                 },
 
                 /**
                  * @return {string}
                  */
                 isSaveCardEnabled: function () {
-                    return this.getValue('save_card_option');
+                    return parseInt(this.getValue('save_card_option'));
                 },
 
                 /**
