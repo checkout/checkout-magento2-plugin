@@ -80,7 +80,7 @@ define(
                  * @return {string}
                  */
                 isVaultEnabled: function () {
-                    return parseInt(this.getValue('active'));
+                    return parseInt(Utilities.getValue('checkoutcom_vault', 'active', true));
                 },
 
                 /**
