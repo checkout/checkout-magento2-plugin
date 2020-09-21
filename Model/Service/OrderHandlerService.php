@@ -179,7 +179,6 @@ class OrderHandlerService
         if (!$webhook || in_array($webhook, $failedWebhooks)) {
             // Get store code
             $storeCode = $this->storeManager->getStore()->getCode();
-            $orderState = $order->getState();
             // Get config for failed payments
             $config = $this->config->getValue('order_action_failed_payment', null, $storeCode);
 
