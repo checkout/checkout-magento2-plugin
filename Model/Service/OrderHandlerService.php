@@ -179,15 +179,17 @@ class OrderHandlerService
         if (!$webhook || in_array($webhook, $failedWebhooks)) {
             // Get store code
             $storeCode = $this->storeManager->getStore()->getCode();
-
+            $orderState = $order->getState();
             // Get config for failed payments
             $config = $this->config->getValue('order_action_failed_payment', null, $storeCode);
 
             if ($config == 'cancel' || $config == 'delete') {
-                $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();
-                $order->setStatus($this->config->getValue('order_status_canceled'));
-                $order->setState($this->orderModel::STATE_CANCELED);
-                $order->save();
+                if ($order->getState() !== 'canceled') {
+                    $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();
+                    $order->setStatus($this->config->getValue('order_status_canceled'));
+                    $order->setState($this->orderModel::STATE_CANCELED);
+                    $order->save();
+                }
 
                 if ($config == 'delete') {
                     $this->registry->register('isSecureArea', true);
