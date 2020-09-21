@@ -40,7 +40,7 @@ define(
              * @param  {string}  field    The field
              * @return {mixed}            The value
              */
-            getValue: function (methodId, field, strict= false) {
+            getValue: function (methodId, field, strict = false) {
                 var val = null;
                 if (methodId && Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
                     val = Config[methodId][field]
