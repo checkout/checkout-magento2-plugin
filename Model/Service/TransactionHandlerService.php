@@ -152,9 +152,9 @@ class TransactionHandlerService
         );
 
         // Check to see if webhook is supported
-        if (isset(self::$transactionMapper[$webhook['event_type']]) || $webhook['event_type'] == 'payment_capture_pending') {
+        if (isset(self::$transactionMapper[$webhook['event_type']])) {
             // Create a transaction if needed
-            if (!$transaction && $webhook['event_type'] !== 'payment_capture_pending') {
+            if (!$transaction) {
                 // Build the transaction
                 $transaction = $this->buildTransaction(
                     $order,
@@ -189,7 +189,6 @@ class TransactionHandlerService
                 $transaction->save();
                 $payment->save();
             }
-
             // Process the credit memo case
             $this->processCreditMemo($transaction, $amount);
 

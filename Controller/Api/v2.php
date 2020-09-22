@@ -79,7 +79,7 @@ class V2 extends \Magento\Framework\App\Action\Action
     public $utilities;
 
     /**
-     * @var Array
+     * @var Object
      */
     public $data;
 
@@ -226,13 +226,10 @@ class V2 extends \Magento\Framework\App\Action\Action
                 if (method_exists($response, 'getErrors')) {
                     $this->result['error_message'] = array_merge($this->result['error_message'], $response->getErrors());
                 }
-
-                // Handle order on failed payment
-                $this->orderHandler->handleFailedPayment($order);
             }
 
             // Update the order id
-            $this->result['order_id'] = $order->getId();
+            $this->result['order_id'] = $order->getIncrementId();
         }
 
         return $this->result;
@@ -347,10 +344,7 @@ class V2 extends \Magento\Framework\App\Action\Action
         }
 
         if (isset($this->data->quote_id)) {
-            if (gettype($this->data->quote_id) !== 'integer') {
-                $this->result['error_message'][] = __('Quote ID provided is not an integer');
-                $isValid = false;
-            } elseif ($this->data->quote_id < 1) {
+            if (gettype($this->data->quote_id) === 'integer' && $this->data->quote_id < 1) {
                 $this->result['error_message'][] = __('Quote ID provided must be a positive integer');
                 $isValid = false;
             }
