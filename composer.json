@@ -5,7 +5,7 @@
         "checkout/checkout-sdk-php": "~1.0"
     },
     "type": "magento2-module",
-    "version": "2.2.6",
+    "version": "2.2.7",
     "autoload": {
         "files": [
             "registration.php"
