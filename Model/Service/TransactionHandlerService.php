@@ -186,11 +186,11 @@ class TransactionHandlerService
                     $transaction->setIsClosed(
                         $this->setTransactionState($transaction, $amount)
                     );
-
-                    // Save
-                    $transaction->save();
-                    $payment->save();
                 }
+
+                // Save
+                $transaction->save();
+                $payment->save();
             }
             // Process the credit memo case
             $this->processCreditMemo($transaction, $amount);

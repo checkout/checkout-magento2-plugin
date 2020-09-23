@@ -264,7 +264,7 @@ class WebhookHandlerService
                                 $order
                             );
 
-                            if ($parentAuth && $parentCapture->getIsClosed() == '1') {
+                            if ($parentAuth && $parentCapture) {
                                 $this->deleteEntity($webhook['id']);
                             }
                             break;

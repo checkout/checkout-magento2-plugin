@@ -201,7 +201,7 @@ class Webhooks extends Command
                                 $order
                             );
 
-                            if ($parentAuth && $parentCapture->getIsClosed() == '1') {
+                            if ($parentAuth && $parentCapture) {
                                 $this->outputWebhook($output, $webhook);
                                 $this->webhookHandler->deleteEntity($webhook['id']);
                                 $deleted++;
