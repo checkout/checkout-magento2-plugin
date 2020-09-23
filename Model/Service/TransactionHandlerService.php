@@ -177,17 +177,15 @@ class TransactionHandlerService
                     // Process the invoice case
                     $this->processInvoice($transaction, $amount);
                 }
-            } else {
+            } elseif (!$isBackendAction) {
                 // Get the payment
                 $payment = $transaction->getOrder()->getPayment();
 
-                if (!$isBackendAction) {
-                    // Update the existing transaction state
-                    $transaction->setIsClosed(
-                        $this->setTransactionState($transaction, $amount)
-                    );
-                }
-
+                // Update the existing transaction state
+                $transaction->setIsClosed(
+                    $this->setTransactionState($transaction, $amount)
+                );
+                
                 // Save
                 $transaction->save();
                 $payment->save();
