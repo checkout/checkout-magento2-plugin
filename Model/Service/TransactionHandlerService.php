@@ -356,10 +356,10 @@ class TransactionHandlerService
         );
         if ($isPartialCapture && $parentAuth) {
             $parentAuth->setIsClosed(1)->save();
-            return 0;
+            return 1;
         } elseif ($isCapture && $parentAuth) {
             $parentAuth->setIsClosed(1)->save();
-            return 0;
+            return 1;
         }
 
         // Handle a refund after capture
