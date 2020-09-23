@@ -153,6 +153,11 @@ class TransactionHandlerService
 
         // Check to see if webhook is supported
         if (isset(self::$transactionMapper[$webhook['event_type']])) {
+            $isBackendAction = false;
+            if (isset($payload->data->metadata->isBackendAction)) {
+                $isBackendAction = $payload->data->metadata->isBackendAction;
+            }
+            
             // Create a transaction if needed
             if (!$transaction) {
                 // Build the transaction
@@ -162,10 +167,6 @@ class TransactionHandlerService
                     $amount
                 );
 
-                $isBackendAction = false;
-                if (isset($payload->data->metadata->isBackendAction)) {
-                    $isBackendAction = $payload->data->metadata->isBackendAction;
-                }
                 if (!$isBackendAction) {
                     // Add the order comment
                     $this->addTransactionComment(
@@ -180,14 +181,16 @@ class TransactionHandlerService
                 // Get the payment
                 $payment = $transaction->getOrder()->getPayment();
 
-                // Update the existing transaction state
-                $transaction->setIsClosed(
-                    $this->setTransactionState($transaction, $amount)
-                );
+                if (!$isBackendAction) {
+                    // Update the existing transaction state
+                    $transaction->setIsClosed(
+                        $this->setTransactionState($transaction, $amount)
+                    );
 
-                // Save
-                $transaction->save();
-                $payment->save();
+                    // Save
+                    $transaction->save();
+                    $payment->save();
+                }
             }
             // Process the credit memo case
             $this->processCreditMemo($transaction, $amount);
