@@ -162,11 +162,11 @@ class TransactionHandlerService
                     $amount
                 );
 
-                $isBackendCapture = false;
-                if (isset($payload->data->metadata->isBackendCapture)) {
-                    $isBackendCapture = $payload->data->metadata->isBackendCapture;
+                $isBackendAction = false;
+                if (isset($payload->data->metadata->isBackendAction)) {
+                    $isBackendAction = $payload->data->metadata->isBackendAction;
                 }
-                if (!$isBackendCapture) {
+                if (!$isBackendAction) {
                     // Add the order comment
                     $this->addTransactionComment(
                         $transaction,
@@ -538,6 +538,8 @@ class TransactionHandlerService
                 break;
         }
 
+        // Convert currency amount to base amount
+        $amount = $amount / $order->getBaseToOrderRate();
         // Add the transaction comment
         $payment->addTransactionCommentsToOrder(
             $transaction,
@@ -596,7 +598,7 @@ class TransactionHandlerService
             
             // Create a credit memo
             $creditMemo = $this->creditMemoFactory->createByOrder($order);
-            $creditMemo->setBaseGrandTotal($amount);
+            $creditMemo->setBaseGrandTotal($amount/$order->getBaseToOrderRate());
             $creditMemo->setGrandTotal($amount);
 
             // Refund
@@ -723,7 +725,7 @@ class TransactionHandlerService
     }
 
     /**
-     * Format an amount with curerency.
+     * Format an amount with currency.
      */
     public function getFormattedAmount($order, $amount)
     {
