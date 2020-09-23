@@ -592,7 +592,8 @@ class TransactionHandlerService
         if ($isRefund && !$hasCreditMemo) {
             // Get the invoice
             $invoice = $this->invoiceHandler->getInvoice($order);
-
+            $currentTotal = $this->getCreditMemosTotal($order);
+            
             // Create a credit memo
             $creditMemo = $this->creditMemoFactory->createByOrder($order);
             $creditMemo->setBaseGrandTotal($amount);
@@ -611,7 +612,7 @@ class TransactionHandlerService
             }
 
             // Update the refunded amount
-            $order->setTotalRefunded($this->getCreditMemosTotal($order));
+            $order->setTotalRefunded($currentTotal + $amount);
 
             // Save the data
             $payment->save();
