@@ -178,9 +178,6 @@ class TransactionHandlerService
                     $this->processInvoice($transaction, $amount);
                 }
             } elseif (!$isBackendAction) {
-                // Get the payment
-                $payment = $transaction->getOrder()->getPayment();
-
                 // Update the existing transaction state
                 $transaction->setIsClosed(
                     $this->setTransactionState($transaction, $amount)
@@ -188,7 +185,6 @@ class TransactionHandlerService
                 
                 // Save
                 $transaction->save();
-                $payment->save();
             }
             // Process the credit memo case
             $this->processCreditMemo($transaction, $amount);
@@ -374,7 +370,7 @@ class TransactionHandlerService
             $order
         );
         if ($isPartialRefund && $parentCapture) {
-            $parentCapture->setIsClosed(0)->save();
+            $parentCapture->setIsClosed(1)->save();
             return 1;
         } elseif ($isRefund && $parentCapture) {
             $parentCapture->setIsClosed(1)->save();
