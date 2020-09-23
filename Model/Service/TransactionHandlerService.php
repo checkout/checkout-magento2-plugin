@@ -538,6 +538,8 @@ class TransactionHandlerService
                 break;
         }
 
+        // Convert currency amount to base amount
+        $amount = $amount / $order->getBaseToOrderRate();
         // Add the transaction comment
         $payment->addTransactionCommentsToOrder(
             $transaction,
@@ -595,7 +597,7 @@ class TransactionHandlerService
 
             // Create a credit memo
             $creditMemo = $this->creditMemoFactory->createByOrder($order);
-            $creditMemo->setBaseGrandTotal($amount);
+            $creditMemo->setBaseGrandTotal($amount/$order->getBaseToOrderRate());
             $creditMemo->setGrandTotal($amount);
 
             // Refund
@@ -722,7 +724,7 @@ class TransactionHandlerService
     }
 
     /**
-     * Format an amount with curerency.
+     * Format an amount with currency.
      */
     public function getFormattedAmount($order, $amount)
     {
