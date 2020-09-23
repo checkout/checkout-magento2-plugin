@@ -162,11 +162,11 @@ class TransactionHandlerService
                     $amount
                 );
 
-                $isBackendCapture = false;
-                if (isset($payload->data->metadata->isBackendCapture)) {
-                    $isBackendCapture = $payload->data->metadata->isBackendCapture;
+                $isBackendAction = false;
+                if (isset($payload->data->metadata->isBackendAction)) {
+                    $isBackendAction = $payload->data->metadata->isBackendAction;
                 }
-                if (!$isBackendCapture) {
+                if (!$isBackendAction) {
                     // Add the order comment
                     $this->addTransactionComment(
                         $transaction,
