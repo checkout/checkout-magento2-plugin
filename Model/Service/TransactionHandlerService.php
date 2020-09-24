@@ -159,7 +159,7 @@ class TransactionHandlerService
             }
             
             // Create a transaction if needed
-            if (!$transaction) {
+            if (!$transaction && !$isBackendAction) {
                 // Build the transaction
                 $transaction = $this->buildTransaction(
                     $order,
