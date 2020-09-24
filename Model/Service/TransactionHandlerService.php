@@ -169,7 +169,7 @@ class TransactionHandlerService
 
                 // Update the order status
                 $this->setOrderStatus($transaction, $amount, $payload, $order);
-                
+
                 // Add the order comment
                 $this->addTransactionComment(
                     $transaction,
@@ -178,7 +178,7 @@ class TransactionHandlerService
                 
                 // Process the invoice case
                 $this->processInvoice($transaction, $amount);
-            } elseif ($transaction) {
+            } else {
                 // Update the existing transaction state
                 $transaction->setIsClosed(
                     $this->setTransactionState($transaction, $amount)
@@ -186,16 +186,13 @@ class TransactionHandlerService
                 
                 // Save
                 $transaction->save();
-
-                // Update the order status
-                $this->setOrderStatus($transaction, $amount, $payload, $order);
-            } else {
-                // Update the order status
-                $this->setOrderStatus($transaction, $amount, $payload, $order);
-            }
+            } 
             // Process the credit memo case
             $this->processCreditMemo($transaction, $amount);
 
+            // Update the order status
+            $this->setOrderStatus($transaction, $amount, $payload, $order);
+            
             // Process the order email case
             $this->processEmail($transaction);
         } else {
