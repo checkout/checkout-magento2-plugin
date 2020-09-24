@@ -741,11 +741,7 @@ class TransactionHandlerService
         $totalRefunded = $order->getTotalRefunded();
 
         // Check the partial refund case
-        if ($order->getGrandTotal() > $totalRefunded || $order->getGrandTotal() == $amount) {
-            $isPartialRefund = true;
-        } else {
-            $isPartialRefund = false;
-        }
+        $isPartialRefund = $order->getGrandTotal() > ($totalRefunded + $amount);
 
         return $isPartialRefund && $isRefund ? true : false;
     }
