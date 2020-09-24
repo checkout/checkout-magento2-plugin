@@ -167,17 +167,18 @@ class TransactionHandlerService
                     $amount
                 );
 
-                if (!$isBackendAction) {
-                    // Add the order comment
-                    $this->addTransactionComment(
-                        $transaction,
-                        $amount
-                    );
-
-                    // Process the invoice case
-                    $this->processInvoice($transaction, $amount);
-                }
-            } else {
+                // Update the order status
+                $this->setOrderStatus($transaction, $amount, $payload, $order);
+                
+                // Add the order comment
+                $this->addTransactionComment(
+                    $transaction,
+                    $amount
+                );
+                
+                // Process the invoice case
+                $this->processInvoice($transaction, $amount);
+            } elseif ($transaction) {
                 // Update the existing transaction state
                 $transaction->setIsClosed(
                     $this->setTransactionState($transaction, $amount)
@@ -185,12 +186,15 @@ class TransactionHandlerService
                 
                 // Save
                 $transaction->save();
+
+                // Update the order status
+                $this->setOrderStatus($transaction, $amount, $payload, $order);
+            } else {
+                // Update the order status
+                $this->setOrderStatus($transaction, $amount, $payload, $order);
             }
             // Process the credit memo case
             $this->processCreditMemo($transaction, $amount);
-
-            // Update the order status
-            $this->setOrderStatus($transaction, $amount, $payload, $order);
 
             // Process the order email case
             $this->processEmail($transaction);
