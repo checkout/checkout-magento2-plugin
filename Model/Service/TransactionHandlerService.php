@@ -177,7 +177,7 @@ class TransactionHandlerService
                     // Process the invoice case
                     $this->processInvoice($transaction, $amount);
                 }
-            } elseif (!$isBackendAction) {
+            } else {
                 // Update the existing transaction state
                 $transaction->setIsClosed(
                     $this->setTransactionState($transaction, $amount)
@@ -356,10 +356,10 @@ class TransactionHandlerService
         );
         if ($isPartialCapture && $parentAuth) {
             $parentAuth->setIsClosed(1)->save();
-            return 1;
+            return 0;
         } elseif ($isCapture && $parentAuth) {
             $parentAuth->setIsClosed(1)->save();
-            return 1;
+            return 0;
         }
 
         // Handle a refund after capture
@@ -370,7 +370,7 @@ class TransactionHandlerService
             $order
         );
         if ($isPartialRefund && $parentCapture) {
-            $parentCapture->setIsClosed(1)->save();
+            $parentCapture->setIsClosed(0)->save();
             return 1;
         } elseif ($isRefund && $parentCapture) {
             $parentCapture->setIsClosed(1)->save();
