@@ -202,7 +202,7 @@ class WebhookHandlerService
         foreach ($webhooks as $webhook) {
             $payload = json_decode($webhook['event_data'], true);
             $webhookDate = strtotime($payload['created_on']);
-            $date = strtotime('-5 minutes');
+            $date = strtotime('-1 day');
             if ($webhookDate > $date) {
                 continue;
             } 

@@ -111,7 +111,7 @@ class Webhooks extends Command
             $webhookDate = date('Y-m-d', strtotime($payload['created_on']));
 
             $webhookTime = strtotime($payload['created_on']);
-            $timeBuffer = strtotime('-5 minutes');
+            $timeBuffer = strtotime('-1 day');
             if ($webhookTime > $timeBuffer) {
                 continue;
             }
