@@ -178,7 +178,16 @@ class TransactionHandlerService
                 
                 // Process the invoice case
                 $this->processInvoice($transaction, $amount);
-            } else {
+
+                // Process the credit memo case
+                $this->processCreditMemo($transaction, $amount);
+                
+                // Update the order status
+                $this->setOrderStatus($transaction, $amount, $payload, $order);
+
+                // Process the order email case
+                $this->processEmail($transaction);
+            } elseif ($transaction) {
                 // Update the existing transaction state
                 $transaction->setIsClosed(
                     $this->setTransactionState($transaction, $amount)
@@ -186,15 +195,15 @@ class TransactionHandlerService
                 
                 // Save
                 $transaction->save();
-            } 
-            // Process the credit memo case
-            $this->processCreditMemo($transaction, $amount);
+                // Process the credit memo case
+//                $this->processCreditMemo($transaction, $amount);
 
-            // Update the order status
-            $this->setOrderStatus($transaction, $amount, $payload, $order);
-            
-            // Process the order email case
-            $this->processEmail($transaction);
+                // Update the order status
+                $this->setOrderStatus($transaction, $amount, $payload, $order);
+
+                // Process the order email case
+                $this->processEmail($transaction);
+            }
         } else {
             // Update the order status
             $this->setOrderStatus($transaction, $amount, $payload, $order);
@@ -208,8 +217,8 @@ class TransactionHandlerService
     {
         // Get the list of transactions
         $transactions = $this->transactionSearch->create()
-        ->addOrderIdFilter($orderId);
-        $transactions->getItems();
+            ->addOrderIdFilter($orderId)
+            ->getItems();
 
         // Filter the transactions
         if ($transactionId && !empty($transactions)) {
@@ -491,7 +500,7 @@ class TransactionHandlerService
             $order->setState($state);
         }
 
-        if ($status) {
+        if ($status && $order->getStatus() != 'closed') {
             // Set the order status
             $order->setStatus($status);
         }
@@ -578,11 +587,11 @@ class TransactionHandlerService
     /**
      * Create a credit memo for a refunded transaction.
      */
-    public function processCreditMemo($transaction, $amount)
+    public function processCreditMemo($transaction, $amount, $force = false)
     {
         // Get the order
         $order = $transaction->getOrder();
-
+        
         // Get the order payment
         $payment = $order->getPayment();
 
@@ -617,6 +626,11 @@ class TransactionHandlerService
             // Save the data
             $payment->save();
             $transaction->save();
+            $order->save();
+        }
+        
+        if ($isRefund  && $force) {
+            $order->setTotalRefunded($currentTotal + $amount);
             $order->save();
         }
     }
