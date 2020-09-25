@@ -72,7 +72,8 @@ class Display extends \Magento\Framework\App\Action\Action
     {
         // Prepare the output
         $html = '';
-
+        $klarna = false;
+        
         // Process the request
         if ($this->getRequest()->isAjax()) {
             // Get the list of APM
@@ -84,16 +85,24 @@ class Display extends \Magento\Framework\App\Action\Action
             $apms = $this->config->getApms();
 
             // Load block data for each APM
-            $billingAddress = $this->quoteHandler->getBillingAddress()->getData();
+            if ($this->getRequest()->getParam('country_id')) {
+                $billingAddress = ['country_id' => $this->getRequest()->getParam('country_id')];
+            } else {
+                $billingAddress = $this->quoteHandler->getBillingAddress()->getData();
+            }
+
             foreach ($apms as $apm) {
                 if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
+                    if ($apm['value'] == 'klarna') {
+                        $klarna = true;
+                    }
                     $html .= $this->loadBlock($apm['value'], $apm['label']);
                 }
             }
         }
 
         return $this->jsonFactory->create()->setData(
-            ['html' => $html]
+            ['html' => $html, 'klarna' => $klarna]
         );
     }
 
@@ -114,7 +123,30 @@ class Display extends \Magento\Framework\App\Action\Action
         && strpos(
             $apm['currencies'],
             $this->quoteHandler->getQuoteCurrency()
-        ) !== false;
+        ) !== false
+        && $this->countryCurrencyMapping($apm['value'], $billingAddress['country_id'], $this->quoteHandler->getQuoteCurrency());
+    }
+
+    /**
+     * Check for specific country & currency mappings.
+     *
+     * @param string $apmValue
+     * @param string $billingCountry
+     * @param string $currency
+     * @return boolean
+     */
+    public function countryCurrencyMapping($apmValue, $billingCountry, $currency)
+    {
+        if ($apmValue == 'poli') {
+            if (($billingCountry == 'AU' && $currency == 'AUD') 
+                || ($billingCountry == 'NZ' && $currency == 'NZD')
+            ) {
+                return true;
+            }
+            return false;
+        } else{
+            return true;
+        }
     }
 
     /**

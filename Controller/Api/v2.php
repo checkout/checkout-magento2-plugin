@@ -17,7 +17,6 @@
 namespace CheckoutCom\Magento2\Controller\Api;
 
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
-use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Class V2
@@ -45,6 +44,11 @@ class V2 extends \Magento\Framework\App\Action\Action
     public $quoteHandler;
 
     /**
+     * @var QuoteIdMaskFactory
+     */
+    public $quoteIdMaskFactory;
+
+    /**
      * @var OrderHandlerService
      */
     public $orderHandler;
@@ -64,13 +68,18 @@ class V2 extends \Magento\Framework\App\Action\Action
      */
     public $cardHandler;
 
+    /*
+     * @var PaymentErrorHandlerService
+     */
+    public $paymentErrorHandler;
+
     /**
      * @var Utilities
      */
     public $utilities;
 
     /**
-     * @var Array
+     * @var Object
      */
     public $data;
 
@@ -85,6 +94,16 @@ class V2 extends \Magento\Framework\App\Action\Action
     public $api;
 
     /**
+     * @var Object
+     */
+    public $order;
+
+    /**
+     * @var Object
+     */
+    public $quote;
+
+    /**
      * Callback constructor
      */
     public function __construct(
@@ -93,10 +112,12 @@ class V2 extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
+        \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         parent::__construct($context);
@@ -104,10 +125,12 @@ class V2 extends \Magento\Framework\App\Action\Action
         $this->config = $config;
         $this->storeManager = $storeManager;
         $this->quoteHandler = $quoteHandler;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->orderHandler = $orderHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->cardHandler = $cardHandler;
+        $this->paymentErrorHandler = $paymentErrorHandler;
         $this->utilities = $utilities;
     }
 
@@ -118,15 +141,19 @@ class V2 extends \Magento\Framework\App\Action\Action
     {
         // Prepare the V2 object
         $this->init();
- 
+
         // Process the payment
-        if ($this->isValidRequest()) {
-            $this->result = $this->processPayment();
-            if (!$this->result['success']) {
-                $this->result['error_message'] = __('The order could not be created.');
+        if ($this->isValidPublicKey()) {
+            if ($this->hasValidFields()) {
+                $this->result = $this->processPayment();
+                if (!$this->result['success']) {
+                    $this->result['error_message'][] = __('The order could not be created.');
+                    // Handle order on failed payment
+                    $this->orderHandler->handleFailedPayment($this->order);
+                }
             }
         } else {
-            $this->result['error_message'] = __('The request is invalid.');
+            $this->result['error_message'][] = __('The public key is invalid.');
         }
 
         // Return the json response
@@ -151,7 +178,7 @@ class V2 extends \Magento\Framework\App\Action\Action
             'success' => false,
             'order_id' => 0,
             'redirect_url' => '',
-            'error_message' => __('The payment request was declined by the gateway.')
+            'error_message' => []
         ];
     }
 
@@ -164,19 +191,20 @@ class V2 extends \Magento\Framework\App\Action\Action
     {
         $order = $this->createOrder();
         if ($this->orderHandler->isOrder($order)) {
+            $this->order = $order;
             // Get the payment response
             $response = $this->getPaymentResponse($order);
 
-            // Process the payment response
-            $is3ds = property_exists($response, '_links')
-            && isset($response->_links['redirect'])
-            && isset($response->_links['redirect']['href']);
-            if ($is3ds) {
-                $this->result['success'] = true;
-                $this->result['redirect_url'] = $response->_links['redirect']['href'];
-                $this->result['error_message'] = '';
-            }
-            else if ($this->api->isValidResponse($response)) {
+            if ($this->api->isValidResponse($response)) {
+
+                // Process the payment response
+                $is3ds = property_exists($response, '_links')
+                    && isset($response->_links['redirect'])
+                    && isset($response->_links['redirect']['href']);
+
+                if ($is3ds) {
+                    $this->result['redirect_url'] = $response->_links['redirect']['href'];
+                }
                 // Get the payment details
                 $paymentDetails = $this->api->getPaymentDetails($response->id);
 
@@ -188,11 +216,20 @@ class V2 extends \Magento\Framework\App\Action\Action
 
                 // Update the result
                 $this->result['success'] = $response->isSuccessful();
-                $this->result['error_message'] = '';
+            } else {
+                // Payment failed
+                if (isset($response->response_code)) {
+                    $this->result['error_message'][] = $this->paymentErrorHandler->getErrorMessage($response->response_code);
+                }
+
+                //  Token invalid/expired
+                if (method_exists($response, 'getErrors')) {
+                    $this->result['error_message'] = array_merge($this->result['error_message'], $response->getErrors());
+                }
             }
 
             // Update the order id
-            $this->result['order_id'] = $order->getId();
+            $this->result['order_id'] = $order->getIncrementId();
         }
 
         return $this->result;
@@ -218,12 +255,12 @@ class V2 extends \Magento\Framework\App\Action\Action
         // Set the success URL
         if (isset($this->data->success_url) && !empty($this->data->success_url)) {
             $payload['successUrl'] = $this->data->success_url;
-        }  
+        }
 
         // Set the failure URL
         if (isset($this->data->failure_url) && !empty($this->data->failure_url)) {
             $payload['failureUrl'] = $this->data->failure_url;
-        }  
+        }
 
         // Send the charge request
         return $this->methodHandler
@@ -232,7 +269,9 @@ class V2 extends \Magento\Framework\App\Action\Action
             $payload,
             $order->getGrandTotal(),
             $order->getOrderCurrencyCode(),
-            $order->getIncrementId()
+            $order->getIncrementId(),
+            $this->quote,
+            true
         );
     }
 
@@ -259,6 +298,12 @@ class V2 extends \Magento\Framework\App\Action\Action
             $this->data->quote_id = $this->data['quote_id'];
         }
 
+        // Convert masked quote ID hash to quote ID int
+        if (preg_match("/([A-Za-z])\w+/", $this->data->quote_id)) {
+            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($this->data->quote_id, 'masked_id');
+            $this->data->quote_id = $quoteIdMask->getQuoteId();
+        }
+
         // Load the quote
         $quote = $this->quoteHandler->getQuote([
             'entity_id' => $this->data->quote_id
@@ -266,9 +311,8 @@ class V2 extends \Magento\Framework\App\Action\Action
 
         // Handle a quote not found
         if (!$this->quoteHandler->isQuote($quote)) {
-            throw new LocalizedException(
-                __('No quote was found with the provided ID.')
-            );
+            $this->result['error_message'][] = __('No quote found with the provided ID');
+            $quote = null;
         }
 
         return $quote;
@@ -277,9 +321,66 @@ class V2 extends \Magento\Framework\App\Action\Action
     /**
      * Check if the request is valid.
      */
-    public function isValidRequest()
+    public function isValidPublicKey()
     {
         return $this->config->isValidAuth('pk');
+    }
+
+    public function hasValidFields()
+    {
+        $isValid = true;
+
+        if (isset($this->data->payment_token)) {
+            if (gettype($this->data->payment_token) !== 'string') {
+                $this->result['error_message'][] = __('Payment token provided is not a string');
+                $isValid = false;
+            } elseif ($this->data->payment_token == '') {
+                $this->result['error_message'][] = __('Payment token provided is empty string');
+                $isValid = false;
+            }
+        } else {
+            $this->result['error_message'][] = __('Payment token is missing from request body');
+            $isValid = false;
+        }
+
+        if (isset($this->data->quote_id)) {
+            if (gettype($this->data->quote_id) === 'integer' && $this->data->quote_id < 1) {
+                $this->result['error_message'][] = __('Quote ID provided must be a positive integer');
+                $isValid = false;
+            }
+        } else {
+            $this->result['error_message'][] = __('Quote ID is missing from request body');
+            $isValid = false;
+        }
+
+        if (isset($this->data->card_bin)) {
+            if ($this->data->card_bin == '') {
+                $this->result['error_message'][] = __('Card BIN is empty string');
+                $isValid = false;
+            }
+
+            if (isset($this->data->success_url)) {
+                if (gettype($this->data->success_url) !== 'string') {
+                    $this->result['error_message'][] = __('Success URL provided is not a string');
+                    $isValid = false;
+                } elseif ($this->data->success_url == '') {
+                    $this->result['error_message'][] = __('Success URL is empty string');
+                    $isValid = false;
+                }
+            }
+
+            if (isset($this->data->failure_url)) {
+                if (gettype($this->data->failure_url) !== 'string') {
+                    $this->result['error_message'][] = __('Failure URL provided is not a string');
+                    $isValid = false;
+                } elseif ($this->data->failure_url == '') {
+                    $this->result['error_message'][] = __('Failure URL is empty string');
+                    $isValid = false;
+                }
+            }
+        }
+
+        return $isValid;
     }
 
     /**
@@ -290,13 +391,15 @@ class V2 extends \Magento\Framework\App\Action\Action
     public function createOrder()
     {
         // Load the quote
-        $quote = $this->loadQuote();
+        $this->quote = $this->loadQuote();
+        $order = null;
 
-        // Create an order
-        $order = $this->orderHandler
-            ->setMethodId('checkoutcom_card_payment')
-            ->handleOrder($quote);
-
+        if ($this->quote) {
+            // Create an order
+            $order = $this->orderHandler
+                ->setMethodId('checkoutcom_card_payment')
+                ->handleOrder($this->quote);
+        }
         return $order;
     }
 }

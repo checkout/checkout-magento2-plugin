@@ -189,7 +189,7 @@ class QuoteHandlerService
             $quote->setInventoryProcessed(false);
 
             // Check for guest user quote
-            if (!$this->customerSession->isLoggedIn()) {
+            if (!$this->customerSession->isLoggedIn() && $quote->getCustomerId() == null) {
                 $quote = $this->prepareGuestQuote($quote);
             }
 
