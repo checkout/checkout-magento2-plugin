@@ -200,6 +200,13 @@ class WebhookHandlerService
         $webhooks = $this->loadEntities();
 
         foreach ($webhooks as $webhook) {
+            $payload = json_decode($webhook['event_data'], true);
+            $webhookDate = strtotime($payload['created_on']);
+            $date = strtotime('-1 day');
+            if ($webhookDate > $date) {
+                continue;
+            } 
+            
             if (isset($this->transactionHandler::$transactionMapper[$webhook['event_type']])) {
                 $order = $this->orderHandler->getOrder([
                     'entity_id' => $webhook['order_id']
@@ -264,7 +271,7 @@ class WebhookHandlerService
                                 $order
                             );
 
-                            if ($parentAuth && $parentCapture) {
+                            if ($parentAuth && $parentCapture->getIsClosed() == '1') {
                                 $this->deleteEntity($webhook['id']);
                             }
                             break;
