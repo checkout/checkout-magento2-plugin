@@ -200,6 +200,13 @@ class WebhookHandlerService
         $webhooks = $this->loadEntities();
 
         foreach ($webhooks as $webhook) {
+            $payload = json_decode($webhook['event_data'], true);
+            $webhookDate = strtotime($payload['created_on']);
+            $date = strtotime('-5 minutes');
+            if ($webhookDate > $date) {
+                continue;
+            } 
+            
             if (isset($this->transactionHandler::$transactionMapper[$webhook['event_type']])) {
                 $order = $this->orderHandler->getOrder([
                     'entity_id' => $webhook['order_id']
