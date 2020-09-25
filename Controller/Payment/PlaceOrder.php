@@ -19,6 +19,7 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class PlaceOrder
@@ -101,6 +102,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $quote;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    public $scopeConfig;
+
+    /**
      * PlaceOrder constructor
      */
     public function __construct(
@@ -108,6 +114,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
@@ -121,6 +128,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
         $this->storeManager = $storeManager;
         $this->jsonFactory = $jsonFactory;
+        $this->scopeConfig = $scopeConfig;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
         $this->methodHandler = $methodHandler;
@@ -143,7 +151,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             // Prepare some parameters
             $url = '';
             $message = '';
+            $debugMessage = '';
+            $responseCode = '';
             $success = false;
+            $log = true;
 
             // Try to load a quote
             $this->quote = $this->quoteHandler->getQuote();
@@ -161,6 +172,19 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
                     // Process the payment
                     if ($this->orderHandler->isOrder($order)) {
+                        $log = false;
+                        // Get the debug config value
+                        $debug = $this->scopeConfig->getValue(
+                            'settings/checkoutcom_configuration/debug',
+                            ScopeInterface::SCOPE_STORE
+                        );
+
+                        // Get the gateway response config value
+                        $gatewayResponses = $this->scopeConfig->getValue(
+                            'settings/checkoutcom_configuration/gateway_responses',
+                            ScopeInterface::SCOPE_STORE
+                        );
+
                         // Get response and success
                         $response = $this->requestPayment($order);
 
@@ -190,15 +214,21 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                             // Payment failed
                             if (isset($response->response_code)) {
                                 $message = $this->paymentErrorHandler->getErrorMessage($response->response_code);
+                                if ($debug && $gatewayResponses) {
+                                    $responseCode = $response->response_code;
+                                }
                             } else {
                                 $message = __('The transaction could not be processed.');
+                                if ($debug && $gatewayResponses) {
+                                    $debugMessage = json_encode($response);
+                                }
                             }
 
                             // Restore the quote
                             $this->quoteHandler->restoreQuote($order->getIncrementId());
 
                             // Handle order on failed payment
-                            $this->orderHandler->handleFailedPayment($order, $storeCode);
+                            $this->orderHandler->handleFailedPayment($order);
                         }
                     } else {
                         // Payment failed
@@ -217,9 +247,15 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $message = __($e->getMessage());
             $this->logger->write($message);
         } finally {
+            if ($log) {
+                $this->logger->write($message);    
+            }
+
             return $this->jsonFactory->create()->setData([
                 'success' => $success,
                 'message' => $message,
+                'responseCode' => $responseCode,
+                'debugMessage' => $debugMessage,
                 'url' => $url
             ]);
         }

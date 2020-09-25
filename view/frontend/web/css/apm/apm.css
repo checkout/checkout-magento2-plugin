@@ -101,6 +101,10 @@ div.cko-alternative-form {
     padding: 1rem 2rem;
 }
 
+.cko-apm.paypal {
+    display: block !important;
+}
+
 /**
  * APM icons
  */

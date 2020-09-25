@@ -33,7 +33,7 @@
                                 </span>
                             </div>
                             <div class="vault-cvv">
-                                <input type="text" name="cvv" maxlength="4"
+                                <input type="text" name="cvv-unused" maxlength="4"
                                 placeholder="<?= $block->escapeHtmlAttr(__('CVV')) ?>">
                             </div>
                             <div class="clr"></div>
@@ -94,6 +94,8 @@ if ($block->canDisplayAdminCards()) : ?>
             listItem.on('click touch', function() {
                 listItem.removeClass('card-selected');
                 listItem.not(this).find('.vault-cvv input').val('');
+                listItem.not(this).find('.vault-cvv input').attr('name', 'cvv-unused');
+                $(this).find('.vault-cvv input').attr('name', 'cvv');
                 $(this).addClass('card-selected');
                 $(this).find('input[type="radio"]').attr('checked', true);
             });

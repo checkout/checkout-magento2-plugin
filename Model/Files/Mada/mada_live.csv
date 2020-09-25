@@ -1,88 +1,94 @@
-Bank Name,BIN,PAN Length,Card Brand,isOld
-Al Bank Al Saudi Al Fransi,588845,18,mada / Mastercard co-branded,Yes
-Al Bank Al Saudi Al Fransi,440647,16,mada / Visa co-branded,Yes
-Al Bank Al Saudi Al Fransi,440795,16,mada / Visa co-branded,Yes
-Al Bank Al Saudi Al Fransi,446404,16,mada / Visa co-branded,Yes
-Al Bank Al Saudi Al Fransi,457865,16,mada / Visa co-branded,Yes
-Al Bank Al Saudi Al Fransi,968208,16,mada,Yes
-Al Bank Al Awwal,588846,18,mada / Mastercard co-branded,Yes
-Al Bank Al Awwal,539931,16,mada / Mastercard co-branded,Yes
-Al Bank Al Awwal,558848,16,mada / Mastercard co-branded,Yes
-Al Bank Al Awwal,557606,16,mada / Mastercard co-branded,Yes
-Al Bank Al Awwal,968210,16,mada,Yes
-Al Bilad Bank,636120,16,mada / Mastercard co-branded ,Yes
-Al Bilad Bank,417633,16,mada / Visa co-branded,Yes
-Al Bilad Bank,468540,16,mada / Visa co-branded,Yes
-Al Bilad Bank,468541,16,mada / Visa co-branded,Yes
-Al Bilad Bank,468542,16,mada / Visa co-branded,Yes
-Al Bilad Bank,468543,16,mada / Visa co-branded,Yes
-Al Bilad Bank,968201,16,mada,Yes
-Al Bilad Bank,446393,16,mada / Visa co-branded,Yes
-Al Rajhi Banking & Inv. Corp.,588847,19,mada / Mastercard co-branded ,Yes
-Al Rajhi Banking & Inv. Corp.,400861,16,mada / Visa co-branded,Yes
-Al Rajhi Banking & Inv. Corp.,409201,16,mada / Visa co-branded,Yes
-Al Rajhi Banking & Inv. Corp.,458456,16,mada / Visa co-branded,Yes
-Al Rajhi Banking & Inv. Corp.,484783,16,mada / Visa co-branded,Yes
-Al Rajhi Banking & Inv. Corp.,968205,19,mada,Yes
-Al Rajhi Banking & Inv. Corp.,462220,16,mada / Visa co-branded,Yes
-Arab National Bank,588848,19,mada / Mastercard co-branded ,Yes
-Arab National Bank,455036,16,mada / Visa co-branded,Yes
-Arab National Bank,968203,19,mada,Yes
-Arab National Bank,486094,16,mada / Visa co-branded,Yes
-Arab National Bank,486095,16,mada / Visa co-branded,Yes
-Arab National Bank,486096,16,mada / Visa co-branded,Yes
-Bank Al-Jazira,504300,16,mada / Mastercard co-branded,Yes
-Bank Al-Jazira,440533,16,mada / Visa co-branded,Yes
-Bank Al-Jazira,489318,16,mada / Visa co-branded,Yes
-Bank Al-Jazira,489319,16,mada / Visa co-branded,Yes
-Bank Al-Jazira,445564,16,mada / Visa co-branded,Yes
-Bank Al-Jazira,968211,16,mada,Yes
-Emirates Bank International,410685,16,mada / Visa co-branded,Yes
-Alinma Bank,432328,16,mada / Visa co-branded,Yes
-Alinma Bank,428671,16,mada / Visa co-branded,Yes
-Alinma Bank,428672,16,mada / Visa co-branded,Yes
-Alinma Bank,428673,16,mada / Visa co-branded,Yes
-Alinma Bank,968206,16,mada,Yes
-Alinma Bank,446672,16,mada / Visa co-branded,Yes
-Alinma Bank,543357,16,mada / Mastercard co-branded,Yes
-National Bank of Kuwait,431361,16,mada / Visa co-branded,Yes
-National Bank Of Bahrain,604906,16,mada / Mastercard co-branded,Yes
-National Bank Of Bahrain,521076,16,mada / Mastercard co-branded,Yes
-National Commercial Bank,588850,19,mada / Mastercard co-branded,Yes
-National Commercial Bank,968202,19,mada,Yes
-National Commercial Bank,529415,16,mada / Mastercard co-branded,Yes
-National Commercial Bank,535825,16,mada / Mastercard co-branded,Yes
-National Commercial Bank,543085,16,mada / Mastercard co-branded,Yes
-National Commercial Bank,524130,16,mada / Mastercard co-branded,Yes
-National Commercial Bank,554180,16,mada / Mastercard co-branded,Yes
-National Commercial Bank,549760,16,mada / Mastercard co-branded,Yes
-Riyad Bank,588849,18,mada / Mastercard co-branded,Yes
-Riyad Bank,968209,16,mada,Yes
-Riyad Bank,524514,16,mada / Mastercard co-branded,Yes
-Riyad Bank,529741,16,mada / Mastercard co-branded,Yes
-Riyad Bank,537767,16,mada / Mastercard co-branded,Yes
-Riyad Bank,535989,16,mada / Mastercard co-branded,Yes
-Riyad Bank,536023,16,mada / Mastercard co-branded,Yes
-Riyad Bank,513213,16,mada / Mastercard co-branded,Yes
-Saudi American Bank,585265,18,mada / Mastercard co-branded,Yes
-Saudi American Bank,588983,18,mada / Mastercard co-branded,Yes
-Saudi American Bank,588982,16,mada / Mastercard co-branded,Yes
-Saudi American Bank,589005,16,mada / Mastercard co-branded,Yes
-Saudi American Bank,508160,16,mada / Mastercard co-branded,Yes
-Saudi American Bank,531095,16,mada / Mastercard co-branded,Yes
-Saudi American Bank,530906,16,mada / Mastercard co-branded,Yes
-Saudi American Bank,532013,16,mada / Mastercard co-branded,Yes
-Saudi British Bank,588851,17 / 19,mada / Mastercard co-branded,Yes
-Saudi British Bank,605141,19,mada / Mastercard co-branded,Yes
-Saudi British Bank,968204,16,mada,Yes
-Saudi British Bank,422817,16,mada / Visa co-branded,Yes
-Saudi British Bank,422818,16,mada / Visa co-branded,Yes
-Saudi British Bank,422819,16,mada / Visa co-branded,Yes
-Saudi British Bank,428331,16,mada / Visa co-branded,Yes
-Saudi Investment Bank,483010,16,mada / Visa co-branded,Yes
-Saudi Investment Bank,483011,16,mada / Visa co-branded,Yes
-Saudi Investment Bank,483012,16,mada / Visa co-branded,Yes
-Saudi Investment Bank,589206,16,mada / Mastercard co-branded,Yes
-Saudi Investment Bank,968207,16,mada,Yes
-Gulf International Bank,419593,16,mada / Visa co-branded,Yes
-Gulf International Bank,439954,16,mada / Visa co-branded,Yes
+Bank Name,BIN,PAN Length,Card Brand,IsOld
+Al Bank Al Saudi Al Fransi,588845,18,Local Only,yes
+Al Bank Al Saudi Al Fransi,440647,16,Co-badged Visa,yes
+Al Bank Al Saudi Al Fransi,440795,16,Co-badged Visa,yes
+Al Bank Al Saudi Al Fransi,446404,16,Co-badged Visa,yes
+Al Bank Al Saudi Al Fransi,457865,16,Co-badged Visa,yes
+Al Bank Al Saudi Al Fransi,968208,16,Local Only,yes
+Al Bank Al Awwal,588846,18,Local Only,yes
+Al Bank Al Awwal,493428,16,Co-badged Visa,yes
+Al Bank Al Awwal,539931,16,Co-badge MasterCard,yes
+Al Bank Al Awwal,558848,16,Co-badge MasterCard,yes
+Al Bank Al Awwal,557606,16,Co-badge MasterCard,yes
+Al Bank Al Awwal,968210,16,Local Only,yes
+Al Bilad Bank,636120,16,Local Only,yes
+Al Bilad Bank,417633,16,Co-badged Visa,yes
+Al Bilad Bank,468540,16,Co-badged Visa,yes
+Al Bilad Bank,468541,16,Co-badged Visa,yes
+Al Bilad Bank,468542,16,Co-badged Visa,yes
+Al Bilad Bank,468543,16,Co-badged Visa,yes
+Al Bilad Bank,968201,16,Local Only,yes
+Al Bilad Bank,446393,16,Co-badged Visa,yes
+Al Rajhi Banking & Inv. Corp.,409201,16,Co-badge Visa,yes
+Al Rajhi Banking & Inv. Corp.,458456,16,Co-badge Visa,yes
+Al Rajhi Banking & Inv. Corp.,484783,16,Co-badge Visa,yes
+Al Rajhi Banking & Inv. Corp.,968205,19,Local Only,yes
+Al Rajhi Banking & Inv. Corp.,462220,16,Co-badge Visa,yes
+Al Rajhi Banking & Inv. Corp.,455708,16,Co-badge Visa,yes
+Arab National Bank,588848,19,Local Only,yes
+Arab National Bank,455036,16,Co-badge Visa,yes
+Arab National Bank,968203,19,Local Only,yes
+Arab National Bank,486094,16,Co-badge Visa,yes
+Arab National Bank,486095,16,Co-badge Visa,yes
+Arab National Bank,486096,16,Co-badge Visa,yes
+Bank Al-Jazira,504300,16,Local Only,yes
+Bank Al-Jazira,440533,16,Co-badge Visa,yes
+Bank Al-Jazira,489318,16,Co-badge Visa,yes
+Bank Al-Jazira,489319,16,Co-badge Visa,yes
+Bank Al-Jazira,445564,16,Co-badge Visa,yes
+Bank Al-Jazira,968211,16,Local Only,yes
+Bank Al-Jazira,401757,16,Co-badge Visa,yes
+Emirates Bank International,410685,16,Co-badge Visa,yes
+INMA Bank,432328,16,Co-badge Visa,yes
+INMA Bank,428671,16,Co-badge Visa,yes
+INMA Bank,428672,16,Co-badge Visa,yes
+INMA Bank,428673,16,Co-badge Visa,yes
+INMA Bank,968206,16,Local Only,yes
+INMA Bank,446672,16,Co-badge Visa,yes
+INMA Bank,543357,16,Co-badge MasterCard,yes
+INMA Bank,434107,16,Co-badge Visa,yes
+INMA Bank,407197,16,Co-badge Visa,yes
+INMA Bank,407395,16,Co-badge Visa,yes
+National Bank of Kuwait,431361,16,Co-badge Visa,yes
+National Bank Of Bahrain,604906,16,Local Only,yes
+National Bank Of Bahrain,521076,16,Co-badge MasterCard,yes
+National Commercial Bank,588850,19,Co-badge MasterCard,yes
+National Commercial Bank,968202,19,Local Only,yes
+National Commercial Bank,529415,16,Co-badge MasterCard,yes
+National Commercial Bank,535825,16,Co-badge MasterCard,yes
+National Commercial Bank,543085,16,Co-badge MasterCard,yes
+National Commercial Bank,524130,16,Co-badge MasterCard,yes
+National Commercial Bank,554180,16,Co-badge MasterCard,yes
+National Commercial Bank,549760,16,Co-badge MasterCard,yes
+Riyadh Bank,588849,18,Co-badge MasterCard,yes
+Riyadh Bank,968209,16,Local Only,yes
+Riyadh Bank,524514,16,Co-badge MasterCard,yes
+Riyadh Bank,529741,16,Co-badge MasterCard,yes
+Riyadh Bank,537767,16,Co-badge MasterCard,yes
+Riyadh Bank,535989,16,Co-badge MasterCard,yes
+Riyadh Bank,536023,16,Co-badge MasterCard,yes
+Riyadh Bank,513213,16,Co-badge MasterCard,yes
+Riyadh Bank,520058,16,Co-badge MasterCard,yes
+Saudi American Bank,585265,18,Co-badge MasterCard,yes
+Saudi American Bank,588983,18,Co-badge MasterCard,yes
+Saudi American Bank,588982,16,Co-badge MasterCard,yes
+Saudi American Bank,589005,16,Co-badge MasterCard,yes
+Saudi American Bank,508160,18,Local Only,yes
+Saudi American Bank,531095,16,Co-badge MasterCard,yes
+Saudi American Bank,530906,16,Co-badge MasterCard,yes
+Saudi American Bank,532013,16,Co-badge MasterCard,yes
+Saudi British Bank,605141,19,Co-badge MasterCard,yes
+Saudi British Bank,968204,16,Local Only,yes
+Saudi British Bank,422817,16,Co-badge Visa,yes
+Saudi British Bank,422818,16,Co-badge Visa,yes
+Saudi British Bank,422819,16,Co-badge Visa,yes
+Saudi British Bank,428331,16,Co-badge Visa,yes
+Saudi Investment Bank,483010,16,Co-badge Visa,yes
+Saudi Investment Bank,483011,16,Co-badge Visa,yes
+Saudi Investment Bank,483012,16,Co-badge Visa,yes
+Saudi Investment Bank,589206,16,Co-badge MasterCard,yes
+Saudi Investment Bank,968207,16,Local Only,yes
+Gulf International Bank,419593,16,Co-badge Visa,yes
+Gulf International Bank,439954,16,Co-badge Visa,yes
+First Abu Dhabi Bank,530060,16,Co-Badge MasterCard,yes
+First Abu Dhabi Bank,531196,16,Co-Badge MasterCard,yes

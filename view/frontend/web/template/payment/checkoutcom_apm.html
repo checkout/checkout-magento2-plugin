@@ -12,7 +12,7 @@
  * @link      https://www.checkout.com
  */
 -->
-<div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}, attr: {'id': getCode() + '_container'}">
+<div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}, attr: {'id': getCode() + '_container', afterRender: initEvents()}">
     <div class="payment-method-title field choice">
         <input type="radio"
                name="payment[method]"
@@ -22,7 +22,9 @@
     </div>
     <div class="payment-method-content">
         <!-- Messages -->
-        <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+        <div class="message message-cko" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+        <div class="message message-response-code" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+        <div class="message debug-message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
 
         <!-- Alternative Payments -->
         <form id="apm-container" data-bind="visible: initWidget()">

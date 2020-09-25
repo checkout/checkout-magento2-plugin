@@ -23,6 +23,8 @@ use \Checkout\Models\Payments\IdSource;
 use \Checkout\Models\Payments\Payment;
 use \Checkout\Models\Payments\BillingDescriptor;
 use \Checkout\Library\Exceptions\CheckoutHttpException;
+use \Checkout\Models\Payments\ThreeDs;
+use \Checkout\Models\Payments\Risk;
 
 /**
  * Class MotoPaymentRequest.
@@ -167,7 +169,9 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
             $request->reference = $this->order->getIncrementId();
             $request->payment_type = 'MOTO';
             $request->shipping = $api->createShippingAddress($this->order);
-
+            $request->threeDs = new ThreeDs(false);
+            $request->risk = new Risk($this->config->needsRiskRules($this->methodId));
+            
             // Billing descriptor
             if ($this->config->needsDynamicDescriptor()) {
                 $request->billing_descriptor = new BillingDescriptor(
