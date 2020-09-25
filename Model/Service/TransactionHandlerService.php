@@ -195,9 +195,7 @@ class TransactionHandlerService
                 
                 // Save
                 $transaction->save();
-                // Process the credit memo case
-//                $this->processCreditMemo($transaction, $amount);
-
+                
                 // Update the order status
                 $this->setOrderStatus($transaction, $amount, $payload, $order);
 
@@ -587,7 +585,7 @@ class TransactionHandlerService
     /**
      * Create a credit memo for a refunded transaction.
      */
-    public function processCreditMemo($transaction, $amount, $force = false)
+    public function processCreditMemo($transaction, $amount)
     {
         // Get the order
         $order = $transaction->getOrder();
@@ -626,11 +624,6 @@ class TransactionHandlerService
             // Save the data
             $payment->save();
             $transaction->save();
-            $order->save();
-        }
-        
-        if ($isRefund  && $force) {
-            $order->setTotalRefunded($currentTotal + $amount);
             $order->save();
         }
     }
