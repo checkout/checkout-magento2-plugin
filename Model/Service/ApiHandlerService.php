@@ -127,7 +127,7 @@ class ApiHandlerService
     /**
      * Voids a transaction.
      */
-    public function captureOrder($payment, $amount, $isBackendCapture = false)
+    public function captureOrder($payment, $amount, $isBackendAction = false)
     {
         // Get the order
         $order = $payment->getOrder();
@@ -140,10 +140,10 @@ class ApiHandlerService
             // Prepare the request
             $request = new Capture($paymentInfo['id']);
             $request->amount = $this->orderHandler->amountToGateway(
-                $this->utilities->formatDecimals($amount),
+                $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
                 $order
             );
-            $request->metadata['isBackendCapture'] = $isBackendCapture;
+            $request->metadata['isBackendAction'] = $isBackendAction;
 
             // Get the response
             $response = $this->checkoutApi
@@ -185,7 +185,7 @@ class ApiHandlerService
     /**
      * Refunds a transaction.
      */
-    public function refundOrder($payment, $amount)
+    public function refundOrder($payment, $amount, $isBackendAction = false)
     {
         // Get the order
         $order = $payment->getOrder();
@@ -197,9 +197,12 @@ class ApiHandlerService
         if (isset($paymentInfo['id'])) {
             $request = new Refund($paymentInfo['id']);
             $request->amount = $this->orderHandler->amountToGateway(
-                $this->utilities->formatDecimals($amount),
+                $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
                 $order
             );
+
+            $request->metadata['isBackendAction'] = $isBackendAction;
+
             $response = $this->checkoutApi
                 ->payments()
                 ->refund($request);
@@ -251,6 +254,7 @@ class ApiHandlerService
         $address->city = $billingAddress->getCity();
         $address->zip = $billingAddress->getPostcode();
         $address->country = $billingAddress->getCountry();
+        $address->state = $billingAddress->getRegion();
 
         return $address;
     }
@@ -261,7 +265,7 @@ class ApiHandlerService
     public function createShippingAddress($entity)
     {
         // Get the billing address
-        $shippingAddress = $entity->getBillingAddress();
+        $shippingAddress = $entity->getShippingAddress();
 
         // Create the address
         $address = new Address();
@@ -270,6 +274,7 @@ class ApiHandlerService
         $address->city = $shippingAddress->getCity();
         $address->zip = $shippingAddress->getPostcode();
         $address->country = $shippingAddress->getCountry();
+        $address->state = $shippingAddress->getRegion();
         
         return new Shipping($address);
     }
