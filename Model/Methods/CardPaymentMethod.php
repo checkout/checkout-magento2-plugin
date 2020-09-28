@@ -457,7 +457,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Process the refund request
-            $response = $api->refundOrder($payment, $amount);
+            $response = $api->refundOrder($payment, $amount, true);
 
             if (!$api->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(
