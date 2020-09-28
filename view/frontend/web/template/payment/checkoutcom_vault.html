@@ -29,7 +29,9 @@
         <!--/ko-->
 
         <!-- Messages -->
-        <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+        <div class="message message-cko" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+        <div class="message message-response-code" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+        <div class="message debug-message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
         
         <!-- Saved cards -->
         <div id="vault-container" data-bind="visible: initWidget()">

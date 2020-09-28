@@ -22,7 +22,9 @@
     </div>
     <div class="payment-method-content">
         <!-- Messages -->
-        <div class="message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+        <div class="message message-cko" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+        <div class="message message-response-code" data-bind="attr: {'id': (getCode()+'_message')}"></div>
+        <div class="message debug-message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
 
         <!-- Alternative Payments -->
         <form id="apm-container" data-bind="visible: initWidget()">
