@@ -96,7 +96,7 @@ class InvoiceHandlerService
         $invoice = $this->setInvoiceState($invoice);
 
         // Finalize the invoice
-        $invoice->setBaseGrandTotal($this->amount);
+        $invoice->setBaseGrandTotal($amount/$this->order->getBaseToOrderRate());
         $invoice->setGrandTotal($this->amount);
         $invoice->register();
 

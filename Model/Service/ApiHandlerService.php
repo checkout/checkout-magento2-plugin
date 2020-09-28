@@ -127,7 +127,7 @@ class ApiHandlerService
     /**
      * Voids a transaction.
      */
-    public function captureOrder($payment, $amount, $isBackendCapture = false)
+    public function captureOrder($payment, $amount, $isBackendAction = false)
     {
         // Get the order
         $order = $payment->getOrder();
@@ -140,10 +140,10 @@ class ApiHandlerService
             // Prepare the request
             $request = new Capture($paymentInfo['id']);
             $request->amount = $this->orderHandler->amountToGateway(
-                $this->utilities->formatDecimals($amount),
+                $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
                 $order
             );
-            $request->metadata['isBackendCapture'] = $isBackendCapture;
+            $request->metadata['isBackendAction'] = $isBackendAction;
 
             // Get the response
             $response = $this->checkoutApi
@@ -185,7 +185,7 @@ class ApiHandlerService
     /**
      * Refunds a transaction.
      */
-    public function refundOrder($payment, $amount)
+    public function refundOrder($payment, $amount, $isBackendAction = false)
     {
         // Get the order
         $order = $payment->getOrder();
@@ -197,9 +197,12 @@ class ApiHandlerService
         if (isset($paymentInfo['id'])) {
             $request = new Refund($paymentInfo['id']);
             $request->amount = $this->orderHandler->amountToGateway(
-                $this->utilities->formatDecimals($amount),
+                $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
                 $order
             );
+
+            $request->metadata['isBackendAction'] = $isBackendAction;
+
             $response = $this->checkoutApi
                 ->payments()
                 ->refund($request);
