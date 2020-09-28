@@ -153,8 +153,13 @@ class TransactionHandlerService
 
         // Check to see if webhook is supported
         if (isset(self::$transactionMapper[$webhook['event_type']])) {
+            $isBackendAction = false;
+            if (isset($payload->data->metadata->isBackendAction)) {
+                $isBackendAction = $payload->data->metadata->isBackendAction;
+            }
+            
             // Create a transaction if needed
-            if (!$transaction) {
+            if (!$transaction && !$isBackendAction) {
                 // Build the transaction
                 $transaction = $this->buildTransaction(
                     $order,
@@ -162,41 +167,41 @@ class TransactionHandlerService
                     $amount
                 );
 
-                $isBackendCapture = false;
-                if (isset($payload->data->metadata->isBackendCapture)) {
-                    $isBackendCapture = $payload->data->metadata->isBackendCapture;
-                }
-                if (!$isBackendCapture) {
-                    // Add the order comment
-                    $this->addTransactionComment(
-                        $transaction,
-                        $amount
-                    );
+                // Update the order status
+                $this->setOrderStatus($transaction, $amount, $payload, $order);
 
-                    // Process the invoice case
-                    $this->processInvoice($transaction, $amount);
-                }
-            } else {
-                // Get the payment
-                $payment = $transaction->getOrder()->getPayment();
+                // Add the order comment
+                $this->addTransactionComment(
+                    $transaction,
+                    $amount
+                );
+                
+                // Process the invoice case
+                $this->processInvoice($transaction, $amount);
 
+                // Process the credit memo case
+                $this->processCreditMemo($transaction, $amount);
+                
+                // Update the order status
+                $this->setOrderStatus($transaction, $amount, $payload, $order);
+
+                // Process the order email case
+                $this->processEmail($transaction);
+            } elseif ($transaction) {
                 // Update the existing transaction state
                 $transaction->setIsClosed(
                     $this->setTransactionState($transaction, $amount)
                 );
-
+                
                 // Save
                 $transaction->save();
-                $payment->save();
+                
+                // Update the order status
+                $this->setOrderStatus($transaction, $amount, $payload, $order);
+
+                // Process the order email case
+                $this->processEmail($transaction);
             }
-            // Process the credit memo case
-            $this->processCreditMemo($transaction, $amount);
-
-            // Update the order status
-            $this->setOrderStatus($transaction, $amount, $payload, $order);
-
-            // Process the order email case
-            $this->processEmail($transaction);
         } else {
             // Update the order status
             $this->setOrderStatus($transaction, $amount, $payload, $order);
@@ -210,8 +215,8 @@ class TransactionHandlerService
     {
         // Get the list of transactions
         $transactions = $this->transactionSearch->create()
-        ->addOrderIdFilter($orderId);
-        $transactions->getItems();
+            ->addOrderIdFilter($orderId)
+            ->getItems();
 
         // Filter the transactions
         if ($transactionId && !empty($transactions)) {
@@ -493,7 +498,7 @@ class TransactionHandlerService
             $order->setState($state);
         }
 
-        if ($status) {
+        if ($status && $order->getStatus() != 'closed') {
             // Set the order status
             $order->setStatus($status);
         }
@@ -538,6 +543,8 @@ class TransactionHandlerService
                 break;
         }
 
+        // Convert currency amount to base amount
+        $amount = $amount / $order->getBaseToOrderRate();
         // Add the transaction comment
         $payment->addTransactionCommentsToOrder(
             $transaction,
@@ -582,7 +589,7 @@ class TransactionHandlerService
     {
         // Get the order
         $order = $transaction->getOrder();
-
+        
         // Get the order payment
         $payment = $order->getPayment();
 
@@ -592,10 +599,11 @@ class TransactionHandlerService
         if ($isRefund && !$hasCreditMemo) {
             // Get the invoice
             $invoice = $this->invoiceHandler->getInvoice($order);
-
+            $currentTotal = $this->getCreditMemosTotal($order);
+            
             // Create a credit memo
             $creditMemo = $this->creditMemoFactory->createByOrder($order);
-            $creditMemo->setBaseGrandTotal($amount);
+            $creditMemo->setBaseGrandTotal($amount/$order->getBaseToOrderRate());
             $creditMemo->setGrandTotal($amount);
 
             // Refund
@@ -611,7 +619,7 @@ class TransactionHandlerService
             }
 
             // Update the refunded amount
-            $order->setTotalRefunded($this->getCreditMemosTotal($order));
+            $order->setTotalRefunded($currentTotal + $amount);
 
             // Save the data
             $payment->save();
@@ -722,7 +730,7 @@ class TransactionHandlerService
     }
 
     /**
-     * Format an amount with curerency.
+     * Format an amount with currency.
      */
     public function getFormattedAmount($order, $amount)
     {
@@ -741,7 +749,7 @@ class TransactionHandlerService
         $totalRefunded = $order->getTotalRefunded();
 
         // Check the partial refund case
-        $isPartialRefund = $order->getGrandTotal() > ($totalRefunded + $amount);
+        $isPartialRefund = $order->getGrandTotal() > ($totalRefunded);
 
         return $isPartialRefund && $isRefund ? true : false;
     }
