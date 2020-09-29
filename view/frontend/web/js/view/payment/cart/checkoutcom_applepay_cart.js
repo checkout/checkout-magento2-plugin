@@ -459,7 +459,9 @@ require([
             if (Customer.isLoggedIn()) {
                 restUrl =
                     window.BASE_URL +
-                    "rest/default/V1/carts/mine/" +
+                    "rest/" +
+                    window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.store.code +
+                    "/V1/carts/mine/" +
                     m2ApiEndpoint +
                     "?form_key=" +
                     window.checkoutConfig.formKey;
