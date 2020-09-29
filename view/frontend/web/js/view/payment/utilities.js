@@ -116,7 +116,9 @@ define(
 
                 // Build the rest URL
                 if (Customer.isLoggedIn()) {
-                    restUrl += 'rest/default/V1/';
+                    restUrl += 'rest/';
+                    restUrl += window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.store.code;
+                    restUrl += '/V1/';
                     restUrl += 'carts/mine/payment-information';
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
                 }

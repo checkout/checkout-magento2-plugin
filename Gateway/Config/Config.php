@@ -305,6 +305,16 @@ class Config
     }
 
     /**
+     * Returns the store code.
+     *
+     * @return string
+     */
+    public function getStoreCode()
+    {
+        return $this->storeManager->getStore()->getCode();
+    }
+
+    /**
      * Determines if the module is in production mode.
      *
      * @return bool

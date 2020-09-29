@@ -94,7 +94,8 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
                     'quote' => $this->quoteHandler->getQuoteData(),
                     'store' => [
                         'name' => $this->config->getStoreName(),
-                        'language' => $this->config->getStoreLanguage()
+                        'language' => $this->config->getStoreLanguage(),
+                        'code' => $this->config->getStoreCode()
                     ],
                     'user' => [
                         'has_cards' => $this->vaultHandler->userHasCards(),
