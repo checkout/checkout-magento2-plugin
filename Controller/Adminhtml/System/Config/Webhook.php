@@ -17,15 +17,10 @@
 
 namespace Checkoutcom\Magento2\Controller\Adminhtml\System\Config;
 
-use _HumbugBoxe8a38a0636f4\Nette\DI\Extensions\DIExtension;
-use Checkout\Library\HttpHandler;
-use Checkout\Models\Webhooks\WebhookHeaders;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Cache\TypeListInterface;
 use CheckoutCom\Magento2\Helper\Logger;
@@ -42,19 +37,9 @@ class Webhook extends Action
     private $apiHandler;
 
     /**
-     * @var StoreManagerInterface
-     */
-    public $storeManager;
-
-    /**
      * @var ScopeConfigInterface
      */
     public $scopeConfig;
-
-    /**
-     * @var WriterInterface
-     */
-    public $configWriter;
 
     /**
      * @var Config
@@ -84,18 +69,14 @@ class Webhook extends Action
         Context $context,
         JsonFactory $resultJsonFactory,
         ApiHandlerService $apiHandler,
-        StoreManagerInterface $storeManager,
         ScopeConfigInterface $scopeConfig,
-        WriterInterface $configWriter,
         Config $resourceConfig,
         TypeListInterface $cacheTypeList,
         Logger $logger
     ) {
         $this->resultJsonFactory    = $resultJsonFactory;
         $this->apiHandler           = $apiHandler;
-        $this->storeManager         = $storeManager;
         $this->scopeConfig          = $scopeConfig;
-        $this->configWriter         = $configWriter;
         $this->resourceConfig       = $resourceConfig;
         $this->cacheTypeList        = $cacheTypeList;
         $this->logger               = $logger;
@@ -172,4 +153,3 @@ class Webhook extends Action
     }
 }
 ?>
-

@@ -97,6 +97,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORES;
                 $storeCode = $this->getRequest()->getParam('store', 0);
                 if ($storeCode == 0) {
+                    $scope = 'default';
                     $storeCode = $this->getRequest()->getParam('site', 0);
                 }
             }
