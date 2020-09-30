@@ -22,7 +22,6 @@
                     },
                     onSuccess: function(response) {
                         if (response.responseJSON.success) {
-                            webhookSpan.find('.processing').hide();
                             location.reload();
                         } else {
                             alert('Error! Could not set webhooks');

@@ -89,6 +89,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
      */
     protected function _getElementHtml(AbstractElement $element)
     {
+        // Get the selected scope and id
         try {
             if (array_key_exists('website', $this->getRequest()->getParams())) {
                 $scope = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES;
