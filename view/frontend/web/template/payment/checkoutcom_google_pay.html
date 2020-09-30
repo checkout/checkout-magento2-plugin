@@ -35,17 +35,18 @@
         <!-- Handle the default option selected -->
         <div data-bind="afterRender: checkDefaultEnabled()">
             
-        <div class="checkout-agreements-block">
-            <!-- ko foreach: $parent.getRegion('before-place-order') -->
-            <!-- ko template: getTemplate() -->
-            <!-- /ko -->
-            <!--/ko-->
-        </div>
-
-        <div class="actions-toolbar">
-            <div class="primary">
-                <button id="ckoGooglePayButton" type="button" class="action primary checkout google-pay"></button>
-                <div data-bind="visible: launchGooglePay()"></div>
+            <div class="checkout-agreements-block">
+                <!-- ko foreach: $parent.getRegion('before-place-order') -->
+                <!-- ko template: getTemplate() -->
+                <!-- /ko -->
+                <!--/ko-->
+            </div>
+    
+            <div class="actions-toolbar">
+                <div class="primary">
+                    <button id="ckoGooglePayButton" type="button" class="action primary checkout google-pay"></button>
+                    <div data-bind="visible: launchGooglePay()"></div>
+                </div>
             </div>
         </div>
     </div>

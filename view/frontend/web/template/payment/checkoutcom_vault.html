@@ -47,24 +47,25 @@
         <!-- Handle the default option selected -->
         <div data-bind="afterRender: checkDefaultEnabled()">
             
-        <!-- Agreements form -->
-        <div class="checkout-agreements-block">
-            <!-- ko foreach: $parent.getRegion('before-place-order') -->
-                <!-- ko template: getTemplate() --><!-- /ko -->
-            <!--/ko-->
-        </div>
-        
-        <!-- Actions -->
-        <div class="actions-toolbar">
-            <div class="primary">
-                <button class="action primary checkout"
-                        type="submit"
-                        data-bind="
-                        click: placeOrder,
-                        attr: {title: $t('Place Order'), 'id': buttonId}
-                        " disabled="disabled">
-                    <span data-bind="i18n: 'Place Order'"></span>
-                </button>
+            <!-- Agreements form -->
+            <div class="checkout-agreements-block">
+                <!-- ko foreach: $parent.getRegion('before-place-order') -->
+                    <!-- ko template: getTemplate() --><!-- /ko -->
+                <!--/ko-->
+            </div>
+            
+            <!-- Actions -->
+            <div class="actions-toolbar">
+                <div class="primary">
+                    <button class="action primary checkout"
+                            type="submit"
+                            data-bind="
+                            click: placeOrder,
+                            attr: {title: $t('Place Order'), 'id': buttonId}
+                            " disabled="disabled">
+                        <span data-bind="i18n: 'Place Order'"></span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

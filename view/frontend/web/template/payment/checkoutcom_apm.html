@@ -33,28 +33,29 @@
         <!-- Handle the default option selected -->
         <div data-bind="afterRender: checkDefaultEnabled()">
             
-        <!-- Billing -->
-        <!-- <div class="payment-method-billing-address"> -->
-            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
-            <!-- ko template: getTemplate() --><!-- /ko -->
-            <!--/ko-->
-        <!-- </div> -->
-
-        <!-- Agreements -->
-        <div class="checkout-agreements-block">
-            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- Billing -->
+            <!-- <div class="payment-method-billing-address"> -->
+                <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
                 <!-- ko template: getTemplate() --><!-- /ko -->
-            <!--/ko-->
-        </div>
-
-        <!-- Actions -->
-        <div class="actions-toolbar">
-            <div class="primary">
-                <button class="action primary checkout"
-                        type="submit"
-                        data-bind="click: placeOrder, attr: {title: $t('Place Order'), 'id': (getCode()+'_btn')}">
-                    <span data-bind="i18n: 'Place Order'"></span>
-                </button>
+                <!--/ko-->
+            <!-- </div> -->
+    
+            <!-- Agreements -->
+            <div class="checkout-agreements-block">
+                <!-- ko foreach: $parent.getRegion('before-place-order') -->
+                    <!-- ko template: getTemplate() --><!-- /ko -->
+                <!--/ko-->
+            </div>
+    
+            <!-- Actions -->
+            <div class="actions-toolbar">
+                <div class="primary">
+                    <button class="action primary checkout"
+                            type="submit"
+                            data-bind="click: placeOrder, attr: {title: $t('Place Order'), 'id': (getCode()+'_btn')}">
+                        <span data-bind="i18n: 'Place Order'"></span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
