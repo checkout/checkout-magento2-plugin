@@ -29,6 +29,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Cache\TypeListInterface;
 use CheckoutCom\Magento2\Helper\Logger;
+use Magento\Config\Model\ResourceModel\Config;
 
 class Webhook extends Action
 {
@@ -56,6 +57,11 @@ class Webhook extends Action
     public $configWriter;
 
     /**
+     * @var Config
+     */
+    public $resourceConfig;
+
+    /**
      * @var TypeListInterface
      */
     public $cacheTypeList;
@@ -69,7 +75,7 @@ class Webhook extends Action
      * @var Logger
      */
     public $logger;
-    
+
     /**
      * @param Context $context
      * @param JsonFactory $resultJsonFactory
@@ -81,6 +87,7 @@ class Webhook extends Action
         StoreManagerInterface $storeManager,
         ScopeConfigInterface $scopeConfig,
         WriterInterface $configWriter,
+        Config $resourceConfig,
         TypeListInterface $cacheTypeList,
         Logger $logger
     ) {
@@ -89,6 +96,7 @@ class Webhook extends Action
         $this->storeManager         = $storeManager;
         $this->scopeConfig          = $scopeConfig;
         $this->configWriter         = $configWriter;
+        $this->resourceConfig       = $resourceConfig;
         $this->cacheTypeList        = $cacheTypeList;
         $this->logger               = $logger;
         parent::__construct($context);
@@ -105,10 +113,11 @@ class Webhook extends Action
             // Prepare some parameters
             $message = '';
             // Get the store code
-            $storeCode = $this->storeManager->getStore()->getCode();
+            $scope = $this->getRequest()->getParam('scope', 0);
+            $storeCode = $this->getRequest()->getParam('scope_id', 0);
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode, $scope);
 
             $webhookUrl = $this->scopeConfig->getValue(
                 'payment/checkoutcom/module/account_settings/webhook_url',
@@ -128,16 +137,26 @@ class Webhook extends Action
                 $webhook = new \Checkout\Models\Webhooks\Webhook($webhookUrl, $webhookId);
                 $webhook->event_types = $eventTypes;
                 $response = $api->checkoutApi->webhooks()->update($webhook, true);
-                
-                $this->configWriter->save('settings/checkoutcom_configuration/private_shared_key', $response->headers->authorization);
+
+                $this->resourceConfig->saveConfig(
+                    'settings/checkoutcom_configuration/private_shared_key',
+                    $response->headers->authorization,
+                    $scope,
+                    $storeCode
+                );
             } else {
                 $webhook = new \Checkout\Models\Webhooks\Webhook($webhookUrl);
                 $response = $api->checkoutApi->webhooks()->register($webhook, $eventTypes);
 
-                $this->configWriter->save('settings/checkoutcom_configuration/private_shared_key', $response->headers->authorization);
+                $this->resourceConfig->saveConfig(
+                    'settings/checkoutcom_configuration/private_shared_key',
+                    $response->headers->authorization,
+                    $scope,
+                    $storeCode
+                );
             }
             $success = $response->isSuccessful();
-            
+
             $this->cacheTypeList->cleanType(\Magento\Framework\App\Cache\Type\Config::TYPE_IDENTIFIER);
             $this->cacheTypeList->cleanType(\Magento\PageCache\Model\Cache\Type::TYPE_IDENTIFIER);
         } catch (\Exception $e) {

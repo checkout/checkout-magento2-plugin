@@ -90,19 +90,25 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
     protected function _getElementHtml(AbstractElement $element)
     {
         try {
-            // Get the store code
-            $storeCode = $this->_storeManager->getStore()->getCode();
+            if (array_key_exists('website', $this->getRequest()->getParams())) {
+                $scope = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES;
+                $storeCode = $this->getRequest()->getParam('website', 0);
+            } else {
+                $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORES;
+                $storeCode = $this->getRequest()->getParam('store', 0);
+                if ($storeCode == 0) {
+                    $storeCode = $this->getRequest()->getParam('site', 0);
+                }
+            }
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode, $scope);
 
-            $callbackUrl = $this->scopeConfig->getValue(
-                'payment/checkoutcom/module/account_settings/webhook_url',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-            );
+            $callbackUrl = $this->getBaseUrl() . 'checkout_com/' . $this->getControllerUrl();
             $privateSharedKey = $this->scopeConfig->getValue(
                 'settings/checkoutcom_configuration/private_shared_key',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                $scope,
+                $storeCode
             );
 
             // Retrieve all configured webhooks
@@ -130,7 +136,9 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                         'button_label'      => 'set webhooks',
                         'message'           => 'Attention, webhook not properly configured!',
                         'message_class'     => 'no-webhook',
-                        'webhook_button'   => true
+                        'webhook_button'    => true,
+                        'scope'             => $scope,
+                        'scope_id'          => $storeCode
                     ]
                 );
                 return $this->_toHtml();
