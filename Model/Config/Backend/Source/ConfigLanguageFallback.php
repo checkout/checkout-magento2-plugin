@@ -20,7 +20,7 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 /**
  * Class ConfigLanguageFallback
  */
-class ConfigLanguageFallback implements \Magento\Framework\Option\ArrayInterface
+class ConfigLanguageFallback implements \Magento\Framework\Data\OptionSourceInterface
 {
 
     /**

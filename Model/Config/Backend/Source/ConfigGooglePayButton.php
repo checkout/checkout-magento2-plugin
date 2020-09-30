@@ -20,7 +20,7 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 /**
  * Class ConfigGooglePayButton
  */
-class ConfigGooglePayButton implements \Magento\Framework\Option\ArrayInterface
+class ConfigGooglePayButton implements \Magento\Framework\Data\OptionSourceInterface
 {
 
     const BUTTON_BLACK = 'black';
