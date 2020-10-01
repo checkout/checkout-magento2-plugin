@@ -38,10 +38,12 @@ define(
              *
              * @param  {string}  methodId The method id
              * @param  {string}  field    The field
+             * @param  {bool}  strict     The strict value
              * @return {mixed}            The value
              */
-            getValue: function (methodId, field, strict = false) {
+            getValue: function (methodId, field, strict) {
                 var val = null;
+                strict = (strict === undefined ? false : strict);
                 if (methodId && Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
                     val = Config[methodId][field]
                 } else if (Config.hasOwnProperty(KEY_CONFIG) && Config[KEY_CONFIG].hasOwnProperty(field) && !strict) {
@@ -192,7 +194,7 @@ define(
              *
              * @return {string}
              */
-            getShopLanguage() {
+            getShopLanguage: function() {
                 let mageShopLanguage = Config[KEY_DATA].store.language;
                 let framesLanguage;
                 switch(mageShopLanguage) {
