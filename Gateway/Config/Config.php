@@ -123,9 +123,9 @@ class Config
      *
      * @return string
      */
-    public function getValue($field, $methodId = null, $storeCode = null)
+    public function getValue($field, $methodId = null, $storeCode = null, $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
-        return $this->loader->init()->getValue($field, $methodId, $storeCode);
+        return $this->loader->init()->getValue($field, $methodId, $storeCode, $scope);
     }
 
     /**

@@ -1,0 +1,38 @@
+<?php echo $block->getElementHtml(); ?>
+<p class="webhook-message <?= $block->getMessageClass(); ?>"><?= $block->getMessage(); ?></p>
+<?php if ($block->getWebhookButton() == true) { ?>
+    <script>
+        require([
+            'jquery',
+            'prototype'
+        ], function(jQuery){
+            var webhookSpan = jQuery('#webhook_span');
+
+            jQuery('#webhook_button').click(function () {
+                var params = {
+                    scope: '<?= $block->getScope(); ?>',
+                    scope_id: <?= $block->getScopeId(); ?>
+                };
+                new Ajax.Request('<?php echo $block->getAjaxUrl() ?>', {
+                    parameters:     params,
+                    loaderArea:     false,
+                    asynchronous:   true,
+                    onCreate: function() {
+                        webhookSpan.find('.processing').show();
+                    },
+                    onSuccess: function(response) {
+                        if (response.responseJSON.success) {
+                            location.reload();
+                        } else {
+                            alert('Error! Could not set webhooks');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    <?php echo $block->getButtonHtml() ?>
+    <span id="webhook_span">
+        <img class="processing" hidden="hidden" alt="Processing Spinner" style="margin:0 5px" src="<?php echo $block->getViewFileUrl('images/process_spinner.gif') ?>"/>
+    </span>
+<?php } ?>

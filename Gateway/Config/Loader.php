@@ -258,7 +258,7 @@ class Loader
      * @param string $storeId
      * @return string
      */
-    public function getValue($key, $methodId = null, $storeCode = null)
+    public function getValue($key, $methodId = null, $storeCode = null, $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
         // Prepare the path
         $path = ($methodId)
@@ -268,7 +268,7 @@ class Loader
         // Get field value in database
         $value = $this->scopeConfig->getValue(
             $path,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $scope,
             $storeCode
         );
 

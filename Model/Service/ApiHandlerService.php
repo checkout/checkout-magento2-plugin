@@ -102,14 +102,14 @@ class ApiHandlerService
     /**
      * Load the API client.
      */
-    public function init($storeCode = null)
+    public function init($storeCode = null, $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
         $this->checkoutApi = new CheckoutApi(
-            $this->config->getValue('secret_key', null, $storeCode),
-            $this->config->getValue('environment', null, $storeCode),
-            $this->config->getValue('public_key', null, $storeCode)
+            $this->config->getValue('secret_key', null, $storeCode, $scope),
+            $this->config->getValue('environment', null, $storeCode, $scope),
+            $this->config->getValue('public_key', null, $storeCode, $scope)
         );
-        
+
         return $this;
     }
 
@@ -192,7 +192,7 @@ class ApiHandlerService
 
         // Get the payment info
         $paymentInfo = $this->utilities->getPaymentData($order);
-        
+
         // Process the refund request
         if (isset($paymentInfo['id'])) {
             $request = new Refund($paymentInfo['id']);
@@ -275,7 +275,7 @@ class ApiHandlerService
         $address->zip = $shippingAddress->getPostcode();
         $address->country = $shippingAddress->getCountry();
         $address->state = $shippingAddress->getRegion();
-        
+
         return new Shipping($address);
     }
 
