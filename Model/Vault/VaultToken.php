@@ -25,9 +25,9 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
 class VaultToken
 {
     /**
-     * @var CreditCardTokenFactory
+     * @var PaymentTokenFactoryInterface
      */
-    public $creditCardTokenFactory;
+    public $paymentTokenFactory;
 
     /**
      * @var EncryptorInterface
@@ -43,11 +43,11 @@ class VaultToken
      * VaultToken constructor.
      */
     public function __construct(
-        \Magento\Vault\Model\CreditCardTokenFactory $creditCardTokenFactory,
+        \Magento\Vault\Api\Data\PaymentTokenFactoryInterface $paymentTokenFactory,
         \Magento\Framework\Encryption\EncryptorInterface $encryptor,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler
     ) {
-        $this->creditCardTokenFactory = $creditCardTokenFactory;
+        $this->paymentTokenFactory = $paymentTokenFactory;
         $this->encryptor = $encryptor;
         $this->cardHandler = $cardHandler;
     }
@@ -69,7 +69,7 @@ class VaultToken
         /**
          * @var PaymentTokenInterface $paymentToken
          */
-        $paymentToken = $this->creditCardTokenFactory->create();
+        $paymentToken = $this->paymentTokenFactory->create($this->paymentTokenFactory::TOKEN_TYPE_CREDIT_CARD);
         $paymentToken->setExpiresAt($expiresAt);
 
         if (array_key_exists('id', $card)) {
