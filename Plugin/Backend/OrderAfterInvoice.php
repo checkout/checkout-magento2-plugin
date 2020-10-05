@@ -52,8 +52,16 @@ class OrderAfterInvoice
 
     public function aroundCheck(State $subject, callable $proceed, Order $order)
     {
-        if ($this->statusNeedsCorrection($order)) {
-            $order->setStatus($this->config->getValue('order_status_captured'));
+        // Get the method ID
+        $methodId = $order->getPayment()->getMethodInstance()->getCode();
+
+        // Check if payment method is checkout.com
+        if (in_array($methodId, $this->config->getMethodsList())) {
+            if ($this->statusNeedsCorrection($order)) {
+                $order->setStatus($this->config->getValue('order_status_captured'));
+            }
+        } else {
+           return $proceed($order);
         }
     }
 
