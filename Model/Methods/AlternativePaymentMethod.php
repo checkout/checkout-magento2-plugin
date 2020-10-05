@@ -299,11 +299,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $payment->reference = $reference;
         $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
         $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-        
-        // Add customer to paypal payment details.
-        if ($method == 'paypal') {
-            $payment->customer = $this->apiHandler->createCustomer($quote);    
-        }
+        $payment->customer = $this->apiHandler->createCustomer($quote);
         $payment->shipping = $this->apiHandler->createShippingAddress($quote);
         $payment->description = __(
             'Payment request from %1',
