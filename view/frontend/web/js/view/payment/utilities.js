@@ -166,8 +166,25 @@ define(
              * @return {void}
              */
             checkDefaultEnabled: function (methodId) {
-                if (this.getValue(null, 'default_method') == methodId) {
+                var userData = this.getValue('checkoutcom_data', 'user');
+
+                if (userData['previous_method'] == methodId) {
+                    $('input#' + userData['previous_method']).trigger('click');
+                } else if (this.getValue(null, 'default_method') == methodId) {
                     $('input#' + methodId).trigger('click');
+                }
+            },
+
+            /**
+             * Check if APM should be selected.
+             *
+             * @return {void}
+             */
+            checkLastPaymentMethod: function (apms) {
+                var userData = this.getValue('checkoutcom_data', 'user');
+
+                if (apms.includes(userData['previous_source'])) {
+                    $('.cko-apm#' + userData['previous_source']).trigger('click');
                 }
             },
 

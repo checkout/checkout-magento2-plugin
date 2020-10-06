@@ -96,7 +96,7 @@ class Utilities
     /**
      * Add the gateway payment information to an order
      */
-    public function setPaymentData($order, $data)
+    public function setPaymentData($order, $data, $source = null)
     {
         // Get the payment info instance
         $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();
@@ -107,6 +107,11 @@ class Utilities
             (array) $data
         );
 
+        // Add the payment method information
+        $paymentInfo->setAdditionalInformation(
+            'method_id',
+            $source
+        );
         return $order;
     }
 }

@@ -70,6 +70,13 @@ define(
                 /**
                  * @return {void}
                  */
+                checkLastPaymentMethod: function (apms) {
+                    return Utilities.checkLastPaymentMethod(apms);
+                },
+
+                /**
+                 * @return {void}
+                 */
                 initWidget: function () {
                     // Start the loader
                     FullScreenLoader.startLoader();
@@ -168,6 +175,9 @@ define(
                         $('#apm-container').show();
                         FullScreenLoader.stopLoader();
                     }
+
+                    // Auto select the previous method
+                    this.checkLastPaymentMethod(data.apms);
                 },
 
                 /**

@@ -73,6 +73,7 @@ class Display extends \Magento\Framework\App\Action\Action
         // Prepare the output
         $html = '';
         $klarna = false;
+        $available = [];
         
         // Process the request
         if ($this->getRequest()->isAjax()) {
@@ -97,12 +98,13 @@ class Display extends \Magento\Framework\App\Action\Action
                         $klarna = true;
                     }
                     $html .= $this->loadBlock($apm['value'], $apm['label']);
+                    array_push($available, $apm['value']);
                 }
             }
         }
 
         return $this->jsonFactory->create()->setData(
-            ['html' => $html, 'klarna' => $klarna]
+            ['html' => $html, 'klarna' => $klarna, 'apms' => $available]
         );
     }
 
