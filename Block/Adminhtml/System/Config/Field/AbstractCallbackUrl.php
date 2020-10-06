@@ -64,7 +64,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
         ApiHandlerService $apiHandler,
         ScopeConfigInterface $scopeConfig,
         Context $context,
-        array $data = [],
+        array $data = []
     ) {
         parent::__construct($context, $data);
         $this->apiHandler = $apiHandler;
