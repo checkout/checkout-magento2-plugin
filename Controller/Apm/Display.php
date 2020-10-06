@@ -72,7 +72,6 @@ class Display extends \Magento\Framework\App\Action\Action
     {
         // Prepare the output
         $html = '';
-        $klarna = false;
         $available = [];
         
         // Process the request
@@ -94,9 +93,6 @@ class Display extends \Magento\Framework\App\Action\Action
 
             foreach ($apms as $apm) {
                 if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    if ($apm['value'] == 'klarna') {
-                        $klarna = true;
-                    }
                     $html .= $this->loadBlock($apm['value'], $apm['label']);
                     array_push($available, $apm['value']);
                 }
@@ -104,7 +100,7 @@ class Display extends \Magento\Framework\App\Action\Action
         }
 
         return $this->jsonFactory->create()->setData(
-            ['html' => $html, 'klarna' => $klarna, 'apms' => $available]
+            ['html' => $html, 'apms' => $available]
         );
     }
 
