@@ -170,7 +170,7 @@ define(
                                 }
                             }
                         );
-                    if (!data.apms.includes('klarna')) {
+                    if (data.apms.includes('klarna') == false) {
                         // Stop the loader
                         $('#apm-container').show();
                         FullScreenLoader.stopLoader();
