@@ -40,7 +40,7 @@ use \Checkout\Library\Exceptions\CheckoutHttpException;
 /**
  * Class AlternativePaymentMethod
  */
-class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
+class AlternativePaymentMethod extends AbstractMethod
 {
 
     /**
@@ -155,7 +155,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Checkout\Model\Cart $cart,
         \Magento\Framework\UrlInterface $urlBuilder,
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
@@ -196,7 +195,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
         $this->urlBuilder         = $urlBuilder;
         $this->backendAuthSession = $backendAuthSession;
-        $this->cart               = $cart;
         $this->_objectManager     = $objectManager;
         $this->invoiceSender      = $invoiceSender;
         $this->transactionFactory = $transactionFactory;
