@@ -72,6 +72,8 @@ class MethodHandlerService
             if ($this->orderHandler->isOrder($order)) {
                 if ($order->getPayment()->getAdditionalInformation('method_id') != null) {
                     return $order->getPayment()->getAdditionalInformation('method_id');
+                } else if ($order->getPayment()->getAdditionalInformation('public_hash') != null) {
+                    return $order->getPayment()->getAdditionalInformation('public_hash');
                 }
             }
         }

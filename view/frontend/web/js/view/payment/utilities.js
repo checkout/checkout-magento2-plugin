@@ -183,8 +183,14 @@ define(
             checkLastPaymentMethod: function () {
                 var userData = this.getValue('checkoutcom_data', 'user');
 
-                if ($('.cko-apm#' + userData['previous_source']).length) {
+                if (userData['previous_method'] == 'checkoutcom_apm'
+                    && $('.cko-apm#' + userData['previous_source']).length) {
                     $('.cko-apm#' + userData['previous_source']).trigger('click');
+                }
+                
+                if (userData['previous_method'] == 'checkoutcom_vault'
+                    && $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').length) {
+                    $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').trigger('click');
                 }
             },
 

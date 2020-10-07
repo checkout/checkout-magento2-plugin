@@ -107,11 +107,20 @@ class Utilities
             (array) $data
         );
 
-        // Add the payment method information
-        $paymentInfo->setAdditionalInformation(
-            'method_id',
-            $source
-        );
+        if ($source['source'] == 'checkoutcom_apm') {
+            // Add apm to payment information
+            $paymentInfo->setAdditionalInformation(
+                'method_id',
+                $source['source']
+            );
+        } else if ($source['source'] == 'checkoutcom_vault') {
+            // Add vault public hash to payment information
+            $paymentInfo->setAdditionalInformation(
+                'public_hash',
+                $source['publicHash']
+            );
+        }
+
         return $order;
     }
 }
