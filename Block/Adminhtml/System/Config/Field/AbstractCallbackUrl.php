@@ -21,7 +21,6 @@ use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Data\Form\Element\AbstractElement;
-use Magento\Framework\View\Helper\SecureHtmlRenderer;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
 abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\Form\Field
@@ -35,11 +34,6 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
      * @var ApiHandlerService
      */
     private $apiHandler;
-
-    /**
-     * @var SecureHtmlRenderer
-     */
-    private $secureRenderer;
 
     /**
      * @var ScopeConfigInterface
@@ -65,18 +59,14 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
      * @param ScopeConfigInterface $scopeConfig
      * @param Context $context
      * @param array $data
-     * @param SecureHtmlRenderer|null $secureRenderer
      */
     public function __construct(
         ApiHandlerService $apiHandler,
         ScopeConfigInterface $scopeConfig,
         Context $context,
-        array $data = [],
-        ?SecureHtmlRenderer $secureRenderer = null
+        array $data = []
     ) {
-        $secureRenderer = $secureRenderer ?? ObjectManager::getInstance()->get(SecureHtmlRenderer::class);
-        parent::__construct($context, $data, $secureRenderer);
-        $this->secureRenderer = $secureRenderer;
+        parent::__construct($context, $data);
         $this->apiHandler = $apiHandler;
         $this->scopeConfig = $scopeConfig;
     }
