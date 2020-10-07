@@ -94,12 +94,22 @@
                                 }
                                 $('#apm-container').show();
                                 FullScreenLoader.stopLoader();
+
+                                // Auto select the previous method
+                                self.checkLastPaymentMethod();
                             });
 
                         } catch(er) {
                             this.remove();
                         }
 
+                    },
+
+                    /**
+                     * @return {void}
+                     */
+                    checkLastPaymentMethod: function () {
+                        return Utilities.checkLastPaymentMethod();
                     },
                     
                     /**

@@ -180,10 +180,10 @@ define(
              *
              * @return {void}
              */
-            checkLastPaymentMethod: function (apms) {
+            checkLastPaymentMethod: function () {
                 var userData = this.getValue('checkoutcom_data', 'user');
 
-                if (apms.includes(userData['previous_source'])) {
+                if ($('.cko-apm#' + userData['previous_source']).length) {
                     $('.cko-apm#' + userData['previous_source']).trigger('click');
                 }
             },

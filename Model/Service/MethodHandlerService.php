@@ -70,7 +70,9 @@ class MethodHandlerService
             ]);
 
             if ($this->orderHandler->isOrder($order)) {
-                return $order->getPayment()->getAdditionalInformation('method_id');
+                if ($order->getPayment()->getAdditionalInformation('method_id') != null) {
+                    return $order->getPayment()->getAdditionalInformation('method_id');
+                }
             }
         }
         
@@ -92,7 +94,9 @@ class MethodHandlerService
             ]);
 
             if ($this->orderHandler->isOrder($order)) {
-                return $order->getPayment()->getMethod();
+                if ($order->getPayment()->getMethod() !== null) {
+                    return $order->getPayment()->getMethod();    
+                }
             }
         }
         

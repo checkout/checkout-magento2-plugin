@@ -70,8 +70,8 @@ define(
                 /**
                  * @return {void}
                  */
-                checkLastPaymentMethod: function (apms) {
-                    return Utilities.checkLastPaymentMethod(apms);
+                checkLastPaymentMethod: function () {
+                    return Utilities.checkLastPaymentMethod();
                 },
 
                 /**
@@ -174,10 +174,10 @@ define(
                         // Stop the loader
                         $('#apm-container').show();
                         FullScreenLoader.stopLoader();
-                    }
 
-                    // Auto select the previous method
-                    this.checkLastPaymentMethod(data.apms);
+                        // Auto select the previous method
+                        this.checkLastPaymentMethod();
+                    }
                 },
 
                 /**
