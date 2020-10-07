@@ -16,6 +16,8 @@
 
 namespace CheckoutCom\Magento2\Plugin\Backend;
 
+use CheckoutCom\Magento2\Model\Methods\AbstractMethod;
+
 /**
  * Class PaymentAfterVoid.
  */
@@ -51,8 +53,11 @@ class PaymentAfterVoid
 
     /**
      * Create transactions for the order.
+     * @param AbstractMethod $method
+     * @return AbstractMethod
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function afterVoid(\Magento\Payment\Model\Method\AbstractMethod $method)
+    public function afterVoid(AbstractMethod $method)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the payment
