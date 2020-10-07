@@ -69,7 +69,9 @@ class MethodHandlerService
                 'customer_id' => $customerId
             ]);
 
-            return $order->getPayment()->getAdditionalInformation('method_id');   
+            if ($this->orderHandler->isOrder($order)) {
+                return $order->getPayment()->getAdditionalInformation('method_id');
+            }
         }
         
         return null;
@@ -89,7 +91,9 @@ class MethodHandlerService
                 'customer_id' => $customerId
             ]);
 
-            return $order->getPayment()->getMethod();    
+            if ($this->orderHandler->isOrder($order)) {
+                return $order->getPayment()->getMethod();
+            }
         }
         
         return null;
