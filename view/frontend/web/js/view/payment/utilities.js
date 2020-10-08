@@ -186,7 +186,7 @@ define(
                     if ($('input#' + userData['previous_method']).length == 0) {
                         if (userData['previous_method'] == 'checkoutcom_apm') {
                             // Only select the default method if the apm is unavailable
-                            if ($('.cko-apm#' + userData['previous_source'].length == 0)) {
+                            if ($('.cko-apm#' + userData['previous_source']).length == 0) {
                                 $('input#' + methodId).trigger('click');
                             }
                         } else {
