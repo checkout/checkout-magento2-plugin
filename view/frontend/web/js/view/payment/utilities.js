@@ -185,11 +185,12 @@ define(
                 var userData = this.getValue('checkoutcom_data', 'user');
 
                 if (userData['previous_method'] == 'checkoutcom_apm'
-                    && $('.cko-apm#' + userData['previous_source']).length) {
+                && $('.cko-apm#' + userData['previous_source']).length) {
                     // If available auto select the previously used apm.
                     $('.cko-apm#' + userData['previous_source']).trigger('click');
-                } else if(userData['previous_method'] == 'checkoutcom_apm') {
-                    // Select default payment method if the previous apm is no longer available.
+                } else if(userData['previous_method'] == 'checkoutcom_apm'
+                && $('input#' + userData['previous_method']).length) {
+                    // Select default payment method if apms are unavailable.
                     if ($('input#' + this.getValue(null, 'default_method')).length) {
                         $('input#' + this.getValue(null, 'default_method')).trigger('click');
                     }
@@ -204,7 +205,7 @@ define(
             checkStoredCard: function () {
                 var userData = this.getValue('checkoutcom_data', 'user');
                 if (userData['previous_method'] == 'checkoutcom_vault'
-                    && $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').length) {
+                && $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').length) {
                     $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').trigger('click');
                 }
             },
