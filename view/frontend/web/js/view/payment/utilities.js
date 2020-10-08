@@ -31,7 +31,7 @@ define(
 
         const KEY_CONFIG = 'checkoutcom_configuration';
         const KEY_DATA = 'checkoutcom_data';
-        
+
         return {
             /**
              * Gets a field value.
@@ -104,7 +104,7 @@ define(
 
                 return amount.toFixed(2);
             },
-            
+
             /**
              * Get the updated quote data from the core REST API.
              *
@@ -168,7 +168,8 @@ define(
             checkDefaultEnabled: function (methodId) {
                 var userData = this.getValue('checkoutcom_data', 'user');
 
-                if (userData['previous_method'] == methodId) {
+                // Select the previous payment method it's available.
+                if (userData['previous_method'] == methodId && $('input#' + userData['previous_method']).length) {
                     $('input#' + userData['previous_method']).trigger('click');
                 } else if (this.getValue(null, 'default_method') == methodId) {
                     $('input#' + methodId).trigger('click');
@@ -183,9 +184,15 @@ define(
             checkLastPaymentMethod: function () {
                 var userData = this.getValue('checkoutcom_data', 'user');
 
-                if (userData['previous_method'] == 'checkoutcom_apm' 
+                if (userData['previous_method'] == 'checkoutcom_apm'
                     && $('.cko-apm#' + userData['previous_source']).length) {
+                    // If available auto select the previously used apm.
                     $('.cko-apm#' + userData['previous_source']).trigger('click');
+                } else if(userData['previous_method'] == 'checkoutcom_apm') {
+                    // Select default payment method if the previous apm is no longer available.
+                    if ($('input#' + this.getValue(null, 'default_method')).length) {
+                        $('input#' + this.getValue(null, 'default_method')).trigger('click');
+                    }
                 }
             },
 
