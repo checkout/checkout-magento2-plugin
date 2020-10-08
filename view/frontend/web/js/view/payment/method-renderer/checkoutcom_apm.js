@@ -66,7 +66,7 @@ define(
                 checkDefaultEnabled: function () {
                     return Utilities.checkDefaultEnabled(METHOD_ID);
                 },
-                
+
                 /**
                  * @return {void}
                  */
@@ -110,19 +110,21 @@ define(
                     if (loadEvents) {
                         let self = this;
                         let prevAddress;
+                        let first = true;
 
                         Quote.billingAddress.subscribe(
                             function(newAddress) {
-                                if (!newAddress || !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
+                                if (first || !newAddress || !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
                                     prevAddress = newAddress;
-                                    if (newAddress) {
+                                    if (newAddress && !first) {
                                         self.reloadApms(Quote.billingAddress().countryId);
                                     }
+                                    first = false;
                                 }
                             }
                         );
 
-                        loadEvents = false   
+                        loadEvents = false;
                     }
                 },
 
