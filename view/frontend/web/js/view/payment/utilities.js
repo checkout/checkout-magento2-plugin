@@ -176,18 +176,26 @@ define(
             },
 
             /**
-             * Check if APM should be selected.
+             * Check if APM should be auto selected.
              *
              * @return {void}
              */
             checkLastPaymentMethod: function () {
                 var userData = this.getValue('checkoutcom_data', 'user');
 
-                if (userData['previous_method'] == 'checkoutcom_apm'
+                if (userData['previous_method'] == 'checkoutcom_apm' 
                     && $('.cko-apm#' + userData['previous_source']).length) {
                     $('.cko-apm#' + userData['previous_source']).trigger('click');
                 }
-                
+            },
+
+            /**
+             * Check if stored card should be auto selected.
+             *
+             * @return {void}
+             */
+            checkStoredCard: function () {
+                var userData = this.getValue('checkoutcom_data', 'user');
                 if (userData['previous_method'] == 'checkoutcom_vault'
                     && $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').length) {
                     $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').trigger('click');

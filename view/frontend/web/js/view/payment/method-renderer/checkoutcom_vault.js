@@ -69,6 +69,13 @@ define(
                 checkDefaultEnabled: function () {
                     return Utilities.checkDefaultEnabled(METHOD_ID);
                 },
+
+                /**
+                 * @return {void}
+                 */
+                checkStoredCard: function () {
+                    return Utilities.checkStoredCard();
+                },
                 
                 /**
                  * @return {string}
@@ -190,6 +197,8 @@ define(
                             }
                         }
                     );
+
+                    self.checkStoredCard();
                 },
 
                 /**
