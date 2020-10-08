@@ -168,12 +168,30 @@ define(
             checkDefaultEnabled: function (methodId) {
                 var userData = this.getValue('checkoutcom_data', 'user');
 
-                // Select the previous payment method it's available.
-                if (userData['previous_method'] == methodId && $('input#' + userData['previous_method']).length) {
-                    $('input#' + userData['previous_method']).trigger('click');
-                } else if (this.getValue(null, 'default_method') == methodId) {
+                // Select the previous payment method if it's available
+                if (userData['previous_method'] == methodId && $('input#' + methodId).length) {
+                    // If the previous method is an apm check that the same one is available
+                    if (userData['previous_method'] == 'checkoutcom_apm') {
+                        if ($('.cko-apm#' + userData['previous_source']).length) {
+                            $('input#' + methodId).trigger('click');
+                        }
+                    } else {
+                        $('input#' + methodId).trigger('click');    
+                    }
+                }
+
+                // If default method has been set
+                if (this.getValue(null, 'default_method') == methodId) {
+                    // Select the default method if there is no previous method
                     if ($('input#' + userData['previous_method']).length == 0) {
-                        $('input#' + methodId).trigger('click');
+                        if (userData['previous_method'] == 'checkoutcom_apm') {
+                            // Only select the default method if the apm is unavailable
+                            if ($('.cko-apm#' + userData['previous_source'].length == 0)) {
+                                $('input#' + methodId).trigger('click');
+                            }
+                        } else {
+                            $('input#' + methodId).trigger('click');
+                        }
                     }
                 }
             },
@@ -185,16 +203,17 @@ define(
              */
             checkLastPaymentMethod: function () {
                 var userData = this.getValue('checkoutcom_data', 'user');
+                var defaultMethod = this.getValue(null, 'default_method');
 
-                if (userData['previous_method'] == 'checkoutcom_apm'
-                && $('.cko-apm#' + userData['previous_source']).length) {
-                    // If available auto select the previously used apm.
-                    $('.cko-apm#' + userData['previous_source']).trigger('click');
-                } else if(userData['previous_method'] == 'checkoutcom_apm'
-                && $('input#' + userData['previous_method']).length) {
-                    // Select default payment method if apms are unavailable.
-                    if ($('input#' + this.getValue(null, 'default_method')).length) {
-                        $('input#' + this.getValue(null, 'default_method')).trigger('click');
+                if (userData['previous_method'] == 'checkoutcom_apm') {
+                    // Select the previous apm if it's available
+                    if ($('.cko-apm#' + userData['previous_source']).length) {
+                        $('.cko-apm#' + userData['previous_source']).trigger('click');
+                    } else if ($('input#checkoutcom_apm').length == 0) {
+                        // Select the default payment method if there are no available apms.
+                        if ($('input#' + defaultMethod).length) {
+                            $('input#' + defaultMethod).trigger('click');
+                        }
                     }
                 }
             },
