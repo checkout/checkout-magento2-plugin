@@ -148,6 +148,9 @@ define(
 
                                 // Stop the loader
                                 FullScreenLoader.stopLoader();
+
+                                // Auto select the previous method
+                                self.checkLastPaymentMethod();
                             },
                             error: function (request, status, error) {
                                 Utilities.log(error);

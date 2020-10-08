@@ -190,6 +190,8 @@ define(
 
                                 // Stop the loader
                                 FullScreenLoader.stopLoader();
+                                
+                                self.checkStoredCard();
                             },
                             error: function (request, status, error) {
                                 FullScreenLoader.stopLoader();
@@ -198,7 +200,6 @@ define(
                         }
                     );
 
-                    self.checkStoredCard();
                 },
 
                 /**

@@ -172,7 +172,9 @@ define(
                 if (userData['previous_method'] == methodId && $('input#' + userData['previous_method']).length) {
                     $('input#' + userData['previous_method']).trigger('click');
                 } else if (this.getValue(null, 'default_method') == methodId) {
-                    $('input#' + methodId).trigger('click');
+                    if ($('input#' + userData['previous_method']).length == 0) {
+                        $('input#' + methodId).trigger('click');
+                    }
                 }
             },
 
