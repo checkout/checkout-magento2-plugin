@@ -174,6 +174,10 @@ define(
                     if (userData['previous_method'] == 'checkoutcom_apm') {
                         if ($('.cko-apm#' + userData['previous_source']).length) {
                             $('input#' + methodId).trigger('click');
+                        } else {
+                            if ($('input#' + this.getValue(null, 'default_method')).length) {
+                                $('input#' + this.getValue(null, 'default_method')).trigger('click');
+                            }
                         }
                     } else {
                         $('input#' + methodId).trigger('click');    

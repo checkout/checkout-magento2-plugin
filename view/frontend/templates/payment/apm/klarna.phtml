@@ -95,7 +95,8 @@
                                 $('#apm-container').show();
                                 FullScreenLoader.stopLoader();
 
-                                // Auto select the previous method
+                                // Auto select the default/previous method
+                                self.checkDefaultEnabled();
                                 self.checkLastPaymentMethod();
                             });
 
@@ -110,6 +111,13 @@
                      */
                     checkLastPaymentMethod: function () {
                         return Utilities.checkLastPaymentMethod();
+                    },
+
+                    /**
+                     * @return {void}
+                     */
+                    checkDefaultEnabled: function () {
+                        return Utilities.checkDefaultEnabled('checkoutcom_apm');
                     },
                     
                     /**

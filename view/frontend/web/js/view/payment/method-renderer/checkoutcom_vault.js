@@ -191,6 +191,7 @@ define(
                                 // Stop the loader
                                 FullScreenLoader.stopLoader();
                                 
+                                self.checkDefaultEnabled();
                                 self.checkStoredCard();
                             },
                             error: function (request, status, error) {

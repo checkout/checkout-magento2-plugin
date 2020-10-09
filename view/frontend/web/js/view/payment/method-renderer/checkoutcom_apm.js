@@ -30,6 +30,7 @@ define(
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_apm';
         let loadEvents = true;
+        let loaded = false;
 
         return Component.extend(
             {
@@ -78,6 +79,7 @@ define(
                  * @return {void}
                  */
                 initWidget: function () {
+                    this.initEvents()
                     // Start the loader
                     FullScreenLoader.startLoader();
 
@@ -90,6 +92,7 @@ define(
                             url: Utilities.getUrl('apm/display'),
                             success: function (data) {
                                 self.animateRender(data);
+                                self.checkDefaultEnabled();
                             },
                             error: function (request, status, error) {
                                 Utilities.log(error);
@@ -99,8 +102,7 @@ define(
                             }
                         }
                     );
-
-                    this.initEvents();
+                    
                 },
 
                 /**
@@ -110,16 +112,14 @@ define(
                     if (loadEvents) {
                         let self = this;
                         let prevAddress;
-                        let first = true;
 
                         Quote.billingAddress.subscribe(
                             function(newAddress) {
-                                if (first || !newAddress || !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
+                                if (!newAddress || !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
                                     prevAddress = newAddress;
-                                    if (newAddress && !first) {
+                                    if (newAddress) {
                                         self.reloadApms(Quote.billingAddress().countryId);
                                     }
-                                    first = false;
                                 }
                             }
                         );
@@ -148,8 +148,10 @@ define(
 
                                 // Stop the loader
                                 FullScreenLoader.stopLoader();
+                                
 
                                 // Auto select the previous method
+                                self.checkDefaultEnabled();
                                 self.checkLastPaymentMethod();
                             },
                             error: function (request, status, error) {
