@@ -129,24 +129,24 @@ define(
 
                 // Set the event to update data on any button click
                 $('button[type="submit"]')
-                .off('click', self.getRestQuoteData)
-                .on('click', self.getRestQuoteData);
+                    .off('click', self.getRestQuoteData)
+                    .on('click', self.getRestQuoteData);
 
-                    // Send the AJAX request
-                    $.ajax({
-                        url: restUrl,
-                        type: 'GET',
-                        contentType: "application/json",
-                        dataType: "json",
-                        async: false,
-                        showLoader: true,
-                        success: function (data, status, xhr) {
-                            result = data;
-                        },
-                        error: function (request, status, error) {
-                            self.log(error);
-                        }
-                    });
+                // Send the AJAX request
+                $.ajax({
+                    url: restUrl,
+                    type: 'GET',
+                    contentType: "application/json",
+                    dataType: "json",
+                    async: false,
+                    showLoader: true,
+                    success: function (data, status, xhr) {
+                        result = data;
+                    },
+                    error: function (request, status, error) {
+                        self.log(error);
+                    }
+                });
 
                 return result;
             },
@@ -161,53 +161,17 @@ define(
             },
 
             /**
-             * Check if the payment method should be enabled by default.
-             *
-             * @return {void}
-             */
-            checkDefaultEnabled: function (methodId) {
-                var userData = this.getValue('checkoutcom_data', 'user');
-
-                // Select the previous payment method if it's available
-                if (userData['previous_method'] == methodId && $('input#' + methodId).length) {
-                    // If the previous method is an apm check that the same one is available
-                    if (userData['previous_method'] == 'checkoutcom_apm') {
-                        if ($('.cko-apm#' + userData['previous_source']).length) {
-                            $('input#' + methodId).trigger('click');
-                        } else if ($('input#' + this.getValue(null, 'default_method')).length) {
-                            $('input#' + this.getValue(null, 'default_method')).trigger('click');
-                        }
-                    } else {
-                        $('input#' + methodId).trigger('click');
-                    }
-                }
-
-                // If default method has been set
-                if (this.getValue(null, 'default_method') == methodId) {
-                    if (userData['previous_method'] == null) {
-                        $('input#' + methodId).trigger('click');
-                    }
-                }
-            },
-
-            /**
              * Check if APM should be auto selected.
              *
              * @return {void}
              */
             checkLastPaymentMethod: function () {
                 var userData = this.getValue('checkoutcom_data', 'user');
-                var defaultMethod = this.getValue(null, 'default_method');
 
                 if (userData['previous_method'] == 'checkoutcom_apm') {
                     // Select the previous apm if it's available
                     if ($('.cko-apm#' + userData['previous_source']).length) {
                         $('.cko-apm#' + userData['previous_source']).trigger('click');
-                    } else if ($('input#checkoutcom_apm').length == 0) {
-                        // Select the default payment method if there are no available apms.
-                        if ($('input#' + defaultMethod).length) {
-                            $('input#' + defaultMethod).trigger('click');
-                        }
                     }
                 }
             },
@@ -256,10 +220,10 @@ define(
                         framesLanguage = 'NL-NL';
                         break;
                     case 'en_GB':
-                         framesLanguage = 'EN-GB';
+                        framesLanguage = 'EN-GB';
                         break;
                     case 'fr_FR':
-                         framesLanguage = 'FR-FR';
+                        framesLanguage = 'FR-FR';
                         break;
                     case 'de_DE':
                         framesLanguage = 'DE-DE';
@@ -274,7 +238,7 @@ define(
                         framesLanguage = 'ES-ES';
                         break;
                     default:
-                      framesLanguage = this.getLangageFallback().toUpperCase().split("_").join('-');
+                        framesLanguage = this.getLangageFallback().toUpperCase().split("_").join('-');
                 }
 
                 return framesLanguage;

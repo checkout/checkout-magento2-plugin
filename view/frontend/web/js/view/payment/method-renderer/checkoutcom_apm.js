@@ -64,13 +64,6 @@ define(
                 /**
                  * @return {void}
                  */
-                checkDefaultEnabled: function () {
-                    return Utilities.checkDefaultEnabled(METHOD_ID);
-                },
-
-                /**
-                 * @return {void}
-                 */
                 checkLastPaymentMethod: function () {
                     return Utilities.checkLastPaymentMethod();
                 },
@@ -93,7 +86,6 @@ define(
                                 self.animateRender(data);
                                 self.initEvents();
                                 self.checkLastPaymentMethod();
-                                self.checkDefaultEnabled();
                             },
                             error: function (request, status, error) {
                                 Utilities.log(error);
@@ -149,7 +141,6 @@ define(
                                 FullScreenLoader.stopLoader();
 
                                 // Auto select the previous method
-                                self.checkDefaultEnabled();
                                 self.checkLastPaymentMethod();
                             },
                             error: function (request, status, error) {

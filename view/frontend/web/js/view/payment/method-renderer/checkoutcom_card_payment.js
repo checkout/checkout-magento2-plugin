@@ -70,13 +70,6 @@ define(
                 },
 
                 /**
-                 * @return {void}
-                 */
-                checkDefaultEnabled: function () {
-                    return Utilities.checkDefaultEnabled(METHOD_ID);
-                },
-
-                /**
                  * @return {string}
                  */
                 isVaultEnabled: function () {
@@ -125,6 +118,11 @@ define(
                         }
                     );
 
+                    // self.getCkoPaymentForm();
+                    if (Utilities.methodIsSelected(METHOD_ID)) {
+                        self.getCkoPaymentForm();
+                    }
+                    
                     // Option click event
                     $('.payment-method input[type="radio"]').on('click', function () {
                         Utilities.allowPlaceOrder(self.buttonId, false);
