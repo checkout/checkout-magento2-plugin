@@ -100,12 +100,12 @@ class OrderStatusHandlerService
                 break;
         }
         
-        if ($this->state) {
+        if ($this->state && $this->order->getStatus() != 'holded') {
             // Set the order state
             $this->order->setState($this->state);
         }
         
-        if ($this->status && $this->order->getStatus() != 'closed') {
+        if ($this->status && $this->order->getStatus() != 'closed' && $this->order->getStatus() != 'holded') {
             // Set the order status
             $this->order->setStatus($this->status);
         }

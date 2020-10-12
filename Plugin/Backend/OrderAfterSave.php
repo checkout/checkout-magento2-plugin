@@ -66,7 +66,7 @@ class OrderAfterSave
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the method ID
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
-
+            
             // Process the webhooks if order is not on hold
             if (in_array($methodId, $this->config->getMethodsList()) && $order->getState() != 'holded') {
                 $this->webhookHandler->processAllWebhooks($order);
