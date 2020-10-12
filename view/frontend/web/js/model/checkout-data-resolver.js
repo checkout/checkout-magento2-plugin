@@ -27,7 +27,6 @@ define([
                         selectPaymentMethodAction(method);
                     } else {
                         var method = this.getMethod(ckoConfig.default_method, availablePaymentMethods);
-                        
                         if (!_.isUndefined(method)) {
                             selectPaymentMethodAction(method);
                         }
@@ -41,9 +40,8 @@ define([
             resolvePaymentMethod: resolvePaymentMethod,
 
             /**
-             * Return a selectable method
+             * Get the payment method
              *
-             * @param  {String} type
              * @param  {Array} availableMethods
              * @return {Object|undefined}
              */

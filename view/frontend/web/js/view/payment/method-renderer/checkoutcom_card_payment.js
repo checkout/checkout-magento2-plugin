@@ -118,10 +118,7 @@ define(
                         }
                     );
 
-                    // self.getCkoPaymentForm();
-                    if (Utilities.methodIsSelected(METHOD_ID)) {
-                        self.getCkoPaymentForm();
-                    }
+                    self.getCkoPaymentForm();
                     
                     // Option click event
                     $('.payment-method input[type="radio"]').on('click', function () {
