@@ -48,6 +48,11 @@ class Fail extends \Magento\Framework\App\Action\Action
     public $orderHandler;
 
     /**
+     * @var OrderStatusHandlerService
+     */
+    public $orderStatusHandler;
+
+    /**
      * @var Logger
      */
     public $logger;
@@ -67,6 +72,7 @@ class Fail extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandlerService
     ) {
@@ -77,6 +83,7 @@ class Fail extends \Magento\Framework\App\Action\Action
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
         $this->logger = $logger;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
     }
@@ -109,7 +116,7 @@ class Fail extends \Magento\Framework\App\Action\Action
                 ]);
 
                 // Handle the failed order
-                $this->orderHandler->handleFailedPayment($order);
+                $this->orderStatusHandler->handleFailedPayment($order);
 
                 // Restore the quote
                 $this->quoteHandler->restoreQuote($response->reference);
