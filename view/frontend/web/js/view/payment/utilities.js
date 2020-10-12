@@ -174,28 +174,18 @@ define(
                     if (userData['previous_method'] == 'checkoutcom_apm') {
                         if ($('.cko-apm#' + userData['previous_source']).length) {
                             $('input#' + methodId).trigger('click');
-                        } else {
-                            if ($('input#' + this.getValue(null, 'default_method')).length) {
-                                $('input#' + this.getValue(null, 'default_method')).trigger('click');
-                            }
+                        } else if ($('input#' + this.getValue(null, 'default_method')).length) {
+                            $('input#' + this.getValue(null, 'default_method')).trigger('click');
                         }
                     } else {
-                        $('input#' + methodId).trigger('click');    
+                        $('input#' + methodId).trigger('click');
                     }
                 }
 
                 // If default method has been set
                 if (this.getValue(null, 'default_method') == methodId) {
-                    // Select the default method if there is no previous method
-                    if ($('input#' + userData['previous_method']).length == 0) {
-                        if (userData['previous_method'] == 'checkoutcom_apm') {
-                            // Only select the default method if the apm is unavailable
-                            if ($('.cko-apm#' + userData['previous_source']).length == 0) {
-                                $('input#' + methodId).trigger('click');
-                            }
-                        } else {
-                            $('input#' + methodId).trigger('click');
-                        }
+                    if (userData['previous_method'] == null) {
+                        $('input#' + methodId).trigger('click');
                     }
                 }
             },

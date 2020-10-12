@@ -79,7 +79,6 @@ define(
                  * @return {void}
                  */
                 initWidget: function () {
-                    this.initEvents()
                     // Start the loader
                     FullScreenLoader.startLoader();
 
@@ -92,6 +91,8 @@ define(
                             url: Utilities.getUrl('apm/display'),
                             success: function (data) {
                                 self.animateRender(data);
+                                self.initEvents();
+                                self.checkLastPaymentMethod();
                                 self.checkDefaultEnabled();
                             },
                             error: function (request, status, error) {
@@ -102,7 +103,6 @@ define(
                             }
                         }
                     );
-                    
                 },
 
                 /**
@@ -115,7 +115,7 @@ define(
 
                         Quote.billingAddress.subscribe(
                             function(newAddress) {
-                                if (!newAddress || !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
+                                if (!newAddress ^ !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
                                     prevAddress = newAddress;
                                     if (newAddress) {
                                         self.reloadApms(Quote.billingAddress().countryId);
@@ -143,12 +143,10 @@ define(
                                 country_id: countryId
                             },
                             success: function (data) {
-                                self.animateRender(data);
-                                $( "#apm-container" ).accordion( "refresh" );
-
+                                self.animateRender(data, true);
+                                
                                 // Stop the loader
                                 FullScreenLoader.stopLoader();
-                                
 
                                 // Auto select the previous method
                                 self.checkDefaultEnabled();
@@ -168,8 +166,12 @@ define(
                 /**
                  * Animate opening of APM accordion
                  */
-                animateRender: function (data) {
-                    $('#apm-container').empty().hide();
+                animateRender: function (data, refresh) {
+                    refresh = (refresh === undefined ? false : refresh);
+                    if (refresh) {
+                        $('#apm-container').empty().hide();
+                        $('#apm-container').accordion("destroy");
+                    }
                     $('#apm-container').append(data.html)
                         .accordion(
                             {
@@ -183,9 +185,6 @@ define(
                         // Stop the loader
                         $('#apm-container').show();
                         FullScreenLoader.stopLoader();
-
-                        // Auto select the previous method
-                        this.checkLastPaymentMethod();
                     }
                 },
 
@@ -196,7 +195,7 @@ define(
                     let id = $("#apm-container div[aria-selected=true]").attr('id');
 
                     if (Utilities.methodIsSelected(METHOD_ID) && id) {
-                        let form = $("#cko-apm-form-" + id), 
+                        let form = $("#cko-apm-form-" + id),
                             data = {methodId: METHOD_ID};
 
                         // Start the loader
