@@ -27,7 +27,7 @@
         <div class="message debug-message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
 
         <!-- Alternative Payments -->
-        <form id="apm-container" data-bind="visible: initWidget()">
+        <form id="apm-container" data-bind="afterRender: initWidget()">
         </form>
 
             <!-- Billing -->

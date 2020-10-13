@@ -132,7 +132,9 @@ define(
 
                     // Clear frames after update billing event
                      $(document).on('click', '.action-update', function () {
-                         Frames.init()
+                         if ($('#checkoutcom_card_payment').is(':checked')) {
+                             Frames.init()
+                         }
                      })
                 },
 

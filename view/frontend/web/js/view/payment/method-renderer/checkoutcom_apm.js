@@ -82,6 +82,9 @@ define(
                         {
                             type: "POST",
                             url: Utilities.getUrl('apm/display'),
+                            data: {
+                                country_id: Quote.billingAddress() ? Quote.billingAddress().countryId : null
+                            },
                             success: function (data) {
                                 self.animateRender(data);
                                 self.initEvents();
@@ -107,7 +110,7 @@ define(
 
                         Quote.billingAddress.subscribe(
                             function(newAddress) {
-                                if (!newAddress ^ !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
+                                if (!newAddress || !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
                                     prevAddress = newAddress;
                                     if (newAddress) {
                                         self.reloadApms(Quote.billingAddress().countryId);
@@ -135,11 +138,7 @@ define(
                                 country_id: countryId
                             },
                             success: function (data) {
-                                self.animateRender(data, true);
-                                
-                                // Stop the loader
-                                FullScreenLoader.stopLoader();
-
+                                self.animateRender(data);
                                 // Auto select the previous method
                                 self.checkLastPaymentMethod();
                             },
@@ -151,18 +150,17 @@ define(
                             }
                         }
                     );
-
                 },
 
                 /**
                  * Animate opening of APM accordion
                  */
-                animateRender: function (data, refresh) {
-                    refresh = (refresh === undefined ? false : refresh);
-                    if (refresh) {
-                        $('#apm-container').empty().hide();
+                animateRender: function (data) {
+                    $('#apm-container').empty().hide();
+                    if ($('#apm-container').hasClass("ui-accordion")) {
                         $('#apm-container').accordion("destroy");
                     }
+                    
                     $('#apm-container').append(data.html)
                         .accordion(
                             {
@@ -173,6 +171,7 @@ define(
                             }
                         );
                     if (data.apms.includes('klarna') == false) {
+                        
                         // Stop the loader
                         $('#apm-container').show();
                         FullScreenLoader.stopLoader();
