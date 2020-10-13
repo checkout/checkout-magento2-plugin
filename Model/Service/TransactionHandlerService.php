@@ -447,10 +447,10 @@ class TransactionHandlerService
     /**
      * Convert a gateway to decimal value for processing.
      */
-    public function amountFromGateway($amount)
+    public function amountFromGateway($amount, $order = null)
     {
         // Get the quote currency
-        $currency = $this->order->getOrderCurrencyCode();
+        $currency = $order ? $order->getOrderCurrencyCode() : $this->order->getOrderCurrencyCode();
 
         // Get the x1 currency calculation mapping
         $currenciesX1 = explode(
@@ -615,7 +615,7 @@ class TransactionHandlerService
     public function isPartialRefund($amount, $isRefund)
     {
         // Get the total refunded
-        $totalRefunded = $this->order->getTotalRefunded();
+        $totalRefunded = $this->order->getTotalRefunded() + $amount;
 
         // Check the partial refund case
         $isPartialRefund = $this->order->getGrandTotal() > ($totalRefunded);

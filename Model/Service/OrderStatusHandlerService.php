@@ -189,7 +189,8 @@ class OrderStatusHandlerService
         // Format the amount
         $payload = json_decode($webhook['event_data']);
         $amount = $this->transactionHandler->amountFromGateway(
-            $payload->data->amount
+            $payload->data->amount,
+            $this->order
         );
         
         $isPartialRefund = $this->transactionHandler->isPartialRefund(

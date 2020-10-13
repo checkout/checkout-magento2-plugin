@@ -102,17 +102,11 @@ class WebhookHandlerService
 
             // Check if order is on hold
             if ($order->getState() != 'holded') {
-                // Handle the transaction for the webhook
-                $this->webhooksToTransactions(
+                // Handle the order status for the webhook
+                $this->webhooksToProcess(
                     $order,
                     $webhooks
                 );
-
-                // Handle the order status for the webhook
-                $this->webhooksToOrderStatus(
-                    $order,
-                    $webhooks
-                );   
             }
         } else {
             // Handle missing action ID
@@ -134,42 +128,25 @@ class WebhookHandlerService
             'order_id' => $order->getId()
         ]);
 
-        // Create the transactions
-        $this->webhooksToTransactions(
-            $order,
-            $webhooks
-        );
-
-        // Handle the order status for the webhooks
-        $this->webhooksToOrderStatus(
+        $this->webhooksToProcess(
             $order,
             $webhooks
         );
     }
 
     /**
-     * Generate transactions from webhooks.
+     * Generate transactions and set order status from webhooks.
      */
-    public function webhooksToTransactions($order, $webhooks = [])
-    {
-        if (!empty($webhooks)) {
-            foreach ($webhooks as $webhook) {
-                $this->transactionHandler->handleTransaction(
-                    $order,
-                    $webhook
-                );
-            }
-        }
-    }
-
-    /**
-     * Generate transactions from webhooks.
-     */
-    public function webhooksToOrderStatus($order, $webhooks = [])
+    public function webhooksToProcess($order, $webhooks = [])
     {
         if (!empty($webhooks)) {
             foreach ($webhooks as $webhook) {
                 $this->orderStatusHandler->setOrderStatus(
+                    $order,
+                    $webhook
+                );
+                
+                $this->transactionHandler->handleTransaction(
                     $order,
                     $webhook
                 );
