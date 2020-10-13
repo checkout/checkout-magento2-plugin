@@ -100,17 +100,20 @@ class WebhookHandlerService
                 'action_id' => $payload->data->action_id
             ]);
 
-            // Handle the transaction for the webhook
-            $this->webhooksToTransactions(
-                $order,
-                $webhooks
-            );
+            // Check if order is on hold
+            if ($order->getState() != 'holded') {
+                // Handle the transaction for the webhook
+                $this->webhooksToTransactions(
+                    $order,
+                    $webhooks
+                );
 
-            // Handle the order status for the webhook
-            $this->webhooksToOrderStatus(
-                $order,
-                $webhooks
-            );
+                // Handle the order status for the webhook
+                $this->webhooksToOrderStatus(
+                    $order,
+                    $webhooks
+                );   
+            }
         } else {
             // Handle missing action ID
             $msg = __(
