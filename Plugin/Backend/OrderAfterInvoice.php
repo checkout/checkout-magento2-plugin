@@ -21,9 +21,14 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface as BaseCommandInterface;
 
+/**
+ * Class OrderAfterInvoice.
+ */
 class OrderAfterInvoice
 {
-
+    /**
+     * @var Config
+     */
     public $config;
 
     /**
