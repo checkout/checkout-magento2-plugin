@@ -56,4 +56,9 @@
         <plugin name="cko_payment_after_refund" type="CheckoutCom\Magento2\Plugin\Backend\PaymentAfterRefund" />
     </type>
 
+    <!-- On capture -->
+    <type name="Magento\Sales\Model\Order\Payment\State\CommandInterface">
+        <plugin name="cko_after_capture" type="CheckoutCom\Magento2\Plugin\Backend\OrderAfterInvoice"/>
+    </type>
+    
 </config>

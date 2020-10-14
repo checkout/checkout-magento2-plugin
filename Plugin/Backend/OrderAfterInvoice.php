@@ -16,42 +16,43 @@
 
 namespace CheckoutCom\Magento2\Plugin\Backend;
 
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\ResourceModel\Order\Handler\State;
+use Magento\Sales\Model\Order\Payment\State\CommandInterface as BaseCommandInterface;
 
-/**
- * Class PaymentAfterCapture.
- */
 class OrderAfterInvoice
 {
-    /**
-     * @var Session
-     */
-    public $backendAuthSession;
 
-    /**
-     * @var WebhookHandlerService
-     */
-    public $webhookHandler;
-
-    /**
-     * @var Config
-     */
     public $config;
 
     /**
      * PaymentAfterVoid constructor.
      */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
-        $this->webhookHandler = $webhookHandler;
         $this->config = $config;
     }
 
-    public function aroundCheck(State $subject, callable $proceed, Order $order)
-    {
+    /**
+     * Sets the correct order status for orders captured from the hub.
+     * 
+     * @param BaseCommandInterface $subject
+     * @param Closure $proceed
+     * @param OrderPaymentInterface $proceed
+     * @param $amount
+     * @param OrderInterface $order
+     */
+    public function aroundExecute(
+        BaseCommandInterface $subject,
+        \Closure $proceed,
+        OrderPaymentInterface $payment,
+        $amount,
+        OrderInterface $order
+    ) {
+        $result = $proceed($payment, $amount, $order);
+
         // Get the method ID
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
@@ -60,9 +61,9 @@ class OrderAfterInvoice
             if ($this->statusNeedsCorrection($order)) {
                 $order->setStatus($this->config->getValue('order_status_captured'));
             }
-        } else {
-           return $proceed($order);
         }
+
+        return $result;
     }
 
     public function statusNeedsCorrection($order)
