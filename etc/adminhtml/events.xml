@@ -23,5 +23,10 @@
     <event name="sales_order_payment_void">
         <observer name="cko_order_payment_void" instance="CheckoutCom\Magento2\Observer\Backend\OrderAfterVoid" />
     </event>
+
+    <!-- Order after shipment event -->
+    <event name="sales_order_save_after">
+        <observer name="sales_order_shipment_after" instance="CheckoutCom\Magento2\Observer\Backend\OrderAfterShipment" />
+    </event>
     
 </config>
