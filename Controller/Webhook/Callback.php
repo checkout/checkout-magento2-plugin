@@ -166,17 +166,16 @@ class Callback extends \Magento\Framework\App\Action\Action
                                         'settings/checkoutcom_configuration/webhooks_clean_on',
                                         \Magento\Store\Model\ScopeInterface::SCOPE_STORE
                                     );
-    
-                                    if ($clean && $cleanOn == 'webhook') {
-                                        $this->webhookHandler->clean();
-                                    }
-    
                                     
                                     // Save the webhook
                                     $this->webhookHandler->processSingleWebhook(
                                         $order,
                                         $this->payload
                                     );
+
+                                    if ($clean && $cleanOn == 'webhook') {
+                                        $this->webhookHandler->clean();
+                                    }
     
                                     // Set a valid response
                                     $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
