@@ -70,13 +70,6 @@ define(
                 },
 
                 /**
-                 * @return {void}
-                 */
-                checkDefaultEnabled: function () {
-                    return Utilities.checkDefaultEnabled(METHOD_ID);
-                },
-
-                /**
                  * @return {string}
                  */
                 isVaultEnabled: function () {
@@ -125,6 +118,8 @@ define(
                         }
                     );
 
+                    self.getCkoPaymentForm();
+                    
                     // Option click event
                     $('.payment-method input[type="radio"]').on('click', function () {
                         Utilities.allowPlaceOrder(self.buttonId, false);
@@ -137,7 +132,9 @@ define(
 
                     // Clear frames after update billing event
                      $(document).on('click', '.action-update', function () {
-                         Frames.init()
+                         if ($('#checkoutcom_card_payment').is(':checked')) {
+                             Frames.init()
+                         }
                      })
                 },
 

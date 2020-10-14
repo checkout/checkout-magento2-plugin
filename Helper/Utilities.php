@@ -96,7 +96,7 @@ class Utilities
     /**
      * Add the gateway payment information to an order
      */
-    public function setPaymentData($order, $data)
+    public function setPaymentData($order, $data, $source = null)
     {
         // Get the payment info instance
         $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();
@@ -106,6 +106,20 @@ class Utilities
             'transaction_info',
             (array) $data
         );
+
+        if ($source['methodId'] == 'checkoutcom_apm') {
+            // Add apm to payment information
+            $paymentInfo->setAdditionalInformation(
+                'method_id',
+                $source['source']
+            );
+        } else if ($source['methodId'] == 'checkoutcom_vault') {
+            // Add vault public hash to payment information
+            $paymentInfo->setAdditionalInformation(
+                'public_hash',
+                $source['publicHash']
+            );
+        }
 
         return $order;
     }

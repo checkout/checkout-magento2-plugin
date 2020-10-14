@@ -208,7 +208,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                             $paymentDetails = $api->getPaymentDetails($response->id);
 
                             // Add the payment info to the order
-                            $order = $this->utilities->setPaymentData($order, $response);
+                            $order = $this->utilities->setPaymentData($order, $response, $this->data);
 
                             // Save the order
                             $order->save();

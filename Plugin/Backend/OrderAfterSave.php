@@ -60,6 +60,9 @@ class OrderAfterSave
 
     /**
      * Create transactions for the order.
+     * @param OrderRepositoryInterface $orderRepository
+     * @param $order
+     * @return mixed
      */
     public function afterSave(OrderRepositoryInterface $orderRepository, $order)
     {

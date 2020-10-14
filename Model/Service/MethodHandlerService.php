@@ -28,15 +28,80 @@ class MethodHandlerService
     public $instances;
 
     /**
+     * @var OrderHandlerService
+     */
+    public $orderHandler;
+
+    /**
+     * @var Session
+     */
+    public $customerSession;
+
+    /**
      * @param MethodHandlerService constructor
      */
-    public function __construct($instances)
-    {
+    public function __construct(
+        $instances,
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \Magento\Customer\Model\Session $customerSession
+    ) {
         $this->instances = $instances;
+        $this->orderHandler = $orderHandler;
+        $this->customerSession = $customerSession;
     }
 
     public function get($methodId)
     {
         return $this->instances[$methodId];
+    }
+
+    /**
+     * Retrieves the customers last APM payment source.
+     */
+    public function getPreviousSource()
+    {
+        // Get the customer id (currently logged in user)
+        $customerId = $this->customerSession->getCustomer()->getId();
+        
+        if ($customerId) {
+            // Find the order from increment id
+            $order = $this->orderHandler->getOrder([
+                'customer_id' => $customerId
+            ]);
+
+            if ($this->orderHandler->isOrder($order)) {
+                if ($order->getPayment()->getAdditionalInformation('method_id') != null) {
+                    return $order->getPayment()->getAdditionalInformation('method_id');
+                } else if ($order->getPayment()->getAdditionalInformation('public_hash') != null) {
+                    return $order->getPayment()->getAdditionalInformation('public_hash');
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Retrieves the customers last used payment method.
+     */
+    public function getPreviousMethod()
+    {
+        // Get the customer id (currently logged in user)
+        $customerId = $this->customerSession->getCustomer()->getId();
+        
+        if ($customerId) {
+            // Find the order from increment id
+            $order = $this->orderHandler->getOrder([
+                'customer_id' => $customerId
+            ]);
+
+            if ($this->orderHandler->isOrder($order)) {
+                if ($order->getPayment()->getMethod() !== null) {
+                    return $order->getPayment()->getMethod();    
+                }
+            }
+        }
+        
+        return null;
     }
 }
