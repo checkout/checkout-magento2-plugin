@@ -45,7 +45,7 @@ class OrderAfterInvoice
      * 
      * @param BaseCommandInterface $subject
      * @param Closure $proceed
-     * @param OrderPaymentInterface $proceed
+     * @param OrderPaymentInterface $payment
      * @param $amount
      * @param OrderInterface $order
      */
@@ -71,6 +71,12 @@ class OrderAfterInvoice
         return $result;
     }
 
+    /**
+     * Check if the order status needs updating.
+     * 
+     * @param $order
+     * @return bool
+     */
     public function statusNeedsCorrection($order)
     {
         $currentState = $order->getState();
