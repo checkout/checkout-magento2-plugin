@@ -650,9 +650,4 @@ class TransactionHandlerService
         return isset($payload->data->risk->flagged)
             && $payload->data->risk->flagged == true;
     }
-
-    public function needsTransaction($payload)
-    {
-        return isset(self::$transactionMapper[$payload->type]);
-    }
 }

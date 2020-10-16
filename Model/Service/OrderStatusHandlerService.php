@@ -72,16 +72,16 @@ class OrderStatusHandlerService
     /**
      * Set the current order status.
      */
-    public function setOrderStatus($order, $payload)
+    public function setOrderStatus($order, $webhook)
     {
         // Initialise state, status & order
         $this->state = null;
         $this->status = null;
         $this->order = $order;
         
-        switch ($payload['event_type']) {
+        switch ($webhook['event_type']) {
             case 'payment_approved':
-                $this->approved($payload);
+                $this->approved($webhook);
                 break;
             case 'payment_captured':
                 $this->captured();
@@ -90,10 +90,10 @@ class OrderStatusHandlerService
                 $this->void();
                 break;
             case 'payment_refunded':
-                $this->refund($payload);
+                $this->refund($webhook);
                 break;
             case 'payment_capture_pending':
-                $this->capturePending($payload);
+                $this->capturePending($webhook);
                 break;
             case 'payment_expired':
                 $this->paymentExpired();
@@ -156,7 +156,8 @@ class OrderStatusHandlerService
     /**
      * Set the order status for a payment_approved webhook.
      */
-    public function approved($payload) {
+    public function approved($webhook) {
+        $payload = json_decode($webhook['event_data']);
         if ($this->order->getState() !== 'processing') {
             $this->status = $this->config->getValue('order_status_authorized');
         }
