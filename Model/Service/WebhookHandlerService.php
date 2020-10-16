@@ -35,6 +35,11 @@ class WebhookHandlerService
     public $orderHandler;
 
     /**
+     * @var OrderStatusHandlerService
+     */
+    public $orderStatusHandler;
+
+    /**
      * @var TransactionHandlerService
      */
     public $transactionHandler;
@@ -53,6 +58,8 @@ class WebhookHandlerService
      * @var Logger
      */
     public $logger;
+    
+    public $order;
 
     /**
      * WebhookHandlerService constructor
@@ -60,6 +67,7 @@ class WebhookHandlerService
     public function __construct(
         \Magento\Sales\Model\Order $orderModel,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
@@ -67,6 +75,7 @@ class WebhookHandlerService
     ) {
         $this->orderModel = $orderModel;
         $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
         $this->transactionHandler = $transactionHandler;
         $this->webhookEntityFactory = $webhookEntityFactory;
         $this->config = $config;
@@ -79,22 +88,26 @@ class WebhookHandlerService
     public function processSingleWebhook($order, $payload)
     {
         if (isset($payload->data->action_id)) {
+            // store the order in a class 
+            $this->order = $order;
+            
             // Save the payload
             $this->saveEntity($payload, $order);
 
             // Get the saved webhook
             $webhooks = $this->loadEntities([
-                'order_id' => $order->getId(),
+                'order_id' => $this->order->getId(),
                 'action_id' => $payload->data->action_id
             ]);
 
-            // Handle the transaction for the webhook
-            $this->webhooksToTransactions(
-                $order,
-                $webhooks
-            );
-
-
+            // Check if order is on hold
+            if ($order->getState() != 'holded') {
+                // Handle the order status for the webhook
+                $this->webhooksToProcess(
+                    $order,
+                    $webhooks
+                );
+            }
         } else {
             // Handle missing action ID
             $msg = __(
@@ -115,20 +128,24 @@ class WebhookHandlerService
             'order_id' => $order->getId()
         ]);
 
-        // Create the transactions
-        $this->webhooksToTransactions(
+        $this->webhooksToProcess(
             $order,
             $webhooks
         );
     }
 
     /**
-     * Generate transactions from webhooks.
+     * Generate transactions and set order status from webhooks.
      */
-    public function webhooksToTransactions($order, $webhooks = [])
+    public function webhooksToProcess($order, $webhooks = [])
     {
         if (!empty($webhooks)) {
             foreach ($webhooks as $webhook) {
+                $this->orderStatusHandler->setOrderStatus(
+                    $order,
+                    $webhook
+                );
+                
                 $this->transactionHandler->handleTransaction(
                     $order,
                     $webhook
