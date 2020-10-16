@@ -61,8 +61,9 @@ class RefundInvoice
     /**
      * Refund the order online.
      */
-    public function beforeRefund(
+    public function aroundRefund(
         \Magento\Sales\Model\Order\RefundAdapter\Interceptor $subject,
+        \Closure $proceed,
         \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo,
         \Magento\Sales\Api\Data\OrderInterface $order,
         $isOnline
@@ -92,7 +93,8 @@ class RefundInvoice
             // Process the refund
             $response = $api->refundOrder(
                 $payment,
-                $amount
+                $amount,
+                true
             );
 
             if (!$api->isValidResponse($response)) {
@@ -104,13 +106,17 @@ class RefundInvoice
             if ($this->statusNeedsCorrection($order)) {
                 $order->setStatus($this->config->getValue('order_status_refunded'));
             }
-
+            
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
             $payment->save();
+            
+            $result = $proceed($creditmemo, $order, $isOnline);
+        } else {
+            $result = $proceed($creditmemo, $order, $isOnline);
         }
-        
-        return [$creditmemo, $order, $isOnline];
+
+        return $result;
     }
 
     public function statusNeedsCorrection($order)
@@ -120,6 +126,7 @@ class RefundInvoice
         $desiredStatus = $this->config->getValue('order_status_refunded');
         
         return $currentState == Order::STATE_PROCESSING
-            && $currentStatus !== $desiredStatus;
+            && $currentStatus !== $desiredStatus
+            && $currentStatus !== 'closed';
     }
 }
