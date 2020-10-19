@@ -313,9 +313,7 @@ class QuoteHandlerService
      */
     public function getQuoteValue()
     {
-        $this->getQuote()->collectTotals();
-        $this->quoteRepository->save($this->getQuote());
-        return $this->getQuote()->getGrandTotal();
+        return $this->getQuote()->collectTotals()->getGrandTotal();
     }
 
     /**
