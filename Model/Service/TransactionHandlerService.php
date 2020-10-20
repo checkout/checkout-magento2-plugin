@@ -237,7 +237,7 @@ class TransactionHandlerService
     /**
      * Get the transactions for an order.
      */
-    public function hasTransaction($order, $transactionId)
+    public function hasTransaction($order, $transactionId = null)
     {
         $transaction = $this->getTransactions(
             $order->getId(),

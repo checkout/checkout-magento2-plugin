@@ -40,8 +40,9 @@
                 <order_status_flagged>fraud</order_status_flagged>
                 <order_action_failed_payment>cancel</order_action_failed_payment>
                 <payment_action>authorize_capture</payment_action>
-                <capture_time>0.003</capture_time>
-                <min_capture_time>0.003</min_capture_time>
+                <capture_time>0</capture_time>
+                <min_capture_time>30</min_capture_time>
+                <processing_time>15</processing_time>
                 <dynamic_descriptor_enabled>0</dynamic_descriptor_enabled>
                 <descriptor_name></descriptor_name>
                 <descriptor_city></descriptor_city>
