@@ -98,7 +98,8 @@ class WebhookHandlerService
 
             // Get the saved webhook
             $webhooks = $this->loadWebhookEntities([
-                'order_id' => $order->getId()
+                'order_id' => $order->getId(),
+                'processed' => false
             ]);
 
             if ($this->hasAuth($webhooks, $payload)) {
@@ -177,7 +178,22 @@ class WebhookHandlerService
             }
         }
 
-        return $this->collection->getData();
+        $webhookEntitiesArr = $this->collection->getData();
+        return $this->sortWebhooks($webhookEntitiesArr);
+    }
+
+    public function sortWebhooks($webhooks) {
+        $sortedWebhooks = [];
+        if (!empty($webhooks)) {
+            foreach ($webhooks as $webhook) {
+                if ($webhook['event_type'] == 'payment_approved'){
+                    array_unshift($sortedWebhooks, $webhook);
+                } else {
+                    array_push($sortedWebhooks, $webhook);
+                }
+            }
+        }
+        return $sortedWebhooks;
     }
 
     /**
