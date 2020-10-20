@@ -50,16 +50,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $jsonFactory;
 
     /**
-     * @var Product
-     */
-    public $productModel;
-
-    /**
-     * @var ShippingConfiguration
-     */
-    private $shippingConfiguration;
-
-    /**
      * @var Address
      */
     public $addressManager;
@@ -102,8 +92,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Catalog\Model\Product $productModel,
-        \Magento\InstantPurchase\Model\QuoteManagement\ShippingConfiguration $shippingConfiguration,
         \Magento\Customer\Model\Address $addressManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
@@ -117,8 +105,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->messageManager = $messageManager;
         $this->storeManager = $storeManager;
         $this->jsonFactory = $jsonFactory;
-        $this->productModel = $productModel;
-        $this->shippingConfiguration = $shippingConfiguration;
         $this->addressManager = $addressManager;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;

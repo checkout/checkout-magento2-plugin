@@ -34,11 +34,6 @@ class OrderAfterSave
     public $webhookHandler;
 
     /**
-     * @var TransactionHandlerService
-     */
-    public $transactionHandler;
-
-    /**
      * @var Config
      */
     public $config;
@@ -49,12 +44,10 @@ class OrderAfterSave
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->webhookHandler = $webhookHandler;
-        $this->transactionHandler = $transactionHandler;
         $this->config = $config;
     }
 

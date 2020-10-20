@@ -69,11 +69,6 @@ class V2 extends \Magento\Framework\App\Action\Action
     public $apiHandler;
 
     /*
-     * @var CardHandlerService
-     */
-    public $cardHandler;
-
-    /*
      * @var PaymentErrorHandlerService
      */
     public $paymentErrorHandler;
@@ -122,7 +117,6 @@ class V2 extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
@@ -136,7 +130,6 @@ class V2 extends \Magento\Framework\App\Action\Action
         $this->orderStatusHandler = $orderStatusHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
-        $this->cardHandler = $cardHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
         $this->utilities = $utilities;
     }
