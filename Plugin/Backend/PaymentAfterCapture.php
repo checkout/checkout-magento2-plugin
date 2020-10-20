@@ -53,12 +53,12 @@ class PaymentAfterCapture
 
     /**
      * Create transactions for the order.
-     * @param AbstractMethod $method
+     * @param $method
      * @param $amount
      * @return AbstractMethod
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function afterCapture(AbstractMethod $method, $amount)
+    public function afterCapture($method, $amount)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the payment

@@ -53,12 +53,12 @@ class PaymentAfterRefund
 
     /**
      * Create transactions for the order.
-     * @param AbstractMethod $method
+     * @param $method
      * @param $amount
      * @return AbstractMethod
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function afterRefund(AbstractMethod $method, $amount)
+    public function afterRefund($method, $amount)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the payment

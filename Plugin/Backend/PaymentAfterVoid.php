@@ -53,11 +53,11 @@ class PaymentAfterVoid
 
     /**
      * Create transactions for the order.
-     * @param AbstractMethod $method
+     * @param $method
      * @return AbstractMethod
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function afterVoid(AbstractMethod $method)
+    public function afterVoid($method)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the payment
