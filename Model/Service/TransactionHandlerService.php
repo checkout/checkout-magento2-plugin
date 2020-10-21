@@ -491,13 +491,21 @@ class TransactionHandlerService
             $creditMemo = $this->creditMemoFactory->createByOrder($this->order);
             $creditMemo->setBaseGrandTotal($amount/$this->order->getBaseToOrderRate());
             $creditMemo->setGrandTotal($amount);
+            
+            // Update the order history comment status
+            $orderComments = $this->order->getStatusHistories();
+            $orderComment = array_pop($orderComments);
 
             // Refund
             $this->creditMemoService->refund($creditMemo);
 
+            $status = $this->order->getStatus() == 'closed' ? 'closed' : $this->config->getValue('order_status_refunded');
+            $orderComment->setData('status', $status)->save();
+
             // Remove the core core duplicate credit memo comment
-            foreach ($this->order->getAllStatusHistory() as $orderComment) {
-                $condition1 = $orderComment->getStatus() == 'closed';
+            $orderComments = $this->order->getAllStatusHistory();
+            foreach ($orderComments as $orderComment) {
+                $condition1 = $orderComment->getStatus() == $status;
                 $condition2 = $orderComment->getEntityName() == 'creditmemo';
                 if ($condition1 && $condition2) {
                     $orderComment->delete();
