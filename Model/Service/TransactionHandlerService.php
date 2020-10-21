@@ -620,14 +620,14 @@ class TransactionHandlerService
     /**
      * Check if a refund is partial.
      */
-    public function isPartialRefund($amount, $isRefund, $order = null)
+    public function isPartialRefund($amount, $isRefund, $order = null, $processed = false)
     {
         if ($order) {
             $this->order = $order;
         }
         
         // Get the total refunded
-        $totalRefunded = $this->order->getTotalRefunded() + $amount;
+        $totalRefunded = $processed ? $this->order->getTotalRefunded() : $this->order->getTotalRefunded() + $amount;
 
         // Check the partial refund case
         $isPartialRefund = $this->order->getGrandTotal() > ($totalRefunded);
