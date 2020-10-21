@@ -258,10 +258,11 @@ class Config
      */
     public function getCaptureTime()
     {
-        // Get the capture time from config
-        $captureTime = (int) $this->getValue('capture_time');
+        // Get the capture time from config and covert from hours to seconds
+        $captureTime = (float) $this->getValue('capture_time');
+        $captureTime *= 3600;
 
-        // Force capture time to a minimum of 30 seconds
+        // Force capture time to a minimum of 36 seconds
         $min = (int) $this->getValue('min_capture_time');
         $captureTime = $captureTime >= $min ? $captureTime : $min;
 

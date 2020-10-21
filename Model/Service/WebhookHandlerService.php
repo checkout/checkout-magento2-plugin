@@ -129,7 +129,8 @@ class WebhookHandlerService
     {
         // Get the webhook entities
         $webhooks = $this->loadWebhookEntities([
-            'order_id' => $order->getId()
+            'order_id' => $order->getId(),
+            'processed' => false
         ]);
 
         // Create the transactions
