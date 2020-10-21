@@ -98,8 +98,7 @@ class WebhookHandlerService
 
             // Get the saved webhook
             $webhooks = $this->loadWebhookEntities([
-                'order_id' => $order->getId(),
-                'processed' => false
+                'order_id' => $order->getId()
             ]);
 
             if ($this->hasAuth($webhooks, $payload)) {
@@ -129,8 +128,7 @@ class WebhookHandlerService
     {
         // Get the webhook entities
         $webhooks = $this->loadWebhookEntities([
-            'order_id' => $order->getId(),
-            'processed' => false
+            'order_id' => $order->getId()
         ]);
 
         // Create the transactions
