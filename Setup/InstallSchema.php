@@ -51,6 +51,9 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
             ->addColumn('action_id', Table::TYPE_TEXT, 255, ['nullable' => false])
             ->addColumn('payment_id', Table::TYPE_TEXT, 255, ['nullable' => false])
             ->addColumn('order_id', Table::TYPE_INTEGER, null, ['nullable' => false])
+            ->addColumn('received_at', Table::TYPE_DATETIME, null, ['nullable' => false, 'comment' => 'Received At'])
+            ->addColumn('processed_at', Table::TYPE_DATETIME, null, ['nullable' => false, 'comment' => 'Processed At'])
+            ->addColumn('processed', Table::TYPE_BOOLEAN, null, ['nullable' => false, 'default' => false, 'comment' => 'Processed'])
             ->addIndex($installer->getIdxName('checkoutcom_webhooks_index', ['id']), ['id'])
             ->setComment('Webhooks table');
 

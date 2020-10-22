@@ -17,6 +17,7 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity\Collection;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
 /**
@@ -58,11 +59,22 @@ class WebhookHandlerService
      * @var Logger
      */
     public $logger;
-    
+
     public $order;
 
     /**
+     * @var Collection
+     */
+    public $collection;
+
+    /**
      * WebhookHandlerService constructor
+     * @param \Magento\Sales\Model\Order $orderModel
+     * @param OrderHandlerService $orderHandler
+     * @param TransactionHandlerService $transactionHandler
+     * @param \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory
+     * @param \CheckoutCom\Magento2\Gateway\Config\Config $config
+     * @param \CheckoutCom\Magento2\Helper\Logger $logger
      */
     public function __construct(
         \Magento\Sales\Model\Order $orderModel,
@@ -84,29 +96,33 @@ class WebhookHandlerService
 
     /**
      * Process a single incoming webhook.
+     * @param $order
+     * @param $payload
      */
     public function processSingleWebhook($order, $payload)
     {
         if (isset($payload->data->action_id)) {
-            // store the order in a class 
+            // store the order in a class
             $this->order = $order;
-            
+
             // Save the payload
-            $this->saveEntity($payload, $order);
+            $this->saveWebhookEntity($payload, $order);
 
             // Get the saved webhook
-            $webhooks = $this->loadEntities([
-                'order_id' => $this->order->getId(),
-                'action_id' => $payload->data->action_id
+            $webhooks = $this->loadWebhookEntities([
+                'order_id' => $order->getId()
             ]);
 
-            // Check if order is on hold
-            if ($order->getState() != 'holded') {
-                // Handle the order status for the webhook
-                $this->webhooksToProcess(
-                    $order,
-                    $webhooks
-                );
+            if ($this->hasAuth($webhooks, $payload)) {
+                // Check if order is on hold
+                if ($order->getState() != 'holded') {
+                    // Handle the order status for the webhook
+                    $this->webhooksToProcess(
+                        $order,
+                        $webhooks
+                    );
+                    $this->setProcessedTime($webhooks);
+                }
             }
         } else {
             // Handle missing action ID
@@ -120,11 +136,12 @@ class WebhookHandlerService
 
     /**
      * Process all webhooks for an order.
+     * @param $order
      */
     public function processAllWebhooks($order)
     {
         // Get the webhook entities
-        $webhooks = $this->loadEntities([
+        $webhooks = $this->loadWebhookEntities([
             'order_id' => $order->getId()
         ]);
 
@@ -132,51 +149,76 @@ class WebhookHandlerService
             $order,
             $webhooks
         );
+
+        $this->setProcessedTime($webhooks);
     }
 
     /**
+     * @param $order
+     * @param array $webhooks
      * Generate transactions and set order status from webhooks.
      */
     public function webhooksToProcess($order, $webhooks = [])
     {
         if (!empty($webhooks)) {
             foreach ($webhooks as $webhook) {
-                $this->orderStatusHandler->setOrderStatus(
-                    $order,
-                    $webhook
-                );
-                
-                $this->transactionHandler->handleTransaction(
-                    $order,
-                    $webhook
-                );
+                if (!$webhook['processed']) {
+                    $this->orderStatusHandler->setOrderStatus(
+                        $order,
+                        $webhook
+                    );
+
+                    $this->transactionHandler->handleTransaction(
+                        $order,
+                        $webhook
+                    );
+                }
             }
         }
     }
 
     /**
      * Load a webhook collection.
+     * @param array $fields
+     * @return array
      */
-    public function loadEntities($fields = [])
+    public function loadWebhookEntities($fields = [])
     {
         // Create the collection
         $entities = $this->webhookEntityFactory->create();
-        $collection = $entities->getCollection();
+        $this->collection = $entities->getCollection();
 
         // Add the field filters if needed
         if (!empty($fields)) {
             foreach ($fields as $key => $value) {
-                $collection->addFieldToFilter($key, $value);
+                $this->collection->addFieldToFilter($key, $value);
             }
         }
 
-        return $collection->getData();
+        $webhookEntitiesArr = $this->collection->getData();
+        return $this->sortWebhooks($webhookEntitiesArr);
+    }
+
+    public function sortWebhooks($webhooks) {
+        $sortedWebhooks = [];
+        if (!empty($webhooks)) {
+            foreach ($webhooks as $webhook) {
+                if ($webhook['event_type'] == 'payment_approved'){
+                    array_unshift($sortedWebhooks, $webhook);
+                } else {
+                    array_push($sortedWebhooks, $webhook);
+                }
+            }
+        }
+        return $sortedWebhooks;
     }
 
     /**
      * Save the incoming webhook.
+     * @param $payload
+     * @param $order
      */
-    public function saveEntity($payload, $order)
+    public function saveWebhookEntity($payload, $order)
     {
         // Save the webhook
         if ($this->orderHandler->isOrder($order)) {
@@ -193,16 +235,35 @@ class WebhookHandlerService
             $entity->setData('action_id', $payload->data->action_id);
             $entity->setData('payment_id', $payload->data->id);
             $entity->setData('order_id', $order->getId());
+            $entity->setReceivedTime();
+            $entity->setData('processed', false);
 
             // Save the entity
             $entity->save();
         }
     }
 
+    public function setProcessedTime($webhooks)
+    {
+        // Get a webhook entity instance
+        if (!empty($webhooks)) {
+            foreach ($webhooks as $webhook) {
+                if (!$webhook['processed']) {
+                    $entity = $this->webhookEntityFactory->create();
+                    $entity->load($webhook['id']);
+                    $entity->setProcessed(true);
+                    $entity->setProcessedTime();
+                    $entity->save();
+                }
+            }
+        }
+    }
+
     /**
      * Delete a webhook by id.
+     * @param $id
      */
-    public function deleteEntity($id)
+    public function deleteWebhookEntity($id)
     {
         // Create the collection
         $entity = $this->webhookEntityFactory->create();
@@ -210,21 +271,35 @@ class WebhookHandlerService
         $entity->delete();
     }
 
+    public function hasAuth($webhooks, $payload)
+    {
+        if ($payload->type === 'payment_captured') {
+            foreach ($webhooks as $webhook) {
+                if ($webhook['event_type'] == 'payment_approved' || $webhook['event_type'] == 'payment_capture_pending') {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Clean the webhooks table.
      */
     public function clean()
     {
-        $webhooks = $this->loadEntities();
+        $webhooks = $this->loadWebhookEntities();
 
         foreach ($webhooks as $webhook) {
             $payload = json_decode($webhook['event_data'], true);
             $webhookDate = strtotime($payload['created_on']);
             $date = strtotime('-1 day');
-            if ($webhookDate > $date) {
+            if ($webhookDate > $date && $webhook['processed']) {
                 continue;
-            } 
-            
+            }
+
             if (isset($this->transactionHandler::$transactionMapper[$webhook['event_type']])) {
                 $order = $this->orderHandler->getOrder([
                     'entity_id' => $webhook['order_id']
@@ -252,7 +327,7 @@ class WebhookHandlerService
                             );
 
                             if ($childCapture || $childVoid) {
-                                $this->deleteEntity($webhook['id']);
+                                $this->deleteWebhookEntity($webhook['id']);
                             }
                             break;
 
@@ -263,7 +338,7 @@ class WebhookHandlerService
                             );
 
                             if ($parentAuth || $paymentMethod == 'checkoutcom_apm') {
-                                $this->deleteEntity($webhook['id']);
+                                $this->deleteWebhookEntity($webhook['id']);
                             }
                             break;
 
@@ -274,7 +349,7 @@ class WebhookHandlerService
                             );
 
                             if ($parentAuth) {
-                                $this->deleteEntity($webhook['id']);
+                                $this->deleteWebhookEntity($webhook['id']);
                             }
                             break;
 
@@ -290,13 +365,13 @@ class WebhookHandlerService
                             );
 
                             if ($parentAuth && $parentCapture->getIsClosed() == '1') {
-                                $this->deleteEntity($webhook['id']);
+                                $this->deleteWebhookEntity($webhook['id']);
                             }
                             break;
                     }
                 }
             } else {
-                $this->deleteEntity($webhook['id']);
+                $this->deleteWebhookEntity($webhook['id']);
             }
         }
     }
