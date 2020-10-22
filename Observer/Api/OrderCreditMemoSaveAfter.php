@@ -19,9 +19,9 @@ namespace CheckoutCom\Magento2\Observer\Api;
 use Magento\Framework\Event\Observer;
 
 /**
- * Class OrderCreditmemoSaveAfter.
+ * Class OrderCreditMemoSaveAfter.
  */
-class OrderCreditmemoSaveAfter implements \Magento\Framework\Event\ObserverInterface
+class OrderCreditMemoSaveAfter implements \Magento\Framework\Event\ObserverInterface
 {
     /**
      * @var Session
@@ -61,8 +61,8 @@ class OrderCreditmemoSaveAfter implements \Magento\Framework\Event\ObserverInter
      */
     public function execute(Observer $observer)
     {
-        $creditmemo = $observer->getEvent()->getCreditmemo();
-        $order = $creditmemo->getOrder();
+        $creditMemo = $observer->getEvent()->getCreditmemo();
+        $order = $creditMemo->getOrder();
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
         // Check if payment method is checkout.com

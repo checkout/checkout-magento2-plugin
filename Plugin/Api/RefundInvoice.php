@@ -64,7 +64,7 @@ class RefundInvoice
     public function aroundRefund(
         \Magento\Sales\Model\Order\RefundAdapter\Interceptor $subject,
         \Closure $proceed,
-        \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo,
+        \Magento\Sales\Api\Data\CreditmemoInterface $creditMemo,
         \Magento\Sales\Api\Data\OrderInterface $order,
         $isOnline
     ) {
@@ -82,7 +82,7 @@ class RefundInvoice
         if (in_array($methodId, $this->config->getMethodsList()) && $isOnline) {
             // Get the payment and amount to refund
             $payment = $order->getPayment();
-            $amount = $creditmemo->getBaseGrandTotal();
+            $amount = $creditMemo->getBaseGrandTotal();
 
             if (!$method->canRefund()) {
                 throw new \Magento\Framework\Exception\LocalizedException(
@@ -111,9 +111,9 @@ class RefundInvoice
             $payment->setTransactionId($response->action_id);
             $payment->save();
             
-            $result = $proceed($creditmemo, $order, $isOnline);
+            $result = $proceed($creditMemo, $order, $isOnline);
         } else {
-            $result = $proceed($creditmemo, $order, $isOnline);
+            $result = $proceed($creditMemo, $order, $isOnline);
         }
 
         return $result;

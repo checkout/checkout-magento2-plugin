@@ -502,7 +502,7 @@ class TransactionHandlerService
             $status = $this->order->getStatus() == 'closed' ? 'closed' : $this->config->getValue('order_status_refunded');
             $orderComment->setData('status', $status)->save();
 
-            // Remove the core core duplicate credit memo comment
+            // Remove the core credit memo comment
             $orderComments = $this->order->getAllStatusHistory();
             foreach ($orderComments as $orderComment) {
                 $condition1 = $orderComment->getStatus() == $status;

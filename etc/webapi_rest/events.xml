@@ -16,7 +16,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <!-- Order after refund event -->
     <event name="sales_order_creditmemo_save_after">
-        <observer name="cko_order_creditmemo_save_after" instance="CheckoutCom\Magento2\Observer\Api\OrderCreditmemoSaveAfter" />
+        <observer name="cko_order_creditmemo_save_after" instance="CheckoutCom\Magento2\Observer\Api\OrderCreditMemoSaveAfter" />
     </event>
 
 </config>
