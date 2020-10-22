@@ -491,13 +491,21 @@ class TransactionHandlerService
             $creditMemo = $this->creditMemoFactory->createByOrder($this->order);
             $creditMemo->setBaseGrandTotal($amount/$this->order->getBaseToOrderRate());
             $creditMemo->setGrandTotal($amount);
+            
+            // Update the order history comment status
+            $orderComments = $this->order->getStatusHistories();
+            $orderComment = array_pop($orderComments);
 
             // Refund
             $this->creditMemoService->refund($creditMemo);
 
-            // Remove the core core duplicate credit memo comment
-            foreach ($this->order->getAllStatusHistory() as $orderComment) {
-                $condition1 = $orderComment->getStatus() == 'closed';
+            $status = $this->order->getStatus() == 'closed' ? 'closed' : $this->config->getValue('order_status_refunded');
+            $orderComment->setData('status', $status)->save();
+
+            // Remove the core credit memo comment
+            $orderComments = $this->order->getAllStatusHistory();
+            foreach ($orderComments as $orderComment) {
+                $condition1 = $orderComment->getStatus() == $status;
                 $condition2 = $orderComment->getEntityName() == 'creditmemo';
                 if ($condition1 && $condition2) {
                     $orderComment->delete();
@@ -612,14 +620,14 @@ class TransactionHandlerService
     /**
      * Check if a refund is partial.
      */
-    public function isPartialRefund($amount, $isRefund, $order = null)
+    public function isPartialRefund($amount, $isRefund, $order = null, $processed = false)
     {
         if ($order) {
             $this->order = $order;
         }
         
         // Get the total refunded
-        $totalRefunded = $this->order->getTotalRefunded() + $amount;
+        $totalRefunded = $processed ? $this->order->getTotalRefunded() : $this->order->getTotalRefunded() + $amount;
 
         // Check the partial refund case
         $isPartialRefund = $this->order->getGrandTotal() > ($totalRefunded);
