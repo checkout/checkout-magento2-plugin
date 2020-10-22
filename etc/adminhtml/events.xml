@@ -24,4 +24,9 @@
         <observer name="cko_order_payment_void" instance="CheckoutCom\Magento2\Observer\Backend\OrderAfterVoid" />
     </event>
 
+    <!-- Order after refund event -->
+    <event name="sales_order_payment_refund">
+        <observer name="cko_order_payment_refund" instance="CheckoutCom\Magento2\Observer\Backend\OrderAfterRefund" />
+    </event>
+
 </config>

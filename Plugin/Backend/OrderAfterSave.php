@@ -39,16 +39,23 @@ class OrderAfterSave
     public $config;
 
     /**
+     * @var RequestInterface
+     */
+    public $request;
+
+    /**
      * OrderAfterSave constructor.
      */
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \Magento\Framework\App\RequestInterface $request
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->webhookHandler = $webhookHandler;
         $this->config = $config;
+        $this->request = $request;
     }
 
     /**
@@ -64,11 +71,25 @@ class OrderAfterSave
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
             // Process the webhooks if order is not on hold
-            if (in_array($methodId, $this->config->getMethodsList()) && $order->getState() != 'holded') {
+            if (in_array($methodId, $this->config->getMethodsList())
+                && $order->getState() != 'holded'
+                && $this->needsWebhookProcessing()) {
                 $this->webhookHandler->processAllWebhooks($order);
             }
         }
 
         return $order;
+    }
+
+    /**
+     * Don't process the stored webhooks after admin refund.
+     *
+     * @return bool
+     */
+    public function needsWebhookProcessing()
+    {
+        $params = $this->request->getParams();
+
+        return isset($params['creditmemo']) ? false : true;
     }
 }

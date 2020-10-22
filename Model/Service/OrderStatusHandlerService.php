@@ -207,9 +207,10 @@ class OrderStatusHandlerService
         $isPartialRefund = $this->transactionHandler->isPartialRefund(
             $amount,
             true,
-            $this->order
+            $this->order,
+            true
         );
-        $this->status = $isPartialRefund ? 'order_status_captured' : 'order_status_refunded';
+        $this->status = $isPartialRefund ? 'order_status_refunded' : 'closed';
         $this->status = $this->config->getValue($this->status);
         $this->state = $isPartialRefund ? $this->orderModel::STATE_PROCESSING : $this->orderModel::STATE_CLOSED;
     }

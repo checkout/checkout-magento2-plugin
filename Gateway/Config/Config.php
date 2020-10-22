@@ -258,17 +258,23 @@ class Config
      */
     public function getCaptureTime()
     {
-        // Get the capture time from config
+        // Get the capture time from config and covert from hours to seconds
         $captureTime = (float) $this->getValue('capture_time');
+        $captureTime *= 3600;
 
         // Force capture time to a minimum of 36 seconds
-        $min = (float) $this->getValue('min_capture_time');
+        $min = (int) $this->getValue('min_capture_time');
         $captureTime = $captureTime >= $min ? $captureTime : $min;
+
+        // Allow time for script execution
+        $processingTime = (int) $this->getValue('processing_time');
+
+        $captureTime += $processingTime;
 
         // Check the setting
         if ($this->needsAutoCapture()) {
             // Calculate the capture date
-            $captureDate = time() + $captureTime*60*60;
+            $captureDate = time() + $captureTime;
             return $this->utilities->formatDate($captureDate);
         }
 
