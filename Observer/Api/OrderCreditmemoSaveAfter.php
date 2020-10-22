@@ -67,29 +67,20 @@ class OrderCreditmemoSaveAfter implements \Magento\Framework\Event\ObserverInter
 
         // Check if payment method is checkout.com
         if (in_array($methodId, $this->config->getMethodsList())) {
-            if ($this->statusNeedsCorrection($order)) {
-                // Update the order status
-                $order->setStatus($this->config->getValue('order_status_refunded'));
+            $status = $order->getStatus() == 'closed' ? 'closed' : $this->config->getValue('order_status_refunded');
 
-                // Get the latest order status comment
-                $orderComments = $order->getStatusHistories();
-                $orderComment = array_pop($orderComments);
+            // Update the order status
+            $order->setStatus($status);
 
-                // Update the order history comment status
-                $orderComment->setData('status', $this->config->getValue('order_status_refunded'))->save();
-                $order->save();
-            }
+            // Get the latest order status comment
+            $orderComments = $order->getStatusHistories();
+            $orderComment = array_pop($orderComments);
+
+            // Update the order history comment status
+            $orderComment->setData('status', $status)->save();
+            $order->save();
         }
 
         return $this;
-    }
-
-    public function statusNeedsCorrection($order)
-    {
-        $currentStatus = $order->getStatus();
-        $desiredStatus = $this->config->getValue('order_status_refunded');
-
-        return $currentStatus !== $desiredStatus
-            && $currentStatus !== 'closed';
     }
 }
