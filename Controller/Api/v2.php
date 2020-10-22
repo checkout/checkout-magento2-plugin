@@ -54,6 +54,11 @@ class V2 extends \Magento\Framework\App\Action\Action
     public $orderHandler;
 
     /**
+     * @var OrderStatusHandlerService
+     */
+    public $orderStatusHandler;
+
+    /**
      * @var MethodHandlerService
      */
     public $methodHandler;
@@ -114,6 +119,7 @@ class V2 extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
@@ -127,6 +133,7 @@ class V2 extends \Magento\Framework\App\Action\Action
         $this->quoteHandler = $quoteHandler;
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->cardHandler = $cardHandler;
@@ -149,7 +156,7 @@ class V2 extends \Magento\Framework\App\Action\Action
                 if (!$this->result['success']) {
                     $this->result['error_message'][] = __('The order could not be created.');
                     // Handle order on failed payment
-                    $this->orderHandler->handleFailedPayment($this->order);
+                    $this->orderStatusHandler->handleFailedPayment($this->order);
                 }
             }
         } else {

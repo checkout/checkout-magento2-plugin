@@ -163,41 +163,7 @@ class OrderHandlerService
         }
     }
 
-    /**
-     * Sets status/deletes order based on user config if payment fails
-     */
-    public function handleFailedPayment($order, $webhook = false)
-    {
-        $failedWebhooks = [
-            "payment_declined",
-            "payment_expired",
-            "payment_cancelled",
-            "payment_voided",
-            "payment_capture_declined"
-        ];
-
-        if (!$webhook || in_array($webhook, $failedWebhooks)) {
-            // Get store code
-            $storeCode = $this->storeManager->getStore()->getCode();
-            // Get config for failed payments
-            $config = $this->config->getValue('order_action_failed_payment', null, $storeCode);
-
-            if ($config == 'cancel' || $config == 'delete') {
-                if ($order->getState() !== 'canceled') {
-                    $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();
-                    $order->setStatus($this->config->getValue('order_status_canceled'));
-                    $order->setState($this->orderModel::STATE_CANCELED);
-                    $order->save();
-                }
-
-                if ($config == 'delete') {
-                    $this->registry->register('isSecureArea', true);
-                    $this->orderRepository->delete($order);
-                    $this->registry->unregister('isSecureArea');
-                }
-            }
-        }
-    }
+    
 
     /**
      * Checks if an order exists and is valid
