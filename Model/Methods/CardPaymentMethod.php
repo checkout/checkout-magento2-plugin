@@ -364,7 +364,7 @@ class CardPaymentMethod extends AbstractMethod
             }
 
             // Process the capture request
-            $response = $api->captureOrder($payment, $amount, true);
+            $response = $api->captureOrder($payment, $amount);
             if (!$api->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('The capture request could not be processed.')
@@ -455,7 +455,7 @@ class CardPaymentMethod extends AbstractMethod
             }
 
             // Process the refund request
-            $response = $api->refundOrder($payment, $amount, true);
+            $response = $api->refundOrder($payment, $amount);
 
             if (!$api->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(
