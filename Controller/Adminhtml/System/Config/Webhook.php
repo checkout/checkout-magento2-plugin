@@ -52,11 +52,6 @@ class Webhook extends Action
     public $cacheTypeList;
 
     /**
-     * @var JsonFactory
-     */
-    public $jsonFactory;
-
-    /**
      * @var Logger
      */
     public $logger;

@@ -67,19 +67,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $jsonFactory;
 
     /**
-     * @var Session
-     */
-    public $checkoutSession;
-
-    /**
      * @var Utilities
      */
     public $utilities;
-
-    /**
-     * @var Config
-     */
-    public $config;
 
     /**
      * @var Logger
@@ -87,19 +77,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $logger;
 
     /**
-     * @var String
-     */
-    public $methodId;
-
-    /**
      * @var array
      */
     public $data;
-
-    /**
-     * @var String
-     */
-    public $cardToken;
 
     /**
      * @var Quote
@@ -118,7 +98,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
@@ -127,7 +106,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
@@ -141,9 +119,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
-        $this->checkoutSession = $checkoutSession;
         $this->utilities = $utilities;
-        $this->config = $config;
         $this->logger = $logger;
     }
 

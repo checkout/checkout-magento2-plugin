@@ -24,9 +24,9 @@ class ConfigAlternativePayments implements \Magento\Framework\Data\OptionSourceI
 {
 
     /**
-     * @var Config
+     * @var Loader
      */
-    public $config;
+    public $configLoader;
 
     /**
      * ConfigAlternativePayments constructor

@@ -44,11 +44,6 @@ class Callback extends \Magento\Framework\App\Action\Action
     public $orderHandler;
 
     /**
-     * @var QuoteHandlerService
-     */
-    public $quoteHandler;
-
-    /**
      * @var ShopperHandlerService
      */
     public $shopperHandler;
@@ -92,7 +87,6 @@ class Callback extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
@@ -106,7 +100,6 @@ class Callback extends \Magento\Framework\App\Action\Action
         $this->scopeConfig = $scopeConfig;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
-        $this->quoteHandler = $quoteHandler;
         $this->shopperHandler = $shopperHandler;
         $this->webhookHandler = $webhookHandler;
         $this->vaultHandler = $vaultHandler;

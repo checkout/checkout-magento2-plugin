@@ -29,21 +29,6 @@ class VersionHandlerService
     public $config;
 
     /**
-     * @var Utilities
-     */
-    public $utilities;
-
-    /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
-     * @var HttpHandler
-     */
-    public $httpHandler;
-
-    /**
      * @var Curl
      */
     public $curl;
@@ -63,18 +48,12 @@ class VersionHandlerService
      */
     public function __construct(
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger,
-        \Checkout\Library\HttpHandler $httpHandler,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\Module\Dir\Reader $moduleDirReader,
         \Magento\Framework\Filesystem\Driver\File $fileDriver,
         \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->config = $config;
-        $this->utilities = $utilities;
-        $this->logger = $logger;
-        $this->httpHandler = $httpHandler;
         $this->curl = $curl;
         $this->moduleDirReader = $moduleDirReader;
         $this->fileDriver = $fileDriver;
