@@ -91,11 +91,7 @@ class RefundInvoice
             }
 
             // Process the refund
-            $response = $api->refundOrder(
-                $payment,
-                $amount,
-                true
-            );
+            $response = $api->refundOrder($payment, $amount);
 
             if (!$api->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(

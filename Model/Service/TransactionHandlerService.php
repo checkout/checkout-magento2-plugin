@@ -161,13 +161,9 @@ class TransactionHandlerService
 
         // Check to see if webhook is supported
         if (isset(self::$transactionMapper[$webhook['event_type']])) {
-            $isBackendAction = false;
-            if (isset($payload->data->metadata->isBackendAction)) {
-                $isBackendAction = $payload->data->metadata->isBackendAction;
-            }
 
             // Create a transaction if needed
-            if (!$this->transaction && !$isBackendAction) {
+            if (!$this->transaction) {
                 // Build the transaction
                 $this->buildTransaction(
                     $webhook,
@@ -192,7 +188,7 @@ class TransactionHandlerService
                 $this->transaction->save();
                 $this->payment->save();
                 $this->order->save();
-            } elseif ($this->transaction) {
+            } else {
                 // Update the existing transaction state
                 $this->transaction->setIsClosed(
                     $this->setTransactionState($amount)
