@@ -90,9 +90,19 @@
                             <config_path>settings/checkoutcom_configuration/descriptor_city</config_path>
                         </field>
 
+                        <field id="webhooks_webhook_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Enable Webhook Table</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>settings/checkoutcom_configuration/webhooks_table_enabled</config_path>
+                            <comment>This enables webhooks to be logged to a dedicated table to improve traceability for when webhook events are received. </comment>
+                        </field>
+
                         <field id="webhooks_table_clean_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Enable Webhook Table Clean</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <depends>
+                                <field id="webhooks_table_enabled">1</field>
+                            </depends>
                             <config_path>settings/checkoutcom_configuration/webhooks_table_clean</config_path>
                         </field>
 
