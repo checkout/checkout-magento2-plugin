@@ -32,7 +32,7 @@ class OrderAfterInvoice
     public $config;
 
     /**
-     * PaymentAfterVoid constructor.
+     * OrderAfterInvoice constructor.
      */
     public function __construct(
         \CheckoutCom\Magento2\Gateway\Config\Config $config

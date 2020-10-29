@@ -64,11 +64,6 @@ class AfterPlaceOrder
         if (in_array($methodId, $this->config->getMethodsList())) {
             // Disable the email sending
             $order->setCanSendNewEmailFlag(false);
-
-            // Process the webhooks for frontend orders
-            if (!$this->backendAuthSession->isLoggedIn()) {
-                $this->webhookHandler->processAllWebhooks($order);
-            }
         }
 
         return $order;
