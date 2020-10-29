@@ -17,7 +17,6 @@
     <!-- Order save before event -->
     <event name="sales_order_save_before">
         <observer name="cko_order_save_before" instance="CheckoutCom\Magento2\Observer\Backend\MotoPaymentRequest" />
-        <observer name="cko_order_save_before" instance="CheckoutCom\Magento2\Observer\Backend\OrderSaveBefore" />
     </event>
     
     <!-- Order after void event -->
