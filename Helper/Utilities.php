@@ -23,37 +23,6 @@ namespace CheckoutCom\Magento2\Helper;
 class Utilities
 {
     /**
-     * @var UrlInterface
-     */
-    public $urlInterface;
-
-    /**
-     * @var Dir
-     */
-    public $moduleDirReader;
-
-    /**
-     * @var File
-     */
-    public $fileDriver;
-
-    /**
-     * @var Session
-     */
-    public $customerSession;
-
-    /**
-     * Utilities constructor.
-     */
-    public function __construct(
-        \Magento\Framework\UrlInterface $urlInterface,
-        \Magento\Customer\Model\Session $customerSession
-    ) {
-        $this->urlInterface = $urlInterface;
-        $this->customerSession = $customerSession;
-    }
-
-    /**
      * Convert a date string to ISO8601 format.
      */
     public function formatDate($timestamp)

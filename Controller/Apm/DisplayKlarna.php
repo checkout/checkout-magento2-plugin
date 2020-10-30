@@ -38,19 +38,9 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
     public $storeManager;
 
     /**
-     * @var PageFactory
-     */
-    public $pageFactory;
-
-    /**
      * @var JsonFactory
      */
     public $jsonFactory;
-
-    /**
-     * @var Config
-     */
-    public $config;
 
     /**
      * @var CheckoutApi
@@ -101,7 +91,6 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
@@ -113,7 +102,6 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
 
         $this->storeManager = $storeManager;
         $this->jsonFactory = $jsonFactory;
-        $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
         $this->shopperHandler = $shopperHandler;

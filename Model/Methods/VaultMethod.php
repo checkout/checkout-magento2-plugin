@@ -129,11 +129,6 @@ class VaultMethod extends AbstractMethod
     public $messageManager;
 
     /**
-     * @var Moto
-     */
-    public $motoBlock;
-
-    /**
      * @var Session
      */
     public $backendAuthSession;
@@ -150,17 +145,6 @@ class VaultMethod extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\ObjectManagerInterface $objectManager,
-        \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
-        \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Checkout\Helper\Data $checkoutData,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \Magento\Quote\Api\CartManagementInterface $quoteManagement,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Magento\Backend\Model\Session\Quote $sessionQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
@@ -170,7 +154,6 @@ class VaultMethod extends AbstractMethod
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \Magento\Framework\Message\ManagerInterface $messageManager,
-        \CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto $motoBlock,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -188,18 +171,7 @@ class VaultMethod extends AbstractMethod
             $data
         );
 
-        $this->urlBuilder         = $urlBuilder;
         $this->backendAuthSession = $backendAuthSession;
-        $this->_objectManager     = $objectManager;
-        $this->invoiceSender      = $invoiceSender;
-        $this->transactionFactory = $transactionFactory;
-        $this->customerSession    = $customerSession;
-        $this->checkoutSession    = $checkoutSession;
-        $this->checkoutData       = $checkoutData;
-        $this->quoteRepository    = $quoteRepository;
-        $this->quoteManagement    = $quoteManagement;
-        $this->orderSender        = $orderSender;
-        $this->sessionQuote       = $sessionQuote;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->utilities          = $utilities;
@@ -209,7 +181,6 @@ class VaultMethod extends AbstractMethod
         $this->quoteHandler       = $quoteHandler;
         $this->ckoLogger          = $ckoLogger;
         $this->messageManager     = $messageManager;
-        $this->motoBlock          = $motoBlock;
     }
 
     /**

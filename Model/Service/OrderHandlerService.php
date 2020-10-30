@@ -32,16 +32,6 @@ class OrderHandlerService
     public $checkoutSession;
 
     /**
-     * @var Session
-     */
-    public $customerSession;
-
-    /**
-     * @var OrderInterface
-     */
-    public $orderInterface;
-
-    /**
      * @var QuoteManagement
      */
     public $quoteManagement;
@@ -82,37 +72,20 @@ class OrderHandlerService
     public $paymentData;
 
     /**
-     * @var Registry
-     */
-    public $registry;
-
-    /**
-     * @var Order
-     */
-    public $orderModel;
-    /**
      * OrderHandler constructor
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Sales\Api\Data\OrderInterface $orderInterface,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Magento\Sales\Model\Order $orderModel,
-        \Magento\Framework\Registry $registry,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->checkoutSession = $checkoutSession;
-        $this->customerSession = $customerSession;
-        $this->orderInterface  = $orderInterface;
         $this->quoteManagement = $quoteManagement;
         $this->orderRepository = $orderRepository;
-        $this->orderModel = $orderModel;
-        $this->registry = $registry;
         $this->searchBuilder = $searchBuilder;
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;

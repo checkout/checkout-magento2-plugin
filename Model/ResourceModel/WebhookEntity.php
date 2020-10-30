@@ -22,24 +22,16 @@ namespace CheckoutCom\Magento2\Model\ResourceModel;
 class WebhookEntity extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime
-     */
-    public $dateStamp;
-
-    /**
      * Construct
      *
      * @param \Magento\Framework\Model\ResourceModel\Db\Context $context
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateStamp
      * @param string|null $resourcePrefix
      */
     public function __construct(
         \Magento\Framework\Model\ResourceModel\Db\Context $context,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateStamp,
         $resourcePrefix = null
     ) {
         parent::__construct($context, $resourcePrefix);
-        $this->dateStamp = $dateStamp;
     }
 
     /**

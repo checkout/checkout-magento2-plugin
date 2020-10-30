@@ -26,11 +26,6 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 class WebhookHandlerService
 {
     /**
-     * @var orderModel
-     */
-    public $orderModel;
-
-    /**
      * @var OrderHandlerService
      */
     public $orderHandler;
@@ -49,11 +44,6 @@ class WebhookHandlerService
      * @var WebhookEntityFactory
      */
     public $webhookEntityFactory;
-
-    /**
-     * @var Config
-     */
-    public $config;
 
     /**
      * @var Logger
@@ -77,20 +67,16 @@ class WebhookHandlerService
      * @param \CheckoutCom\Magento2\Helper\Logger $logger
      */
     public function __construct(
-        \Magento\Sales\Model\Order $orderModel,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
-        $this->orderModel = $orderModel;
         $this->orderHandler = $orderHandler;
         $this->orderStatusHandler = $orderStatusHandler;
         $this->transactionHandler = $transactionHandler;
         $this->webhookEntityFactory = $webhookEntityFactory;
-        $this->config = $config;
         $this->logger = $logger;
     }
 

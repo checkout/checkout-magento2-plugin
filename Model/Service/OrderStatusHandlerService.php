@@ -32,6 +32,21 @@ class OrderStatusHandlerService
     public $transactionHandler;
 
     /**
+     * @var Order
+     */
+    public $orderModel;
+
+    /**
+     * @var Config
+     */
+    public $config;
+
+    /**
+     * @var OrderHandlerService
+     */
+    public $orderHandler;
+
+    /**
      * @var State
      */
     public $state;
@@ -45,11 +60,6 @@ class OrderStatusHandlerService
      * @var Order
      */
     public $order;
-
-    /**
-     * @var Payload
-     */
-    public $payload;
     
     /**
      * OrderStatusHandlerService constructor.

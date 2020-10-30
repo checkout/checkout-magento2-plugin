@@ -35,11 +35,6 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $storeManager;
 
     /**
-     * @var Config
-     */
-    public $config;
-
-    /**
      * @var CheckoutApi
      */
     public $apiHandler;
@@ -60,11 +55,6 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $vaultHandler;
 
     /**
-     * @var ShopperHandlerService
-     */
-    public $shopperHandler;
-
-    /**
      * @var Utilities
      */
     public $utilities;
@@ -81,12 +71,10 @@ class Verify extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
     )
@@ -95,12 +83,10 @@ class Verify extends \Magento\Framework\App\Action\Action
 
         $this->messageManager = $messageManager;
         $this->storeManager = $storeManager;
-        $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->quoteHandler = $quoteHandler;
         $this->vaultHandler = $vaultHandler;
-        $this->shopperHandler = $shopperHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
     }
