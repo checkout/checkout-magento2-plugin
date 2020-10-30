@@ -90,7 +90,7 @@
                             <config_path>settings/checkoutcom_configuration/descriptor_city</config_path>
                         </field>
 
-                        <field id="webhooks_webhook_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="webhooks_table_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Enable Webhook Table</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                             <config_path>settings/checkoutcom_configuration/webhooks_table_enabled</config_path>
