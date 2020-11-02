@@ -23,37 +23,6 @@ namespace CheckoutCom\Magento2\Helper;
 class Utilities
 {
     /**
-     * @var UrlInterface
-     */
-    public $urlInterface;
-
-    /**
-     * @var Dir
-     */
-    public $moduleDirReader;
-
-    /**
-     * @var File
-     */
-    public $fileDriver;
-
-    /**
-     * @var Session
-     */
-    public $customerSession;
-
-    /**
-     * Utilities constructor.
-     */
-    public function __construct(
-        \Magento\Framework\UrlInterface $urlInterface,
-        \Magento\Customer\Model\Session $customerSession
-    ) {
-        $this->urlInterface = $urlInterface;
-        $this->customerSession = $customerSession;
-    }
-
-    /**
      * Convert a date string to ISO8601 format.
      */
     public function formatDate($timestamp)
@@ -96,7 +65,7 @@ class Utilities
     /**
      * Add the gateway payment information to an order
      */
-    public function setPaymentData($order, $data)
+    public function setPaymentData($order, $data, $source = null)
     {
         // Get the payment info instance
         $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();
@@ -106,6 +75,20 @@ class Utilities
             'transaction_info',
             (array) $data
         );
+
+        if ($source['methodId'] == 'checkoutcom_apm') {
+            // Add apm to payment information
+            $paymentInfo->setAdditionalInformation(
+                'method_id',
+                $source['source']
+            );
+        } else if ($source['methodId'] == 'checkoutcom_vault') {
+            // Add vault public hash to payment information
+            $paymentInfo->setAdditionalInformation(
+                'public_hash',
+                $source['publicHash']
+            );
+        }
 
         return $order;
     }

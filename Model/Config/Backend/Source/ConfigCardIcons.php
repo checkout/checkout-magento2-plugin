@@ -22,7 +22,7 @@ use CheckoutCom\Magento2\Model\Service\CardHandlerService;
 /**
  * Class ConfigCardIcons
  */
-class ConfigCardIcons implements \Magento\Framework\Option\ArrayInterface
+class ConfigCardIcons implements \Magento\Framework\Data\OptionSourceInterface
 {
     /**
      * Options getter

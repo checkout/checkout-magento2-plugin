@@ -58,11 +58,6 @@ class Loader
     public $encryptor;
 
     /**
-     * @var Reader
-     */
-    public $directoryReader;
-
-    /**
      * @var Array
      */
     public $xmlData;
@@ -75,15 +70,13 @@ class Loader
         \Magento\Framework\Xml\Parser $xmlParser,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Encryption\EncryptorInterface $encryptor,
-        \Magento\Framework\Module\Dir\Reader $directoryReader
+        \Magento\Framework\Encryption\EncryptorInterface $encryptor
     ) {
         $this->moduleDirReader = $moduleDirReader;
         $this->xmlParser = $xmlParser;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->encryptor = $encryptor;
-        $this->directoryReader = $directoryReader;
     }
 
     /**
@@ -258,7 +251,7 @@ class Loader
      * @param string $storeId
      * @return string
      */
-    public function getValue($key, $methodId = null, $storeCode = null)
+    public function getValue($key, $methodId = null, $storeCode = null, $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
         // Prepare the path
         $path = ($methodId)
@@ -268,7 +261,7 @@ class Loader
         // Get field value in database
         $value = $this->scopeConfig->getValue(
             $path,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $scope,
             $storeCode
         );
 

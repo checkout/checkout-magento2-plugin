@@ -275,9 +275,12 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
             'single'
         );
 
+        // Build the customer
+        $customer = $this->apiHandler->createCustomer($this->quote);
+        
         try {
             // Build and add the source
-            $source = new Sepa($address, $data);
+            $source = new Sepa($address, $data, $customer);
             $sepa = $api->checkoutApi
                 ->sources()
                 ->add($source);

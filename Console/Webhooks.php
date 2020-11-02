@@ -104,7 +104,7 @@ class Webhooks extends Command
         $startDate = $input->getOption(self::START_DATE);
         $endDate = $input->getOption(self::END_DATE);
 
-        $webhooks = $this->webhookHandler->loadEntities();
+        $webhooks = $this->webhookHandler->loadWebhookEntities();
 
         foreach ($webhooks as $webhook) {
             $payload = json_decode($webhook['event_data'], true);
@@ -166,7 +166,7 @@ class Webhooks extends Command
 
                             if ($childCapture || $childVoid) {
                                 $this->outputWebhook($output, $webhook);
-                                $this->webhookHandler->deleteEntity($webhook['id']);
+                                $this->webhookHandler->deleteWebhookEntity($webhook['id']);
                                 $deleted++;
                             }
                             break;
@@ -179,7 +179,7 @@ class Webhooks extends Command
 
                             if ($parentAuth || $paymentMethod == 'checkoutcom_apm') {
                                 $this->outputWebhook($output, $webhook);
-                                $this->webhookHandler->deleteEntity($webhook['id']);
+                                $this->webhookHandler->deleteWebhookEntity($webhook['id']);
                                 $deleted++;
                             }
                             break;
@@ -192,7 +192,7 @@ class Webhooks extends Command
 
                             if ($parentAuth) {
                                 $this->outputWebhook($output, $webhook);
-                                $this->webhookHandler->deleteEntity($webhook['id']);
+                                $this->webhookHandler->deleteWebhookEntity($webhook['id']);
                                 $deleted++;
                             }
                             break;
@@ -210,7 +210,7 @@ class Webhooks extends Command
 
                             if ($parentAuth && $parentCapture) {
                                 $this->outputWebhook($output, $webhook);
-                                $this->webhookHandler->deleteEntity($webhook['id']);
+                                $this->webhookHandler->deleteWebhookEntity($webhook['id']);
                                 $deleted++;
                             }
                             break;
@@ -218,7 +218,7 @@ class Webhooks extends Command
                 }
             } else {
                 $this->outputWebhook($output, $webhook);
-                $this->webhookHandler->deleteEntity($webhook['id']);
+                $this->webhookHandler->deleteWebhookEntity($webhook['id']);
                 $deleted++;
             }
         }

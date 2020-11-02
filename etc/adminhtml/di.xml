@@ -40,20 +40,10 @@
     <type name="Magento\Sales\Api\OrderRepositoryInterface">
         <plugin name="cko_order_after_save" type="CheckoutCom\Magento2\Plugin\Backend\OrderAfterSave" />
     </type>
-    
-    <!-- After capture payment plugin -->
-    <type name="Magento\Payment\Model\Method\AbstractMethod">
-        <plugin name="cko_payment_after_capture" type="CheckoutCom\Magento2\Plugin\Backend\PaymentAfterCapture" />
-    </type>
 
-    <!-- After void payment plugin -->
-    <type name="Magento\Payment\Model\Method\AbstractMethod">
-        <plugin name="cko_payment_after_void" type="CheckoutCom\Magento2\Plugin\Backend\PaymentAfterVoid" />
-    </type>
-
-    <!-- After refund payment plugin -->
-    <type name="Magento\Payment\Model\Method\AbstractMethod">
-        <plugin name="cko_payment_after_refund" type="CheckoutCom\Magento2\Plugin\Backend\PaymentAfterRefund" />
+    <!-- After admin capture plugin -->
+    <type name="Magento\Sales\Model\Order\Payment\State\CommandInterface">
+        <plugin name="cko_after_capture" type="CheckoutCom\Magento2\Plugin\Backend\OrderAfterInvoice"/>
     </type>
 
 </config>

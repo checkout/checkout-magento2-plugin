@@ -42,6 +42,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $orderHandler;
 
     /**
+     * @var OrderStatusHandlerService
+     */
+    public $orderStatusHandler;
+
+    /**
      * @var MethodHandlerService
      */
     public $methodHandler;
@@ -62,19 +67,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $jsonFactory;
 
     /**
-     * @var Session
-     */
-    public $checkoutSession;
-
-    /**
      * @var Utilities
      */
     public $utilities;
-
-    /**
-     * @var Config
-     */
-    public $config;
 
     /**
      * @var Logger
@@ -82,19 +77,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $logger;
 
     /**
-     * @var String
-     */
-    public $methodId;
-
-    /**
      * @var array
      */
     public $data;
-
-    /**
-     * @var String
-     */
-    public $cardToken;
 
     /**
      * @var Quote
@@ -113,15 +98,14 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
@@ -131,12 +115,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->scopeConfig = $scopeConfig;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
-        $this->checkoutSession = $checkoutSession;
         $this->utilities = $utilities;
-        $this->config = $config;
         $this->logger = $logger;
     }
 
@@ -201,7 +184,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                             $paymentDetails = $api->getPaymentDetails($response->id);
 
                             // Add the payment info to the order
-                            $order = $this->utilities->setPaymentData($order, $response);
+                            $order = $this->utilities->setPaymentData($order, $response, $this->data);
 
                             // Save the order
                             $order->save();
@@ -228,7 +211,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                             $this->quoteHandler->restoreQuote($order->getIncrementId());
 
                             // Handle order on failed payment
-                            $this->orderHandler->handleFailedPayment($order);
+                            $this->orderStatusHandler->handleFailedPayment($order);
                         }
                     } else {
                         // Payment failed

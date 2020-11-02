@@ -40,7 +40,7 @@ use \Checkout\Library\Exceptions\CheckoutHttpException;
 /**
  * Class AlternativePaymentMethod
  */
-class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
+class AlternativePaymentMethod extends AbstractMethod
 {
 
     /**
@@ -155,7 +155,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Checkout\Model\Cart $cart,
         \Magento\Framework\UrlInterface $urlBuilder,
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
@@ -196,7 +195,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
         $this->urlBuilder         = $urlBuilder;
         $this->backendAuthSession = $backendAuthSession;
-        $this->cart               = $cart;
         $this->_objectManager     = $objectManager;
         $this->invoiceSender      = $invoiceSender;
         $this->transactionFactory = $transactionFactory;
@@ -299,11 +297,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $payment->reference = $reference;
         $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
         $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-        
-        // Add customer to paypal payment details.
-        if ($method == 'paypal') {
-            $payment->customer = $this->apiHandler->createCustomer($quote);    
-        }
+        $payment->customer = $this->apiHandler->createCustomer($quote);
         $payment->shipping = $this->apiHandler->createShippingAddress($quote);
         $payment->description = __(
             'Payment request from %1',

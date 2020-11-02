@@ -20,13 +20,13 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 /**
  * Class ConfigAlternativePayments
  */
-class ConfigAlternativePayments implements \Magento\Framework\Option\ArrayInterface
+class ConfigAlternativePayments implements \Magento\Framework\Data\OptionSourceInterface
 {
 
     /**
-     * @var Config
+     * @var Loader
      */
-    public $config;
+    public $configLoader;
 
     /**
      * ConfigAlternativePayments constructor

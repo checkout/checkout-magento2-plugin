@@ -54,8 +54,4 @@
     </type>
     <!-- END Command line interface -->
 
-    <!-- After invoice creation plugin -->
-    <type name="Magento\Sales\Model\ResourceModel\Order\Handler\State">
-        <plugin name="cko_after_invoice" type="CheckoutCom\Magento2\Plugin\Backend\OrderAfterInvoice" sortOrder="10" disabled="false"  />
-    </type>
 </config>

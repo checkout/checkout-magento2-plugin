@@ -40,11 +40,6 @@ class InvoiceHandlerService
     public $invoiceModel;
 
     /**
-     * @var Config
-     */
-    public $config;
-
-    /**
      * @var Order
      */
     public $order;
@@ -65,13 +60,11 @@ class InvoiceHandlerService
     public function __construct(
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
-        \Magento\Sales\Model\Order\Invoice $invoiceModel,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \Magento\Sales\Model\Order\Invoice $invoiceModel
     ) {
         $this->invoiceService     = $invoiceService;
         $this->invoiceRepository  = $invoiceRepository;
         $this->invoiceModel       = $invoiceModel;
-        $this->config             = $config;
     }
 
     /**

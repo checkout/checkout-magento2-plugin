@@ -20,7 +20,7 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 /**
  * Class ConfigApplePayNetworks
  */
-class ConfigApplePayNetworks implements \Magento\Framework\Option\ArrayInterface
+class ConfigApplePayNetworks implements \Magento\Framework\Data\OptionSourceInterface
 {
 
     const CARD_VISA = 'visa';

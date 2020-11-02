@@ -85,7 +85,9 @@ div.cko-alternative-form {
 }
 
 #apm-container div[data-role="collapsible"]:focus,
-#apm-container div[data-role="collapsible"]:hover {
+#apm-container div[data-role="collapsible"]:hover,
+#apm-container div[aria-selected="true"]
+{
     background-color:  #f1f1f1;
 }
 

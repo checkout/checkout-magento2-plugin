@@ -66,8 +66,8 @@ define(
                 /**
                  * @return {void}
                  */
-                checkDefaultEnabled: function () {
-                    return Utilities.checkDefaultEnabled(METHOD_ID);
+                checkStoredCard: function () {
+                    return Utilities.checkStoredCard();
                 },
                 
                 /**
@@ -183,6 +183,7 @@ define(
 
                                 // Stop the loader
                                 FullScreenLoader.stopLoader();
+                                self.checkStoredCard();
                             },
                             error: function (request, status, error) {
                                 FullScreenLoader.stopLoader();
@@ -190,6 +191,7 @@ define(
                             }
                         }
                     );
+
                 },
 
                 /**

@@ -20,7 +20,7 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 /**
  * Class ConfigWebhooks
  */
-class ConfigWebhooks implements \Magento\Framework\Option\ArrayInterface
+class ConfigWebhooks implements \Magento\Framework\Data\OptionSourceInterface
 {
     /**
      * Options getter
