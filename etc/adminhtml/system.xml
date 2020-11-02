@@ -110,6 +110,7 @@
                             <label>Clean Webhook Table On</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigWebhooks</source_model>
                             <depends>
+                                <field id="webhooks_table_enabled">1</field>
                                 <field id="webhooks_table_clean_enabled">1</field>
                             </depends>
                             <config_path>settings/checkoutcom_configuration/webhooks_clean_on</config_path>
