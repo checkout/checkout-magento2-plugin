@@ -22,6 +22,7 @@ require([
     "Magento_Checkout/js/action/redirect-on-success",
     "Magento_Checkout/js/model/shipping-service",
     "Magento_Customer/js/model/customer",
+    "Magento_Customer/js/model/authentication-popup",
     "mage/translate",
 ], function (
     $,
@@ -32,6 +33,7 @@ require([
     RedirectOnSuccessAction,
     shippingService,
     Customer,
+    AuthPopup,
     __
 ) {
     $(function () {
@@ -83,32 +85,68 @@ require([
             // Handle the Apple Pay button being pressed
             $(buttonTarget).click(function (evt) {
                 // Build the payment request
-                var paymentRequest = {
-                    currencyCode: Utilities.getQuoteCurrency(),
-                    countryCode: window.checkoutConfig.defaultCountryId,
-                    total: {
-                        label: window.location.host,
-                        amount: Utilities.getQuoteValue(),
-                    },
-                    supportedNetworks: getSupportedNetworks(),
-                    merchantCapabilities: getMerchantCapabilities(),
-                    requiredShippingContactFields: [
-                        "postalAddress",
-                        "name",
-                        "phone",
-                        "email",
-                    ],
-                    requiredBillingContactFields: [
-                        "postalAddress",
-                        "name",
-                        "phone",
-                        "email",
-                    ],
-                    shippingMethods: [],
-                };
+                if (Utilities.getIsVirtual()) {
+                    // User must be signed in for virtual orders
+                    if(!Customer.isLoggedIn()) {
+                        AuthPopup.showModal();
+                        return;
+                    }
+                    
+                    // Prepare the parameters
+                    var runningTotal         = Utilities.getQuoteValue();
 
-                // Start the payment session
-                var session = new ApplePaySession(6, paymentRequest);
+                    // Build the payment request
+                    var paymentRequest = {
+                        currencyCode: Utilities.getQuoteCurrency(),
+                        countryCode: window.checkoutConfig.defaultCountryId,
+                        total: {
+                            label: window.location.host,
+                            amount: runningTotal
+                        },
+                        supportedNetworks: getSupportedNetworks(),
+                        merchantCapabilities: getMerchantCapabilities(),
+                        requiredBillingContactFields: [
+                            "postalAddress",
+                            "name",
+                            "phone",
+                            "email"
+                        ],
+                        requiredShippingContactFields: [
+                            "phone",
+                            "email"
+                        ],
+                    };
+
+                    // Start the payment session
+                    var session = new ApplePaySession(1, paymentRequest);
+                } else {
+                    var paymentRequest = {
+                        currencyCode: Utilities.getQuoteCurrency(),
+                        countryCode: window.checkoutConfig.defaultCountryId,
+                        total: {
+                            label: window.location.host,
+                            amount: Utilities.getQuoteValue(),
+                        },
+                        supportedNetworks: getSupportedNetworks(),
+                        merchantCapabilities: getMerchantCapabilities(),
+                        requiredShippingContactFields: [
+                            "postalAddress",
+                            "name",
+                            "phone",
+                            "email",
+                        ],
+                        requiredBillingContactFields: [
+                            "postalAddress",
+                            "name",
+                            "phone",
+                            "email",
+                        ],
+                        shippingMethods: [],
+                    };
+
+                    // Start the payment session
+                    var session = new ApplePaySession(6, paymentRequest);
+                }
 
                 // Merchant Validation
                 session.onvalidatemerchant = function (event) {
@@ -189,6 +227,12 @@ require([
 
                 // When the payment method is populated/selected
                 session.onpaymentmethodselected = function (event) {
+                    if (Utilities.getIsVirtual()) {
+                        // Update the totals, so they reflect the all total items (shipping, tax...etc)
+                        let totals = getVirtualCartTotals();
+                        totalsBreakdown = totals;
+                    }
+                    
                     session.completePaymentMethodSelection(
                         totalsBreakdown.total,
                         totalsBreakdown.breakdown
@@ -204,10 +248,17 @@ require([
                         source: methodId,
                     };
 
-                    setShippingAndBilling(
-                        event.payment.shippingContact,
-                        event.payment.billingContact
-                    );
+                    if (Utilities.getIsVirtual()) {
+                        setBilling(
+                            event.payment.shippingContact,
+                            event.payment.billingContact
+                        );
+                    } else {
+                        setShippingAndBilling(
+                            event.payment.shippingContact,
+                            event.payment.billingContact
+                        );
+                    }
 
                     // Send the request
                     var promise = sendPaymentRequest(payload);
@@ -368,6 +419,38 @@ require([
          *
          * @return {object}
          */
+        function getVirtualCartTotals() {
+            let totalInfo = getRestData(null, "totals");
+            let breakdown = [];
+            
+            totalInfo.total_segments.forEach(function (totalItem) {
+                // ignore the grand total since it's handled separately
+                if (totalItem.code === "grand_total") return;
+                if (totalItem.value === null) return;
+                // if there is not tax applied, remove it from the line items
+                if (totalItem.code === "tax" && totalItem.value === 0) return;
+                breakdown.push({
+                    type: "final",
+                    label: totalItem.title,
+                    amount: totalItem.value,
+                });
+            });
+
+            return {
+                breakdown: breakdown,
+                total: {
+                    type: "final",
+                    label: window.location.host,
+                    amount: totalInfo.base_grand_total.toFixed(2),
+                },
+            };
+        }
+        
+        /**
+         * Return the cart totals (grand total, and breakdown)
+         *
+         * @return {object}
+         */
         function getCartTotals(address) {
             let countryId = address.countryCode;
             let postCode = address.postalCode;
@@ -409,7 +492,6 @@ require([
                 },
             };
         }
-
         /**
          * Update the cart to include updated shipping/billing methods
          *
@@ -447,6 +529,25 @@ require([
             getRestData(requestBody, "shipping-information");
         }
 
+        function setBilling(shippingDetails, billingDetails) {
+            let requestBody = {
+                address: {
+                    country_id: billingDetails.countryCode.toUpperCase(),
+                    region_code: getAreaCode(billingDetails.postalCode, billingDetails.countryCode),
+                    region_id: 0,
+                    street: billingDetails.addressLines,
+                    postcode: billingDetails.postalCode,
+                    city: billingDetails.locality,
+                    firstname: billingDetails.givenName,
+                    lastname: billingDetails.familyName,
+                    email: shippingDetails.emailAddress,
+                    telephone: shippingDetails.phoneNumber
+                }
+            };
+            
+            getRestData(requestBody, "billing-address");
+        }
+        
         function getRestData(requestBody, m2ApiEndpoint) {
             let restUrl =
                 window.BASE_URL +
@@ -466,10 +567,11 @@ require([
             }
 
             let result = null;
+            let postType = m2ApiEndpoint == 'totals' ? "GET" : "POST";
 
             $.ajax({
                 url: restUrl,
-                type: "POST",
+                type: postType,
                 async: false,
                 dataType: "json",
                 contentType: "application/json",
