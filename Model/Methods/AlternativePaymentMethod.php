@@ -249,8 +249,7 @@ class AlternativePaymentMethod extends AbstractMethod
                     ->payments()->request($payment);
 
                 return $response;
-            }
-            catch (CheckoutHttpException $e) {
+            } catch (CheckoutHttpException $e) {
                 $this->ckoLogger->write($e->getBody());
             }
         }
@@ -792,7 +791,7 @@ class AlternativePaymentMethod extends AbstractMethod
         if (parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code)
             && count($this->config->getApms()) > 0
-            && !$this->backendAuthSession->isLoggedIn() 
+            && !$this->backendAuthSession->isLoggedIn()
             && $enabled;
         }
 

@@ -25,7 +25,7 @@ use \Checkout\Models\Payments\ThreeDs;
 /**
  * Class VaultHandlerService.
  */
-class  VaultHandlerService
+class VaultHandlerService
 {
     /**
      * @var StoreManagerInterface

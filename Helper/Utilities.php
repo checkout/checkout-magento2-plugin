@@ -82,7 +82,7 @@ class Utilities
                 'method_id',
                 $source['source']
             );
-        } else if ($source['methodId'] == 'checkoutcom_vault') {
+        } elseif ($source['methodId'] == 'checkoutcom_vault') {
             // Add vault public hash to payment information
             $paymentInfo->setAdditionalInformation(
                 'public_hash',

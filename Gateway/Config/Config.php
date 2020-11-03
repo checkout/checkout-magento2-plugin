@@ -304,10 +304,11 @@ class Config
         return $this->storeManager->getStore()->getBaseUrl();
     }
 
-    public function getStoreLanguage() {
+    public function getStoreLanguage()
+    {
         $storeId =  $this->storeManager->getStore()->getId();
 
-       return  $this->scopeConfig->getValue('general/locale/code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
+        return  $this->scopeConfig->getValue('general/locale/code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**

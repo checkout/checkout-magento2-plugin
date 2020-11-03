@@ -185,11 +185,12 @@ class WebhookHandlerService
         return $this->sortWebhooks($webhookEntitiesArr);
     }
 
-    public function sortWebhooks($webhooks) {
+    public function sortWebhooks($webhooks)
+    {
         $sortedWebhooks = [];
         if (!empty($webhooks)) {
             foreach ($webhooks as $webhook) {
-                if ($webhook['event_type'] == 'payment_approved'){
+                if ($webhook['event_type'] == 'payment_approved') {
                     array_unshift($sortedWebhooks, $webhook);
                 } else {
                     array_push($sortedWebhooks, $webhook);

@@ -650,7 +650,8 @@ class TransactionHandlerService
      * @return bool
      * Check if payment has been flagged for potential fraud
      */
-    public function isFlagged($payload) {
+    public function isFlagged($payload)
+    {
         return isset($payload->data->risk->flagged)
             && $payload->data->risk->flagged == true;
     }

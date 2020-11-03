@@ -48,7 +48,7 @@ class ConfigDefaultMethod implements \Magento\Framework\Data\OptionSourceInterfa
         // Prepare the default array
         $options = [
             'value' => '',
-            'label' => __('None')     
+            'label' => __('None')
         ];
 
         // Get the available payment methods

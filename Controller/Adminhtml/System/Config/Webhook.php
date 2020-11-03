@@ -147,4 +147,3 @@ class Webhook extends Action
         }
     }
 }
-?>

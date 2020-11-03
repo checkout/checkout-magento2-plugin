@@ -179,8 +179,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
             }
 
             return $response;
-        }
-        catch (CheckoutHttpException $e) {
+        } catch (CheckoutHttpException $e) {
             $this->logger->write($e->getBody());
         }
     }

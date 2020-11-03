@@ -64,7 +64,7 @@ class Webhooks extends Command
     /**
      * Configures the cli name and parameters.
      */
-    protected function configure() 
+    protected function configure()
     {
         $options = [
             new InputOption(
@@ -122,7 +122,7 @@ class Webhooks extends Command
                 }
             } elseif ($startDate || $endDate) {
                 if ($startDate && $endDate) {
-                    if ($startDate >= $webhookDate || $endDate <= $webhookDate ) {
+                    if ($startDate >= $webhookDate || $endDate <= $webhookDate) {
                         continue;
                     }
                 } elseif ($startDate) {
@@ -235,7 +235,8 @@ class Webhooks extends Command
      * @param OutputInterface $output
      * @return OutputInterface
      */
-    protected function outputWebhook(OutputInterface $output, $webhook) {
+    protected function outputWebhook(OutputInterface $output, $webhook)
+    {
         if ($output->isDebug()) {
             $output->writeln('Deleting Webhook: ');
             $output->writeln(var_dump($webhook));

@@ -231,7 +231,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $this->logger->write($message);
         } finally {
             if ($log) {
-                $this->logger->write($message);    
+                $this->logger->write($message);
             }
 
             return $this->jsonFactory->create()->setData([
@@ -267,7 +267,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         );
     }
 
-    public function isEmptyCardToken($paymentData) {
+    public function isEmptyCardToken($paymentData)
+    {
         if ($paymentData['methodId'] == "checkoutcom_card_payment") {
             if (!isset($paymentData['cardToken'])
                 || empty($paymentData['cardToken'])

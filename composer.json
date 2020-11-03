@@ -13,5 +13,9 @@
         "psr-4": {
             "CheckoutCom\\Magento2\\": ""
         }
+    },
+    "require-dev": {
+        "magento/magento-coding-standard": "^5.0",
+        "squizlabs/php_codesniffer": "^3.5"
     }
 }
