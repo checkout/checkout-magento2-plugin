@@ -138,7 +138,7 @@ class WebhookHandlerService
     }
 
 
-    public function processWithSave($payload, $order) {
+    public function processWithSave($order, $payload) {
         // Save the payload
         $this->saveWebhookEntity($payload, $order);
 
@@ -160,7 +160,7 @@ class WebhookHandlerService
         }
     }
 
-    public function processWithoutSave($payload, $order) {
+    public function processWithoutSave($order, $payload) {
         if ($order->getState() == 'holded') {
             // Save the payload only when order is on hold
             $this->saveWebhookEntity($payload, $order);
@@ -168,7 +168,7 @@ class WebhookHandlerService
         $webhooks = [];
         $webhook = [
                 'event_id' => $payload->id,
-                'event_type' => $payload->event_type,
+                'event_type' => $payload->type,
                 'event_data' => json_encode($payload),
                 'action_id' => $payload->data->action_id,
                 'payment_id' => $payload->data->id,
