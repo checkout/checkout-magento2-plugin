@@ -290,15 +290,6 @@ define(
             },
 
             /**
-             * Is Virtual.
-             *
-             * @return {object}  The is virtual status.
-             */
-            getIsVirtual: function () {
-                return Quote.isVirtual();
-            },
-
-            /**
              * @return {string}
              */
             getEmail: function () {
