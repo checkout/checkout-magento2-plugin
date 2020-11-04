@@ -163,7 +163,7 @@ class PaymentErrorHandlerService
             + $fundingErrors
             + $technicalErrors
             + $invalidCardErrors
-            + $blockedCardErrors 
+            + $blockedCardErrors
             + $threeDsErrors;
 
         if (isset($messageMapper[$responseCode])) {

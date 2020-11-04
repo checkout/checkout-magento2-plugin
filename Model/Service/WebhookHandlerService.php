@@ -104,7 +104,7 @@ class WebhookHandlerService
 
             if (!$this->config->getValue('webhooks_table_enabled')) {
                 $this->processWithoutSave($order, $payload);
-            } else  {
+            } else {
                 $this->processWithSave($order, $payload);
             }
 
@@ -137,8 +137,8 @@ class WebhookHandlerService
         $this->setProcessedTime($webhooks);
     }
 
-
-    public function processWithSave($order, $payload) {
+    public function processWithSave($order, $payload)
+    {
         // Save the payload
         $this->saveWebhookEntity($payload, $order);
 
@@ -160,7 +160,8 @@ class WebhookHandlerService
         }
     }
 
-    public function processWithoutSave($order, $payload) {
+    public function processWithoutSave($order, $payload)
+    {
         if ($order->getState() == 'holded') {
             // Save the payload only when order is on hold
             $this->saveWebhookEntity($payload, $order);
@@ -177,16 +178,14 @@ class WebhookHandlerService
                 ];
         $webhooks[] = $webhook;
 
-
-            // Check if order is on hold
-            if ($order->getState() != 'holded') {
-                // Handle the order status for the webhook
-                $this->webhooksToProcess(
-                    $order,
-                    $webhooks
-                );
-            }
-
+        // Check if order is on hold
+        if ($order->getState() != 'holded') {
+            // Handle the order status for the webhook
+            $this->webhooksToProcess(
+                $order,
+                $webhooks
+            );
+        }
     }
 
     /**

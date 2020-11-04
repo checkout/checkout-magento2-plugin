@@ -73,15 +73,12 @@ class VersionHandlerService
                 switch ($i) {
                     case 0:
                         return  'major';
-                        break;
                     case 1:
                         return 'minor';
-                        break;
                     case 2:
                         return 'revision';
-                        break;
                 }
-            };
+            }
         }
     }
 

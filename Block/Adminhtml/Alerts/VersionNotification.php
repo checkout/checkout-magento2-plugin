@@ -67,15 +67,12 @@ class VersionNotification implements \Magento\Framework\Notification\MessageInte
         switch ($releaseType) {
             case 'revision':
                 return self::SEVERITY_MINOR;
-                break;
-
+                
             case 'minor':
                 return self::SEVERITY_MAJOR;
-                break;
 
             case 'major':
                 return self::SEVERITY_CRITICAL;
-                break;
 
             default:
                 return self::SEVERITY_NOTICE;
