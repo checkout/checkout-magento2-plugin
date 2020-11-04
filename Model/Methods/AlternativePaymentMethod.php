@@ -268,8 +268,14 @@ class AlternativePaymentMethod extends AbstractMethod
      *
      * @return     \Checkout\Models\Payments\Payment
      */
-    public function createPayment($source, $amount, string $currency, string $reference, string $methodId, string $method)
-    {
+    public function createPayment(
+        $source,
+        $amount,
+        string $currency,
+        string $reference,
+        string $methodId,
+        string $method
+    ) {
         $payment = null;
 
         // Create payment object

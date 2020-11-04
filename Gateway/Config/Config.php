@@ -123,8 +123,12 @@ class Config
      *
      * @return string
      */
-    public function getValue($field, $methodId = null, $storeCode = null, $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-    {
+    public function getValue(
+        $field,
+        $methodId = null,
+        $storeCode = null,
+        $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    ) {
         return $this->loader->init()->getValue($field, $methodId, $storeCode, $scope);
     }
 
@@ -308,7 +312,11 @@ class Config
     {
         $storeId =  $this->storeManager->getStore()->getId();
 
-        return  $this->scopeConfig->getValue('general/locale/code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
+        return  $this->scopeConfig->getValue(
+            'general/locale/code',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 
     /**

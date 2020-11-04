@@ -132,8 +132,6 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                         // Process the response
                         if ($api->isValidResponse($response)) {
-
-
                             return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                         } else {
                             // Restore the quote

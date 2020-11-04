@@ -220,7 +220,6 @@ class Callback extends \Magento\Framework\App\Action\Action
             ]);
         }
     }
-    
 
     /**
      * Get the request payload.

@@ -159,7 +159,12 @@ class PaymentErrorHandlerService
             __('3DS has expired or authentication failed, please try again')
         );
 
-        $messageMapper = $generalErrors + $fundingErrors + $technicalErrors + $invalidCardErrors + $blockedCardErrors + $threeDsErrors;
+        $messageMapper = $generalErrors
+            + $fundingErrors
+            + $technicalErrors
+            + $invalidCardErrors
+            + $blockedCardErrors 
+            + $threeDsErrors;
 
         if (isset($messageMapper[$responseCode])) {
             return $messageMapper[$responseCode];

@@ -122,7 +122,11 @@ class Display extends \Magento\Framework\App\Action\Action
             $apm['currencies'],
             $this->quoteHandler->getQuoteCurrency()
         ) !== false
-        && $this->countryCurrencyMapping($apm['value'], $billingAddress['country_id'], $this->quoteHandler->getQuoteCurrency());
+        && $this->countryCurrencyMapping(
+            $apm['value'],
+            $billingAddress['country_id'],
+            $this->quoteHandler->getQuoteCurrency()
+        );
     }
 
     /**

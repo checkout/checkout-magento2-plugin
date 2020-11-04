@@ -117,7 +117,10 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
             $events = $api->checkoutApi->events()->types(['version' => '2.0']);
             $eventTypes = $events->list[0]->event_types;
 
-            if (!isset($webhook) || $webhook->event_types != $eventTypes || $headers['authorization'] != $privateSharedKey) {
+            if (!isset($webhook)
+                || $webhook->event_types != $eventTypes
+                || $headers['authorization'] != $privateSharedKey
+            ) {
                 // Webhook not configured
                 $element->setData('value', $callbackUrl);
                 $element->setReadonly('readonly');
@@ -182,7 +185,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
     public function getButtonHtml()
     {
         $button = $this->getLayout()->createBlock(
-            'Magento\Backend\Block\Widget\Button'
+            \Magento\Backend\Block\Widget\Button::class
         )->setData(
             [
                 'id' => 'webhook_button',

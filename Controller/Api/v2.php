@@ -219,12 +219,17 @@ class V2 extends \Magento\Framework\App\Action\Action
             } else {
                 // Payment failed
                 if (isset($response->response_code)) {
-                    $this->result['error_message'][] = $this->paymentErrorHandler->getErrorMessage($response->response_code);
+                    $this->result['error_message'][] = $this->paymentErrorHandler->getErrorMessage(
+                        $response->response_code
+                    );
                 }
 
                 //  Token invalid/expired
                 if (method_exists($response, 'getErrors')) {
-                    $this->result['error_message'] = array_merge($this->result['error_message'], $response->getErrors());
+                    $this->result['error_message'] = array_merge(
+                        $this->result['error_message'],
+                        $response->getErrors()
+                    );
                 }
             }
 
@@ -331,7 +336,7 @@ class V2 extends \Magento\Framework\App\Action\Action
         $isValid = true;
 
         if (isset($this->data->payment_token)) {
-            if (gettype($this->data->payment_token) !== 'string') {
+            if (!is_string($this->data->payment_token)) {
                 $this->result['error_message'][] = __('Payment token provided is not a string');
                 $isValid = false;
             } elseif ($this->data->payment_token == '') {
@@ -344,7 +349,7 @@ class V2 extends \Magento\Framework\App\Action\Action
         }
 
         if (isset($this->data->quote_id)) {
-            if (gettype($this->data->quote_id) === 'integer' && $this->data->quote_id < 1) {
+            if (is_integer($this->data->quote_id) && $this->data->quote_id < 1) {
                 $this->result['error_message'][] = __('Quote ID provided must be a positive integer');
                 $isValid = false;
             }
@@ -360,7 +365,7 @@ class V2 extends \Magento\Framework\App\Action\Action
             }
 
             if (isset($this->data->success_url)) {
-                if (gettype($this->data->success_url) !== 'string') {
+                if (!is_string($this->data->success_url)) {
                     $this->result['error_message'][] = __('Success URL provided is not a string');
                     $isValid = false;
                 } elseif ($this->data->success_url == '') {
@@ -370,7 +375,7 @@ class V2 extends \Magento\Framework\App\Action\Action
             }
 
             if (isset($this->data->failure_url)) {
-                if (gettype($this->data->failure_url) !== 'string') {
+                if (!is_string($this->data->failure_url)) {
                     $this->result['error_message'][] = __('Failure URL provided is not a string');
                     $isValid = false;
                 } elseif ($this->data->failure_url == '') {

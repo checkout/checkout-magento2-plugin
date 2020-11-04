@@ -30,7 +30,6 @@ use Magento\Directory\Helper\Data as DirectoryHelper;
 /**
  * Payment method abstract model
  *
- * @api
  * @SuppressWarnings(PHPMD.ExcessivePublicCount)
  * @SuppressWarnings(PHPMD.TooManyFields)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)

@@ -262,7 +262,9 @@ class WebhookHandlerService
     {
         if ($payload->type === 'payment_captured') {
             foreach ($webhooks as $webhook) {
-                if ($webhook['event_type'] == 'payment_approved' || $webhook['event_type'] == 'payment_capture_pending') {
+                if ($webhook['event_type'] == 'payment_approved'
+                    || $webhook['event_type'] == 'payment_capture_pending') {
+                    
                     return true;
                 }
             }
