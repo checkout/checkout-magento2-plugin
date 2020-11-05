@@ -357,6 +357,17 @@
                         </requires>
                     </field>
 
+                    <field id="enabled_on_checkout" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Apple Pay on Checkout Page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_apple_pay/enabled_on_checkout</config_path>
+                        <requires>
+                            <field id="processing_certificate"/>
+                            <field id="merchant_id_certificate"/>
+                            <field id="merchant_id"/>
+                        </requires>
+                    </field>
+                    
                     <field id="enabled_on_cart" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Apple Pay on Cart Page</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
