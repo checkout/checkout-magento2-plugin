@@ -171,7 +171,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
      */
     public function getAjaxUrl()
     {
-        return $this->getUrl('checkoutcom_magento2/system_config/webhook');
+        return $this->getUrl('cko/system_config/webhook');
     }
 
     /**

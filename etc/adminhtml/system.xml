@@ -571,6 +571,21 @@
                         <config_path>payment/checkoutcom_moto/sort_order</config_path>
                     </field>
                 </group>
+
+                <group id="checkoutcom_logs" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Log File Reader</label>
+                    <comment>This section will show a preview containing the last 50 lines of each log file. To view more use the button below each preview.</comment>
+                    
+                    <field id="checkout_log" type="textarea" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>checkoutcom_magento2.log</label>
+                        <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\LogFiles</frontend_model>
+                    </field>
+
+                    <field id="exception_log" type="textarea" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>exception.log</label>
+                        <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\LogFiles</frontend_model>
+                    </field>
+                </group>
             </group>
         </section>
     </system>
