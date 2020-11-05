@@ -42,7 +42,7 @@ class OrderAfterInvoice
 
     /**
      * Sets the correct order status for orders captured from the hub.
-     * 
+     *
      * @param BaseCommandInterface $subject
      * @param Closure $proceed
      * @param OrderPaymentInterface $payment
@@ -73,7 +73,7 @@ class OrderAfterInvoice
 
     /**
      * Check if the order status needs updating.
-     * 
+     *
      * @param $order
      * @return bool
      */

@@ -123,11 +123,15 @@ class Fail extends \Magento\Framework\App\Action\Action
 
                 $errorMessage = null;
                 if (isset($response->actions[0]['response_code'])) {
-                    $errorMessage = $this->paymentErrorHandlerService->getErrorMessage($response->actions[0]['response_code']);
+                    $errorMessage = $this->paymentErrorHandlerService->getErrorMessage(
+                        $response->actions[0]['response_code']
+                    );
                 }
 
                 // Display the message
-                $this->messageManager->addErrorMessage($errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.'));
+                $this->messageManager->addErrorMessage(
+                    $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')
+                );
 
                 // Return to the cart
                 return $this->_redirect('checkout/cart', ['_secure' => true]);

@@ -122,7 +122,11 @@ class Display extends \Magento\Framework\App\Action\Action
             $apm['currencies'],
             $this->quoteHandler->getQuoteCurrency()
         ) !== false
-        && $this->countryCurrencyMapping($apm['value'], $billingAddress['country_id'], $this->quoteHandler->getQuoteCurrency());
+        && $this->countryCurrencyMapping(
+            $apm['value'],
+            $billingAddress['country_id'],
+            $this->quoteHandler->getQuoteCurrency()
+        );
     }
 
     /**
@@ -136,13 +140,13 @@ class Display extends \Magento\Framework\App\Action\Action
     public function countryCurrencyMapping($apmValue, $billingCountry, $currency)
     {
         if ($apmValue == 'poli') {
-            if (($billingCountry == 'AU' && $currency == 'AUD') 
+            if (($billingCountry == 'AU' && $currency == 'AUD')
                 || ($billingCountry == 'NZ' && $currency == 'NZD')
             ) {
                 return true;
             }
             return false;
-        } else{
+        } else {
             return true;
         }
     }

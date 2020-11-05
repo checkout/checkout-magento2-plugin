@@ -132,9 +132,9 @@ define(
 
                     // Clear frames after update billing event
                      $(document).on('click', '.action-update', function () {
-                         if ($('#checkoutcom_card_payment').is(':checked')) {
+                        if ($('#checkoutcom_card_payment').is(':checked')) {
                              Frames.init()
-                         }
+                        }
                      })
                 },
 
@@ -252,7 +252,7 @@ define(
 
                     // Remove the HTML
                     var container = $('#' + this.formId);
-                    if( $('#' + this.formId).html().length > 0 ) {
+                    if ( $('#' + this.formId).html().length > 0 ) {
                         this.formClone = $('#' + this.formId).html();
                     }
                     container.empty();

@@ -64,7 +64,7 @@ class Webhooks extends Command
     /**
      * Configures the cli name and parameters.
      */
-    protected function configure() 
+    protected function configure()
     {
         $options = [
             new InputOption(
@@ -105,6 +105,7 @@ class Webhooks extends Command
         $endDate = $input->getOption(self::END_DATE);
 
         $webhooks = $this->webhookHandler->loadWebhookEntities();
+        $deleted = 0;
 
         foreach ($webhooks as $webhook) {
             $payload = json_decode($webhook['event_data'], true);
@@ -122,7 +123,7 @@ class Webhooks extends Command
                 }
             } elseif ($startDate || $endDate) {
                 if ($startDate && $endDate) {
-                    if ($startDate >= $webhookDate || $endDate <= $webhookDate ) {
+                    if ($startDate >= $webhookDate || $endDate <= $webhookDate) {
                         continue;
                     }
                 } elseif ($startDate) {
@@ -135,8 +136,6 @@ class Webhooks extends Command
                     }
                 }
             }
-
-            $deleted = 0;
 
             if (isset($this->transactionHandler::$transactionMapper[$webhook['event_type']])) {
                 $order = $this->orderHandler->getOrder([
@@ -235,10 +234,11 @@ class Webhooks extends Command
      * @param OutputInterface $output
      * @return OutputInterface
      */
-    protected function outputWebhook(OutputInterface $output, $webhook) {
+    protected function outputWebhook(OutputInterface $output, $webhook)
+    {
         if ($output->isDebug()) {
             $output->writeln('Deleting Webhook: ');
-            $output->writeln(var_dump($webhook));
+            $output->writeln(print_r($webhook, true));
         } elseif ($output->isVeryVerbose()) {
             $output->writeln('Deleting Webhook ID = ' . $webhook['id']);
         }

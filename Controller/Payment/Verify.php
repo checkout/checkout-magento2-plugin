@@ -77,8 +77,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+    ) {
         parent::__construct($context);
 
         $this->messageManager = $messageManager;
@@ -133,8 +132,6 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                         // Process the response
                         if ($api->isValidResponse($response)) {
-
-
                             return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                         } else {
                             // Restore the quote
@@ -164,8 +161,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                     __('Invalid request. No session ID found.')
                 );
             }
-        }
-        catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
+        } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
             $this->messageManager->addErrorMessage(
                 __($e->getBody())
             );
@@ -175,7 +171,8 @@ class Verify extends \Magento\Framework\App\Action\Action
         return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 
-    public function saveCard($response) {
+    public function saveCard($response)
+    {
 
         // Save the card
         $success = $this->vaultHandler
@@ -190,8 +187,7 @@ class Verify extends \Magento\Framework\App\Action\Action
             $this->messageManager->addSuccessMessage(
                 __('The payment card has been stored successfully.')
             );
-        } 
-        else {
+        } else {
             $this->messageManager->addErrorMessage(
                 __('The card could not be saved.')
             );

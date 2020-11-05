@@ -104,7 +104,7 @@ class WebhookHandlerService
 
             if (!$this->config->getValue('webhooks_table_enabled')) {
                 $this->processWithoutSave($order, $payload);
-            } else  {
+            } else {
                 $this->processWithSave($order, $payload);
             }
 
@@ -137,8 +137,8 @@ class WebhookHandlerService
         $this->setProcessedTime($webhooks);
     }
 
-
-    public function processWithSave($order, $payload) {
+    public function processWithSave($order, $payload)
+    {
         // Save the payload
         $this->saveWebhookEntity($payload, $order);
 
@@ -160,7 +160,8 @@ class WebhookHandlerService
         }
     }
 
-    public function processWithoutSave($order, $payload) {
+    public function processWithoutSave($order, $payload)
+    {
         if ($order->getState() == 'holded') {
             // Save the payload only when order is on hold
             $this->saveWebhookEntity($payload, $order);
@@ -177,16 +178,14 @@ class WebhookHandlerService
                 ];
         $webhooks[] = $webhook;
 
-
-            // Check if order is on hold
-            if ($order->getState() != 'holded') {
-                // Handle the order status for the webhook
-                $this->webhooksToProcess(
-                    $order,
-                    $webhooks
-                );
-            }
-
+        // Check if order is on hold
+        if ($order->getState() != 'holded') {
+            // Handle the order status for the webhook
+            $this->webhooksToProcess(
+                $order,
+                $webhooks
+            );
+        }
     }
 
     /**
@@ -235,11 +234,12 @@ class WebhookHandlerService
         return $this->sortWebhooks($webhookEntitiesArr);
     }
 
-    public function sortWebhooks($webhooks) {
+    public function sortWebhooks($webhooks)
+    {
         $sortedWebhooks = [];
         if (!empty($webhooks)) {
             foreach ($webhooks as $webhook) {
-                if ($webhook['event_type'] == 'payment_approved'){
+                if ($webhook['event_type'] == 'payment_approved') {
                     array_unshift($sortedWebhooks, $webhook);
                 } else {
                     array_push($sortedWebhooks, $webhook);
@@ -311,7 +311,9 @@ class WebhookHandlerService
     {
         if ($payload->type === 'payment_captured') {
             foreach ($webhooks as $webhook) {
-                if ($webhook['event_type'] == 'payment_approved' || $webhook['event_type'] == 'payment_capture_pending') {
+                if ($webhook['event_type'] == 'payment_approved'
+                    || $webhook['event_type'] == 'payment_capture_pending') {
+                    
                     return true;
                 }
             }

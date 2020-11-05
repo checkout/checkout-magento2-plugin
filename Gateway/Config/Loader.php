@@ -251,8 +251,12 @@ class Loader
      * @param string $storeId
      * @return string
      */
-    public function getValue($key, $methodId = null, $storeCode = null, $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-    {
+    public function getValue(
+        $key,
+        $methodId = null,
+        $storeCode = null,
+        $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    ) {
         // Prepare the path
         $path = ($methodId)
         ? 'payment/' . $methodId  . '/' .  $key
