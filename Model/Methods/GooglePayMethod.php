@@ -119,6 +119,11 @@ class GooglePayMethod extends AbstractMethod
     public $storeManager;
 
     /**
+     * @var Session
+     */
+    public $backendAuthSession;
+
+    /**
      * GooglePayMethod constructor.
      */
     public function __construct(
@@ -136,6 +141,7 @@ class GooglePayMethod extends AbstractMethod
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         \Magento\Framework\Message\ManagerInterface $messageManager,
+        \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -160,6 +166,7 @@ class GooglePayMethod extends AbstractMethod
         $this->quoteHandler       = $quoteHandler;
         $this->ckoLogger          = $ckoLogger;
         $this->messageManager     = $messageManager;
+        $this->backendAuthSession = $backendAuthSession;
     }
 
     /**
