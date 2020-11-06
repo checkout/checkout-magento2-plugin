@@ -71,28 +71,20 @@ class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
 
             // Check if payment method is checkout.com
             if (in_array($methodId, $this->config->getMethodsList())) {
-                if ($this->statusNeedsCorrection($order)) {
-                    // Update the order status
-                    $order->setStatus($this->config->getValue('order_status_voided'));
+                // Update the order status
+                $order->setStatus($this->config->getValue('order_status_voided'));
 
-                    // Get the latest order status comment
-                    $orderComments = $order->getStatusHistories();
-                    $orderComment = array_pop($orderComments);
+                // Get the latest order status comment
+                $orderComments = $order->getStatusHistories();
+                $orderComment = array_pop($orderComments);
 
-                    // Update the order history comment status
-                    $orderComment->setData('status', $this->config->getValue('order_status_voided'))->save();
-                }
+                // Update the order history comment status
+                $orderComment->setData('status', $this->config->getValue('order_status_voided'))->save();
+                
             }
 
             return $this;
         }
     }
 
-    public function statusNeedsCorrection($order)
-    {
-        $currentStatus = $order->getStatus();
-        $desiredStatus = $this->config->getValue('order_status_voided');
-
-        return $currentStatus !== $desiredStatus;
-    }
 }
