@@ -47,6 +47,11 @@ class OrderStatusHandlerService
     public $orderHandler;
 
     /**
+     * @var Registry
+     */
+    public $registry;
+
+    /**
      * @var State
      */
     public $state;
@@ -69,13 +74,15 @@ class OrderStatusHandlerService
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \Magento\Sales\Model\Order $orderModel,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \Magento\Framework\Registry $registry
     ) {
         $this->storeManager          = $storeManager;
         $this->transactionHandler    = $transactionHandler;
         $this->orderModel            = $orderModel;
         $this->config                = $config;
         $this->orderHandler          = $orderHandler;
+        $this->registry              = $registry;
     }
     
     /**
