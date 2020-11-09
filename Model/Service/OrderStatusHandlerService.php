@@ -168,9 +168,8 @@ class OrderStatusHandlerService
     public function approved($webhook)
     {
         $payload = json_decode($webhook['event_data']);
-        if ($this->order->getState() !== 'processing') {
-            $this->status = $this->config->getValue('order_status_authorized');
-        }
+        $this->status = $this->config->getValue('order_status_authorized');
+
         // Flag order if potential fraud
         if ($this->transactionHandler->isFlagged($payload)) {
             $this->status = $this->config->getValue('order_status_flagged');
