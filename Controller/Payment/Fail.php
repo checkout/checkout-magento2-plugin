@@ -115,6 +115,12 @@ class Fail extends \Magento\Framework\App\Action\Action
                     'increment_id' => $response->reference
                 ]);
 
+                // Log the payment error
+                $this->paymentErrorHandlerService->logPaymentError(
+                    $response,
+                    $order
+                );
+
                 // Handle the failed order
                 $this->orderStatusHandler->handleFailedPayment($order);
 
