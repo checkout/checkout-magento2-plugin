@@ -47,6 +47,11 @@ class OrderStatusHandlerService
     public $orderHandler;
 
     /**
+     * @var OrderManagementInterface
+     */
+    public $orderManagement;
+
+    /**
      * @var State
      */
     public $state;
@@ -69,13 +74,15 @@ class OrderStatusHandlerService
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \Magento\Sales\Model\Order $orderModel,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \Magento\Sales\Api\OrderManagementInterface $orderManagement
     ) {
         $this->storeManager          = $storeManager;
         $this->transactionHandler    = $transactionHandler;
         $this->orderModel            = $orderModel;
         $this->config                = $config;
         $this->orderHandler          = $orderHandler;
+        $this->orderManagement       = $orderManagement;
     }
     
     /**
@@ -119,7 +126,7 @@ class OrderStatusHandlerService
             $this->order->setStatus($this->status);
         }
 
-        // Check if order has not been deleted
+        // Check if order has not been deleted or cancelled
         if ($this->orderHandler->isOrder($this->order)) {
             // Save the order
             $this->order->save();
@@ -147,10 +154,7 @@ class OrderStatusHandlerService
 
             if ($config == 'cancel' || $config == 'delete') {
                 if ($order->getState() !== 'canceled') {
-                    $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();
-                    $order->setStatus($this->config->getValue('order_status_canceled'));
-                    $order->setState($this->orderModel::STATE_CANCELED);
-                    $order->save();
+                    $this->orderManagement->cancel($order->getEntityId());
                 }
 
                 if ($config == 'delete') {
@@ -237,7 +241,12 @@ class OrderStatusHandlerService
      */
     public function paymentExpired()
     {
+        $this->order->setStatus('canceled');
         $this->order->addStatusHistoryComment(__('3DS payment expired.'));
+        $this->order->save();
         $this->handleFailedPayment($this->order);
+        
+        // Order needs to be set to null so it doesn't get overwritten by saving the previous order state.
+        $this->order = null;
     }
 }

@@ -39,6 +39,11 @@ class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
     public $config;
 
     /**
+     * @var OrderManagementInterface
+     */
+    public $orderManagement;
+
+    /**
      * @var Array
      */
     public $params;
@@ -49,11 +54,13 @@ class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\App\RequestInterface $request,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \Magento\Sales\Api\OrderManagementInterface $orderManagement
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
         $this->config = $config;
+        $this->orderManagement = $orderManagement;
     }
 
     /**
@@ -81,6 +88,9 @@ class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
                 // Update the order history comment status
                 $orderComment->setData('status', $this->config->getValue('order_status_voided'))->save();
                 
+                if ($this->config->getValue('order_status_voided') == 'canceled') {
+                    $this->orderManagement->cancel($order->getId());
+                }
             }
 
             return $this;

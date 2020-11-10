@@ -92,6 +92,11 @@ class TransactionHandlerService
      * @var Config
      */
     public $config;
+
+    /**
+     * @var OrderManagementInterface
+     */
+    public $orderManagement;
     
     /**
      * @var Order
@@ -122,7 +127,8 @@ class TransactionHandlerService
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \Magento\Sales\Api\OrderManagementInterface $orderManagement
     ) {
         $this->orderSender           = $orderSender;
         $this->transactionSearch     = $transactionSearch;
@@ -135,6 +141,7 @@ class TransactionHandlerService
         $this->utilities             = $utilities;
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
+        $this->orderManagement       = $orderManagement;
     }
 
     /**
@@ -188,6 +195,9 @@ class TransactionHandlerService
                 $this->transaction->save();
                 $this->payment->save();
                 $this->order->save();
+                
+                // Process the payment void case
+                $this->processVoid();
             } else {
                 // Update the existing transaction state
                 $this->transaction->setIsClosed(
@@ -592,6 +602,17 @@ class TransactionHandlerService
             $this->order->setCanSendNewEmailFlag(true);
             $this->order->setIsCustomerNotified(true);
             $this->orderSender->send($this->order, true);
+        }
+    }
+
+    /**
+     * Cancel the order for a void transaction when void status is set to canceled.
+     */
+    public function processVoid()
+    {
+        $isVoid = $this->transaction->getTxnType() == Transaction::TYPE_VOID;
+        if ($isVoid && $this->config->getValue('order_status_voided') == 'canceled') {
+            $this->orderManagement->cancel($this->order->getEntityId());
         }
     }
 
