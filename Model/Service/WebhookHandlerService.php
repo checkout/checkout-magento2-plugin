@@ -148,24 +148,17 @@ class WebhookHandlerService
         ]);
 
         if ($this->hasAuth($webhooks, $payload)) {
-            // Check if order is on hold
-            if ($order->getState() != 'holded') {
-                // Handle the order status for the webhook
-                $this->webhooksToProcess(
-                    $order,
-                    $webhooks
-                );
-                $this->setProcessedTime($webhooks);
-            }
+            // Handle the order status for the webhook
+            $this->webhooksToProcess(
+                $order,
+                $webhooks
+            );
+            $this->setProcessedTime($webhooks);
         }
     }
 
     public function processWithoutSave($order, $payload)
     {
-        if ($order->getState() == 'holded') {
-            // Save the payload only when order is on hold
-            $this->saveWebhookEntity($payload, $order);
-        }
         $webhooks = [];
         $webhook = [
                 'event_id' => $payload->id,
@@ -177,15 +170,12 @@ class WebhookHandlerService
                 'processed' => false
                 ];
         $webhooks[] = $webhook;
-
-        // Check if order is on hold
-        if ($order->getState() != 'holded') {
-            // Handle the order status for the webhook
-            $this->webhooksToProcess(
-                $order,
-                $webhooks
-            );
-        }
+        
+        // Handle the order status for the webhook
+        $this->webhooksToProcess(
+            $order,
+            $webhooks
+        );
     }
 
     /**

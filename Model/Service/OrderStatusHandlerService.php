@@ -47,9 +47,14 @@ class OrderStatusHandlerService
     public $orderHandler;
 
     /**
-     * @var OrderManagementInterface
+     * @var OrderRepositoryInterface
      */
-    public $orderManagement;
+    public $orderRepository;
+    
+    /**
+     * @var Registry
+     */
+    public $registry;
 
     /**
      * @var State
@@ -75,14 +80,16 @@ class OrderStatusHandlerService
         \Magento\Sales\Model\Order $orderModel,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \Magento\Sales\Api\OrderManagementInterface $orderManagement
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        \Magento\Framework\Registry $registry
     ) {
         $this->storeManager          = $storeManager;
         $this->transactionHandler    = $transactionHandler;
         $this->orderModel            = $orderModel;
         $this->config                = $config;
         $this->orderHandler          = $orderHandler;
-        $this->orderManagement       = $orderManagement;
+        $this->orderRepository       = $orderRepository;
+        $this->registry              = $registry;
     }
     
     /**
@@ -116,17 +123,17 @@ class OrderStatusHandlerService
                 break;
         }
         
-        if ($this->state && $this->order->getStatus() != 'holded') {
+        if ($this->state) {
             // Set the order state
             $this->order->setState($this->state);
         }
         
-        if ($this->status && $this->order->getStatus() != 'closed' && $this->order->getStatus() != 'holded') {
+        if ($this->status && $this->order->getStatus() != 'closed') {
             // Set the order status
             $this->order->setStatus($this->status);
         }
 
-        // Check if order has not been deleted or cancelled
+        // Check if order has not been deleted
         if ($this->orderHandler->isOrder($this->order)) {
             // Save the order
             $this->order->save();
@@ -154,7 +161,10 @@ class OrderStatusHandlerService
 
             if ($config == 'cancel' || $config == 'delete') {
                 if ($order->getState() !== 'canceled') {
-                    $this->orderManagement->cancel($order->getEntityId());
+                    $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();
+                    $order->setStatus($this->config->getValue('order_status_canceled'));
+                    $order->setState($this->orderModel::STATE_CANCELED);
+                    $order->save();
                 }
 
                 if ($config == 'delete') {
@@ -172,9 +182,8 @@ class OrderStatusHandlerService
     public function approved($webhook)
     {
         $payload = json_decode($webhook['event_data']);
-        if ($this->order->getState() !== 'processing') {
-            $this->status = $this->config->getValue('order_status_authorized');
-        }
+        $this->status = $this->config->getValue('order_status_authorized');
+
         // Flag order if potential fraud
         if ($this->transactionHandler->isFlagged($payload)) {
             $this->status = $this->config->getValue('order_status_flagged');
@@ -196,6 +205,11 @@ class OrderStatusHandlerService
     public function void()
     {
         $this->status = $this->config->getValue('order_status_voided');
+        $this->state = $this->orderModel::STATE_CANCELED;
+
+        if ($this->order->getState() !== 'canceled') {
+            $this->orderModel->loadByIncrementId($this->order->getIncrementId())->cancel();
+        }
     }
 
     /**
@@ -241,12 +255,7 @@ class OrderStatusHandlerService
      */
     public function paymentExpired()
     {
-        $this->order->setStatus('canceled');
         $this->order->addStatusHistoryComment(__('3DS payment expired.'));
-        $this->order->save();
         $this->handleFailedPayment($this->order);
-        
-        // Order needs to be set to null so it doesn't get overwritten by saving the previous order state.
-        $this->order = null;
     }
 }

@@ -72,7 +72,6 @@ class OrderAfterSave
 
             // Process the webhooks if order is not on hold
             if (in_array($methodId, $this->config->getMethodsList())
-                && $order->getState() != 'holded'
                 && $this->needsWebhookProcessing()) {
                 $this->webhookHandler->processAllWebhooks($order);
             }
