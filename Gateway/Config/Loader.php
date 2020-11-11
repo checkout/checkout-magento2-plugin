@@ -161,7 +161,8 @@ class Loader
                 'value' => $row['id'],
                 'label' => $row['title'],
                 'currencies' => $row['currencies'],
-                'countries' => $row['countries']
+                'countries' => $row['countries'],
+                'mappings' => isset($row['mappings']) ? $row['mappings'] : ''
             ];
         }
 
