@@ -186,8 +186,15 @@ class CardPaymentMethod extends AbstractMethod
     /**
      * Send a charge request.
      */
-    public function sendPaymentRequest($data, $amount, $currency, $reference = '', $quote = null, $isApiOrder = null)
-    {
+    public function sendPaymentRequest(
+        $data,
+        $amount,
+        $currency,
+        $reference = '',
+        $quote = null,
+        $isApiOrder = null,
+        $customerId = null
+    ) {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
@@ -246,13 +253,23 @@ class CardPaymentMethod extends AbstractMethod
         $request->shipping = $api->createShippingAddress($quote);
 
         // Save card check
-        if (isset($data['saveCard'])
-            && json_decode($data['saveCard']) === true
-            && $saveCardEnabled
-            && $this->customerSession->isLoggedIn()
-        ) {
-            $request->metadata['saveCard'] = 1;
-            $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
+        if ($isApiOrder) {
+            if (isset($data['saveCard'])
+                && $data['saveCard'] === true
+                && $saveCardEnabled
+            ) {
+                $request->metadata['saveCard'] = 1;
+                $request->metadata['customerId'] = $customerId;
+            }    
+        } else {
+            if (isset($data['saveCard'])
+                && json_decode($data['saveCard']) === true
+                && $saveCardEnabled
+                && $this->customerSession->isLoggedIn()
+            ) {
+                $request->metadata['saveCard'] = 1;
+                $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
+            }
         }
 
         // Billing descriptor
