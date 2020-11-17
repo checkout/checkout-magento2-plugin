@@ -49,6 +49,11 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
     public $cardHandler;
 
     /**
+     * @var MethodHandlerService
+     */
+    public $methodHandler;
+
+    /**
      * ConfigProvider constructor.
      */
     public function __construct(
@@ -56,13 +61,15 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
         \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler
+        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler
     ) {
         $this->config = $config;
         $this->shopperHandler = $shopperHandler;
         $this->quoteHandler = $quoteHandler;
         $this->vaultHandler = $vaultHandler;
         $this->cardHandler = $cardHandler;
+        $this->methodHandler = $methodHandler;
     }
 
     /**
@@ -98,7 +105,9 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
                     ],
                     'user' => [
                         'has_cards' => $this->vaultHandler->userHasCards(),
-                        'language_fallback' => $this->shopperHandler->getLanguageFallback()
+                        'language_fallback' => $this->shopperHandler->getLanguageFallback(),
+                        'previous_method' => $this->methodHandler->getPreviousMethod(),
+                        'previous_source' => $this->methodHandler->getPreviousSource()
                     ],
                     'cards' => $this->cardHandler->getCardIcons(),
                     'images_path' => $this->config->getImagesPath(),

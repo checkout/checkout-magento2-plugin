@@ -65,9 +65,9 @@ define(
 
             getErrors: function () {
                 var errors = {
-                    ['card-number']: __('Please enter a valid card number'),
-                    ['expiry-date']: __('Please enter a valid expiry date'),
-                    ['cvv']: __('Please enter a valid CVV code'),
+                    'card-number': __('Please enter a valid card number'),
+                    'expiry-date': __('Please enter a valid expiry date'),
+                    'cvv': __('Please enter a valid CVV code')
                 };
 
                 return errors;

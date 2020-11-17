@@ -26,6 +26,9 @@ interface WebhookEntityInterface
     const EVENT_TYPE = 'event_type';
     const EVENT_DATA = 'event_data';
     const ORDER_ID = 'order_id';
+    const RECEIVED_AT = 'received_at';
+    const PROCESSED_AT = 'processed_at';
+    const PROCESSED = 'processed';
 
     /**
      * Get the row id
@@ -96,4 +99,25 @@ interface WebhookEntityInterface
      * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
     public function setOrderId($orderId);
+
+    /**
+     * Set datetime webhook is received
+     *
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     */
+    public function setReceivedTime();
+
+    /**
+     * Set datetime webhook is processed
+     *
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     */
+    public function setProcessedTime();
+
+    /**
+     * Set if a webhook has been processed
+     *
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     */
+    public function setProcessed($bool);
 }

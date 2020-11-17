@@ -32,11 +32,6 @@ use \Checkout\Models\Phone;
 class ApiHandlerService
 {
     /**
-     * @var EncryptorInterface
-     */
-    public $encryptor;
-
-    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
@@ -80,7 +75,6 @@ class ApiHandlerService
      * ApiHandlerService constructor.
      */
     public function __construct(
-        \Magento\Framework\Encryption\EncryptorInterface $encryptor,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\ProductMetadataInterface $productMeta,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
@@ -89,7 +83,6 @@ class ApiHandlerService
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\VersionHandlerService $versionHandler
     ) {
-        $this->encryptor = $encryptor;
         $this->storeManager = $storeManager;
         $this->productMeta = $productMeta;
         $this->config = $config;
@@ -102,14 +95,14 @@ class ApiHandlerService
     /**
      * Load the API client.
      */
-    public function init($storeCode = null)
+    public function init($storeCode = null, $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
         $this->checkoutApi = new CheckoutApi(
-            $this->config->getValue('secret_key', null, $storeCode),
-            $this->config->getValue('environment', null, $storeCode),
-            $this->config->getValue('public_key', null, $storeCode)
+            $this->config->getValue('secret_key', null, $storeCode, $scope),
+            $this->config->getValue('environment', null, $storeCode, $scope),
+            $this->config->getValue('public_key', null, $storeCode, $scope)
         );
-        
+
         return $this;
     }
 
@@ -127,7 +120,7 @@ class ApiHandlerService
     /**
      * Voids a transaction.
      */
-    public function captureOrder($payment, $amount, $isBackendAction = false)
+    public function captureOrder($payment, $amount)
     {
         // Get the order
         $order = $payment->getOrder();
@@ -143,7 +136,6 @@ class ApiHandlerService
                 $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
                 $order
             );
-            $request->metadata['isBackendAction'] = $isBackendAction;
 
             // Get the response
             $response = $this->checkoutApi
@@ -185,14 +177,14 @@ class ApiHandlerService
     /**
      * Refunds a transaction.
      */
-    public function refundOrder($payment, $amount, $isBackendAction = false)
+    public function refundOrder($payment, $amount)
     {
         // Get the order
         $order = $payment->getOrder();
 
         // Get the payment info
         $paymentInfo = $this->utilities->getPaymentData($order);
-        
+
         // Process the refund request
         if (isset($paymentInfo['id'])) {
             $request = new Refund($paymentInfo['id']);
@@ -200,8 +192,6 @@ class ApiHandlerService
                 $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
                 $order
             );
-
-            $request->metadata['isBackendAction'] = $isBackendAction;
 
             $response = $this->checkoutApi
                 ->payments()
@@ -275,7 +265,7 @@ class ApiHandlerService
         $address->zip = $shippingAddress->getPostcode();
         $address->country = $shippingAddress->getCountry();
         $address->state = $shippingAddress->getRegion();
-        
+
         return new Shipping($address);
     }
 

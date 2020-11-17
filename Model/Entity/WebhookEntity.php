@@ -165,4 +165,35 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     {
         return $this->setData(self::ORDER_ID, $orderId);
     }
+
+    /**
+     * Set datetime webhook is received
+     *
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     */
+    public function setReceivedTime()
+    {
+        return $this->setData(self::RECEIVED_AT, date("Y-m-d H:i:s"));
+    }
+
+    /**
+     * Set datetime webhook is processed
+     *
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     */
+    public function setProcessedTime()
+    {
+        return $this->setData(self::PROCESSED_AT, date("Y-m-d H:i:s"));
+    }
+
+    /**
+     * Set if a webhook has been processed
+     *
+     * @param bool $bool
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     */
+    public function setProcessed($bool)
+    {
+        return $this->setData(self::PROCESSED, $bool);
+    }
 }

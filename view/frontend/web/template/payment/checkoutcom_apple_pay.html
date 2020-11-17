@@ -34,9 +34,6 @@
         <div class="message message-response-code" data-bind="attr: {'id': (getCode()+'_message')}"></div>
         <div class="message debug-message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
 
-        <!-- Handle the default option selected -->
-        <div data-bind="afterRender: checkDefaultEnabled()">
-
             <div class="checkout-agreements-block">
                 <!-- ko foreach: $parent.getRegion('before-place-order') -->
                 <!-- ko template: getTemplate() -->
@@ -53,3 +50,4 @@
             </div>
         </div>
     </div>
+</div>

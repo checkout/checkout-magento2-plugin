@@ -18,4 +18,15 @@
     <event name="sales_order_save_before">
         <observer name="cko_order_save_before" instance="CheckoutCom\Magento2\Observer\Backend\MotoPaymentRequest" />
     </event>
+    
+    <!-- Order after void event -->
+    <event name="sales_order_payment_void">
+        <observer name="cko_order_payment_void" instance="CheckoutCom\Magento2\Observer\Backend\OrderAfterVoid" />
+    </event>
+
+    <!-- Order after refund event -->
+    <event name="sales_order_payment_refund">
+        <observer name="cko_order_payment_refund" instance="CheckoutCom\Magento2\Observer\Backend\OrderAfterRefund" />
+    </event>
+
 </config>

@@ -65,7 +65,7 @@
                                 <field id="payment_action">authorize_capture</field>
                             </depends>
                             <config_path>settings/checkoutcom_configuration/capture_time</config_path>
-                            <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30, 0.01 for capture after 36 seconds. A value lower than 0.003 (10 seconds) is not recommended.</comment>
+                            <comment>Specify the number of hours before capture. Ex: 1.5 for capture after 1h30. For performance reasons, there is a minimum delay of 0.02 (72 seconds).</comment>
                         </field>
 
                         <field id="dynamic_descriptor_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -90,9 +90,19 @@
                             <config_path>settings/checkoutcom_configuration/descriptor_city</config_path>
                         </field>
 
+                        <field id="webhooks_table_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Enable Webhook Table</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>settings/checkoutcom_configuration/webhooks_table_enabled</config_path>
+                            <comment>This enables webhooks to be logged to a dedicated table to improve traceability for when webhook events are received. </comment>
+                        </field>
+
                         <field id="webhooks_table_clean_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Enable Webhook Table Clean</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <depends>
+                                <field id="webhooks_table_enabled">1</field>
+                            </depends>
                             <config_path>settings/checkoutcom_configuration/webhooks_table_clean</config_path>
                         </field>
 
@@ -100,6 +110,7 @@
                             <label>Clean Webhook Table On</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigWebhooks</source_model>
                             <depends>
+                                <field id="webhooks_table_enabled">1</field>
                                 <field id="webhooks_table_clean_enabled">1</field>
                             </depends>
                             <config_path>settings/checkoutcom_configuration/webhooks_clean_on</config_path>

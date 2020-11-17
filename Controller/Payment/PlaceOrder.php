@@ -42,6 +42,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $orderHandler;
 
     /**
+     * @var OrderStatusHandlerService
+     */
+    public $orderStatusHandler;
+
+    /**
      * @var MethodHandlerService
      */
     public $methodHandler;
@@ -62,19 +67,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $jsonFactory;
 
     /**
-     * @var Session
-     */
-    public $checkoutSession;
-
-    /**
      * @var Utilities
      */
     public $utilities;
-
-    /**
-     * @var Config
-     */
-    public $config;
 
     /**
      * @var Logger
@@ -82,19 +77,14 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $logger;
 
     /**
-     * @var String
+     * @var Session
      */
-    public $methodId;
+    protected $session;
 
     /**
      * @var array
      */
     public $data;
-
-    /**
-     * @var String
-     */
-    public $cardToken;
 
     /**
      * @var Quote
@@ -113,16 +103,16 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \Magento\Checkout\Model\Session $session
     ) {
         parent::__construct($context);
 
@@ -131,13 +121,13 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->scopeConfig = $scopeConfig;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
-        $this->checkoutSession = $checkoutSession;
         $this->utilities = $utilities;
-        $this->config = $config;
         $this->logger = $logger;
+        $this->session = $session;
     }
 
     /**
@@ -201,7 +191,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                             $paymentDetails = $api->getPaymentDetails($response->id);
 
                             // Add the payment info to the order
-                            $order = $this->utilities->setPaymentData($order, $response);
+                            $order = $this->utilities->setPaymentData($order, $response, $this->data);
 
                             // Save the order
                             $order->save();
@@ -225,10 +215,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                             }
 
                             // Restore the quote
-                            $this->quoteHandler->restoreQuote($order->getIncrementId());
+                            $this->session->restoreQuote();
 
                             // Handle order on failed payment
-                            $this->orderHandler->handleFailedPayment($order);
+                            $this->orderStatusHandler->handleFailedPayment($order);
                         }
                     } else {
                         // Payment failed
@@ -248,7 +238,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $this->logger->write($message);
         } finally {
             if ($log) {
-                $this->logger->write($message);    
+                $this->logger->write($message);
             }
 
             return $this->jsonFactory->create()->setData([
@@ -284,7 +274,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         );
     }
 
-    public function isEmptyCardToken($paymentData) {
+    public function isEmptyCardToken($paymentData)
+    {
         if ($paymentData['methodId'] == "checkoutcom_card_payment") {
             if (!isset($paymentData['cardToken'])
                 || empty($paymentData['cardToken'])

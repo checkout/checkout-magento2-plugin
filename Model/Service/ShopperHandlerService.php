@@ -30,7 +30,7 @@ class ShopperHandlerService
     /**
      * @var ConfigLanguageFallback
      */
-    public $languageCallbackConfig;  
+    public $languageCallbackConfig;
     
     /**
      * @var Session

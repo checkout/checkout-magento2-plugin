@@ -59,11 +59,6 @@ class V1 extends \Magento\Framework\App\Action\Action
      */
     public $apiHandler;
 
-    /*
-     * @var CardHandlerService
-     */
-    public $cardHandler;
-
     /**
      * @var Utilities
      */
@@ -86,7 +81,6 @@ class V1 extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities
     ) {
         parent::__construct($context);
@@ -97,7 +91,6 @@ class V1 extends \Magento\Framework\App\Action\Action
         $this->orderHandler = $orderHandler;
         $this->methodHandler = $methodHandler;
         $this->apiHandler = $apiHandler;
-        $this->cardHandler = $cardHandler;
         $this->utilities = $utilities;
     }
 
@@ -235,7 +228,7 @@ class V1 extends \Magento\Framework\App\Action\Action
     public function dataIsValid()
     {
         // Check the quote ID
-        if ((!isset($this->data->quote_id) && !isset($this->data['quote_id']))|| (int) $this->data->quote_id == 0) {
+        if ((!isset($this->data->quote_id) && !isset($this->data['quote_id'])) || (int) $this->data->quote_id == 0) {
             throw new LocalizedException(
                 __('The quote ID is missing or invalid.')
             );
