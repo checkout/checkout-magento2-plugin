@@ -48,6 +48,11 @@ class Fail extends \Magento\Framework\App\Action\Action
     public $orderHandler;
 
     /**
+     * @var OrderStatusHandlerService
+     */
+    public $orderStatusHandler;
+
+    /**
      * @var Logger
      */
     public $logger;
@@ -56,6 +61,11 @@ class Fail extends \Magento\Framework\App\Action\Action
      * @var PaymentErrorHandlerService
      */
     public $paymentErrorHandlerService;
+
+    /**
+     * @var Session
+     */
+    protected $session;
 
     /**
      * PlaceOrder constructor
@@ -67,8 +77,10 @@ class Fail extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger,
-        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandlerService
+        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandlerService,
+        \Magento\Checkout\Model\Session $session
     ) {
         parent::__construct($context);
 
@@ -77,8 +89,10 @@ class Fail extends \Magento\Framework\App\Action\Action
         $this->apiHandler = $apiHandler;
         $this->quoteHandler = $quoteHandler;
         $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
         $this->logger = $logger;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
+        $this->session = $session;
     }
 
     /**
@@ -109,18 +123,22 @@ class Fail extends \Magento\Framework\App\Action\Action
                 ]);
 
                 // Handle the failed order
-                $this->orderHandler->handleFailedPayment($order);
+                $this->orderStatusHandler->handleFailedPayment($order);
 
                 // Restore the quote
-                $this->quoteHandler->restoreQuote($response->reference);
+                $this->session->restoreQuote();
 
                 $errorMessage = null;
                 if (isset($response->actions[0]['response_code'])) {
-                    $errorMessage = $this->paymentErrorHandlerService->getErrorMessage($response->actions[0]['response_code']);
+                    $errorMessage = $this->paymentErrorHandlerService->getErrorMessage(
+                        $response->actions[0]['response_code']
+                    );
                 }
 
                 // Display the message
-                $this->messageManager->addErrorMessage($errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.'));
+                $this->messageManager->addErrorMessage(
+                    $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')
+                );
 
                 // Return to the cart
                 return $this->_redirect('checkout/cart', ['_secure' => true]);

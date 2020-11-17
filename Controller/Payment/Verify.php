@@ -35,11 +35,6 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $storeManager;
 
     /**
-     * @var Config
-     */
-    public $config;
-
-    /**
      * @var CheckoutApi
      */
     public $apiHandler;
@@ -60,11 +55,6 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $vaultHandler;
 
     /**
-     * @var ShopperHandlerService
-     */
-    public $shopperHandler;
-
-    /**
      * @var Utilities
      */
     public $utilities;
@@ -75,34 +65,36 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $logger;
 
     /**
+     * @var Session
+     */
+    protected $session;
+
+    /**
      * Verify constructor
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger
-    )
-    {
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \Magento\Checkout\Model\Session $session
+    ) {
         parent::__construct($context);
 
         $this->messageManager = $messageManager;
         $this->storeManager = $storeManager;
-        $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
         $this->quoteHandler = $quoteHandler;
         $this->vaultHandler = $vaultHandler;
-        $this->shopperHandler = $shopperHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
+        $this->session = $session;
     }
 
     /**
@@ -147,12 +139,10 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                         // Process the response
                         if ($api->isValidResponse($response)) {
-
-
                             return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                         } else {
                             // Restore the quote
-                            $this->quoteHandler->restoreQuote($response->reference);
+                            $this->session->restoreQuote();
 
                             // Add and error message
                             $this->messageManager->addErrorMessage(
@@ -178,8 +168,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                     __('Invalid request. No session ID found.')
                 );
             }
-        }
-        catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
+        } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
             $this->messageManager->addErrorMessage(
                 __($e->getBody())
             );
@@ -189,7 +178,8 @@ class Verify extends \Magento\Framework\App\Action\Action
         return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 
-    public function saveCard($response) {
+    public function saveCard($response)
+    {
 
         // Save the card
         $success = $this->vaultHandler
@@ -204,8 +194,7 @@ class Verify extends \Magento\Framework\App\Action\Action
             $this->messageManager->addSuccessMessage(
                 __('The payment card has been stored successfully.')
             );
-        } 
-        else {
+        } else {
             $this->messageManager->addErrorMessage(
                 __('The card could not be saved.')
             );

@@ -72,7 +72,7 @@ class Display extends \Magento\Framework\App\Action\Action
     {
         // Prepare the output
         $html = '';
-        $klarna = false;
+        $available = [];
         
         // Process the request
         if ($this->getRequest()->isAjax()) {
@@ -93,16 +93,14 @@ class Display extends \Magento\Framework\App\Action\Action
 
             foreach ($apms as $apm) {
                 if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    if ($apm['value'] == 'klarna') {
-                        $klarna = true;
-                    }
                     $html .= $this->loadBlock($apm['value'], $apm['label']);
+                    array_push($available, $apm['value']);
                 }
             }
         }
 
         return $this->jsonFactory->create()->setData(
-            ['html' => $html, 'klarna' => $klarna]
+            ['html' => $html, 'apms' => $available]
         );
     }
 
@@ -124,7 +122,11 @@ class Display extends \Magento\Framework\App\Action\Action
             $apm['currencies'],
             $this->quoteHandler->getQuoteCurrency()
         ) !== false
-        && $this->countryCurrencyMapping($apm['value'], $billingAddress['country_id'], $this->quoteHandler->getQuoteCurrency());
+        && $this->countryCurrencyMapping(
+            $apm['value'],
+            $billingAddress['country_id'],
+            $this->quoteHandler->getQuoteCurrency()
+        );
     }
 
     /**
@@ -138,13 +140,13 @@ class Display extends \Magento\Framework\App\Action\Action
     public function countryCurrencyMapping($apmValue, $billingCountry, $currency)
     {
         if ($apmValue == 'poli') {
-            if (($billingCountry == 'AU' && $currency == 'AUD') 
+            if (($billingCountry == 'AU' && $currency == 'AUD')
                 || ($billingCountry == 'NZ' && $currency == 'NZD')
             ) {
                 return true;
             }
             return false;
-        } else{
+        } else {
             return true;
         }
     }

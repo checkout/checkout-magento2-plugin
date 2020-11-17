@@ -11,9 +11,9 @@
             <!-- Saved cards -->
             <div id="vault-container">
                 <?php
-                if ($block->canDisplayAdminCards()) :
+                if ($block->canDisplayAdminCards()):
                     $cardsList = $block->getUserCards();
-                    foreach ($cardsList as $card) :
+                    foreach ($cardsList as $card):
                         $details = json_decode($card->getTokenDetails() ?: '{}', true);
                         $iconUrl = $block->cardHandler->getCardIcon($details['type']);
                         $publicHash = $card->getPublicHash();
@@ -77,7 +77,7 @@
 <!-- Saved cards JS-->
 <?php
 
-if ($block->canDisplayAdminCards()) : ?>
+if ($block->canDisplayAdminCards()): ?>
     <script type="text/javascript">
         require(['jquery', 'domReady!'], function ($) {
             // Prepare some variables

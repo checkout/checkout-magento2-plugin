@@ -16,47 +16,67 @@
 
 namespace CheckoutCom\Magento2\Plugin\Backend;
 
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\ResourceModel\Order\Handler\State;
+use Magento\Sales\Model\Order\Payment\State\CommandInterface as BaseCommandInterface;
 
 /**
- * Class PaymentAfterCapture.
+ * Class OrderAfterInvoice.
  */
 class OrderAfterInvoice
 {
-    /**
-     * @var Session
-     */
-    public $backendAuthSession;
-
-    /**
-     * @var WebhookHandlerService
-     */
-    public $webhookHandler;
-
     /**
      * @var Config
      */
     public $config;
 
     /**
-     * PaymentAfterVoid constructor.
+     * OrderAfterInvoice constructor.
      */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
-        $this->webhookHandler = $webhookHandler;
         $this->config = $config;
     }
 
-    public function aroundCheck(State $subject, callable $proceed, Order $order)
-    {
-        if ($this->statusNeedsCorrection($order)) {
-            $order->setStatus($this->config->getValue('order_status_captured'));
+    /**
+     * Sets the correct order status for orders captured from the hub.
+     *
+     * @param BaseCommandInterface $subject
+     * @param Closure $proceed
+     * @param OrderPaymentInterface $payment
+     * @param $amount
+     * @param OrderInterface $order
+     */
+    public function aroundExecute(
+        BaseCommandInterface $subject,
+        \Closure $proceed,
+        OrderPaymentInterface $payment,
+        $amount,
+        OrderInterface $order
+    ) {
+        $result = $proceed($payment, $amount, $order);
+
+        // Get the method ID
+        $methodId = $order->getPayment()->getMethodInstance()->getCode();
+
+        // Check if payment method is checkout.com
+        if (in_array($methodId, $this->config->getMethodsList())) {
+            if ($this->statusNeedsCorrection($order)) {
+                $order->setStatus($this->config->getValue('order_status_captured'));
+            }
         }
+
+        return $result;
     }
 
+    /**
+     * Check if the order status needs updating.
+     *
+     * @param $order
+     * @return bool
+     */
     public function statusNeedsCorrection($order)
     {
         $currentState = $order->getState();

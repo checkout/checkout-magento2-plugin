@@ -31,17 +31,19 @@ define(
 
         const KEY_CONFIG = 'checkoutcom_configuration';
         const KEY_DATA = 'checkoutcom_data';
-        
+
         return {
             /**
              * Gets a field value.
              *
              * @param  {string}  methodId The method id
              * @param  {string}  field    The field
+             * @param  {bool}  strict     The strict value
              * @return {mixed}            The value
              */
-            getValue: function (methodId, field, strict = false) {
+            getValue: function (methodId, field, strict) {
                 var val = null;
+                strict = (strict === undefined ? false : strict);
                 if (methodId && Config.hasOwnProperty(methodId) && Config[methodId].hasOwnProperty(field)) {
                     val = Config[methodId][field]
                 } else if (Config.hasOwnProperty(KEY_CONFIG) && Config[KEY_CONFIG].hasOwnProperty(field) && !strict) {
@@ -102,7 +104,7 @@ define(
 
                 return amount.toFixed(2);
             },
-            
+
             /**
              * Get the updated quote data from the core REST API.
              *
@@ -119,32 +121,31 @@ define(
                     restUrl += 'rest/default/V1/';
                     restUrl += 'carts/mine/payment-information';
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
-                }
-                else {
+                } else {
                     restUrl += 'rest/all/V1/guest-carts/' + window.checkoutConfig.quoteData.entity_id + '/payment-information';
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
                 }
 
                 // Set the event to update data on any button click
                 $('button[type="submit"]')
-                .off('click', self.getRestQuoteData)
-                .on('click', self.getRestQuoteData);
+                    .off('click', self.getRestQuoteData)
+                    .on('click', self.getRestQuoteData);
 
-                    // Send the AJAX request
-                    $.ajax({
-                        url: restUrl,
-                        type: 'GET',
-                        contentType: "application/json",
-                        dataType: "json",
-                        async: false,
-                        showLoader: true,
-                        success: function (data, status, xhr) {
-                            result = data;
-                        },
-                        error: function (request, status, error) {
-                            self.log(error);
-                        }
-                    });
+                // Send the AJAX request
+                $.ajax({
+                    url: restUrl,
+                    type: 'GET',
+                    contentType: "application/json",
+                    dataType: "json",
+                    async: false,
+                    showLoader: true,
+                    success: function (data, status, xhr) {
+                        result = data;
+                    },
+                    error: function (request, status, error) {
+                        self.log(error);
+                    }
+                });
 
                 return result;
             },
@@ -159,13 +160,31 @@ define(
             },
 
             /**
-             * Check if the payment method should be enabled by default.
+             * Check if APM should be auto selected.
              *
              * @return {void}
              */
-            checkDefaultEnabled: function (methodId) {
-                if (this.getValue(null, 'default_method') == methodId) {
-                    $('input#' + methodId).trigger('click');
+            checkLastPaymentMethod: function () {
+                var userData = this.getValue('checkoutcom_data', 'user');
+
+                if (userData['previous_method'] == 'checkoutcom_apm') {
+                    // Select the previous apm if it's available
+                    if ($('.cko-apm#' + userData['previous_source']).length) {
+                        $('.cko-apm#' + userData['previous_source']).trigger('click');
+                    }
+                }
+            },
+
+            /**
+             * Check if stored card should be auto selected.
+             *
+             * @return {void}
+             */
+            checkStoredCard: function () {
+                var userData = this.getValue('checkoutcom_data', 'user');
+                if (userData['previous_method'] == 'checkoutcom_vault'
+                && $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').length) {
+                    $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').trigger('click');
                 }
             },
 
@@ -192,18 +211,18 @@ define(
              *
              * @return {string}
              */
-            getShopLanguage() {
+            getShopLanguage: function () {
                 let mageShopLanguage = Config[KEY_DATA].store.language;
                 let framesLanguage;
-                switch(mageShopLanguage) {
+                switch (mageShopLanguage) {
                     case 'nl_NL':
                         framesLanguage = 'NL-NL';
                         break;
                     case 'en_GB':
-                         framesLanguage = 'EN-GB';
+                        framesLanguage = 'EN-GB';
                         break;
                     case 'fr_FR':
-                         framesLanguage = 'FR-FR';
+                        framesLanguage = 'FR-FR';
                         break;
                     case 'de_DE':
                         framesLanguage = 'DE-DE';
@@ -218,7 +237,7 @@ define(
                         framesLanguage = 'ES-ES';
                         break;
                     default:
-                      framesLanguage = this.getLangageFallback().toUpperCase().split("_").join('-');
+                        framesLanguage = this.getLangageFallback().toUpperCase().split("_").join('-');
                 }
 
                 return framesLanguage;

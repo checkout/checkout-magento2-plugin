@@ -20,7 +20,7 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 /**
  * Class ConfigOrderStatus
  */
-class ConfigOrderStatusRefundedPartial implements \Magento\Framework\Option\ArrayInterface
+class ConfigOrderStatusRefundedPartial implements \Magento\Framework\Data\OptionSourceInterface
 {
     /**
      * Options getter

@@ -184,11 +184,9 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
             try {
                 $response = $api->checkoutApi
                     ->payments()->request($request);
-            }
-            catch (CheckoutHttpException $e) {
+            } catch (CheckoutHttpException $e) {
                 $this->logger->write($e->getBody());
-            }
-            finally {
+            } finally {
                 // Logging
                 $this->logger->display($response);
 

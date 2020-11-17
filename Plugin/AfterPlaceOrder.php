@@ -40,23 +40,16 @@ class AfterPlaceOrder
     public $webhookHandler;
 
     /**
-     * @var TransactionHandlerService
-     */
-    public $transactionHandler;
-
-    /**
      * AfterPlaceOrder constructor.
      */
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
+        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->config = $config;
         $this->webhookHandler = $webhookHandler;
-        $this->transactionHandler = $transactionHandler;
     }
 
     /**
@@ -71,11 +64,6 @@ class AfterPlaceOrder
         if (in_array($methodId, $this->config->getMethodsList())) {
             // Disable the email sending
             $order->setCanSendNewEmailFlag(false);
-
-            // Process the webhooks for frontend orders
-            if (!$this->backendAuthSession->isLoggedIn()) {
-                $this->webhookHandler->processAllWebhooks($order);
-            }
         }
 
         return $order;

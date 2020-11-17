@@ -30,6 +30,7 @@ define(
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_apm';
         let loadEvents = true;
+        let loaded = false;
 
         return Component.extend(
             {
@@ -63,10 +64,10 @@ define(
                 /**
                  * @return {void}
                  */
-                checkDefaultEnabled: function () {
-                    return Utilities.checkDefaultEnabled(METHOD_ID);
+                checkLastPaymentMethod: function () {
+                    return Utilities.checkLastPaymentMethod();
                 },
-                
+
                 /**
                  * @return {void}
                  */
@@ -81,8 +82,13 @@ define(
                         {
                             type: "POST",
                             url: Utilities.getUrl('apm/display'),
+                            data: {
+                                country_id: Quote.billingAddress() ? Quote.billingAddress().countryId : null
+                            },
                             success: function (data) {
                                 self.animateRender(data);
+                                self.initEvents();
+                                self.checkLastPaymentMethod();
                             },
                             error: function (request, status, error) {
                                 Utilities.log(error);
@@ -103,7 +109,7 @@ define(
                         let prevAddress;
 
                         Quote.billingAddress.subscribe(
-                            function(newAddress) {
+                            function (newAddress) {
                                 if (!newAddress || !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
                                     prevAddress = newAddress;
                                     if (newAddress) {
@@ -113,7 +119,7 @@ define(
                             }
                         );
 
-                        loadEvents = false   
+                        loadEvents = false;
                     }
                 },
 
@@ -133,10 +139,8 @@ define(
                             },
                             success: function (data) {
                                 self.animateRender(data);
-                                $( "#apm-container" ).accordion( "refresh" );
-
-                                // Stop the loader
-                                FullScreenLoader.stopLoader();
+                                // Auto select the previous method
+                                self.checkLastPaymentMethod();
                             },
                             error: function (request, status, error) {
                                 Utilities.log(error);
@@ -146,7 +150,6 @@ define(
                             }
                         }
                     );
-
                 },
 
                 /**
@@ -154,6 +157,10 @@ define(
                  */
                 animateRender: function (data) {
                     $('#apm-container').empty().hide();
+                    if ($('#apm-container').hasClass("ui-accordion")) {
+                        $('#apm-container').accordion("destroy");
+                    }
+                    
                     $('#apm-container').append(data.html)
                         .accordion(
                             {
@@ -163,7 +170,8 @@ define(
                                 }
                             }
                         );
-                    if (data.klarna != true) {
+                    if (data.apms.includes('klarna') == false) {
+                        
                         // Stop the loader
                         $('#apm-container').show();
                         FullScreenLoader.stopLoader();
@@ -177,7 +185,7 @@ define(
                     let id = $("#apm-container div[aria-selected=true]").attr('id');
 
                     if (Utilities.methodIsSelected(METHOD_ID) && id) {
-                        let form = $("#cko-apm-form-" + id), 
+                        let form = $("#cko-apm-form-" + id),
                             data = {methodId: METHOD_ID};
 
                         // Start the loader

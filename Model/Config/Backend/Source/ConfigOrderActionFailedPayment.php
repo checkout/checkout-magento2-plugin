@@ -18,7 +18,7 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 /**
  * Class ConfigOrderActionFailedPayment
  */
-class ConfigOrderActionFailedPayment implements \Magento\Framework\Option\ArrayInterface
+class ConfigOrderActionFailedPayment implements \Magento\Framework\Data\OptionSourceInterface
 {
     /**
      * Options getter

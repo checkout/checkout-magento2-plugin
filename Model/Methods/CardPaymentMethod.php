@@ -26,7 +26,7 @@ use \Checkout\Library\Exceptions\CheckoutHttpException;
 /**
  * Class CardPaymentMethod
  */
-class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
+class CardPaymentMethod extends AbstractMethod
 {
     /**
      * @var string
@@ -145,18 +145,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\ObjectManagerInterface $objectManager,
-        \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
-        \Magento\Framework\DB\TransactionFactory $transactionFactory,
         \Magento\Customer\Model\Session $customerSession,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Checkout\Helper\Data $checkoutData,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \Magento\Quote\Api\CartManagementInterface $quoteManagement,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Magento\Backend\Model\Session\Quote $sessionQuote,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
@@ -182,19 +171,8 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $data
         );
 
-        $this->urlBuilder         = $urlBuilder;
         $this->backendAuthSession = $backendAuthSession;
-        $this->cart               = $cart;
-        $this->_objectManager     = $objectManager;
-        $this->invoiceSender      = $invoiceSender;
-        $this->transactionFactory = $transactionFactory;
         $this->customerSession    = $customerSession;
-        $this->checkoutSession    = $checkoutSession;
-        $this->checkoutData       = $checkoutData;
-        $this->quoteRepository    = $quoteRepository;
-        $this->quoteManagement    = $quoteManagement;
-        $this->orderSender        = $orderSender;
-        $this->sessionQuote       = $sessionQuote;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->utilities          = $utilities;
@@ -302,8 +280,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 ->payments()->request($request);
 
             return $response;
-        }
-        catch (CheckoutHttpException $e) {
+        } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
             if ($isApiOrder) {
                 return $e;
@@ -313,7 +290,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
     /**
      * Get the success redirection URL for the payment request.
-     * 
+     *
      * @return string
      */
     public function getSuccessUrl($data)
@@ -327,7 +304,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
     /**
      * Get the failure redirection URL for the payment request.
-     * 
+     *
      * @return string
      */
     public function getFailureUrl($data)
@@ -366,7 +343,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Process the capture request
-            $response = $api->captureOrder($payment, $amount, true);
+            $response = $api->captureOrder($payment, $amount);
             if (!$api->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __('The capture request could not be processed.')
@@ -457,7 +434,7 @@ class CardPaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             }
 
             // Process the refund request
-            $response = $api->refundOrder($payment, $amount, true);
+            $response = $api->refundOrder($payment, $amount);
 
             if (!$api->isValidResponse($response)) {
                 throw new \Magento\Framework\Exception\LocalizedException(

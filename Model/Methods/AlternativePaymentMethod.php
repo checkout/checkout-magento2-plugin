@@ -40,7 +40,7 @@ use \Checkout\Library\Exceptions\CheckoutHttpException;
 /**
  * Class AlternativePaymentMethod
  */
-class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
+class AlternativePaymentMethod extends AbstractMethod
 {
 
     /**
@@ -155,7 +155,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Checkout\Model\Cart $cart,
         \Magento\Framework\UrlInterface $urlBuilder,
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
@@ -196,7 +195,6 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
 
         $this->urlBuilder         = $urlBuilder;
         $this->backendAuthSession = $backendAuthSession;
-        $this->cart               = $cart;
         $this->_objectManager     = $objectManager;
         $this->invoiceSender      = $invoiceSender;
         $this->transactionFactory = $transactionFactory;
@@ -251,8 +249,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
                     ->payments()->request($payment);
 
                 return $response;
-            }
-            catch (CheckoutHttpException $e) {
+            } catch (CheckoutHttpException $e) {
                 $this->ckoLogger->write($e->getBody());
             }
         }
@@ -271,8 +268,14 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
      *
      * @return     \Checkout\Models\Payments\Payment
      */
-    public function createPayment($source, $amount, string $currency, string $reference, string $methodId, string $method)
-    {
+    public function createPayment(
+        $source,
+        $amount,
+        string $currency,
+        string $reference,
+        string $methodId,
+        string $method
+    ) {
         $payment = null;
 
         // Create payment object
@@ -299,11 +302,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         $payment->reference = $reference;
         $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
         $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-        
-        // Add customer to paypal payment details.
-        if ($method == 'paypal') {
-            $payment->customer = $this->apiHandler->createCustomer($quote);    
-        }
+        $payment->customer = $this->apiHandler->createCustomer($quote);
         $payment->shipping = $this->apiHandler->createShippingAddress($quote);
         $payment->description = __(
             'Payment request from %1',
@@ -798,7 +797,7 @@ class AlternativePaymentMethod extends \Magento\Payment\Model\Method\AbstractMet
         if (parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code)
             && count($this->config->getApms()) > 0
-            && !$this->backendAuthSession->isLoggedIn() 
+            && !$this->backendAuthSession->isLoggedIn()
             && $enabled;
         }
 

@@ -94,6 +94,9 @@
                                 }
                                 $('#apm-container').show();
                                 FullScreenLoader.stopLoader();
+
+                                // Auto select the default/previous method
+                                self.checkLastPaymentMethod();
                             });
 
                         } catch(er) {
@@ -101,7 +104,14 @@
                         }
 
                     },
-                    
+
+                    /**
+                     * @return {void}
+                     */
+                    checkLastPaymentMethod: function () {
+                        return Utilities.checkLastPaymentMethod();
+                    },
+
                     /**
                      * Get methods from source.
                      *
