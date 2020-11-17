@@ -16,8 +16,8 @@
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
-    <route url="/V1/checkout_com/api/v3" method="POST">
-        <service class="CheckoutCom\Magento2\Api\v3Interface" method="executeApiV3"/>
+    <route url="/V1/checkout_com/api/V3" method="POST">
+        <service class="CheckoutCom\Magento2\Api\V3Interface" method="executeApiV3"/>
         <resources>
             <resource ref="self" />
         </resources>

@@ -17,12 +17,10 @@
 namespace CheckoutCom\Magento2\Api\Data;
 
 /**
- * Interface used for payment request in API v3 
- * 
- * Interface PaymentRequestInterface
- * @package CheckoutCom\Magento2\Api\Data
+ * Interface used for payment request in API v3
+ *
  */
-interface PaymentRequestInterface extends \Magento\Framework\Api\CustomAttributesDataInterface
+interface PaymentRequestInterface
 {
     /**
      * Constants for keys of data array.

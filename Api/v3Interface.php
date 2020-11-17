@@ -19,7 +19,7 @@ namespace CheckoutCom\Magento2\Api;
 /**
  * Interface for API v3
  */
-interface v3Interface
+interface V3Interface
 {
     /**
      * Set payment information and place order for a specified cart.

@@ -18,14 +18,13 @@ namespace CheckoutCom\Magento2\Model\Api;
 
 /**
  * Class v3 - Execute the API v3 endpoint
- * @package CheckoutCom\Magento2\Model\Api
  */
-class v3 implements \CheckoutCom\Magento2\Api\v3Interface
+class V3 implements \CheckoutCom\Magento2\Api\V3Interface
 {
     /**
-     * @var PaymentResponseFactory
+     * @var PaymentResponse
      */
-    private $paymentResponseFactory;
+    private $paymentResponse;
 
     /**
      * @var Config
@@ -81,6 +80,11 @@ class v3 implements \CheckoutCom\Magento2\Api\v3Interface
      * @var VaultHandlerService
      */
     public $vaultHandler;
+
+    /**
+     * @var Http
+     */
+    public $request;
     
     /**
      * @var \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
@@ -108,7 +112,7 @@ class v3 implements \CheckoutCom\Magento2\Api\v3Interface
     private $quote;
     
     public function __construct(
-        \CheckoutCom\Magento2\Model\Api\Data\PaymentResponseFactory $paymentResponseFactory,
+        \CheckoutCom\Magento2\Model\Api\Data\PaymentResponse $paymentResponse,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
@@ -119,9 +123,10 @@ class v3 implements \CheckoutCom\Magento2\Api\v3Interface
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
+        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
+        \Magento\Framework\App\Request\Http $request
     ) {
-        $this->paymentResponseFactory = $paymentResponseFactory;
+        $this->paymentResponse = $paymentResponse;
         $this->config = $config;
         $this->storeManager = $storeManager;
         $this->quoteHandler = $quoteHandler;
@@ -133,6 +138,7 @@ class v3 implements \CheckoutCom\Magento2\Api\v3Interface
         $this->paymentErrorHandler = $paymentErrorHandler;
         $this->utilities = $utilities;
         $this->vaultHandler = $vaultHandler;
+        $this->request = $request;
     }
     
     public function executeApiV3(
@@ -161,7 +167,7 @@ class v3 implements \CheckoutCom\Magento2\Api\v3Interface
         }
         
         // Set the payment response details
-        $responseDetails = $this->paymentResponseFactory->create();
+        $responseDetails = $this->paymentResponse;
         $responseDetails->setSuccess($this->result['success']);
         $responseDetails->setOrderId($this->result['order_id']);
         $responseDetails->setRedirectUrl($this->result['redirect_url']);
@@ -304,8 +310,8 @@ class v3 implements \CheckoutCom\Magento2\Api\v3Interface
      */
     public function getPaymentResponse($order)
     {
-        $sessionId = "";
-        
+        $sessionId = $this->request->getParam('cko-session-id');
+
         return ($sessionId && !empty($sessionId))
             ? $this->api->getPaymentDetails($sessionId)
             : $this->requestPayment($order);
@@ -342,8 +348,7 @@ class v3 implements \CheckoutCom\Magento2\Api\v3Interface
         // Add vault specific details to the payment request
         if ($this->data->getPaymentMethod() == 'checkoutcom_vault') {
             // Set the public hash - Only for vault method
-            if ($this->data->getPublicHash() !== null && !empty($this->data->getPublicHash()))
-            {
+            if ($this->data->getPublicHash() !== null && !empty($this->data->getPublicHash())) {
                 $payload['publicHash'] = $this->data->getPublicHash();
             }
 
@@ -462,8 +467,10 @@ class v3 implements \CheckoutCom\Magento2\Api\v3Interface
                 } elseif ($this->data->getPublicHash() == '') {
                     $this->result['error_message'][] = __('Public hash provided is empty string');
                     $isValid = false;
-                } elseif (
-                    $this->vaultHandler->getCardFromHash($this->data->getPublicHash(), $this->customer->getId()) == null
+                } elseif ($this->vaultHandler->getCardFromHash(
+                    $this->data->getPublicHash(),
+                    $this->customer->getId()
+                ) == null
                 ) {
                     $this->result['error_message'][] = __('Public hash provided is not valid');
                     $isValid = false;

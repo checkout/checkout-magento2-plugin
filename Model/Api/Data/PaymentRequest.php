@@ -18,26 +18,11 @@ namespace CheckoutCom\Magento2\Model\Api\Data;
 
 /**
  * Class PaymentRequest
- * @package CheckoutCom\Magento2\Model\Api\Data
+ * Used to retrieve details send to the V3 endpoint.
  */
 class PaymentRequest extends \Magento\Framework\Api\AbstractExtensibleObject implements
     \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
 {
-    /**
-     * Initialize dependencies.
-     *
-     * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
-     * @param \Magento\Framework\Api\AttributeValueFactory $attributeValueFactory
-     * @param array $data
-     */
-    public function __construct(
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $attributeValueFactory,
-        $data = []
-    ) {
-        parent::__construct($extensionFactory, $attributeValueFactory, $data);
-    }
-
     /**
      * Get payment token
      *

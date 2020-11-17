@@ -18,7 +18,7 @@ namespace CheckoutCom\Magento2\Model\Api\Data;
 
 /**
  * Class PaymentResponse
- * @package CheckoutCom\Magento2\Model\Api\Data
+ * Used to set the API v3 response details
  */
 class PaymentResponse extends \Magento\Framework\Model\AbstractExtensibleModel implements
     \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface

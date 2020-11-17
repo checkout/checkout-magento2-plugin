@@ -18,11 +18,9 @@ namespace CheckoutCom\Magento2\Api\Data;
 
 /**
  * Interface used to set the API v3 response
- * 
- * Interface PaymentResponseInterface
- * @package CheckoutCom\Magento2\Api\Data
+ *
  */
-interface PaymentResponseInterface extends \Magento\Framework\Api\ExtensibleDataInterface
+interface PaymentResponseInterface
 {
     /**
      * Constants for keys of data array.
@@ -87,5 +85,4 @@ interface PaymentResponseInterface extends \Magento\Framework\Api\ExtensibleData
      * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
      */
     public function setErrorMessage($errorMessage);
-    
 }
