@@ -360,7 +360,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         $payload = [];
 
         // Set the card bin
-        if ($this->data->getCardBin() !== null && !empty($this->data->getCardBin())) {
+        if (!empty($this->data->getCardBin())) {
             $payload['cardBin'] = $this->data->getCardBin();
         }
 
@@ -384,7 +384,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         // Add vault specific details to the payment request
         if ($this->data->getPaymentMethod() == 'checkoutcom_vault') {
             // Set the public hash - Only for vault method
-            if ($this->data->getPublicHash() !== null && !empty($this->data->getPublicHash())) {
+            if (!empty($this->data->getPublicHash())) {
                 $payload['publicHash'] = $this->data->getPublicHash();
             }
 
@@ -394,12 +394,12 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         }
 
         // Set the success URL
-        if ($this->data->getSuccessUrl() !== null && !empty($this->data->getSuccessUrl())) {
+        if (!empty($this->data->getSuccessUrl())) {
             $payload['successUrl'] = $this->data->getSuccessUrl();
         }
         
         // Set the failure URL
-        if ($this->data->getFailureUrl() !== null && !empty($this->data->getFailureUrl())) {
+        if (!empty($this->data->getFailureUrl())) {
             $payload['failureUrl'] = $this->data->getFailureUrl();
         }
 
