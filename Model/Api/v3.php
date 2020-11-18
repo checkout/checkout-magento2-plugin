@@ -109,6 +109,11 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
     /**
      * @var Object
      */
+    public $order;
+
+    /**
+     * @var Object
+     */
     private $quote;
     
     public function __construct(
@@ -145,66 +150,22 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         \Magento\Customer\Api\Data\CustomerInterface $customer,
         \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
     ) {
-        // Prepare the V3 object
-        $this->init();
-        
         // Assign the customer and payment request to be accessible to the whole class
         $this->customer = $customer;
         $this->data = $paymentRequest;
-        
-        // Validate the public key
-        if ($this->isValidPublicKey()) {
-            if ($this->hasValidFields()) {
-                $this->result = $this->processPayment();
-                if (!$this->result['success']) {
-                    $this->result['error_message'][] = __('The order could not be created.');
-                    // Handle order on failed payment
-                    $this->orderStatusHandler->handleFailedPayment($this->order);
-                }
-            }
-        } else {
-            return __('The public key is invalid.');
-        }
-        
-        // Set the payment response details
-        $responseDetails = $this->paymentResponse;
-        $responseDetails->setSuccess($this->result['success']);
-        $responseDetails->setOrderId($this->result['order_id']);
-        $responseDetails->setRedirectUrl($this->result['redirect_url']);
-        $responseDetails->setErrorMessage($this->result['error_message']);
-        return $responseDetails;
+
+        // Prepare the V3 object
+        return $this->init();
     }
     
     public function executeGuestApiV3(
         \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
     ) {
-        // Prepare the V3 object
-        $this->init();
-        
         // Assign the payment request to be accessible to the whole class
         $this->data = $paymentRequest;
 
-        // Validate the public key
-        if ($this->isValidPublicKey()) {
-            if ($this->hasValidFields()) {
-                $this->result = $this->processPayment();
-                if (!$this->result['success']) {
-                    $this->result['error_message'][] = __('The order could not be created.');
-                    // Handle order on failed payment
-                    $this->orderStatusHandler->handleFailedPayment($this->order);
-                }
-            }
-        } else {
-            return __('The public key is invalid.');
-        }
-
-        // Set the payment response details
-        $responseDetails = $this->paymentResponse;
-        $responseDetails->setSuccess($this->result['success']);
-        $responseDetails->setOrderId($this->result['order_id']);
-        $responseDetails->setRedirectUrl($this->result['redirect_url']);
-        $responseDetails->setErrorMessage($this->result['error_message']);
-        return $responseDetails;
+        // Prepare the V3 object
+        return $this->init();
     }
 
     /**
@@ -224,6 +185,28 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
             'redirect_url' => '',
             'error_message' => []
         ];
+        
+        // Validate the public key
+        if ($this->isValidPublicKey()) {
+            if ($this->hasValidFields()) {
+                $this->result = $this->processPayment();
+                if (!$this->result['success']) {
+                    $this->result['error_message'][] = __('The order could not be created.');
+                    // Handle order on failed payment
+                    $this->orderStatusHandler->handleFailedPayment($this->order);
+                }
+            }
+        } else {
+            return __('The public key is invalid.');
+        }
+
+        // Set the payment response details
+        $responseDetails = $this->paymentResponse;
+        $responseDetails->setSuccess($this->result['success']);
+        $responseDetails->setOrderId($this->result['order_id']);
+        $responseDetails->setRedirectUrl($this->result['redirect_url']);
+        $responseDetails->setErrorMessage($this->result['error_message']);
+        return $responseDetails;
     }
 
     /**
@@ -243,6 +226,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
     {
         $order = $this->createOrder($this->data->getPaymentMethod());
         if ($this->orderHandler->isOrder($order)) {
+            $this->order = $order;
             // Get the payment response
             $response = $this->getPaymentResponse($order);
 
