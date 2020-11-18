@@ -174,6 +174,38 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         $responseDetails->setErrorMessage($this->result['error_message']);
         return $responseDetails;
     }
+    
+    public function executeGuestApiV3(
+        \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
+    ) {
+        // Prepare the V3 object
+        $this->init();
+        
+        // Assign the payment request to be accessible to the whole class
+        $this->data = $paymentRequest;
+
+        // Validate the public key
+        if ($this->isValidPublicKey()) {
+            if ($this->hasValidFields()) {
+                $this->result = $this->processPayment();
+                if (!$this->result['success']) {
+                    $this->result['error_message'][] = __('The order could not be created.');
+                    // Handle order on failed payment
+                    $this->orderStatusHandler->handleFailedPayment($this->order);
+                }
+            }
+        } else {
+            return __('The public key is invalid.');
+        }
+
+        // Set the payment response details
+        $responseDetails = $this->paymentResponse;
+        $responseDetails->setSuccess($this->result['success']);
+        $responseDetails->setOrderId($this->result['order_id']);
+        $responseDetails->setRedirectUrl($this->result['redirect_url']);
+        $responseDetails->setErrorMessage($this->result['error_message']);
+        return $responseDetails;
+    }
 
     /**
      * Get an API handler instance and the request data.
@@ -340,7 +372,11 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
             // Prepare the save card setting
             $saveCardEnabled = $this->config->getValue('save_card_option', 'checkoutcom_card_payment');
             
-            if ($this->data->getSaveCard() !== null && $this->data->getSaveCard() === true && $saveCardEnabled) {
+            if ($this->data->getSaveCard() !== null
+                && $this->data->getSaveCard() === true
+                && $saveCardEnabled
+                && isset($this->customer)
+            ) {
                 $payload['saveCard'] = true;
             }
         }
@@ -377,7 +413,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
                 $order->getIncrementId(),
                 $this->quote,
                 true,
-                $this->customer->getId()
+                $this->customer ? $this->customer->getId() : null
             );
     }
 
@@ -458,7 +494,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         }
 
         // CKO vault payment method specific validation
-        if ($this->data->getPaymentMethod()== 'checkoutcom_vault') {
+        if ($this->data->getPaymentMethod()== 'checkoutcom_vault' && isset($this->customer)) {
             // Check the public hash has been specified correctly
             if ($this->data->getPublicHash() !== null) {
                 if (!is_string($this->data->getPublicHash())) {
@@ -487,6 +523,9 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
                     $isValid = false;
                 }
             }
+        } elseif ($this->data->getPaymentMethod()== 'checkoutcom_vault' && !isset($this->customer)) {
+            $this->result['error_message'][] = __('Vault payment method is not available for guest checkouts.');
+            $isValid = false;
         }
         
         return $isValid;

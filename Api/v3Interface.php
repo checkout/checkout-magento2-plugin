@@ -32,4 +32,14 @@ interface V3Interface
         \Magento\Customer\Api\Data\CustomerInterface $customer,
         \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
     );
+
+    /**
+     * Set payment information and place order for a guest quote.
+     *
+     * @param \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
+     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
+     */
+    public function executeGuestApiV3(
+        \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
+    );
 }
