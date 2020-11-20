@@ -22,9 +22,9 @@ namespace CheckoutCom\Magento2\Model\Api;
 class V3 implements \CheckoutCom\Magento2\Api\V3Interface
 {
     /**
-     * @var PaymentResponse
+     * @var paymentResponseFactory
      */
-    private $paymentResponse;
+    private $paymentResponseFactory;
 
     /**
      * @var Config
@@ -115,9 +115,9 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
      * @var Object
      */
     private $quote;
-    
+
     public function __construct(
-        \CheckoutCom\Magento2\Model\Api\Data\PaymentResponse $paymentResponse,
+        \CheckoutCom\Magento2\Model\Api\Data\PaymentResponseFactory $paymentResponseFactory,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
@@ -131,7 +131,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \Magento\Framework\App\Request\Http $request
     ) {
-        $this->paymentResponse = $paymentResponse;
+        $this->paymentResponseFactory = $paymentResponseFactory;
         $this->config = $config;
         $this->storeManager = $storeManager;
         $this->quoteHandler = $quoteHandler;
@@ -145,7 +145,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         $this->vaultHandler = $vaultHandler;
         $this->request = $request;
     }
-    
+
     public function executeApiV3(
         \Magento\Customer\Api\Data\CustomerInterface $customer,
         \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
@@ -155,9 +155,9 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         $this->data = $paymentRequest;
 
         // Prepare the V3 object
-        return $this->init();
+        return $this->execute();
     }
-    
+
     public function executeGuestApiV3(
         \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
     ) {
@@ -165,13 +165,13 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         $this->data = $paymentRequest;
 
         // Prepare the V3 object
-        return $this->init();
+        return $this->execute();
     }
 
     /**
      * Get an API handler instance and the request data.
      */
-    public function init()
+    private function execute()
     {
         // Get an API handler instance
         $this->api = $this->apiHandler->init(
@@ -201,7 +201,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         }
 
         // Set the payment response details
-        $responseDetails = $this->paymentResponse;
+        $responseDetails = $this->paymentResponseFactory->create();
         $responseDetails->setSuccess($this->result['success']);
         $responseDetails->setOrderId($this->result['order_id']);
         $responseDetails->setRedirectUrl($this->result['redirect_url']);
@@ -212,7 +212,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
     /**
      * Check if the request is valid.
      */
-    public function isValidPublicKey()
+    private function isValidPublicKey()
     {
         return $this->config->isValidAuth('pk', 'Cko-Authorization');
     }
@@ -222,7 +222,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
      *
      * @return Array
      */
-    public function processPayment()
+    private function processPayment()
     {
         $order = $this->createOrder($this->data->getPaymentMethod());
         if ($this->orderHandler->isOrder($order)) {
@@ -279,7 +279,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
      * @param $methodId
      * @return Order
      */
-    public function createOrder($methodId)
+    private function createOrder($methodId)
     {
         // Load the quote
         $this->quote = $this->loadQuote();
@@ -297,7 +297,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
     /**
      * Load the quote.
      */
-    public function loadQuote()
+    private function loadQuote()
     {
         // Convert masked quote ID hash to quote ID int
         if (preg_match("/([A-Za-z])\w+/", $this->data->getQuoteId())) {
@@ -324,7 +324,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
      *
      * @return Object
      */
-    public function getPaymentResponse($order)
+    private function getPaymentResponse($order)
     {
         $sessionId = $this->request->getParam('cko-session-id');
 
@@ -338,7 +338,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
      *
      * @return Response
      */
-    public function requestPayment($order)
+    private function requestPayment($order)
     {
         // Prepare the payment request payload
         $payload = [];
@@ -401,7 +401,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
             );
     }
 
-    public function hasValidFields()
+    private function hasValidFields()
     {
         $isValid = true;
 

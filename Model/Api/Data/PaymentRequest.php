@@ -20,7 +20,7 @@ namespace CheckoutCom\Magento2\Model\Api\Data;
  * Class PaymentRequest
  * Used to retrieve details send to the V3 endpoint.
  */
-class PaymentRequest extends \Magento\Framework\Api\AbstractExtensibleObject implements
+class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject implements
     \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
 {
     /**
