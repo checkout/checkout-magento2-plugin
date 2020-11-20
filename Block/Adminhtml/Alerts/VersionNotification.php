@@ -42,12 +42,10 @@ class VersionNotification implements \Magento\Framework\Notification\MessageInte
         return $message;
     }
 
-
     public function getIdentity()
     {
         return hash('sha256', 'Checkout.com' . time());
     }
-
 
     public function isDisplayed()
     {
@@ -62,23 +60,19 @@ class VersionNotification implements \Magento\Framework\Notification\MessageInte
         }
     }
 
-
     public function getSeverity()
     {
         $releaseType = $this->versionHandler->getVersionType($this->current, $this->latest);
 
         switch ($releaseType) {
-            case 'revision';
+            case 'revision':
                 return self::SEVERITY_MINOR;
-                break;
-
-            case 'minor';
+                
+            case 'minor':
                 return self::SEVERITY_MAJOR;
-                break;
 
-            case 'major';
+            case 'major':
                 return self::SEVERITY_CRITICAL;
-                break;
 
             default:
                 return self::SEVERITY_NOTICE;

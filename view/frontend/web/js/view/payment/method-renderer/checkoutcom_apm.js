@@ -109,7 +109,7 @@ define(
                         let prevAddress;
 
                         Quote.billingAddress.subscribe(
-                            function(newAddress) {
+                            function (newAddress) {
                                 if (!newAddress || !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
                                     prevAddress = newAddress;
                                     if (newAddress) {

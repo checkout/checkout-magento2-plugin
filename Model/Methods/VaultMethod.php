@@ -288,8 +288,7 @@ class VaultMethod extends AbstractMethod
                 ->payments()->request($request);
 
             return $response;
-        }
-        catch (CheckoutHttpException $e) {
+        } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
         }
     }

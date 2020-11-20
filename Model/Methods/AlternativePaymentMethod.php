@@ -249,8 +249,7 @@ class AlternativePaymentMethod extends AbstractMethod
                     ->payments()->request($payment);
 
                 return $response;
-            }
-            catch (CheckoutHttpException $e) {
+            } catch (CheckoutHttpException $e) {
                 $this->ckoLogger->write($e->getBody());
             }
         }
@@ -269,8 +268,14 @@ class AlternativePaymentMethod extends AbstractMethod
      *
      * @return     \Checkout\Models\Payments\Payment
      */
-    public function createPayment($source, $amount, string $currency, string $reference, string $methodId, string $method)
-    {
+    public function createPayment(
+        $source,
+        $amount,
+        string $currency,
+        string $reference,
+        string $methodId,
+        string $method
+    ) {
         $payment = null;
 
         // Create payment object
@@ -792,7 +797,7 @@ class AlternativePaymentMethod extends AbstractMethod
         if (parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code)
             && count($this->config->getApms()) > 0
-            && !$this->backendAuthSession->isLoggedIn() 
+            && !$this->backendAuthSession->isLoggedIn()
             && $enabled;
         }
 

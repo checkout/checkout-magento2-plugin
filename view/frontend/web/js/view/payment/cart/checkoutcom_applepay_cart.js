@@ -67,7 +67,8 @@ require([
          *
          * @return {undefined}
          */
-        function launchApplePay() {
+        function launchApplePay()
+        {
             // Check if Apple Pay is available in the browser
             if (window.ApplePaySession) {
                 var merchantIdentifier = getValue("merchant_id");
@@ -214,7 +215,7 @@ require([
                     totalsBreakdown = totals;
 
                     // Update the total to reflect the shipping method change
-                    if(selectedShippingMethod) {
+                    if (selectedShippingMethod) {
                         session.completeShippingMethodSelection(
                             status,
                             totals.total,
@@ -301,9 +302,12 @@ require([
         /** Get the configured theme for the button
          * @return {string}
          */
-        function getButtonTheme() {
+        function getButtonTheme()
+        {
             let theme = Utilities.getValue(methodId, "button_style");
-            if (theme === "white-with-line") return "white-outline";
+            if (theme === "white-with-line") {
+                return "white-outline"
+            };
             return theme;
         }
 
@@ -312,7 +316,8 @@ require([
          *
          * @return {object}
          */
-        function sendPaymentRequest(paymentData) {
+        function sendPaymentRequest(paymentData)
+        {
             return new Promise(function (resolve, reject) {
                 $.ajax({
                     url: Utilities.getUrl("payment/placeorder"),
@@ -338,7 +343,8 @@ require([
          *
          * @return {object}
          */
-        function performValidation(valURL) {
+        function performValidation(valURL)
+        {
             var controllerUrl = Utilities.getUrl("applepay/validation");
             var validationUrl =
                 controllerUrl + "?u=" + valURL + "&method_id=" + methodId;
@@ -361,7 +367,8 @@ require([
          *
          * @return {array}
          */
-        function getSupportedNetworks() {
+        function getSupportedNetworks()
+        {
             return getValue("supported_networks").split(",");
         }
 
@@ -370,7 +377,8 @@ require([
          *
          * @return {string}
          */
-        function getValue(field) {
+        function getValue(field)
+        {
             return Utilities.getValue(methodId, field);
         }
 
@@ -379,7 +387,8 @@ require([
          *
          * @return {array}
          */
-        function getShippingMethods(countryId, postCode) {
+        function getShippingMethods(countryId, postCode)
+        {
             let requestBody = {
                 address: {
                     country_id: countryId.toUpperCase(),
@@ -400,7 +409,8 @@ require([
          *
          * @return {array}
          */
-        function formatShipping(shippingData) {
+        function formatShipping(shippingData)
+        {
             let formatted = [];
 
             shippingData.forEach(function (shippingMethod) {
@@ -475,9 +485,13 @@ require([
 
             shippingInfo.total_segments.forEach(function (totalItem) {
                 // ignore the grand total since it's handled separately
-                if (totalItem.code === "grand_total") return;
+                if (totalItem.code === "grand_total") {
+                    return
+                };
                 // if there is not tax applied, remove it from the line items
-                if (totalItem.code === "tax" && totalItem.value === 0) return;
+                if (totalItem.code === "tax" && totalItem.value === 0) {
+                    return
+                };
                 breakdown.push({
                     type: "final",
                     label: totalItem.title,
@@ -499,7 +513,8 @@ require([
          *
          * @return {undefined}
          */
-        function setShippingAndBilling(shippingDetails, billingDetails) {
+        function setShippingAndBilling(shippingDetails, billingDetails)
+        {
             let requestBody = {
                 addressInformation: {
                     shipping_address: {
@@ -553,13 +568,12 @@ require([
         /**
          * @return {array}
          */
-        function getMerchantCapabilities() {
+        function getMerchantCapabilities()
+        {
             var output = ["supports3DS"];
             var capabilities = getValue("merchant_capabilities").split(",");
 
             return output.concat(capabilities);
         }
-
-        
     });
 });

@@ -280,8 +280,7 @@ class CardPaymentMethod extends AbstractMethod
                 ->payments()->request($request);
 
             return $response;
-        }
-        catch (CheckoutHttpException $e) {
+        } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
             if ($isApiOrder) {
                 return $e;
@@ -291,7 +290,7 @@ class CardPaymentMethod extends AbstractMethod
 
     /**
      * Get the success redirection URL for the payment request.
-     * 
+     *
      * @return string
      */
     public function getSuccessUrl($data)
@@ -305,7 +304,7 @@ class CardPaymentMethod extends AbstractMethod
 
     /**
      * Get the failure redirection URL for the payment request.
-     * 
+     *
      * @return string
      */
     public function getFailureUrl($data)

@@ -121,8 +121,7 @@ define(
                     restUrl += 'rest/default/V1/';
                     restUrl += 'carts/mine/payment-information';
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
-                }
-                else {
+                } else {
                     restUrl += 'rest/all/V1/guest-carts/' + window.checkoutConfig.quoteData.entity_id + '/payment-information';
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
                 }
@@ -212,10 +211,10 @@ define(
              *
              * @return {string}
              */
-            getShopLanguage: function() {
+            getShopLanguage: function () {
                 let mageShopLanguage = Config[KEY_DATA].store.language;
                 let framesLanguage;
-                switch(mageShopLanguage) {
+                switch (mageShopLanguage) {
                     case 'nl_NL':
                         framesLanguage = 'NL-NL';
                         break;

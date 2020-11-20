@@ -47,6 +47,16 @@ class OrderStatusHandlerService
     public $orderHandler;
 
     /**
+     * @var OrderRepositoryInterface
+     */
+    public $orderRepository;
+    
+    /**
+     * @var Registry
+     */
+    public $registry;
+
+    /**
      * @var State
      */
     public $state;
@@ -69,14 +79,17 @@ class OrderStatusHandlerService
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \Magento\Sales\Model\Order $orderModel,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler
+        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        \Magento\Framework\Registry $registry
     ) {
         $this->storeManager          = $storeManager;
         $this->transactionHandler    = $transactionHandler;
         $this->orderModel            = $orderModel;
         $this->config                = $config;
         $this->orderHandler          = $orderHandler;
-        
+        $this->orderRepository       = $orderRepository;
+        $this->registry              = $registry;
     }
     
     /**
@@ -110,12 +123,12 @@ class OrderStatusHandlerService
                 break;
         }
         
-        if ($this->state && $this->order->getStatus() != 'holded') {
+        if ($this->state) {
             // Set the order state
             $this->order->setState($this->state);
         }
         
-        if ($this->status && $this->order->getStatus() != 'closed' && $this->order->getStatus() != 'holded') {
+        if ($this->status && $this->order->getStatus() != 'closed') {
             // Set the order status
             $this->order->setStatus($this->status);
         }
@@ -166,11 +179,11 @@ class OrderStatusHandlerService
     /**
      * Set the order status for a payment_approved webhook.
      */
-    public function approved($webhook) {
+    public function approved($webhook)
+    {
         $payload = json_decode($webhook['event_data']);
-        if ($this->order->getState() !== 'processing') {
-            $this->status = $this->config->getValue('order_status_authorized');
-        }
+        $this->status = $this->config->getValue('order_status_authorized');
+
         // Flag order if potential fraud
         if ($this->transactionHandler->isFlagged($payload)) {
             $this->status = $this->config->getValue('order_status_flagged');
@@ -180,7 +193,8 @@ class OrderStatusHandlerService
     /**
      * Set the order status for a payment_captured webhook.
      */
-    public function captured() {
+    public function captured()
+    {
         $this->status = $this->config->getValue('order_status_captured');
         $this->state = $this->orderModel::STATE_PROCESSING;
     }
@@ -188,15 +202,21 @@ class OrderStatusHandlerService
     /**
      * Set the order status for a payment_void webhook.
      */
-    public function void() {
+    public function void()
+    {
         $this->status = $this->config->getValue('order_status_voided');
         $this->state = $this->orderModel::STATE_CANCELED;
+
+        if ($this->order->getState() !== 'canceled') {
+            $this->orderModel->loadByIncrementId($this->order->getIncrementId())->cancel();
+        }
     }
 
     /**
      * Set the order status for a refunded webhook.
      */
-    public function refund($webhook) {
+    public function refund($webhook)
+    {
         // Format the amount
         $payload = json_decode($webhook['event_data']);
         $amount = $this->transactionHandler->amountFromGateway(
@@ -218,7 +238,8 @@ class OrderStatusHandlerService
     /**
      * Set the order status for a payment_capture_pending webhook.
      */
-    public function capturePending($webhook) {
+    public function capturePending($webhook)
+    {
         $payload = json_decode($webhook['event_data']);
         if (isset($payload->data->metadata->methodId)
             && $payload->data->metadata->methodId === 'checkoutcom_apm'

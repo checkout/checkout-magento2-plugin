@@ -20,7 +20,7 @@ namespace CheckoutCom\Magento2\Cron;
 /**
  * Class Webhooks.
  */
-class Webhooks 
+class Webhooks
 {
     /**
      * @var LoggerInterface
@@ -52,7 +52,8 @@ class Webhooks
      *
      * @return void
      */
-    public function execute() {
+    public function execute()
+    {
         $clean = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/webhooks_table_clean',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
@@ -67,6 +68,5 @@ class Webhooks
             $this->webhookHandler->clean();
             $this->logger->info('Webhook table has been cleaned.');
         }
-        
     }
 }

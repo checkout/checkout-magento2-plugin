@@ -123,8 +123,12 @@ class Config
      *
      * @return string
      */
-    public function getValue($field, $methodId = null, $storeCode = null, $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-    {
+    public function getValue(
+        $field,
+        $methodId = null,
+        $storeCode = null,
+        $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    ) {
         return $this->loader->init()->getValue($field, $methodId, $storeCode, $scope);
     }
 
@@ -259,17 +263,12 @@ class Config
     public function getCaptureTime()
     {
         // Get the capture time from config and covert from hours to seconds
-        $captureTime = (float) $this->getValue('capture_time');
+        $captureTime = $this->getValue('capture_time');
         $captureTime *= 3600;
 
         // Force capture time to a minimum of 36 seconds
-        $min = (int) $this->getValue('min_capture_time');
+        $min = $this->getValue('min_capture_time');
         $captureTime = $captureTime >= $min ? $captureTime : $min;
-
-        // Allow time for script execution
-        $processingTime = (int) $this->getValue('processing_time');
-
-        $captureTime += $processingTime;
 
         // Check the setting
         if ($this->needsAutoCapture()) {
@@ -304,10 +303,15 @@ class Config
         return $this->storeManager->getStore()->getBaseUrl();
     }
 
-    public function getStoreLanguage() {
+    public function getStoreLanguage()
+    {
         $storeId =  $this->storeManager->getStore()->getId();
 
-       return  $this->scopeConfig->getValue('general/locale/code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
+        return  $this->scopeConfig->getValue(
+            'general/locale/code',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 
     /**

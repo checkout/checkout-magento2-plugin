@@ -367,8 +367,12 @@ class TransactionHandlerService
     /**
      * Get transactions for an order.
      */
-    public function getTransactionByType($transactionType)
+    public function getTransactionByType($transactionType, $order = null)
     {
+        if ($order) {
+            $this->order = $order;
+        }
+        
         // Payment filter
         $filter1 = $this->filterBuilder
             ->setField('payment_id')
@@ -495,7 +499,12 @@ class TransactionHandlerService
             // Refund
             $this->creditMemoService->refund($creditMemo);
 
-            $status = $this->order->getStatus() == 'closed' ? 'closed' : $this->config->getValue('order_status_refunded');
+            if ($this->order->getStatus() == 'closed') {
+                $status = 'closed';
+            } else {
+                $status = $this->config->getValue('order_status_refunded');
+            }
+            
             $orderComment->setData('status', $status)->save();
 
             // Remove the core credit memo comment
@@ -650,7 +659,8 @@ class TransactionHandlerService
      * @return bool
      * Check if payment has been flagged for potential fraud
      */
-    public function isFlagged($payload) {
+    public function isFlagged($payload)
+    {
         return isset($payload->data->risk->flagged)
             && $payload->data->risk->flagged == true;
     }

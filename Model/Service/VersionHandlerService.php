@@ -71,19 +71,14 @@ class VersionHandlerService
         for ($i = 0; $i < 3; $i++) {
             if ($versions[0][$i] < $versions[1][$i]) {
                 switch ($i) {
-                    case 0;
-                    return  'major';
-                    break;
-
-                    case 1;
-                    return 'minor';
-                    break;
-
-                    case 2;
-                    return 'revision';
-                    break;
+                    case 0:
+                        return  'major';
+                    case 1:
+                        return 'minor';
+                    case 2:
+                        return 'revision';
                 }
-            };
+            }
         }
     }
 

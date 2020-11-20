@@ -77,6 +77,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     public $logger;
 
     /**
+     * @var Session
+     */
+    protected $session;
+
+    /**
      * @var array
      */
     public $data;
@@ -106,7 +111,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \Magento\Checkout\Model\Session $session
     ) {
         parent::__construct($context);
 
@@ -121,6 +127,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $this->paymentErrorHandler = $paymentErrorHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
+        $this->session = $session;
     }
 
     /**
@@ -208,7 +215,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                             }
 
                             // Restore the quote
-                            $this->quoteHandler->restoreQuote($order->getIncrementId());
+                            $this->session->restoreQuote();
 
                             // Handle order on failed payment
                             $this->orderStatusHandler->handleFailedPayment($order);
@@ -231,7 +238,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $this->logger->write($message);
         } finally {
             if ($log) {
-                $this->logger->write($message);    
+                $this->logger->write($message);
             }
 
             return $this->jsonFactory->create()->setData([
@@ -267,7 +274,8 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         );
     }
 
-    public function isEmptyCardToken($paymentData) {
+    public function isEmptyCardToken($paymentData)
+    {
         if ($paymentData['methodId'] == "checkoutcom_card_payment") {
             if (!isset($paymentData['cardToken'])
                 || empty($paymentData['cardToken'])

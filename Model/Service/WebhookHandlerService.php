@@ -18,6 +18,7 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity\Collection;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
 /**
@@ -50,7 +51,15 @@ class WebhookHandlerService
      */
     public $logger;
 
+    /**
+     * @var Order
+     */
     public $order;
+
+    /**
+     * @var \CheckoutCom\Magento2\Gateway\Config\Config
+     */
+    public $config;
 
     /**
      * @var Collection
@@ -71,12 +80,14 @@ class WebhookHandlerService
         \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
         \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->orderHandler = $orderHandler;
         $this->orderStatusHandler = $orderStatusHandler;
         $this->transactionHandler = $transactionHandler;
         $this->webhookEntityFactory = $webhookEntityFactory;
+        $this->config = $config;
         $this->logger = $logger;
     }
 
@@ -88,28 +99,15 @@ class WebhookHandlerService
     public function processSingleWebhook($order, $payload)
     {
         if (isset($payload->data->action_id)) {
-            // store the order in a class
+            // Store the order in a constant
             $this->order = $order;
 
-            // Save the payload
-            $this->saveWebhookEntity($payload, $order);
-
-            // Get the saved webhook
-            $webhooks = $this->loadWebhookEntities([
-                'order_id' => $order->getId()
-            ]);
-
-            if ($this->hasAuth($webhooks, $payload)) {
-                // Check if order is on hold
-                if ($order->getState() != 'holded') {
-                    // Handle the order status for the webhook
-                    $this->webhooksToProcess(
-                        $order,
-                        $webhooks
-                    );
-                    $this->setProcessedTime($webhooks);
-                }
+            if (!$this->config->getValue('webhooks_table_enabled')) {
+                $this->processWithoutSave($order, $payload);
+            } else {
+                $this->processWithSave($order, $payload);
             }
+
         } else {
             // Handle missing action ID
             $msg = __(
@@ -137,6 +135,47 @@ class WebhookHandlerService
         );
 
         $this->setProcessedTime($webhooks);
+    }
+
+    public function processWithSave($order, $payload)
+    {
+        // Save the payload
+        $this->saveWebhookEntity($payload, $order);
+
+        // Get the saved webhook
+        $webhooks = $this->loadWebhookEntities([
+            'order_id' => $order->getId()
+        ]);
+
+        if ($this->hasAuth($webhooks, $payload)) {
+            // Handle the order status for the webhook
+            $this->webhooksToProcess(
+                $order,
+                $webhooks
+            );
+            $this->setProcessedTime($webhooks);
+        }
+    }
+
+    public function processWithoutSave($order, $payload)
+    {
+        $webhooks = [];
+        $webhook = [
+                'event_id' => $payload->id,
+                'event_type' => $payload->type,
+                'event_data' => json_encode($payload),
+                'action_id' => $payload->data->action_id,
+                'payment_id' => $payload->data->id,
+                'order_id' => $order->getId(),
+                'processed' => false
+                ];
+        $webhooks[] = $webhook;
+        
+        // Handle the order status for the webhook
+        $this->webhooksToProcess(
+            $order,
+            $webhooks
+        );
     }
 
     /**
@@ -185,11 +224,12 @@ class WebhookHandlerService
         return $this->sortWebhooks($webhookEntitiesArr);
     }
 
-    public function sortWebhooks($webhooks) {
+    public function sortWebhooks($webhooks)
+    {
         $sortedWebhooks = [];
         if (!empty($webhooks)) {
             foreach ($webhooks as $webhook) {
-                if ($webhook['event_type'] == 'payment_approved'){
+                if ($webhook['event_type'] == 'payment_approved') {
                     array_unshift($sortedWebhooks, $webhook);
                 } else {
                     array_push($sortedWebhooks, $webhook);
@@ -261,7 +301,9 @@ class WebhookHandlerService
     {
         if ($payload->type === 'payment_captured') {
             foreach ($webhooks as $webhook) {
-                if ($webhook['event_type'] == 'payment_approved' || $webhook['event_type'] == 'payment_capture_pending') {
+                if ($webhook['event_type'] == 'payment_approved'
+                    || $webhook['event_type'] == 'payment_capture_pending') {
+                    
                     return true;
                 }
             }

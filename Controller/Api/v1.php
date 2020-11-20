@@ -228,7 +228,7 @@ class V1 extends \Magento\Framework\App\Action\Action
     public function dataIsValid()
     {
         // Check the quote ID
-        if ((!isset($this->data->quote_id) && !isset($this->data['quote_id']))|| (int) $this->data->quote_id == 0) {
+        if ((!isset($this->data->quote_id) && !isset($this->data['quote_id'])) || (int) $this->data->quote_id == 0) {
             throw new LocalizedException(
                 __('The quote ID is missing or invalid.')
             );
