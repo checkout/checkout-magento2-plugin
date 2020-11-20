@@ -382,6 +382,7 @@ class ApplePayMethod extends AbstractMethod
     {
         if (parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code)
+            && $this->config->getValue('enabled_on_checkout', $this->_code)
             && !$this->backendAuthSession->isLoggedIn();
         }
 
