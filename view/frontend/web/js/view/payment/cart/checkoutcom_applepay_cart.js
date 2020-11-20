@@ -545,7 +545,7 @@ require([
             };
             ApplePayUtilities.getRestData(requestBody, "shipping-information");
         }
-
+        
         function setBilling(shippingDetails, billingDetails) {
             let requestBody = {
                 address: {
