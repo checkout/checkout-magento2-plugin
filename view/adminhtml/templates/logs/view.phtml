@@ -1,0 +1,11 @@
+<section class="admin__page-section">
+    <div class="admin__page-section-content">
+        <div class="admin__page-section-item-title">
+            <span class="title"><?php echo $block->getFileName(); ?></span>
+            <p><?php echo $block->getSizeMessage(); ?></p>
+        </div>
+        <div class="admin__page-section-item-content">
+            <textarea readonly rows="25" style="width:100%"><?php echo $block->getLogFile(); ?></textarea>
+        </div>
+    </div>
+</section>
