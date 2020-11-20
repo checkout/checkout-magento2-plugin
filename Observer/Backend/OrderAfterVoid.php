@@ -39,6 +39,16 @@ class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
     public $config;
 
     /**
+     * @var OrderManagementInterface
+     */
+    public $orderManagement;
+
+    /**
+     * @var Order
+     */
+    public $orderModel;
+
+    /**
      * @var Array
      */
     public $params;
@@ -49,11 +59,15 @@ class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\App\RequestInterface $request,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \Magento\Sales\Api\OrderManagementInterface $orderManagement,
+        \Magento\Sales\Model\Order $orderModel
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
         $this->config = $config;
+        $this->orderManagement = $orderManagement;
+        $this->orderModel = $orderModel;
     }
 
     /**
@@ -81,6 +95,13 @@ class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
                 // Update the order history comment status
                 $orderComment->setData('status', $this->config->getValue('order_status_voided'))->save();
                 
+                if ($this->config->getValue('order_status_voided') == 'canceled') {
+                    // Cancel the order if void order status has been set to canceled
+                    $this->orderManagement->cancel($order->getId());
+                } else {
+                    // Order state needs to be set to new so that offline transactions update the order status
+                    $order->setState($this->orderModel::STATE_NEW);
+                }
             }
 
             return $this;

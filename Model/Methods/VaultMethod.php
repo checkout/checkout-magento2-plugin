@@ -330,10 +330,6 @@ class VaultMethod extends AbstractMethod
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;
@@ -374,11 +370,7 @@ class VaultMethod extends AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-    
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
+
         }
 
         return $this;
@@ -421,10 +413,6 @@ class VaultMethod extends AbstractMethod
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;
