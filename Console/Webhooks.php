@@ -109,29 +109,28 @@ class Webhooks extends Command
 
         foreach ($webhooks as $webhook) {
             $payload = json_decode($webhook['event_data'], true);
-            $webhookDate = date('Y-m-d', strtotime($payload['created_on']));
 
-            $webhookTime = strtotime($payload['created_on']);
+            $webhookTime = strtotime($webhook['received_at']);
             $timeBuffer = strtotime('-1 day');
             if ($webhookTime > $timeBuffer) {
                 continue;
             }
             
             if ($date) {
-                if ($date != $webhookDate) {
+                if ($date != $webhookTime) {
                     continue;
                 }
             } elseif ($startDate || $endDate) {
                 if ($startDate && $endDate) {
-                    if ($startDate >= $webhookDate || $endDate <= $webhookDate) {
+                    if ($startDate >= $webhookTime || $endDate <= $webhookTime) {
                         continue;
                     }
                 } elseif ($startDate) {
-                    if ($startDate >= $webhookDate) {
+                    if ($startDate >= $webhookTime) {
                         continue;
                     }
                 } else {
-                    if ($endDate <= $webhookDate) {
+                    if ($endDate <= $webhookTime) {
                         continue;
                     }
                 }

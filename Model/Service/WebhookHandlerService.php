@@ -321,8 +321,7 @@ class WebhookHandlerService
         $webhooks = $this->loadWebhookEntities();
 
         foreach ($webhooks as $webhook) {
-            $payload = json_decode($webhook['event_data'], true);
-            $webhookDate = strtotime($payload['created_on']);
+            $webhookDate = strtotime($webhook['received_at']);
             $date = strtotime('-1 day');
             if ($webhookDate > $date && $webhook['processed']) {
                 continue;
