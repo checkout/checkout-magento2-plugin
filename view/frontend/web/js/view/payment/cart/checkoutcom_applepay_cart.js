@@ -43,8 +43,6 @@ require([
         let shippingAddress = null;
         let totalsBreakdown = null;
 
-        Utilities.log("Apple Pay javascript loaded");
-
         //  Check Apple Pay is enabled for the merchant
         if (typeof checkoutConfig["checkoutcom_apple_pay"] !== 'undefined') {
             // If Apple Pay is enabled on the cart inject the button
@@ -107,6 +105,7 @@ require([
                     ],
                     shippingMethods: [],
                 };
+                console.log(paymentRequest.currencyCode);
 
                 // Start the payment session
                 var session = new ApplePaySession(6, paymentRequest);
