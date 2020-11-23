@@ -363,7 +363,7 @@ require([
                 if (shippingMethod.available) {
                     formatted.push({
                         label: shippingMethod.method_title,
-                        amount: shippingMethod.price_incl_tax,
+                        amount: shippingMethod.price_incl_tax.toFixed(2),
                         identifier: shippingMethod.method_code,
                         detail: shippingMethod.carrier_title,
                     });
@@ -410,7 +410,7 @@ require([
                 breakdown.push({
                     type: "final",
                     label: totalItem.title,
-                    amount: totalItem.value,
+                    amount: totalItem.value.toFixed(2),
                 });
             });
 
