@@ -156,9 +156,7 @@ define(
              * @return {string}  The quote currency.
              */
             getQuoteCurrency: function () {
-                var data = this.getRestQuoteData();
-
-                return data.totals.quote_currency_code;
+                return Config[KEY_DATA].quote.currency;
             },
 
             /**
