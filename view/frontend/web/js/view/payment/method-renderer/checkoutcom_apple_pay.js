@@ -190,7 +190,7 @@ define(
                                 if (!AdditionalValidators.validate()) {
                                     return;
                                 }
-
+                                console.log(Utilities.getRestQuoteData());
                                 // Prepare the parameters
                                 var runningTotal         = Utilities.getQuoteValue();
                                 var billingAddress       = Utilities.getBillingAddress();
