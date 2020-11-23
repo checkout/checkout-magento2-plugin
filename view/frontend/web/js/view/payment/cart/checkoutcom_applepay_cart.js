@@ -47,7 +47,7 @@ require([
         if (typeof checkoutConfig["checkoutcom_apple_pay"] !== 'undefined') {
             // If Apple Pay is enabled on the cart inject the button
             if (checkoutConfig["checkoutcom_apple_pay"]["enabled_on_cart"] == 1) {
-                Utilities.log("Apple Pay is enabled in the plugin");
+                Utilities.log("Apple Pay in Cart is enabled");
 
                 // set the button theme and mode
                 let button = document.querySelector("#ckoApplePayButton");
@@ -71,11 +71,11 @@ require([
                 );
                 // If Apple Pay is possible for the merchant id, display the button
                 if (canMakePayments) {
-                    Utilities.log("Apple Pay can be used for the merchant id provided");
+                    Utilities.log("Apple Pay can be used for the merchant ID provided");
                     $(buttonTarget).css("display", "inline-block");
                 }
             } else {
-                Utilities.log("Apple Pay can not be used for the merchant id provided");
+                Utilities.log("Apple Pay can not be used for the merchant ID provided");
                 $(buttonTarget).css("display", "none");
             }
 
@@ -105,7 +105,6 @@ require([
                     ],
                     shippingMethods: [],
                 };
-                console.log(paymentRequest.currencyCode);
 
                 // Start the payment session
                 var session = new ApplePaySession(6, paymentRequest);
@@ -419,7 +418,7 @@ require([
                 total: {
                     type: "final",
                     label: window.location.host,
-                    amount: shippingInfo.base_grand_total.toFixed(2),
+                    amount: shippingInfo.grand_total.toFixed(2),
                 },
             };
         }

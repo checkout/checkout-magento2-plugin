@@ -100,7 +100,7 @@ define(
              */
             getQuoteValue: function () {
                 var data = this.getRestQuoteData();
-                var amount = parseFloat(data.totals.base_grand_total);
+                var amount = parseFloat(data.totals.grand_total);
 
                 return amount.toFixed(2);
             },
