@@ -123,15 +123,15 @@ class Webhooks extends Command
                 }
             } elseif ($startDate || $endDate) {
                 if ($startDate && $endDate) {
-                    if ($startDate >= $webhookDate || $endDate <= $webhookDate) {
+                    if ($startDate > $webhookDate || $endDate < $webhookDate) {
                         continue;
                     }
                 } elseif ($startDate) {
-                    if ($startDate >= $webhookDate) {
+                    if ($startDate > $webhookDate) {
                         continue;
                     }
                 } else {
-                    if ($endDate <= $webhookDate) {
+                    if ($endDate < $webhookDate) {
                         continue;
                     }
                 }
