@@ -462,6 +462,12 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         
         // CKO card payment method specific validation
         if ($this->data->getPaymentMethod() == 'checkoutcom_card_payment') {
+            // Check the payment method is active
+            if (!$this->config->getValue('active', 'checkoutcom_card_payment')) {
+                $this->result['error_message'][] = __('Card payment method is not active');
+                $isValid = false;
+            }
+
             // Check the payment token has been specified correctly
             if ($this->data->getPaymentToken() !== null) {
                 if (!is_string($this->data->getPaymentToken())) {
@@ -479,7 +485,13 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
 
         // CKO vault payment method specific validation
         if ($this->data->getPaymentMethod()== 'checkoutcom_vault' && isset($this->customer)) {
-            // Check the public hash has been specified correctly
+            // Check the payment method is active
+            if (!$this->config->getValue('active', 'checkoutcom_vault')) {
+                $this->result['error_message'][] = __('Vault payment method is not active');
+                $isValid = false;
+            }
+
+            // Public hash error messages
             if ($this->data->getPublicHash() !== null) {
                 if (!is_string($this->data->getPublicHash())) {
                     $this->result['error_message'][] = __('Public hash provided is not a string');
@@ -503,9 +515,12 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
             // Check the card cvv has been specified correctly
             if ($this->config->getValue('require_cvv', 'checkoutcom_vault')) {
                 if ($this->data->getCardCvv() == null || (int) $this->data->getCardCvv() == 0) {
-                    $this->result['error_message'][] = __('The CVV value is required.');
+                    $this->result['error_message'][] = __('CVV value is required');
                     $isValid = false;
                 }
+            } else if ($this->data->getCardCvv()) {
+                $this->result['error_message'][] = __('CVV value is not required');
+                $isValid = false;
             }
         } elseif ($this->data->getPaymentMethod()== 'checkoutcom_vault' && !isset($this->customer)) {
             $this->result['error_message'][] = __('Vault payment method is not available for guest checkouts.');
