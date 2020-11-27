@@ -127,13 +127,6 @@ class Webhook extends Action
                 );
 
                 $this->resourceConfig->saveConfig(
-                    'settings/checkoutcom_configuration/public_key',
-                    $customValues['publicKey'],
-                    $scope,
-                    $storeCode
-                );
-
-                $this->resourceConfig->saveConfig(
                     'settings/checkoutcom_configuration/secret_key',
                     $customValues['secretKey'],
                     $scope,
@@ -146,13 +139,6 @@ class Webhook extends Action
                 $this->resourceConfig->saveConfig(
                     'settings/checkoutcom_configuration/private_shared_key',
                     $response->headers->authorization,
-                    $scope,
-                    $storeCode
-                );
-
-                $this->resourceConfig->saveConfig(
-                    'settings/checkoutcom_configuration/public_key',
-                    $customValues['publicKey'],
                     $scope,
                     $storeCode
                 );
