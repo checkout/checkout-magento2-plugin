@@ -102,6 +102,18 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $scope,
                 $storeCode
             );
+            
+            $publicKey = $this->scopeConfig->getValue(
+                'settings/checkoutcom_configuration/public_key',
+                $scope,
+                $storeCode
+            );
+
+            $secretKey = $this->scopeConfig->getValue(
+                'settings/checkoutcom_configuration/secret_key',
+                $scope,
+                $storeCode
+            );
 
             // Retrieve all configured webhooks
             $webhooks = $api->checkoutApi->webhooks()->retrieve();
@@ -125,17 +137,29 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $element->setData('value', $callbackUrl);
                 $element->setReadonly('readonly');
 
-                $this->addData(
-                    [
-                        'element_html'      => $element->getElementHtml(),
-                        'button_label'      => 'set webhooks',
-                        'message'           => 'Attention, webhook not properly configured!',
-                        'message_class'     => 'no-webhook',
-                        'webhook_button'    => true,
-                        'scope'             => $scope,
-                        'scope_id'          => $storeCode
-                    ]
-                );
+                if (empty($publicKey) || empty($secretKey)) {
+                    $this->addData(
+                        [
+                            'element_html' => $element->getElementHtml(),
+                            'button_label' => 'set webhooks',
+                            'hidden' => false,
+                            'scope' => $scope,
+                            'scope_id' => $storeCode
+                        ]
+                    );
+                } else {
+                    $this->addData(
+                        [
+                            'element_html' => $element->getElementHtml(),
+                            'button_label' => 'set webhooks',
+                            'message' => 'Attention, webhook not properly configured!',
+                            'message_class' => 'no-webhook',
+                            'hidden' => false,
+                            'scope' => $scope,
+                            'scope_id' => $storeCode
+                        ]
+                    );
+                }
                 return $this->_toHtml();
             } else {
                 // Webhook configured
@@ -147,7 +171,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                         'element_html'      => $element->getElementHtml(),
                         'message'           => 'Your webhook is all set!',
                         'message_class'     => 'webhook-set',
-                        'webhook_button'   => false
+                        'hidden'            => true
                     ]
                 );
                 return $this->_toHtml();
@@ -157,12 +181,40 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
             $element->setData('value', $callbackUrl);
             $element->setReadonly('readonly');
 
-            $this->addData(
-                [
-                    'element_html'      => $element->getElementHtml(),
-                    'webhook_button'   => false
-                ]
+            $publicKey = $this->scopeConfig->getValue(
+                'settings/checkoutcom_configuration/public_key',
+                $scope,
+                $storeCode
             );
+
+            $secretKey = $this->scopeConfig->getValue(
+                'settings/checkoutcom_configuration/secret_key',
+                $scope,
+                $storeCode
+            );
+            
+            if (empty($publicKey) && empty($secretKey)) {
+                $this->addData(
+                    [
+                        'element_html'      => $element->getElementHtml(),
+                        'hidden'            => true,
+                        'scope'             => $scope,
+                        'scope_id'          => $storeCode
+                    ]
+                );
+            } else {
+                $this->addData(
+                    [
+                        'element_html'      => $element->getElementHtml(),
+                        'message'           => 'Attention, public or secret key incorrect!',
+                        'message_class'     => 'no-webhook',
+                        'hidden'            => true,
+                        'scope'             => $scope,
+                        'scope_id'          => $storeCode
+                    ]
+                );
+            }
+
             return $this->_toHtml();
         }
     }

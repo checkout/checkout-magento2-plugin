@@ -95,14 +95,23 @@ class ApiHandlerService
     /**
      * Load the API client.
      */
-    public function init($storeCode = null, $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    public function init($storeCode = null, $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $customValues = null)
     {
-        $this->checkoutApi = new CheckoutApi(
-            $this->config->getValue('secret_key', null, $storeCode, $scope),
-            $this->config->getValue('environment', null, $storeCode, $scope),
-            $this->config->getValue('public_key', null, $storeCode, $scope)
-        );
-
+        
+        if ($customValues) {
+            $this->checkoutApi = new CheckoutApi(
+                $customValues['secretKey'],
+                $this->config->getValue('environment', null, $storeCode, $scope),
+                $customValues['publicKey']
+            );
+        } else {
+            $this->checkoutApi = new CheckoutApi(
+                $this->config->getValue('secret_key', null, $storeCode, $scope),
+                $this->config->getValue('environment', null, $storeCode, $scope),
+                $this->config->getValue('public_key', null, $storeCode, $scope)
+            );    
+        }
+        
         return $this;
     }
 

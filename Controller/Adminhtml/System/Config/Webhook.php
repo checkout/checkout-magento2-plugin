@@ -91,9 +91,13 @@ class Webhook extends Action
             // Get the store code
             $scope = $this->getRequest()->getParam('scope', 0);
             $storeCode = $this->getRequest()->getParam('scope_id', 0);
+            $customValues = [
+                'publicKey' => $this->getRequest()->getParam('public_key', 0),
+                'secretKey' => $this->getRequest()->getParam('secret_key', 0)
+            ];
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode, $scope);
+            $api = $this->apiHandler->init($storeCode, $scope, $customValues);
 
             $webhookUrl = $this->scopeConfig->getValue(
                 'payment/checkoutcom/module/account_settings/webhook_url',
@@ -113,10 +117,25 @@ class Webhook extends Action
                 $webhook = new \Checkout\Models\Webhooks\Webhook($webhookUrl, $webhookId);
                 $webhook->event_types = $eventTypes;
                 $response = $api->checkoutApi->webhooks()->update($webhook, true);
+                $privateSharedKey = $response->headers->authorization;
 
                 $this->resourceConfig->saveConfig(
                     'settings/checkoutcom_configuration/private_shared_key',
                     $response->headers->authorization,
+                    $scope,
+                    $storeCode
+                );
+
+                $this->resourceConfig->saveConfig(
+                    'settings/checkoutcom_configuration/public_key',
+                    $customValues['publicKey'],
+                    $scope,
+                    $storeCode
+                );
+
+                $this->resourceConfig->saveConfig(
+                    'settings/checkoutcom_configuration/secret_key',
+                    $customValues['secretKey'],
                     $scope,
                     $storeCode
                 );
@@ -127,6 +146,20 @@ class Webhook extends Action
                 $this->resourceConfig->saveConfig(
                     'settings/checkoutcom_configuration/private_shared_key',
                     $response->headers->authorization,
+                    $scope,
+                    $storeCode
+                );
+
+                $this->resourceConfig->saveConfig(
+                    'settings/checkoutcom_configuration/public_key',
+                    $customValues['publicKey'],
+                    $scope,
+                    $storeCode
+                );
+
+                $this->resourceConfig->saveConfig(
+                    'settings/checkoutcom_configuration/secret_key',
+                    $customValues['secretKey'],
                     $scope,
                     $storeCode
                 );
@@ -142,7 +175,8 @@ class Webhook extends Action
         } finally {
             return $this->resultJsonFactory->create()->setData([
                 'success' => $success,
-                'message' => $message
+                'privateSharedKey' => isset($privateSharedKey) ? $privateSharedKey : '',
+                'message' => 'Could not set webhooks, please check your account settings'
             ]);
         }
     }
