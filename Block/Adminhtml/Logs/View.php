@@ -34,31 +34,35 @@ class View extends \Magento\Framework\View\Element\Template
     public function getLogFile()
     {
         $file = BP . '/var/log/' . $this->_request->getParam('file');
-        $file = new \SplFileObject($file, 'r');
-        $file->seek(PHP_INT_MAX);
-        $last_line = $file->key();
-        
-        // Get the last 5000 lines of the log file for the preview
-        $lines = new \LimitIterator(
-            $file,
-            ($last_line - 5000) > 0 ? $last_line - 5000 : 0,
-            $last_line
-        );
-        $contents =  implode('',iterator_to_array($lines));
-        return $contents;
+        if (is_file($file)) {
+            $file = new \SplFileObject($file, 'r');
+            $file->seek(PHP_INT_MAX);
+            $last_line = $file->key();
+            if ($last_line) {
+                // Get the last 5000 lines of the log file for the preview
+                $lines = new \LimitIterator(
+                    $file,
+                    ($last_line - 5000) > 0 ? $last_line - 5000 : 0,
+                    $last_line
+                );
+                return implode('',iterator_to_array($lines));
+            }
+        }
+        return '';
     }
     
     public function getSizeMessage()
     {
         $file = BP . '/var/log/' . $this->_request->getParam('file');
-        $file = new \SplFileObject($file, 'r');
-        $file->seek(PHP_INT_MAX);
-        $last_line = $file->key();
-        if ($last_line > 5000) {
-            return __('The log file is too large to display in full. This preview displays the last 5000 lines');
-        } else {
-            return false;
+        if (is_file($file)) {
+            $file = new \SplFileObject($file, 'r');
+            $file->seek(PHP_INT_MAX);
+            $last_line = $file->key();
+            if ($last_line > 5000) {
+                return __('The log file is too large to display in full. This preview displays the last 5000 lines');
+            }
         }
+        return false;
     }
 
     public function getFileName()

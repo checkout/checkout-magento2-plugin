@@ -50,7 +50,7 @@ class View extends Action implements HttpGetActionInterface
     }
 
     /**
-     * Load the page defined in view/adminhtml/layout/exampleadminnewpage_helloworld_index.xml
+     * Load the page defined in view/adminhtml/layout/cko_logs_view.xml
      *
      * @return Page
      */
