@@ -31,10 +31,9 @@ use Magento\Framework\App\ObjectManager;
 class Webhooks extends Command
 {
 
-    private const DATE = 'date';
-    private const START_DATE = 'start-date';
-    private const END_DATE = 'end-date';
-
+    const DATE = 'date';
+    const START_DATE = 'start-date';
+    const END_DATE = 'end-date';
     /**
      * @var \Magento\Framework\App\State
      */
