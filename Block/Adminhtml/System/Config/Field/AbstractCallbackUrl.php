@@ -80,19 +80,19 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
     protected function _getElementHtml(AbstractElement $element)
     {
         // Get the selected scope and id
-        try {
-            if (array_key_exists('website', $this->getRequest()->getParams())) {
-                $scope = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES;
-                $storeCode = $this->getRequest()->getParam('website', 0);
-            } else {
-                $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORES;
-                $storeCode = $this->getRequest()->getParam('store', 0);
-                if ($storeCode == 0) {
-                    $scope = 'default';
-                    $storeCode = $this->getRequest()->getParam('site', 0);
-                }
+        if (array_key_exists('website', $this->getRequest()->getParams())) {
+            $scope = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES;
+            $storeCode = $this->getRequest()->getParam('website', 0);
+        } else {
+            $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORES;
+            $storeCode = $this->getRequest()->getParam('store', 0);
+            if ($storeCode == 0) {
+                $scope = 'default';
+                $storeCode = $this->getRequest()->getParam('site', 0);
             }
-
+        }
+        
+        try {
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode, $scope);
 
@@ -175,19 +175,13 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
             $element->setData('value', $callbackUrl);
             $element->setReadonly('readonly');
 
-            $publicKey = $this->scopeConfig->getValue(
-                'settings/checkoutcom_configuration/public_key',
-                $scope,
-                $storeCode
-            );
-
             $secretKey = $this->scopeConfig->getValue(
                 'settings/checkoutcom_configuration/secret_key',
                 $scope,
                 $storeCode
             );
             
-            if (empty($publicKey) && empty($secretKey)) {
+            if (empty($secretKey)) {
                 $this->addData(
                     [
                         'element_html'      => $element->getElementHtml(),
