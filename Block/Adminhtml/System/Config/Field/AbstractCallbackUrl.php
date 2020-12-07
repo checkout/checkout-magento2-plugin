@@ -102,12 +102,6 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $scope,
                 $storeCode
             );
-            
-            $publicKey = $this->scopeConfig->getValue(
-                'settings/checkoutcom_configuration/public_key',
-                $scope,
-                $storeCode
-            );
 
             $secretKey = $this->scopeConfig->getValue(
                 'settings/checkoutcom_configuration/secret_key',
@@ -137,11 +131,11 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $element->setData('value', $callbackUrl);
                 $element->setReadonly('readonly');
 
-                if (empty($publicKey) || empty($secretKey)) {
+                if (empty($secretKey)) {
                     $this->addData(
                         [
                             'element_html' => $element->getElementHtml(),
-                            'button_label' => 'set webhooks',
+                            'button_label' => __('Set Webhooks'),
                             'hidden' => false,
                             'scope' => $scope,
                             'scope_id' => $storeCode
@@ -151,8 +145,8 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                     $this->addData(
                         [
                             'element_html' => $element->getElementHtml(),
-                            'button_label' => 'set webhooks',
-                            'message' => 'Attention, webhook not properly configured!',
+                            'button_label' => __('Set Webhooks'),
+                            'message' => __('Attention, webhook not properly configured!'),
                             'message_class' => 'no-webhook',
                             'hidden' => false,
                             'scope' => $scope,
@@ -169,7 +163,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $this->addData(
                     [
                         'element_html'      => $element->getElementHtml(),
-                        'message'           => 'Your webhook is all set!',
+                        'message'           => __('Your webhook is all set!'),
                         'message_class'     => 'webhook-set',
                         'hidden'            => true
                     ]
@@ -206,7 +200,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $this->addData(
                     [
                         'element_html'      => $element->getElementHtml(),
-                        'message'           => 'Attention, public or secret key incorrect!',
+                        'message'           => __('Attention, secret key incorrect!'),
                         'message_class'     => 'no-webhook',
                         'hidden'            => true,
                         'scope'             => $scope,

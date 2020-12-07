@@ -49,12 +49,12 @@
                         if (response.responseJSON.success) {
                             let privateSharedKey = document.getElementsByName('groups[checkoutcom][groups][module][groups][account_settings][fields][private_shared_key][value]')
                             privateSharedKey[0].value = response.responseJSON.privateSharedKey
-                            document.getElementById('webhook-message').textContent = 'Your webhook is all set!'
+                            document.getElementById('webhook-message').textContent = __('Your webhook is all set!')
                             document.getElementById('webhook-message').classList.toggle('webhook-set')
                             document.getElementById('webhook_auto_set').style.display = 'none';
                         } else {
                             document.getElementById('webhook_spinner').style.display = 'none';
-                            alert('Error! Could not set webhooks. Please check your public and secret key.');
+                            alert(__('Error! Could not set webhooks. Please check your secret key.'));
                         }
                     }
                 });

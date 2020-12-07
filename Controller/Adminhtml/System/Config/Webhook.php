@@ -91,13 +91,10 @@ class Webhook extends Action
             // Get the store code
             $scope = $this->getRequest()->getParam('scope', 0);
             $storeCode = $this->getRequest()->getParam('scope_id', 0);
-            $customValues = [
-                'publicKey' => $this->getRequest()->getParam('public_key', 0),
-                'secretKey' => $this->getRequest()->getParam('secret_key', 0)
-            ];
+            $secretKey = $this->getRequest()->getParam('secret_key', 0);
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode, $scope, $customValues);
+            $api = $this->apiHandler->init($storeCode, $scope, $secretKey);
 
             $webhookUrl = $this->scopeConfig->getValue(
                 'payment/checkoutcom/module/account_settings/webhook_url',
@@ -128,7 +125,7 @@ class Webhook extends Action
 
                 $this->resourceConfig->saveConfig(
                     'settings/checkoutcom_configuration/secret_key',
-                    $customValues['secretKey'],
+                    $secretKey,
                     $scope,
                     $storeCode
                 );
@@ -145,7 +142,7 @@ class Webhook extends Action
 
                 $this->resourceConfig->saveConfig(
                     'settings/checkoutcom_configuration/secret_key',
-                    $customValues['secretKey'],
+                    $secretKey,
                     $scope,
                     $storeCode
                 );
