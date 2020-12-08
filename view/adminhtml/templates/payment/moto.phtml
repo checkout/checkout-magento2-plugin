@@ -71,6 +71,21 @@
                 }
             }
         );
+
+        // Clear frames after update billing event
+        $(document).on('click', '#submit_order_top_button', function () {
+            if ($('#p_method_checkoutcom_moto').is(':checked')) {
+                Frames.removeAllEventHandlers(Events.CARD_TOKENIZED)
+            }
+        })
+
+
+        // Clear frames after update billing event
+        $(document).on('click', '#cancel_order_top_button', function () {
+            if ($('#p_method_checkoutcom_moto').is(':checked')) {
+                Frames.removeAllEventHandlers(Events.CARD_TOKENIZED)
+            }
+        })
     });
 </script>
 
