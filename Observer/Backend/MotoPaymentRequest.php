@@ -167,7 +167,7 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
             $request->amount = $this->prepareMotoAmount();
             $request->reference = $this->order->getIncrementId();
             $request->payment_type = 'MOTO';
-            if ($this->order->getShippingAddress !== null) {
+            if ($this->order->getIsNotVirtual()) {
                 $request->shipping = $api->createShippingAddress($this->order);
             }
             $request->threeDs = new ThreeDs(false);
