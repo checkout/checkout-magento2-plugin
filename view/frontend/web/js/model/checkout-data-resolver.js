@@ -7,6 +7,35 @@ define([
 ],function (_, wrapper, checkoutData, paymentService, selectPaymentMethodAction) {
     'use strict';
 
+    // Add .find pollyfill for IE11
+    if (!Array.prototype.find) {
+        Object.defineProperty(Array.prototype, 'find', {
+            value: function(predicate) {
+                if (this == null) {
+                    throw TypeError('"this" is null or not defined');
+                }
+                var o = Object(this);
+                var len = o.length >>> 0;
+                if (typeof predicate !== 'function') {
+                    throw TypeError('predicate must be a function');
+                }
+                var thisArg = arguments[1];
+                var k = 0;
+                while (k < len) {
+                    var kValue = o[k];
+                    if (predicate.call(thisArg, kValue, k, o)) {
+                        return kValue;
+                    }
+                    k++;
+                }
+                return undefined;
+            },
+            configurable: true,
+            writable: true
+        });
+    }
+
+
     return function (checkoutDataResolver) {
         var check = window.checkoutConfig.payment['checkoutcom_magento2'];
         var ckoConfig = window.checkoutConfig.payment['checkoutcom_magento2'].checkoutcom_configuration
@@ -19,10 +48,10 @@ define([
             function (originalResolvePaymentMethod) {
                 var availablePaymentMethods = paymentService.getAvailablePaymentMethods();
                 var method = this.getMethod(checkoutData.getSelectedPaymentMethod(), availablePaymentMethods);
-                
+
                 if ((!checkoutData.getSelectedPaymentMethod() && _.size(availablePaymentMethods) > 1) || _.isUndefined(method)) {
                     var method = this.getMethod(check['checkoutcom_data']['user']['previous_method'], availablePaymentMethods);
-                    
+
                     if (!_.isUndefined(method)) {
                         selectPaymentMethodAction(method);
                     } else {
@@ -53,7 +82,7 @@ define([
                         return method.method === autoselectMethod;
                     });
                 }
-                
+
                 return matchedMethod;
             }
         });
