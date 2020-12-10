@@ -7,7 +7,7 @@ define([
 ],function (_, wrapper, checkoutData, paymentService, selectPaymentMethodAction) {
     'use strict';
 
-    // Add .find pollyfill for IE11
+    // Add .find pollyfill for IE11 compatibility
     if (!Array.prototype.find) {
         Object.defineProperty(Array.prototype, 'find', {
             value: function(predicate) {
@@ -34,7 +34,6 @@ define([
             writable: true
         });
     }
-
 
     return function (checkoutDataResolver) {
         var check = window.checkoutConfig.payment['checkoutcom_magento2'];
