@@ -243,7 +243,9 @@ class CardPaymentMethod extends AbstractMethod
         $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
-        $request->shipping = $api->createShippingAddress($quote);
+        if (!$quote->getIsVirtual()) {
+            $request->shipping = $api->createShippingAddress($quote);
+        }
 
         // Save card check
         if (isset($data['saveCard'])
