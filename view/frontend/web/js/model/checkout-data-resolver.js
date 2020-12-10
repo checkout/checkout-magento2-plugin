@@ -7,34 +7,6 @@ define([
 ],function (_, wrapper, checkoutData, paymentService, selectPaymentMethodAction) {
     'use strict';
 
-    // Add .find pollyfill for IE11 compatibility
-    if (!Array.prototype.find) {
-        Object.defineProperty(Array.prototype, 'find', {
-            value: function(predicate) {
-                if (this == null) {
-                    throw TypeError('"this" is null or not defined');
-                }
-                var o = Object(this);
-                var len = o.length >>> 0;
-                if (typeof predicate !== 'function') {
-                    throw TypeError('predicate must be a function');
-                }
-                var thisArg = arguments[1];
-                var k = 0;
-                while (k < len) {
-                    var kValue = o[k];
-                    if (predicate.call(thisArg, kValue, k, o)) {
-                        return kValue;
-                    }
-                    k++;
-                }
-                return undefined;
-            },
-            configurable: true,
-            writable: true
-        });
-    }
-
     return function (checkoutDataResolver) {
         var check = window.checkoutConfig.payment['checkoutcom_magento2'];
         var ckoConfig = window.checkoutConfig.payment['checkoutcom_magento2'].checkoutcom_configuration
@@ -77,9 +49,11 @@ define([
                 var autoselectMethod = method
                 var matchedMethod;
                 if (!_.isUndefined(autoselectMethod)) {
-                    matchedMethod = availableMethods.find(function (method) {
-                        return method.method === autoselectMethod;
-                    });
+                    var matchedIndex = availableMethods.map(function(e) { return e.method; }).indexOf(autoselectMethod)
+                    
+                    if (matchedIndex !== -1) {
+                        matchedMethod = availableMethods[matchedIndex]
+                    }
                 }
 
                 return matchedMethod;
