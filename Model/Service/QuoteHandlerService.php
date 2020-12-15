@@ -299,8 +299,15 @@ class QuoteHandlerService
      */
     public function getQuoteValue()
     {
-        $this->cartRepository->save($this->getQuote());
         return $this->getQuote()->collectTotals()->getGrandTotal();
+    }
+
+    /**
+     * Saves the quote. This is needed
+     */
+    public function saveQuote()
+    {
+        $this->cartRepository->save($this->getQuote());
     }
 
     /**

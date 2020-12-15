@@ -93,6 +93,9 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
      */
     public function getConfigArray()
     {
+        // This is needed to save the billing address for virtual orders.
+        $this->quoteHandler->saveQuote();
+        
         return array_merge(
             $this->config->getModuleConfig(),
             $this->config->getMethodsConfig(),
