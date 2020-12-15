@@ -299,6 +299,7 @@ class QuoteHandlerService
      */
     public function getQuoteValue()
     {
+        $this->quoteRepository->save($this->getQuote());
         return $this->getQuote()->collectTotals()->getGrandTotal();
     }
 
