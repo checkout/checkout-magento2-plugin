@@ -65,6 +65,11 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $logger;
 
     /**
+     * @var Session
+     */
+    protected $session;
+
+    /**
      * Verify constructor
      */
     public function __construct(
@@ -76,7 +81,8 @@ class Verify extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \Magento\Checkout\Model\Session $session
     ) {
         parent::__construct($context);
 
@@ -88,6 +94,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         $this->vaultHandler = $vaultHandler;
         $this->utilities = $utilities;
         $this->logger = $logger;
+        $this->session = $session;
     }
 
     /**
@@ -135,7 +142,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                             return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                         } else {
                             // Restore the quote
-                            $this->quoteHandler->restoreQuote($response->reference);
+                            $this->session->restoreQuote();
 
                             // Add and error message
                             $this->messageManager->addErrorMessage(
