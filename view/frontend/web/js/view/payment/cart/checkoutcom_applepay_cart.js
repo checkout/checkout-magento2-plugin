@@ -453,7 +453,7 @@ require([
                 total: {
                     type: "final",
                     label: window.location.host,
-                    amount: totalInfo.base_grand_total.toFixed(2),
+                    amount: Utilities.getQuoteValue(),
                 },
             };
         }
@@ -504,7 +504,7 @@ require([
                 total: {
                     type: "final",
                     label: window.location.host,
-                    amount: shippingInfo.base_grand_total.toFixed(2),
+                    amount: Utilities.getQuoteValue(),
                 },
             };
         }
