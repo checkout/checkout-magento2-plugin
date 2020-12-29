@@ -241,6 +241,16 @@ class VaultMethod extends AbstractMethod
         // Prepare the metadata array
         $request->metadata['methodId'] = $this->_code;
 
+        if ($isApiOrder) {
+            if (isset($data['successUrl'])) {
+                $request->metadata['successUrl'] = $this->getSuccessUrl($data);
+            }
+
+            if (isset($data['failureUrl'])) {
+                $request->metadata['failureUrl'] = $this->getFailureUrl($data);
+            }
+        }
+
         // Prepare the capture setting
         $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
         $request->capture = $needsAutoCapture;

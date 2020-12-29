@@ -915,4 +915,32 @@ abstract class AbstractMethod extends \Magento\Framework\Model\AbstractExtensibl
     {
         return (array) $this->_debugReplacePrivateDataKeys;
     }
+
+    /**
+     * Get the success redirection URL for the payment request.
+     *
+     * @return string
+     */
+    public function getSuccessUrl($data, $isApiOrder = null)
+    {
+        if (isset($data['successUrl']) && !$isApiOrder) {
+            return $data['successUrl'];
+        }
+
+        return $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+    }
+
+    /**
+     * Get the failure redirection URL for the payment request.
+     *
+     * @return string
+     */
+    public function getFailureUrl($data, $isApiOrder = null)
+    {
+        if (isset($data['failureUrl']) && !$isApiOrder) {
+            return $data['failureUrl'];
+        }
+
+        return $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+    }
 }
