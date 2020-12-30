@@ -56,6 +56,11 @@ class Config
     public $utilities;
 
     /**
+     * @var Logger
+     */
+    public $logger;
+
+    /**
      * Config constructor
      */
     public function __construct(
@@ -64,7 +69,8 @@ class Config
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\App\RequestInterface $request,
         \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->assetRepository = $assetRepository;
         $this->storeManager = $storeManager;
@@ -72,6 +78,7 @@ class Config
         $this->request = $request;
         $this->loader = $loader;
         $this->utilities = $utilities;
+        $this->logger = $logger;
     }
 
     /**
@@ -81,6 +88,7 @@ class Config
     {
         // Get the authorization header
         $key = $this->request->getHeader('Authorization');
+        $this->logger->additional('authorization header: ' . $key, 'auth');
 
         // Validate the header
         switch ($type) {
@@ -99,6 +107,7 @@ class Config
     {
         // Get the private shared key from config
         $privateSharedKey = $this->getValue('private_shared_key');
+        $this->logger->additional('private shared key: ' . $privateSharedKey, 'auth');
 
         // Return the validity check
         return $key == $privateSharedKey
@@ -112,6 +121,7 @@ class Config
     {
         // Get the public key from config
         $publicKey = $this->getValue('public_key');
+        $this->logger->additional('public key: ' . $publicKey, 'auth');
 
         // Return the validity check
         return $key == $publicKey

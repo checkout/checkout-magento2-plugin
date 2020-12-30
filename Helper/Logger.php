@@ -100,4 +100,22 @@ class Logger
             );
         }
     }
+
+    /**
+     * Write additional debug logging
+     *
+     * @param mixed $msg The message
+     */
+    public function additional($msg, $type)
+    {
+        // Get the debug config value
+        $enabledLogging = explode(',' , $this->scopeConfig->getValue(
+            'settings/checkoutcom_configuration/additional_logging',
+            ScopeInterface::SCOPE_STORE
+        ));
+        
+        if (in_array($type, $enabledLogging)) {
+            $this->write($msg);
+        }
+    }
 }

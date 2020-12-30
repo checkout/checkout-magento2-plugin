@@ -243,6 +243,8 @@ class AlternativePaymentMethod extends AbstractMethod
                 $method
             );
 
+            $this->ckoLogger->additional($this->utilities->objectToArray($payment), 'payment');
+
             // Send the charge request
             try {
                 $response = $api->checkoutApi
