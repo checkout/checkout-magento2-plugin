@@ -24,6 +24,7 @@
                 <file_logging>0</file_logging>
                 <console_logging>0</console_logging>
                 <gateway_responses>0</gateway_responses>
+                <additional_logging></additional_logging>
                 <environment>1</environment>
                 <secret_key></secret_key>
                 <public_key></public_key>

@@ -121,6 +121,7 @@ require([
                     };
 
                     // Start the payment session
+                    Utilities.log(paymentRequest);
                     var session = new ApplePaySession(1, paymentRequest);
                 } else {
                     var paymentRequest = {
@@ -148,6 +149,7 @@ require([
                     };
 
                     // Start the payment session
+                    Utilities.log(paymentRequest);
                     var session = new ApplePaySession(6, paymentRequest);
                 }
 
@@ -318,6 +320,7 @@ require([
          */
         function sendPaymentRequest(paymentData)
         {
+            Utilities.log(paymentData);
             return new Promise(function (resolve, reject) {
                 $.ajax({
                     url: Utilities.getUrl("payment/placeorder"),

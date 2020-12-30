@@ -229,7 +229,7 @@
                         </field>
 
                         <field id="additional_logging" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Additional Logging</label>
+                            <label>Additional File Logging</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigAdditionalLogging</source_model>
                             <depends>
                                 <field id="debug">1</field>
