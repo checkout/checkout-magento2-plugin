@@ -199,7 +199,7 @@ class WebhookHandlerService
                     );
                 }
 
-                $this->logger->additional($this->orderHandler->getOrderDetails($order), 'order');
+                $this->logger->additional($this->orderHandler->getOrderDetails($order), 'webhook');
             }
         }
     }
