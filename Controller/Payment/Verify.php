@@ -129,10 +129,8 @@ class Verify extends \Magento\Framework\App\Action\Action
                     // Process the order
                     if ($this->orderHandler->isOrder($order)) {
                         // Add the payment info to the order
-                        $order = $this->utilities->setPaymentData($order, $response);
 
-                        // Save the order
-                        $order->save();
+                        $this->utilities->setPaymentData($order, $response);
 
                         // Logging
                         $this->logger->display($response);
