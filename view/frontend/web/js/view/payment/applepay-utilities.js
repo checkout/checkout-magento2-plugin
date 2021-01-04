@@ -17,9 +17,10 @@ define(
     [
         'jquery',
         'Magento_Checkout/js/model/quote',
-        'Magento_Customer/js/model/customer'
+        'Magento_Customer/js/model/customer',
+        "CheckoutCom_Magento2/js/view/payment/utilities"
     ],
-    function ($, Quote, Customer) {
+    function ($, Quote, Customer, Utilities) {
         'use strict';
 
         return {
@@ -29,7 +30,7 @@ define(
              * @return {object}  The is virtual status.
              */
             getIsVirtual: function () {
-                return Quote.isVirtual();
+                return Utilities.getRestQuoteData(null).is_virtual
             },
             
             /**
