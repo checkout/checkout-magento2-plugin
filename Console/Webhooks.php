@@ -111,6 +111,7 @@ class Webhooks extends Command
 
         $this->webhookHandler = $objectManager->create('CheckoutCom\Magento2\Model\Service\WebhookHandlerService');
         $this->orderHandler = $objectManager->create('CheckoutCom\Magento2\Model\Service\OrderHandlerService');
+
         $this->transactionHandler =
             $objectManager->create('CheckoutCom\Magento2\Model\Service\TransactionHandlerService');
     }
