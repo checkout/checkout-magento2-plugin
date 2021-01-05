@@ -16,15 +16,14 @@
 
 namespace CheckoutCom\Magento2\Observer\Backend;
 
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Payments\BillingDescriptor;
+use Checkout\Models\Payments\IdSource;
+use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\Risk;
+use Checkout\Models\Payments\ThreeDs;
+use Checkout\Models\Payments\TokenSource;
 use Magento\Framework\Event\Observer;
-use Magento\Sales\Model\Order\Payment\Transaction;
-use \Checkout\Models\Payments\TokenSource;
-use \Checkout\Models\Payments\IdSource;
-use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\BillingDescriptor;
-use \Checkout\Library\Exceptions\CheckoutHttpException;
-use \Checkout\Models\Payments\ThreeDs;
-use \Checkout\Models\Payments\Risk;
 
 /**
  * Class MotoPaymentRequest.
@@ -171,7 +170,8 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
             $request->shipping = $api->createShippingAddress($this->order);
             $request->threeDs = new ThreeDs(false);
             $request->risk = new Risk($this->config->needsRiskRules($this->methodId));
-            
+            $request->setIdempotencyKey(bin2hex(random_bytes(16)));
+
             // Billing descriptor
             if ($this->config->needsDynamicDescriptor()) {
                 $request->billing_descriptor = new BillingDescriptor(
