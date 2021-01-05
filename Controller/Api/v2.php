@@ -204,7 +204,7 @@ class V2 extends \Magento\Framework\App\Action\Action
 
                 if ($is3ds) {
                     $this->result['redirect_url'] = $response->_links['redirect']['href'];
-                } elseif ($this->data->success_url) {
+                } elseif (isset($this->data->success_url)) {
                     $this->result['redirect_url'] = $this->data->success_url;
                 }
 
@@ -235,7 +235,7 @@ class V2 extends \Magento\Framework\App\Action\Action
                     );
                 }
 
-                if ($this->data->failure_url) {
+                if (isset($this->data->failure_url)) {
                     $this->result['redirect_url'] = $this->data->failure_url;
                 }
             }
