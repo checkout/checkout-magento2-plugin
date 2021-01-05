@@ -108,13 +108,17 @@ class Logger
      */
     public function additional($msg, $type)
     {
-        // Get the debug config value
-        $enabledLogging = explode(',' , $this->scopeConfig->getValue(
+        $enabledLogging = $this->scopeConfig->getValue(
+            'settings/checkoutcom_configuration/additional_logging_enabled',
+            ScopeInterface::SCOPE_STORE
+        );
+        
+        $loggingOptions = explode(',' , $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/additional_logging',
             ScopeInterface::SCOPE_STORE
         ));
         
-        if (in_array($type, $enabledLogging)) {
+        if ($enabledLogging && in_array($type, $loggingOptions)) {
             $this->write($msg);
         }
     }

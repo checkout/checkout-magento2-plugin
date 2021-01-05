@@ -210,6 +210,25 @@
                             <config_path>settings/checkoutcom_configuration/file_logging</config_path>
                         </field>
 
+                        <field id="additional_logging_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Additional File Logging Enabled</label>
+                            <depends>
+                                <field id="file_logging">1</field>
+                            </depends>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>settings/checkoutcom_configuration/enable_additional_logging</config_path>
+                        </field>
+
+                        <field id="additional_logging" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Additional Logging Options</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigAdditionalLogging</source_model>
+                            <depends>
+                                <field id="additional_logging_enabled">1</field>
+                            </depends>
+                            <can_be_empty>1</can_be_empty>
+                            <config_path>settings/checkoutcom_configuration/additional_logging</config_path>
+                        </field>
+
                         <field id="console_logging" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Console Logging Enabled</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -227,16 +246,6 @@
                             </depends>
                             <config_path>settings/checkoutcom_configuration/gateway_responses</config_path>
                         </field>
-
-                        <field id="additional_logging" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Additional File Logging</label>
-                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigAdditionalLogging</source_model>
-                            <depends>
-                                <field id="debug">1</field>
-                            </depends>
-                            <config_path>settings/checkoutcom_configuration/additional_logging</config_path>
-                        </field>
-
                     </group>
                 </group>
 
