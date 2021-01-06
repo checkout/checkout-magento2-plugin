@@ -132,11 +132,6 @@ define(
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
                 }
 
-                // Set the event to update data on any button click
-                $('button[type="submit"]')
-                    .off('click', self.getRestQuoteData)
-                    .on('click', self.getRestQuoteData);
-
                 // Send the AJAX request
                 $.ajax({
                     url: restUrl,
