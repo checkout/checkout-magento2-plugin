@@ -155,6 +155,9 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             if (!$this->isEmptyCardToken($this->data)) {
                 // Process the request
                 if ($this->getRequest()->isAjax() && $this->quote) {
+                    // Collect totals and save quote
+                    $this->quote->collectTotals()->save();
+                    
                     // Create an order
                     $order = $this->orderHandler
                         ->setMethodId($this->data['methodId'])
