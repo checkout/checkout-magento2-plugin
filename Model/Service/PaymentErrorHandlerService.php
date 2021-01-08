@@ -54,7 +54,7 @@ class PaymentErrorHandlerService
     }
 
     /**
-     * Create a transaction for an order.
+     * Log payment error for webhooks
      */
     public function logError($response, $order)
     {
@@ -80,10 +80,48 @@ class PaymentErrorHandlerService
         );
 
         // Add the order comment
-        $this->order->addStatusHistoryComment(
-            __(self::$transactionErrorLabel[$response->type]) . $suffix
-        );
+        $previousComment = $this->orderHandler->getStatusHistoryByEntity('3ds Fail', $this->order);
+        if ($previousComment && $response->type == 'payment_declined') {
+            $previousComment
+                ->setEntityName('order')
+                ->setComment(__(self::$transactionErrorLabel[$response->type]) . $suffix)
+                ->save();
+        } else {
+            // Add the order comment
+            $this->order->addStatusHistoryComment(
+                __(self::$transactionErrorLabel[$response->type]) . $suffix
+            );
+        }
+        
+        // Save the data
+        $this->payment->save();
+        $this->order->save();
+    }
 
+    /**
+     * Log the error for 3ds declined payments.
+     */
+    public function logPaymentError($response, $order)
+    {
+        // Assign the order instance
+        $this->order = $order;
+
+        // Assign the payment instance
+        $this->payment = $this->order->getPayment();
+        
+        // Prepare the failed transaction info
+        $suffix = __(
+            ' for an amount of %1. Payment ID: %2',
+            $this->prepareAmount($response->amount),
+            $response->id
+        );
+        
+        // Add the order comment
+        $this->order->setHistoryEntityName('3ds Fail');
+        $this->order->addStatusHistoryComment(
+            __(self::$transactionErrorLabel['payment_declined']) . $suffix
+        );
+        
         // Save the data
         $this->payment->save();
         $this->order->save();
