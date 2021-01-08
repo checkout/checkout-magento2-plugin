@@ -125,7 +125,7 @@ class ApiHandlerService
     }
 
     /**
-     * Voids a transaction.
+     * Captures a transaction.
      */
     public function captureOrder($payment, $amount)
     {
