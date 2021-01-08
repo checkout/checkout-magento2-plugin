@@ -47,13 +47,11 @@ require([
         let shippingAddress = null;
         let totalsBreakdown = null;
 
-        Utilities.log("Apple Pay javascript loaded");
-
         //  Check Apple Pay is enabled for the merchant
         if (typeof checkoutConfig["checkoutcom_apple_pay"] !== 'undefined') {
             // If Apple Pay is enabled on the cart inject the button
             if (checkoutConfig["checkoutcom_apple_pay"]["enabled_on_cart"] == 1) {
-                Utilities.log("Apple Pay is enabled in the plugin");
+                Utilities.log("Apple Pay in Cart is enabled");
 
                 // set the button theme and mode
                 let button = document.querySelector("#ckoApplePayButton");
@@ -77,11 +75,11 @@ require([
                 );
                 // If Apple Pay is possible for the merchant id, display the button
                 if (canMakePayments) {
-                    Utilities.log("Apple Pay can be used for the merchant id provided");
+                    Utilities.log("Apple Pay can be used for the merchant ID provided");
                     $(buttonTarget).css("display", "inline-block");
                 }
             } else {
-                Utilities.log("Apple Pay can not be used for the merchant id provided");
+                Utilities.log("Apple Pay can not be used for the merchant ID provided");
                 $(buttonTarget).css("display", "none");
             }
 
@@ -417,7 +415,7 @@ require([
                 if (shippingMethod.available) {
                     formatted.push({
                         label: shippingMethod.method_title,
-                        amount: shippingMethod.price_incl_tax,
+                        amount: shippingMethod.price_incl_tax.toFixed(2),
                         identifier: shippingMethod.method_code,
                         detail: shippingMethod.carrier_title,
                     });
@@ -495,7 +493,7 @@ require([
                 breakdown.push({
                     type: "final",
                     label: totalItem.title,
-                    amount: totalItem.value,
+                    amount: totalItem.value.toFixed(2),
                 });
             });
 
