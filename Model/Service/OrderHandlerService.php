@@ -238,4 +238,21 @@ class OrderHandlerService
 
         return $order;
     }
+
+    /**
+     * Get status history by id
+     * 
+     * @param $entity
+     * @param $order
+     * @return false|mixed
+     */
+    public function getStatusHistoryByEntity($entity, $order)
+    {
+        foreach ($order->getStatusHistoryCollection() as $status) {
+            if ($status->getEntityName() == $entity) {
+                return $status;
+            }
+        }
+        return false;
+    }
 }

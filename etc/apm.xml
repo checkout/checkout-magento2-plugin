@@ -49,6 +49,10 @@
         <title>Poli</title>
         <currencies>AUD,NZD</currencies>
         <countries>AU,NZ</countries>
+        <mappings>
+            <AUD>AU</AUD>
+            <NZD>NZ</NZD>
+        </mappings>
     </item>
     <item>
         <id>sepa</id>
@@ -66,7 +70,14 @@
         <id>klarna</id>
         <title>Klarna</title>
         <currencies>EUR,DKK,GBP,NOK,SEK</currencies>
-        <countries>AT,DK,FI,DE,NL,NO,SE,UK,GB</countries>
+        <countries>AT,DK,FI,DE,NL,NO,SE,GB</countries>
+        <mappings>
+            <EUR>AT,FI,DE,NL,DK,NO,SE</EUR>
+            <DKK>DK</DKK>
+            <GBP>GB</GBP>
+            <NOK>NO</NOK>
+            <SEK>SE</SEK>
+        </mappings>
     </item>
     <item>
         <id>eps</id>

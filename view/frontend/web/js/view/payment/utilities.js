@@ -100,7 +100,7 @@ define(
              */
             getQuoteValue: function () {
                 var data = this.getRestQuoteData();
-                var amount = parseFloat(data.totals.base_grand_total);
+                var amount = parseFloat(data.totals.grand_total);
 
                 return amount.toFixed(2);
             },
@@ -118,7 +118,9 @@ define(
 
                 // Build the rest URL
                 if (Customer.isLoggedIn()) {
-                    restUrl += 'rest/default/V1/';
+                    restUrl += 'rest/';
+                    restUrl += window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.store.code;
+                    restUrl += '/V1/';
                     restUrl += 'carts/mine/payment-information';
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
                 } else {
@@ -156,7 +158,9 @@ define(
              * @return {string}  The quote currency.
              */
             getQuoteCurrency: function () {
-                return Config[KEY_DATA].quote.currency;
+                var data = this.getRestQuoteData();
+
+                return data.totals.quote_currency_code;
             },
 
             /**

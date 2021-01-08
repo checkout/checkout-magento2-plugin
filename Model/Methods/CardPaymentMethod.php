@@ -250,7 +250,9 @@ class CardPaymentMethod extends AbstractMethod
         $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
-        $request->shipping = $api->createShippingAddress($quote);
+        if (!$quote->getIsVirtual()) {
+            $request->shipping = $api->createShippingAddress($quote);
+        }
 
         // Save card check
         if ($isApiOrder) {
@@ -369,11 +371,6 @@ class CardPaymentMethod extends AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;
@@ -415,10 +412,6 @@ class CardPaymentMethod extends AbstractMethod
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;
@@ -462,10 +455,6 @@ class CardPaymentMethod extends AbstractMethod
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;

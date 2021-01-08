@@ -321,86 +321,13 @@ class WebhookHandlerService
         $webhooks = $this->loadWebhookEntities();
 
         foreach ($webhooks as $webhook) {
-            $payload = json_decode($webhook['event_data'], true);
-            $webhookDate = strtotime($payload['created_on']);
+            $webhookDate = strtotime($webhook['received_at']);
             $date = strtotime('-1 day');
             if ($webhookDate > $date && $webhook['processed']) {
                 continue;
             }
 
-            if (isset($this->transactionHandler::$transactionMapper[$webhook['event_type']])) {
-                $order = $this->orderHandler->getOrder([
-                    'entity_id' => $webhook['order_id']
-                ]);
-
-                $transaction = $this->transactionHandler->hasTransaction(
-                    $order,
-                    $webhook['action_id']
-                );
-
-                if ($transaction) {
-                    $type = $transaction->getTxnType();
-                    $paymentMethod = $order->getPayment()->getMethodInstance()->getCode();
-
-                    switch ($type) {
-                        case 'authorization':
-                            $childCapture = $this->transactionHandler->getTransactionByType(
-                                Transaction::TYPE_CAPTURE,
-                                $order
-                            );
-
-                            $childVoid = $this->transactionHandler->getTransactionByType(
-                                Transaction::TYPE_VOID,
-                                $order
-                            );
-
-                            if ($childCapture || $childVoid) {
-                                $this->deleteWebhookEntity($webhook['id']);
-                            }
-                            break;
-
-                        case 'capture':
-                            $parentAuth = $this->transactionHandler->getTransactionByType(
-                                Transaction::TYPE_AUTH,
-                                $order
-                            );
-
-                            if ($parentAuth || $paymentMethod == 'checkoutcom_apm') {
-                                $this->deleteWebhookEntity($webhook['id']);
-                            }
-                            break;
-
-                        case 'void':
-                            $parentAuth = $this->transactionHandler->getTransactionByType(
-                                Transaction::TYPE_AUTH,
-                                $order
-                            );
-
-                            if ($parentAuth) {
-                                $this->deleteWebhookEntity($webhook['id']);
-                            }
-                            break;
-
-                        case 'refund':
-                            $parentAuth = $this->transactionHandler->getTransactionByType(
-                                Transaction::TYPE_AUTH,
-                                $order
-                            );
-
-                            $parentCapture = $this->transactionHandler->getTransactionByType(
-                                Transaction::TYPE_CAPTURE,
-                                $order
-                            );
-
-                            if ($parentAuth && $parentCapture->getIsClosed() == '1') {
-                                $this->deleteWebhookEntity($webhook['id']);
-                            }
-                            break;
-                    }
-                }
-            } else {
-                $this->deleteWebhookEntity($webhook['id']);
-            }
+            $this->deleteWebhookEntity($webhook['id']);
         }
     }
 }

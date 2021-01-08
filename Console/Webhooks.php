@@ -34,11 +34,12 @@ class Webhooks extends Command
     const DATE = 'date';
     const START_DATE = 'start-date';
     const END_DATE = 'end-date';
+
     /**
      * @var \Magento\Framework\App\State
      */
     protected $state;
-    
+
     /**
      * @var WebhookHandlerService
      */
@@ -101,7 +102,7 @@ class Webhooks extends Command
         } catch (\Exception $e) {
             $areaCode = null;
         }
-        
+
         if (!$areaCode) {
             $this->state->setAreaCode(Area::AREA_GLOBAL);
         }
@@ -110,7 +111,7 @@ class Webhooks extends Command
 
         $this->webhookHandler = $objectManager->create('CheckoutCom\Magento2\Model\Service\WebhookHandlerService');
         $this->orderHandler = $objectManager->create('CheckoutCom\Magento2\Model\Service\OrderHandlerService');
-        $this->transactionHandler = 
+        $this->transactionHandler =
             $objectManager->create('CheckoutCom\Magento2\Model\Service\TransactionHandlerService');
     }
 
@@ -123,7 +124,7 @@ class Webhooks extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->createRequiredObjects();
-        
+
         $date = $input->getOption(self::DATE);
         $startDate = $input->getOption(self::START_DATE);
         $endDate = $input->getOption(self::END_DATE);
@@ -133,9 +134,9 @@ class Webhooks extends Command
 
         foreach ($webhooks as $webhook) {
             $payload = json_decode($webhook['event_data'], true);
-            $webhookDate = date('Y-m-d', strtotime($payload['created_on']));
+            $webhookDate = date('Y-m-d', strtotime($webhook['received_at']));
 
-            $webhookTime = strtotime($payload['created_on']);
+            $webhookTime = strtotime($webhook['received_at']);
             $timeBuffer = strtotime('-1 day');
             if ($webhookTime > $timeBuffer) {
                 continue;
@@ -147,99 +148,21 @@ class Webhooks extends Command
                 }
             } elseif ($startDate || $endDate) {
                 if ($startDate && $endDate) {
-                    if ($startDate >= $webhookDate || $endDate <= $webhookDate) {
+                    if ($startDate > $webhookDate || $endDate < $webhookDate) {
                         continue;
                     }
                 } elseif ($startDate) {
-                    if ($startDate >= $webhookDate) {
+                    if ($startDate > $webhookDate) {
                         continue;
                     }
                 } else {
-                    if ($endDate <= $webhookDate) {
+                    if ($endDate < $webhookDate) {
                         continue;
                     }
                 }
             }
 
-            if (isset($this->transactionHandler::$transactionMapper[$webhook['event_type']])) {
-                $order = $this->orderHandler->getOrder([
-                    'entity_id' => $webhook['order_id']
-                ]);
-
-                $transaction = $this->transactionHandler->hasTransaction(
-                    $order,
-                    $webhook['action_id']
-                );
-
-                if ($transaction) {
-                    $type = $transaction->getTxnType();
-                    $paymentMethod = $order->getPayment()->getMethodInstance()->getCode();
-
-                    switch ($type) {
-                        case 'authorization':
-                            $childCapture = $this->transactionHandler->getTransactionByType(
-                                Transaction::TYPE_CAPTURE,
-                                $order
-                            );
-
-                            $childVoid = $this->transactionHandler->getTransactionByType(
-                                Transaction::TYPE_VOID,
-                                $order
-                            );
-
-                            if ($childCapture || $childVoid) {
-                                $this->outputWebhook($output, $webhook);
-                                $this->webhookHandler->deleteWebhookEntity($webhook['id']);
-                                $deleted++;
-                            }
-                            break;
-
-                        case 'capture':
-                            $parentAuth = $this->transactionHandler->getTransactionByType(
-                                Transaction::TYPE_AUTH,
-                                $order
-                            );
-
-                            if ($parentAuth || $paymentMethod == 'checkoutcom_apm') {
-                                $this->outputWebhook($output, $webhook);
-                                $this->webhookHandler->deleteWebhookEntity($webhook['id']);
-                                $deleted++;
-                            }
-                            break;
-
-                        case 'void':
-                            $parentAuth = $this->transactionHandler->getTransactionByType(
-                                Transaction::TYPE_AUTH,
-                                $order
-                            );
-
-                            if ($parentAuth) {
-                                $this->outputWebhook($output, $webhook);
-                                $this->webhookHandler->deleteWebhookEntity($webhook['id']);
-                                $deleted++;
-                            }
-                            break;
-
-                        case 'refund':
-                            $parentAuth = $this->transactionHandler->getTransactionByType(
-                                Transaction::TYPE_AUTH,
-                                $order
-                            );
-
-                            $parentCapture = $this->transactionHandler->getTransactionByType(
-                                Transaction::TYPE_CAPTURE,
-                                $order
-                            );
-
-                            if ($parentAuth && $parentCapture) {
-                                $this->outputWebhook($output, $webhook);
-                                $this->webhookHandler->deleteWebhookEntity($webhook['id']);
-                                $deleted++;
-                            }
-                            break;
-                    }
-                }
-            } else {
+            if ($webhook['processed']) {
                 $this->outputWebhook($output, $webhook);
                 $this->webhookHandler->deleteWebhookEntity($webhook['id']);
                 $deleted++;
