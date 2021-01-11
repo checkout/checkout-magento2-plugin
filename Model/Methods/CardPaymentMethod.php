@@ -243,8 +243,8 @@ class CardPaymentMethod extends AbstractMethod
             $quote
         );
         $request->reference = $reference;
-        $request->success_url = $this->getSuccessUrl($data);
-        $request->failure_url = $this->getFailureUrl($data);
+        $request->success_url = $this->getSuccessUrl($data, $isApiOrder);
+        $request->failure_url = $this->getFailureUrl($data, $isApiOrder);
         $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
         $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
         $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
@@ -256,6 +256,14 @@ class CardPaymentMethod extends AbstractMethod
 
         // Save card check
         if ($isApiOrder) {
+            if (isset($data['successUrl'])) {
+                $request->metadata['successUrl'] = $this->getSuccessUrl($data);
+            }
+            
+            if (isset($data['failureUrl'])) {
+                $request->metadata['failureUrl'] = $this->getFailureUrl($data);
+            }
+            
             if (isset($data['saveCard'])
                 && $data['saveCard'] === true
                 && $saveCardEnabled
@@ -292,7 +300,7 @@ class CardPaymentMethod extends AbstractMethod
             $request->metadata,
             $this->apiHandler->getBaseMetadata()
         );
-        
+
         // Send the charge request
         try {
             $response = $api->checkoutApi
@@ -305,34 +313,6 @@ class CardPaymentMethod extends AbstractMethod
                 return $e;
             }
         }
-    }
-
-    /**
-     * Get the success redirection URL for the payment request.
-     *
-     * @return string
-     */
-    public function getSuccessUrl($data)
-    {
-        if (isset($data['successUrl'])) {
-            return $data['successUrl'];
-        }
-
-        return $this->config->getStoreUrl() . 'checkout_com/payment/verify';
-    }
-
-    /**
-     * Get the failure redirection URL for the payment request.
-     *
-     * @return string
-     */
-    public function getFailureUrl($data)
-    {
-        if (isset($data['failureUrl'])) {
-            return $data['failureUrl'];
-        }
-        
-        return $this->config->getStoreUrl() . 'checkout_com/payment/fail';
     }
 
     /**

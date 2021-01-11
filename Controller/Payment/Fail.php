@@ -147,7 +147,12 @@ class Fail extends \Magento\Framework\App\Action\Action
                 );
 
                 // Return to the cart
-                return $this->_redirect('checkout/cart', ['_secure' => true]);
+                if (isset($response->metadata['failureUrl'])) {
+                    header('Location: ' . $response->metadata['failureUrl']);
+                    exit();
+                } else {
+                    return $this->_redirect('checkout/cart', ['_secure' => true]);    
+                }
             } else {
                 $this->messageManager->addErrorMessage(
                     __('The card could not be saved.')

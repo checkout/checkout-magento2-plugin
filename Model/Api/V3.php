@@ -237,15 +237,18 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
                     && isset($response->_links['redirect'])
                     && isset($response->_links['redirect']['href']);
 
-                if ($is3ds) {
-                    $this->result['redirect_url'] = $response->_links['redirect']['href'];
-                }
-
                 // Add the payment info to the order
                 $order = $this->utilities->setPaymentData($order, $response);
 
                 // Save the order
                 $order->save();
+
+                // Use custom redirect urls
+                if ($is3ds) {
+                    $this->result['redirect_url'] = $response->_links['redirect']['href'];
+                } elseif ($this->data->getSuccessUrl()) {
+                    $this->result['redirect_url'] = $this->data->getSuccessUrl();
+                }
 
                 // Update the result
                 $this->result['success'] = $response->isSuccessful();
@@ -263,6 +266,10 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
                         $this->result['error_message'],
                         $response->getErrors()
                     );
+                }
+
+                if ($this->data->getFailureUrl()) {
+                    $this->result['redirect_url'] = $this->data->getFailureUrl();
                 }
             }
 
