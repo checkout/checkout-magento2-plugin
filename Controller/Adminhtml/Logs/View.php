@@ -19,14 +19,13 @@ namespace Checkoutcom\Magento2\Controller\Adminhtml\Logs;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
  * Class View
  */
-class View extends Action implements HttpGetActionInterface
+class View extends Action
 {
     /**
      * @var PageFactory
