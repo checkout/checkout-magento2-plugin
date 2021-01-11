@@ -17,7 +17,6 @@
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
-use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Data\Form\Element\AbstractElement;
@@ -76,12 +75,16 @@ class LogFiles extends \Magento\Config\Block\System\Config\Form\Field
             $file = new \SplFileObject($file, 'r');
             $file->seek(PHP_INT_MAX);
             $last_line = $file->key();
-            $lines = new \LimitIterator(
-                $file,
-                ($last_line - 50) > 0 ? $last_line - 50 : 0,
-                $last_line
-            );
-            $contents =  implode('',iterator_to_array($lines));
+            if ($last_line) {
+                $lines = new \LimitIterator(
+                    $file,
+                    ($last_line - 50) > 0 ? $last_line - 50 : 0,
+                    $last_line
+                );
+                $contents = implode('',iterator_to_array($lines));
+            } else {
+                $contents = '';
+            }
         }
 
         $element->setData('value', $contents);
