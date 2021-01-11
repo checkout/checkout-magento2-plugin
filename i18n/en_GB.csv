@@ -133,3 +133,8 @@ Debitor,Debitor
 "Place Order","Place Order"
 "Card number","Card number"
 "Save this card for later use.","Save this card for later use."
+"Set Webhooks","Set Webhooks"
+"Attention, webhook not properly configured!","Attention, webhook not properly configured!"
+"Your webhook is all set!","Your webhook is all set!"
+"Error! Could not set webhooks. Please check your secret key.","Error! Could not set webhooks. Please check your secret key."
+"Attention, secret key incorrect!","Attention, secret key incorrect!"

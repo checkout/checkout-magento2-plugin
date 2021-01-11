@@ -84,10 +84,15 @@ class Config
     /**
      * Checks if an external request is valid.
      */
-    public function isValidAuth($type)
+    public function isValidAuth($type, $header = null)
     {
         // Get the authorization header
-        $key = $this->request->getHeader('Authorization');
+        if ($header) {
+            $key = $this->request->getHeader($header);
+        } else {
+            $key = $this->request->getHeader('Authorization');
+        }
+
         $this->logger->additional('authorization header: ' . $key, 'auth');
 
         // Validate the header

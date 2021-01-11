@@ -195,8 +195,15 @@ class VaultMethod extends AbstractMethod
      *
      * @return self
      */
-    public function sendPaymentRequest($data, $amount, $currency, $reference = '')
-    {
+    public function sendPaymentRequest(
+        $data, 
+        $amount,
+        $currency,
+        $reference = '',
+        $quote = null,
+        $isApiOrder = null,
+        $customerId = null
+    ) {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
@@ -207,7 +214,11 @@ class VaultMethod extends AbstractMethod
         $quote = $this->quoteHandler->getQuote();
 
         // Find the card token
-        $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
+        if (isset($isApiOrder) && isset($customerId)) {
+            $card = $this->vaultHandler->getCardFromHash($data['publicHash'], $customerId);
+        } else {
+            $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
+        }
 
         // Set the token source
         $idSource = new IdSource($card->getGatewayToken());
