@@ -100,7 +100,14 @@ define(
              */
             getQuoteValue: function () {
                 var data = this.getRestQuoteData('payment-information');
-                var amount = parseFloat(data.totals.grand_total);
+                var collectTotals = data.totals.total_segments;
+                var amount = null;
+
+                collectTotals.forEach(function (total) {
+                    if (total.code === "grand_total") {
+                        amount = parseFloat(total.value);
+                    }
+                });
 
                 return amount.toFixed(2);
             },
