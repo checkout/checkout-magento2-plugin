@@ -181,6 +181,9 @@ class QuoteHandlerService
             // Prepare the inventory
             $quote->setInventoryProcessed(false);
 
+            // Collect totals
+            $quote->collectTotals();
+
             // Check for guest user quote
             if (!$this->customerSession->isLoggedIn() && $quote->getCustomerId() == null) {
                 $quote = $this->prepareGuestQuote($quote);
