@@ -222,7 +222,6 @@ define(
 
                                 // Prepare the parameters
                                 var runningTotal         = Utilities.getQuoteValue();
-                                var billingAddress       = Utilities.getBillingAddress();
 
                                 // Build the payment request
                                 if (ApplePayUtilities.getIsVirtual()) {

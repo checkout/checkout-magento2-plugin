@@ -83,7 +83,7 @@ define(
                             type: "POST",
                             url: Utilities.getUrl('apm/display'),
                             data: {
-                                country_id: Quote.billingAddress() ? Quote.billingAddress().countryId : null
+                                country_id: Utilities.getBillingAddress() ? Utilities.getBillingAddress().country_id : null
                             },
                             success: function (data) {
                                 self.animateRender(data);
