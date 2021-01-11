@@ -99,7 +99,7 @@ define(
              * @return {float}  The quote value.
              */
             getQuoteValue: function () {
-                var data = this.getRestQuoteData();
+                var data = this.getRestQuoteData('payment-information');
                 var collectTotals = data.totals.total_segments;
                 var amount = null;
 
@@ -117,7 +117,9 @@ define(
              *
              * @return {object}  The quote data.
              */
-            getRestQuoteData: function () {
+            getRestQuoteData: function (endpoint) {
+                endpoint = (endpoint === null ? '' : '/' + endpoint);
+
                 // Prepare the required parameters
                 var self = this;
                 var result = null;
@@ -128,17 +130,14 @@ define(
                     restUrl += 'rest/';
                     restUrl += window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.store.code;
                     restUrl += '/V1/';
-                    restUrl += 'carts/mine/payment-information';
+                    restUrl += 'carts/mine';
+                    restUrl += endpoint;
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
                 } else {
-                    restUrl += 'rest/all/V1/guest-carts/' + window.checkoutConfig.quoteData.entity_id + '/payment-information';
+                    restUrl += 'rest/all/V1/guest-carts/' + window.checkoutConfig.quoteData.entity_id;
+                    restUrl += endpoint;
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
                 }
-
-                // Set the event to update data on any button click
-                $('button[type="submit"]')
-                    .off('click', self.getRestQuoteData)
-                    .on('click', self.getRestQuoteData);
 
                 // Send the AJAX request
                 $.ajax({
@@ -165,8 +164,7 @@ define(
              * @return {string}  The quote currency.
              */
             getQuoteCurrency: function () {
-                var data = this.getRestQuoteData();
-
+                var data = this.getRestQuoteData('payment-information');
                 return data.totals.quote_currency_code;
             },
 
@@ -197,15 +195,6 @@ define(
                 && $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').length) {
                     $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').trigger('click');
                 }
-            },
-
-            /**
-             * Checks if user has saved cards.
-             *
-             * @return {bool}
-             */
-            userHasCards: function () {
-                return Config[KEY_DATA].user.has_cards;
             },
 
             /**
@@ -280,7 +269,7 @@ define(
              * @return {mixed}  The billing address.
              */
             getCustomerName: function () {
-                var billingAddress = Quote.billingAddress();
+                var billingAddress = this.getBillingAddress();
                 var customerName = '';
                 if (billingAddress) {
                     customerName += billingAddress.firstname;
@@ -296,7 +285,7 @@ define(
              * @return {object}  The billing address.
              */
             getBillingAddress: function () {
-                return Quote.billingAddress();
+                return this.getRestQuoteData('billing-address');
             },
 
             /**
@@ -331,7 +320,7 @@ define(
              * @return {object}
              */
             getPhone: function () {
-                var billingAddress = Quote.billingAddress();
+                var billingAddress = this.getBillingAddress();
 
                 return {
                     number: billingAddress.telephone
