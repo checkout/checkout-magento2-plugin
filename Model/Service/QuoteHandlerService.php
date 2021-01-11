@@ -45,9 +45,9 @@ class QuoteHandlerService
     public $quoteFactory;
 
     /**
-     * @var QuoteRepository
+     * @var CartRepositoryInterface
      */
-    public $quoteRepository;
+    public $cartRepository;
 
     /**
      * @var StoreManagerInterface
@@ -77,7 +77,7 @@ class QuoteHandlerService
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        \Magento\Quote\Model\QuoteRepository $quoteRepository,
+        \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
@@ -87,7 +87,7 @@ class QuoteHandlerService
         $this->customerSession = $customerSession;
         $this->cookieManager = $cookieManager;
         $this->quoteFactory = $quoteFactory;
-        $this->quoteRepository = $quoteRepository;
+        $this->cartRepository = $cartRepository;
         $this->storeManager = $storeManager;
         $this->productRepository = $productRepository;
         $this->config = $config;
@@ -300,6 +300,14 @@ class QuoteHandlerService
     public function getQuoteValue()
     {
         return $this->getQuote()->collectTotals()->getGrandTotal();
+    }
+
+    /**
+     * Saves the quote. This is needed
+     */
+    public function saveQuote()
+    {
+        $this->cartRepository->save($this->getQuote());
     }
 
     /**
