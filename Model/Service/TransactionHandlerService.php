@@ -685,4 +685,28 @@ class TransactionHandlerService
         return isset($payload->data->risk->flagged)
             && $payload->data->risk->flagged == true;
     }
+
+    /**
+     * Return transaction details for additional logging.
+     *
+     * @param $order
+     * @return array
+     */
+    public function getTransactionDetails($order) {
+        $transactions = $this->getTransactions($order->getId());
+        $items = [];
+        foreach ($transactions as $transaction) {
+            $items[] = [
+                'transaction_id' => $transaction->getTxnId(),
+                'payment_id' => $transaction->getPaymentId(),
+                'txn_type' => $transaction->getTxnType(),
+                'order_id' => $transaction->getOrderId(),
+                'is_closed' => $transaction->getIsClosed(),
+                'additional_information' => $transaction->getAdditionalInformation(),
+                'created_at' => $transaction->getCreatedAt()
+            ];
+        }
+
+        return $items;
+    }
 }

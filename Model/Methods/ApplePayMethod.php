@@ -239,6 +239,8 @@ class ApplePayMethod extends AbstractMethod
         // Add the quote metadata
         $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
 
+        $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
+
         // Send the charge request
         try {
             $response = $api->checkoutApi

@@ -72,6 +72,16 @@ class OrderHandlerService
     public $paymentData;
 
     /**
+     * @var Logger
+     */
+    public $logger;
+
+    /**
+     * @var TransactionHandlerService
+     */
+    public $transactionHandler;
+
+    /**
      * OrderHandler constructor
      */
     public function __construct(
@@ -81,7 +91,9 @@ class OrderHandlerService
         \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \CheckoutCom\Magento2\Helper\Logger $logger,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->quoteManagement = $quoteManagement;
@@ -90,6 +102,8 @@ class OrderHandlerService
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
         $this->storeManager = $storeManager;
+        $this->logger = $logger;
+        $this->transactionHandler = $transactionHandler;
     }
 
     /**
@@ -217,6 +231,7 @@ class OrderHandlerService
             ->setPageSize(1)
             ->getLastItem();
 
+        $this->logger->additional($this->getOrderDetails($order), 'order');
         return $order;
     }
 
@@ -254,5 +269,26 @@ class OrderHandlerService
             }
         }
         return false;
+    }
+
+    /**
+     * Return common order details for additional logging.
+     * 
+     * @param $order
+     * @return array
+     */
+    public function getOrderDetails($order) {
+        return [
+            'id' => $order->getId(),
+            'increment_id' => $order->getIncrementId(),
+            'state' => $order->getState(),
+            'status' => $order->getStatus(),
+            'grand_total' => $order->getGrandTotal(),
+            'currency' => $order->getOrderCurrencyCode(),
+            'payment' => [
+                'method_id' => $order->getPayment()->getMethodInstance()->getCode(),
+            ],
+            'transactions' => $this->transactionHandler->getTransactionDetails($order)
+        ];
     }
 }

@@ -300,6 +300,8 @@ class CardPaymentMethod extends AbstractMethod
             $request->metadata,
             $this->apiHandler->getBaseMetadata()
         );
+        
+        $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
         // Send the charge request
         try {

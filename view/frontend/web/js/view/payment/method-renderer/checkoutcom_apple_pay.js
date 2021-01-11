@@ -129,6 +129,7 @@ define(
                  * @return {object}
                  */
                 sendPaymentRequest: function (paymentData) {
+                    Utilities.log(paymentData);
                     return new Promise(
                         function (resolve, reject) {
                             $.ajax({
@@ -167,6 +168,7 @@ define(
                         }
                     };
 
+                    Utilities.log(requestBody);
                     ApplePayUtilities.getRestData(requestBody, "billing-address");
                 },
 
@@ -259,6 +261,7 @@ define(
                                 }
 
                                 // Start the payment session
+                                Utilities.log(paymentRequest);
                                 var session = new ApplePaySession(1, paymentRequest);
 
                                 // Merchant Validation

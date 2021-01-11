@@ -70,6 +70,11 @@ class QuoteHandlerService
     public $shopperHandler;
 
     /**
+     * @var Logger
+     */
+    public $logger;
+
+    /**
      * QuoteHandlerService constructor
      */
     public function __construct(
@@ -81,7 +86,8 @@ class QuoteHandlerService
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
@@ -92,6 +98,7 @@ class QuoteHandlerService
         $this->productRepository = $productRepository;
         $this->config = $config;
         $this->shopperHandler = $shopperHandler;
+        $this->logger = $logger;
     }
 
     /**
@@ -114,13 +121,13 @@ class QuoteHandlerService
             }
 
             // Return the first result found
-            return $quoteFactory
-                ->setPageSize(1)
-                ->getLastItem();
+            $quote = $quoteFactory->setPageSize(1)->getLastItem();
         } else {
             // Try to find the quote in session
-            return $this->checkoutSession->getQuote();
+            $quote = $this->checkoutSession->getQuote();
         }
+        
+        return $quote;
     }
 
     /**
@@ -250,10 +257,13 @@ class QuoteHandlerService
      */
     public function getQuoteData()
     {
-        return [
+        $data = [
             'value' => $this->getQuoteValue(),
             'currency' => $this->getQuoteCurrency()
         ];
+        
+        $this->logger->additional($data,'quote');
+        return $data;
     }
 
     /**
@@ -377,11 +387,14 @@ class QuoteHandlerService
      */
     public function getQuoteRequestData($quote)
     {
-        return [
+        $data = [
             'quote_id' => $quote->getId(),
             'store_id' => $quote->getStoreId(),
             'customer_email' => $quote->getCustomerEmail()
         ];
+
+        $this->logger->additional($data,'quote');
+        return $data;
     }
 
     /**

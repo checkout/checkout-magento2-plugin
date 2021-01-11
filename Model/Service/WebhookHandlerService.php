@@ -198,6 +198,8 @@ class WebhookHandlerService
                         $webhook
                     );
                 }
+
+                $this->logger->additional($this->orderHandler->getOrderDetails($order), 'webhook');
             }
         }
     }
