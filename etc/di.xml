@@ -29,6 +29,12 @@
     </type>
     <!-- END Method handler configurations -->
 
+    <!-- CKO API v3 Preferences -->
+    <preference for="CheckoutCom\Magento2\Api\V3Interface" type="CheckoutCom\Magento2\Model\Api\V3"/>
+    <preference for="CheckoutCom\Magento2\Api\Data\PaymentRequestInterface" type="CheckoutCom\Magento2\Model\Api\Data\PaymentRequest" />
+    <preference for="CheckoutCom\Magento2\Api\Data\PaymentResponseInterface" type="CheckoutCom\Magento2\Model\Api\Data\PaymentResponse" />
+    <!-- END CKO API v3 Preferences -->
+    
     <!-- Instant Purchase override -->
     <preference for="Magento\InstantPurchase\CustomerData\InstantPurchase" type="CheckoutCom\Magento2\Model\InstantPurchase\CustomerData" />
     <!-- END Instant Purchase override -->
