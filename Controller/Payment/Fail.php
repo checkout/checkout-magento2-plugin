@@ -143,7 +143,7 @@ class Fail extends \Magento\Framework\App\Action\Action
 
                 // Display the message
                 $this->messageManager->addErrorMessage(
-                    $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')
+                    $errorMessage ? $errorMessage->render() : __('The transaction could not be processed.')
                 );
 
                 // Return to the cart

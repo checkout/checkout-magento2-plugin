@@ -274,7 +274,7 @@ class VaultMethod extends AbstractMethod
             'attempt_n3d',
             $this->_code
         );
-        $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
+        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->payment_type = 'Regular';
         if (!$quote->getIsVirtual()) {
             $request->shipping = $api->createShippingAddress($quote);

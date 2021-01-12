@@ -247,7 +247,7 @@ class CardPaymentMethod extends AbstractMethod
         $request->failure_url = $this->getFailureUrl($data, $isApiOrder);
         $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
         $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
-        $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
+        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
         if (!$quote->getIsVirtual()) {
