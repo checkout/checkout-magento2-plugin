@@ -519,12 +519,14 @@ class TransactionHandlerService
             // Refund
             $this->creditMemoService->refund($creditMemo);
 
-            if ($this->order->getStatus() == 'closed') {
-                $status = 'closed';
-            } else {
-                $status = $this->config->getValue('order_status_refunded');
-            }
-            
+            $isPartialRefund = $this->isPartialRefund(
+                $amount,
+                true,
+                $this->order,
+                true
+            );
+
+            $status = $isPartialRefund ? $this->config->getValue('order_status_refunded') : 'closed';
             $orderComment->setData('status', $status)->save();
 
             // Remove the core credit memo comment
@@ -536,16 +538,7 @@ class TransactionHandlerService
             }
 
             // Amend the order status set by magento when refunding the credit memo
-            $isPartialRefund = $this->isPartialRefund(
-                $amount,
-                true,
-                $this->order,
-                true
-            );
-
-            $status = $isPartialRefund ? $this->config->getValue('order_status_refunded') : 'closed';
             $this->order->setStatus($status);
-
             $this->order->setTotalRefunded($currentTotal + $amount);
         }
     }
