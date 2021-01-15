@@ -509,6 +509,7 @@ class TransactionHandlerService
             // Create a credit memo
             $creditMemo = $this->convertor->toCreditmemo($this->order);
             $creditMemo->setAdjustmentPositive($amount);
+            $creditMemo->setBaseShippingAmount(0);
             $creditMemo->collectTotals();
             
             // Update the order history comment status
