@@ -523,6 +523,7 @@ class TransactionHandlerService
                 $creditMemo = $this->creditMemoFactory->createByOrder($this->order);
                 $creditMemo->setBaseGrandTotal($amount/$this->order->getBaseToOrderRate());
                 $creditMemo->setGrandTotal($amount);
+                $creditMemo->collectTotals();
             }
 
             // Update the order history comment status
