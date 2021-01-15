@@ -387,6 +387,9 @@
                             <field id="merchant_id_certificate"/>
                             <field id="merchant_id"/>
                         </requires>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
                     </field>
                     
                     <field id="enabled_on_cart" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -398,6 +401,9 @@
                             <field id="merchant_id_certificate"/>
                             <field id="merchant_id"/>
                         </requires>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
                     </field>
 
                     <field id="sort_order" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
