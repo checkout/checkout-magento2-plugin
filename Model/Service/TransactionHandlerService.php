@@ -520,10 +520,11 @@ class TransactionHandlerService
                 $creditMemo->setBaseShippingAmount(0);
                 $creditMemo->collectTotals();
             } else {
-                $creditMemo = $this->creditMemoFactory->createByOrder($this->order);
-                $creditMemo->setBaseGrandTotal($amount/$this->order->getBaseToOrderRate());
-                $creditMemo->setGrandTotal($amount);
-                $creditMemo->collectTotals();
+                $creditMemoData = [
+                    'adjustment_positive' => $amount,
+                    'adjustment_negative' => $currentTotal + $amount,
+                ];
+                $creditMemo = $this->creditMemoFactory->createByOrder($this->order, $creditMemoData);
             }
 
             // Update the order history comment status
