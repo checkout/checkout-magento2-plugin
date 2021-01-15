@@ -506,25 +506,31 @@ class TransactionHandlerService
         if ($isRefund && !$hasCreditMemo) {
             $currentTotal = $this->getCreditMemosTotal();
 
+            $isPartialRefund = $this->isPartialRefund(
+                $amount,
+                true,
+                $this->order,
+                false
+            );
+
             // Create a credit memo
-            $creditMemo = $this->convertor->toCreditmemo($this->order);
-            $creditMemo->setAdjustmentPositive($amount);
-            $creditMemo->setBaseShippingAmount(0);
-            $creditMemo->collectTotals();
-            
+            if ($isPartialRefund) {
+                $creditMemo = $this->convertor->toCreditmemo($this->order);
+                $creditMemo->setAdjustmentPositive($amount);
+                $creditMemo->setBaseShippingAmount(0);
+                $creditMemo->collectTotals();
+            } else {
+                $creditMemo = $this->creditMemoFactory->createByOrder($this->order);
+                $creditMemo->setBaseGrandTotal($amount/$this->order->getBaseToOrderRate());
+                $creditMemo->setGrandTotal($amount);
+            }
+
             // Update the order history comment status
             $orderComments = $this->order->getStatusHistories();
             $orderComment = array_pop($orderComments);
 
             // Refund
             $this->creditMemoService->refund($creditMemo);
-
-            $isPartialRefund = $this->isPartialRefund(
-                $amount,
-                true,
-                $this->order,
-                true
-            );
 
             $status = $isPartialRefund ? $this->config->getValue('order_status_refunded') : 'closed';
             $orderComment->setData('status', $status)->save();
