@@ -118,7 +118,8 @@ define(
 
                 // Build the rest URL
                 if (Customer.isLoggedIn()) {
-                    restUrl += 'rest/default/V1/';
+		    var store = window.checkoutConfig.storeCode ? window.checkoutConfig.storeCode : 'default';
+		    restUrl += 'rest/' + store + '/V1/';
                     restUrl += 'carts/mine/payment-information';
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
                 } else {
