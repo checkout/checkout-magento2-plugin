@@ -142,9 +142,10 @@ class WebhookHandlerService
         // Save the payload
         $this->saveWebhookEntity($payload, $order);
 
-        // Get the saved webhook
+        // Get only the saved webhook
         $webhooks = $this->loadWebhookEntities([
-            'order_id' => $order->getId()
+            'order_id' => $order->getId(),
+            'event_type' => $payload->type
         ]);
 
         if ($this->hasAuth($webhooks, $payload)) {

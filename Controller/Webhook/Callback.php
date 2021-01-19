@@ -176,14 +176,6 @@ class Callback extends \Magento\Framework\App\Action\Action
                                     if ($clean && $cleanOn == 'webhook') {
                                         $this->webhookHandler->clean();
                                     }
-    
-                                    // Set a valid response
-                                    $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
-    
-                                    // Return the 200 success response
-                                    return $resultFactory->setData([
-                                        'result' => __('Webhook and order successfully processed.')
-                                    ]);
                                 } else {
                                     // Log the payment error
                                     $this->paymentErrorHandler->logError(
@@ -191,6 +183,13 @@ class Callback extends \Magento\Framework\App\Action\Action
                                         $order
                                     );
                                 }
+                                // Set a valid response
+                                $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
+
+                                // Return the 200 success response
+                                return $resultFactory->setData([
+                                    'result' => __('Webhook and order successfully processed.')
+                                ]);
                             } else {
                                 $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
                                 return $resultFactory->setData([
@@ -219,7 +218,10 @@ class Callback extends \Magento\Framework\App\Action\Action
                     ]);
             }
         } catch (\Exception $e) {
-            $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
+            // Throw 400 error for gateway retry mechanism
+            $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
+            $this->logger->write($e->getMessage());
+
             return $resultFactory->setData([
                 'error_message' => __(
                     'There was an error processing the webhook. Please check the error logs.'
