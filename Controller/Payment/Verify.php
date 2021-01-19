@@ -133,9 +133,10 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                         // Process the response
                         if ($api->isValidResponse($response)) {
-                            if (isset($response->metadata['successUrl'])) {
-                                header('Location: ' . $response->metadata['successUrl']);
-                                exit();
+                            if (isset($response->metadata['successUrl']) &&
+                                !str_contains($response->metadata['successUrl'], 'checkout_com/payment/verify'))
+                            {
+                                return $this->_redirect($response->metadata['successUrl']);
                             } else {
                                 return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                             }
