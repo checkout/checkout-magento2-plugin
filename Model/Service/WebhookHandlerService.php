@@ -139,22 +139,31 @@ class WebhookHandlerService
 
     public function processWithSave($order, $payload)
     {
-        // Save the payload
-        $this->saveWebhookEntity($payload, $order);
-
-        // Get only the saved webhook
+        // Get all the webhooks to check for auth
         $webhooks = $this->loadWebhookEntities([
-            'order_id' => $order->getId(),
-            'event_type' => $payload->type
+            'order_id' => $order->getId()
         ]);
 
         if ($this->hasAuth($webhooks, $payload)) {
+            // Save the payload
+            $this->saveWebhookEntity($payload, $order);
+
+            // Only return the single webhook that needs to be processed
+            $webhook = $this->loadWebhookEntities([
+                'order_id' => $order->getId(),
+                'action_id' => $payload->data->action_id
+            ]);
+
             // Handle the order status for the webhook
             $this->webhooksToProcess(
                 $order,
-                $webhooks
+                $webhook
             );
-            $this->setProcessedTime($webhooks);
+
+            $this->setProcessedTime($webhook);
+        } else {
+            // throw 400 as payment_approved has not been received or is still being processed
+            throw new \Magento\Framework\Exception\LocalizedException(__('payment_captured webhook refused'));
         }
     }
 
@@ -306,8 +315,9 @@ class WebhookHandlerService
             foreach ($webhooks as $webhook) {
                 if ($webhook['event_type'] == 'payment_approved'
                     || $webhook['event_type'] == 'payment_capture_pending') {
-                    
-                    return true;
+                    if ($webhook['processed']) {
+                        return true;
+                    }
                 }
             }
             return false;
