@@ -484,9 +484,11 @@ require([
 
             let breakdown = [];
 
+            let totalAmount = null;
             shippingInfo.total_segments.forEach(function (totalItem) {
                 // ignore the grand total since it's handled separately
                 if (totalItem.code === "grand_total") {
+                    totalAmount = totalItem.value.toFixed(2)
                     return
                 };
                 // if there is not tax applied, remove it from the line items
@@ -505,7 +507,7 @@ require([
                 total: {
                     type: "final",
                     label: window.location.host,
-                    amount: Utilities.getQuoteValue(),
+                    amount: totalAmount ? totalAmount : Utilities.getQuoteValue(),
                 },
             };
         }
