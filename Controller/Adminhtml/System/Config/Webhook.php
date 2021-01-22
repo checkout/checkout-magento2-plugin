@@ -92,6 +92,7 @@ class Webhook extends Action
             $scope = $this->getRequest()->getParam('scope', 0);
             $storeCode = $this->getRequest()->getParam('scope_id', 0);
             $secretKey = $this->getRequest()->getParam('secret_key', 0);
+            $publicKey = $this->getRequest()->getParam('public_key', 0);
 
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode, $scope, $secretKey);
@@ -129,6 +130,13 @@ class Webhook extends Action
                     $scope,
                     $storeCode
                 );
+
+                $this->resourceConfig->saveConfig(
+                    'settings/checkoutcom_configuration/public_key',
+                    $publicKey,
+                    $scope,
+                    $storeCode
+                );
             } else {
                 $webhook = new \Checkout\Models\Webhooks\Webhook($webhookUrl);
                 $response = $api->checkoutApi->webhooks()->register($webhook, $eventTypes);
@@ -143,6 +151,13 @@ class Webhook extends Action
                 $this->resourceConfig->saveConfig(
                     'settings/checkoutcom_configuration/secret_key',
                     $secretKey,
+                    $scope,
+                    $storeCode
+                );
+
+                $this->resourceConfig->saveConfig(
+                    'settings/checkoutcom_configuration/public_key',
+                    $publicKey,
                     $scope,
                     $storeCode
                 );
