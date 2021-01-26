@@ -162,7 +162,7 @@ class OrderStatusHandlerService
             if ($config == 'cancel' || $config == 'delete') {
                 if ($order->getState() !== 'canceled') {
                     $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();
-                    $order->setStatus($this->config->getValue('order_status_canceled'));
+                    $order->setStatus('canceled');
                     $order->setState($this->orderModel::STATE_CANCELED);
                     $order->save();
                 }
@@ -205,11 +205,6 @@ class OrderStatusHandlerService
     public function void()
     {
         $this->status = $this->config->getValue('order_status_voided');
-        $this->state = $this->orderModel::STATE_CANCELED;
-
-        if ($this->order->getState() !== 'canceled') {
-            $this->orderModel->loadByIncrementId($this->order->getIncrementId())->cancel();
-        }
     }
 
     /**

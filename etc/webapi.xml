@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2020 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
+ */
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/checkout_com/mine/api/v3" method="POST">
+        <service class="CheckoutCom\Magento2\Api\V3Interface" method="executeApiV3"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+        <data>
+            <parameter name="customer.id" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+
+    <route url="/V1/checkout_com/guest/api/v3" method="POST">
+        <service class="CheckoutCom\Magento2\Api\V3Interface" method="executeGuestApiV3"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+</routes>

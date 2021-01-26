@@ -241,7 +241,9 @@ class GooglePayMethod extends AbstractMethod
             $request->metadata,
             $this->apiHandler->getBaseMetadata()
         );
-        
+
+        $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
+
         // Send the charge request
         try {
             $response = $api->checkoutApi
@@ -290,10 +292,6 @@ class GooglePayMethod extends AbstractMethod
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;
@@ -335,10 +333,6 @@ class GooglePayMethod extends AbstractMethod
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;
@@ -381,10 +375,6 @@ class GooglePayMethod extends AbstractMethod
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;

@@ -56,6 +56,11 @@ class Config
     public $utilities;
 
     /**
+     * @var Logger
+     */
+    public $logger;
+
+    /**
      * Config constructor
      */
     public function __construct(
@@ -64,7 +69,8 @@ class Config
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\App\RequestInterface $request,
         \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->assetRepository = $assetRepository;
         $this->storeManager = $storeManager;
@@ -72,15 +78,22 @@ class Config
         $this->request = $request;
         $this->loader = $loader;
         $this->utilities = $utilities;
+        $this->logger = $logger;
     }
 
     /**
      * Checks if an external request is valid.
      */
-    public function isValidAuth($type)
+    public function isValidAuth($type, $header = null)
     {
         // Get the authorization header
-        $key = $this->request->getHeader('Authorization');
+        if ($header) {
+            $key = $this->request->getHeader($header);
+        } else {
+            $key = $this->request->getHeader('Authorization');
+        }
+
+        $this->logger->additional('authorization header: ' . $key, 'auth');
 
         // Validate the header
         switch ($type) {
@@ -99,6 +112,7 @@ class Config
     {
         // Get the private shared key from config
         $privateSharedKey = $this->getValue('private_shared_key');
+        $this->logger->additional('private shared key: ' . $privateSharedKey, 'auth');
 
         // Return the validity check
         return $key == $privateSharedKey
@@ -112,6 +126,7 @@ class Config
     {
         // Get the public key from config
         $publicKey = $this->getValue('public_key');
+        $this->logger->additional('public key: ' . $publicKey, 'auth');
 
         // Return the validity check
         return $key == $publicKey
@@ -312,6 +327,16 @@ class Config
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
+    }
+
+    /**
+     * Returns the store code.
+     *
+     * @return string
+     */
+    public function getStoreCode()
+    {
+        return $this->storeManager->getStore()->getCode();
     }
 
     /**

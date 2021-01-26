@@ -186,8 +186,15 @@ class CardPaymentMethod extends AbstractMethod
     /**
      * Send a charge request.
      */
-    public function sendPaymentRequest($data, $amount, $currency, $reference = '', $quote = null, $isApiOrder = null)
-    {
+    public function sendPaymentRequest(
+        $data,
+        $amount,
+        $currency,
+        $reference = '',
+        $quote = null,
+        $isApiOrder = null,
+        $customerId = null
+    ) {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
@@ -236,23 +243,43 @@ class CardPaymentMethod extends AbstractMethod
             $quote
         );
         $request->reference = $reference;
-        $request->success_url = $this->getSuccessUrl($data);
-        $request->failure_url = $this->getFailureUrl($data);
+        $request->success_url = $this->getSuccessUrl($data, $isApiOrder);
+        $request->failure_url = $this->getFailureUrl($data, $isApiOrder);
         $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
         $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
         $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
-        $request->shipping = $api->createShippingAddress($quote);
+        if (!$quote->getIsVirtual()) {
+            $request->shipping = $api->createShippingAddress($quote);
+        }
 
         // Save card check
-        if (isset($data['saveCard'])
-            && json_decode($data['saveCard']) === true
-            && $saveCardEnabled
-            && $this->customerSession->isLoggedIn()
-        ) {
-            $request->metadata['saveCard'] = 1;
-            $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
+        if ($isApiOrder) {
+            if (isset($data['successUrl'])) {
+                $request->metadata['successUrl'] = $this->getSuccessUrl($data);
+            }
+            
+            if (isset($data['failureUrl'])) {
+                $request->metadata['failureUrl'] = $this->getFailureUrl($data);
+            }
+            
+            if (isset($data['saveCard'])
+                && $data['saveCard'] === true
+                && $saveCardEnabled
+            ) {
+                $request->metadata['saveCard'] = 1;
+                $request->metadata['customerId'] = $customerId;
+            }    
+        } else {
+            if (isset($data['saveCard'])
+                && json_decode($data['saveCard']) === true
+                && $saveCardEnabled
+                && $this->customerSession->isLoggedIn()
+            ) {
+                $request->metadata['saveCard'] = 1;
+                $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
+            }
         }
 
         // Billing descriptor
@@ -274,6 +301,8 @@ class CardPaymentMethod extends AbstractMethod
             $this->apiHandler->getBaseMetadata()
         );
         
+        $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
+
         // Send the charge request
         try {
             $response = $api->checkoutApi
@@ -286,34 +315,6 @@ class CardPaymentMethod extends AbstractMethod
                 return $e;
             }
         }
-    }
-
-    /**
-     * Get the success redirection URL for the payment request.
-     *
-     * @return string
-     */
-    public function getSuccessUrl($data)
-    {
-        if (isset($data['successUrl'])) {
-            return $data['successUrl'];
-        }
-
-        return $this->config->getStoreUrl() . 'checkout_com/payment/verify';
-    }
-
-    /**
-     * Get the failure redirection URL for the payment request.
-     *
-     * @return string
-     */
-    public function getFailureUrl($data)
-    {
-        if (isset($data['failureUrl'])) {
-            return $data['failureUrl'];
-        }
-        
-        return $this->config->getStoreUrl() . 'checkout_com/payment/fail';
     }
 
     /**
@@ -352,11 +353,6 @@ class CardPaymentMethod extends AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;
@@ -398,10 +394,6 @@ class CardPaymentMethod extends AbstractMethod
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;
@@ -445,10 +437,6 @@ class CardPaymentMethod extends AbstractMethod
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;

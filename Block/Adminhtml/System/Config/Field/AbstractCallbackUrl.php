@@ -80,25 +80,31 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
     protected function _getElementHtml(AbstractElement $element)
     {
         // Get the selected scope and id
-        try {
-            if (array_key_exists('website', $this->getRequest()->getParams())) {
-                $scope = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES;
-                $storeCode = $this->getRequest()->getParam('website', 0);
-            } else {
-                $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORES;
-                $storeCode = $this->getRequest()->getParam('store', 0);
-                if ($storeCode == 0) {
-                    $scope = 'default';
-                    $storeCode = $this->getRequest()->getParam('site', 0);
-                }
+        if (array_key_exists('website', $this->getRequest()->getParams())) {
+            $scope = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES;
+            $storeCode = $this->getRequest()->getParam('website', 0);
+        } else {
+            $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORES;
+            $storeCode = $this->getRequest()->getParam('store', 0);
+            if ($storeCode == 0) {
+                $scope = 'default';
+                $storeCode = $this->getRequest()->getParam('site', 0);
             }
-
+        }
+        
+        try {
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode, $scope);
 
             $callbackUrl = $this->getBaseUrl() . 'checkout_com/' . $this->getControllerUrl();
             $privateSharedKey = $this->scopeConfig->getValue(
                 'settings/checkoutcom_configuration/private_shared_key',
+                $scope,
+                $storeCode
+            );
+
+            $secretKey = $this->scopeConfig->getValue(
+                'settings/checkoutcom_configuration/secret_key',
                 $scope,
                 $storeCode
             );
@@ -125,17 +131,29 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $element->setData('value', $callbackUrl);
                 $element->setReadonly('readonly');
 
-                $this->addData(
-                    [
-                        'element_html'      => $element->getElementHtml(),
-                        'button_label'      => 'set webhooks',
-                        'message'           => 'Attention, webhook not properly configured!',
-                        'message_class'     => 'no-webhook',
-                        'webhook_button'    => true,
-                        'scope'             => $scope,
-                        'scope_id'          => $storeCode
-                    ]
-                );
+                if (empty($secretKey)) {
+                    $this->addData(
+                        [
+                            'element_html' => $element->getElementHtml(),
+                            'button_label' => __('Set Webhooks'),
+                            'hidden' => false,
+                            'scope' => $scope,
+                            'scope_id' => $storeCode
+                        ]
+                    );
+                } else {
+                    $this->addData(
+                        [
+                            'element_html' => $element->getElementHtml(),
+                            'button_label' => __('Set Webhooks'),
+                            'message' => __('Attention, webhook not properly configured!'),
+                            'message_class' => 'no-webhook',
+                            'hidden' => false,
+                            'scope' => $scope,
+                            'scope_id' => $storeCode
+                        ]
+                    );
+                }
                 return $this->_toHtml();
             } else {
                 // Webhook configured
@@ -145,9 +163,9 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $this->addData(
                     [
                         'element_html'      => $element->getElementHtml(),
-                        'message'           => 'Your webhook is all set!',
+                        'message'           => __('Your webhook is all set!'),
                         'message_class'     => 'webhook-set',
-                        'webhook_button'   => false
+                        'hidden'            => true
                     ]
                 );
                 return $this->_toHtml();
@@ -157,12 +175,34 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
             $element->setData('value', $callbackUrl);
             $element->setReadonly('readonly');
 
-            $this->addData(
-                [
-                    'element_html'      => $element->getElementHtml(),
-                    'webhook_button'   => false
-                ]
+            $secretKey = $this->scopeConfig->getValue(
+                'settings/checkoutcom_configuration/secret_key',
+                $scope,
+                $storeCode
             );
+            
+            if (empty($secretKey)) {
+                $this->addData(
+                    [
+                        'element_html'      => $element->getElementHtml(),
+                        'hidden'            => true,
+                        'scope'             => $scope,
+                        'scope_id'          => $storeCode
+                    ]
+                );
+            } else {
+                $this->addData(
+                    [
+                        'element_html'      => $element->getElementHtml(),
+                        'message'           => __('Attention, secret key incorrect!'),
+                        'message_class'     => 'no-webhook',
+                        'hidden'            => true,
+                        'scope'             => $scope,
+                        'scope_id'          => $storeCode
+                    ]
+                );
+            }
+
             return $this->_toHtml();
         }
     }
@@ -174,7 +214,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
      */
     public function getAjaxUrl()
     {
-        return $this->getUrl('checkoutcom_magento2/system_config/webhook');
+        return $this->getUrl('cko/system_config/webhook');
     }
 
     /**

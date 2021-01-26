@@ -15,7 +15,7 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
     <router id="admin">
-        <route id="checkoutcom_magento2" frontName="checkoutcom_magento2">
+        <route id="cko" frontName="cko">
             <module name="CheckoutCom_Magento2" />
         </route>
     </router>

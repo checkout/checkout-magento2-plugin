@@ -204,7 +204,10 @@ class V2 extends \Magento\Framework\App\Action\Action
 
                 if ($is3ds) {
                     $this->result['redirect_url'] = $response->_links['redirect']['href'];
+                } elseif (isset($this->data->success_url)) {
+                    $this->result['redirect_url'] = $this->data->success_url;
                 }
+
                 // Get the payment details
                 $paymentDetails = $this->api->getPaymentDetails($response->id);
 
@@ -230,6 +233,10 @@ class V2 extends \Magento\Framework\App\Action\Action
                         $this->result['error_message'],
                         $response->getErrors()
                     );
+                }
+
+                if (isset($this->data->failure_url)) {
+                    $this->result['redirect_url'] = $this->data->failure_url;
                 }
             }
 
