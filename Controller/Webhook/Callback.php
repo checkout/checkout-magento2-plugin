@@ -79,6 +79,11 @@ class Callback extends \Magento\Framework\App\Action\Action
     public $scopeConfig;
 
     /**
+     * @var Logger
+     */
+    public $logger;
+
+    /**
      * Callback constructor
      */
     public function __construct(
@@ -92,7 +97,8 @@ class Callback extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities
+        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         parent::__construct($context);
 
@@ -106,6 +112,7 @@ class Callback extends \Magento\Framework\App\Action\Action
         $this->paymentErrorHandler = $paymentErrorHandler;
         $this->config = $config;
         $this->utilities = $utilities;
+        $this->logger = $logger;
     }
 
     /**
@@ -226,6 +233,7 @@ class Callback extends \Magento\Framework\App\Action\Action
      */
     public function getPayload()
     {
+        $this->logger->additional($this->getRequest()->getContent(), 'webhook');
         return json_decode($this->getRequest()->getContent());
     }
 

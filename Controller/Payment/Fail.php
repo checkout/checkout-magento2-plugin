@@ -122,6 +122,12 @@ class Fail extends \Magento\Framework\App\Action\Action
                     'increment_id' => $response->reference
                 ]);
 
+                // Log the payment error
+                $this->paymentErrorHandlerService->logPaymentError(
+                    $response,
+                    $order
+                );
+
                 // Handle the failed order
                 $this->orderStatusHandler->handleFailedPayment($order);
 
@@ -141,7 +147,12 @@ class Fail extends \Magento\Framework\App\Action\Action
                 );
 
                 // Return to the cart
-                return $this->_redirect('checkout/cart', ['_secure' => true]);
+                if (isset($response->metadata['failureUrl'])) {
+                    header('Location: ' . $response->metadata['failureUrl']);
+                    exit();
+                } else {
+                    return $this->_redirect('checkout/cart', ['_secure' => true]);    
+                }
             } else {
                 $this->messageManager->addErrorMessage(
                     __('The card could not be saved.')

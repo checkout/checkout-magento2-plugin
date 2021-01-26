@@ -239,6 +239,8 @@ class ApplePayMethod extends AbstractMethod
         // Add the quote metadata
         $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
 
+        $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
+
         // Send the charge request
         try {
             $response = $api->checkoutApi
@@ -382,6 +384,7 @@ class ApplePayMethod extends AbstractMethod
     {
         if (parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code)
+            && $this->config->getValue('enabled_on_checkout', $this->_code)
             && !$this->backendAuthSession->isLoggedIn();
         }
 

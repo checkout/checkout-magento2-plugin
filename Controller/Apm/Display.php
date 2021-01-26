@@ -123,7 +123,7 @@ class Display extends \Magento\Framework\App\Action\Action
             $this->quoteHandler->getQuoteCurrency()
         ) !== false
         && $this->countryCurrencyMapping(
-            $apm['value'],
+            $apm,
             $billingAddress['country_id'],
             $this->quoteHandler->getQuoteCurrency()
         );
@@ -137,11 +137,16 @@ class Display extends \Magento\Framework\App\Action\Action
      * @param string $currency
      * @return boolean
      */
-    public function countryCurrencyMapping($apmValue, $billingCountry, $currency)
+    public function countryCurrencyMapping($apm, $billingCountry, $currency)
     {
-        if ($apmValue == 'poli') {
-            if (($billingCountry == 'AU' && $currency == 'AUD')
-                || ($billingCountry == 'NZ' && $currency == 'NZD')
+        if ($apm['value'] == 'klarna' || $apm['value'] == 'poli') {
+//            var_dump($currency);
+//            var_dump($billingCountry);
+//            die();
+            if (strpos(
+                $apm['mappings'][$currency], 
+                $billingCountry
+                ) !== false
             ) {
                 return true;
             }

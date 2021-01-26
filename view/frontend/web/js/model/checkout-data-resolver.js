@@ -19,10 +19,10 @@ define([
             function (originalResolvePaymentMethod) {
                 var availablePaymentMethods = paymentService.getAvailablePaymentMethods();
                 var method = this.getMethod(checkoutData.getSelectedPaymentMethod(), availablePaymentMethods);
-                
+
                 if ((!checkoutData.getSelectedPaymentMethod() && _.size(availablePaymentMethods) > 1) || _.isUndefined(method)) {
                     var method = this.getMethod(check['checkoutcom_data']['user']['previous_method'], availablePaymentMethods);
-                    
+
                     if (!_.isUndefined(method)) {
                         selectPaymentMethodAction(method);
                     } else {
@@ -49,11 +49,13 @@ define([
                 var autoselectMethod = method
                 var matchedMethod;
                 if (!_.isUndefined(autoselectMethod)) {
-                    matchedMethod = availableMethods.find(function (method) {
-                        return method.method === autoselectMethod;
-                    });
+                    var matchedIndex = availableMethods.map(function(e) { return e.method; }).indexOf(autoselectMethod)
+                    
+                    if (matchedIndex !== -1) {
+                        matchedMethod = availableMethods[matchedIndex]
+                    }
                 }
-                
+
                 return matchedMethod;
             }
         });

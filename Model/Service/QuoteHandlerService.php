@@ -45,9 +45,9 @@ class QuoteHandlerService
     public $quoteFactory;
 
     /**
-     * @var QuoteRepository
+     * @var CartRepositoryInterface
      */
-    public $quoteRepository;
+    public $cartRepository;
 
     /**
      * @var StoreManagerInterface
@@ -70,6 +70,11 @@ class QuoteHandlerService
     public $shopperHandler;
 
     /**
+     * @var Logger
+     */
+    public $logger;
+
+    /**
      * QuoteHandlerService constructor
      */
     public function __construct(
@@ -77,21 +82,23 @@ class QuoteHandlerService
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        \Magento\Quote\Model\QuoteRepository $quoteRepository,
+        \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler
+        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
+        \CheckoutCom\Magento2\Helper\Logger $logger
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
         $this->cookieManager = $cookieManager;
         $this->quoteFactory = $quoteFactory;
-        $this->quoteRepository = $quoteRepository;
+        $this->cartRepository = $cartRepository;
         $this->storeManager = $storeManager;
         $this->productRepository = $productRepository;
         $this->config = $config;
         $this->shopperHandler = $shopperHandler;
+        $this->logger = $logger;
     }
 
     /**
@@ -114,13 +121,13 @@ class QuoteHandlerService
             }
 
             // Return the first result found
-            return $quoteFactory
-                ->setPageSize(1)
-                ->getLastItem();
+            $quote = $quoteFactory->setPageSize(1)->getLastItem();
         } else {
             // Try to find the quote in session
-            return $this->checkoutSession->getQuote();
+            $quote = $this->checkoutSession->getQuote();
         }
+        
+        return $quote;
     }
 
     /**
@@ -180,6 +187,9 @@ class QuoteHandlerService
         if ($this->isQuote($quote)) {
             // Prepare the inventory
             $quote->setInventoryProcessed(false);
+
+            // Collect totals
+            $quote->collectTotals();
 
             // Check for guest user quote
             if (!$this->customerSession->isLoggedIn() && $quote->getCustomerId() == null) {
@@ -247,10 +257,13 @@ class QuoteHandlerService
      */
     public function getQuoteData()
     {
-        return [
+        $data = [
             'value' => $this->getQuoteValue(),
             'currency' => $this->getQuoteCurrency()
         ];
+        
+        $this->logger->additional($data,'quote');
+        return $data;
     }
 
     /**
@@ -300,6 +313,14 @@ class QuoteHandlerService
     public function getQuoteValue()
     {
         return $this->getQuote()->collectTotals()->getGrandTotal();
+    }
+
+    /**
+     * Saves the quote. This is needed
+     */
+    public function saveQuote()
+    {
+        $this->cartRepository->save($this->getQuote());
     }
 
     /**
@@ -366,11 +387,14 @@ class QuoteHandlerService
      */
     public function getQuoteRequestData($quote)
     {
-        return [
+        $data = [
             'quote_id' => $quote->getId(),
             'store_id' => $quote->getStoreId(),
             'customer_email' => $quote->getCustomerEmail()
         ];
+
+        $this->logger->additional($data,'quote');
+        return $data;
     }
 
     /**

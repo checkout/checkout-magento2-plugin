@@ -92,6 +92,11 @@ class TransactionHandlerService
      * @var Config
      */
     public $config;
+
+    /**
+     * @var OrderManagementInterface
+     */
+    public $orderManagement;
     
     /**
      * @var Order
@@ -109,6 +114,13 @@ class TransactionHandlerService
     public $payment;
 
     /**
+     * Order convert object.
+     *
+     * @var \Magento\Sales\Model\Convert\Order
+     */
+    protected $convertor;
+
+    /**
      * TransactionHandlerService constructor.
      */
     public function __construct(
@@ -122,7 +134,10 @@ class TransactionHandlerService
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \CheckoutCom\Magento2\Helper\Utilities $utilities,
         \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \Magento\Sales\Api\OrderManagementInterface $orderManagement,
+        \Magento\Sales\Model\Order $orderModel,
+        \Magento\Sales\Model\Convert\OrderFactory $convertOrderFactory
     ) {
         $this->orderSender           = $orderSender;
         $this->transactionSearch     = $transactionSearch;
@@ -135,6 +150,9 @@ class TransactionHandlerService
         $this->utilities             = $utilities;
         $this->invoiceHandler        = $invoiceHandler;
         $this->config                = $config;
+        $this->orderManagement       = $orderManagement;
+        $this->orderModel            = $orderModel;
+        $this->convertor = $convertOrderFactory->create();
     }
 
     /**
@@ -188,6 +206,9 @@ class TransactionHandlerService
                 $this->transaction->save();
                 $this->payment->save();
                 $this->order->save();
+                
+                // Process the payment void case
+                $this->processVoid();
             } else {
                 // Update the existing transaction state
                 $this->transaction->setIsClosed(
@@ -483,15 +504,29 @@ class TransactionHandlerService
         $isRefund = $this->transaction->getTxnType() == Transaction::TYPE_REFUND;
         $hasCreditMemo = $this->orderHasCreditMemo();
         if ($isRefund && !$hasCreditMemo) {
-            // Get the invoice
-            $invoice = $this->invoiceHandler->getInvoice($this->order);
             $currentTotal = $this->getCreditMemosTotal();
 
+            $isPartialRefund = $this->isPartialRefund(
+                $amount,
+                true,
+                $this->order,
+                false
+            );
+
             // Create a credit memo
-            $creditMemo = $this->creditMemoFactory->createByOrder($this->order);
-            $creditMemo->setBaseGrandTotal($amount/$this->order->getBaseToOrderRate());
-            $creditMemo->setGrandTotal($amount);
-            
+            if ($isPartialRefund) {
+                $creditMemo = $this->convertor->toCreditmemo($this->order);
+                $creditMemo->setAdjustmentPositive($amount);
+                $creditMemo->setBaseShippingAmount(0);
+                $creditMemo->collectTotals();
+            } else {
+                $creditMemoData = [
+                    'adjustment_positive' => $amount,
+                    'adjustment_negative' => $currentTotal + $amount,
+                ];
+                $creditMemo = $this->creditMemoFactory->createByOrder($this->order, $creditMemoData);
+            }
+
             // Update the order history comment status
             $orderComments = $this->order->getStatusHistories();
             $orderComment = array_pop($orderComments);
@@ -499,25 +534,19 @@ class TransactionHandlerService
             // Refund
             $this->creditMemoService->refund($creditMemo);
 
-            if ($this->order->getStatus() == 'closed') {
-                $status = 'closed';
-            } else {
-                $status = $this->config->getValue('order_status_refunded');
-            }
-            
+            $status = $isPartialRefund ? $this->config->getValue('order_status_refunded') : 'closed';
             $orderComment->setData('status', $status)->save();
 
             // Remove the core credit memo comment
             $orderComments = $this->order->getAllStatusHistory();
             foreach ($orderComments as $orderComment) {
-                $condition1 = $orderComment->getStatus() == $status;
-                $condition2 = $orderComment->getEntityName() == 'creditmemo';
-                if ($condition1 && $condition2) {
+                if ($orderComment->getEntityName() == 'creditmemo') {
                     $orderComment->delete();
                 }
             }
 
-            // Update the refunded amount
+            // Amend the order status set by magento when refunding the credit memo
+            $this->order->setStatus($status);
             $this->order->setTotalRefunded($currentTotal + $amount);
         }
     }
@@ -596,6 +625,17 @@ class TransactionHandlerService
     }
 
     /**
+     * Cancel the order for a void transaction when void status is set to canceled.
+     */
+    public function processVoid()
+    {
+        $isVoid = $this->transaction->getTxnType() == Transaction::TYPE_VOID;
+        if ($isVoid && $this->config->getValue('order_status_voided') == 'canceled') {
+            $this->orderManagement->cancel($this->order->getEntityId());
+        }
+    }
+
+    /**
      * Build a flat array from the gateway response.
      */
     public function buildDataArray($data)
@@ -663,5 +703,29 @@ class TransactionHandlerService
     {
         return isset($payload->data->risk->flagged)
             && $payload->data->risk->flagged == true;
+    }
+
+    /**
+     * Return transaction details for additional logging.
+     *
+     * @param $order
+     * @return array
+     */
+    public function getTransactionDetails($order) {
+        $transactions = $this->getTransactions($order->getId());
+        $items = [];
+        foreach ($transactions as $transaction) {
+            $items[] = [
+                'transaction_id' => $transaction->getTxnId(),
+                'payment_id' => $transaction->getPaymentId(),
+                'txn_type' => $transaction->getTxnType(),
+                'order_id' => $transaction->getOrderId(),
+                'is_closed' => $transaction->getIsClosed(),
+                'additional_information' => $transaction->getAdditionalInformation(),
+                'created_at' => $transaction->getCreatedAt()
+            ];
+        }
+
+        return $items;
     }
 }

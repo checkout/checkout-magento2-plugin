@@ -195,8 +195,15 @@ class VaultMethod extends AbstractMethod
      *
      * @return self
      */
-    public function sendPaymentRequest($data, $amount, $currency, $reference = '')
-    {
+    public function sendPaymentRequest(
+        $data, 
+        $amount,
+        $currency,
+        $reference = '',
+        $quote = null,
+        $isApiOrder = null,
+        $customerId = null
+    ) {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
@@ -207,7 +214,11 @@ class VaultMethod extends AbstractMethod
         $quote = $this->quoteHandler->getQuote();
 
         // Find the card token
-        $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
+        if (isset($isApiOrder) && isset($customerId)) {
+            $card = $this->vaultHandler->getCardFromHash($data['publicHash'], $customerId);
+        } else {
+            $card = $this->vaultHandler->getCardFromHash($data['publicHash']);
+        }
 
         // Set the token source
         $idSource = new IdSource($card->getGatewayToken());
@@ -229,6 +240,16 @@ class VaultMethod extends AbstractMethod
 
         // Prepare the metadata array
         $request->metadata['methodId'] = $this->_code;
+
+        if ($isApiOrder) {
+            if (isset($data['successUrl'])) {
+                $request->metadata['successUrl'] = $this->getSuccessUrl($data);
+            }
+
+            if (isset($data['failureUrl'])) {
+                $request->metadata['failureUrl'] = $this->getFailureUrl($data);
+            }
+        }
 
         // Prepare the capture setting
         $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
@@ -255,7 +276,9 @@ class VaultMethod extends AbstractMethod
         );
         $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
         $request->payment_type = 'Regular';
-        $request->shipping = $api->createShippingAddress($quote);
+        if (!$quote->getIsVirtual()) {
+            $request->shipping = $api->createShippingAddress($quote);
+        }
 
         // Mada BIN Check
         if (isset($data['cardBin'])
@@ -281,6 +304,8 @@ class VaultMethod extends AbstractMethod
             $request->metadata,
             $this->apiHandler->getBaseMetadata()
         );
+
+        $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
         
         // Send the charge request
         try {
@@ -330,10 +355,6 @@ class VaultMethod extends AbstractMethod
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;
@@ -374,11 +395,7 @@ class VaultMethod extends AbstractMethod
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-    
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
+
         }
 
         return $this;
@@ -421,10 +438,6 @@ class VaultMethod extends AbstractMethod
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 
-            // Display a message
-            $this->messageManager->addSuccessMessage(__(
-                'Please reload the page to view the updated order information.'
-            ));
         }
 
         return $this;

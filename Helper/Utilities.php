@@ -73,7 +73,7 @@ class Utilities
         // Add the transaction info for order save after
         $paymentInfo->setAdditionalInformation(
             'transaction_info',
-            (array) $data
+            array_intersect_key((array)$data, array_flip(['id']))
         );
 
         if ($source['methodId'] == 'checkoutcom_apm') {

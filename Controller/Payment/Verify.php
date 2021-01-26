@@ -128,18 +128,18 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                     // Process the order
                     if ($this->orderHandler->isOrder($order)) {
-                        // Add the payment info to the order
-                        $order = $this->utilities->setPaymentData($order, $response);
-
-                        // Save the order
-                        $order->save();
-
                         // Logging
                         $this->logger->display($response);
 
                         // Process the response
                         if ($api->isValidResponse($response)) {
-                            return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+                            if (isset($response->metadata['successUrl']) &&
+                                !str_contains($response->metadata['successUrl'], 'checkout_com/payment/verify'))
+                            {
+                                return $this->_redirect($response->metadata['successUrl']);
+                            } else {
+                                return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
+                            }
                         } else {
                             // Restore the quote
                             $this->session->restoreQuote();

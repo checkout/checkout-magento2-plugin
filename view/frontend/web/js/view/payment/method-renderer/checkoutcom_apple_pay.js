@@ -18,12 +18,22 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
+        "CheckoutCom_Magento2/js/view/payment/applepay-utilities",
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/action/redirect-on-success',
         'mage/translate'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, __) {
+    function (
+        $, 
+        Component,
+        Utilities,
+        ApplePayUtilities,
+        FullScreenLoader,
+        AdditionalValidators,
+        RedirectOnSuccessAction,
+        __
+    ) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_apple_pay';
@@ -119,6 +129,7 @@ define(
                  * @return {object}
                  */
                 sendPaymentRequest: function (paymentData) {
+                    Utilities.log(paymentData);
                     return new Promise(
                         function (resolve, reject) {
                             $.ajax({
@@ -139,6 +150,26 @@ define(
                             });
                         }
                     );
+                },
+
+                setBilling: function(shippingDetails, billingDetails) {
+                    let requestBody = {
+                        address: {
+                            country_id: billingDetails.countryCode.toUpperCase(),
+                            region_code: ApplePayUtilities.getAreaCode(billingDetails.postalCode, billingDetails.countryCode),
+                            region_id: 0,
+                            street: billingDetails.addressLines,
+                            postcode: billingDetails.postalCode,
+                            city: billingDetails.locality,
+                            firstname: billingDetails.givenName,
+                            lastname: billingDetails.familyName,
+                            email: shippingDetails.emailAddress,
+                            telephone: shippingDetails.phoneNumber
+                        }
+                    };
+
+                    Utilities.log(requestBody);
+                    ApplePayUtilities.getRestData(requestBody, "billing-address");
                 },
 
                 /**
@@ -193,21 +224,44 @@ define(
 
                                 // Prepare the parameters
                                 var runningTotal         = Utilities.getQuoteValue();
-                                var billingAddress       = Utilities.getBillingAddress();
 
                                 // Build the payment request
-                                var paymentRequest = {
-                                    currencyCode: Utilities.getQuoteCurrency(),
-                                    countryCode: window.checkoutConfig.defaultCountryId,
-                                    total: {
-                                        label: Utilities.getStoreName(),
-                                        amount: runningTotal
-                                    },
-                                    supportedNetworks: self.getSupportedNetworks(),
-                                    merchantCapabilities: self.getMerchantCapabilities()
-                                };
+                                if (ApplePayUtilities.getIsVirtual()) {
+                                    var paymentRequest = {
+                                        currencyCode: Utilities.getQuoteCurrency(),
+                                        countryCode: window.checkoutConfig.defaultCountryId,
+                                        total: {
+                                            label: Utilities.getStoreName(),
+                                            amount: runningTotal
+                                        },
+                                        supportedNetworks: self.getSupportedNetworks(),
+                                        merchantCapabilities: self.getMerchantCapabilities(),
+                                        requiredBillingContactFields: [
+                                            "postalAddress",
+                                            "name",
+                                            "phone",
+                                            "email"
+                                        ],
+                                        requiredShippingContactFields: [
+                                            "phone",
+                                            "email"
+                                        ],
+                                    };
+                                } else {
+                                    var paymentRequest = {
+                                        currencyCode: Utilities.getQuoteCurrency(),
+                                        countryCode: window.checkoutConfig.defaultCountryId,
+                                        total: {
+                                            label: Utilities.getStoreName(),
+                                            amount: runningTotal
+                                        },
+                                        supportedNetworks: self.getSupportedNetworks(),
+                                        merchantCapabilities: self.getMerchantCapabilities()
+                                    };    
+                                }
 
                                 // Start the payment session
+                                Utilities.log(paymentRequest);
                                 var session = new ApplePaySession(1, paymentRequest);
 
                                 // Merchant Validation
@@ -271,6 +325,13 @@ define(
                                         cardToken: event.payment.token,
                                         source: METHOD_ID
                                     };
+
+                                    if (ApplePayUtilities.getIsVirtual()) {
+                                        self.setBilling(
+                                            event.payment.shippingContact,
+                                            event.payment.billingContact
+                                        );
+                                    }
 
                                     // Send the request
                                     var promise = self.sendPaymentRequest(payload);
