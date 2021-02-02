@@ -128,11 +128,11 @@ class Fail extends \Magento\Framework\App\Action\Action
                     $order
                 );
 
-                // Handle the failed order
-                $this->orderStatusHandler->handleFailedPayment($order);
-
                 // Restore the quote
                 $this->session->restoreQuote();
+
+                // Handle the failed order
+                $this->orderStatusHandler->handleFailedPayment($order);
 
                 $errorMessage = null;
                 if (isset($response->actions[0]['response_code'])) {
