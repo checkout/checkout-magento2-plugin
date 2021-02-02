@@ -286,7 +286,7 @@ class OrderHandlerService
             'grand_total' => $order->getGrandTotal(),
             'currency' => $order->getOrderCurrencyCode(),
             'payment' => [
-                'method_id' => $order->getPayment()->getMethodInstance()->getCode(),
+                'method_id' => $order->getPayment() ? $order->getPayment()->getMethodInstance()->getCode() : null,
             ],
             'transactions' => $this->transactionHandler->getTransactionDetails($order)
         ];
