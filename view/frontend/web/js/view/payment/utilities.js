@@ -127,8 +127,9 @@ define(
 
                 // Build the rest URL
                 if (Customer.isLoggedIn()) {
+                    var store = window.checkoutConfig.storeCode ? window.checkoutConfig.storeCode : 'default';
                     restUrl += 'rest/';
-                    restUrl += window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.store.code;
+                    restUrl += store;
                     restUrl += '/V1/';
                     restUrl += 'carts/mine';
                     restUrl += endpoint;

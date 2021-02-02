@@ -46,9 +46,10 @@ define(
                 "?form_key=" + window.checkoutConfig.formKey;
 
                 if (Customer.isLoggedIn()) {
+                    var store = window.checkoutConfig.storeCode ? window.checkoutConfig.storeCode : 'default';
                     restUrl =
                         window.BASE_URL +
-                        "rest/default/V1/carts/mine/" +
+                        "rest/" + store + "/V1/carts/mine/" +
                         m2ApiEndpoint +
                         "?form_key=" +
                         window.checkoutConfig.formKey;
