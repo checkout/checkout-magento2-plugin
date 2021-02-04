@@ -118,6 +118,8 @@ class ApiHandlerService
      */
     public function isValidResponse($response)
     {
+        $this->logger->additional($this->utilities->objectToArray($response), 'api');
+        
         return $response != null
         && is_object($response)
         && method_exists($response, 'isSuccessful')

@@ -28,6 +28,7 @@ class ConfigAdditionalLogging implements \Magento\Framework\Data\OptionSourceInt
     const QUOTE_OBJECT = 'quote';
     const ORDER_OBJECT = 'order';
     const PAYMENT_REQUEST = 'payment';
+    const ADMIN_ACTIONS = 'api';
 
     /**
      * Additional logging options
@@ -56,6 +57,10 @@ class ConfigAdditionalLogging implements \Magento\Framework\Data\OptionSourceInt
             [
                 'value' => self::PAYMENT_REQUEST,
                 'label' => __('Payment Request')
+            ],
+            [
+                'value' => self::ADMIN_ACTIONS,
+                'label' => __('API Response')
             ]
         ];
     }
