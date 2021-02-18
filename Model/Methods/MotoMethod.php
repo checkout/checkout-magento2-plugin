@@ -178,6 +178,47 @@ class MotoMethod extends AbstractMethod
     }
 
     /**
+     * Perform a void request on order cancel.
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return self
+     */
+    public function cancel(\Magento\Payment\Model\InfoInterface $payment)
+    {
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $storeCode = $payment->getOrder()->getStore()->getCode();
+
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
+
+            // Check the status
+            if (!$this->canVoid()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void action is not available.')
+                );
+            }
+
+            // Process the void request
+            $response = $api->voidOrder($payment);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void request could not be processed.')
+                );
+            }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
+
+        }
+
+        return $this;
+    }
+
+    /**
      * Perform a capture request.
      *
      * @param \Magento\Payment\Model\InfoInterface $payment The payment

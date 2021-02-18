@@ -29,4 +29,8 @@
         <observer name="cko_order_payment_refund" instance="CheckoutCom\Magento2\Observer\Backend\OrderAfterRefund" />
     </event>
 
+    <!-- Order after cancel event -->
+    <event name="sales_order_payment_cancel">
+        <observer name="cko_order_payment_cancel" instance="CheckoutCom\Magento2\Observer\Backend\OrderAfterCancel" />
+    </event>
 </config>
