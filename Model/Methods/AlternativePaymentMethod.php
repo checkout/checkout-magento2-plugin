@@ -739,7 +739,8 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function cancel(\Magento\Payment\Model\InfoInterface $payment)
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
+        // Klarna voids are not currently supported 
+        if ($this->backendAuthSession->isLoggedIn() && $payment->getAdditionalInformation('method_id') !== 'klarna') {
             // Get the store code
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
