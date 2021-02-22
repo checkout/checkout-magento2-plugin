@@ -35,6 +35,7 @@ use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
 use \Checkout\Models\Payments\PoliSource;
 use \Checkout\Models\Payments\PaypalSource;
+use \Checkout\Models\Payments\Payer;
 use \Checkout\Library\Exceptions\CheckoutHttpException;
 
 /**
@@ -411,7 +412,9 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function boleto($data)
     {
-        return new BoletoSource($data['name'], $data['birthDate'], $data['cpf']);
+        $country = $this->quoteHandler->getBillingAddress()->getCountry();
+        $payer = new Payer($data['name'], $data['email'], $data['document']);
+        return new BoletoSource('redirect', $country, $payer, 'Test Description');
     }
 
     /**
