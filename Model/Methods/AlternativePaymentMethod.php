@@ -309,7 +309,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $payment->description = __(
             'Payment request from %1',
             $this->config->getStoreName()
-        )->getText();
+        )->render();
         $payment->payment_type = 'Regular';
 
         return $payment;
@@ -424,7 +424,7 @@ class AlternativePaymentMethod extends AbstractMethod
     public function giropay(array $data)
     {
         $source = new GiropaySource(
-            __('Payment request from %1', $this->config->getStoreName())->getText(),
+            __('Payment request from %1', $this->config->getStoreName())->render(),
             $this->getValue('bic', $data)
         );
         $source->iban = $this->getValue('iban', $data);
@@ -565,7 +565,7 @@ class AlternativePaymentMethod extends AbstractMethod
     public function eps($data)
     {
         return new EpsSource(
-            __('Payment request from %1', $this->config->getStoreName())->getText()
+            __('Payment request from %1', $this->config->getStoreName())->render()
         );
     }
 
@@ -608,7 +608,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $billingAddress = $this->quoteHandler->getBillingAddress();
         $email = $billingAddress->getEmail();
         $phone = $billingAddress->getTelephone();
-        $description = __('Payment request from %1', $this->config->getStoreName())->getText();
+        $description = __('Payment request from %1', $this->config->getStoreName())->render();
 
         return new FawrySource($email, $phone, $description, $products);
     }
@@ -642,7 +642,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $desciptor = __(
             'Payment request from %1',
             $this->config->getStoreName()
-        )->getText();
+        )->render();
 
         return new BancontactSource($name, $country, $desciptor);
     }

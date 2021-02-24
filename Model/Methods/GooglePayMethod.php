@@ -220,7 +220,7 @@ class GooglePayMethod extends AbstractMethod
             $quote
         );
         $request->reference = $reference;
-        $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
+        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
         $request->shipping = $api->createShippingAddress($quote);

@@ -195,7 +195,8 @@ class OrderStatusHandlerService
      */
     public function captured()
     {
-        $this->status = $this->config->getValue('order_status_captured');
+        $this->status = $this->order->getIsVirtual() ? 'complete'
+            : $this->config->getValue('order_status_captured');
         $this->state = $this->orderModel::STATE_PROCESSING;
     }
 

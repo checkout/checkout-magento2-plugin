@@ -189,7 +189,7 @@
                 <processing_certificate_password></processing_certificate_password>
                 <merchant_id_certificate>/absolute/path/to/cert.pem</merchant_id_certificate>
                 <merchant_id></merchant_id>
-                <supported_networks>amex,masterCard,visa</supported_networks>
+                <supported_networks>amex,masterCard,visa,mada</supported_networks>
                 <merchant_capabilities>supportsCredit,supportsDebit</merchant_capabilities>
                 <button_style>black</button_style>
             </checkoutcom_apple_pay>
