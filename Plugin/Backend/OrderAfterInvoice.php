@@ -32,19 +32,12 @@ class OrderAfterInvoice
     public $config;
 
     /**
-     * @var InvoiceHandlerService
-     */
-    public $invoiceHandler;
-
-    /**
      * OrderAfterInvoice constructor.
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler
+        \CheckoutCom\Magento2\Gateway\Config\Config $config
     ) {
         $this->config = $config;
-        $this->invoiceHandler = $invoiceHandler;
     }
 
     /**
