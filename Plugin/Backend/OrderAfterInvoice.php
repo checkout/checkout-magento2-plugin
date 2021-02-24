@@ -32,12 +32,19 @@ class OrderAfterInvoice
     public $config;
 
     /**
+     * @var InvoiceHandlerService
+     */
+    public $invoiceHandler;
+
+    /**
      * OrderAfterInvoice constructor.
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \CheckoutCom\Magento2\Model\Service\InvoiceHandlerService $invoiceHandler
     ) {
         $this->config = $config;
+        $this->invoiceHandler = $invoiceHandler;
     }
 
     /**
@@ -66,6 +73,12 @@ class OrderAfterInvoice
             if ($this->statusNeedsCorrection($order)) {
                 $order->setStatus($this->config->getValue('order_status_captured'));
             }
+
+            // Changes order history comment to display currency
+            $amount = $order->getInvoiceCollection()->getFirstItem()->getGrandTotal();
+            $comment = __('The captured amount is %1.', $order->formatPriceTxt($amount));
+            
+            return $comment;
         }
 
         return $result;
