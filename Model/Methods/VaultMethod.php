@@ -202,7 +202,8 @@ class VaultMethod extends AbstractMethod
         $reference = '',
         $quote = null,
         $isApiOrder = null,
-        $customerId = null
+        $customerId = null,
+        $isInstantPurchase = null
     ) {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
@@ -267,13 +268,18 @@ class VaultMethod extends AbstractMethod
             $quote
         );
         $request->reference = $reference;
-        $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
-        $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-        $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
-        $request->threeDs->attempt_n3d = (bool) $this->config->getValue(
-            'attempt_n3d',
-            $this->_code
-        );
+       if ($isInstantPurchase) {
+           $request->threeDs = new ThreeDs(false);
+       } else {
+           $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+           $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+           $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
+           $request->threeDs->attempt_n3d = (bool)$this->config->getValue(
+               'attempt_n3d',
+               $this->_code
+           );
+       }
+
         $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->payment_type = 'Regular';
         if (!$quote->getIsVirtual()) {
