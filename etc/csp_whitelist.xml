@@ -41,6 +41,7 @@
             <values>
                 <value id="cko-cdn" type="host">https://js.checkout.com</value>
                 <value id="klarna" type="host">https://klarna-payments-eu.playground.klarna.com</value>
+                <value id="klarna-src" type="host">https://js.playground.klarna.com/</value>
             </values>
         </policy>
         <policy id="img-src">
