@@ -413,8 +413,9 @@ class VaultMethod extends AbstractMethod
     public function cancel(\Magento\Payment\Model\InfoInterface $payment)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
+            $order = $payment->getOrder();
             // Get the store code
-            $storeCode = $payment->getOrder()->getStore()->getCode();
+            $storeCode = $order->getStore()->getCode();
 
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode);
@@ -434,6 +435,8 @@ class VaultMethod extends AbstractMethod
                 );
             }
 
+            $comment = __('Canceled order, the voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
+            $payment->setMessage($comment);
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 

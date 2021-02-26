@@ -134,6 +134,11 @@ class CardPaymentMethod extends AbstractMethod
     public $backendAuthSession;
 
     /**
+     * @var TransactionHandlerService
+     */
+    public $transactionHandler;
+
+    /**
      * CardPaymentMethod constructor.
      */
     public function __construct(
@@ -153,6 +158,7 @@ class CardPaymentMethod extends AbstractMethod
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
         \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -181,6 +187,7 @@ class CardPaymentMethod extends AbstractMethod
         $this->cardHandler        = $cardHandler;
         $this->ckoLogger          = $ckoLogger;
         $this->messageManager     = $messageManager;
+        $this->transactionHandler = $transactionHandler;
     }
 
     /**
@@ -412,7 +419,8 @@ class CardPaymentMethod extends AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
-            $storeCode = $payment->getOrder()->getStore()->getCode();
+            $order = $payment->getOrder();
+            $storeCode = $order->getStore()->getCode();
 
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode);
@@ -432,6 +440,8 @@ class CardPaymentMethod extends AbstractMethod
                 );
             }
 
+            $comment = __('Canceled order, the voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
+            $payment->setMessage($comment);
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 
