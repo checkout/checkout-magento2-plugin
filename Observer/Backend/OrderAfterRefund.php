@@ -71,7 +71,9 @@ class OrderAfterRefund implements \Magento\Framework\Event\ObserverInterface
 
             // Check if payment method is checkout.com
             if (in_array($methodId, $this->config->getMethodsList())) {
-                $status = $order->getStatus() == 'closed' ? 'closed' : $this->config->getValue('order_status_refunded');
+                $status = ($order->getStatus() == 'closed' || $order->getStatus() == 'complete') 
+                    ? $order->getStatus() 
+                    : $this->config->getValue('order_status_refunded');
 
                 // Update the order status
                 $order->setStatus($status);
