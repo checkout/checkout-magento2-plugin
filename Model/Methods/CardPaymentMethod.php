@@ -400,6 +400,50 @@ class CardPaymentMethod extends AbstractMethod
     }
 
     /**
+     * Perform a void request on order cancel.
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return self
+     */
+    public function cancel(\Magento\Payment\Model\InfoInterface $payment)
+    {
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $order = $payment->getOrder();
+            $storeCode = $order->getStore()->getCode();
+
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
+
+            // Check the status
+            if (!$this->canVoid()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void action is not available.')
+                );
+            }
+
+            // Process the void request
+            $response = $api->voidOrder($payment);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void request could not be processed.')
+                );
+            }
+
+            $comment = __('Canceled order online, the voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
+            $payment->setMessage($comment);
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
+
+        }
+
+        return $this;
+    }
+
+    /**
      * Perform a refund request.
      *
      * @param \Magento\Payment\Model\InfoInterface $payment The payment
