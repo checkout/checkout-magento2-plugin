@@ -433,7 +433,7 @@ class CardPaymentMethod extends AbstractMethod
                 );
             }
 
-            $comment = __('Canceled order, the voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
+            $comment = __('Canceled order online, the voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
             $payment->setMessage($comment);
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
