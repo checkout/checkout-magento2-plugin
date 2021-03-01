@@ -28,20 +28,19 @@
         <policy id="script-src">
             <values>
                 <value id="cko-cdn" type="host">https://cdn.checkout.com</value>
-                <value id="klarna-cdn" type="host">https://x.klarnacdn.net/kp/lib/v1/api.js</value>
+                <value id="klarna-cdn" type="host">*.klarnacdn.net</value>
             </values>
         </policy>
         <policy id="connect-src">
             <values>
                 <value id="cko-cdn" type="host">https://js.checkout.com</value>
-                <value id="klarna-cdn" type="host">https://eu.playground.klarnaevt.com</value>
+                <value id="klarna-cdn" type="host">*.klarnaevt.com</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
                 <value id="cko-cdn" type="host">https://js.checkout.com</value>
-                <value id="klarna" type="host">https://klarna-payments-eu.playground.klarna.com</value>
-                <value id="klarna-src" type="host">https://js.playground.klarna.com</value>
+                <value id="klarna" type="host">*.klarna.com</value>
             </values>
         </policy>
         <policy id="img-src">
