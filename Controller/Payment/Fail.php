@@ -163,21 +163,15 @@ class Fail extends \Magento\Framework\App\Action\Action
                 }
             }
         } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
-            $order = $this->session->getLastRealOrder();
 
-            if ($order) {
                 // Restore the quote
-                $this->session->restoreQuote();
+            $this->session->restoreQuote();
 
-                $this->messageManager->addErrorMessage(
-                    __('The 3DSecure session expired')
+            $this->messageManager->addErrorMessage(
+                    __('There was an error processing your transaction')
                 );
 
-                // Handle the failed order
-                $this->orderStatusHandler->handleFailedPayment($order);
-
-                return $this->_redirect('checkout/cart', ['_secure' => true]);
-            }
+            return $this->_redirect('checkout/cart', ['_secure' => true]);
         }
     }
 }
