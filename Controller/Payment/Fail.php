@@ -160,8 +160,7 @@ class Fail extends \Magento\Framework\App\Action\Action
 
                 // Return to the cart
                 if (isset($response->metadata['failureUrl'])) {
-                    header('Location: ' . $response->metadata['failureUrl']);
-                    exit();
+                    return $this->_redirect($response->metadata['failureUrl']);
                 } else {
                     return $this->_redirect('checkout/cart', ['_secure' => true]);    
                 }
