@@ -63,6 +63,11 @@ class Fail extends \Magento\Framework\App\Action\Action
     public $paymentErrorHandlerService;
 
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
      * @var Session
      */
     protected $session;
@@ -80,6 +85,7 @@ class Fail extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandlerService,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \Magento\Checkout\Model\Session $session
     ) {
         parent::__construct($context);
@@ -92,6 +98,7 @@ class Fail extends \Magento\Framework\App\Action\Action
         $this->orderStatusHandler = $orderStatusHandler;
         $this->logger = $logger;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
+        $this->config = $config;
         $this->session = $session;
     }
 
@@ -122,10 +129,15 @@ class Fail extends \Magento\Framework\App\Action\Action
                     'increment_id' => $response->reference
                 ]);
 
+                $storeCode = $this->storeManager->getStore()->getCode();
+                $action = $this->config->getValue('order_action_failed_payment', null, $storeCode);
+                $status = $action == 'cancel' ? 'canceled' : false;
+
                 // Log the payment error
                 $this->paymentErrorHandlerService->logPaymentError(
                     $response,
-                    $order
+                    $order,
+                    $status
                 );
 
                 // Restore the quote
