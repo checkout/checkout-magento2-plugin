@@ -59,7 +59,7 @@ define(
              * @return {number}
              */
             formatDecimals : function (amount) {
-                return Math.round(amount * 100) / 100;
+                return Math.round((amount + Number.EPSILON) * 100) / 100
             },
 
             /**
