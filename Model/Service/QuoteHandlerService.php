@@ -185,9 +185,6 @@ class QuoteHandlerService
         // Find quote and perform tasks
         $quote = $quote ? $quote : $this->getQuote();
         if ($this->isQuote($quote)) {
-            // Prepare the inventory
-            $quote->setInventoryProcessed(false);
-
             // Collect totals
             $quote->collectTotals();
 
