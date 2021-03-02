@@ -59,6 +59,8 @@
                      * @param      {Array}  methods  The methods
                      */
                     load: function(data, methods) {
+                        console.log(Utilities.formatDecimals(parseFloat(data.quote.grand_total)) *100)
+                        console.log(Utilities.formatDecimals(parseFloat(data.tax_amount)) *100)
                         var self = this;
                         try {
                             Klarna.Payments.init({client_token: data.source.client_token}); // Initialize Klarna
