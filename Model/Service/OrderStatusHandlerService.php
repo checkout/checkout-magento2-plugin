@@ -47,6 +47,11 @@ class OrderStatusHandlerService
     public $orderHandler;
 
     /**
+     * @var OrderManagementInterface
+     */
+    public $orderManagement;
+    
+    /**
      * @var OrderRepositoryInterface
      */
     public $orderRepository;
@@ -80,6 +85,7 @@ class OrderStatusHandlerService
         \Magento\Sales\Model\Order $orderModel,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        \Magento\Sales\Api\OrderManagementInterface $orderManagement,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Framework\Registry $registry
     ) {
@@ -88,6 +94,7 @@ class OrderStatusHandlerService
         $this->orderModel            = $orderModel;
         $this->config                = $config;
         $this->orderHandler          = $orderHandler;
+        $this->orderManagement       = $orderManagement;
         $this->orderRepository       = $orderRepository;
         $this->registry              = $registry;
     }
@@ -161,10 +168,7 @@ class OrderStatusHandlerService
 
             if ($config == 'cancel' || $config == 'delete') {
                 if ($order->getState() !== 'canceled') {
-                    $this->orderModel->loadByIncrementId($order->getIncrementId())->cancel();
-                    $order->setStatus('canceled');
-                    $order->setState($this->orderModel::STATE_CANCELED);
-                    $order->save();
+                    $this->orderManagement->cancel($order->getId());
                 }
 
                 if ($config == 'delete') {
