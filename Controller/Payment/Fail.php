@@ -165,13 +165,13 @@ class Fail extends \Magento\Framework\App\Action\Action
         } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
 
                 // Restore the quote
-            $this->session->restoreQuote();
+                $this->session->restoreQuote();
 
-            $this->messageManager->addErrorMessage(
-                    __('There was an error processing your transaction')
+                $this->messageManager->addErrorMessage(
+                    __('The transaction could not be processed.')
                 );
 
-            return $this->_redirect('checkout/cart', ['_secure' => true]);
-        }
+                return $this->_redirect('checkout/cart', ['_secure' => true]);
+            }
     }
 }
