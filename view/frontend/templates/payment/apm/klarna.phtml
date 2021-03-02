@@ -59,8 +59,6 @@
                      * @param      {Array}  methods  The methods
                      */
                     load: function(data, methods) {
-                        console.log(Utilities.formatDecimals(parseFloat(data.quote.grand_total)) *100)
-                        console.log(Utilities.formatDecimals(parseFloat(data.tax_amount)) *100)
                         var self = this;
                         try {
                             Klarna.Payments.init({client_token: data.source.client_token}); // Initialize Klarna
@@ -73,8 +71,8 @@
                                 purchase_country:   data.billing.country_id,
                                 purchase_currency:  data.quote.quote_currency_code,
                                 locale:             data.locale,
-                                order_amount:       Utilities.formatDecimals(parseFloat(data.quote.grand_total)) *100,
-                                order_tax_amount:   Utilities.formatDecimals(parseFloat(data.tax_amount)) *100,
+                                order_amount:       (parseFloat(data.quote.grand_total) * 100).toFixed(0),
+                                order_tax_amount:   (parseFloat(data.tax_amount) * 100).toFixed(0),
                                 order_lines:        data.products,
                                 billing_address:    {
                                     given_name:     data.billing.firstname,

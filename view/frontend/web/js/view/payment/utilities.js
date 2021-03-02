@@ -54,15 +54,6 @@ define(
             },
 
             /**
-             * Format an amount to 2 decimals.
-             *
-             * @return {number}
-             */
-            formatDecimals : function (amount) {
-                return Math.round((amount + "e2") + "e-2")
-            },
-
-            /**
              * Load a CSS file
              *
              * @return {void}
