@@ -456,8 +456,6 @@ class TransactionHandlerService
                 break;
         }
 
-        // Convert currency amount to base amount
-        $amount = $amount / $this->order->getBaseToOrderRate();
         // Add the transaction comment
         $this->payment->addTransactionCommentsToOrder(
             $this->transaction,
@@ -659,7 +657,7 @@ class TransactionHandlerService
      */
     public function getFormattedAmount($amount)
     {
-        return $this->order->getBaseCurrency()->formatTxt($amount);
+        return $this->order->formatPriceTxt($amount);
     }
 
     /**
