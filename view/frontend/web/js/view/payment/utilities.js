@@ -54,6 +54,14 @@ define(
             },
 
             /**
+             * Format an amount to 2 demicals.
+             *
+             * @return {number}
+             */
+            formatDecimals : function (amount) {
+                return Math.round(amount * 100) / 100;
+            },
+            /**
              * Load a CSS file
              *
              * @return {void}
