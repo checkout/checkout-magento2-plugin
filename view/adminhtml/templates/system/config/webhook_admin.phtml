@@ -36,9 +36,10 @@
             jQuery('#webhook_button').click(function () {
                 var params = {
                     scope: '<?= $block->getScope(); ?>',
-                    scope_id: <?= $block->getScopeId(); ?>,
+                    scope_id: '<?= $block->getScopeId(); ?>',
+                    webhook_url: '<?= $block->getWebhookUrl(); ?>',
                     secret_key: secretKey[0].value,
-                    public_key: publicKey[0].value,
+                    public_key: publicKey[0].value
                 };
                 new Ajax.Request('<?php echo $block->getAjaxUrl() ?>', {
                     parameters:     params,
