@@ -66,7 +66,7 @@ class RefundInvoice
         \Closure $proceed,
         \Magento\Sales\Api\Data\CreditmemoInterface $creditMemo,
         \Magento\Sales\Api\Data\OrderInterface $order,
-        $isOnline
+        $isOnline = false
     ) {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
@@ -76,13 +76,13 @@ class RefundInvoice
 
         // Get the method and method id
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
-        $method = $this->methodHandler->get($methodId);
 
         // Check if payment method is checkout.com
         if (in_array($methodId, $this->config->getMethodsList()) && $isOnline) {
             // Get the payment and amount to refund
             $payment = $order->getPayment();
             $amount = $creditMemo->getBaseGrandTotal();
+            $method = $this->methodHandler->get($methodId);
 
             if (!$method->canRefund()) {
                 throw new \Magento\Framework\Exception\LocalizedException(
