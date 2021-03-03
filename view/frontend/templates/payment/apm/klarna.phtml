@@ -60,6 +60,8 @@
                      */
                     load: function(data, methods) {
                         var self = this;
+                        console.log((parseFloat(data.quote.grand_total) * 100).toFixed(0))
+                        console.log((parseFloat(data.tax_amount) * 100).toFixed(0))
                         try {
                             Klarna.Payments.init({client_token: data.source.client_token}); // Initialize Klarna
                             Klarna.Payments.load({
