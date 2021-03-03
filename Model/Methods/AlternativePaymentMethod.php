@@ -35,6 +35,7 @@ use \Checkout\Models\Payments\SofortSource;
 use \Checkout\Models\Payments\GiropaySource;
 use \Checkout\Models\Payments\PoliSource;
 use \Checkout\Models\Payments\PaypalSource;
+use \Checkout\Models\Payments\Payer;
 use \Checkout\Library\Exceptions\CheckoutHttpException;
 
 /**
@@ -411,7 +412,9 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function boleto($data)
     {
-        return new BoletoSource($data['name'], $data['birthDate'], $data['cpf']);
+        $country = $this->quoteHandler->getBillingAddress()->getCountry();
+        $payer = new Payer($data['name'], $data['email'], $data['document']);
+        return new BoletoSource('redirect', $country, $payer, 'Test Description');
     }
 
     /**
@@ -499,14 +502,12 @@ class AlternativePaymentMethod extends AbstractMethod
         $tax = 0;
         $quote = $this->quoteHandler->getQuote();
         foreach ($quote->getAllVisibleItems() as $item) {
-            $lineTotal = (($item->getPrice() * $item->getQty()) - $item->getDiscountAmount() + $item->getTaxAmount());
-            $price =  ($lineTotal * 100) / $item->getQty();
             $product = new Product();
             $product->name = $item->getName();
             $product->quantity = $item->getQty();
-            $product->unit_price = $price;
+            $product->unit_price = $item->getPriceInclTax() *100;
             $product->tax_rate = $item->getTaxPercent() *100;
-            $product->total_amount = $lineTotal *100;
+            $product->total_amount = $item->getRowTotalInclTax() *100;
             $product->total_tax_amount = $item->getTaxAmount() *100;
 
             $tax += $product->total_tax_amount;
@@ -700,6 +701,47 @@ class AlternativePaymentMethod extends AbstractMethod
     public function void(\Magento\Payment\Model\InfoInterface $payment)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $storeCode = $payment->getOrder()->getStore()->getCode();
+
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
+
+            // Check the status
+            if (!$this->canVoid()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void action is not available.')
+                );
+            }
+
+            // Process the void request
+            $response = $api->voidOrder($payment);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void request could not be processed.')
+                );
+            }
+
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Perform a void request on order cancel.
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return self
+     */
+    public function cancel(\Magento\Payment\Model\InfoInterface $payment)
+    {
+        // Klarna voids are not currently supported 
+        if ($this->backendAuthSession->isLoggedIn() && $payment->getAdditionalInformation('method_id') !== 'klarna') {
             // Get the store code
             $storeCode = $payment->getOrder()->getStore()->getCode();
 

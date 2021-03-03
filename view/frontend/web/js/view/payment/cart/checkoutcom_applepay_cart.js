@@ -24,6 +24,7 @@ require([
     "Magento_Checkout/js/model/shipping-service",
     "Magento_Customer/js/model/customer",
     "Magento_Customer/js/model/authentication-popup",
+    'Magento_Checkout/js/model/quote',
     "mage/translate",
 ], function (
     $,
@@ -36,6 +37,7 @@ require([
     shippingService,
     Customer,
     AuthPopup,
+    Quote,
     __
 ) {
     $(function () {
@@ -402,6 +404,21 @@ require([
                 "estimate-shipping-methods"
             );
             selectedShippingMethod = shippingMethodsAvailable[0];
+
+            if (Quote.shippingMethod() && Quote.shippingMethod()['method_code']) {
+                let index = 0;
+                shippingMethodsAvailable.forEach(function (method, i) {
+                    if (method.method_code == Quote.shippingMethod()['method_code']) {
+                        selectedShippingMethod = method;
+                        index = i;
+                    }
+                });
+                if (index !== 0) {
+                    shippingMethodsAvailable.splice(index, 1);
+                    shippingMethodsAvailable.unshift(selectedShippingMethod);    
+                }
+            }
+
             return formatShipping(shippingMethodsAvailable);
         }
 

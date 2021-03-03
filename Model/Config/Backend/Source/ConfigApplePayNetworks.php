@@ -26,6 +26,7 @@ class ConfigApplePayNetworks implements \Magento\Framework\Data\OptionSourceInte
     const CARD_VISA = 'visa';
     const CARD_MASTERCARD = 'masterCard';
     const CARD_AMEX = 'amex';
+    const CARD_MADA = 'mada';
 
     /**
      * Possible Apple Pay Cards
@@ -46,6 +47,10 @@ class ConfigApplePayNetworks implements \Magento\Framework\Data\OptionSourceInte
             [
                 'value' => self::CARD_AMEX,
                 'label' => __('American Express')
+            ],
+            [
+                'value' => self::CARD_MADA,
+                'label' => __('MADA')
             ],
         ];
     }

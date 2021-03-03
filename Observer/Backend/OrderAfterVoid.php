@@ -91,10 +91,12 @@ class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
                 // Get the latest order status comment
                 $orderComments = $order->getStatusHistories();
                 $orderComment = array_pop($orderComments);
+                $comment = __('The voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
 
-                // Update the order history comment status
+                // Update the order history comment
                 $orderComment->setData('status', $this->config->getValue('order_status_voided'))->save();
-                
+                $orderComment->setData('comment', $comment)->save();
+
                 if ($this->config->getValue('order_status_voided') == 'canceled') {
                     // Cancel the order if void order status has been set to canceled
                     $this->orderManagement->cancel($order->getId());
