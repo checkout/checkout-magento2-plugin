@@ -70,6 +70,12 @@ class OrderAfterInvoice
                     $order->setStatus($this->config->getValue('order_status_captured'));    
                 }
             }
+
+            // Changes order history comment to display currency
+            $amount = $order->getInvoiceCollection()->getFirstItem()->getGrandTotal();
+            $comment = __('The captured amount is %1.', $order->formatPriceTxt($amount));
+            
+            return $comment;
         }
 
         return $result;
