@@ -87,7 +87,8 @@ class Fail extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandlerService,
         \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \Magento\Checkout\Model\Session $session
-    ) {
+    )
+    {
         parent::__construct($context);
 
         $this->messageManager = $messageManager;
@@ -107,70 +108,88 @@ class Fail extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        // Get the session id
-        $sessionId = $this->getRequest()->getParam('cko-session-id', null);
-        if ($sessionId) {
-            // Get the store code
-            $storeCode = $this->storeManager->getStore()->getCode();
-
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
-
-            // Get the payment details
-            $response = $api->getPaymentDetails($sessionId);
-
-            // Logging
-            $this->logger->display($response);
-
-            // Don't restore quote if saved card request
-            if ($response->amount !== 0 && $response->amount !== 100) {
-                // Find the order from increment id
-                $order = $this->orderHandler->getOrder([
-                    'increment_id' => $response->reference
-                ]);
-
+        try {
+            // Get the session id
+            $sessionId = $this->getRequest()->getParam('cko-session-id', null);
+            if ($sessionId) {
+                // Get the store code
                 $storeCode = $this->storeManager->getStore()->getCode();
-                $action = $this->config->getValue('order_action_failed_payment', null, $storeCode);
-                $status = $action == 'cancel' ? 'canceled' : false;
 
-                // Log the payment error
-                $this->paymentErrorHandlerService->logPaymentError(
-                    $response,
-                    $order,
-                    $status
-                );
+                // Initialize the API handler
+                $api = $this->apiHandler->init($storeCode);
 
+                // Get the payment details
+                $response = $api->getPaymentDetails($sessionId);
+
+                // Logging
+                $this->logger->display($response);
+
+                // Don't restore quote if saved card request
+                if ($response->amount !== 0 && $response->amount !== 100) {
+                    // Find the order from increment id
+                    $order = $this->orderHandler->getOrder([
+                        'increment_id' => $response->reference
+                    ]);
+
+                    $storeCode = $this->storeManager->getStore()->getCode();
+                    $action = $this->config->getValue('order_action_failed_payment', null, $storeCode);
+                    $status = $action == 'cancel' ? 'canceled' : false;
+
+                    // Log the payment error
+                    $this->paymentErrorHandlerService->logPaymentError(
+                        $response,
+                        $order,
+                        $status
+                    );
+
+                    // Restore the quote
+                    $this->session->restoreQuote();
+
+                    // Handle the failed order
+                    $this->orderStatusHandler->handleFailedPayment($order);
+
+                    $errorMessage = null;
+                    if (isset($response->actions[0]['response_code'])) {
+                        $errorMessage = $this->paymentErrorHandlerService->getErrorMessage(
+                            $response->actions[0]['response_code']
+                        );
+                    }
+
+                    // Display the message
+                    $this->messageManager->addErrorMessage(
+                        $errorMessage ? $errorMessage->render() : __('The transaction could not be processed.')
+                    );
+
+                    // Return to the cart
+                    if (isset($response->metadata['failureUrl'])) {
+                        return $this->_redirect($response->metadata['failureUrl']);
+                    } else {
+                        return $this->_redirect('checkout/cart', ['_secure' => true]);
+                    }
+                } else {
+                    $this->messageManager->addErrorMessage(
+                        __('The card could not be saved.')
+                    );
+
+                    // Return to the saved card page
+                    return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
+                }
+            }
+        } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
+            $order = $this->session->getLastRealOrder();
+
+            if ($order) {
                 // Restore the quote
                 $this->session->restoreQuote();
+
+                $this->messageManager->addErrorMessage(
+                    __('The 3DSecure session expired')
+                );
 
                 // Handle the failed order
                 $this->orderStatusHandler->handleFailedPayment($order);
 
-                $errorMessage = null;
-                if (isset($response->actions[0]['response_code'])) {
-                    $errorMessage = $this->paymentErrorHandlerService->getErrorMessage(
-                        $response->actions[0]['response_code']
-                    );
-                }
-
-                // Display the message
-                $this->messageManager->addErrorMessage(
-                    $errorMessage ? $errorMessage->render() : __('The transaction could not be processed.')
-                );
-
-                // Return to the cart
-                if (isset($response->metadata['failureUrl'])) {
-                    return $this->_redirect($response->metadata['failureUrl']);
-                } else {
-                    return $this->_redirect('checkout/cart', ['_secure' => true]);    
-                }
-            } else {
-                $this->messageManager->addErrorMessage(
-                    __('The card could not be saved.')
-                );
-
-                // Return to the saved card page
-                return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
+                return $this->_redirect('checkout/cart', ['_secure' => true]);
             }
         }
     }
