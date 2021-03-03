@@ -98,7 +98,7 @@ class PaymentErrorHandlerService
     /**
      * Log the error for 3ds declined payments.
      */
-    public function logPaymentError($response, $order)
+    public function logPaymentError($response, $order, $status = false)
     {
         // Assign the order instance
         $this->order = $order;
@@ -116,7 +116,8 @@ class PaymentErrorHandlerService
         // Add the order comment
         $this->order->setHistoryEntityName('3ds Fail');
         $this->order->addStatusHistoryComment(
-            __(self::$transactionErrorLabel['payment_declined']) . $suffix
+            __(self::$transactionErrorLabel['payment_declined']) . $suffix,
+            $status
         );
         
         // Save the data

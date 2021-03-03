@@ -71,8 +71,8 @@
                                 purchase_country:   data.billing.country_id,
                                 purchase_currency:  data.quote.quote_currency_code,
                                 locale:             data.locale,
-                                order_amount:       parseInt(data.quote.grand_total) *100,
-                                order_tax_amount:   parseInt(data.tax_amount) *100,
+                                order_amount:       (parseFloat(data.quote.grand_total) * 100).toFixed(0),
+                                order_tax_amount:   (parseFloat(data.tax_amount) * 100).toFixed(0),
                                 order_lines:        data.products,
                                 billing_address:    {
                                     given_name:     data.billing.firstname,

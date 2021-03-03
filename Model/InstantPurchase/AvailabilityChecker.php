@@ -60,8 +60,11 @@ class AvailabilityChecker
             'checkoutcom_vault'
         );
 
+        $madaEnabled = $this->config->getValue('mada_enabled', 'checkoutcom_vault');
+
         return $vaultEnabled
         && $instantPurchaseEnabled
+        && !$madaEnabled
         && $this->vaultHandler->userHasCards();
     }
 }

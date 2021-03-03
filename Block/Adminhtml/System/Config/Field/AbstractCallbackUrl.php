@@ -91,12 +91,18 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $storeCode = $this->getRequest()->getParam('site', 0);
             }
         }
+
+        $baseUrl = $this->scopeConfig->getValue(
+            'web/unsecure/base_url',
+            $scope,
+            $storeCode
+        );
+        $callbackUrl = $baseUrl . 'checkout_com/' . $this->getControllerUrl();
         
         try {
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode, $scope);
 
-            $callbackUrl = $this->getBaseUrl() . 'checkout_com/' . $this->getControllerUrl();
             $privateSharedKey = $this->scopeConfig->getValue(
                 'settings/checkoutcom_configuration/private_shared_key',
                 $scope,
@@ -138,7 +144,8 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                             'button_label' => __('Set Webhooks'),
                             'hidden' => false,
                             'scope' => $scope,
-                            'scope_id' => $storeCode
+                            'scope_id' => $storeCode,
+                            'webhook_url' => $callbackUrl
                         ]
                     );
                 } else {
@@ -150,7 +157,8 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                             'message_class' => 'no-webhook',
                             'hidden' => false,
                             'scope' => $scope,
-                            'scope_id' => $storeCode
+                            'scope_id' => $storeCode,
+                            'webhook_url' => $callbackUrl
                         ]
                     );
                 }
@@ -187,7 +195,8 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                         'element_html'      => $element->getElementHtml(),
                         'hidden'            => true,
                         'scope'             => $scope,
-                        'scope_id'          => $storeCode
+                        'scope_id'          => $storeCode,
+                        'webhook_url' => $callbackUrl
                     ]
                 );
             } else {
@@ -198,7 +207,8 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                         'message_class'     => 'no-webhook',
                         'hidden'            => true,
                         'scope'             => $scope,
-                        'scope_id'          => $storeCode
+                        'scope_id'          => $storeCode,
+                        'webhook_url' => $callbackUrl
                     ]
                 );
             }
