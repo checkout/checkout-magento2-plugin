@@ -197,7 +197,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
                 }
             }
         } else {
-            return __('The public key is invalid.');
+            $this->result['error_message'][] = __('The public key is invalid.');
         }
 
         // Set the payment response details
