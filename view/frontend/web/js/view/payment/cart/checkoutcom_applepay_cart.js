@@ -122,7 +122,7 @@ require([
 
                     // Start the payment session
                     Utilities.log(paymentRequest);
-                    var session = new ApplePaySession(1, paymentRequest);
+                    var session = new ApplePaySession(5, paymentRequest);
                 } else {
                     var paymentRequest = {
                         currencyCode: Utilities.getQuoteCurrency(),
