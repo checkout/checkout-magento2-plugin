@@ -200,7 +200,7 @@ class TransactionHandlerService
                 $this->processCreditMemo($amount);
                 
                 // Process the order email case
-                $this->processEmail();
+                $this->processEmail($payload);
 
                 // Save
                 $this->transaction->save();
@@ -216,7 +216,7 @@ class TransactionHandlerService
                 );
 
                 // Process the order email case
-                $this->processEmail();
+                $this->processEmail($payload);
 
                 // Save
                 $this->transaction->save();
@@ -601,7 +601,7 @@ class TransactionHandlerService
     /**
      * Send the order email.
      */
-    public function processEmail()
+    public function processEmail($payload)
     {
         // Get the email sent flag
         $emailSent = $this->order->getEmailSent();
@@ -614,8 +614,13 @@ class TransactionHandlerService
         $condition2 = $this->config->getValue('order_email') == 'authorize_capture'
             && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE && $emailSent == 0;
 
+        $condition3 = $this->config->getValue('order_email') == 'authorize'
+            && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE
+            && $payload->data->metadata->methodId == 'checkoutcom_apm'
+            && $emailSent == 0;
+
         // Send the order email
-        if ($condition1 || $condition2) {
+        if ($condition1 || $condition2 || $condition3) {
             $this->order->setCanSendNewEmailFlag(true);
             $this->order->setIsCustomerNotified(true);
             $this->orderSender->send($this->order, true);
