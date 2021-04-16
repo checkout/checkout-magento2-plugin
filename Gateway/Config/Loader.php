@@ -214,7 +214,7 @@ class Loader
      */
     public function isHidden($field)
     {
-        $hiddenFields = explode(
+        $configHiddenFields = explode(
             ',',
             $this->scopeConfig->getValue(
                 'settings/checkoutcom_configuration/fields_hidden',
@@ -222,7 +222,16 @@ class Loader
             )
         );
 
-        return in_array($field, $hiddenFields);
+        // Apple pay configuration
+        $applePayHiddenFields = explode(
+            ',',
+            $this->scopeConfig->getValue(
+                'payment/checkoutcom_apple_pay/fields_hidden',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            )
+        );
+
+        return in_array($field, array_merge($configHiddenFields, $applePayHiddenFields));
     }
 
     /**
