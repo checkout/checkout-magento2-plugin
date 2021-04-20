@@ -231,7 +231,10 @@ class OrderHandlerService
             ->setPageSize(1)
             ->getLastItem();
 
-        $this->logger->additional($this->getOrderDetails($order), 'order');
+        if ($order->getId()) {
+            $this->logger->additional($this->getOrderDetails($order), 'order');
+        }
+
         return $order;
     }
 
