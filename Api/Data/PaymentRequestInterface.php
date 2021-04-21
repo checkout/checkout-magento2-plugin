@@ -52,7 +52,7 @@ interface PaymentRequestInterface
     /**
      * Get the quote id
      *
-     * @return int
+     * @return string
      */
     public function getQuoteId();
 
