@@ -193,6 +193,12 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                             // Add the payment info to the order
                             $order = $this->utilities->setPaymentData($order, $response, $this->data);
 
+                            // check for redirection
+                            if (isset($response->_links['redirect']['href'])) {
+                                // set order status to pending payment
+                                $order->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
+                            }
+
                             // Save the order
                             $order->save();
 
