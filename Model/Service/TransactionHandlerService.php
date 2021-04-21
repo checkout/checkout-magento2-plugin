@@ -231,9 +231,13 @@ class TransactionHandlerService
      */
     public function getTransactions($orderId, $transactionId = null)
     {
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('order_id', $orderId)
+            ->create();
+
         // Get the list of transactions
-        $transactions = $this->transactionSearch->create()
-            ->addOrderIdFilter($orderId)
+        $transactions = $this->transactionRepository
+            ->getList($searchCriteria)
             ->getItems();
 
         // Filter the transactions
