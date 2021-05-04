@@ -38,6 +38,10 @@
     <!-- Instant Purchase override -->
     <preference for="Magento\InstantPurchase\CustomerData\InstantPurchase" type="CheckoutCom\Magento2\Model\InstantPurchase\CustomerData" />
     <!-- END Instant Purchase override -->
+
+    <!-- onepage success override -->
+    <preference for="Magento\checkout\Block\Onepage\Success" type="CheckoutCom\Magento2\Block\Onepage\Success" />
+    <!-- END onepage success override -->
     
     <!-- After place order plugin -->
     <type name="Magento\Sales\Api\OrderManagementInterface">

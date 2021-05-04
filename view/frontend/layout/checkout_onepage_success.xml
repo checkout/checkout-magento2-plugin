@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<body>
+    <referenceContainer name="content">
+        <block class="CheckoutCom\Magento2\Block\Onepage\Success" name="custom.order.details.success" template="CheckoutCom_Magento2::order/success.phtml" after="-">        	
+        </block>
+    </referenceContainer>
+    <referenceBlock name="checkout.success" remove="true"/>
+</body>
