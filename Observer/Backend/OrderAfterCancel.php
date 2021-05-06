@@ -14,14 +14,14 @@
  * @link      https://docs.checkout.com/
  */
 
-namespace CheckoutCom\Magento2\Observer\Api;
+namespace CheckoutCom\Magento2\Observer\Backend;
 
 use Magento\Framework\Event\Observer;
 
 /**
- * Class OrderCreditMemoSaveAfter.
+ * Class OrderAfterCancel.
  */
-class OrderCreditMemoSaveAfter implements \Magento\Framework\Event\ObserverInterface
+class OrderAfterCancel implements \Magento\Framework\Event\ObserverInterface
 {
     /**
      * @var Session
@@ -39,6 +39,16 @@ class OrderCreditMemoSaveAfter implements \Magento\Framework\Event\ObserverInter
     public $config;
 
     /**
+     * @var OrderManagementInterface
+     */
+    public $orderManagement;
+
+    /**
+     * @var Order
+     */
+    public $orderModel;
+
+    /**
      * @var Array
      */
     public $params;
@@ -49,11 +59,15 @@ class OrderCreditMemoSaveAfter implements \Magento\Framework\Event\ObserverInter
     public function __construct(
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\App\RequestInterface $request,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        \Magento\Sales\Api\OrderManagementInterface $orderManagement,
+        \Magento\Sales\Model\Order $orderModel
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
         $this->config = $config;
+        $this->orderManagement = $orderManagement;
+        $this->orderModel = $orderModel;
     }
 
     /**
@@ -61,28 +75,20 @@ class OrderCreditMemoSaveAfter implements \Magento\Framework\Event\ObserverInter
      */
     public function execute(Observer $observer)
     {
-        $creditMemo = $observer->getEvent()->getCreditmemo();
-        $order = $creditMemo->getOrder();
-        $methodId = $order->getPayment()->getMethodInstance()->getCode();
+        if ($this->backendAuthSession->isLoggedIn()) {
+            $this->params = $this->request->getParams();
+            $payment = $observer->getEvent()->getPayment();
+            $order = $payment->getOrder();
+            $methodId = $order->getPayment()->getMethodInstance()->getCode();
+            
+            if (in_array($methodId, $this->config->getMethodsList())) {
+                $orderComments = $order->getStatusHistories();
+                $orderComment = array_pop($orderComments);
+                
+                $orderComment->setData('status', 'canceled')->save();
+            }
 
-        // Check if payment method is checkout.com
-        if (in_array($methodId, $this->config->getMethodsList())) {
-            $status = ($order->getStatus() == 'closed' || $order->getStatus() == 'complete')
-                ? $order->getStatus()
-                : $this->config->getValue('order_status_refunded');
-
-            // Update the order status
-            $order->setStatus($status);
-
-            // Get the latest order status comment
-            $orderComments = $order->getStatusHistories();
-            $orderComment = array_pop($orderComments);
-
-            // Update the order history comment status
-            $orderComment->setData('status', $status)->save();
-            $order->save();
+            return $this;
         }
-
-        return $this;
     }
 }

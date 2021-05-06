@@ -63,6 +63,11 @@ class Fail extends \Magento\Framework\App\Action\Action
     public $paymentErrorHandlerService;
 
     /**
+     * @var Config
+     */
+    public $config;
+
+    /**
      * @var Session
      */
     protected $session;
@@ -80,8 +85,10 @@ class Fail extends \Magento\Framework\App\Action\Action
         \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
         \CheckoutCom\Magento2\Helper\Logger $logger,
         \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandlerService,
+        \CheckoutCom\Magento2\Gateway\Config\Config $config,
         \Magento\Checkout\Model\Session $session
-    ) {
+    )
+    {
         parent::__construct($context);
 
         $this->messageManager = $messageManager;
@@ -92,6 +99,7 @@ class Fail extends \Magento\Framework\App\Action\Action
         $this->orderStatusHandler = $orderStatusHandler;
         $this->logger = $logger;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
+        $this->config = $config;
         $this->session = $session;
     }
 
@@ -100,99 +108,117 @@ class Fail extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        // Get the session id
-        $sessionId = $this->getRequest()->getParam('cko-session-id', null);
-        if ($sessionId) {
-            // Get the store code
-            $storeCode = $this->storeManager->getStore()->getCode();
+        try {
+            // Get the session id
+            $sessionId = $this->getRequest()->getParam('cko-session-id', null);
+            if ($sessionId) {
+                // Get the store code
+                $storeCode = $this->storeManager->getStore()->getCode();
 
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+                // Initialize the API handler
+                $api = $this->apiHandler->init($storeCode);
 
-            // Get the payment details
-            $response = $api->getPaymentDetails($sessionId);
+                // Get the payment details
+                $response = $api->getPaymentDetails($sessionId);
 
-            // Logging
-            $this->logger->display($response);
+                // Logging
+                $this->logger->display($response);
 
-            // Don't restore quote if saved card request
-            if ($response->amount !== 0 && $response->amount !== 100) {
-                // Find the order from increment id
-                $order = $this->orderHandler->getOrder([
-                    'increment_id' => $response->reference
-                ]);
+                // Don't restore quote if saved card request
+                if ($response->amount !== 0 && $response->amount !== 100) {
+                    // Find the order from increment id
+                    $order = $this->orderHandler->getOrder([
+                        'increment_id' => $response->reference
+                    ]);
 
-                // Log the payment error
-                $this->paymentErrorHandlerService->logPaymentError(
-                    $response,
-                    $order
-                );
+                    $storeCode = $this->storeManager->getStore()->getCode();
+                    $action = $this->config->getValue('order_action_failed_payment', null, $storeCode);
+                    $status = $action == 'cancel' ? 'canceled' : false;
 
-                // Handle the failed order
-                $this->orderStatusHandler->handleFailedPayment($order);
+                    // Log the payment error
+                    $this->paymentErrorHandlerService->logPaymentError(
+                        $response,
+                        $order,
+                        $status
+                    );
+
+                    // Restore the quote
+                    $this->session->restoreQuote();
+
+                    // Handle the failed order
+                    $this->orderStatusHandler->handleFailedPayment($order);
+
+                    $errorMessage = null;
+                    if (isset($response->actions[0]['response_code'])) {
+                        $errorMessage = $this->paymentErrorHandlerService->getErrorMessage(
+                            $response->actions[0]['response_code']
+                        );
+                    }
+
+
+                    if ($response->source['type'] === 'knet') {
+
+                        $knetInfo = [
+                            'postData' => $response->source['post_date'] ?? null,
+                            'amount' => $response->amount ?? null,
+                            'paymentId' => $response->source['knet_payment_id'] ?? null,
+                            'transactionId' => $response->source['knet_transaction_id'] ?? null,
+                            'authCode' => $response->source['auth_code'] ?? null,
+                            'reference' => $response->source['bank_reference'] ?? null,
+                            'resultCode' => $response->source['knet_result'] ?? null
+                        ];
+
+                        $errorMessage = __("The transaction could not be processed.");
+                        $knetInfo = __(
+                            "Post Date: ".$knetInfo['postData']. "; ".
+                            "Amount: ".$knetInfo['amount']. "; ".
+                            "KNET Result code: ".$knetInfo['resultCode']. "; ".
+                            "KNET Payment ID: ".$knetInfo['paymentId']. "; ".
+                            "KNET Transaction ID: ".$knetInfo['transactionId']. "; ".
+                            "Auth code: ".$knetInfo['authCode']. "; ".
+                            "Reference: ".$knetInfo['reference']
+                        );
+
+                        // Display error message and knet mandate info
+                        $this->messageManager->addErrorMessage(
+                            $errorMessage
+                        );
+                        $this->messageManager->addNoticeMessage(
+                            $knetInfo
+                        );
+
+                    } else {
+                        $this->messageManager->addErrorMessage(
+                            $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')
+                        );
+                    }
+
+                    // Return to the cart
+                    if (isset($response->metadata['failureUrl'])) {
+                        return $this->_redirect($response->metadata['failureUrl']);
+                    } else {
+                        return $this->_redirect('checkout/cart', ['_secure' => true]);
+                    }
+                } else {
+                    $this->messageManager->addErrorMessage(
+                        __('The card could not be saved.')
+                    );
+
+                    // Return to the saved card page
+                    return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
+                }
+            }
+        } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
 
                 // Restore the quote
                 $this->session->restoreQuote();
 
-                $errorMessage = null;
-                if (isset($response->actions[0]['response_code'])) {
-                    $errorMessage = $this->paymentErrorHandlerService->getErrorMessage(
-                        $response->actions[0]['response_code']
-                    );
-                }
-
-                if ($response->source['type'] === 'knet') {
-
-                    $knetInfo = [
-                        'postData' => $response->source['post_date'] ?? null,
-                        'amount' => $response->amount ?? null,
-                        'paymentId' => $response->source['knet_payment_id'] ?? null,
-                        'transactionId' => $response->source['knet_transaction_id'] ?? null,
-                        'authCode' => $response->source['auth_code'] ?? null,
-                        'reference' => $response->source['bank_reference'] ?? null,
-                        'resultCode' => $response->source['knet_result'] ?? null
-                    ];
-
-                    $errorMessage = __("The transaction could not be processed.");
-                    $knetInfo = __(
-                        "Post Date: ".$knetInfo['postData']. "; ".
-                        "Amount: ".$knetInfo['amount']. "; ".
-                        "KNET Result code: ".$knetInfo['resultCode']. "; ".
-                        "KNET Payment ID: ".$knetInfo['paymentId']. "; ".
-                        "KNET Transaction ID: ".$knetInfo['transactionId']. "; ".
-                        "Auth code: ".$knetInfo['authCode']. "; ".
-                        "Reference: ".$knetInfo['reference']
-                    );
-
-                    // Display error message and knet mandate info
-                    $this->messageManager->addErrorMessage(
-                        $errorMessage
-                    );
-                    $this->messageManager->addNoticeMessage(
-                        $knetInfo
-                    );
-
-                } else {
-                    $this->messageManager->addErrorMessage(
-                        $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')
-                    );
-                }
-
-                // Return to the cart
-                if (isset($response->metadata['failureUrl'])) {
-                    header('Location: ' . $response->metadata['failureUrl']);
-                    exit();
-                } else {
-                    return $this->_redirect('checkout/cart', ['_secure' => true]);    
-                }
-            } else {
                 $this->messageManager->addErrorMessage(
-                    __('The card could not be saved.')
+
+                    __('The transaction could not be processed.')
                 );
 
-                // Return to the saved card page
-                return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
+                return $this->_redirect('checkout/cart', ['_secure' => true]);
             }
-        }
     }
 }

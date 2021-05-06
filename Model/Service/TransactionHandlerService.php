@@ -200,7 +200,7 @@ class TransactionHandlerService
                 $this->processCreditMemo($amount);
                 
                 // Process the order email case
-                $this->processEmail();
+                $this->processEmail($payload);
 
                 // Save
                 $this->transaction->save();
@@ -216,7 +216,7 @@ class TransactionHandlerService
                 );
 
                 // Process the order email case
-                $this->processEmail();
+                $this->processEmail($payload);
 
                 // Save
                 $this->transaction->save();
@@ -231,9 +231,13 @@ class TransactionHandlerService
      */
     public function getTransactions($orderId, $transactionId = null)
     {
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('order_id', $orderId)
+            ->create();
+
         // Get the list of transactions
-        $transactions = $this->transactionSearch->create()
-            ->addOrderIdFilter($orderId)
+        $transactions = $this->transactionRepository
+            ->getList($searchCriteria)
             ->getItems();
 
         // Filter the transactions
@@ -456,8 +460,6 @@ class TransactionHandlerService
                 break;
         }
 
-        // Convert currency amount to base amount
-        $amount = $amount / $this->order->getBaseToOrderRate();
         // Add the transaction comment
         $this->payment->addTransactionCommentsToOrder(
             $this->transaction,
@@ -603,7 +605,7 @@ class TransactionHandlerService
     /**
      * Send the order email.
      */
-    public function processEmail()
+    public function processEmail($payload)
     {
         // Get the email sent flag
         $emailSent = $this->order->getEmailSent();
@@ -616,8 +618,13 @@ class TransactionHandlerService
         $condition2 = $this->config->getValue('order_email') == 'authorize_capture'
             && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE && $emailSent == 0;
 
+        $condition3 = $this->config->getValue('order_email') == 'authorize'
+            && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE
+            && $payload->data->metadata->methodId == 'checkoutcom_apm'
+            && $emailSent == 0;
+
         // Send the order email
-        if ($condition1 || $condition2) {
+        if ($condition1 || $condition2 || $condition3) {
             $this->order->setCanSendNewEmailFlag(true);
             $this->order->setIsCustomerNotified(true);
             $this->orderSender->send($this->order, true);
@@ -659,7 +666,7 @@ class TransactionHandlerService
      */
     public function getFormattedAmount($amount)
     {
-        return $this->order->getBaseCurrency()->formatTxt($amount);
+        return $this->order->formatPriceTxt($amount);
     }
 
     /**

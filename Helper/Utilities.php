@@ -76,18 +76,20 @@ class Utilities
             array_intersect_key((array)$data, array_flip(['id']))
         );
 
-        if ($source['methodId'] == 'checkoutcom_apm') {
-            // Add apm to payment information
-            $paymentInfo->setAdditionalInformation(
-                'method_id',
-                $source['source']
-            );
-        } elseif ($source['methodId'] == 'checkoutcom_vault') {
-            // Add vault public hash to payment information
-            $paymentInfo->setAdditionalInformation(
-                'public_hash',
-                $source['publicHash']
-            );
+        if (isset($source)) {
+            if ($source['methodId'] == 'checkoutcom_apm') {
+                // Add apm to payment information
+                $paymentInfo->setAdditionalInformation(
+                    'method_id',
+                    $source['source']
+                );
+            } elseif ($source['methodId'] == 'checkoutcom_vault') {
+                // Add vault public hash to payment information
+                $paymentInfo->setAdditionalInformation(
+                    'public_hash',
+                    $source['publicHash']
+                );
+            }
         }
 
         return $order;

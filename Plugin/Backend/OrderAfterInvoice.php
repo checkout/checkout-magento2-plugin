@@ -64,8 +64,18 @@ class OrderAfterInvoice
         // Check if payment method is checkout.com
         if (in_array($methodId, $this->config->getMethodsList())) {
             if ($this->statusNeedsCorrection($order)) {
-                $order->setStatus($this->config->getValue('order_status_captured'));
+                if ($order->getIsVirtual()) {
+                    $order->setStatus('complete');
+                } else {
+                    $order->setStatus($this->config->getValue('order_status_captured'));    
+                }
             }
+
+            // Changes order history comment to display currency
+            $amount = $order->getInvoiceCollection()->getFirstItem()->getGrandTotal();
+            $comment = __('The captured amount is %1.', $order->formatPriceTxt($amount));
+            
+            return $comment;
         }
 
         return $result;
@@ -84,9 +94,9 @@ class OrderAfterInvoice
         $desiredStatus = $this->config->getValue('order_status_captured');
         $flaggedStatus = $this->config->getValue('order_status_flagged');
 
-        return $currentState == Order::STATE_PROCESSING
+        return ($currentState == Order::STATE_PROCESSING
                 && $currentStatus !== $flaggedStatus
                 && $currentStatus !== $desiredStatus
-                && $currentStatus == 'processing';
+                && $currentStatus == 'processing') || $order->getIsVirtual();
     }
 }

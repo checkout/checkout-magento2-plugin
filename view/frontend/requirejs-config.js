@@ -9,6 +9,9 @@ var config = {
         mixins: {
             'Magento_Checkout/js/model/checkout-data-resolver': {
                 'CheckoutCom_Magento2/js/model/checkout-data-resolver': true
+            },
+            'Magento_Tax/js/view/checkout/summary/grand-total': {
+                'CheckoutCom_Magento2/js/model/grand-total-hide': true
             }
         }
     }
