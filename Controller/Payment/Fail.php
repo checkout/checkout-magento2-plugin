@@ -141,10 +141,43 @@ class Fail extends \Magento\Framework\App\Action\Action
                     );
                 }
 
-                // Display the message
-                $this->messageManager->addErrorMessage(
-                    $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')
-                );
+                if ($response->source['type'] === 'knet') {
+
+                    $knetInfo = [
+                        'postData' => $response->source['post_date'] ?? null,
+                        'amount' => $response->amount ?? null,
+                        'paymentId' => $response->source['knet_payment_id'] ?? null,
+                        'transactionId' => $response->source['knet_transaction_id'] ?? null,
+                        'authCode' => $response->source['auth_code'] ?? null,
+                        'reference' => $response->source['bank_reference'] ?? null,
+                        'resultCode' => $response->source['knet_result'] ?? null,
+                        'type' => $response->source['type'] ?? null,
+                    ];
+
+                    $errorMessage = ("The transaction could not be processed.");
+                    $knetInfo = (
+                        "Post Date: ".$knetInfo['postData']. "; ".
+                        "Amount: ".$knetInfo['amount']. "; ".
+                        "KNET Result code: ".$knetInfo['resultCode']. "; ".
+                        "KNET Payment ID: ".$knetInfo['paymentId']. "; ".
+                        "KNET Transaction ID: ".$knetInfo['transactionId']. "; ".
+                        "Auth code: ".$knetInfo['authCode']. "; ".
+                        "Reference: ".$knetInfo['reference']
+                    );
+
+                    // Display error message and knet mandate info
+                    $this->messageManager->addErrorMessage(
+                        $errorMessage
+                    );
+                    $this->messageManager->addNoticeMessage(
+                        $knetInfo
+                    );
+
+                } else {
+                    $this->messageManager->addErrorMessage(
+                        $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')
+                    );
+                }
 
                 // Return to the cart
                 if (isset($response->metadata['failureUrl'])) {

@@ -7,7 +7,48 @@
 // @codingStandardsIgnoreFile
 
 ?>
-<?php /** @var $block CheckoutCom\Magento2\Block\Onepage\Success */ ?>
+<?php 
+
+    /** @var $block CheckoutCom\Magento2\Block\Onepage\Success */ 
+    
+    // Get knet mandate info from the block
+    $knetInfo = $block->getKnetInfo();
+
+?>
+
 <div class="checkout-success">
-    <p> <?php echo($block->getKnetInfo()) ?> </p>
+
+    <!-- Default info -->
+    <?php if ($block->getOrderId()):?>
+        <?php if ($block->getCanViewOrder()) :?>
+            <p><?= __('Your order number is: %1.', sprintf('<a href="%s" class="order-number"><strong>%s</strong></a>', $block->escapeHtml($block->getViewOrderUrl()), $block->escapeHtml($block->getOrderId()))) ?></p>
+        <?php  else :?>
+            <p><?= __('Your order # is: <span>%1</span>.', $block->escapeHtml($block->getOrderId())) ?></p>
+        <?php endif;?>
+    
+    
+         <!-- Display knet mandate info -->
+        <?php if ($knetInfo !== null) :?>
+
+            <p><?= __('Post Date: <span>%1</span>', $block->escapeHtml($knetInfo['postData'])) ?></p>
+            <p><?= __('Amount: <span>%1</span>', $block->escapeHtml($knetInfo['amount'])) ?></p>
+            <p><?= __('KNET Result code: <span>%1</span>', $block->escapeHtml($knetInfo['resultCode'])) ?></p>
+            <p><?= __('KNET Payment ID: <span>%1</span>', $block->escapeHtml($knetInfo['paymentId'])) ?></p>
+            <p><?= __('KNET Transaction ID: <span>%1</span>', $block->escapeHtml($knetInfo['transactionId'])) ?></p>
+            <p><?= __('Auth code: <span>%1</span>', $block->escapeHtml($knetInfo['authCode'])) ?></p>
+            <p><?= __('Reference: <span>%1</span>', $block->escapeHtml($knetInfo['reference'])) ?></p>
+            
+        <?php endif;?>
+    
+        <p><?= /* @escapeNotVerified */ __('We\'ll email you an order confirmation with details and tracking info.') ?></p>
+    
+    <?php endif;?>
+    
+    <!-- Default Continue shopping link  -->
+    <div class="actions-toolbar">
+        <div class="primary">
+            <a class="action primary continue" href="<?= /* @escapeNotVerified */ $block->getContinueUrl() ?>"><span><?= /* @escapeNotVerified */ __('Continue Shopping') ?></span></a>
+        </div>
+    </div>
+    
 </div>
