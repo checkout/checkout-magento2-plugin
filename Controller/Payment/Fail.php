@@ -150,12 +150,11 @@ class Fail extends \Magento\Framework\App\Action\Action
                         'transactionId' => $response->source['knet_transaction_id'] ?? null,
                         'authCode' => $response->source['auth_code'] ?? null,
                         'reference' => $response->source['bank_reference'] ?? null,
-                        'resultCode' => $response->source['knet_result'] ?? null,
-                        'type' => $response->source['type'] ?? null,
+                        'resultCode' => $response->source['knet_result'] ?? null
                     ];
 
-                    $errorMessage = ("The transaction could not be processed.");
-                    $knetInfo = (
+                    $errorMessage = __("The transaction could not be processed.");
+                    $knetInfo = __(
                         "Post Date: ".$knetInfo['postData']. "; ".
                         "Amount: ".$knetInfo['amount']. "; ".
                         "KNET Result code: ".$knetInfo['resultCode']. "; ".
