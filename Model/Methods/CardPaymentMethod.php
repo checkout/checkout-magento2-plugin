@@ -247,7 +247,7 @@ class CardPaymentMethod extends AbstractMethod
         $request->failure_url = $this->getFailureUrl($data, $isApiOrder);
         $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
         $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
-        $request->description = __('Payment request from %1', $this->config->getStoreName())->getText();
+        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
         if (!$quote->getIsVirtual()) {
@@ -391,6 +391,50 @@ class CardPaymentMethod extends AbstractMethod
                 );
             }
 
+            // Set the transaction id from response
+            $payment->setTransactionId($response->action_id);
+
+        }
+
+        return $this;
+    }
+
+    /**
+     * Perform a void request on order cancel.
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException  (description)
+     *
+     * @return self
+     */
+    public function cancel(\Magento\Payment\Model\InfoInterface $payment)
+    {
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the store code
+            $order = $payment->getOrder();
+            $storeCode = $order->getStore()->getCode();
+
+            // Initialize the API handler
+            $api = $this->apiHandler->init($storeCode);
+
+            // Check the status
+            if (!$this->canVoid()) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void action is not available.')
+                );
+            }
+
+            // Process the void request
+            $response = $api->voidOrder($payment);
+            if (!$api->isValidResponse($response)) {
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __('The void request could not be processed.')
+                );
+            }
+
+            $comment = __('Canceled order online, the voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
+            $payment->setMessage($comment);
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
 

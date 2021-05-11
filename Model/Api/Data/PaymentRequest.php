@@ -46,7 +46,7 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     /**
      * Get quote id
      *
-     * @return int|null
+     * @return string|null
      */
     public function getQuoteId()
     {
@@ -138,7 +138,7 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     /**
      * Set quote id
      *
-     * @param int $quoteId
+     * @param string $quoteId
      * @return $this
      */
     public function setQuoteId($quoteId)

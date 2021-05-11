@@ -17,8 +17,6 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
-
 /**
  * Class Verify
  */
@@ -115,9 +113,10 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                 // Get the payment details
                 $response = $api->getPaymentDetails($sessionId);
-                
+
                 // Check for zero dollar auth
                 if ($response->status !== "Card Verified") {
+
                     // Set the method ID
                     $this->methodId = $response->metadata['methodId'];
 
@@ -151,8 +150,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                             }
 
                             if (isset($response->metadata['successUrl']) &&
-                                !str_contains($response->metadata['successUrl'], 'checkout_com/payment/verify'))
-                            {
+                                !str_contains($response->metadata['successUrl'], 'checkout_com/payment/verify')) {
                                 return $this->_redirect($response->metadata['successUrl']);
                             } else {
                                 return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
@@ -167,7 +165,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                             );
                         }
                     } else {
-                        // Add and error message
+                        // Add an error message
                         $this->messageManager->addErrorMessage(
                             __('Invalid request. No order found.')
                         );

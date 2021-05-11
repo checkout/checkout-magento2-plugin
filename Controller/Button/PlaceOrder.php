@@ -167,7 +167,6 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
         // Set payment
         $quote->setPaymentMethod($this->methodId);
-        $quote->setInventoryProcessed(false);
         $quote->save();
         $quote->getPayment()->importData(
             ['method' => $this->methodId]
@@ -187,7 +186,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             $this->data,
             $order->getGrandTotal(),
             $order->getOrderCurrencyCode(),
-            $order->getIncrementId()
+            $order->getIncrementId(),
+            null,
+            false,
+            null,
+            true
         );
 
         // Add the payment info to the order
