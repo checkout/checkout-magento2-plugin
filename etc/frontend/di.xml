@@ -49,6 +49,20 @@
         </arguments>
     </type>
 
+    <!-- knet info Messages -->
+    <type name="Magento\Framework\View\Element\Message\MessageConfigurationsPool">
+        <arguments>
+            <argument name="configurationsMap" xsi:type="array">
+                <item name="knetInfoMessage" xsi:type="array">
+                    <item name="renderer" xsi:type="const">\Magento\Framework\View\Element\Message\Renderer\BlockRenderer::CODE</item>
+                    <item name="data" xsi:type="array">
+                        <item name="template" xsi:type="string">CheckoutCom_Magento2::ui/knetInfo.phtml</item>
+                    </item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
     <!-- CSRF bypass from 2.3.x series -->
     <type name="Magento\Framework\App\Request\CsrfValidator">
         <plugin name="cko_csrf_validator_skip" type="CheckoutCom\Magento2\Plugin\Frontend\CsrfValidatorSkip" />

@@ -133,6 +133,23 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                         // Process the response
                         if ($api->isValidResponse($response)) {
+
+                            if ($response->source['type'] === 'knet') {
+                                
+                                $this->messageManager->addComplexNoticeMessage(
+                                    'knetInfoMessage',
+                                    [
+                                        'postDate' => $response->source['post_date'] ?? null,
+                                        'amount' => $response->amount ?? null,
+                                        'paymentId' => $response->source['knet_payment_id'] ?? null,
+                                        'transactionId' => $response->source['knet_transaction_id'] ?? null,
+                                        'authCode' => $response->source['auth_code'] ?? null,
+                                        'reference' => $response->source['bank_reference'] ?? null,
+                                        'resultCode' => $response->source['knet_result'] ?? null,
+                                    ]
+                                );
+                            }
+
                             if (isset($response->metadata['successUrl']) &&
                                 !str_contains($response->metadata['successUrl'], 'checkout_com/payment/verify'))
                             {

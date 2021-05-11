@@ -141,6 +141,31 @@ class Fail extends \Magento\Framework\App\Action\Action
                     );
                 }
 
+                if ($response->source['type'] === 'knet') {
+
+                    // Display error message and knet mandate info
+                    $this->messageManager->addErrorMessage(
+                        __("The transaction could not be processed.")
+                    );
+                    $this->messageManager->addComplexNoticeMessage(
+                        'knetInfoMessage',
+                        [
+                            'postDate' => $response->source['post_date'] ?? null,
+                            'amount' => $response->amount ?? null,
+                            'paymentId' => $response->source['knet_payment_id'] ?? null,
+                            'transactionId' => $response->source['knet_transaction_id'] ?? null,
+                            'authCode' => $response->source['auth_code'] ?? null,
+                            'reference' => $response->source['bank_reference'] ?? null,
+                            'resultCode' => $response->source['knet_result'] ?? null,
+                        ]
+                    );
+
+                } else {
+                    $this->messageManager->addErrorMessage(
+                        $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')
+                    );
+                }
+
                 // Display the message
                 $this->messageManager->addErrorMessage(
                     $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')
