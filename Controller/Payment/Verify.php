@@ -28,6 +28,11 @@ class Verify extends \Magento\Framework\App\Action\Action
     public $messageManager;
 
     /**
+     * @var TransactionHandlerService
+     */
+    public $transactionHandler;
+
+    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
@@ -73,6 +78,7 @@ class Verify extends \Magento\Framework\App\Action\Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Message\ManagerInterface $messageManager,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
@@ -93,6 +99,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         $this->utilities = $utilities;
         $this->logger = $logger;
         $this->session = $session;
+        $this->transactionHandler = $transactionHandler;
     }
 
     /**
@@ -134,12 +141,17 @@ class Verify extends \Magento\Framework\App\Action\Action
                         if ($api->isValidResponse($response)) {
 
                             if ($response->source['type'] === 'knet') {
+
+                                $amount = $this->transactionHandler->amountFromGateway(
+                                    $response->amount ?? null,
+                                    $order
+                                );
                                 
                                 $this->messageManager->addComplexNoticeMessage(
                                     'knetInfoMessage',
                                     [
                                         'postDate' => $response->source['post_date'] ?? null,
-                                        'amount' => $response->amount ?? null,
+                                        'amount' => $amount ?? null,
                                         'paymentId' => $response->source['knet_payment_id'] ?? null,
                                         'transactionId' => $response->source['knet_transaction_id'] ?? null,
                                         'authCode' => $response->source['auth_code'] ?? null,
