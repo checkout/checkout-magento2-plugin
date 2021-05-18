@@ -16,12 +16,10 @@
  */
 ?>
 
-<p><?= __('Knet Mandate Info') ?></p>
-</br>
-<p><?= __('Post Date: <span>%1</span>', $block->escapeHtml($block->getData('postDate'))) ?></p>
-<p><?= __('Amount: <span>%1</span>', $block->escapeHtml($block->getData('amount'))) ?></p>
-<p><?= __('KNET Result code: <span>%1</span>', $block->escapeHtml($block->getData('resultCode'))) ?></p>
-<p><?= __('KNET Payment ID: <span>%1</span>', $block->escapeHtml($block->getData('paymentId'))) ?></p>
-<p><?= __('KNET Transaction ID: <span>%1</span>', $block->escapeHtml($block->getData('transactionId'))) ?></p>
-<p><?= __('Auth code: <span>%1</span>', $block->escapeHtml($block->getData('authCode'))) ?></p>
-<p><?= __('Reference: <span>%1</span>', $block->escapeHtml($block->getData('reference'))) ?></p>
+<?= __('Post Date: <span>%1</span> ; ', $block->escapeHtml($block->getData('postDate'))) ?>
+<?= __('Amount: <span>%1</span> ; ', $block->escapeHtml($block->getData('amount'))) ?>
+<?= __('KNET Result code: <span>%1</span> ; ', $block->escapeHtml($block->getData('resultCode'))) ?>
+<?= __('KNET Payment ID: <span>%1</span> ; ', $block->escapeHtml($block->getData('paymentId'))) ?>
+<?= __('KNET Transaction ID: <span>%1</span> ; ', $block->escapeHtml($block->getData('transactionId'))) ?>
+<?= __('Auth code: <span>%1</span> ; ', $block->escapeHtml($block->getData('authCode'))) ?>
+<?= __('Reference: <span>%1</span> ; ', $block->escapeHtml($block->getData('reference'))) ?>

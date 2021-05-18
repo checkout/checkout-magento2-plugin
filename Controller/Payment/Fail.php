@@ -28,6 +28,11 @@ class Fail extends \Magento\Framework\App\Action\Action
     public $messageManager;
 
     /**
+     * @var TransactionHandlerService
+     */
+    public $transactionHandler;
+
+    /**
      * @var StoreManagerInterface
      */
     public $storeManager;
@@ -78,6 +83,7 @@ class Fail extends \Magento\Framework\App\Action\Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Message\ManagerInterface $messageManager,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
@@ -101,6 +107,7 @@ class Fail extends \Magento\Framework\App\Action\Action
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
         $this->config = $config;
         $this->session = $session;
+        $this->transactionHandler = $transactionHandler;
     }
 
     /**
@@ -157,6 +164,11 @@ class Fail extends \Magento\Framework\App\Action\Action
 
                 if ($response->source['type'] === 'knet') {
 
+                    $amount = $this->transactionHandler->amountFromGateway(
+                        $response->amount ?? null,
+                        $order
+                    );
+
                     // Display error message and knet mandate info
                     $this->messageManager->addErrorMessage(
                         __("The transaction could not be processed.")
@@ -165,7 +177,7 @@ class Fail extends \Magento\Framework\App\Action\Action
                         'knetInfoMessage',
                         [
                             'postDate' => $response->source['post_date'] ?? null,
-                            'amount' => $response->amount ?? null,
+                            'amount' => $amount ?? null,
                             'paymentId' => $response->source['knet_payment_id'] ?? null,
                             'transactionId' => $response->source['knet_transaction_id'] ?? null,
                             'authCode' => $response->source['auth_code'] ?? null,
