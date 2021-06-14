@@ -17,8 +17,6 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
-
 /**
  * Class Verify
  */
@@ -28,6 +26,11 @@ class Verify extends \Magento\Framework\App\Action\Action
      * @var ManagerInterface
      */
     public $messageManager;
+
+    /**
+     * @var TransactionHandlerService
+     */
+    public $transactionHandler;
 
     /**
      * @var StoreManagerInterface
@@ -75,6 +78,7 @@ class Verify extends \Magento\Framework\App\Action\Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Message\ManagerInterface $messageManager,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
         \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
@@ -95,6 +99,7 @@ class Verify extends \Magento\Framework\App\Action\Action
         $this->utilities = $utilities;
         $this->logger = $logger;
         $this->session = $session;
+        $this->transactionHandler = $transactionHandler;
     }
 
     /**
@@ -115,9 +120,10 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                 // Get the payment details
                 $response = $api->getPaymentDetails($sessionId);
-                
+
                 // Check for zero dollar auth
                 if ($response->status !== "Card Verified") {
+
                     // Set the method ID
                     $this->methodId = $response->metadata['methodId'];
 
@@ -133,9 +139,30 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                         // Process the response
                         if ($api->isValidResponse($response)) {
+
+                            if ($response->source['type'] === 'knet') {
+
+                                $amount = $this->transactionHandler->amountFromGateway(
+                                    $response->amount ?? null,
+                                    $order
+                                );
+                                
+                                $this->messageManager->addComplexNoticeMessage(
+                                    'knetInfoMessage',
+                                    [
+                                        'postDate' => $response->source['post_date'] ?? null,
+                                        'amount' => $amount ?? null,
+                                        'paymentId' => $response->source['knet_payment_id'] ?? null,
+                                        'transactionId' => $response->source['knet_transaction_id'] ?? null,
+                                        'authCode' => $response->source['auth_code'] ?? null,
+                                        'reference' => $response->source['bank_reference'] ?? null,
+                                        'resultCode' => $response->source['knet_result'] ?? null,
+                                    ]
+                                );
+                            }
+
                             if (isset($response->metadata['successUrl']) &&
-                                !str_contains($response->metadata['successUrl'], 'checkout_com/payment/verify'))
-                            {
+                                !str_contains($response->metadata['successUrl'], 'checkout_com/payment/verify')) {
                                 return $this->_redirect($response->metadata['successUrl']);
                             } else {
                                 return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
@@ -150,7 +177,7 @@ class Verify extends \Magento\Framework\App\Action\Action
                             );
                         }
                     } else {
-                        // Add and error message
+                        // Add an error message
                         $this->messageManager->addErrorMessage(
                             __('Invalid request. No order found.')
                         );

@@ -93,14 +93,11 @@ class Webhook extends Action
             $storeCode = $this->getRequest()->getParam('scope_id', 0);
             $secretKey = $this->getRequest()->getParam('secret_key', 0);
             $publicKey = $this->getRequest()->getParam('public_key', 0);
+            $webhookUrl = $this->getRequest()->getParam('webhook_url', 0);
 
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode, $scope, $secretKey);
 
-            $webhookUrl = $this->scopeConfig->getValue(
-                'payment/checkoutcom/module/account_settings/webhook_url',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-            );
             $events = $api->checkoutApi->events()->types(['version' => '2.0']);
             $eventTypes = $events->list[0]->event_types;
             $webhooks = $api->checkoutApi->webhooks()->retrieve();
@@ -115,53 +112,32 @@ class Webhook extends Action
                 $webhook = new \Checkout\Models\Webhooks\Webhook($webhookUrl, $webhookId);
                 $webhook->event_types = $eventTypes;
                 $response = $api->checkoutApi->webhooks()->update($webhook, true);
-                $privateSharedKey = $response->headers->authorization;
-
-                $this->resourceConfig->saveConfig(
-                    'settings/checkoutcom_configuration/private_shared_key',
-                    $response->headers->authorization,
-                    $scope,
-                    $storeCode
-                );
-
-                $this->resourceConfig->saveConfig(
-                    'settings/checkoutcom_configuration/secret_key',
-                    $secretKey,
-                    $scope,
-                    $storeCode
-                );
-
-                $this->resourceConfig->saveConfig(
-                    'settings/checkoutcom_configuration/public_key',
-                    $publicKey,
-                    $scope,
-                    $storeCode
-                );
             } else {
                 $webhook = new \Checkout\Models\Webhooks\Webhook($webhookUrl);
                 $response = $api->checkoutApi->webhooks()->register($webhook, $eventTypes);
-
-                $this->resourceConfig->saveConfig(
-                    'settings/checkoutcom_configuration/private_shared_key',
-                    $response->headers->authorization,
-                    $scope,
-                    $storeCode
-                );
-
-                $this->resourceConfig->saveConfig(
-                    'settings/checkoutcom_configuration/secret_key',
-                    $secretKey,
-                    $scope,
-                    $storeCode
-                );
-
-                $this->resourceConfig->saveConfig(
-                    'settings/checkoutcom_configuration/public_key',
-                    $publicKey,
-                    $scope,
-                    $storeCode
-                );
             }
+            
+            $privateSharedKey = $response->headers->authorization;
+            
+            $this->resourceConfig->saveConfig(
+                'settings/checkoutcom_configuration/private_shared_key',
+                $response->headers->authorization,
+                $scope,
+                $storeCode
+            );
+            $this->resourceConfig->saveConfig(
+                'settings/checkoutcom_configuration/secret_key',
+                $secretKey,
+                $scope,
+                $storeCode
+            );
+            $this->resourceConfig->saveConfig(
+                'settings/checkoutcom_configuration/public_key',
+                $publicKey,
+                $scope,
+                $storeCode
+            );
+            
             $success = $response->isSuccessful();
 
             $this->cacheTypeList->cleanType(\Magento\Framework\App\Cache\Type\Config::TYPE_IDENTIFIER);

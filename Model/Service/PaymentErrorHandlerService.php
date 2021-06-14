@@ -39,7 +39,8 @@ class PaymentErrorHandlerService
         'payment_declined' => 'Failed payment authorization',
         'payment_capture_declined' => 'Failed payment capture',
         'payment_void_declined' => 'Failed payment void',
-        'payment_refund_declined' => 'Failed payment refund'
+        'payment_refund_declined' => 'Failed payment refund',
+        'payment_pending' => 'Failed payment request'
     ];
 
     /**
@@ -68,15 +69,11 @@ class PaymentErrorHandlerService
         $suffix = __(
             ' for an amount of %1. Action ID: %2. Event ID: %3. Payment ID: %4. Error: %5 %6',
             $this->prepareAmount($response->data->amount),
-            $response->data->action_id,
-            $response->id,
-            $response->data->id,
-            !empty($response->data->response_code)
-            ? $response->data->response_code
-            : __('Not specified.'),
-            !empty($response->data->response_summary)
-            ? $response->data->response_summary
-            : __('Not specified.')
+            !empty($response->data->action_id) ? $response->data->action_id : __('Not specified.'),
+            !empty($response->id) ? $response->id : __('Not specified.'),
+            !empty($response->data->id) ? $response->data->id : __('Not specified.'),
+            !empty($response->data->response_code) ? $response->data->response_code : __('Not specified.'),
+            !empty($response->data->response_summary) ? $response->data->response_summary : __('Not specified.')
         );
 
         // Add the order comment
@@ -101,7 +98,7 @@ class PaymentErrorHandlerService
     /**
      * Log the error for 3ds declined payments.
      */
-    public function logPaymentError($response, $order)
+    public function logPaymentError($response, $order, $status = false)
     {
         // Assign the order instance
         $this->order = $order;
@@ -119,7 +116,8 @@ class PaymentErrorHandlerService
         // Add the order comment
         $this->order->setHistoryEntityName('3ds Fail');
         $this->order->addStatusHistoryComment(
-            __(self::$transactionErrorLabel['payment_declined']) . $suffix
+            __(self::$transactionErrorLabel['payment_declined']) . $suffix,
+            $status
         );
         
         // Save the data

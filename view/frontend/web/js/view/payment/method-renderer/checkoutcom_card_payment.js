@@ -29,6 +29,8 @@ define(
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_card_payment';
+        let cardholderName = '';
+
 
         return Component.extend(
             {
@@ -265,16 +267,30 @@ define(
                 addFramesEvents: function () {
                     var self = this;
 
+                    // Frames ready event
+                    Frames.addEventHandler(
+                        Frames.Events.READY,
+                        function() {
+                            var valid = Utilities.getBillingAddress() != null;
+
+                             if(valid) {
+                                cardholderName = Utilities.getCustomerName();
+                            }
+                        }
+                    )
+
                     // Card validation changed event
                     Frames.addEventHandler(
                         Frames.Events.CARD_VALIDATION_CHANGED,
                         function (event) {
-                            var valid = Frames.isCardValid() && Utilities.getBillingAddress() != null;
+                            var valid = Frames.isCardValid()
                             if (valid) {
-                                // Add the card holder name
-                                Frames.cardholder = {
-                                    name: Utilities.getCustomerName()
-                                };
+                                if(cardholderName.length > 0) {
+                                    // Add the card holder name
+                                    Frames.cardholder = {
+                                       name: cardholderName
+                                    };
+                                }
 
                                 // Submit the payment form
                                 Frames.submitCard();
