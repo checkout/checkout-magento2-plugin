@@ -340,6 +340,20 @@ class Config
     }
 
     /**
+     *  Returns the store country
+     */
+    public function getStoreCountry()
+    {
+        $storeId =  $this->storeManager->getStore()->getId();
+
+        return  $this->scopeConfig->getValue(
+            'general/country/default',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    /**
      * Determines if the module is in production mode.
      *
      * @return bool

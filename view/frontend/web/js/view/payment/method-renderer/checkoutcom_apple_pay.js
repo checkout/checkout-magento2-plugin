@@ -90,7 +90,30 @@ define(
                  * @return {array}
                  */
                 getSupportedNetworks: function () {
-                    return this.getValue('supported_networks').split(',');
+                    let networksEnabled = getValue("supported_networks").split(",");
+                    return processSupportedNetworks(networksEnabled);
+                },
+
+                /**
+                 * Process supported network based on store country (SA)
+                 *
+                 * @return {array}
+                 */
+                processSupportedNetworks: function(networksEnabled) {
+                    if (networksEnabled.includes("mada")) {
+                        return Utilities.getStoreCountry == "SA" ? networksEnabled : networksEnabled.splice(networksEnabled.indexof("mada"), 1);
+                    } else {
+                        return networksEnabled;
+                    }
+                },
+
+                /**
+                 * Get Country code
+                 *
+                 * @return {string}
+                 */
+                getCountryCode: function() {
+                    return Utilities.getStoreCountry == "SA" ? "SA" : window.checkoutConfig.defaultCountryId;
                 },
 
                 /**
@@ -229,7 +252,7 @@ define(
                                 if (ApplePayUtilities.getIsVirtual()) {
                                     var paymentRequest = {
                                         currencyCode: Utilities.getQuoteCurrency(),
-                                        countryCode: window.checkoutConfig.defaultCountryId,
+                                        countryCode: self.getCountryCode(),
                                         total: {
                                             label: Utilities.getStoreName(),
                                             amount: runningTotal
@@ -250,7 +273,7 @@ define(
                                 } else {
                                     var paymentRequest = {
                                         currencyCode: Utilities.getQuoteCurrency(),
-                                        countryCode: window.checkoutConfig.defaultCountryId,
+                                        countryCode: self.getCountryCode(),
                                         total: {
                                             label: Utilities.getStoreName(),
                                             amount: runningTotal
