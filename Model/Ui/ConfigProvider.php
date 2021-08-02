@@ -105,7 +105,8 @@ class ConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
                     'store' => [
                         'name' => $this->config->getStoreName(),
                         'language' => $this->config->getStoreLanguage(),
-                        'code' => $this->config->getStoreCode()
+                        'code' => $this->config->getStoreCode(),
+                        'country' => $this->config->getStoreCountry()
                     ],
                     'user' => [
                         'has_cards' => $this->vaultHandler->userHasCards(),
