@@ -437,7 +437,7 @@ require([
                         label: shippingMethod.method_title,
                         amount: shippingMethod.price_incl_tax.toFixed(2),
                         identifier: shippingMethod.method_code,
-                        detail: shippingMethod.carrier_title,
+                        detail: shippingMethod.carrier_title ? shippingMethod.carrier_title : '',
                     });
                 }
             });
