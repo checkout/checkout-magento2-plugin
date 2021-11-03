@@ -72,7 +72,6 @@ class OrderAfterRefund implements \Magento\Framework\Event\ObserverInterface
             // Check if payment method is checkout.com
             if (in_array($methodId, $this->config->getMethodsList())) {
                 $creditmemo = $observer->getEvent()->getCreditmemo();
-                $comment = __('The refunded amount is %1.', $order->formatPriceTxt($creditmemo->getGrandTotal()));
                 
                 $status = ($order->getStatus() == 'closed' || $order->getStatus() == 'complete') 
                     ? $order->getStatus() 
@@ -80,14 +79,6 @@ class OrderAfterRefund implements \Magento\Framework\Event\ObserverInterface
 
                 // Update the order status
                 $order->setStatus($status);
-
-                // Get the latest order status comment
-                $orderComments = $order->getStatusHistories();
-                $orderComment = array_pop($orderComments);
-
-                // Update the order history comment
-                $orderComment->setData('status', $status)->save();
-                $orderComment->setData('comment', $comment)->save();
             }
 
             return $this;
