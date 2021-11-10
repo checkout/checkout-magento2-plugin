@@ -94,6 +94,15 @@ define(
             },
 
             /**
+             * Get the store country.
+             *
+             * @return {string}  The store country.
+             */
+            getStoreCountry: function () {
+                return Config[KEY_DATA].store.country;
+            },
+
+            /**
              * Get the quote value.
              *
              * @return {float}  The quote value.
