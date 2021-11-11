@@ -101,7 +101,7 @@ require([
                     // Build the payment request
                     var paymentRequest = {
                         currencyCode: Utilities.getQuoteCurrency(),
-                        countryCode: window.checkoutConfig.defaultCountryId,
+                        countryCode: getCountryCode(),
                         total: {
                             label: window.location.host,
                             amount: runningTotal
@@ -126,7 +126,7 @@ require([
                 } else {
                     var paymentRequest = {
                         currencyCode: Utilities.getQuoteCurrency(),
-                        countryCode: window.checkoutConfig.defaultCountryId,
+                        countryCode: getCountryCode(),
                         total: {
                             label: window.location.host,
                             amount: Utilities.getQuoteValue(),
@@ -372,7 +372,32 @@ require([
          */
         function getSupportedNetworks()
         {
-            return getValue("supported_networks").split(",");
+            let networksEnabled = getValue("supported_networks").split(",");
+            return processSupportedNetworks(networksEnabled);
+        }
+
+        /**
+         * Process supported network based on store country (SA)
+         *
+         * @return {array}
+         */
+        function processSupportedNetworks(networksEnabled)
+        {
+            if (networksEnabled.includes("mada")) {
+                return Utilities.getStoreCountry == "SA" ? networksEnabled : networksEnabled.splice(networksEnabled.indexof("mada"), 1);
+            } else {
+                return networksEnabled;
+            }
+        }
+
+        /**
+         * Get country code
+         *
+         * @return {string}
+         */
+        function getCountryCode()
+        {
+            return Utilities.getStoreCountry == "SA" ? "SA" : window.checkoutConfig.defaultCountryId;
         }
 
         /**
@@ -437,7 +462,7 @@ require([
                         label: shippingMethod.method_title,
                         amount: shippingMethod.price_incl_tax.toFixed(2),
                         identifier: shippingMethod.method_code,
-                        detail: shippingMethod.carrier_title,
+                        detail: shippingMethod.carrier_title ? shippingMethod.carrier_title : '',
                     });
                 }
             });
