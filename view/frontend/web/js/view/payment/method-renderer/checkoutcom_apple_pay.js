@@ -90,7 +90,7 @@ define(
                  * @return {array}
                  */
                 getSupportedNetworks: function () {
-                    let networksEnabled = getValue("supported_networks").split(",");
+                    let networksEnabled = this.getValue("supported_networks").split(",");
                     return processSupportedNetworks(networksEnabled);
                 },
 
