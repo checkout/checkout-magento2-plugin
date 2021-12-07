@@ -16,8 +16,11 @@
 
 namespace CheckoutCom\Magento2\Console;
 
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
+use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
+use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
 use Magento\Framework\App\Area;
-use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Framework\Exception\LocalizedException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -30,33 +33,53 @@ use Magento\Framework\App\ObjectManager;
  */
 class Webhooks extends Command
 {
-
-    const DATE = 'date';
-    const START_DATE = 'start-date';
-    const END_DATE = 'end-date';
-
     /**
-     * @var \Magento\Framework\App\State
+     * DATE constant
+     *
+     * @var string DATE
+     */
+    const DATE = 'date';
+    /**
+     * START_DATE constant
+     *
+     * @var string START_DATE
+     */
+    const START_DATE = 'start-date';
+    /**
+     * END_DATE constant
+     *
+     * @var string END_DATE
+     */
+    const END_DATE = 'end-date';
+    /**
+     * $state field
+     *
+     * @var State $state
      */
     protected $state;
-
     /**
-     * @var WebhookHandlerService
+     * $webhookHandler field
+     *
+     * @var WebhookHandlerService $webhookHandler
      */
     public $webhookHandler;
-
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
     public $orderHandler;
-
     /**
-     * @var TransactionHandlerService
+     * $transactionHandler field
+     *
+     * @var TransactionHandlerService $transactionHandler
      */
     public $transactionHandler;
 
     /**
      * Webhooks constructor
+     *
+     * @param State $state
      */
     public function __construct(
         State $state
@@ -67,28 +90,21 @@ class Webhooks extends Command
 
     /**
      * Configures the cli name and parameters.
+     *
+     * @return void
      */
     protected function configure()
     {
         $options = [
             new InputOption(
-                self::DATE,
-                'd',
-                InputOption::VALUE_OPTIONAL,
-                'Date (Y-m-d)'
+                self::DATE, 'd', InputOption::VALUE_OPTIONAL, 'Date (Y-m-d)'
             ),
             new InputOption(
-                self::START_DATE,
-                's',
-                InputOption::VALUE_OPTIONAL,
-                'Start Date (Y-m-d)'
+                self::START_DATE, 's', InputOption::VALUE_OPTIONAL, 'Start Date (Y-m-d)'
             ),
             new InputOption(
-                self::END_DATE,
-                'e',
-                InputOption::VALUE_OPTIONAL,
-                'End Date (Y-m-d)'
-            )
+                self::END_DATE, 'e', InputOption::VALUE_OPTIONAL, 'End Date (Y-m-d)'
+            ),
         ];
 
         $this->setName('cko:webhooks:clean')
@@ -96,7 +112,14 @@ class Webhooks extends Command
             ->setDefinition($options);
     }
 
-    protected function createRequiredObjects() {
+    /**
+     * Description createRequiredObjects function
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    protected function createRequiredObjects()
+    {
         try {
             $areaCode = $this->state->getAreaCode();
         } catch (\Exception $e) {
@@ -109,39 +132,43 @@ class Webhooks extends Command
 
         $objectManager = ObjectManager::getInstance();
 
-        $this->webhookHandler = $objectManager->create('CheckoutCom\Magento2\Model\Service\WebhookHandlerService');
-        $this->orderHandler = $objectManager->create('CheckoutCom\Magento2\Model\Service\OrderHandlerService');
-        $this->transactionHandler =
-            $objectManager->create('CheckoutCom\Magento2\Model\Service\TransactionHandlerService');
+        $this->webhookHandler     = $objectManager->create('CheckoutCom\Magento2\Model\Service\WebhookHandlerService');
+        $this->orderHandler       = $objectManager->create('CheckoutCom\Magento2\Model\Service\OrderHandlerService');
+        $this->transactionHandler = $objectManager->create(
+            'CheckoutCom\Magento2\Model\Service\TransactionHandlerService'
+        );
     }
 
     /**
      * Executes "cko:webhooks:clean" command.
      *
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
+     * @return void
+     * @throws LocalizedException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->createRequiredObjects();
 
-        $date = $input->getOption(self::DATE);
+        $date      = $input->getOption(self::DATE);
         $startDate = $input->getOption(self::START_DATE);
-        $endDate = $input->getOption(self::END_DATE);
+        $endDate   = $input->getOption(self::END_DATE);
 
         $webhooks = $this->webhookHandler->loadWebhookEntities();
-        $deleted = 0;
+        $deleted  = 0;
 
         foreach ($webhooks as $webhook) {
-            $payload = json_decode($webhook['event_data'], true);
+            $payload     = json_decode($webhook['event_data'], true);
             $webhookDate = date('Y-m-d', strtotime($webhook['received_at']));
 
             $webhookTime = strtotime($webhook['received_at']);
-            $timeBuffer = strtotime('-1 day');
+            $timeBuffer  = strtotime('-1 day');
             if ($webhookTime > $timeBuffer) {
                 continue;
             }
-            
+
             if ($date) {
                 if ($date != $webhookDate) {
                     continue;
@@ -174,11 +201,13 @@ class Webhooks extends Command
             $output->writeln("Webhook table has been cleaned.");
         }
     }
-    
+
     /**
      * Output a webhook to the console.
      *
      * @param OutputInterface $output
+     * @param                 $webhook
+     *
      * @return OutputInterface
      */
     protected function outputWebhook(OutputInterface $output, $webhook)
@@ -189,7 +218,7 @@ class Webhooks extends Command
         } elseif ($output->isVeryVerbose()) {
             $output->writeln('Deleting Webhook ID = ' . $webhook['id']);
         }
-        
+
         return $output;
     }
 }
