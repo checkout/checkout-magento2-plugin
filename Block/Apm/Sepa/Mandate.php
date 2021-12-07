@@ -17,10 +17,12 @@
 
 namespace CheckoutCom\Magento2\Block\Apm\Sepa;
 
+use Magento\Framework\View\Element\Template;
+
 /**
  * Class Mandate
  */
-class Mandate extends \Magento\Framework\View\Element\Template
+class Mandate extends Template
 {
 
 }

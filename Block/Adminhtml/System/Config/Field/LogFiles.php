@@ -18,14 +18,18 @@
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
 use Magento\Backend\Block\Template\Context;
+use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
 
-class LogFiles extends \Magento\Config\Block\System\Config\Form\Field
+class LogFiles extends Field
 {
     /**
-     * @var string
+     * TEMPLATE constant
+     *
+     * @var string TEMPLATE
      */
     const TEMPLATE = 'system/config/logfile_admin.phtml';
 
@@ -44,8 +48,10 @@ class LogFiles extends \Magento\Config\Block\System\Config\Form\Field
     }
 
     /**
+     * LogFiles constructor
+     *
      * @param Context $context
-     * @param array $data
+     * @param array   $data
      */
     public function __construct(
         Context $context,
@@ -58,18 +64,19 @@ class LogFiles extends \Magento\Config\Block\System\Config\Form\Field
      * Overridden method for rendering a field. In this case the field must be only for read.
      *
      * @param AbstractElement $element
+     *
      * @return string
      */
     protected function _getElementHtml(AbstractElement $element)
     {
         $file = BP . '/var/log/' . $element->getLabel();
         $contents = '';
-        
+
         $url = $this->getUrl('cko/logs/view', [
             'file' => $element->getLabel()
         ]);
 
-        if (is_file($file)) 
+        if (is_file($file))
         {
             // Get the last 50 lines of the log file for the preview
             $file = new \SplFileObject($file, 'r');
@@ -103,7 +110,10 @@ class LogFiles extends \Magento\Config\Block\System\Config\Form\Field
     /**
      * Generate set webhook button html
      *
+     * @param $url
+     *
      * @return string
+     * @throws LocalizedException
      */
     public function getButtonHtml($url)
     {

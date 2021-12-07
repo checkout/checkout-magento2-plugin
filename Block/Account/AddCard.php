@@ -17,22 +17,32 @@
 
 namespace CheckoutCom\Magento2\Block\Account;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context;
+
 /**
  * Class AddCard
  */
-class AddCard extends \Magento\Framework\View\Element\Template
+class AddCard extends Template
 {
     /**
-     * @var Config
+     * Config field
+     *
+     * @var Config $config
      */
     public $config;
 
     /**
-     * AddCard constructor.
+     * AddCard constructor
+     *
+     * @param Context $context
+     * @param Config   $config
+     * @param array   $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        Context $context,
+        Config $config,
         array $data = []
     ) {
         $this->config = $config;

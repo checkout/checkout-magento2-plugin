@@ -19,24 +19,30 @@ namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use Magento\Backend\Block\Template\Context;
+use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
 
-abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\Form\Field
+abstract class AbstractCallbackUrl extends Field
 {
     /**
-     * @var string
+     * TEMPLATE constant
+     *
+     * @var string TEMPLATE
      */
     const TEMPLATE = 'system/config/webhook_admin.phtml';
-
     /**
-     * @var ApiHandlerService
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
     private $apiHandler;
-
     /**
-     * @var ScopeConfigInterface
+     * $scopeConfig field
+     *
+     * @var ScopeConfigInterface $scopeConfig
      */
     public $scopeConfig;
 
@@ -67,6 +73,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
         array $data = []
     ) {
         parent::__construct($context, $data);
+
         $this->apiHandler = $apiHandler;
         $this->scopeConfig = $scopeConfig;
     }
@@ -75,6 +82,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
      * Overridden method for rendering a field. In this case the field must be only for read.
      *
      * @param AbstractElement $element
+     *
      * @return string
      */
     protected function _getElementHtml(AbstractElement $element)
@@ -98,7 +106,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
             $storeCode
         );
         $callbackUrl = $baseUrl . 'checkout_com/' . $this->getControllerUrl();
-        
+
         try {
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode, $scope);
@@ -188,7 +196,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $scope,
                 $storeCode
             );
-            
+
             if (empty($secretKey)) {
                 $this->addData(
                     [
@@ -231,6 +239,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
      * Generate set webhook button html
      *
      * @return string
+     * @throws LocalizedException
      */
     public function getButtonHtml()
     {

@@ -17,10 +17,12 @@
 
 namespace CheckoutCom\Magento2\Block\Apm;
 
+use Magento\Framework\View\Element\Template;
+
 /**
  * Class Form
  */
-class Form extends \Magento\Framework\View\Element\Template
+class Form extends Template
 {
 
 }
