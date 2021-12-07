@@ -17,106 +17,149 @@
 
 namespace CheckoutCom\Magento2\Controller\Webhook;
 
-use Magento\Sales\Model\Order\Payment\Transaction;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
+use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
+use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
+use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
+use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
+use Exception;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Callback
  */
-class Callback extends \Magento\Framework\App\Action\Action
+class Callback extends Action
 {
-
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var apiHandler
+     * $apiHandler field
+     *
+     * @var apiHandler $apiHandler
      */
     public $apiHandler;
-
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
     public $orderHandler;
-
     /**
-     * @var ShopperHandlerService
+     * $shopperHandler field
+     *
+     * @var ShopperHandlerService $shopperHandler
      */
     public $shopperHandler;
-
     /**
-     * @var WebhookHandlerService
+     * $webhookHandler field
+     *
+     * @var WebhookHandlerService $webhookHandler
      */
     public $webhookHandler;
-
     /**
-     * @var VaultHandlerService
+     * $vaultHandler field
+     *
+     * @var VaultHandlerService $vaultHandler
      */
     public $vaultHandler;
-
     /**
-     * @var PaymentErrorHandlerService
+     * $paymentErrorHandler field
+     *
+     * @var PaymentErrorHandlerService $paymentErrorHandler
      */
     public $paymentErrorHandler;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var Utilities
+     * $utilities field
+     *
+     * @var Utilities $utilities
      */
     protected $utilities;
-
     /**
-     * @var ScopeConfigInterface
+     * $scopeConfig field
+     *
+     * @var ScopeConfigInterface $scopeConfig
      */
     public $scopeConfig;
-
     /**
-     * @var Logger
+     * $logger field
+     *
+     * @var Logger $logger
      */
     public $logger;
 
     /**
      * Callback constructor
+     *
+     * @param Context                    $context
+     * @param StoreManagerInterface      $storeManager
+     * @param ScopeConfigInterface        $scopeConfig
+     * @param ApiHandlerService          $apiHandler
+     * @param OrderHandlerService        $orderHandler
+     * @param ShopperHandlerService      $shopperHandler
+     * @param WebhookHandlerService      $webhookHandler
+     * @param VaultHandlerService        $vaultHandler
+     * @param PaymentErrorHandlerService $paymentErrorHandler
+     * @param Config                      $config
+     * @param Utilities                  $utilities
+     * @param Logger                     $logger
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
-        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        Context $context,
+        StoreManagerInterface $storeManager,
+        ScopeConfigInterface $scopeConfig,
+        ApiHandlerService $apiHandler,
+        OrderHandlerService $orderHandler,
+        ShopperHandlerService $shopperHandler,
+        WebhookHandlerService $webhookHandler,
+        VaultHandlerService $vaultHandler,
+        PaymentErrorHandlerService $paymentErrorHandler,
+        Config $config,
+        Utilities $utilities,
+        Logger $logger
     ) {
         parent::__construct($context);
 
-        $this->storeManager = $storeManager;
-        $this->scopeConfig = $scopeConfig;
-        $this->apiHandler = $apiHandler;
-        $this->orderHandler = $orderHandler;
-        $this->shopperHandler = $shopperHandler;
-        $this->webhookHandler = $webhookHandler;
-        $this->vaultHandler = $vaultHandler;
+        $this->storeManager        = $storeManager;
+        $this->scopeConfig          = $scopeConfig;
+        $this->apiHandler          = $apiHandler;
+        $this->orderHandler        = $orderHandler;
+        $this->shopperHandler      = $shopperHandler;
+        $this->webhookHandler      = $webhookHandler;
+        $this->vaultHandler        = $vaultHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
-        $this->config = $config;
-        $this->utilities = $utilities;
-        $this->logger = $logger;
+        $this->config               = $config;
+        $this->utilities           = $utilities;
+        $this->logger              = $logger;
     }
 
     /**
-     * Handles the controller method.
+     * Handles the controller method
+     *
+     * @return ResponseInterface|Json|ResultInterface|void
      */
     public function execute()
     {
@@ -135,19 +178,19 @@ class Callback extends \Magento\Framework\App\Action\Action
                     if (isset($this->payload->data->id)) {
                         // Get the store code
                         $storeCode = $this->storeManager->getStore()->getCode();
-    
+
                         // Initialize the API handler
                         $api = $this->apiHandler->init($storeCode);
-    
+
                         // Get the payment details
                         $response = $api->getPaymentDetails($this->payload->data->id);
-    
+
                         if (isset($response->reference)) {
                             // Find the order from increment id
                             $order = $this->orderHandler->getOrder([
-                                'increment_id' => $response->reference
+                                'increment_id' => $response->reference,
                             ]);
-    
+
                             // Process the order
                             if ($this->orderHandler->isOrder($order)) {
                                 if ($api->isValidResponse($response)) {
@@ -155,18 +198,18 @@ class Callback extends \Magento\Framework\App\Action\Action
                                     if ($this->cardNeedsSaving()) {
                                         $this->saveCard($response);
                                     }
-    
+
                                     // Clean the webhooks table
                                     $clean = $this->scopeConfig->getValue(
                                         'settings/checkoutcom_configuration/webhooks_table_clean',
-                                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                                        ScopeInterface::SCOPE_STORE
                                     );
-    
+
                                     $cleanOn = $this->scopeConfig->getValue(
                                         'settings/checkoutcom_configuration/webhooks_clean_on',
-                                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                                        ScopeInterface::SCOPE_STORE
                                     );
-                                    
+
                                     // Save the webhook
                                     $this->webhookHandler->processSingleWebhook(
                                         $order,
@@ -188,36 +231,37 @@ class Callback extends \Magento\Framework\App\Action\Action
 
                                 // Return the 200 success response
                                 return $resultFactory->setData([
-                                    'result' => __('Webhook and order successfully processed.')
+                                    'result' => __('Webhook and order successfully processed.'),
                                 ]);
                             } else {
                                 $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
+
                                 return $resultFactory->setData([
                                     'error_message' => __(
                                         'The order creation failed. Please check the error logs.'
-                                    )
+                                    ),
                                 ]);
                             }
                         } else {
                             $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
-                            return $resultFactory->setData(
-                                ['error_message' => __('The webhook response is invalid.')]
-                            );
+
+                            return $resultFactory->setData(['error_message' => __('The webhook response is invalid.')]);
                         }
                     } else {
                         $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
+
                         return $resultFactory->setData(
-                            ['error_message' => __('The webhook payment response is invalid.')]
-                        );
+                            ['error_message' => __('The webhook payment response is invalid.')]);
                     }
                 }
             } else {
                 $resultFactory->setHttpResponseCode(WebException::HTTP_UNAUTHORIZED);
+
                 return $resultFactory->setData([
-                    'error_message' => __('Unauthorized request. No matching private shared key.')
-                    ]);
+                    'error_message' => __('Unauthorized request. No matching private shared key.'),
+                ]);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Throw 400 error for gateway retry mechanism
             $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
             $this->logger->write($e->getMessage());
@@ -225,50 +269,49 @@ class Callback extends \Magento\Framework\App\Action\Action
             return $resultFactory->setData([
                 'error_message' => __(
                     'There was an error processing the webhook. Please check the error logs.'
-                )
+                ),
             ]);
         }
     }
 
     /**
-     * Get the request payload.
+     * Get the request payload
+     *
+     * @return mixed
      */
     public function getPayload()
     {
         $this->logger->additional($this->getRequest()->getContent(), 'webhook');
+
         return json_decode($this->getRequest()->getContent());
     }
 
     /**
-     * Check if the card needs saving.
+     * Check if the card needs saving
+     *
+     * @return bool
      */
     public function cardNeedsSaving()
     {
-        return isset($this->payload->data->metadata->saveCard)
-        && (int) $this->payload->data->metadata->saveCard == 1
-        && isset($this->payload->data->metadata->customerId)
-        && (int) $this->payload->data->metadata->customerId > 0
-        && isset($this->payload->data->source->id)
-        && !empty($this->payload->data->source->id);
+        return isset($this->payload->data->metadata->saveCard) && (int)$this->payload->data->metadata->saveCard == 1 && isset($this->payload->data->metadata->customerId) && (int)$this->payload->data->metadata->customerId > 0 && isset($this->payload->data->source->id) && !empty($this->payload->data->source->id);
     }
 
     /**
-     * Save a card.
+     * Save a card
+     *
+     * @param $response
+     *
+     * @return bool
      */
     public function saveCard($response)
     {
         // Get the customer
-        $customer = $this->shopperHandler->getCustomerData(
-            ['id' => $this->payload->data->metadata->customerId]
-        );
+        $customer = $this->shopperHandler->getCustomerData(['id' => $this->payload->data->metadata->customerId]);
 
         // Save the card
-        $success = $this->vaultHandler
-            ->setCardToken($this->payload->data->source->id)
-            ->setCustomerId($customer->getId())
-            ->setCustomerEmail($customer->getEmail())
-            ->setResponse($response)
-            ->saveCard();
+        $success = $this->vaultHandler->setCardToken($this->payload->data->source->id)->setCustomerId(
+                $customer->getId()
+            )->setCustomerEmail($customer->getEmail())->setResponse($response)->saveCard();
 
         return $success;
     }

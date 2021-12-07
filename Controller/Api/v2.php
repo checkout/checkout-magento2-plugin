@@ -16,126 +16,179 @@
 
 namespace CheckoutCom\Magento2\Controller\Api;
 
-use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
+use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Model\AbstractExtensibleModel;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteIdMaskFactory;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class V2
  */
-class V2 extends \Magento\Framework\App\Action\Action
+class V2 extends Action
 {
     /**
-     * @var JsonFactory
+     * $jsonFactory field
+     *
+     * @var JsonFactory $jsonFactory
      */
     public $jsonFactory;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var QuoteHandlerService
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
     public $quoteHandler;
-
     /**
-     * @var QuoteIdMaskFactory
+     * $quoteIdMaskFactory field
+     *
+     * @var QuoteIdMaskFactory $quoteIdMaskFactory
      */
     public $quoteIdMaskFactory;
-
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
     public $orderHandler;
-
     /**
-     * @var OrderStatusHandlerService
+     * $orderStatusHandler field
+     *
+     * @var OrderStatusHandlerService $orderStatusHandler
      */
     public $orderStatusHandler;
-
     /**
-     * @var MethodHandlerService
+     * $methodHandler field
+     *
+     * @var MethodHandlerService $methodHandler
      */
     public $methodHandler;
-
     /**
-     * @var ApiHandlerService
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
     public $apiHandler;
-
-    /*
-     * @var PaymentErrorHandlerService
+    /**
+     * $paymentErrorHandler field
+     *
+     * @var PaymentErrorHandlerService $paymentErrorHandler
      */
     public $paymentErrorHandler;
-
     /**
-     * @var Utilities
+     * $utilities field
+     *
+     * @var Utilities $utilities
      */
     public $utilities;
-
     /**
-     * @var Object
+     * $data field
+     *
+     * @var Object $data
      */
     public $data;
-
     /**
-     * @var Array
+     * $result field
+     *
+     * @var array $result
      */
     public $result;
-
     /**
-     * @var Object
+     * $api field
+     *
+     * @var Object $api
      */
     public $api;
-
     /**
-     * @var Object
+     * $order field
+     *
+     * @var Object $order
      */
     public $order;
-
     /**
-     * @var Object
+     * $quote field
+     *
+     * @var Object $quote
      */
     public $quote;
 
     /**
-     * Callback constructor
+     * V2 constructor
+     *
+     * @param Context                    $context
+     * @param JsonFactory                $jsonFactory
+     * @param Config                      $config
+     * @param StoreManagerInterface      $storeManager
+     * @param QuoteHandlerService        $quoteHandler
+     * @param QuoteIdMaskFactory         $quoteIdMaskFactory
+     * @param OrderHandlerService        $orderHandler
+     * @param OrderStatusHandlerService  $orderStatusHandler
+     * @param MethodHandlerService       $methodHandler
+     * @param ApiHandlerService          $apiHandler
+     * @param PaymentErrorHandlerService $paymentErrorHandler
+     * @param Utilities                  $utilities
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
-        \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities
+        Context $context,
+        JsonFactory $jsonFactory,
+        Config $config,
+        StoreManagerInterface $storeManager,
+        QuoteHandlerService $quoteHandler,
+        QuoteIdMaskFactory $quoteIdMaskFactory,
+        OrderHandlerService $orderHandler,
+        OrderStatusHandlerService $orderStatusHandler,
+        MethodHandlerService $methodHandler,
+        ApiHandlerService $apiHandler,
+        PaymentErrorHandlerService $paymentErrorHandler,
+        Utilities $utilities
     ) {
         parent::__construct($context);
-        $this->jsonFactory = $jsonFactory;
-        $this->config = $config;
-        $this->storeManager = $storeManager;
-        $this->quoteHandler = $quoteHandler;
-        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
-        $this->orderHandler = $orderHandler;
-        $this->orderStatusHandler = $orderStatusHandler;
-        $this->methodHandler = $methodHandler;
-        $this->apiHandler = $apiHandler;
+        $this->jsonFactory         = $jsonFactory;
+        $this->config               = $config;
+        $this->storeManager        = $storeManager;
+        $this->quoteHandler        = $quoteHandler;
+        $this->quoteIdMaskFactory  = $quoteIdMaskFactory;
+        $this->orderHandler        = $orderHandler;
+        $this->orderStatusHandler  = $orderStatusHandler;
+        $this->methodHandler       = $methodHandler;
+        $this->apiHandler          = $apiHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
-        $this->utilities = $utilities;
+        $this->utilities           = $utilities;
     }
 
     /**
-     * Handles the controller method.
+     * Handles the controller method
+     *
+     * @return Json
+     * @throws NoSuchEntityException
      */
     public function execute()
     {
@@ -161,7 +214,10 @@ class V2 extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Get an API handler instance and the request data.
+     * Get an API handler instance and the request data
+     *
+     * @return void
+     * @throws NoSuchEntityException
      */
     public function init()
     {
@@ -175,17 +231,18 @@ class V2 extends \Magento\Framework\App\Action\Action
 
         // Prepare the default response
         $this->result = [
-            'success' => false,
-            'order_id' => 0,
-            'redirect_url' => '',
-            'error_message' => []
+            'success'       => false,
+            'order_id'      => 0,
+            'redirect_url'  => '',
+            'error_message' => [],
         ];
     }
 
     /**
-     * Process the payment request and handle the response.
+     * Process the payment request and handle the response
      *
-     * @return Array
+     * @return array
+     * @throws LocalizedException
      */
     public function processPayment()
     {
@@ -196,11 +253,11 @@ class V2 extends \Magento\Framework\App\Action\Action
             $response = $this->getPaymentResponse($order);
 
             if ($this->api->isValidResponse($response)) {
-
                 // Process the payment response
-                $is3ds = property_exists($response, '_links')
-                    && isset($response->_links['redirect'])
-                    && isset($response->_links['redirect']['href']);
+                $is3ds = property_exists(
+                             $response,
+                             '_links'
+                         ) && isset($response->_links['redirect']) && isset($response->_links['redirect']['href']);
 
                 if ($is3ds) {
                     $this->result['redirect_url'] = $response->_links['redirect']['href'];
@@ -248,15 +305,17 @@ class V2 extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Request payment to API handler.
+     * Request payment to API handler
      *
-     * @return Response
+     * @param $order
+     *
+     * @return mixed
      */
     public function requestPayment($order)
     {
         // Prepare the payment request payload
         $payload = [
-            'cardToken' => $this->data->payment_token
+            'cardToken' => $this->data->payment_token,
         ];
 
         // Set the card bin
@@ -275,9 +334,7 @@ class V2 extends \Magento\Framework\App\Action\Action
         }
 
         // Send the charge request
-        return $this->methodHandler
-        ->get('checkoutcom_card_payment')
-        ->sendPaymentRequest(
+        return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
             $payload,
             $order->getGrandTotal(),
             $order->getOrderCurrencyCode(),
@@ -295,13 +352,16 @@ class V2 extends \Magento\Framework\App\Action\Action
     public function getPaymentResponse($order)
     {
         $sessionId = $this->getRequest()->getParam('cko-session-id');
-        return ($sessionId && !empty($sessionId))
-        ? $this->api->getPaymentDetails($sessionId)
-        : $this->requestPayment($order);
+
+        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment(
+            $order
+        );
     }
 
     /**
-     * Load the quote.
+     * Load the quote
+     *
+     * @return DataObject|CartInterface|Quote|null
      */
     public function loadQuote()
     {
@@ -312,32 +372,39 @@ class V2 extends \Magento\Framework\App\Action\Action
 
         // Convert masked quote ID hash to quote ID int
         if (preg_match("/([A-Za-z])\w+/", $this->data->quote_id)) {
-            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($this->data->quote_id, 'masked_id');
+            $quoteIdMask          = $this->quoteIdMaskFactory->create()->load($this->data->quote_id, 'masked_id');
             $this->data->quote_id = $quoteIdMask->getQuoteId();
         }
 
         // Load the quote
         $quote = $this->quoteHandler->getQuote([
-            'entity_id' => $this->data->quote_id
+            'entity_id' => $this->data->quote_id,
         ]);
 
         // Handle a quote not found
         if (!$this->quoteHandler->isQuote($quote)) {
             $this->result['error_message'][] = __('No quote found with the provided ID');
-            $quote = null;
+            $quote                           = null;
         }
 
         return $quote;
     }
 
     /**
-     * Check if the request is valid.
+     * Check if the request is valid
+     *
+     * @return bool|void
      */
     public function isValidPublicKey()
     {
         return $this->config->isValidAuth('pk');
     }
 
+    /**
+     * Description hasValidFields function
+     *
+     * @return bool
+     */
     public function hasValidFields()
     {
         $isValid = true;
@@ -345,49 +412,49 @@ class V2 extends \Magento\Framework\App\Action\Action
         if (isset($this->data->payment_token)) {
             if (!is_string($this->data->payment_token)) {
                 $this->result['error_message'][] = __('Payment token provided is not a string');
-                $isValid = false;
+                $isValid                         = false;
             } elseif ($this->data->payment_token == '') {
                 $this->result['error_message'][] = __('Payment token provided is empty string');
-                $isValid = false;
+                $isValid                         = false;
             }
         } else {
             $this->result['error_message'][] = __('Payment token is missing from request body');
-            $isValid = false;
+            $isValid                         = false;
         }
 
         if (isset($this->data->quote_id)) {
             if (is_integer($this->data->quote_id) && $this->data->quote_id < 1) {
                 $this->result['error_message'][] = __('Quote ID provided must be a positive integer');
-                $isValid = false;
+                $isValid                         = false;
             }
         } else {
             $this->result['error_message'][] = __('Quote ID is missing from request body');
-            $isValid = false;
+            $isValid                         = false;
         }
 
         if (isset($this->data->card_bin)) {
             if ($this->data->card_bin == '') {
                 $this->result['error_message'][] = __('Card BIN is empty string');
-                $isValid = false;
+                $isValid                         = false;
             }
 
             if (isset($this->data->success_url)) {
                 if (!is_string($this->data->success_url)) {
                     $this->result['error_message'][] = __('Success URL provided is not a string');
-                    $isValid = false;
+                    $isValid                         = false;
                 } elseif ($this->data->success_url == '') {
                     $this->result['error_message'][] = __('Success URL is empty string');
-                    $isValid = false;
+                    $isValid                         = false;
                 }
             }
 
             if (isset($this->data->failure_url)) {
                 if (!is_string($this->data->failure_url)) {
                     $this->result['error_message'][] = __('Failure URL provided is not a string');
-                    $isValid = false;
+                    $isValid                         = false;
                 } elseif ($this->data->failure_url == '') {
                     $this->result['error_message'][] = __('Failure URL is empty string');
-                    $isValid = false;
+                    $isValid                         = false;
                 }
             }
         }
@@ -396,22 +463,22 @@ class V2 extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Create an order.
+     * Create an order
      *
-     * @return Order
+     * @return AbstractExtensibleModel|OrderInterface|mixed|object|null
+     * @throws LocalizedException
      */
     public function createOrder()
     {
         // Load the quote
         $this->quote = $this->loadQuote();
-        $order = null;
+        $order       = null;
 
         if ($this->quote) {
             // Create an order
-            $order = $this->orderHandler
-                ->setMethodId('checkoutcom_card_payment')
-                ->handleOrder($this->quote);
+            $order = $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($this->quote);
         }
+
         return $order;
     }
 }

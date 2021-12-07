@@ -26,91 +26,127 @@
 
 namespace CheckoutCom\Magento2\Controller\Button;
 
-use \Checkout\Models\Payments\Refund;
-use \Checkout\Models\Payments\Voids;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\InstantPurchase\ShippingSelector;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Magento\Customer\Model\Address;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class PlaceOrder
  */
-class PlaceOrder extends \Magento\Framework\App\Action\Action
+class PlaceOrder extends Action
 {
     /**
-     * @var ManagerInterface
+     * $messageManager field
+     *
+     * @var ManagerInterface $messageManager
      */
     public $messageManager;
-
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var JsonFactory
+     * $jsonFactory field
+     *
+     * @var JsonFactory $jsonFactory
      */
     public $jsonFactory;
-
     /**
-     * @var Address
+     * $addressManager field
+     *
+     * @var Address $addressManager
      */
     public $addressManager;
-
     /**
-     * @var QuoteHandlerService
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
     public $quoteHandler;
-
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
     public $orderHandler;
-
     /**
-     * @var MethodHandlerService
+     * $methodHandler field
+     *
+     * @var MethodHandlerService $methodHandler
      */
     public $methodHandler;
-
     /**
-     * @var ApiHandlerService
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
     public $apiHandler;
-
     /**
-     * @var Utilities
+     * $utilities field
+     *
+     * @var Utilities $utilities
      */
     public $utilities;
-
     /**
-     * @var ShippingSelector
+     * $shippingSelector field
+     *
+     * @var ShippingSelector $shippingSelector
      */
     public $shippingSelector;
 
     /**
      * PlaceOrder constructor
+     *
+     * @param Context               $context
+     * @param ManagerInterface      $messageManager
+     * @param StoreManagerInterface $storeManager
+     * @param JsonFactory           $jsonFactory
+     * @param Address               $addressManager
+     * @param QuoteHandlerService   $quoteHandler
+     * @param OrderHandlerService   $orderHandler
+     * @param MethodHandlerService  $methodHandler
+     * @param ApiHandlerService     $apiHandler
+     * @param Utilities             $utilities
+     * @param ShippingSelector      $shippingSelector
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Customer\Model\Address $addressManager,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
+        Context $context,
+        ManagerInterface $messageManager,
+        StoreManagerInterface $storeManager,
+        JsonFactory $jsonFactory,
+        Address $addressManager,
+        QuoteHandlerService $quoteHandler,
+        OrderHandlerService $orderHandler,
+        MethodHandlerService $methodHandler,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
         \CheckoutCom\Magento2\Model\InstantPurchase\ShippingSelector $shippingSelector
     ) {
         parent::__construct($context);
 
-        $this->messageManager = $messageManager;
-        $this->storeManager = $storeManager;
-        $this->jsonFactory = $jsonFactory;
-        $this->addressManager = $addressManager;
-        $this->quoteHandler = $quoteHandler;
-        $this->orderHandler = $orderHandler;
-        $this->methodHandler = $methodHandler;
-        $this->apiHandler = $apiHandler;
-        $this->utilities = $utilities;
+        $this->messageManager   = $messageManager;
+        $this->storeManager     = $storeManager;
+        $this->jsonFactory      = $jsonFactory;
+        $this->addressManager   = $addressManager;
+        $this->quoteHandler     = $quoteHandler;
+        $this->orderHandler     = $orderHandler;
+        $this->methodHandler    = $methodHandler;
+        $this->apiHandler       = $apiHandler;
+        $this->utilities        = $utilities;
         $this->shippingSelector = $shippingSelector;
 
         // Try to load a quote
@@ -127,9 +163,11 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Handles the controller method.
+     * Handles the controller method
      *
-     * @return array
+     * @return Json
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function execute()
     {
@@ -161,41 +199,36 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
 
         // Set the shipping method
         $shippingMethodCode = $this->shippingSelector->getShippingMethod($quote->getShippingAddress());
-        $quote->getShippingAddress()->setShippingMethod($shippingMethodCode)
+        $quote->getShippingAddress()
+            ->setShippingMethod($shippingMethodCode)
             ->setCollectShippingRates(true)
             ->collectShippingRates();
 
         // Set payment
         $quote->setPaymentMethod($this->methodId);
         $quote->save();
-        $quote->getPayment()->importData(
-            ['method' => $this->methodId]
-        );
+        $quote->getPayment()->importData(['method' => $this->methodId]);
 
         // Save the quote
         $quote->collectTotals()->save();
 
         // Create the order
-        $order = $this->orderHandler
-            ->setMethodId($this->methodId)
-            ->handleOrder($quote);
+        $order = $this->orderHandler->setMethodId($this->methodId)->handleOrder($quote);
 
         // Process the payment
-        $response = $this->methodHandler->get($this->methodId)
-        ->sendPaymentRequest(
-            $this->data,
-            $order->getGrandTotal(),
-            $order->getOrderCurrencyCode(),
-            $order->getIncrementId(),
-            null,
-            false,
-            null,
-            true
-        );
+        $response = $this->methodHandler->get($this->methodId)->sendPaymentRequest(
+                $this->data,
+                $order->getGrandTotal(),
+                $order->getOrderCurrencyCode(),
+                $order->getIncrementId(),
+                null,
+                false,
+                null,
+                true
+            );
 
         // Add the payment info to the order
-        $order = $this->utilities
-        ->setPaymentData($order, $response);
+        $order = $this->utilities->setPaymentData($order, $response);
 
         // Save the order
         $order->save();
@@ -215,14 +248,12 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     /**
      * Creates response with the operation status message.
      *
-     * @return array
+     * @return Json
      */
     public function createResponse(string $message, bool $successMessage)
     {
         // Prepare the result
-        $result = $this->jsonFactory->create()->setData(
-            ['response' => $message]
-        );
+        $result = $this->jsonFactory->create()->setData(['response' => $message]);
 
         // Prepare the response message
         if ($successMessage) {

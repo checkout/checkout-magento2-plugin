@@ -17,100 +17,132 @@
 
 namespace CheckoutCom\Magento2\Controller\Apm;
 
+use Checkout\CheckoutApi;
 use \Checkout\Models\Product;
 use \Checkout\Models\Sources\Klarna;
 use \Checkout\Library\Exceptions\CheckoutHttpException;
+use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class DisplayKlarna
  */
-class DisplayKlarna extends \Magento\Framework\App\Action\Action
+class DisplayKlarna extends Action
 {
-
     /**
-     * @var Context
+     * $context field
+     *
+     * @var Context $context
      */
     public $context;
-
     /**
-     * @var StoreManagerInterface
+     * $storeManager
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var JsonFactory
+     * $jsonFactory
+     *
+     * @var JsonFactory $jsonFactory
      */
     public $jsonFactory;
-
     /**
-     * @var CheckoutApi
+     * $apiHandler field
+     *
+     * @var CheckoutApi $apiHandler
      */
     public $apiHandler;
-
     /**
-     * @var QuoteHandlerService
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
     public $quoteHandler;
-
     /**
-     * @var ShopperHandlerService
+     * $shopperHandler field
+     *
+     * @var ShopperHandlerService $shopperHandler
      */
     public $shopperHandler;
-
     /**
-     * @var Utilities
+     * $utilities
+     *
+     * @var Utilities $utilities
      */
     public $utilities;
-
     /**
-     * @var Logger
+     * $logger field
+     *
+     * @var Logger $logger
      */
     public $logger;
-
     /**
-     * @var Quote
+     * $quote field
+     *
+     * @var Quote $quote
      */
     public $quote;
-
     /**
-     * @var Address
+     * $billingAddress field
+     *
+     * @var Address $billingAddress
      */
     public $billingAddress;
-
     /**
      * Locale code.
      *
-     * @var string
+     * @var string $locale
      */
     public $locale;
 
     /**
-     * Display constructor
+     * DisplayKlarna constructor
+     *
+     * @param Context               $context
+     * @param StoreManagerInterface $storeManager
+     * @param JsonFactory           $jsonFactory
+     * @param ApiHandlerService     $apiHandler
+     * @param QuoteHandlerService   $quoteHandler
+     * @param ShopperHandlerService $shopperHandler
+     * @param Utilities             $utilities
+     * @param Logger                $logger
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        Context $context,
+        StoreManagerInterface $storeManager,
+        JsonFactory $jsonFactory,
+        ApiHandlerService $apiHandler,
+        QuoteHandlerService $quoteHandler,
+        ShopperHandlerService $shopperHandler,
+        Utilities $utilities,
+        Logger $logger
     ) {
-
         parent::__construct($context);
 
-        $this->storeManager = $storeManager;
-        $this->jsonFactory = $jsonFactory;
-        $this->apiHandler = $apiHandler;
-        $this->quoteHandler = $quoteHandler;
+        $this->storeManager   = $storeManager;
+        $this->jsonFactory    = $jsonFactory;
+        $this->apiHandler     = $apiHandler;
+        $this->quoteHandler   = $quoteHandler;
         $this->shopperHandler = $shopperHandler;
-        $this->utilities = $utilities;
-        $this->logger = $logger;
+        $this->utilities      = $utilities;
+        $this->logger         = $logger;
     }
 
     /**
-     * Handles the controller method.
+     * Handles the controller method
+     *
+     * @return Json
+     * @throws NoSuchEntityException
      */
     public function execute()
     {
@@ -121,11 +153,11 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
         // Try to load a quote
         $this->quote = $this->quoteHandler->getQuote([
             'entity_id' => $quoteId,
-            'store_id' => $storeId
+            'store_id'  => $storeId,
         ]);
 
         $this->billingAddress = $this->quoteHandler->getBillingAddress();
-        $this->locale = str_replace('_', '-', $this->shopperHandler->getCustomerLocale());
+        $this->locale         = str_replace('_', '-', $this->shopperHandler->getCustomerLocale());
 
         // Get Klarna
         $klarna = $this->getKlarna();
@@ -137,6 +169,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      * Gets the Klarna response.
      *
      * @return array
+     * @throws NoSuchEntityException
      */
     public function getKlarna()
     {
@@ -151,7 +184,7 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
             $api = $this->apiHandler->init($storeCode);
 
             $products = $this->getProducts($response);
-            $klarna = new Klarna(
+            $klarna   = new Klarna(
                 strtolower($this->billingAddress->getCountry()),
                 $this->quote->getQuoteCurrencyCode(),
                 $this->locale,
@@ -168,10 +201,10 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
             $source = $api->checkoutApi->sources()->add($klarna);
             if ($source->isSuccessful()) {
                 // Prepare the response
-                $response['source'] = $source->getValues();
+                $response['source']  = $source->getValues();
                 $response['billing'] = $this->billingAddress->toArray();
-                $response['quote'] = $this->quote->toArray();
-    
+                $response['quote']   = $this->quote->toArray();
+
                 // Handle missing email for guest checkout
                 if ($response['billing']['email'] === null || empty($response['billing']['email'])) {
                     $response['billing']['email'] = $this->quoteHandler->findEmail($this->quote);
@@ -193,20 +226,19 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      */
     public function getProducts(array &$response)
     {
-
-        $products = [];
+        $products               = [];
         $response['tax_amount'] = 0;
         foreach ($this->quote->getAllVisibleItems() as $item) {
-            $product = new Product();
-            $product->name = $item->getName();
-            $product->quantity = $item->getQty();
-            $product->unit_price = $item->getPriceInclTax() *100;
-            $product->tax_rate = $item->getTaxPercent() *100;
-            $product->total_amount = $item->getRowTotalInclTax() *100;
-            $product->total_tax_amount = $item->getTaxAmount() *100;
+            $product                   = new Product();
+            $product->name             = $item->getName();
+            $product->quantity         = $item->getQty();
+            $product->unit_price       = $item->getPriceInclTax() * 100;
+            $product->tax_rate         = $item->getTaxPercent() * 100;
+            $product->total_amount     = $item->getRowTotalInclTax() * 100;
+            $product->total_tax_amount = $item->getTaxAmount() * 100;
 
             $response['tax_amount'] += $product->total_tax_amount;
-            $products[]= $product;
+            $products[]             = $product;
             $response['products'][] = $product->getValues();
         }
 
@@ -222,26 +254,26 @@ class DisplayKlarna extends \Magento\Framework\App\Action\Action
      *
      * @param array $response The response
      * @param array $products The products.
+     *
      * @return void
      */
     public function getShipping(array &$response, array &$products)
     {
-
         $shipping = $this->quote->getShippingAddress();
 
         if ($shipping->getShippingDescription()) {
-            $product = new Product();
-            $product->name = $shipping->getShippingDescription();
-            $product->quantity = 1;
-            $product->unit_price = $shipping->getShippingInclTax() *100;
-            $product->tax_rate = $shipping->getTaxPercent() *100;
-            $product->total_amount = $shipping->getShippingAmount() *100;
-            $product->total_tax_amount = $shipping->getTaxAmount() *100;
-            $product->type = 'shipping_fee';
+            $product                   = new Product();
+            $product->name             = $shipping->getShippingDescription();
+            $product->quantity         = 1;
+            $product->unit_price       = $shipping->getShippingInclTax() * 100;
+            $product->tax_rate         = $shipping->getTaxPercent() * 100;
+            $product->total_amount     = $shipping->getShippingAmount() * 100;
+            $product->total_tax_amount = $shipping->getTaxAmount() * 100;
+            $product->type             = 'shipping_fee';
 
             $response['tax_amount']  += $product->total_tax_amount;
-            $products []= $product;
-            $response['products'] []= $product->getValues();
+            $products []             = $product;
+            $response['products'] [] = $product->getValues();
         }
     }
 }

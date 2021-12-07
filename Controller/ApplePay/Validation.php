@@ -17,52 +17,68 @@
 
 namespace CheckoutCom\Magento2\Controller\ApplePay;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\Raw;
+use Magento\Framework\Controller\Result\RawFactory;
+use Magento\Framework\HTTP\Client\Curl;
+
 /**
  * Class Validation
  */
-class Validation extends \Magento\Framework\App\Action\Action
+class Validation extends Action
 {
     /**
-     * @var RawFactory
+     * $rawFactory field
+     *
+     * @var RawFactory $rawFactory
      */
     public $rawFactory;
-
     /**
-     * @var Curl
+     * $curl field
+     *
+     * @var Curl $curl
      */
     public $curl;
-
     /**
+     * $config field
+     *
      * @var Config
      */
     public $config;
 
     /**
-     * Validation constructor.
+     * Validation constructor
+     *
+     * @param Context    $context
+     * @param RawFactory $rawFactory
+     * @param Curl       $curl
+     * @param Config      $config
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Controller\Result\RawFactory $rawFactory,
-        \Magento\Framework\HTTP\Client\Curl $curl,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        Context $context,
+        RawFactory $rawFactory,
+        Curl $curl,
+        Config $config
     ) {
         parent::__construct($context);
 
         $this->rawFactory = $rawFactory;
-        $this->curl = $curl;
-        $this->config = $config;
+        $this->curl       = $curl;
+        $this->config      = $config;
     }
 
     /**
      * Handles the controller method.
      *
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @return Raw
      */
     public function execute()
     {
         // Get request parameters
         $this->methodId = $this->getRequest()->getParam('method_id');
-        $this->url = $this->getRequest()->getParam('u');
+        $this->url      = $this->getRequest()->getParam('u');
 
         if (substr($this->url, 0, 5) == 'https' && substr($this->url, 0, 8) !== 'https://') {
             $this->url = 'https://' . substr($this->url, 7);
@@ -92,17 +108,13 @@ class Validation extends \Magento\Framework\App\Action\Action
     /**
      * Build the Apple Pay data string
      *
-     * @return array
+     * @param $params
+     *
+     * @return string
      */
     public function buildDataString($params)
     {
-        return '{"merchantIdentifier":"'
-            . $params['merchantId']
-            .'", "domainName":"'
-            . $params['domainName']
-            .'", "displayName":"'
-            . $params['displayName']
-            .'"}';
+        return '{"merchantIdentifier":"' . $params['merchantId'] . '", "domainName":"' . $params['domainName'] . '", "displayName":"' . $params['displayName'] . '"}';
     }
 
     /**
