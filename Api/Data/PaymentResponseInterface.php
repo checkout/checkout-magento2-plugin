@@ -26,8 +26,23 @@ interface PaymentResponseInterface
      * Constants for keys of data array.
      */
     const SUCCESS = 'success';
+    /**
+     * ORDER_ID constant
+     *
+     * @var string ORDER_ID
+     */
     const ORDER_ID = 'order_id';
+    /**
+     * REDIRECT_URL constant
+     *
+     * @var string REDIRECT_URL
+     */
     const REDIRECT_URL = 'redirect_url';
+    /**
+     * ERROR_MESSAGE constant
+     *
+     * @var string ERROR_MESSAGE
+     */
     const ERROR_MESSAGE = 'error_message';
 
     /**
