@@ -17,72 +17,124 @@
 
 namespace CheckoutCom\Magento2\Gateway\Config;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Module\Dir;
+use Magento\Framework\Module\Dir\Reader;
+use Magento\Framework\Xml\Parser;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Loader
  */
 class Loader
 {
-    const CONFIGURATION_FILE_NAME = 'config.xml';
-    const APM_FILE_NAME = 'apm.xml';
-    const KEY_MODULE_NAME = 'CheckoutCom_Magento2';
-    const KEY_MODULE_ID = 'checkoutcom_magento2';
-    const KEY_PAYMENT = 'payment';
-    const KEY_SETTINGS = 'settings';
-    const KEY_CONFIG = 'checkoutcom_configuration';
-
     /**
-     * @var Dir
+     * CONFIGURATION_FILE_NAME constant
+     *
+     * @var string CONFIGURATION_FILE_NAME
+     */
+    const CONFIGURATION_FILE_NAME = 'config.xml';
+    /**
+     * APM_FILE_NAME constant
+     *
+     * @var string APM_FILE_NAME
+     */
+    const APM_FILE_NAME = 'apm.xml';
+    /**
+     * KEY_MODULE_NAME constant
+     *
+     * @var string KEY_MODULE_NAME
+     */
+    const KEY_MODULE_NAME = 'CheckoutCom_Magento2';
+    /**
+     * KEY_MODULE_ID constant
+     *
+     * @var string KEY_MODULE_ID
+     */
+    const KEY_MODULE_ID = 'checkoutcom_magento2';
+    /**
+     * KEY_PAYMENT constant
+     *
+     * @var string KEY_PAYMENT
+     */
+    const KEY_PAYMENT = 'payment';
+    /**
+     * KEY_SETTINGS constant
+     *
+     * @var string KEY_SETTINGS
+     */
+    const KEY_SETTINGS = 'settings';
+    /**
+     * KEY_CONFIG constant
+     *
+     * @var string KEY_CONFIG
+     */
+    const KEY_CONFIG = 'checkoutcom_configuration';
+    /**
+     * $moduleDirReader field
+     *
+     * @var Dir $moduleDirReader
      */
     public $moduleDirReader;
-
     /**
-     * @var Parser
+     * $xmlParser field
+     *
+     * @var Parser $xmlParser
      */
     public $xmlParser;
-
     /**
-     * @var ScopeConfigInterface
+     * $scopeConfig field
+     *
+     * @var ScopeConfigInterface $scopeConfig
      */
     public $scopeConfig;
-
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var EncryptorInterface
+     * $encryptor field
+     *
+     * @var EncryptorInterface $encryptor
      */
     public $encryptor;
-
     /**
-     * @var Array
+     * $xmlData field
+     *
+     * @var array $xmlData
      */
     public $xmlData;
 
     /**
      * Loader constructor
+     *
+     * @param Reader                $moduleDirReader
+     * @param Parser                $xmlParser
+     * @param ScopeConfigInterface   $scopeConfig
+     * @param StoreManagerInterface $storeManager
+     * @param EncryptorInterface    $encryptor
      */
     public function __construct(
-        \Magento\Framework\Module\Dir\Reader $moduleDirReader,
-        \Magento\Framework\Xml\Parser $xmlParser,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Encryption\EncryptorInterface $encryptor
+        Reader $moduleDirReader,
+        Parser $xmlParser,
+        ScopeConfigInterface $scopeConfig,
+        StoreManagerInterface $storeManager,
+        EncryptorInterface $encryptor
     ) {
         $this->moduleDirReader = $moduleDirReader;
-        $this->xmlParser = $xmlParser;
-        $this->scopeConfig = $scopeConfig;
-        $this->storeManager = $storeManager;
-        $this->encryptor = $encryptor;
+        $this->xmlParser       = $xmlParser;
+        $this->scopeConfig      = $scopeConfig;
+        $this->storeManager    = $storeManager;
+        $this->encryptor       = $encryptor;
     }
 
     /**
      * Prepares the loader class instance.
      *
-     * @return void
+     * @return Loader
      */
     public function init()
     {
@@ -118,9 +170,14 @@ class Loader
     }
 
     /**
-     * Builds the config data array for an XML section.
+     * Builds the config data array for an XML section
      *
-     * @return void
+     * @param $output
+     * @param $arr
+     * @param $parent
+     * @param $group
+     *
+     * @return array
      */
     public function processGroupValues($output, $arr, $parent, $group)
     {
@@ -128,7 +185,7 @@ class Loader
         foreach ($arr as $key => $val) {
             if (!$this->isHidden($key)) {
                 // Get the field  value in db
-                $path = $parent . '/' . $group . '/' . $key;
+                $path  = $parent . '/' . $group . '/' . $key;
                 $value = $this->scopeConfig->getValue(
                     $path,
                     \Magento\Store\Model\ScopeInterface::SCOPE_STORE
@@ -158,11 +215,11 @@ class Loader
         $output = [];
         foreach ($this->xmlData['apm'] as $row) {
             $output[] = [
-                'value' => $row['id'],
-                'label' => $row['title'],
+                'value'      => $row['id'],
+                'label'      => $row['title'],
                 'currencies' => $row['currencies'],
-                'countries' => $row['countries'],
-                'mappings' => isset($row['mappings']) ? $row['mappings'] : ''
+                'countries'  => $row['countries'],
+                'mappings'   => isset($row['mappings']) ? $row['mappings'] : '',
             ];
         }
 
@@ -173,14 +230,15 @@ class Loader
      * Finds a file path from file name.
      *
      * @param string $fileName
+     *
      * @return string
      */
     public function getFilePath($fileName)
     {
         return $this->moduleDirReader->getModuleDir(
-            Dir::MODULE_ETC_DIR,
-            self::KEY_MODULE_NAME
-        ) . '/' . $fileName;
+                Dir::MODULE_ETC_DIR,
+                self::KEY_MODULE_NAME
+            ) . '/' . $fileName;
     }
 
     /**
@@ -194,14 +252,12 @@ class Loader
         $output = [];
 
         // Load config.xml
-        $output['config'] = $this->xmlParser
-            ->load($this->getFilePath(self::CONFIGURATION_FILE_NAME))
-            ->xmlToArray()['config']['_value']['default'];
+        $output['config'] = $this->xmlParser->load($this->getFilePath(self::CONFIGURATION_FILE_NAME))->xmlToArray(
+        )['config']['_value']['default'];
 
         // Load apm.xml
-        $output['apm'] = $this->xmlParser
-            ->load($this->getFilePath(self::APM_FILE_NAME))
-            ->xmlToArray()['config']['_value']['item'];
+        $output['apm'] = $this->xmlParser->load($this->getFilePath(self::APM_FILE_NAME))->xmlToArray(
+        )['config']['_value']['item'];
 
         return $output;
     }
@@ -210,6 +266,7 @@ class Loader
      * Checks if a filed value should be hidden in front end.
      *
      * @param string $field
+     *
      * @return boolean
      */
     public function isHidden($field)
@@ -238,6 +295,7 @@ class Loader
      * Checks if a field value is encrypted.
      *
      * @param string $field
+     *
      * @return boolean
      */
     public function isEncrypted($field)
@@ -254,12 +312,14 @@ class Loader
     }
 
     /**
-     * Get a field value.
+     * Get a field value
      *
-     * @param string $key
-     * @param string $methodId
-     * @param string $storeId
-     * @return string
+     * @param        $key
+     * @param null   $methodId
+     * @param null   $storeCode
+     * @param string $scope
+     *
+     * @return mixed|string
      */
     public function getValue(
         $key,
@@ -268,9 +328,7 @@ class Loader
         $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     ) {
         // Prepare the path
-        $path = ($methodId)
-        ? 'payment/' . $methodId  . '/' .  $key
-        : 'settings/checkoutcom_configuration/' . $key;
+        $path = ($methodId) ? 'payment/' . $methodId . '/' . $key : 'settings/checkoutcom_configuration/' . $key;
 
         // Get field value in database
         $value = $this->scopeConfig->getValue(

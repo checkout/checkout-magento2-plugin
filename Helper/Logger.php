@@ -17,6 +17,8 @@
 
 namespace CheckoutCom\Magento2\Helper;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Message\ManagerInterface;
 use Magento\Store\Model\ScopeInterface;
 
 /**
@@ -25,30 +27,38 @@ use Magento\Store\Model\ScopeInterface;
 class Logger
 {
     /**
-     * @var ManagerInterface
+     * $messageManager field
+     *
+     * @var ManagerInterface $messageManager
      */
     public $messageManager;
-    
     /**
-     * @var ScopeConfigInterface
+     * $scopeConfig field
+     *
+     * @var ScopeConfigInterface $scopeConfig
      */
     public $scopeConfig;
 
     /**
-     * Logger Constructor.
+     * Logger constructor
+     *
+     * @param ManagerInterface $messageManager
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        ManagerInterface $messageManager,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->messageManager = $messageManager;
-        $this->scopeConfig = $scopeConfig;
+        $this->scopeConfig     = $scopeConfig;
     }
 
     /**
      * Write to log file.
      *
      * @param mixed $msg The message
+     *
+     * @return void
      */
     public function write($msg)
     {
@@ -77,6 +87,8 @@ class Logger
      * Display the debug information on the front end.
      *
      * @param mixed $response The response
+     *
+     * @return void
      */
     public function display($response)
     {
@@ -94,10 +106,7 @@ class Logger
 
         if ($debug && $gatewayResponses) {
             $output = json_encode($response);
-            $this->messageManager->addComplexSuccessMessage(
-                'ckoMessages',
-                ['output' => $output]
-            );
+            $this->messageManager->addComplexSuccessMessage('ckoMessages', ['output' => $output]);
         }
     }
 
@@ -105,6 +114,8 @@ class Logger
      * Write additional debug logging
      *
      * @param mixed $msg The message
+     *
+     * @return void
      */
     public function additional($msg, $type)
     {
@@ -112,12 +123,15 @@ class Logger
             'settings/checkoutcom_configuration/additional_logging_enabled',
             ScopeInterface::SCOPE_STORE
         );
-        
-        $loggingOptions = explode(',' , $this->scopeConfig->getValue(
-            'settings/checkoutcom_configuration/additional_logging',
-            ScopeInterface::SCOPE_STORE
-        ));
-        
+
+        $loggingOptions = explode(
+            ',',
+            $this->scopeConfig->getValue(
+                'settings/checkoutcom_configuration/additional_logging',
+                ScopeInterface::SCOPE_STORE
+            )
+        );
+
         if ($enabledLogging && in_array($type, $loggingOptions)) {
             $this->write($msg);
         }

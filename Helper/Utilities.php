@@ -23,7 +23,11 @@ namespace CheckoutCom\Magento2\Helper;
 class Utilities
 {
     /**
-     * Convert a date string to ISO8601 format.
+     * Convert a date string to ISO8601 format
+     *
+     * @param $timestamp
+     *
+     * @return false|string
      */
     public function formatDate($timestamp)
     {
@@ -31,7 +35,11 @@ class Utilities
     }
 
     /**
-     * Format an amount to 2 demicals.
+     * Format an amount to 2 decimals
+     *
+     * @param $amount
+     *
+     * @return float|int
      */
     public function formatDecimals($amount)
     {
@@ -39,7 +47,11 @@ class Utilities
     }
 
     /**
-     * Convert an object to array.
+     * Convert an object to array
+     *
+     * @param $object
+     *
+     * @return mixed
      */
     public function objectToArray($object)
     {
@@ -48,6 +60,10 @@ class Utilities
 
     /**
      * Get the gateway payment information from an order
+     *
+     * @param $order
+     *
+     * @return mixed|null
      */
     public function getPaymentData($order)
     {
@@ -64,6 +80,12 @@ class Utilities
 
     /**
      * Add the gateway payment information to an order
+     *
+     * @param      $order
+     * @param      $data
+     * @param null $source
+     *
+     * @return mixed
      */
     public function setPaymentData($order, $data, $source = null)
     {
