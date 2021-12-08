@@ -17,9 +17,13 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory;
 use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity\Collection;
+use Exception;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Payment\Transaction;
 
 /**
  * Class WebhookHandlerService.
@@ -27,74 +31,88 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 class WebhookHandlerService
 {
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
     public $orderHandler;
-
     /**
-     * @var OrderStatusHandlerService
+     * $orderStatusHandler field
+     *
+     * @var OrderStatusHandlerService $orderStatusHandler
      */
     public $orderStatusHandler;
-
     /**
-     * @var TransactionHandlerService
+     * $transactionHandler field
+     *
+     * @var TransactionHandlerService $transactionHandler
      */
     public $transactionHandler;
-
     /**
-     * @var WebhookEntityFactory
+     * $webhookEntityFactory field
+     *
+     * @var WebhookEntityFactory $webhookEntityFactory
      */
     public $webhookEntityFactory;
-
     /**
-     * @var Logger
+     * $logger field
+     *
+     * @var Logger $logger
      */
     public $logger;
-
     /**
-     * @var Order
+     * $order field
+     *
+     * @var Order $order
      */
     public $order;
-
     /**
-     * @var \CheckoutCom\Magento2\Gateway\Config\Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var Collection
+     * $collection field
+     *
+     * @var Collection $collection
      */
     public $collection;
 
     /**
      * WebhookHandlerService constructor
-     * @param \Magento\Sales\Model\Order $orderModel
-     * @param OrderHandlerService $orderHandler
+     *
+     * @param OrderHandlerService       $orderHandler
+     * @param OrderStatusHandlerService $orderStatusHandler
      * @param TransactionHandlerService $transactionHandler
-     * @param \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory
-     * @param \CheckoutCom\Magento2\Gateway\Config\Config $config
-     * @param \CheckoutCom\Magento2\Helper\Logger $logger
+     * @param WebhookEntityFactory      $webhookEntityFactory
+     * @param Config                     $config
+     * @param Logger                    $logger
      */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
-        \CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory $webhookEntityFactory,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        OrderHandlerService $orderHandler,
+        OrderStatusHandlerService $orderStatusHandler,
+        TransactionHandlerService $transactionHandler,
+        WebhookEntityFactory $webhookEntityFactory,
+        Config $config,
+        Logger $logger
     ) {
-        $this->orderHandler = $orderHandler;
-        $this->orderStatusHandler = $orderStatusHandler;
-        $this->transactionHandler = $transactionHandler;
+        $this->orderHandler         = $orderHandler;
+        $this->orderStatusHandler   = $orderStatusHandler;
+        $this->transactionHandler   = $transactionHandler;
         $this->webhookEntityFactory = $webhookEntityFactory;
-        $this->config = $config;
-        $this->logger = $logger;
+        $this->config                = $config;
+        $this->logger               = $logger;
     }
 
     /**
-     * Process a single incoming webhook.
+     * Process a single incoming webhook
+     *
      * @param $order
      * @param $payload
+     *
+     * @return void
+     * @throws LocalizedException
      */
     public function processSingleWebhook($order, $payload)
     {
@@ -107,7 +125,6 @@ class WebhookHandlerService
             } else {
                 $this->processWithSave($order, $payload);
             }
-
         } else {
             // Handle missing action ID
             $msg = __(
@@ -119,14 +136,18 @@ class WebhookHandlerService
     }
 
     /**
-     * Process all webhooks for an order.
+     * Process all webhooks for an order
+     *
      * @param $order
+     *
+     * @return void
+     * @throws Exception
      */
     public function processAllWebhooks($order)
     {
         // Get the webhook entities
         $webhooks = $this->loadWebhookEntities([
-            'order_id' => $order->getId()
+            'order_id' => $order->getId(),
         ]);
 
         $this->webhooksToProcess(
@@ -137,11 +158,20 @@ class WebhookHandlerService
         $this->setProcessedTime($webhooks);
     }
 
+    /**
+     * Description processWithSave function
+     *
+     * @param $order
+     * @param $payload
+     *
+     * @return void
+     * @throws LocalizedException
+     */
     public function processWithSave($order, $payload)
     {
         // Get all the webhooks to check for auth
         $webhooks = $this->loadWebhookEntities([
-            'order_id' => $order->getId()
+            'order_id' => $order->getId(),
         ]);
 
         if ($this->hasAuth($webhooks, $payload)) {
@@ -150,8 +180,8 @@ class WebhookHandlerService
 
             // Only return the single webhook that needs to be processed
             $webhook = $this->loadWebhookEntities([
-                'order_id' => $order->getId(),
-                'action_id' => $payload->data->action_id
+                'order_id'  => $order->getId(),
+                'action_id' => $payload->data->action_id,
             ]);
 
             // Handle the order status for the webhook
@@ -163,24 +193,33 @@ class WebhookHandlerService
             $this->setProcessedTime($webhook);
         } else {
             // throw 400 as payment_approved has not been received or is still being processed
-            throw new \Magento\Framework\Exception\LocalizedException(__('payment_captured webhook refused'));
+            throw new LocalizedException(__('payment_captured webhook refused'));
         }
     }
 
+    /**
+     * Description processWithoutSave function
+     *
+     * @param $order
+     * @param $payload
+     *
+     * @return void
+     * @throws Exception
+     */
     public function processWithoutSave($order, $payload)
     {
-        $webhooks = [];
-        $webhook = [
-                'event_id' => $payload->id,
-                'event_type' => $payload->type,
-                'event_data' => json_encode($payload),
-                'action_id' => $payload->data->action_id,
-                'payment_id' => $payload->data->id,
-                'order_id' => $order->getId(),
-                'processed' => false
-                ];
+        $webhooks   = [];
+        $webhook    = [
+            'event_id'   => $payload->id,
+            'event_type' => $payload->type,
+            'event_data' => json_encode($payload),
+            'action_id'  => $payload->data->action_id,
+            'payment_id' => $payload->data->id,
+            'order_id'   => $order->getId(),
+            'processed'  => false,
+        ];
         $webhooks[] = $webhook;
-        
+
         // Handle the order status for the webhook
         $this->webhooksToProcess(
             $order,
@@ -189,9 +228,13 @@ class WebhookHandlerService
     }
 
     /**
-     * @param $order
+     * Generate transactions and set order status from webhooks
+     *
+     * @param       $order
      * @param array $webhooks
-     * Generate transactions and set order status from webhooks.
+     *
+     * @return void
+     * @throws Exception
      */
     public function webhooksToProcess($order, $webhooks = [])
     {
@@ -216,13 +259,15 @@ class WebhookHandlerService
 
     /**
      * Load a webhook collection.
+     *
      * @param array $fields
+     *
      * @return array
      */
     public function loadWebhookEntities($fields = [])
     {
         // Create the collection
-        $entities = $this->webhookEntityFactory->create();
+        $entities         = $this->webhookEntityFactory->create();
         $this->collection = $entities->getCollection();
 
         // Add the field filters if needed
@@ -233,9 +278,17 @@ class WebhookHandlerService
         }
 
         $webhookEntitiesArr = $this->collection->getData();
+
         return $this->sortWebhooks($webhookEntitiesArr);
     }
 
+    /**
+     * Description sortWebhooks function
+     *
+     * @param $webhooks
+     *
+     * @return array
+     */
     public function sortWebhooks($webhooks)
     {
         $sortedWebhooks = [];
@@ -248,13 +301,17 @@ class WebhookHandlerService
                 }
             }
         }
+
         return $sortedWebhooks;
     }
 
     /**
-     * Save the incoming webhook.
+     * Save the incoming webhook
+     *
      * @param $payload
      * @param $order
+     *
+     * @return void
      */
     public function saveWebhookEntity($payload, $order)
     {
@@ -281,6 +338,13 @@ class WebhookHandlerService
         }
     }
 
+    /**
+     * Description setProcessedTime function
+     *
+     * @param $webhooks
+     *
+     * @return void
+     */
     public function setProcessedTime($webhooks)
     {
         // Get a webhook entity instance
@@ -298,8 +362,11 @@ class WebhookHandlerService
     }
 
     /**
-     * Delete a webhook by id.
+     * Delete a webhook by id
+     *
      * @param $id
+     *
+     * @return void
      */
     public function deleteWebhookEntity($id)
     {
@@ -309,17 +376,25 @@ class WebhookHandlerService
         $entity->delete();
     }
 
+    /**
+     * Description hasAuth function
+     *
+     * @param $webhooks
+     * @param $payload
+     *
+     * @return bool
+     */
     public function hasAuth($webhooks, $payload)
     {
         if ($payload->type === 'payment_captured') {
             foreach ($webhooks as $webhook) {
-                if ($webhook['event_type'] == 'payment_approved'
-                    || $webhook['event_type'] == 'payment_capture_pending') {
+                if ($webhook['event_type'] == 'payment_approved' || $webhook['event_type'] == 'payment_capture_pending') {
                     if ($webhook['processed']) {
                         return true;
                     }
                 }
             }
+
             return false;
         }
 
@@ -327,7 +402,9 @@ class WebhookHandlerService
     }
 
     /**
-     * Clean the webhooks table.
+     * Clean the webhooks table
+     *
+     * @return void
      */
     public function clean()
     {
@@ -335,7 +412,7 @@ class WebhookHandlerService
 
         foreach ($webhooks as $webhook) {
             $webhookDate = strtotime($webhook['received_at']);
-            $date = strtotime('-1 day');
+            $date        = strtotime('-1 day');
             if ($webhookDate > $date && $webhook['processed']) {
                 continue;
             }

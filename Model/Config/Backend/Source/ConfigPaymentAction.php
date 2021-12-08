@@ -17,10 +17,12 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+use Magento\Framework\Data\OptionSourceInterface;
+
 /**
  * Class ConfigPaymentAction
  */
-class ConfigPaymentAction implements \Magento\Framework\Data\OptionSourceInterface
+class ConfigPaymentAction implements OptionSourceInterface
 {
     /**
      * Options getter

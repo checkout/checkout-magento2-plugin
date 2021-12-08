@@ -17,9 +17,18 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Framework\Registry;
-use Magento\Sales\Api\OrderItemRepositoryInterface;
-use Magento\Sales\Model\Order;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Model\AbstractExtensibleModel;
+use Magento\Quote\Model\QuoteManagement;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class OrderHandlerService.
@@ -30,93 +39,104 @@ class OrderHandlerService
      * @var Session
      */
     public $checkoutSession;
-
     /**
      * @var QuoteManagement
      */
     public $quoteManagement;
-
     /**
      * @var OrderRepositoryInterface
      */
     public $orderRepository;
-
     /**
      * @var SearchCriteriaBuilder
      */
     public $searchBuilder;
-
     /**
      * @var Config
      */
     public $config;
-
     /**
      * @var QuoteHandlerService
      */
     public $quoteHandler;
-
     /**
      * @var StoreManagerInterface
      */
     public $storeManager;
-
     /**
      * @var String
      */
     public $methodId;
-
     /**
-     * @var Array
+     * @var array
      */
     public $paymentData;
-
     /**
      * @var Logger
      */
     public $logger;
-
     /**
      * @var TransactionHandlerService
      */
     public $transactionHandler;
 
     /**
-     * OrderHandler constructor
+     * OrderHandlerService constructor
+     *
+     * @param Session                   $checkoutSession
+     * @param QuoteManagement           $quoteManagement
+     * @param OrderRepositoryInterface  $orderRepository
+     * @param SearchCriteriaBuilder     $searchBuilder
+     * @param Config                     $config
+     * @param QuoteHandlerService       $quoteHandler
+     * @param StoreManagerInterface     $storeManager
+     * @param Logger                    $logger
+     * @param TransactionHandlerService $transactionHandler
      */
     public function __construct(
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Quote\Model\QuoteManagement $quoteManagement,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Helper\Logger $logger,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler
+        Session $checkoutSession,
+        QuoteManagement $quoteManagement,
+        OrderRepositoryInterface $orderRepository,
+        SearchCriteriaBuilder $searchBuilder,
+        Config $config,
+        QuoteHandlerService $quoteHandler,
+        StoreManagerInterface $storeManager,
+        Logger $logger,
+        TransactionHandlerService $transactionHandler
     ) {
-        $this->checkoutSession = $checkoutSession;
-        $this->quoteManagement = $quoteManagement;
-        $this->orderRepository = $orderRepository;
-        $this->searchBuilder = $searchBuilder;
-        $this->config = $config;
-        $this->quoteHandler = $quoteHandler;
-        $this->storeManager = $storeManager;
-        $this->logger = $logger;
+        $this->checkoutSession    = $checkoutSession;
+        $this->quoteManagement    = $quoteManagement;
+        $this->orderRepository    = $orderRepository;
+        $this->searchBuilder      = $searchBuilder;
+        $this->config              = $config;
+        $this->quoteHandler       = $quoteHandler;
+        $this->storeManager       = $storeManager;
+        $this->logger             = $logger;
         $this->transactionHandler = $transactionHandler;
     }
 
     /**
      * Set the payment method id
+     *
+     * @param $methodId
+     *
+     * @return $this
      */
     public function setMethodId($methodId)
     {
         $this->methodId = $methodId;
+
         return $this;
     }
 
     /**
      * Places an order if not already created
+     *
+     * @param null  $quote
+     * @param false $external
+     *
+     * @return AbstractExtensibleModel|OrderInterface|mixed|object|null
+     * @throws LocalizedException
      */
     public function handleOrder($quote = null, $external = false)
     {
@@ -126,7 +146,7 @@ class OrderHandlerService
                 $this->methodId,
                 $quote
             );
-            
+
             // Process the quote
             if ($quote) {
                 // Create the order
@@ -139,12 +159,12 @@ class OrderHandlerService
 
                 return $order;
             } else {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('There is no quote available to place an order.')
                 );
             }
         } else {
-            throw new \Magento\Framework\Exception\LocalizedException(
+            throw new LocalizedException(
                 __('A payment method ID is required to place an order.')
             );
         }
@@ -152,17 +172,22 @@ class OrderHandlerService
 
     /**
      * Checks if an order exists and is valid
+     *
+     * @param $order
+     *
+     * @return bool
      */
     public function isOrder($order)
     {
-        return $order
-        && is_object($order)
-        && method_exists($order, 'getId')
-        && $order->getId() > 0;
+        return $order && is_object($order) && method_exists($order, 'getId') && $order->getId() > 0;
     }
 
     /**
      * Load an order
+     *
+     * @param $fields
+     *
+     * @return DataObject
      */
     public function getOrder($fields)
     {
@@ -171,16 +196,30 @@ class OrderHandlerService
 
     /**
      * Gets an order currency
+     *
+     * @param $order
+     *
+     * @return mixed|string
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function getOrderCurrency($order)
     {
         $orderCurrencyCode = $order->getOrderCurrencyCode();
         $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+
         return ($orderCurrencyCode) ? $orderCurrencyCode : $storeCurrencyCode;
     }
 
     /**
-     * Convert an order amount to integer value for the gateway request.
+     * Convert an order amount to integer value for the gateway request
+     *
+     * @param $amount
+     * @param $order
+     *
+     * @return float|int|mixed
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function amountToGateway($amount, $order)
     {
@@ -203,14 +242,18 @@ class OrderHandlerService
         if (in_array($currency, $currenciesX1)) {
             return $amount;
         } elseif (in_array($currency, $currenciesX1000)) {
-            return $amount*1000;
+            return $amount * 1000;
         } else {
-            return $amount*100;
+            return $amount * 100;
         }
     }
 
     /**
      * Find an order by fields
+     *
+     * @param $fields
+     *
+     * @return DataObject
      */
     public function findOrderByFields($fields)
     {
@@ -226,10 +269,7 @@ class OrderHandlerService
         $search = $this->searchBuilder->create();
 
         // Get the resulting order
-        $order = $this->orderRepository
-            ->getList($search)
-            ->setPageSize(1)
-            ->getLastItem();
+        $order = $this->orderRepository->getList($search)->setPageSize(1)->getLastItem();
 
         if ($order->getId()) {
             $this->logger->additional($this->getOrderDetails($order), 'order');
@@ -240,12 +280,16 @@ class OrderHandlerService
 
     /**
      * Tasks after place order
+     *
+     * @param $quote
+     * @param $order
+     *
+     * @return mixed
      */
     public function afterPlaceOrder($quote, $order)
     {
         // Prepare session quote info for redirection after payment
-        $this->checkoutSession
-            ->setLastQuoteId($quote->getId())
+        $this->checkoutSession->setLastQuoteId($quote->getId())
             ->setLastSuccessQuoteId($quote->getId())
             ->clearHelperData();
 
@@ -259,9 +303,10 @@ class OrderHandlerService
 
     /**
      * Get status history by id
-     * 
+     *
      * @param $entity
      * @param $order
+     *
      * @return false|mixed
      */
     public function getStatusHistoryByEntity($entity, $order)
@@ -271,27 +316,30 @@ class OrderHandlerService
                 return $status;
             }
         }
+
         return false;
     }
 
     /**
      * Return common order details for additional logging.
-     * 
+     *
      * @param $order
+     *
      * @return array
      */
-    public function getOrderDetails($order) {
+    public function getOrderDetails($order)
+    {
         return [
-            'id' => $order->getId(),
+            'id'           => $order->getId(),
             'increment_id' => $order->getIncrementId(),
-            'state' => $order->getState(),
-            'status' => $order->getStatus(),
-            'grand_total' => $order->getGrandTotal(),
-            'currency' => $order->getOrderCurrencyCode(),
-            'payment' => [
+            'state'        => $order->getState(),
+            'status'       => $order->getStatus(),
+            'grand_total'  => $order->getGrandTotal(),
+            'currency'     => $order->getOrderCurrencyCode(),
+            'payment'      => [
                 'method_id' => $order->getPayment() ? $order->getPayment()->getMethodInstance()->getCode() : null,
             ],
-            'transactions' => $this->transactionHandler->getTransactionDetails($order)
+            'transactions' => $this->transactionHandler->getTransactionDetails($order),
         ];
     }
 }

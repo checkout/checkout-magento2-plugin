@@ -17,34 +17,46 @@
 
 namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
+
 /**
  * Class AvailabilityChecker
  */
 class AvailabilityChecker
 {
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
 
     /**
-     * @var VaultHandlerService
+     * $vaultHandler field
+     *
+     * @var VaultHandlerService $vaultHandler
      */
     private $vaultHandler;
 
     /**
      * AvailabilityChecker constructor
+     *
+     * @param Config             $config
+     * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
+        Config $config,
+        VaultHandlerService $vaultHandler
     ) {
         $this->config = $config;
         $this->vaultHandler = $vaultHandler;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
+     *
+     * @return bool
      */
     public function isAvailable()
     {

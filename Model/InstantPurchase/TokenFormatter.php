@@ -17,6 +17,7 @@
 
 namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
+use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 
 /**
@@ -25,21 +26,29 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
 class TokenFormatter
 {
     /**
-     * @var VaultHandlerService
+     * $vaultHandler field
+     *
+     * @var VaultHandlerService $vaultHandler
      */
     public $vaultHandler;
 
     /**
-     * TokenFormatter constructor.
+     * TokenFormatter constructor
+     *
+     * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
+        VaultHandlerService $vaultHandler
     ) {
         $this->vaultHandler = $vaultHandler;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
+     *
+     * @param PaymentTokenInterface $paymentToken
+     *
+     * @return string
      */
     public function formatPaymentToken(PaymentTokenInterface $paymentToken)
     {

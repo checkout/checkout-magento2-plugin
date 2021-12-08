@@ -17,6 +17,10 @@
 
 namespace CheckoutCom\Magento2\Model\Vault;
 
+use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use Exception;
+use Magento\Framework\Encryption\EncryptorInterface;
+use Magento\Vault\Api\Data\PaymentTokenFactoryInterface;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 
 /**
@@ -25,46 +29,57 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
 class VaultToken
 {
     /**
-     * @var PaymentTokenFactoryInterface
+     * $paymentTokenFactory field
+     *
+     * @var PaymentTokenFactoryInterface $paymentTokenFactory
      */
     public $paymentTokenFactory;
-
     /**
-     * @var EncryptorInterface
+     * $encryptor field
+     *
+     * @var EncryptorInterface $encryptor
      */
     public $encryptor;
-
     /**
-     * @var CardHandlerService
+     * $cardHandler field
+     *
+     * @var CardHandlerService $cardHandler
      */
     public $cardHandler;
 
     /**
-     * VaultToken constructor.
+     * VaultToken constructor
+     *
+     * @param PaymentTokenFactoryInterface $paymentTokenFactory
+     * @param EncryptorInterface           $encryptor
+     * @param CardHandlerService           $cardHandler
      */
     public function __construct(
-        \Magento\Vault\Api\Data\PaymentTokenFactoryInterface $paymentTokenFactory,
-        \Magento\Framework\Encryption\EncryptorInterface $encryptor,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler
+        PaymentTokenFactoryInterface $paymentTokenFactory,
+        EncryptorInterface $encryptor,
+        CardHandlerService $cardHandler
     ) {
         $this->paymentTokenFactory = $paymentTokenFactory;
-        $this->encryptor = $encryptor;
-        $this->cardHandler = $cardHandler;
+        $this->encryptor           = $encryptor;
+        $this->cardHandler         = $cardHandler;
     }
 
     /**
      * Returns the prepared payment token.
      *
-     * @param  array    $card
-     * @param  int|null $customerId
+     * @param array    $card
+     * @param          $methodId
+     * @param int|null $customerId
+     *
      * @return PaymentTokenInterface
+     * @throws Exception
      */
     public function create(array $card, $methodId, $customerId = null)
     {
-        $expiryMonth    = str_pad($card['expiry_month'], 2, '0', STR_PAD_LEFT);
-        $expiryYear     = $card['expiry_year'];
-        $expiresAt      = $this->getExpirationDate($expiryMonth, $expiryYear);
-        $cardScheme      = $card['scheme'];
+        $expiryMonth = str_pad($card['expiry_month'], 2, '0', STR_PAD_LEFT);
+        $expiryYear  = $card['expiry_year'];
+        $expiresAt   = $this->getExpirationDate($expiryMonth, $expiryYear);
+        $cardScheme  = $card['scheme'];
 
         /**
          * @var PaymentTokenInterface $paymentToken
@@ -77,9 +92,9 @@ class VaultToken
         }
 
         $tokenDetails = [
-            'type'              => $this->cardHandler->getCardCode($cardScheme),
-            'maskedCC'          => $card['last4'],
-            'expirationDate'    => $expiryMonth . '/' . $expiryYear,
+            'type'           => $this->cardHandler->getCardCode($cardScheme),
+            'maskedCC'       => $card['last4'],
+            'expirationDate' => $expiryMonth . '/' . $expiryYear,
         ];
 
         $paymentToken->setTokenDetails($this->convertDetailsToJSON($tokenDetails));
@@ -98,21 +113,16 @@ class VaultToken
     /**
      * Returns the date time object with the given expiration month and year.
      *
-     * @param  string $expiryMonth
-     * @param  string $expiryYear
+     * @param string $expiryMonth
+     * @param string $expiryYear
+     *
      * @return string
+     * @throws Exception
      */
     private function getExpirationDate($expiryMonth, $expiryYear)
     {
         $expDate = new \DateTime(
-            $expiryYear
-            . '-'
-            . $expiryMonth
-            . '-'
-            . '01'
-            . ' '
-            . '00:00:00',
-            new \DateTimeZone('UTC')
+            $expiryYear . '-' . $expiryMonth . '-' . '01' . ' ' . '00:00:00', new \DateTimeZone('UTC')
         );
 
         return $expDate->add(new \DateInterval('P1M'))->format('Y-m-d 00:00:00');
@@ -121,7 +131,8 @@ class VaultToken
     /**
      * Generate vault payment public hash
      *
-     * @param  PaymentTokenInterface $paymentToken
+     * @param PaymentTokenInterface $paymentToken
+     *
      * @return string
      */
     private function generatePublicHash(PaymentTokenInterface $paymentToken)
@@ -132,9 +143,7 @@ class VaultToken
             $hashKey = $paymentToken->getCustomerId();
         }
 
-        $hashKey .= $paymentToken->getPaymentMethodCode()
-            . $paymentToken->getType()
-            . $paymentToken->getTokenDetails();
+        $hashKey .= $paymentToken->getPaymentMethodCode() . $paymentToken->getType() . $paymentToken->getTokenDetails();
 
         return $this->encryptor->getHash($hashKey);
     }
@@ -144,12 +153,14 @@ class VaultToken
      *
      * Convert payment token details to JSON
      *
-     * @param  array $details
+     * @param array $details
+     *
      * @return string
      */
     private function convertDetailsToJSON(array $details)
     {
         $json = \Zend_Json::encode($details);
+
         return $json ?: '{}';
     }
 }

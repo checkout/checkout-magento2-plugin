@@ -16,8 +16,12 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Service\InvoiceService;
 
 /**
  * Class InvoiceHandlerService.
@@ -25,57 +29,74 @@ use Magento\Sales\Model\Order\Invoice;
 class InvoiceHandlerService
 {
     /**
-     * @var InvoiceService
+     * $invoiceService field
+     *
+     * @var InvoiceService $invoiceService
      */
     public $invoiceService;
-
     /**
-     * @var InvoiceRepositoryInterface
+     * $invoiceRepository field
+     *
+     * @var InvoiceRepositoryInterface $invoiceRepository
      */
     public $invoiceRepository;
-
     /**
-     * @var Invoice
+     * $invoiceModel field
+     *
+     * @var Invoice $invoiceModel
      */
     public $invoiceModel;
-
     /**
-     * @var Order
+     * $order field
+     *
+     * @var Order $order
      */
     public $order;
-
     /**
-     * @var Transaction
+     * $transaction field
+     *
+     * @var Transaction $transaction
      */
     public $transaction;
-
     /**
-     * @var Float
+     * $amount field
+     *
+     * @var Float $amount
      */
     public $amount;
 
     /**
-     * InvoiceHandlerService constructor.
+     * InvoiceHandlerService constructor
+     *
+     * @param InvoiceService             $invoiceService
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param Invoice                    $invoiceModel
      */
     public function __construct(
-        \Magento\Sales\Model\Service\InvoiceService $invoiceService,
-        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
-        \Magento\Sales\Model\Order\Invoice $invoiceModel
+        InvoiceService $invoiceService,
+        InvoiceRepositoryInterface $invoiceRepository,
+        Invoice $invoiceModel
     ) {
-        $this->invoiceService     = $invoiceService;
-        $this->invoiceRepository  = $invoiceRepository;
-        $this->invoiceModel       = $invoiceModel;
+        $this->invoiceService    = $invoiceService;
+        $this->invoiceRepository = $invoiceRepository;
+        $this->invoiceModel      = $invoiceModel;
     }
 
     /**
-     * Create an invoice.
+     * Create an invoice
+     *
+     * @param $transaction
+     * @param $amount
+     *
+     * @return void
+     * @throws LocalizedException
      */
     public function createInvoice($transaction, $amount)
     {
         // Set required properties
-        $this->order = $transaction->getOrder();
+        $this->order       = $transaction->getOrder();
         $this->transaction = $transaction;
-        $this->amount = $amount;
+        $this->amount      = $amount;
 
         // Prepare the invoice
         $invoice = $this->invoiceService->prepareInvoice($this->order);
@@ -89,7 +110,7 @@ class InvoiceHandlerService
         $invoice = $this->setInvoiceState($invoice);
 
         // Finalize the invoice
-        $invoice->setBaseGrandTotal($amount/$this->order->getBaseToOrderRate());
+        $invoice->setBaseGrandTotal($amount / $this->order->getBaseToOrderRate());
         $invoice->setGrandTotal($this->amount);
         $invoice->register();
 
@@ -98,16 +119,21 @@ class InvoiceHandlerService
     }
 
     /**
-     * Check if invoicing is needed.
+     * Check if invoicing is needed
+     *
+     * @return bool
      */
     public function needsInvoicing()
     {
-        return $this->transaction
-        && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+        return $this->transaction && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE;
     }
 
     /**
-     * Set the invoice state.
+     * Set the invoice state
+     *
+     * @param $invoice
+     *
+     * @return mixed
      */
     public function setInvoiceState($invoice)
     {
@@ -121,7 +147,11 @@ class InvoiceHandlerService
     }
 
     /**
-     * Load an order invoice.
+     * Load an order invoice
+     *
+     * @param $order
+     *
+     * @return Invoice|null
      */
     public function getInvoice($order)
     {
@@ -142,7 +172,11 @@ class InvoiceHandlerService
     }
 
     /**
-     * Load all order invoices.
+     * Load all order invoices
+     *
+     * @param $order
+     *
+     * @return mixed
      */
     public function getInvoices($order)
     {

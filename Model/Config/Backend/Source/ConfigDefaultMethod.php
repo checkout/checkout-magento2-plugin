@@ -17,23 +17,28 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Framework\Data\OptionSourceInterface;
+
 /**
  * Class ConfigDefaultMethod
  */
-class ConfigDefaultMethod implements \Magento\Framework\Data\OptionSourceInterface
+class ConfigDefaultMethod implements OptionSourceInterface
 {
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
 
     /**
-     * ConfigDefaultMethod constructor.
+     * ConfigDefaultMethod constructor
      *
      * @param Config $config
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        Config $config
     ) {
         $this->config = $config;
     }

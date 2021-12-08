@@ -17,13 +17,24 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+use Magento\Framework\Data\OptionSourceInterface;
+
 /**
  * Class ConfigGooglePayEnvironment
  */
-class ConfigGooglePayEnvironment implements \Magento\Framework\Data\OptionSourceInterface
+class ConfigGooglePayEnvironment implements OptionSourceInterface
 {
-
+    /**
+     * ENVIRONMENT_TEST constant
+     *
+     * @var string ENVIRONMENT_TEST
+     */
     const ENVIRONMENT_TEST = 'TEST';
+    /**
+     * ENVIRONMENT_PRODUCTION constant
+     *
+     * @var string ENVIRONMENT_PRODUCTION
+     */
     const ENVIRONMENT_PRODUCTION = 'PRODUCTION';
 
     /**

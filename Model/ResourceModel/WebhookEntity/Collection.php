@@ -16,10 +16,14 @@
 
 namespace CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity;
 
-class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
+use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+
+class Collection extends AbstractCollection
 {
     /**
-     * @var string
+     * $_idFieldName field
+     *
+     * @var string $_idFieldName
      */
     public $_idFieldName = 'id';
 

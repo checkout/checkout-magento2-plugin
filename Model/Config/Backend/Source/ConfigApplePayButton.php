@@ -17,14 +17,30 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+use Magento\Framework\Data\OptionSourceInterface;
+
 /**
  * Class ConfigApplePayButton
  */
-class ConfigApplePayButton implements \Magento\Framework\Data\OptionSourceInterface
+class ConfigApplePayButton implements OptionSourceInterface
 {
-
+    /**
+     * BUTTON_BLACK constant
+     *
+     * @var string BUTTON_BLACK
+     */
     const BUTTON_BLACK = 'black';
+    /**
+     * BUTTON_WHITE constant
+     *
+     * @var string BUTTON_WHITE
+     */
     const BUTTON_WHITE = 'white';
+    /**
+     * BUTTON_WHITE_LINE constant
+     *
+     * @var string BUTTON_WHITE_LINE
+     */
     const BUTTON_WHITE_LINE = 'white-with-line';
 
     /**

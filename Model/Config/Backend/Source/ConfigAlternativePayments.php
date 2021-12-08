@@ -17,28 +17,37 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+use CheckoutCom\Magento2\Gateway\Config\Loader;
+use Magento\Framework\Data\OptionSourceInterface;
+
 /**
  * Class ConfigAlternativePayments
  */
-class ConfigAlternativePayments implements \Magento\Framework\Data\OptionSourceInterface
+class ConfigAlternativePayments implements OptionSourceInterface
 {
 
     /**
-     * @var Loader
+     * $configLoader field
+     *
+     * @var Loader $configLoader
      */
     public $configLoader;
 
     /**
      * ConfigAlternativePayments constructor
+     *
+     * @param Loader $configLoader
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Loader $configLoader
+        Loader $configLoader
     ) {
         $this->configLoader = $configLoader->init();
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return array|mixed
      */
     public function toOptionArray()
     {

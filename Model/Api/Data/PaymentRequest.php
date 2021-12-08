@@ -16,15 +16,17 @@
 
 namespace CheckoutCom\Magento2\Model\Api\Data;
 
+use CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
+use Magento\Framework\Api\AbstractSimpleObject;
+
 /**
  * Class PaymentRequest
  * Used to retrieve details send to the V3 endpoint.
  */
-class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject implements
-    \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
+class PaymentRequest extends AbstractSimpleObject implements PaymentRequestInterface
 {
     /**
-     * Get payment token
+     * {@inheritDoc}
      *
      * @return string|null
      */
@@ -32,9 +34,9 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     {
         return $this->_get(self::PAYMENT_TOKEN);
     }
-    
+
     /**
-     * Get payment method
+     * {@inheritDoc}
      *
      * @return string|null
      */
@@ -44,7 +46,7 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Get quote id
+     * {@inheritDoc}
      *
      * @return string|null
      */
@@ -54,7 +56,7 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Get card bin
+     * {@inheritDoc}
      *
      * @return int|null
      */
@@ -64,7 +66,7 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Get card cvv
+     * {@inheritDoc}
      *
      * @return int|null
      */
@@ -74,7 +76,7 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Get public hash
+     * {@inheritDoc}
      *
      * @return string|null
      */
@@ -84,7 +86,7 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Get save card
+     * {@inheritDoc}
      *
      * @return bool|null
      */
@@ -92,9 +94,9 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     {
         return $this->_get(self::SAVE_CARD);
     }
-    
+
     /**
-     * Get success url
+     * {@inheritDoc}
      *
      * @return string|null
      */
@@ -104,7 +106,7 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Get failure url
+     * {@inheritDoc}
      *
      * @return string|null
      */
@@ -114,9 +116,10 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Set payment token
+     * {@inheritDoc}
      *
      * @param string $paymentToken
+     *
      * @return $this
      */
     public function setPaymentToken($paymentToken)
@@ -125,20 +128,22 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Set payment method
+     * {@inheritDoc}
      *
      * @param string $paymentMethod
+     *
      * @return $this
      */
     public function setPaymentMethod($paymentMethod)
     {
         return $this->setData(self::PAYMENT_METHOD, $paymentMethod);
     }
-    
+
     /**
-     * Set quote id
+     * {@inheritDoc}
      *
      * @param string $quoteId
+     *
      * @return $this
      */
     public function setQuoteId($quoteId)
@@ -147,9 +152,10 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Set card bin
+     * {@inheritDoc}
      *
      * @param int $cardBin
+     *
      * @return $this
      */
     public function setCardBin($cardBin)
@@ -158,20 +164,22 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Set card bin
+     * {@inheritDoc}
      *
      * @param int $cardCvv
+     *
      * @return $this
      */
     public function setCardCvv($cardCvv)
     {
         return $this->setData(self::CARD_CVV, $cardCvv);
     }
-    
+
     /**
-     * Set public hash
+     * {@inheritDoc}
      *
      * @param string $publicHash
+     *
      * @return $this
      */
     public function setPublicHash($publicHash)
@@ -180,9 +188,10 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Set save card
+     * {@inheritDoc}
      *
      * @param string $saveCard
+     *
      * @return $this
      */
     public function setSaveCard($saveCard)
@@ -191,9 +200,10 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Set success url
+     * {@inheritDoc}
      *
      * @param string $successUrl
+     *
      * @return $this
      */
     public function setSuccessUrl($successUrl)
@@ -202,9 +212,10 @@ class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject impleme
     }
 
     /**
-     * Set failure url
+     * {@inheritDoc}
      *
      * @param string $failureUrl
+     *
      * @return $this
      */
     public function setFailureUrl($failureUrl)

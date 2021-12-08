@@ -26,6 +26,7 @@ class ShippingSelector
      * Selects a shipping method.
      *
      * @param Address $address
+     *
      * @return Rate
      */
     public function getShippingMethod($address)
@@ -46,6 +47,7 @@ class ShippingSelector
      * Selects shipping price with minimal price.
      *
      * @param Rate[] $shippingRates
+     *
      * @return Rate
      */
     private function selectCheapestRate(array $shippingRates)

@@ -16,19 +16,22 @@
 
 namespace CheckoutCom\Magento2\Model\ResourceModel;
 
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Magento\Framework\Model\ResourceModel\Db\Context;
+
 /**
  * Webhook entity mysql resource
  */
-class WebhookEntity extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
+class WebhookEntity extends AbstractDb
 {
     /**
-     * Construct
+     * WebhookEntity constructor
      *
-     * @param \Magento\Framework\Model\ResourceModel\Db\Context $context
-     * @param string|null $resourcePrefix
+     * @param Context $context
+     * @param null    $resourcePrefix
      */
     public function __construct(
-        \Magento\Framework\Model\ResourceModel\Db\Context $context,
+        Context $context,
         $resourcePrefix = null
     ) {
         parent::__construct($context, $resourcePrefix);

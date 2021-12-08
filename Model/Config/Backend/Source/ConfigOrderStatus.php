@@ -17,23 +17,28 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+use Magento\Framework\Data\OptionSourceInterface;
+use Magento\Sales\Model\ResourceModel\Order\Status\Collection;
+
 /**
  * Class ConfigOrderStatus
  */
-class ConfigOrderStatus implements \Magento\Framework\Data\OptionSourceInterface
+class ConfigOrderStatus implements OptionSourceInterface
 {
     /**
-     * @var Collection
+     * $orderStatusCollection field
+     *
+     * @var Collection $orderStatusCollection
      */
     public $orderStatusCollection;
 
     /**
-     * OrderStatus constructor.
+     * ConfigOrderStatus constructor
      *
-     * @param Collection $statusCollection
+     * @param Collection $orderStatusCollection
      */
     public function __construct(
-        \Magento\Sales\Model\ResourceModel\Order\Status\Collection $orderStatusCollection
+        Collection $orderStatusCollection
     ) {
         $this->orderStatusCollection = $orderStatusCollection;
     }

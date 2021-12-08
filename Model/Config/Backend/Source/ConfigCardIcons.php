@@ -18,11 +18,12 @@
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigCardIcons
  */
-class ConfigCardIcons implements \Magento\Framework\Data\OptionSourceInterface
+class ConfigCardIcons implements OptionSourceInterface
 {
     /**
      * Options getter

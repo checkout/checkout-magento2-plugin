@@ -16,99 +16,135 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Exception;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Registry;
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
+use Magento\Store\Model\StoreManagerInterface;
+
 /**
  * Class OrderStatusHandlerService.
  */
 class OrderStatusHandlerService
 {
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var TransactionHandlerService
+     * $transactionHandler field
+     *
+     * @var TransactionHandlerService $transactionHandler
      */
     public $transactionHandler;
-
     /**
-     * @var Order
+     * $orderModel field
+     *
+     * @var Order $orderModel
      */
     public $orderModel;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
     public $orderHandler;
-
     /**
-     * @var OrderManagementInterface
+     * $orderManagement field
+     *
+     * @var OrderManagementInterface $orderManagement
      */
     public $orderManagement;
-    
     /**
-     * @var OrderRepositoryInterface
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
      */
     public $orderRepository;
-    
     /**
-     * @var Registry
+     * $registry field
+     *
+     * @var Registry $registry
      */
     public $registry;
-
     /**
-     * @var State
+     * $state field
+     *
+     * @var State $state
      */
     public $state;
-
     /**
-     * @var Status
+     * $status field
+     *
+     * @var Status $status
      */
     public $status;
-
     /**
-     * @var Order
+     * $order field
+     *
+     * @var Order $order
      */
     public $order;
-    
+
     /**
-     * OrderStatusHandlerService constructor.
+     * OrderStatusHandlerService constructor
+     *
+     * @param StoreManagerInterface     $storeManager
+     * @param TransactionHandlerService $transactionHandler
+     * @param Order                     $orderModel
+     * @param Config                     $config
+     * @param OrderHandlerService       $orderHandler
+     * @param OrderManagementInterface  $orderManagement
+     * @param OrderRepositoryInterface  $orderRepository
+     * @param Registry                  $registry
      */
     public function __construct(
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
-        \Magento\Sales\Model\Order $orderModel,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \Magento\Sales\Api\OrderManagementInterface $orderManagement,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Magento\Framework\Registry $registry
+        StoreManagerInterface $storeManager,
+        TransactionHandlerService $transactionHandler,
+        Order $orderModel,
+        Config $config,
+        OrderHandlerService $orderHandler,
+        OrderManagementInterface $orderManagement,
+        OrderRepositoryInterface $orderRepository,
+        Registry $registry
     ) {
-        $this->storeManager          = $storeManager;
-        $this->transactionHandler    = $transactionHandler;
-        $this->orderModel            = $orderModel;
-        $this->config                = $config;
-        $this->orderHandler          = $orderHandler;
-        $this->orderManagement       = $orderManagement;
-        $this->orderRepository       = $orderRepository;
-        $this->registry              = $registry;
+        $this->storeManager       = $storeManager;
+        $this->transactionHandler = $transactionHandler;
+        $this->orderModel         = $orderModel;
+        $this->config              = $config;
+        $this->orderHandler       = $orderHandler;
+        $this->orderManagement    = $orderManagement;
+        $this->orderRepository    = $orderRepository;
+        $this->registry           = $registry;
     }
-    
+
     /**
-     * Set the current order status.
+     * Set the current order status
+     *
+     * @param $order
+     * @param $webhook
+     *
+     * @return void
+     * @throws Exception
      */
     public function setOrderStatus($order, $webhook)
     {
         // Initialise state, status & order
-        $this->state = null;
+        $this->state  = null;
         $this->status = null;
-        $this->order = $order;
-        
+        $this->order  = $order;
+
         switch ($webhook['event_type']) {
             case 'payment_approved':
                 $this->approved($webhook);
@@ -129,12 +165,12 @@ class OrderStatusHandlerService
                 $this->paymentExpired();
                 break;
         }
-        
+
         if ($this->state) {
             // Set the order state
             $this->order->setState($this->state);
         }
-        
+
         if ($this->status && $this->order->getStatus() != 'closed') {
             // Set the order status
             $this->order->setStatus($this->status);
@@ -149,6 +185,12 @@ class OrderStatusHandlerService
 
     /**
      * Sets status/deletes order based on user config if payment fails
+     *
+     * @param       $order
+     * @param false $webhook
+     *
+     * @return void
+     * @throws NoSuchEntityException
      */
     public function handleFailedPayment($order, $webhook = false)
     {
@@ -157,7 +199,7 @@ class OrderStatusHandlerService
             "payment_expired",
             "payment_cancelled",
             "payment_voided",
-            "payment_capture_declined"
+            "payment_capture_declined",
         ];
 
         if (!$webhook || in_array($webhook, $failedWebhooks)) {
@@ -181,11 +223,15 @@ class OrderStatusHandlerService
     }
 
     /**
-     * Set the order status for a payment_approved webhook.
+     * Set the order status for a payment_approved webhook
+     *
+     * @param $webhook
+     *
+     * @return void
      */
     public function approved($webhook)
     {
-        $payload = json_decode($webhook['event_data']);
+        $payload      = json_decode($webhook['event_data']);
         $this->status = $this->config->getValue('order_status_authorized');
 
         // Flag order if potential fraud
@@ -195,17 +241,20 @@ class OrderStatusHandlerService
     }
 
     /**
-     * Set the order status for a payment_captured webhook.
+     * Set the order status for a payment_captured webhook
+     *
+     * @return void
      */
     public function captured()
     {
-        $this->status = $this->order->getIsVirtual() ? 'complete'
-            : $this->config->getValue('order_status_captured');
-        $this->state = $this->orderModel::STATE_PROCESSING;
+        $this->status = $this->order->getIsVirtual() ? 'complete' : $this->config->getValue('order_status_captured');
+        $this->state  = $this->orderModel::STATE_PROCESSING;
     }
 
     /**
-     * Set the order status for a payment_void webhook.
+     * Set the order status for a payment_void webhook
+     *
+     * @return void
      */
     public function void()
     {
@@ -213,38 +262,44 @@ class OrderStatusHandlerService
     }
 
     /**
-     * Set the order status for a refunded webhook.
+     * Set the order status for a refunded webhook
+     *
+     * @param $webhook
+     *
+     * @return void
      */
     public function refund($webhook)
     {
         // Format the amount
         $payload = json_decode($webhook['event_data']);
-        $amount = $this->transactionHandler->amountFromGateway(
+        $amount  = $this->transactionHandler->amountFromGateway(
             $payload->data->amount,
             $this->order
         );
-        
+
         $isPartialRefund = $this->transactionHandler->isPartialRefund(
             $amount,
             true,
             $this->order,
             true
         );
-        $this->status = $isPartialRefund ? 'order_status_refunded' : 'closed';
-        $this->status = $this->config->getValue($this->status);
-        $this->state = $isPartialRefund ? $this->orderModel::STATE_PROCESSING : $this->orderModel::STATE_CLOSED;
+        $this->status    = $isPartialRefund ? 'order_status_refunded' : 'closed';
+        $this->status    = $this->config->getValue($this->status);
+        $this->state     = $isPartialRefund ? $this->orderModel::STATE_PROCESSING : $this->orderModel::STATE_CLOSED;
     }
 
     /**
-     * Set the order status for a payment_capture_pending webhook.
+     * Set the order status for a payment_capture_pending webhook
+     *
+     * @param $webhook
+     *
+     * @return void
      */
     public function capturePending($webhook)
     {
         $payload = json_decode($webhook['event_data']);
-        if (isset($payload->data->metadata->methodId)
-            && $payload->data->metadata->methodId === 'checkoutcom_apm'
-        ) {
-            $this->state = $this->orderModel::STATE_PENDING_PAYMENT;
+        if (isset($payload->data->metadata->methodId) && $payload->data->metadata->methodId === 'checkoutcom_apm') {
+            $this->state  = $this->orderModel::STATE_PENDING_PAYMENT;
             $this->status = $this->order->getConfig()->getStateDefaultStatus($this->state);
             $this->order->addStatusHistoryComment(__('Payment capture initiated, awaiting capture confirmation.'));
         }

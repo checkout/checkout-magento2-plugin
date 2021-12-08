@@ -17,53 +17,83 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigLanguageFallback;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Customer\Model\Session;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Locale\Resolver;
+
 /**
  * Class ShopperHandlerService.
  */
 class ShopperHandlerService
 {
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var ConfigLanguageFallback
+     * $languageCallbackConfig field
+     *
+     * @var ConfigLanguageFallback $languageCallbackConfig
      */
     public $languageCallbackConfig;
-    
     /**
-     * @var Session
+     * $customerSession field
+     *
+     * @var Session $customerSession
      */
     public $customerSession;
-
     /**
-     * @var CustomerRepositoryInterface
+     * $customerRepository field
+     *
+     * @var CustomerRepositoryInterface $customerRepository
      */
     public $customerRepository;
-
     /**
-     * @var Resolver
+     * $localeResolver field
+     *
+     * @var Resolver $localeResolver
      */
     public $localeResolver;
 
     /**
      * ShopperHandlerService constructor
+     *
+     * @param Config                       $config
+     * @param ConfigLanguageFallback       $languageCallbackConfig
+     * @param Session                     $customerSession
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param Resolver                    $localeResolver
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigLanguageFallback $languageCallbackConfig,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Framework\Locale\Resolver $localeResolver
+        Config $config,
+        ConfigLanguageFallback $languageCallbackConfig,
+        Session $customerSession,
+        CustomerRepositoryInterface $customerRepository,
+        Resolver $localeResolver
     ) {
-        $this->config = $config;
-        $this->languageCallbackConfig = $languageCallbackConfig;
-        $this->customerSession = $customerSession;
-        $this->customerRepository  = $customerRepository;
-        $this->localeResolver  = $localeResolver;
+        $this->config                  = $config;
+        $this->languageCallbackConfig  = $languageCallbackConfig;
+        $this->customerSession        = $customerSession;
+        $this->customerRepository     = $customerRepository;
+        $this->localeResolver         = $localeResolver;
     }
 
+    /**
+     * Description getCustomerData function
+     *
+     * @param array $filters
+     *
+     * @return CustomerInterface
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
     public function getCustomerData($filters = [])
     {
         if (isset($filters['id'])) {
@@ -77,12 +107,17 @@ class ShopperHandlerService
             );
         } else {
             $customerId = $this->customerSession->getCustomer()->getId();
+
             return $this->customerRepository->getById($customerId);
         }
     }
 
     /**
-     * Retrieves the customer language.
+     * Retrieves the customer language
+     *
+     * @param string $default
+     *
+     * @return string
      */
     public function getCustomerLocale($default = 'en_GB')
     {
@@ -95,7 +130,11 @@ class ShopperHandlerService
     }
 
     /**
-     * Retrieves the customer language fallback for the card payments form.
+     * Retrieves the customer language fallback for the card payments form
+     *
+     * @param string $default
+     *
+     * @return mixed|string
      */
     public function getLanguageFallback($default = 'en_GB')
     {

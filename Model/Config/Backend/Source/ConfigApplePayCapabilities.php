@@ -17,13 +17,24 @@
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+use Magento\Framework\Data\OptionSourceInterface;
+
 /**
  * Class ConfigApplePayCapabilities
  */
-class ConfigApplePayCapabilities implements \Magento\Framework\Data\OptionSourceInterface
+class ConfigApplePayCapabilities implements OptionSourceInterface
 {
-
+    /**
+     * CAP_CRE constant
+     *
+     * @var string CAP_CRE
+     */
     const CAP_CRE = 'supportsCredit';
+    /**
+     * CAP_DEB constant
+     *
+     * @var string CAP_DEB
+     */
     const CAP_DEB = 'supportsDebit';
 
     /**
