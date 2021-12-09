@@ -36,23 +36,33 @@ class OrderAfterCancel implements ObserverInterface
      */
     public $backendAuthSession;
     /**
-     * @var RequestInterface
+     * $request field
+     *
+     * @var RequestInterface $request
      */
     public $request;
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
     /**
-     * @var OrderManagementInterface
+     * $orderManagement field
+     *
+     * @var OrderManagementInterface $orderManagement
      */
     public $orderManagement;
     /**
-     * @var Order
+     * $orderModel field
+     *
+     * @var Order $orderModel
      */
     public $orderModel;
     /**
-     * @var Array
+     * $params field
+     *
+     * @var array $params
      */
     public $params;
 
