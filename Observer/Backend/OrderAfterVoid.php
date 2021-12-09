@@ -16,62 +16,85 @@
 
 namespace CheckoutCom\Magento2\Observer\Backend;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Model\Order;
 
 /**
  * Class OrderAfterVoid.
  */
-class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
+class OrderAfterVoid implements ObserverInterface
 {
     /**
-     * @var Session
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
      */
     public $backendAuthSession;
-
     /**
-     * @var RequestInterface
+     * $request field
+     *
+     * @var RequestInterface $request
      */
     public $request;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var OrderManagementInterface
+     * $orderManagement field
+     *
+     * @var OrderManagementInterface $orderManagement
      */
     public $orderManagement;
-
     /**
-     * @var Order
+     * $orderModel field
+     *
+     * @var Order $orderModel
      */
     public $orderModel;
-
     /**
-     * @var Array
+     * $params field
+     *
+     * @var array $params
      */
     public $params;
 
     /**
-     * OrderSaveBefore constructor.
+     * OrderAfterVoid constructor
+     *
+     * @param Session                  $backendAuthSession
+     * @param RequestInterface         $request
+     * @param Config                    $config
+     * @param OrderManagementInterface $orderManagement
+     * @param Order                    $orderModel
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Framework\App\RequestInterface $request,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \Magento\Sales\Api\OrderManagementInterface $orderManagement,
-        \Magento\Sales\Model\Order $orderModel
+        Session $backendAuthSession,
+        RequestInterface $request,
+        Config $config,
+        OrderManagementInterface $orderManagement,
+        Order $orderModel
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->request = $request;
-        $this->config = $config;
-        $this->orderManagement = $orderManagement;
-        $this->orderModel = $orderModel;
+        $this->request            = $request;
+        $this->config              = $config;
+        $this->orderManagement    = $orderManagement;
+        $this->orderModel         = $orderModel;
     }
 
     /**
-     * Run the observer.
+     * Run the observer
+     *
+     * @param Observer $observer
+     *
+     * @return OrderAfterVoid|void
      */
     public function execute(Observer $observer)
     {
@@ -79,8 +102,8 @@ class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
             // Get the request parameters
             $this->params = $this->request->getParams();
 
-            $payment = $observer->getEvent()->getPayment();
-            $order = $payment->getOrder();
+            $payment  = $observer->getEvent()->getPayment();
+            $order    = $payment->getOrder();
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
             // Check if payment method is checkout.com
@@ -90,8 +113,8 @@ class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
 
                 // Get the latest order status comment
                 $orderComments = $order->getStatusHistories();
-                $orderComment = array_pop($orderComments);
-                $comment = __('The voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
+                $orderComment  = array_pop($orderComments);
+                $comment       = __('The voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
 
                 // Update the order history comment
                 $orderComment->setData('status', $this->config->getValue('order_status_voided'))->save();
@@ -109,5 +132,4 @@ class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
             return $this;
         }
     }
-
 }

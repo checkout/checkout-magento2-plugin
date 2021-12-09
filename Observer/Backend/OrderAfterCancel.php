@@ -16,58 +16,67 @@
 
 namespace CheckoutCom\Magento2\Observer\Backend;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Model\Order;
 
 /**
  * Class OrderAfterCancel.
  */
-class OrderAfterCancel implements \Magento\Framework\Event\ObserverInterface
+class OrderAfterCancel implements ObserverInterface
 {
     /**
-     * @var Session
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
      */
     public $backendAuthSession;
-
     /**
      * @var RequestInterface
      */
     public $request;
-
     /**
      * @var Config
      */
     public $config;
-
     /**
      * @var OrderManagementInterface
      */
     public $orderManagement;
-
     /**
      * @var Order
      */
     public $orderModel;
-
     /**
      * @var Array
      */
     public $params;
 
     /**
-     * OrderSaveBefore constructor.
+     * OrderAfterCancel constructor
+     *
+     * @param Session                  $backendAuthSession
+     * @param RequestInterface         $request
+     * @param Config                    $config
+     * @param OrderManagementInterface $orderManagement
+     * @param Order                    $orderModel
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Framework\App\RequestInterface $request,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \Magento\Sales\Api\OrderManagementInterface $orderManagement,
-        \Magento\Sales\Model\Order $orderModel
+        Session $backendAuthSession,
+        RequestInterface $request,
+        Config $config,
+        OrderManagementInterface $orderManagement,
+        Order $orderModel
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->request = $request;
-        $this->config = $config;
-        $this->orderManagement = $orderManagement;
-        $this->orderModel = $orderModel;
+        $this->request            = $request;
+        $this->config              = $config;
+        $this->orderManagement    = $orderManagement;
+        $this->orderModel         = $orderModel;
     }
 
     /**
@@ -77,14 +86,14 @@ class OrderAfterCancel implements \Magento\Framework\Event\ObserverInterface
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             $this->params = $this->request->getParams();
-            $payment = $observer->getEvent()->getPayment();
-            $order = $payment->getOrder();
-            $methodId = $order->getPayment()->getMethodInstance()->getCode();
-            
+            $payment      = $observer->getEvent()->getPayment();
+            $order        = $payment->getOrder();
+            $methodId     = $order->getPayment()->getMethodInstance()->getCode();
+
             if (in_array($methodId, $this->config->getMethodsList())) {
                 $orderComments = $order->getStatusHistories();
-                $orderComment = array_pop($orderComments);
-                
+                $orderComment  = array_pop($orderComments);
+
                 $orderComment->setData('status', 'canceled')->save();
             }
 

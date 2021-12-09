@@ -16,7 +16,17 @@
 
 namespace CheckoutCom\Magento2\Plugin\Api;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
+use Closure;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\RefundAdapter\Interceptor;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class RefundInvoice.
@@ -24,48 +34,68 @@ use Magento\Sales\Model\Order;
 class RefundInvoice
 {
     /**
-     * @var MethodHandlerService
+     * $methodHandler field
+     *
+     * @var MethodHandlerService $methodHandler
      */
     public $methodHandler;
-
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var ApiHandlerService
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
     public $apiHandler;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
 
     /**
-     * OrderSaveBefore constructor.
+     * RefundInvoice constructor
+     *
+     * @param MethodHandlerService  $methodHandler
+     * @param StoreManagerInterface $storeManager
+     * @param ApiHandlerService     $apiHandler
+     * @param Config                 $config
      */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        MethodHandlerService $methodHandler,
+        StoreManagerInterface $storeManager,
+        ApiHandlerService $apiHandler,
+        Config $config
     ) {
         $this->methodHandler = $methodHandler;
-        $this->storeManager = $storeManager;
-        $this->apiHandler = $apiHandler;
-        $this->config = $config;
+        $this->storeManager  = $storeManager;
+        $this->apiHandler    = $apiHandler;
+        $this->config         = $config;
     }
 
     /**
-     * Refund the order online.
+     * Refund the order online
+     *
+     * @param Interceptor         $subject
+     * @param Closure             $proceed
+     * @param CreditmemoInterface $creditMemo
+     * @param OrderInterface      $order
+     * @param false               $isOnline
+     *
+     * @return mixed
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function aroundRefund(
-        \Magento\Sales\Model\Order\RefundAdapter\Interceptor $subject,
-        \Closure $proceed,
-        \Magento\Sales\Api\Data\CreditmemoInterface $creditMemo,
-        \Magento\Sales\Api\Data\OrderInterface $order,
+        Interceptor $subject,
+        Closure $proceed,
+        CreditmemoInterface $creditMemo,
+        OrderInterface $order,
         $isOnline = false
     ) {
         // Get the store code
@@ -81,11 +111,11 @@ class RefundInvoice
         if (in_array($methodId, $this->config->getMethodsList()) && $isOnline) {
             // Get the payment and amount to refund
             $payment = $order->getPayment();
-            $amount = $creditMemo->getBaseGrandTotal();
-            $method = $this->methodHandler->get($methodId);
+            $amount  = $creditMemo->getBaseGrandTotal();
+            $method  = $this->methodHandler->get($methodId);
 
             if (!$method->canRefund()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The refund action is not available.')
                 );
             }
@@ -94,7 +124,7 @@ class RefundInvoice
             $response = $api->refundOrder($payment, $amount);
 
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The refund request could not be processed.')
                 );
             }
@@ -102,11 +132,11 @@ class RefundInvoice
             if ($this->statusNeedsCorrection($order)) {
                 $order->setStatus($this->config->getValue('order_status_refunded'));
             }
-            
+
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
             $payment->save();
-            
+
             $result = $proceed($creditMemo, $order, $isOnline);
         } else {
             $result = $proceed($creditMemo, $order, $isOnline);
@@ -115,14 +145,19 @@ class RefundInvoice
         return $result;
     }
 
+    /**
+     * Description statusNeedsCorrection function
+     *
+     * @param $order
+     *
+     * @return bool
+     */
     public function statusNeedsCorrection($order)
     {
-        $currentState = $order->getState();
+        $currentState  = $order->getState();
         $currentStatus = $order->getStatus();
         $desiredStatus = $this->config->getValue('order_status_refunded');
-        
-        return $currentState == Order::STATE_PROCESSING
-            && $currentStatus !== $desiredStatus
-            && $currentStatus !== 'closed';
+
+        return $currentState == Order::STATE_PROCESSING && $currentStatus !== $desiredStatus && $currentStatus !== 'closed';
     }
 }

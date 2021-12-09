@@ -17,20 +17,29 @@
 
 namespace CheckoutCom\Magento2\Plugin\Frontend;
 
+use Closure;
+use Magento\Framework\App\ActionInterface;
+use Magento\Framework\App\Request\CsrfValidator;
+use Magento\Framework\App\RequestInterface;
+
 /**
  * Class CsrfValidatorSkip.
  */
 class CsrfValidatorSkip
 {
     /**
-     * @param \Magento\Framework\App\Request\CsrfValidator $subject
-     * @param \Closure                                     $proceed
-     * @param \Magento\Framework\App\RequestInterface      $request
-     * @param \Magento\Framework\App\ActionInterface       $action
+     * Description aroundValidate function
+     *
+     * @param         $subject
+     * @param Closure $proceed
+     * @param         $request
+     * @param         $action
+     *
+     * @return void
      */
     public function aroundValidate(
         $subject,
-        \Closure $proceed,
+        Closure $proceed,
         $request,
         $action
     ) {

@@ -16,6 +16,10 @@
 
 namespace CheckoutCom\Magento2\Plugin\Backend;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Closure;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
@@ -27,15 +31,19 @@ use Magento\Sales\Model\Order\Payment\State\CommandInterface as BaseCommandInter
 class OrderAfterInvoice
 {
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
 
     /**
-     * OrderAfterInvoice constructor.
+     * OrderAfterInvoice constructor
+     *
+     * @param Config $config
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        Config $config
     ) {
         $this->config = $config;
     }
@@ -43,15 +51,18 @@ class OrderAfterInvoice
     /**
      * Sets the correct order status for orders captured from the hub.
      *
-     * @param BaseCommandInterface $subject
-     * @param Closure $proceed
+     * @param BaseCommandInterface  $subject
+     * @param Closure               $proceed
      * @param OrderPaymentInterface $payment
-     * @param $amount
-     * @param OrderInterface $order
+     * @param                       $amount
+     * @param OrderInterface        $order
+     *
+     * @return Phrase|mixed
+     * @throws LocalizedException
      */
     public function aroundExecute(
         BaseCommandInterface $subject,
-        \Closure $proceed,
+        Closure $proceed,
         OrderPaymentInterface $payment,
         $amount,
         OrderInterface $order
@@ -67,14 +78,14 @@ class OrderAfterInvoice
                 if ($order->getIsVirtual()) {
                     $order->setStatus('complete');
                 } else {
-                    $order->setStatus($this->config->getValue('order_status_captured'));    
+                    $order->setStatus($this->config->getValue('order_status_captured'));
                 }
             }
 
             // Changes order history comment to display currency
             $amount = $order->getInvoiceCollection()->getFirstItem()->getGrandTotal();
             $comment = __('The captured amount is %1.', $order->formatPriceTxt($amount));
-            
+
             return $comment;
         }
 
@@ -85,6 +96,7 @@ class OrderAfterInvoice
      * Check if the order status needs updating.
      *
      * @param $order
+     *
      * @return bool
      */
     public function statusNeedsCorrection($order)

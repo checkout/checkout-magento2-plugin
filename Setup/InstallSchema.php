@@ -17,19 +17,25 @@
 namespace CheckoutCom\Magento2\Setup;
 
 use Magento\Framework\DB\Ddl\Table;
+use Magento\Framework\Setup\InstallSchemaInterface;
+use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\Setup\SchemaSetupInterface;
+use Zend_Db_Exception;
 
-class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
+class InstallSchema implements InstallSchemaInterface
 {
     /**
      * Installs DB schema for the module
      *
-     * @param SchemaSetupInterface $setup
+     * @param SchemaSetupInterface   $setup
      * @param ModuleContextInterface $context
+     *
      * @return void
+     * @throws Zend_Db_Exception
      */
     public function install(
-        \Magento\Framework\Setup\SchemaSetupInterface $setup,
-        \Magento\Framework\Setup\ModuleContextInterface $context
+        SchemaSetupInterface $setup,
+        ModuleContextInterface $context
     ) {
         // Initialise the installer
         $installer = $setup;

@@ -26,6 +26,12 @@ class MinificationExclude
 {
     /**
      * Exclude remote URLs from minification
+     *
+     * @param Minification $subject
+     * @param array        $result
+     * @param              $contentType
+     *
+     * @return array
      */
     public function afterGetExcludes(Minification $subject, array $result, $contentType)
     {

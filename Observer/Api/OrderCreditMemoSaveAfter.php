@@ -16,67 +16,83 @@
 
 namespace CheckoutCom\Magento2\Observer\Api;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
 
 /**
  * Class OrderCreditMemoSaveAfter.
  */
-class OrderCreditMemoSaveAfter implements \Magento\Framework\Event\ObserverInterface
+class OrderCreditMemoSaveAfter implements ObserverInterface
 {
     /**
-     * @var Session
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
      */
     public $backendAuthSession;
-
     /**
-     * @var RequestInterface
+     * $request field
+     *
+     * @var RequestInterface $request
      */
     public $request;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var Array
+     * $params field
+     *
+     * @var array $params
      */
     public $params;
 
     /**
-     * OrderSaveBefore constructor.
+     * OrderCreditMemoSaveAfter constructor
+     *
+     * @param Session          $backendAuthSession
+     * @param RequestInterface $request
+     * @param Config            $config
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Framework\App\RequestInterface $request,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        Session $backendAuthSession,
+        RequestInterface $request,
+        Config $config
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->request = $request;
-        $this->config = $config;
+        $this->request            = $request;
+        $this->config              = $config;
     }
 
     /**
-     * Run the observer.
+     * Run the observer
+     *
+     * @param Observer $observer
+     *
+     * @return OrderCreditMemoSaveAfter
      */
     public function execute(Observer $observer)
     {
         $creditMemo = $observer->getEvent()->getCreditmemo();
-        $order = $creditMemo->getOrder();
-        $methodId = $order->getPayment()->getMethodInstance()->getCode();
+        $order      = $creditMemo->getOrder();
+        $methodId   = $order->getPayment()->getMethodInstance()->getCode();
 
         // Check if payment method is checkout.com
         if (in_array($methodId, $this->config->getMethodsList())) {
-            $status = ($order->getStatus() == 'closed' || $order->getStatus() == 'complete')
-                ? $order->getStatus()
-                : $this->config->getValue('order_status_refunded');
+            $status = ($order->getStatus() == 'closed' || $order->getStatus() == 'complete') ? $order->getStatus(
+            ) : $this->config->getValue('order_status_refunded');
 
             // Update the order status
             $order->setStatus($status);
 
             // Get the latest order status comment
             $orderComments = $order->getStatusHistories();
-            $orderComment = array_pop($orderComments);
+            $orderComment  = array_pop($orderComments);
 
             // Update the order history comment status
             $orderComment->setData('status', $status)->save();
