@@ -44,6 +44,9 @@ use Magento\Store\Model\Store;
 /**
  * Payment method abstract model
  *
+ * @category  Magento2
+ * @package   Checkout.com
+ *
  * @SuppressWarnings(PHPMD.ExcessivePublicCount)
  * @SuppressWarnings(PHPMD.TooManyFields)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)

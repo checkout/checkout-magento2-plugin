@@ -20,7 +20,10 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\Context;
 
 /**
- * Webhook entity mysql resource
+ * Class WebhookEntity mysql resource
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class WebhookEntity extends AbstractDb
 {

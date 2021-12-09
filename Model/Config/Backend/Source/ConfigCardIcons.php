@@ -22,6 +22,9 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigCardIcons
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class ConfigCardIcons implements OptionSourceInterface
 {

@@ -20,6 +20,12 @@ use CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 use Magento\Framework\DataObject\IdentityInterface;
 use Magento\Framework\Model\AbstractModel;
 
+/**
+ * Class WebhookEntity
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
 class WebhookEntity extends AbstractModel implements WebhookEntityInterface, IdentityInterface
 {
     /**

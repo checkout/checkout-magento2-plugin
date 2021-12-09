@@ -22,6 +22,12 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Zend_Db_Exception;
 
+/**
+ * Class InstallSchema
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
 class InstallSchema implements InstallSchemaInterface
 {
     /**

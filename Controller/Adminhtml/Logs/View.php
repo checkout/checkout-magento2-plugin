@@ -25,6 +25,9 @@ use Magento\Framework\View\Result\PageFactory;
 
 /**
  * Class View
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class View extends Action
 {

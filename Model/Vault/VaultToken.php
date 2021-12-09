@@ -25,6 +25,9 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
 
 /**
  * Class VaultToken
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class VaultToken
 {

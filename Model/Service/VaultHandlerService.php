@@ -31,7 +31,10 @@ use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 
 /**
- * Class VaultHandlerService.
+ * Class VaultHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class VaultHandlerService
 {

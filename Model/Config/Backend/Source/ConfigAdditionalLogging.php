@@ -21,6 +21,9 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigAdditionalLogging
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class ConfigAdditionalLogging implements OptionSourceInterface
 {

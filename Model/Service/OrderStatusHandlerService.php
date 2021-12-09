@@ -26,7 +26,10 @@ use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Class OrderStatusHandlerService.
+ * Class OrderStatusHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class OrderStatusHandlerService
 {

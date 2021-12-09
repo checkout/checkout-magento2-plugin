@@ -35,6 +35,9 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Verify
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class Verify extends Action
 {

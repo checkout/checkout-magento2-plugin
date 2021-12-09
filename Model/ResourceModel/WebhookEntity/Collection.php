@@ -18,6 +18,12 @@ namespace CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
+/**
+ * Class Collection
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
 class Collection extends AbstractCollection
 {
     /**

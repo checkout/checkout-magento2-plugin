@@ -26,7 +26,10 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
 
 /**
- * Class WebhookHandlerService.
+ * Class WebhookHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class WebhookHandlerService
 {

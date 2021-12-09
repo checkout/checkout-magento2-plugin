@@ -36,6 +36,9 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Fail
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class Fail extends Action
 {

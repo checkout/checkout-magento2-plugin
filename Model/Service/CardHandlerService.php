@@ -24,7 +24,10 @@ use Magento\Framework\Module\Dir\Reader;
 use Magento\Framework\View\Asset\Repository;
 
 /**
- * Class CardHandlerService.
+ * Class CardHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class CardHandlerService
 {

@@ -21,6 +21,9 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigGooglePayButton
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class ConfigGooglePayButton implements OptionSourceInterface
 {

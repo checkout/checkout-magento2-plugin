@@ -25,7 +25,10 @@ use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Model\Order;
 
 /**
- * Class OrderAfterVoid.
+ * Class OrderAfterVoid
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class OrderAfterVoid implements ObserverInterface
 {

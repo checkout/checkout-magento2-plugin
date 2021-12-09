@@ -37,7 +37,10 @@ use Magento\Sales\Model\Service\CreditmemoService;
 use Magento\Sales\Model\Convert\Order as ConvertOrder;
 
 /**
- * Class TransactionHandlerService.
+ * Class TransactionHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class TransactionHandlerService
 {

@@ -37,6 +37,9 @@ use Magento\Quote\Api\Data\CartInterface;
 
 /**
  * Class MotoMethod
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class MotoMethod extends AbstractMethod
 {

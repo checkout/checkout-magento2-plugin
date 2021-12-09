@@ -21,6 +21,9 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigWebhooks
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class ConfigWebhooks implements OptionSourceInterface
 {

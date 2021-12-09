@@ -50,6 +50,9 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class CardPaymentMethod
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class CardPaymentMethod extends AbstractMethod
 {

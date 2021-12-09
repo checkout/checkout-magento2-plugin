@@ -17,6 +17,12 @@
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
+/**
+ * Class WebhookUrl
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
 class WebhookUrl extends AbstractCallbackUrl
 {
     /**

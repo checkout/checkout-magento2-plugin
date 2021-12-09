@@ -16,6 +16,12 @@
 
 namespace CheckoutCom\Magento2\Api\Data;
 
+/**
+ * Interface WebhookEntityInterface
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
 interface WebhookEntityInterface
 {
     /**

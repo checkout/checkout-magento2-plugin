@@ -22,6 +22,9 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
 
 /**
  * Class TokenFormatter
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class TokenFormatter
 {

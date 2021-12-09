@@ -26,7 +26,10 @@ use Magento\Framework\Module\Dir\Reader;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Class VersionHandlerService.
+ * Class VersionHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class VersionHandlerService
 {

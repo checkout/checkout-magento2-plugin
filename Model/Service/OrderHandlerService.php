@@ -31,7 +31,10 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Class OrderHandlerService.
+ * Class OrderHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class OrderHandlerService
 {

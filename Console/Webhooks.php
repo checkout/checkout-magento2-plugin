@@ -30,6 +30,9 @@ use Magento\Framework\App\ObjectManager;
 
 /**
  * Class Webhooks
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class Webhooks extends Command
 {

@@ -18,6 +18,9 @@ namespace CheckoutCom\Magento2\Api;
 
 /**
  * Interface for API v3
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 interface V3Interface
 {

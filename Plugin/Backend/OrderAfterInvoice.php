@@ -26,7 +26,10 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface as BaseCommandInterface;
 
 /**
- * Class OrderAfterInvoice.
+ * Class OrderAfterInvoice
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class OrderAfterInvoice
 {

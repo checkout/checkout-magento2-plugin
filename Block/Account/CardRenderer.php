@@ -26,6 +26,9 @@ use Magento\Vault\Block\AbstractCardRenderer;
 
 /**
  * Class CardRenderer
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class CardRenderer extends AbstractCardRenderer
 {

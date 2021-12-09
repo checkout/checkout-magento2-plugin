@@ -23,7 +23,10 @@ use Magento\Framework\App\Request\CsrfValidator;
 use Magento\Framework\App\RequestInterface;
 
 /**
- * Class CsrfValidatorSkip.
+ * Class CsrfValidatorSkip
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class CsrfValidatorSkip
 {

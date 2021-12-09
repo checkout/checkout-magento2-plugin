@@ -24,7 +24,10 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Service\InvoiceService;
 
 /**
- * Class InvoiceHandlerService.
+ * Class InvoiceHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class InvoiceHandlerService
 {

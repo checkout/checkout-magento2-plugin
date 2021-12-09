@@ -23,6 +23,9 @@ use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class Logger
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class Logger
 {

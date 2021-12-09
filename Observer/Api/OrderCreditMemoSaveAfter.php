@@ -23,7 +23,10 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
 /**
- * Class OrderCreditMemoSaveAfter.
+ * Class OrderCreditMemoSaveAfter
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class OrderCreditMemoSaveAfter implements ObserverInterface
 {

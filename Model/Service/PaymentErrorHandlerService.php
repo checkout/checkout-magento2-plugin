@@ -22,7 +22,10 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
 
 /**
- * Class PaymentErrorHandlerService.
+ * Class PaymentErrorHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class PaymentErrorHandlerService
 {

@@ -21,6 +21,9 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigApplePayButton
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class ConfigApplePayButton implements OptionSourceInterface
 {

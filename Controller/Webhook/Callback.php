@@ -41,6 +41,9 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Callback
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class Callback extends Action
 {

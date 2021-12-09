@@ -25,7 +25,10 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\View\Helper\Js;
 
 /**
- * Fieldset renderer
+ * Class Payment
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class Payment extends Fieldset
 {

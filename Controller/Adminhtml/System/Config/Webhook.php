@@ -27,6 +27,12 @@ use Magento\Framework\App\Cache\TypeListInterface;
 use CheckoutCom\Magento2\Helper\Logger;
 use Magento\Config\Model\ResourceModel\Config;
 
+/**
+ * Class Webhook
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
 class Webhook extends Action
 {
     protected $resultJsonFactory;

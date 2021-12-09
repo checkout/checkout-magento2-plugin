@@ -22,6 +22,12 @@ use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
 use Zend_Db_Exception;
 
+/**
+ * Class UpgradeSchema
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
 class UpgradeSchema implements UpgradeSchemaInterface
 {
     /**

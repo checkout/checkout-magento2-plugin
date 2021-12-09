@@ -24,7 +24,10 @@ use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 
 /**
- * Class AfterPlaceOrder.
+ * Class AfterPlaceOrder
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class AfterPlaceOrder
 {

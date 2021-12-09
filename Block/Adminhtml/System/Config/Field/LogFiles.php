@@ -24,6 +24,12 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 
+/**
+ * Class LogFiles
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
 class LogFiles extends Field
 {
     /**

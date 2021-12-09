@@ -27,7 +27,10 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\Resolver;
 
 /**
- * Class ShopperHandlerService.
+ * Class ShopperHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class ShopperHandlerService
 {

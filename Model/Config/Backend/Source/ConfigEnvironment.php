@@ -21,6 +21,9 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigEnvironment
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class ConfigEnvironment implements OptionSourceInterface
 {

@@ -39,7 +39,10 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 
 /**
- * Class MotoPaymentRequest.
+ * Class MotoPaymentRequest
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class MotoPaymentRequest implements ObserverInterface
 {

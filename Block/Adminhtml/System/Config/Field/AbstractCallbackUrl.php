@@ -25,6 +25,12 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 
+/**
+ * Class AbstractCallbackUrl
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
 abstract class AbstractCallbackUrl extends Field
 {
     /**

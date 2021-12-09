@@ -47,6 +47,9 @@ use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 
 /**
  * Class GooglePayMethod
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class GooglePayMethod extends AbstractMethod
 {

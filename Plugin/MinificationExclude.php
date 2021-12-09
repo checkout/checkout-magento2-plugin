@@ -20,7 +20,10 @@ namespace CheckoutCom\Magento2\Plugin;
 use Magento\Framework\View\Asset\Minification;
 
 /**
- * Class MinificationExclude.
+ * Class MinificationExclude
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class MinificationExclude
 {

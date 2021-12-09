@@ -36,7 +36,10 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Class QuoteHandlerService.
+ * Class QuoteHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class QuoteHandlerService
 {

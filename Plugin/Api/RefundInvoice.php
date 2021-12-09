@@ -29,7 +29,10 @@ use Magento\Sales\Model\Order\RefundAdapter\Interceptor;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Class RefundInvoice.
+ * Class RefundInvoice
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class RefundInvoice
 {

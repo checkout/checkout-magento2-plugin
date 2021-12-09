@@ -21,6 +21,12 @@ use Magento\Framework\Phrase;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 
+/**
+ * Class View
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
 class View extends Template
 {
     /**

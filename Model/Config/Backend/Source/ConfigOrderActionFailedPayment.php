@@ -19,6 +19,9 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigOrderActionFailedPayment
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class ConfigOrderActionFailedPayment implements OptionSourceInterface
 {

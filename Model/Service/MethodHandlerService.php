@@ -20,7 +20,10 @@ namespace CheckoutCom\Magento2\Model\Service;
 use Magento\Customer\Model\Session;
 
 /**
- * Class MethodHandlerService.
+ * Class MethodHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class MethodHandlerService
 {
