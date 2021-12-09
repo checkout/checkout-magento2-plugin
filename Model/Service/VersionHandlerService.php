@@ -42,13 +42,13 @@ class VersionHandlerService
      * @var Curl $curl
      */
     public $curl;
-    /*
+    /**
      * $moduleDirReader field
      *
      * @var ModuleDirReader $moduleDirReader
      */
     public $moduleDirReader;
-    /*
+    /**
      * $storeManager field
      *
      * @var $storeManager $storeManager

@@ -59,7 +59,7 @@ class ConfigDefaultMethod implements OptionSourceInterface
         // Get the available payment methods
         $methods = $this->config->getMethodsConfig();
 
-        // Build an array of optionss
+        // Build an array of options
         foreach ($methods as $id => $data) {
             $options[] = [
                 'value' => $id,

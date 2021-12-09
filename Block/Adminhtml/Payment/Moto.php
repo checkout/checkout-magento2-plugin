@@ -33,7 +33,7 @@ class Moto extends Cc
     /**
      * $_template field
      *
-     * @var String $_template
+     * @var string $_template
      */
     public $_template;
     /**

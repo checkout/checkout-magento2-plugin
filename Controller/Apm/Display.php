@@ -165,9 +165,6 @@ class Display extends Action
     public function countryCurrencyMapping($apm, $billingCountry, $currency)
     {
         if ($apm['value'] == 'klarna' || $apm['value'] == 'poli') {
-            //            var_dump($currency);
-            //            var_dump($billingCountry);
-            //            die();
             if (strpos(
                     $apm['mappings'][$currency],
                     $billingCountry
