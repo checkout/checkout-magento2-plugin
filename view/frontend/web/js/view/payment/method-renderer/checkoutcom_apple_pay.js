@@ -8,7 +8,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -25,7 +25,7 @@ define(
         'mage/translate'
     ],
     function (
-        $, 
+        $,
         Component,
         Utilities,
         ApplePayUtilities,
@@ -122,7 +122,7 @@ define(
                 getMerchantCapabilities: function () {
                     var output = ['supports3DS'];
                     var capabilities = this.getValue('merchant_capabilities').split(',');
-                    
+
                     return output.concat(capabilities);
                 },
 
@@ -132,7 +132,7 @@ define(
                 performValidation: function (valURL) {
                     var controllerUrl = Utilities.getUrl('applepay/validation');
                     var validationUrl = controllerUrl + '?u=' + valURL + '&method_id=' + METHOD_ID;
-                    
+
                     return new Promise(
                         function (resolve, reject) {
                             var xhr = new XMLHttpRequest();
@@ -280,7 +280,7 @@ define(
                                         },
                                         supportedNetworks: self.getSupportedNetworks(),
                                         merchantCapabilities: self.getMerchantCapabilities()
-                                    };    
+                                    };
                                 }
 
                                 // Start the payment session
@@ -307,13 +307,13 @@ define(
 
                                     // Shipping info
                                     var shippingOptions = [];
-                                
+
                                     var newTotal = {
                                         type: 'final',
                                         label: ap['storeName'],
                                         amount: runningTotal
                                     };
-                                
+
                                     session.completeShippingContactSelection(status, shippingOptions, newTotal, self.getLineItems());
                                 }
 
@@ -336,7 +336,7 @@ define(
                                         label: Utilities.getStoreName(),
                                         amount: runningTotal
                                     };
-                                
+
                                     session.completePaymentMethodSelection(newTotal, self.getLineItems());
                                 }
 
@@ -366,7 +366,7 @@ define(
                                             } else {
                                                 status = ApplePaySession.STATUS_FAILURE;
                                             }
-                                    
+
                                             session.completePayment(status);
 
                                             if (success) {

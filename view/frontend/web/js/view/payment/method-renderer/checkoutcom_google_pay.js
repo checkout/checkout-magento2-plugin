@@ -8,7 +8,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -98,7 +98,7 @@ define(
                                 // Prepare the payment parameters
                                 var allowedPaymentMethods = ['CARD', 'TOKENIZED_CARD'];
                                 var allowedCardNetworks = self.getAllowedNetworks();
-                    
+
                                 var tokenizationParameters = {
                                     tokenizationType: 'PAYMENT_GATEWAY',
                                     parameters: {
@@ -109,13 +109,13 @@ define(
 
                                 // Prepare the Google Pay client
                                 onGooglePayLoaded();
-                
+
                                 /**
                                  * Show Google Pay chooser when Google Pay purchase button is clicked
                                  */
                                 var paymentDataRequest = getGooglePaymentDataConfiguration();
                                 paymentDataRequest.transactionInfo = getGoogleTransactionInfo();
-                
+
                                 var paymentsClient = getGooglePaymentsClient();
                                 paymentsClient.loadPaymentData(paymentDataRequest)
                                 .then(
@@ -143,7 +143,7 @@ define(
                                         }
                                     ));
                                 }
-                    
+
                                 /**
                                  * Initialize Google PaymentsClient after Google-hosted JavaScript has loaded
                                  */
@@ -164,7 +164,7 @@ define(
                                         }
                                     );
                                 }
-                    
+
                                 /**
                                  * Configure support for the Google Pay API
                                  *
@@ -182,7 +182,7 @@ define(
                                         }
                                     };
                                 }
-                    
+
                                 /**
                                  * Provide Google Pay API with a payment amount, currency, and amount status
                                  *
@@ -197,7 +197,7 @@ define(
                                         totalPrice: Utilities.getQuoteValue()
                                     };
                                 }
-                    
+
                                 /**
                                  * Prefetch payment data to improve performance
                                  */
@@ -214,7 +214,7 @@ define(
                                     var paymentsClient = getGooglePaymentsClient();
                                     paymentsClient.prefetchPaymentData(paymentDataRequest);
                                 }
-                    
+
                                 /**
                                  * Process payment data returned by the Google Pay API
                                  *

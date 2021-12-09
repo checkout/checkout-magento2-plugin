@@ -8,7 +8,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -94,7 +94,7 @@ require([
                         AuthPopup.showModal();
                         return;
                     }
-                    
+
                     // Prepare the parameters
                     var runningTotal         = Utilities.getQuoteValue();
 
@@ -237,7 +237,7 @@ require([
                         let totals = getVirtualCartTotals();
                         totalsBreakdown = totals;
                     }
-                    
+
                     session.completePaymentMethodSelection(
                         totalsBreakdown.total,
                         totalsBreakdown.breakdown
@@ -440,7 +440,7 @@ require([
                 });
                 if (index !== 0) {
                     shippingMethodsAvailable.splice(index, 1);
-                    shippingMethodsAvailable.unshift(selectedShippingMethod);    
+                    shippingMethodsAvailable.unshift(selectedShippingMethod);
                 }
             }
 
@@ -477,7 +477,7 @@ require([
         function getVirtualCartTotals() {
             let totalInfo = ApplePayUtilities.getRestData(null, "totals");
             let breakdown = [];
-            
+
             totalInfo.total_segments.forEach(function (totalItem) {
                 // ignore the grand total since it's handled separately
                 if (totalItem.code === "grand_total") return;
@@ -500,7 +500,7 @@ require([
                 },
             };
         }
-        
+
         /**
          * Return the cart totals (grand total, and breakdown)
          *
@@ -590,7 +590,7 @@ require([
             };
             ApplePayUtilities.getRestData(requestBody, "shipping-information");
         }
-        
+
         function setBilling(shippingDetails, billingDetails) {
             let requestBody = {
                 address: {
