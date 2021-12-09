@@ -36,47 +36,69 @@ use Magento\Store\Model\StoreManagerInterface;
 class OrderHandlerService
 {
     /**
-     * @var Session
+     * $checkoutSession field
+     *
+     * @var Session $checkoutSession
      */
     public $checkoutSession;
     /**
-     * @var QuoteManagement
+     * $quoteManagement field
+     *
+     * @var QuoteManagement $quoteManagement
      */
     public $quoteManagement;
     /**
-     * @var OrderRepositoryInterface
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
      */
     public $orderRepository;
     /**
-     * @var SearchCriteriaBuilder
+     * $searchBuilder field
+     *
+     * @var SearchCriteriaBuilder $searchBuilder
      */
     public $searchBuilder;
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
     /**
-     * @var QuoteHandlerService
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
     public $quoteHandler;
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
     /**
-     * @var String
+     * $methodId field
+     *
+     * @var  $methodId
      */
     public $methodId;
     /**
-     * @var array
+     * $paymentData field
+     *
+     * @var array $paymentData
      */
     public $paymentData;
     /**
-     * @var Logger
+     * $logger field
+     *
+     * @var Logger $logger
      */
     public $logger;
     /**
-     * @var TransactionHandlerService
+     * $transactionHandler field
+     *
+     * @var TransactionHandlerService $transactionHandler
      */
     public $transactionHandler;
 
