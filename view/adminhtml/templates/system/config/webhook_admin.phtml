@@ -1,72 +1,98 @@
+<?php
+
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+use CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\AbstractCallbackUrl;
+
+/** @var AbstractCallbackUrl $block */
+?>
+
 <?php echo $block->getElementHtml(); ?>
 <p id="webhook-message" class="webhook-message <?= $block->getMessageClass(); ?>"><?= $block->getMessage(); ?></p>
-    <script>
-        require([
-            'jquery',
-            'prototype'
-        ], function(jQuery){
-            let secretKey = document.getElementsByName('groups[checkoutcom][groups][module][groups][account_settings][fields][secret_key][value]')
-            let publicKey = document.getElementsByName('groups[checkoutcom][groups][module][groups][account_settings][fields][public_key][value]')
-            const LIVE_SECRET_KEY_REGEX = /^sk_?(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$/;
-            const SANDBOX_SECRET_KEY_REGEX = /^sk_test_?(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$/;
+<script>
+require([
+    'jquery',
+    'prototype',
+], function(jQuery) {
+    let secretKey = document.getElementsByName(
+        'groups[checkoutcom][groups][module][groups][account_settings][fields][secret_key][value]');
+    let publicKey = document.getElementsByName(
+        'groups[checkoutcom][groups][module][groups][account_settings][fields][public_key][value]');
+    const LIVE_SECRET_KEY_REGEX = /^sk_?(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$/;
+    const SANDBOX_SECRET_KEY_REGEX = /^sk_test_?(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$/;
 
-            function checkFormFields()
-            {
-                let environment = document.getElementsByName('groups[checkoutcom][groups][module][groups][global_settings][fields][environment][value]')[0].value
-                if (environment === '1') {
-                    if (!secretKey[0].value.match(SANDBOX_SECRET_KEY_REGEX)) {
-                        return false   
-                    }
-                } else {
-                    if (!secretKey[0].value.match(LIVE_SECRET_KEY_REGEX)) {
-                        return false
-                    }
-                }
-                return true;
+    function checkFormFields() {
+        let environment = document.getElementsByName(
+            'groups[checkoutcom][groups][module][groups][global_settings][fields][environment][value]')[0].value;
+        if (environment === '1') {
+            if (!secretKey[0].value.match(SANDBOX_SECRET_KEY_REGEX)) {
+                return false;
             }
+        } else {
+            if (!secretKey[0].value.match(LIVE_SECRET_KEY_REGEX)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-            secretKey[0].addEventListener('input', event => {
-                if (checkFormFields()) {
-                    document.getElementById('webhook_auto_set').style.display = 'block'
+    secretKey[0].addEventListener('input', event => {
+        if (checkFormFields()) {
+            document.getElementById('webhook_auto_set').style.display = 'block';
+        } else {
+            document.getElementById('webhook_auto_set').style.display = 'none';
+        }
+    });
+
+    jQuery('#webhook_button').click(function() {
+        var params = {
+            scope: '<?= $block->getScope(); ?>',
+            scope_id: '<?= $block->getScopeId(); ?>',
+            webhook_url: '<?= $block->getWebhookUrl(); ?>',
+            secret_key: secretKey[0].value,
+            public_key: publicKey[0].value,
+        };
+        new Ajax.Request('<?php echo $block->getAjaxUrl() ?>', {
+            parameters: params,
+            loaderArea: false,
+            asynchronous: true,
+            onCreate: function() {
+                document.getElementById('webhook_spinner').style.display = 'initial';
+            },
+            onSuccess: function(response) {
+                if (response.responseJSON.success) {
+                    let privateSharedKey = document.getElementsByName(
+                        'groups[checkoutcom][groups][module][groups][account_settings][fields][private_shared_key][value]');
+                    privateSharedKey[0].value = response.responseJSON.privateSharedKey;
+                    document.getElementById('webhook-message').textContent = "<?= __('Your webhook is all set!'); ?>";
+                    document.getElementById('webhook-message').classList.toggle('webhook-set');
+                    document.getElementById('webhook_auto_set').style.display = 'none';
                 } else {
-                    document.getElementById('webhook_auto_set').style.display = 'none'
+                    document.getElementById('webhook_spinner').style.display = 'none';
+                    alert("<?= __('Error! Could not set webhooks. Please check your secret key.'); ?>");
                 }
-            })
-
-            jQuery('#webhook_button').click(function () {
-                var params = {
-                    scope: '<?= $block->getScope(); ?>',
-                    scope_id: '<?= $block->getScopeId(); ?>',
-                    webhook_url: '<?= $block->getWebhookUrl(); ?>',
-                    secret_key: secretKey[0].value,
-                    public_key: publicKey[0].value
-                };
-                new Ajax.Request('<?php echo $block->getAjaxUrl() ?>', {
-                    parameters:     params,
-                    loaderArea:     false,
-                    asynchronous:   true,
-                    onCreate: function() {
-                        document.getElementById('webhook_spinner').style.display = 'initial';
-                    },
-                    onSuccess: function(response) {
-                        if (response.responseJSON.success) {
-                            let privateSharedKey = document.getElementsByName('groups[checkoutcom][groups][module][groups][account_settings][fields][private_shared_key][value]')
-                            privateSharedKey[0].value = response.responseJSON.privateSharedKey
-                            document.getElementById('webhook-message').textContent = "<?= __('Your webhook is all set!'); ?>"
-                            document.getElementById('webhook-message').classList.toggle('webhook-set')
-                            document.getElementById('webhook_auto_set').style.display = 'none';
-                        } else {
-                            document.getElementById('webhook_spinner').style.display = 'none';
-                            alert("<?= __('Error! Could not set webhooks. Please check your secret key.'); ?>");
-                        }
-                    }
-                });
-            });
+            },
         });
-    </script>
-    <div id="webhook_auto_set" style="display: <?= ($block->getHidden() == true) ? 'none' : 'block' ?> ">
-        <?php echo $block->getButtonHtml() ?>
-        <span id="webhook_span">
-            <img id="webhook_spinner" style="display: none" alt="Processing Spinner" style="margin:0 5px" src="<?php echo $block->getViewFileUrl('images/process_spinner.gif') ?>"/>
+    });
+});
+</script>
+<div id="webhook_auto_set" style="display: <?= ($block->getHidden() == true) ? 'none' : 'block' ?> ">
+    <?php echo $block->getButtonHtml() ?>
+    <span id="webhook_span">
+            <img id="webhook_spinner" style="display: none" alt="Processing Spinner" style="margin:0 5px"
+                 src="<?php echo $block->getViewFileUrl('images/process_spinner.gif') ?>"/>
         </span>
-    </div>
+</div>
