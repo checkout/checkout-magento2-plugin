@@ -44,7 +44,7 @@ class TokenFormatter
     }
 
     /**
-     * {@inheritDoc}
+     * Description formatPaymentToken function
      *
      * @param PaymentTokenInterface $paymentToken
      *

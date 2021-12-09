@@ -54,7 +54,7 @@ class AvailabilityChecker
     }
 
     /**
-     * {@inheritDoc}
+     * Description isAvailable function
      *
      * @return bool
      */
