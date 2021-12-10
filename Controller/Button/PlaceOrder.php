@@ -18,7 +18,7 @@
 /**
  * Checkout.com Magento 2 Payment module (https://www.checkout.com)
  *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Copyright (c) 2010-present Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -28,6 +28,7 @@ namespace CheckoutCom\Magento2\Controller\Button;
 
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\InstantPurchase\ShippingSelector;
+use CheckoutCom\Magento2\Model\Methods\VaultMethod;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
@@ -137,7 +138,7 @@ class PlaceOrder extends Action
         MethodHandlerService $methodHandler,
         ApiHandlerService $apiHandler,
         Utilities $utilities,
-        \CheckoutCom\Magento2\Model\InstantPurchase\ShippingSelector $shippingSelector
+        ShippingSelector $shippingSelector
     ) {
         parent::__construct($context);
 
@@ -151,18 +152,6 @@ class PlaceOrder extends Action
         $this->apiHandler       = $apiHandler;
         $this->utilities        = $utilities;
         $this->shippingSelector = $shippingSelector;
-
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
-
-        // Set some required properties
-        $this->data = $this->getRequest()->getParams();
-
-        // Prepare the public hash
-        $this->data['publicHash'] = $this->data['instant_purchase_payment_token'];
-
-        // Set some required properties
-        $this->methodId = 'checkoutcom_vault';
     }
 
     /**
@@ -174,6 +163,10 @@ class PlaceOrder extends Action
      */
     public function execute()
     {
+        /** @var array $data */
+        $data = $this->getRequest()->getParams();
+        $data['publicHash'] = $data['instant_purchase_payment_token'];
+
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
@@ -187,15 +180,15 @@ class PlaceOrder extends Action
         $quote = $this->quoteHandler->createQuote();
         $quote = $this->quoteHandler->addItems(
             $quote,
-            $this->data
+            $data
         );
 
         // Set the billing address
-        $billingAddress = $this->addressManager->load($this->data['instant_purchase_billing_address']);
+        $billingAddress = $this->addressManager->load($data['instant_purchase_billing_address']);
         $quote->getBillingAddress()->addData($billingAddress->getData());
 
         // Get the shipping address
-        $shippingAddress = $this->addressManager->load($this->data['instant_purchase_shipping_address']);
+        $shippingAddress = $this->addressManager->load($data['instant_purchase_shipping_address']);
 
         // Prepare the quote
         $quote->getShippingAddress()->addData($shippingAddress->getData());
@@ -208,19 +201,19 @@ class PlaceOrder extends Action
             ->collectShippingRates();
 
         // Set payment
-        $quote->setPaymentMethod($this->methodId);
+        $quote->setPaymentMethod(VaultMethod::CODE);
         $quote->save();
-        $quote->getPayment()->importData(['method' => $this->methodId]);
+        $quote->getPayment()->importData(['method' => VaultMethod::CODE]);
 
         // Save the quote
         $quote->collectTotals()->save();
 
         // Create the order
-        $order = $this->orderHandler->setMethodId($this->methodId)->handleOrder($quote);
+        $order = $this->orderHandler->setMethodId(VaultMethod::CODE)->handleOrder($quote);
 
         // Process the payment
-        $response = $this->methodHandler->get($this->methodId)->sendPaymentRequest(
-                $this->data,
+        $response = $this->methodHandler->get(VaultMethod::CODE)->sendPaymentRequest(
+                $data,
                 $order->getGrandTotal(),
                 $order->getOrderCurrencyCode(),
                 $order->getIncrementId(),
