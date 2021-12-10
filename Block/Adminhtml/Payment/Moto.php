@@ -38,7 +38,7 @@ class Moto extends Cc
      *
      * @var string $_template
      */
-    public $_template;
+    public $_template = 'CheckoutCom_Magento2::payment/moto.phtml';
     /**
      * $paymentModelConfig field
      *
@@ -90,7 +90,6 @@ class Moto extends Cc
     ) {
         parent::__construct($context, $paymentModelConfig);
 
-        $this->_template    = 'CheckoutCom_Magento2::payment/moto.phtml';
         $this->adminQuote   = $adminQuote;
         $this->config        = $config;
         $this->vaultHandler = $vaultHandler;
