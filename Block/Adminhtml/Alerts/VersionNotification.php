@@ -18,6 +18,8 @@
 namespace CheckoutCom\Magento2\Block\Adminhtml\Alerts;
 
 use CheckoutCom\Magento2\Model\Service\VersionHandlerService;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Notification\MessageInterface;
 use Magento\Framework\Phrase;
 
@@ -29,21 +31,32 @@ use Magento\Framework\Phrase;
  */
 class VersionNotification implements MessageInterface
 {
+    /**
+     * $versionHandler field
+     *
+     * @var VersionHandlerService $versionHandler
+     */
     public $versionHandler;
-    public $versions;
+    /**
+     * $current field
+     *
+     * @var mixed $current
+     */
     public $current;
+    /**
+     * $latest field
+     *
+     * @var mixed $latest
+     */
     public $latest;
 
     /**
-     * VersionNotification constructor
-     *
      * @param VersionHandlerService $versionHandler
      */
     public function __construct(
         VersionHandlerService $versionHandler
     ) {
         $this->versionHandler = $versionHandler;
-        $this->versions       = $this->versionHandler->getVersions();
     }
 
     /**
@@ -76,12 +89,16 @@ class VersionNotification implements MessageInterface
      * Description isDisplayed function
      *
      * @return bool|void
+     * @throws FileSystemException|NoSuchEntityException
      */
     public function isDisplayed()
     {
-        if (isset($this->versions[0]['tag_name'])) {
+        /** @var mixed $versions */
+        $versions = $this->versionHandler->getVersions();
+
+        if (is_array($versions) &&  isset($versions[0]['tag_name'])) {
             $this->current = $this->versionHandler->getModuleVersion();
-            $this->latest  = $this->versionHandler->getLatestVersion($this->versions);
+            $this->latest  = $this->versionHandler->getLatestVersion($versions);
             if ($this->versionHandler->needsUpdate($this->current, $this->latest)) {
                 return true;
             }
