@@ -275,7 +275,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
             $data
         );
         $this->_paymentData = $paymentData;
-        $this->_scopeConfig = $scopeConfig;
+        $this->_scopeConfig  = $scopeConfig;
         $this->logger       = $logger;
         $this->directory    = $directory ?: ObjectManager::getInstance()->get(DirectoryHelper::class);
         $this->initializeData($data);
