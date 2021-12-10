@@ -162,7 +162,7 @@ class PlaceOrder extends Action
 
         $this->storeManager        = $storeManager;
         $this->jsonFactory         = $jsonFactory;
-        $this->scopeConfig         = $scopeConfig;
+        $this->scopeConfig          = $scopeConfig;
         $this->quoteHandler        = $quoteHandler;
         $this->orderHandler        = $orderHandler;
         $this->orderStatusHandler  = $orderStatusHandler;

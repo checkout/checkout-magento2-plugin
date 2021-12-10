@@ -70,6 +70,6 @@ class Form extends Template
 
         $this->cardHandler  = $cardHandler;
         $this->vaultHandler = $vaultHandler;
-        $this->config       = $config;
+        $this->config        = $config;
     }
 }

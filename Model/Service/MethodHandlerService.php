@@ -55,7 +55,7 @@ class MethodHandlerService
      */
     public function __construct(
         $instances,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
+        OrderHandlerService $orderHandler,
         Session $customerSession
     ) {
         $this->instances       = $instances;

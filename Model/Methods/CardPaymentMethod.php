@@ -244,7 +244,7 @@ class CardPaymentMethod extends AbstractMethod
 
         $this->backendAuthSession = $backendAuthSession;
         $this->customerSession    = $customerSession;
-        $this->config             = $config;
+        $this->config              = $config;
         $this->apiHandler         = $apiHandler;
         $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;

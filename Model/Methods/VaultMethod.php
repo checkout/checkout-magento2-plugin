@@ -241,7 +241,7 @@ class VaultMethod extends AbstractMethod
         );
 
         $this->backendAuthSession = $backendAuthSession;
-        $this->config             = $config;
+        $this->config              = $config;
         $this->apiHandler         = $apiHandler;
         $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;

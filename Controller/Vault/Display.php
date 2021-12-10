@@ -84,7 +84,7 @@ class Display extends Action
 
         $this->pageFactory  = $pageFactory;
         $this->jsonFactory  = $jsonFactory;
-        $this->config       = $config;
+        $this->config        = $config;
         $this->vaultHandler = $vaultHandler;
     }
 

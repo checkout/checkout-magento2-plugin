@@ -375,7 +375,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
-        $this->config             = $config;
+        $this->config              = $config;
         $this->shopperHandler     = $shopperHandler;
         $this->apiHandler         = $apiHandler;
         $this->quoteHandler       = $quoteHandler;

@@ -148,7 +148,7 @@ class Fail extends Action
         $this->orderStatusHandler         = $orderStatusHandler;
         $this->logger                     = $logger;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
-        $this->config                     = $config;
+        $this->config                      = $config;
         $this->session                    = $session;
         $this->transactionHandler         = $transactionHandler;
     }

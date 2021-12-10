@@ -92,7 +92,7 @@ class Moto extends Cc
 
         $this->_template    = 'CheckoutCom_Magento2::payment/moto.phtml';
         $this->adminQuote   = $adminQuote;
-        $this->config       = $config;
+        $this->config        = $config;
         $this->vaultHandler = $vaultHandler;
         $this->cardHandler  = $cardHandler;
     }
