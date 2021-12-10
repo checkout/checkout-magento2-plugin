@@ -25,6 +25,8 @@ use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
@@ -94,6 +96,8 @@ class Display extends Action
      * Description execute function
      *
      * @return Json
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function execute()
     {
