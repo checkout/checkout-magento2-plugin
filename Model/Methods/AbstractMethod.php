@@ -17,6 +17,7 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
+use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -38,7 +39,6 @@ use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\PaymentMethodInterface;
 use Magento\Sales\Model\Order\Payment;
-use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Store\Model\Store;
 
 /**
@@ -232,9 +232,17 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     protected $logger;
     /**
+     * $directory field
+     *
      * @var DirectoryHelper $directory
      */
     private $directory;
+    /**
+     * $data field
+     *
+     * @var array $data
+     */
+    private $data;
 
     /**
      * AbstractMethod constructor
@@ -244,7 +252,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @param ExtensionAttributesFactory $extensionFactory
      * @param AttributeValueFactory      $customAttributeFactory
      * @param Data                       $paymentData
-     * @param ScopeConfigInterface        $scopeConfig
+     * @param ScopeConfigInterface       $scopeConfig
      * @param Logger                     $logger
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
@@ -278,21 +286,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         $this->_scopeConfig  = $scopeConfig;
         $this->logger       = $logger;
         $this->directory    = $directory ?: ObjectManager::getInstance()->get(DirectoryHelper::class);
-        $this->initializeData($data);
-    }
-
-    /**
-     * Initializes injected data
-     *
-     * @param array $data
-     *
-     * @return void
-     */
-    protected function initializeData($data = [])
-    {
-        if (!empty($data['formBlockType'])) {
-            $this->_formBlockType = $data['formBlockType'];
-        }
+        $this->data         = $data;
     }
 
     /**
@@ -305,49 +299,6 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     public function setStore($storeId)
     {
         $this->setData('store', (int)$storeId);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return int|mixed|null
-     */
-    public function getStore()
-    {
-        return $this->getData('store');
-    }
-
-    /**
-     * Check order availability
-     *
-     * @return bool
-     * @api
-     */
-    public function canOrder()
-    {
-        return $this->_canOrder;
-    }
-
-    /**
-     * Check authorize availability
-     *
-     * @return bool
-     * @api
-     */
-    public function canAuthorize()
-    {
-        return $this->_canAuthorize;
-    }
-
-    /**
-     * Check capture availability
-     *
-     * @return bool
-     * @api
-     */
-    public function canCapture()
-    {
-        return $this->_canCapture;
     }
 
     /**
@@ -373,17 +324,6 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Check refund availability
-     *
-     * @return bool
-     * @api
-     */
-    public function canRefund()
-    {
-        return $this->_canRefund;
-    }
-
-    /**
      * Check partial refund availability for invoice
      *
      * @return bool
@@ -392,18 +332,6 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     public function canRefundPartialPerInvoice()
     {
         return $this->_canRefundInvoicePartial;
-    }
-
-    /**
-     * Check void availability.
-     *
-     * @return bool
-     * @internal param \Magento\Framework\DataObject $payment
-     * @api
-     */
-    public function canVoid()
-    {
-        return $this->_canVoid;
     }
 
     /**
@@ -499,29 +427,6 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * To check billing country is allowed for the payment method
-     *
-     * @param string $country
-     *
-     * @return bool
-     * @throws LocalizedException
-     */
-    public function canUseForCountry($country)
-    {
-        /*
-        for specific country, the flag will set up as 1
-        */
-        if ($this->getConfigData('allowspecific') == 1) {
-            $availableCountries = explode(',', $this->getConfigData('specificcountry'));
-            if (!in_array($country, $availableCountries)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * Check method for processing with base currency
      *
      * @param string $currencyCode
@@ -535,29 +440,15 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Retrieve payment method code
-     *
-     * @return string
-     * @throws LocalizedException
-     */
-    public function getCode()
-    {
-        if (empty($this->_code)) {
-            throw new LocalizedException(
-                __('We cannot retrieve the payment method code.')
-            );
-        }
-
-        return $this->_code;
-    }
-
-    /**
      * Retrieve block type for method form generation
      *
      * @return string
      */
     public function getFormBlockType()
     {
+        if (!empty($this->data['formBlockType'])) {
+            $this->_formBlockType = $this->data['formBlockType'];
+        }
         return $this->_formBlockType;
     }
 
@@ -570,25 +461,6 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     public function getInfoBlockType()
     {
         return $this->_infoBlockType;
-    }
-
-    /**
-     * Retrieve payment information model object
-     *
-     * @return InfoInterface
-     * @throws LocalizedException
-     * @api
-     */
-    public function getInfoInstance()
-    {
-        $instance = $this->getData('info_instance');
-        if (!$instance instanceof InfoInterface) {
-            throw new LocalizedException(
-                __('We cannot retrieve the payment information object instance.')
-            );
-        }
-
-        return $instance;
     }
 
     /**
@@ -634,10 +506,101 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
+     * Retrieve payment information model object
+     *
+     * @return InfoInterface
+     * @throws LocalizedException
+     * @api
+     */
+    public function getInfoInstance()
+    {
+        $instance = $this->getData('info_instance');
+        if (!$instance instanceof InfoInterface) {
+            throw new LocalizedException(
+                __('We cannot retrieve the payment information object instance.')
+            );
+        }
+
+        return $instance;
+    }
+
+    /**
+     * To check billing country is allowed for the payment method
+     *
+     * @param string $country
+     *
+     * @return bool
+     * @throws LocalizedException
+     */
+    public function canUseForCountry($country)
+    {
+        /*
+        for specific country, the flag will set up as 1
+        */
+        if ($this->getConfigData('allowspecific') == 1) {
+            $availableCountries = explode(',', $this->getConfigData('specificcountry'));
+            if (!in_array($country, $availableCountries)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Retrieve information from payment configuration
+     *
+     * @param string                $field
+     * @param int|string|null|Store $storeId
+     *
+     * @return mixed
+     * @throws LocalizedException
+     */
+    public function getConfigData($field, $storeId = null)
+    {
+        if ('order_place_redirect_url' === $field) {
+            return $this->getOrderPlaceRedirectUrl();
+        }
+        if (null === $storeId) {
+            $storeId = $this->getStore();
+        }
+        $path = 'payment/' . $this->getCode() . '/' . $field;
+
+        return $this->_scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return int|mixed|null
+     */
+    public function getStore()
+    {
+        return $this->getData('store');
+    }
+
+    /**
+     * Retrieve payment method code
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    public function getCode()
+    {
+        if (empty($this->_code)) {
+            throw new LocalizedException(
+                __('We cannot retrieve the payment method code.')
+            );
+        }
+
+        return $this->_code;
+    }
+
+    /**
      * Order payment abstract method
      *
      * @param DataObject|InfoInterface $payment
-     * @param float                     $amount
+     * @param float                    $amount
      *
      * @return $this
      * @throws LocalizedException
@@ -654,10 +617,21 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
+     * Check order availability
+     *
+     * @return bool
+     * @api
+     */
+    public function canOrder()
+    {
+        return $this->_canOrder;
+    }
+
+    /**
      * Authorize payment abstract method
      *
      * @param DataObject|InfoInterface $payment
-     * @param float                     $amount
+     * @param float                    $amount
      *
      * @return $this
      * @throws LocalizedException
@@ -674,10 +648,21 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
+     * Check authorize availability
+     *
+     * @return bool
+     * @api
+     */
+    public function canAuthorize()
+    {
+        return $this->_canAuthorize;
+    }
+
+    /**
      * Capture payment abstract method
      *
      * @param DataObject|InfoInterface $payment
-     * @param float                     $amount
+     * @param float                    $amount
      *
      * @return $this
      * @throws LocalizedException
@@ -694,10 +679,21 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
+     * Check capture availability
+     *
+     * @return bool
+     * @api
+     */
+    public function canCapture()
+    {
+        return $this->_canCapture;
+    }
+
+    /**
      * Refund specified amount for payment
      *
      * @param DataObject|InfoInterface $payment
-     * @param float                     $amount
+     * @param float                    $amount
      *
      * @return $this
      * @throws LocalizedException
@@ -711,6 +707,17 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         }
 
         return $this;
+    }
+
+    /**
+     * Check refund availability
+     *
+     * @return bool
+     * @api
+     */
+    public function canRefund()
+    {
+        return $this->_canRefund;
     }
 
     /**
@@ -747,14 +754,15 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Whether this method can accept or deny payment.
+     * Check void availability.
      *
      * @return bool
+     * @internal param \Magento\Framework\DataObject $payment
      * @api
      */
-    public function canReviewPayment()
+    public function canVoid()
     {
-        return $this->_canReviewPayment;
+        return $this->_canVoid;
     }
 
     /**
@@ -774,6 +782,17 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         }
 
         return false;
+    }
+
+    /**
+     * Whether this method can accept or deny payment.
+     *
+     * @return bool
+     * @api
+     */
+    public function canReviewPayment()
+    {
+        return $this->_canReviewPayment;
     }
 
     /**
@@ -804,28 +823,6 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     public function getTitle()
     {
         return $this->getConfigData('title');
-    }
-
-    /**
-     * Retrieve information from payment configuration
-     *
-     * @param string                $field
-     * @param int|string|null|Store $storeId
-     *
-     * @return mixed
-     * @throws LocalizedException
-     */
-    public function getConfigData($field, $storeId = null)
-    {
-        if ('order_place_redirect_url' === $field) {
-            return $this->getOrderPlaceRedirectUrl();
-        }
-        if (null === $storeId) {
-            $storeId = $this->getStore();
-        }
-        $path = 'payment/' . $this->getCode() . '/' . $field;
-
-        return $this->_scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
@@ -924,6 +921,20 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
+     * Used to call debug method from not Payment Method context
+     *
+     * @param mixed $debugData
+     *
+     * @return void
+     * @throws LocalizedException
+     * @api
+     */
+    public function debugData($debugData)
+    {
+        $this->_debug($debugData);
+    }
+
+    /**
      * Log debug data to file
      *
      * @param array $debugData
@@ -941,6 +952,16 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
+     * Return replace keys for debug data
+     *
+     * @return array
+     */
+    public function getDebugReplacePrivateDataKeys()
+    {
+        return (array)$this->_debugReplacePrivateDataKeys;
+    }
+
+    /**
      * Define if debugging is enabled
      *
      * @return bool
@@ -951,30 +972,6 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     public function getDebugFlag()
     {
         return (bool)(int)$this->getConfigData('debug');
-    }
-
-    /**
-     * Used to call debug method from not Payment Method context
-     *
-     * @param mixed $debugData
-     *
-     * @return void
-     * @throws LocalizedException
-     * @api
-     */
-    public function debugData($debugData)
-    {
-        $this->_debug($debugData);
-    }
-
-    /**
-     * Return replace keys for debug data
-     *
-     * @return array
-     */
-    public function getDebugReplacePrivateDataKeys()
-    {
-        return (array)$this->_debugReplacePrivateDataKeys;
     }
 
     /**
@@ -1009,5 +1006,19 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         }
 
         return $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+    }
+
+    /**
+     * Initializes injected data
+     *
+     * @param array $data
+     *
+     * @return void
+     */
+    protected function initializeData($data = [])
+    {
+        if (!empty($data['formBlockType'])) {
+            $this->_formBlockType = $data['formBlockType'];
+        }
     }
 }
