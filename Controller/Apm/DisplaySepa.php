@@ -30,6 +30,7 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Store\Model\Information;
@@ -166,6 +167,8 @@ class DisplaySepa extends Action
      * Handles the controller method
      *
      * @return Json
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
      */
     public function execute()
     {

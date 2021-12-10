@@ -93,7 +93,11 @@ class OrderAfterCancel implements ObserverInterface
     }
 
     /**
-     * Run the observer.
+     * Run the observer
+     *
+     * @param Observer $observer
+     *
+     * @return $this|void
      */
     public function execute(Observer $observer)
     {

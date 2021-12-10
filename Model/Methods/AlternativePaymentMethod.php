@@ -396,7 +396,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @param string $reference
      *
      * @return mixed|null
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function sendPaymentRequest(array $data, $amount, $currency, $reference = '')
     {

@@ -30,6 +30,7 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -145,7 +146,7 @@ class DisplayKlarna extends Action
      * Handles the controller method
      *
      * @return Json
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function execute()
     {
