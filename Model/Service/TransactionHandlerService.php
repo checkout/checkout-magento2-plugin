@@ -26,7 +26,8 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\TransactionSearchResultInterfaceFactory;
 use Magento\Sales\Api\OrderManagementInterface;
-use Magento\Sales\Model\Convert\OrderFactory;
+use Magento\Sales\Model\Convert\Order as OrderConvertor;
+use Magento\Sales\Model\Convert\OrderFactory as ConvertorFactory;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
@@ -34,7 +35,6 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Sales\Model\Order\Payment\Transaction\Repository;
 use Magento\Sales\Model\Service\CreditmemoService;
-use Magento\Sales\Model\Convert\Order as ConvertOrder;
 
 /**
  * Class TransactionHandlerService
@@ -154,9 +154,9 @@ class TransactionHandlerService
     /**
      * Order convert object.
      *
-     * @var ConvertOrder
+     * @var ConvertorFactory
      */
-    protected $convertor;
+    protected $convertorFactory;
 
     /**
      * TransactionHandlerService constructor
@@ -174,7 +174,7 @@ class TransactionHandlerService
      * @param Config                                   $config
      * @param OrderManagementInterface                $orderManagement
      * @param Order                                   $orderModel
-     * @param OrderFactory                            $convertOrderFactory
+     * @param ConvertorFactory                        $convertOrderFactory
      */
     public function __construct(
         OrderSender $orderSender,
@@ -190,7 +190,7 @@ class TransactionHandlerService
         Config $config,
         OrderManagementInterface $orderManagement,
         Order $orderModel,
-        OrderFactory $convertOrderFactory
+        ConvertorFactory $convertOrderFactory
     ) {
         $this->orderSender           = $orderSender;
         $this->transactionSearch     = $transactionSearch;
@@ -205,7 +205,7 @@ class TransactionHandlerService
         $this->config                 = $config;
         $this->orderManagement       = $orderManagement;
         $this->orderModel            = $orderModel;
-        $this->convertor             = $convertOrderFactory->create();
+        $this->convertorFactory      = $convertOrderFactory;
     }
 
     /**
@@ -601,7 +601,9 @@ class TransactionHandlerService
 
             // Create a credit memo
             if ($isPartialRefund) {
-                $creditMemo = $this->convertor->toCreditmemo($this->order);
+                /** @var OrderConvertor $convertor */
+                $convertor = $this->convertorFactory->create();
+                $creditMemo = $convertor->toCreditmemo($this->order);
                 $creditMemo->setAdjustmentPositive($amount);
                 $creditMemo->setBaseShippingAmount(0);
                 $creditMemo->collectTotals();
