@@ -17,9 +17,7 @@
 namespace CheckoutCom\Magento2\Plugin\Backend;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
-use Closure;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
@@ -27,9 +25,6 @@ use Magento\Sales\Model\Order\Payment\State\CommandInterface as BaseCommandInter
 
 /**
  * Class OrderAfterInvoice
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class OrderAfterInvoice
 {
@@ -55,23 +50,21 @@ class OrderAfterInvoice
      * Sets the correct order status for orders captured from the hub.
      *
      * @param BaseCommandInterface  $subject
-     * @param Closure               $proceed
+     * @param string                $result
      * @param OrderPaymentInterface $payment
-     * @param                       $amount
+     * @param string|float|int       $amount
      * @param OrderInterface        $order
      *
-     * @return Phrase|mixed
+     * @return string
      * @throws LocalizedException
      */
-    public function aroundExecute(
+    public function afterExecute(
         BaseCommandInterface $subject,
-        Closure $proceed,
+        string $result,
         OrderPaymentInterface $payment,
         $amount,
         OrderInterface $order
     ) {
-        $result = $proceed($payment, $amount, $order);
-
         // Get the method ID
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
@@ -86,7 +79,7 @@ class OrderAfterInvoice
             }
 
             // Changes order history comment to display currency
-            $amount = $order->getInvoiceCollection()->getFirstItem()->getGrandTotal();
+            $amount  = $order->getInvoiceCollection()->getFirstItem()->getGrandTotal();
             $comment = __('The captured amount is %1.', $order->formatPriceTxt($amount));
 
             return $comment;
@@ -104,7 +97,7 @@ class OrderAfterInvoice
      */
     public function statusNeedsCorrection($order)
     {
-        $currentState = $order->getState();
+        $currentState  = $order->getState();
         $currentStatus = $order->getStatus();
         $desiredStatus = $this->config->getValue('order_status_captured');
         $flaggedStatus = $this->config->getValue('order_status_flagged');
