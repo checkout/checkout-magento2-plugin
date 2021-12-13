@@ -26,6 +26,7 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\RefundAdapter\Interceptor;
+use Magento\Sales\Model\Order\RefundAdapterInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -85,18 +86,16 @@ class RefundInvoice
      * Refund the order online
      *
      * @param Interceptor         $subject
-     * @param Closure             $proceed
      * @param CreditmemoInterface $creditMemo
      * @param OrderInterface      $order
      * @param false               $isOnline
      *
-     * @return mixed
+     * @return array
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function aroundRefund(
+    public function beforeRefund(
         Interceptor $subject,
-        Closure $proceed,
         CreditmemoInterface $creditMemo,
         OrderInterface $order,
         $isOnline = false
@@ -140,9 +139,9 @@ class RefundInvoice
             $payment->setTransactionId($response->action_id);
             $payment->save();
 
-            $result = $proceed($creditMemo, $order, $isOnline);
+            $result = [$creditMemo, $order, $isOnline];
         } else {
-            $result = $proceed($creditMemo, $order, $isOnline);
+            $result = [$creditMemo, $order, $isOnline];
         }
 
         return $result;
