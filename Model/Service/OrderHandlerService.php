@@ -28,6 +28,7 @@ use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -198,13 +199,13 @@ class OrderHandlerService
     /**
      * Checks if an order exists and is valid
      *
-     * @param $order
+     * @param mixed $order
      *
      * @return bool
      */
     public function isOrder($order)
     {
-        return $order && is_object($order) && method_exists($order, 'getId') && $order->getId() > 0;
+        return $order instanceOf Order && $order->getId() > 0;
     }
 
     /**

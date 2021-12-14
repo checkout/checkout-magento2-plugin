@@ -210,13 +210,13 @@ class QuoteHandlerService
     /**
      * Checks if a quote exists and is valid
      *
-     * @param $quote
+     * @param mixed $quote
      *
      * @return bool
      */
     public function isQuote($quote)
     {
-        return $quote && is_object($quote) && method_exists($quote, 'getId') && $quote->getId() > 0;
+        return $quote instanceOf Quote && $quote->getId() > 0;
     }
 
     /**
