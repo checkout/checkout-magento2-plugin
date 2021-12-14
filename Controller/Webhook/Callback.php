@@ -30,6 +30,9 @@ use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\CsrfAwareActionInterface;
+use Magento\Framework\App\Request\InvalidRequestException;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultInterface;
@@ -45,7 +48,7 @@ use Magento\Store\Model\StoreManagerInterface;
  * @category  Magento2
  * @package   Checkout.com
  */
-class Callback extends Action
+class Callback extends Action implements CsrfAwareActionInterface
 {
     /**
      * $storeManager field
@@ -317,5 +320,15 @@ class Callback extends Action
             )->setCustomerEmail($customer->getEmail())->setResponse($response)->saveCard();
 
         return $success;
+    }
+
+    public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
+    {
+        return null;
+    }
+
+    public function validateForCsrf(RequestInterface $request): ?bool
+    {
+        return true;
     }
 }
