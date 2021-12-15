@@ -18,13 +18,13 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use \Checkout\CheckoutApi;
+use Checkout\Library\Model;
 use \Checkout\Models\Payments\Capture;
 use \Checkout\Models\Payments\Refund;
 use \Checkout\Models\Payments\Voids;
 use \Checkout\Models\Payments\Customer;
 use \Checkout\Models\Address;
 use \Checkout\Models\Payments\Shipping;
-use \Checkout\Models\Phone;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -32,6 +32,7 @@ use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -131,7 +132,7 @@ class ApiHandlerService
      */
     public function init(
         $storeCode = null,
-        $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+        string $scope = ScopeInterface::SCOPE_STORE,
         $secretKey = null
     ) {
         if ($secretKey) {
@@ -160,10 +161,7 @@ class ApiHandlerService
     {
         $this->logger->additional($this->utilities->objectToArray($response), 'api');
 
-        return $response != null && is_object($response) && method_exists(
-                $response,
-                'isSuccessful'
-            ) && $response->isSuccessful();
+        return $response instanceOf Model && $response->isSuccessful();
     }
 
     /**
