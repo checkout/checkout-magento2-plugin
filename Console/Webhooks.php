@@ -20,13 +20,13 @@ use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
 use Magento\Framework\App\Area;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Magento\Framework\App\State;
-use Magento\Framework\App\ObjectManager;
 
 /**
  * Class Webhooks
@@ -55,12 +55,6 @@ class Webhooks extends Command
      */
     const END_DATE = 'end-date';
     /**
-     * $state field
-     *
-     * @var State $state
-     */
-    protected $state;
-    /**
      * $webhookHandler field
      *
      * @var WebhookHandlerService $webhookHandler
@@ -78,17 +72,33 @@ class Webhooks extends Command
      * @var TransactionHandlerService $transactionHandler
      */
     public $transactionHandler;
+    /**
+     * $state field
+     *
+     * @var State $state
+     */
+    protected $state;
 
     /**
      * Webhooks constructor
      *
-     * @param State $state
+     * @param State                     $state
+     * @param WebhookHandlerService     $webhookHandlerService
+     * @param OrderHandlerService       $orderHandlerService
+     * @param TransactionHandlerService $transactionHandlerService
      */
     public function __construct(
-        State $state
+        State $state,
+        WebhookHandlerService $webhookHandlerService,
+        OrderHandlerService $orderHandlerService,
+        TransactionHandlerService $transactionHandlerService
     ) {
-        $this->state = $state;
         parent::__construct();
+
+        $this->state              = $state;
+        $this->webhookHandler     = $webhookHandlerService;
+        $this->orderHandler       = $orderHandlerService;
+        $this->transactionHandler = $transactionHandlerService;
     }
 
     /**
@@ -116,33 +126,6 @@ class Webhooks extends Command
     }
 
     /**
-     * Description createRequiredObjects function
-     *
-     * @return void
-     * @throws LocalizedException
-     */
-    protected function createRequiredObjects()
-    {
-        try {
-            $areaCode = $this->state->getAreaCode();
-        } catch (\Exception $e) {
-            $areaCode = null;
-        }
-
-        if (!$areaCode) {
-            $this->state->setAreaCode(Area::AREA_GLOBAL);
-        }
-
-        $objectManager = ObjectManager::getInstance();
-
-        $this->webhookHandler     = $objectManager->create('CheckoutCom\Magento2\Model\Service\WebhookHandlerService');
-        $this->orderHandler       = $objectManager->create('CheckoutCom\Magento2\Model\Service\OrderHandlerService');
-        $this->transactionHandler = $objectManager->create(
-            'CheckoutCom\Magento2\Model\Service\TransactionHandlerService'
-        );
-    }
-
-    /**
      * Executes "cko:webhooks:clean" command.
      *
      * @param InputInterface  $input
@@ -153,7 +136,7 @@ class Webhooks extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->createRequiredObjects();
+        $this->setAreaCode();
 
         $date      = $input->getOption(self::DATE);
         $startDate = $input->getOption(self::START_DATE);
@@ -202,6 +185,25 @@ class Webhooks extends Command
             $output->writeln('Removed ' . $deleted . ' entries from the webhook table.');
         } else {
             $output->writeln("Webhook table has been cleaned.");
+        }
+    }
+
+    /**
+     * Description setAreaCode function
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    protected function setAreaCode()
+    {
+        try {
+            $areaCode = $this->state->getAreaCode();
+        } catch (\Exception $e) {
+            $areaCode = null;
+        }
+
+        if (!$areaCode) {
+            $this->state->setAreaCode(Area::AREA_GLOBAL);
         }
     }
 
