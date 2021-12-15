@@ -47,6 +47,8 @@ use Magento\Payment\Model\Method\Logger;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Directory\Helper\Data as DirectoryHelper;
+
 
 /**
  * Class CardPaymentMethod
@@ -206,6 +208,7 @@ class CardPaymentMethod extends AbstractMethod
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
+     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
         Context $context,
@@ -227,7 +230,8 @@ class CardPaymentMethod extends AbstractMethod
         ManagerInterface $messageManager,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = []
+        array $data = [],
+        DirectoryHelper $directoryHelper
     ) {
         parent::__construct(
             $context,
@@ -239,7 +243,8 @@ class CardPaymentMethod extends AbstractMethod
             $logger,
             $resource,
             $resourceCollection,
-            $data
+            $data,
+            $directoryHelper
         );
 
         $this->backendAuthSession = $backendAuthSession;

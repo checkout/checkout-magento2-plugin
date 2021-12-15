@@ -72,6 +72,7 @@ use Magento\Customer\Model\Session as CustomerModelSession;
 use Magento\Checkout\Model\Session as CheckoutModelSession;
 use Magento\Checkout\Helper\Data as CheckoutHelperData;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
+use Magento\Directory\Helper\Data as DirectoryHelper;
 
 /**
  * Class AlternativePaymentMethod
@@ -315,6 +316,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
+     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
         Context $context,
@@ -348,7 +350,8 @@ class AlternativePaymentMethod extends AbstractMethod
         Curl $curl,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = []
+        array $data = [],
+        DirectoryHelper $directoryHelper
     ) {
         parent::__construct(
             $context,
@@ -360,7 +363,8 @@ class AlternativePaymentMethod extends AbstractMethod
             $logger,
             $resource,
             $resourceCollection,
-            $data
+            $data,
+            $directoryHelper
         );
 
         $this->urlBuilder         = $urlBuilder;

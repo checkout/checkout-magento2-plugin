@@ -252,7 +252,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @param ExtensionAttributesFactory $extensionFactory
      * @param AttributeValueFactory      $customAttributeFactory
      * @param Data                       $paymentData
-     * @param ScopeConfigInterface       $scopeConfig
+     * @param ScopeConfigInterface        $scopeConfig
      * @param Logger                     $logger
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
@@ -271,7 +271,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
-        DirectoryHelper $directory = null
+        DirectoryHelper $directory
     ) {
         parent::__construct(
             $context,
@@ -285,7 +285,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         $this->_paymentData = $paymentData;
         $this->_scopeConfig  = $scopeConfig;
         $this->logger       = $logger;
-        $this->directory    = $directory ?: ObjectManager::getInstance()->get(DirectoryHelper::class);
+        $this->directory    = $directory;
         $this->data         = $data;
     }
 

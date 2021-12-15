@@ -44,6 +44,7 @@ use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
+use Magento\Directory\Helper\Data as DirectoryHelper;
 
 /**
  * Class GooglePayMethod
@@ -176,9 +177,9 @@ class GooglePayMethod extends AbstractMethod
      * @param ExtensionAttributesFactory $extensionFactory
      * @param AttributeValueFactory      $customAttributeFactory
      * @param Data                       $paymentData
-     * @param ScopeConfigInterface        $scopeConfig
+     * @param ScopeConfigInterface       $scopeConfig
      * @param Logger                     $logger
-     * @param Config                      $config
+     * @param Config                     $config
      * @param ApiHandlerService          $apiHandler
      * @param Utilities                  $utilities
      * @param StoreManagerInterface      $storeManager
@@ -189,6 +190,7 @@ class GooglePayMethod extends AbstractMethod
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
+     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
         Context $context,
@@ -208,7 +210,8 @@ class GooglePayMethod extends AbstractMethod
         Session $backendAuthSession,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = []
+        array $data = [],
+        DirectoryHelper $directoryHelper
     ) {
         parent::__construct(
             $context,
@@ -220,7 +223,8 @@ class GooglePayMethod extends AbstractMethod
             $logger,
             $resource,
             $resourceCollection,
-            $data
+            $data,
+            $directoryHelper
         );
 
         $this->config              = $config;

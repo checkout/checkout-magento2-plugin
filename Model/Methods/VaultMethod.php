@@ -17,12 +17,13 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Models\Payments\IdSource;
-use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\ThreeDs;
-use \Checkout\Models\Payments\BillingDescriptor;
-use \Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Payments\BillingDescriptor;
+use Checkout\Models\Payments\IdSource;
+use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\ThreeDs;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
@@ -44,7 +45,8 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
+use Magento\Directory\Helper\Data as DirectoryHelper;
+
 
 /**
  * Class VaultMethod
@@ -204,6 +206,7 @@ class VaultMethod extends AbstractMethod
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
+     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
         Context $context,
@@ -225,7 +228,8 @@ class VaultMethod extends AbstractMethod
         ManagerInterface $messageManager,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = []
+        array $data = [],
+        DirectoryHelper $directoryHelper
     ) {
         parent::__construct(
             $context,
@@ -237,7 +241,8 @@ class VaultMethod extends AbstractMethod
             $logger,
             $resource,
             $resourceCollection,
-            $data
+            $data,
+            $directoryHelper
         );
 
         $this->backendAuthSession = $backendAuthSession;
@@ -395,7 +400,7 @@ class VaultMethod extends AbstractMethod
      * Perform a capture request
      *
      * @param InfoInterface $payment
-     * @param float          $amount
+     * @param float         $amount
      *
      * @return $this|VaultMethod
      * @throws LocalizedException

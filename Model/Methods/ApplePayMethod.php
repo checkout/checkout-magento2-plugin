@@ -43,6 +43,7 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Directory\Helper\Data as DirectoryHelper;
 
 /**
  * Class ApplePayMethod
@@ -181,6 +182,7 @@ class ApplePayMethod extends AbstractMethod
      * @param AbstractResource|null               $resource
      * @param AbstractDb|null                     $resourceCollection
      * @param array                               $data
+     * @param DirectoryHelper                     $directoryHelper
      */
     public function __construct(
         Context $context,
@@ -199,7 +201,8 @@ class ApplePayMethod extends AbstractMethod
         \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = []
+        array $data = [],
+        DirectoryHelper $directoryHelper
     ) {
         parent::__construct(
             $context,
@@ -211,7 +214,8 @@ class ApplePayMethod extends AbstractMethod
             $logger,
             $resource,
             $resourceCollection,
-            $data
+            $data,
+            $directoryHelper
         );
 
         $this->backendAuthSession = $backendAuthSession;
