@@ -33,6 +33,7 @@ use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Exception;
 use Magento\Customer\Model\Address;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -41,6 +42,8 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -111,21 +114,35 @@ class PlaceOrder extends Action
      * @var ShippingSelector $shippingSelector
      */
     public $shippingSelector;
+    /**
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
+     */
+    private $orderRepository;
+    /**
+     * $cartRepository field
+     *
+     * @var CartRepositoryInterface $cartRepository
+     */
+    private $cartRepository;
 
     /**
      * PlaceOrder constructor
      *
-     * @param Context               $context
-     * @param ManagerInterface      $messageManager
-     * @param StoreManagerInterface $storeManager
-     * @param JsonFactory           $jsonFactory
-     * @param Address               $addressManager
-     * @param QuoteHandlerService   $quoteHandler
-     * @param OrderHandlerService   $orderHandler
-     * @param MethodHandlerService  $methodHandler
-     * @param ApiHandlerService     $apiHandler
-     * @param Utilities             $utilities
-     * @param ShippingSelector      $shippingSelector
+     * @param Context                  $context
+     * @param ManagerInterface         $messageManager
+     * @param StoreManagerInterface    $storeManager
+     * @param JsonFactory              $jsonFactory
+     * @param Address                  $addressManager
+     * @param QuoteHandlerService      $quoteHandler
+     * @param OrderHandlerService      $orderHandler
+     * @param MethodHandlerService     $methodHandler
+     * @param ApiHandlerService        $apiHandler
+     * @param Utilities                $utilities
+     * @param ShippingSelector         $shippingSelector
+     * @param OrderRepositoryInterface $orderRepository
+     * @param CartRepositoryInterface  $cartRepository
      */
     public function __construct(
         Context $context,
@@ -138,7 +155,9 @@ class PlaceOrder extends Action
         MethodHandlerService $methodHandler,
         ApiHandlerService $apiHandler,
         Utilities $utilities,
-        ShippingSelector $shippingSelector
+        ShippingSelector $shippingSelector,
+        OrderRepositoryInterface $orderRepository,
+        CartRepositoryInterface $cartRepository
     ) {
         parent::__construct($context);
 
@@ -152,6 +171,8 @@ class PlaceOrder extends Action
         $this->apiHandler       = $apiHandler;
         $this->utilities        = $utilities;
         $this->shippingSelector = $shippingSelector;
+        $this->orderRepository  = $orderRepository;
+        $this->cartRepository   = $cartRepository;
     }
 
     /**
@@ -160,8 +181,9 @@ class PlaceOrder extends Action
      * @return Json
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     * @throws Exception
      */
-    public function execute()
+    public function execute(): Json
     {
         /** @var array $data */
         $data = $this->getRequest()->getParams();
@@ -202,32 +224,31 @@ class PlaceOrder extends Action
 
         // Set payment
         $quote->setPaymentMethod(VaultMethod::CODE);
-        $quote->save();
         $quote->getPayment()->importData(['method' => VaultMethod::CODE]);
 
         // Save the quote
-        $quote->collectTotals()->save();
+        $this->cartRepository->save($quote->collectTotals());
 
         // Create the order
         $order = $this->orderHandler->setMethodId(VaultMethod::CODE)->handleOrder($quote);
 
         // Process the payment
         $response = $this->methodHandler->get(VaultMethod::CODE)->sendPaymentRequest(
-                $data,
-                $order->getGrandTotal(),
-                $order->getOrderCurrencyCode(),
-                $order->getIncrementId(),
-                null,
-                false,
-                null,
-                true
-            );
+            $data,
+            $order->getGrandTotal(),
+            $order->getOrderCurrencyCode(),
+            $order->getIncrementId(),
+            null,
+            false,
+            null,
+            true
+        );
 
         // Add the payment info to the order
         $order = $this->utilities->setPaymentData($order, $response);
 
         // Save the order
-        $order->save();
+        $this->orderRepository->save($order);
 
         // Process a successful response
         if ($api->isValidResponse($response)) {
