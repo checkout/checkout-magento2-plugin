@@ -34,6 +34,7 @@ use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Exception;
+use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Model\Address;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -126,23 +127,30 @@ class PlaceOrder extends Action
      * @var CartRepositoryInterface $cartRepository
      */
     private $cartRepository;
+    /**
+     * $addressRepository field
+     *
+     * @var AddressRepositoryInterface $addressRepository
+     */
+    private $addressRepository;
 
     /**
      * PlaceOrder constructor
      *
-     * @param Context                  $context
-     * @param ManagerInterface         $messageManager
-     * @param StoreManagerInterface    $storeManager
-     * @param JsonFactory              $jsonFactory
-     * @param Address                  $addressManager
-     * @param QuoteHandlerService      $quoteHandler
-     * @param OrderHandlerService      $orderHandler
-     * @param MethodHandlerService     $methodHandler
-     * @param ApiHandlerService        $apiHandler
-     * @param Utilities                $utilities
-     * @param ShippingSelector         $shippingSelector
-     * @param OrderRepositoryInterface $orderRepository
-     * @param CartRepositoryInterface  $cartRepository
+     * @param Context                    $context
+     * @param ManagerInterface           $messageManager
+     * @param StoreManagerInterface      $storeManager
+     * @param JsonFactory                $jsonFactory
+     * @param Address                    $addressManager
+     * @param QuoteHandlerService        $quoteHandler
+     * @param OrderHandlerService        $orderHandler
+     * @param MethodHandlerService       $methodHandler
+     * @param ApiHandlerService          $apiHandler
+     * @param Utilities                  $utilities
+     * @param ShippingSelector           $shippingSelector
+     * @param OrderRepositoryInterface   $orderRepository
+     * @param CartRepositoryInterface    $cartRepository
+     * @param AddressRepositoryInterface $addressRepository
      */
     public function __construct(
         Context $context,
@@ -157,22 +165,24 @@ class PlaceOrder extends Action
         Utilities $utilities,
         ShippingSelector $shippingSelector,
         OrderRepositoryInterface $orderRepository,
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        AddressRepositoryInterface $addressRepository
     ) {
         parent::__construct($context);
 
-        $this->messageManager   = $messageManager;
-        $this->storeManager     = $storeManager;
-        $this->jsonFactory      = $jsonFactory;
-        $this->addressManager   = $addressManager;
-        $this->quoteHandler     = $quoteHandler;
-        $this->orderHandler     = $orderHandler;
-        $this->methodHandler    = $methodHandler;
-        $this->apiHandler       = $apiHandler;
-        $this->utilities        = $utilities;
-        $this->shippingSelector = $shippingSelector;
-        $this->orderRepository  = $orderRepository;
-        $this->cartRepository   = $cartRepository;
+        $this->messageManager    = $messageManager;
+        $this->storeManager      = $storeManager;
+        $this->jsonFactory       = $jsonFactory;
+        $this->addressManager    = $addressManager;
+        $this->quoteHandler      = $quoteHandler;
+        $this->orderHandler      = $orderHandler;
+        $this->methodHandler     = $methodHandler;
+        $this->apiHandler        = $apiHandler;
+        $this->utilities         = $utilities;
+        $this->shippingSelector  = $shippingSelector;
+        $this->orderRepository   = $orderRepository;
+        $this->cartRepository    = $cartRepository;
+        $this->addressRepository = $addressRepository;
     }
 
     /**
@@ -206,11 +216,13 @@ class PlaceOrder extends Action
         );
 
         // Set the billing address
-        $billingAddress = $this->addressManager->load($data['instant_purchase_billing_address']);
+        /** @var Address $billingAddress */
+        $billingAddress = $this->addressRepository->getById((int)$data['instant_purchase_billing_address']);
         $quote->getBillingAddress()->addData($billingAddress->getData());
 
         // Get the shipping address
-        $shippingAddress = $this->addressManager->load($data['instant_purchase_shipping_address']);
+        /** @var Address $shippingAddress */
+        $shippingAddress = $this->addressRepository->getById((int)$data['instant_purchase_shipping_address']);
 
         // Prepare the quote
         $quote->getShippingAddress()->addData($shippingAddress->getData());

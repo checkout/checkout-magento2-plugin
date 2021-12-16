@@ -35,7 +35,9 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteIdMask;
 use Magento\Quote\Model\QuoteIdMaskFactory;
+use Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask as QuoteIdMaskResource;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -149,6 +151,12 @@ class V2 extends Action
      * @var OrderRepositoryInterface $orderRepository
      */
     private $orderRepository;
+    /**
+     * $quoteIdMaskResource field
+     *
+     * @var QuoteIdMaskResource $quoteIdMaskResource
+     */
+    private $quoteIdMaskResource;
 
     /**
      * V2 constructor
@@ -166,6 +174,7 @@ class V2 extends Action
      * @param PaymentErrorHandlerService $paymentErrorHandler
      * @param Utilities                  $utilities
      * @param OrderRepositoryInterface   $orderRepository
+     * @param QuoteIdMaskResource        $quoteIdMaskResource
      */
     public function __construct(
         Context $context,
@@ -180,7 +189,8 @@ class V2 extends Action
         ApiHandlerService $apiHandler,
         PaymentErrorHandlerService $paymentErrorHandler,
         Utilities $utilities,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        QuoteIdMaskResource $quoteIdMaskResource
     ) {
         parent::__construct($context);
         $this->jsonFactory         = $jsonFactory;
@@ -195,6 +205,7 @@ class V2 extends Action
         $this->paymentErrorHandler = $paymentErrorHandler;
         $this->utilities           = $utilities;
         $this->orderRepository     = $orderRepository;
+        $this->quoteIdMaskResource = $quoteIdMaskResource;
     }
 
     /**
@@ -385,7 +396,9 @@ class V2 extends Action
 
         // Convert masked quote ID hash to quote ID int
         if (preg_match("/([A-Za-z])\w+/", $this->data->quote_id)) {
-            $quoteIdMask          = $this->quoteIdMaskFactory->create()->load($this->data->quote_id, 'masked_id');
+            /** @var QuoteIdMask $quoteIdMask */
+            $quoteIdMask = $this->quoteIdMaskFactory->create();
+            $this->quoteIdMaskResource->load($quoteIdMask, $this->data->quote_id, 'masked_id');
             $this->data->quote_id = $quoteIdMask->getQuoteId();
         }
 

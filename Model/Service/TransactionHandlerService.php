@@ -664,7 +664,7 @@ class TransactionHandlerService
             $orderComments = $this->order->getAllStatusHistory();
             foreach ($orderComments as $orderComment) {
                 if ($orderComment->getEntityName() === 'creditmemo') {
-                    $orderComment->delete();
+                    $this->orderStatusHistoryRepository->delete($orderComment);
                 }
             }
 

@@ -37,7 +37,9 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteIdMask;
 use Magento\Quote\Model\QuoteIdMaskFactory;
+use Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask as QuoteIdMaskResource;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -170,6 +172,12 @@ class V3 implements V3Interface
      * @var OrderRepositoryInterface $orderRepository
      */
     private $orderRepository;
+    /**
+     * $quoteIdMaskResource field
+     *
+     * @var QuoteIdMaskResource $quoteIdMaskResource
+     */
+    private $quoteIdMaskResource;
 
     /**
      * V3 constructor
@@ -188,6 +196,7 @@ class V3 implements V3Interface
      * @param VaultHandlerService        $vaultHandler
      * @param Http                       $request
      * @param OrderRepositoryInterface   $orderRepository
+     * @param QuoteIdMaskResource        $quoteIdMaskResource
      */
     public function __construct(
         PaymentResponseFactory $paymentResponseFactory,
@@ -203,7 +212,8 @@ class V3 implements V3Interface
         Utilities $utilities,
         VaultHandlerService $vaultHandler,
         Http $request,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        QuoteIdMaskResource $quoteIdMaskResource
     ) {
         $this->paymentResponseFactory = $paymentResponseFactory;
         $this->config                  = $config;
@@ -219,6 +229,7 @@ class V3 implements V3Interface
         $this->vaultHandler           = $vaultHandler;
         $this->request                = $request;
         $this->orderRepository        = $orderRepository;
+        $this->quoteIdMaskResource    = $quoteIdMaskResource;
     }
 
     /**
@@ -411,7 +422,9 @@ class V3 implements V3Interface
     {
         // Convert masked quote ID hash to quote ID int
         if (preg_match("/([A-Za-z])\w+/", $this->data->getQuoteId())) {
-            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($this->data->getQuoteId(), 'masked_id');
+            /** @var QuoteIdMask $quoteIdMask */
+            $quoteIdMask = $this->quoteIdMaskFactory->create();
+            $this->quoteIdMaskResource->load($quoteIdMask, $this->data->getQuoteId(), 'masked_id');
             $this->data->setQuoteId($quoteIdMask->getQuoteId());
         }
 
