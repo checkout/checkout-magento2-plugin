@@ -17,6 +17,7 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory;
@@ -81,16 +82,23 @@ class WebhookHandlerService
      * @var Collection $collection
      */
     public $collection;
+    /**
+     * $webhookEntityRepository field
+     *
+     * @var WebhookEntityRepositoryInterface $webhookEntityRepository
+     */
+    private $webhookEntityRepository;
 
     /**
      * WebhookHandlerService constructor
      *
-     * @param OrderHandlerService       $orderHandler
-     * @param OrderStatusHandlerService $orderStatusHandler
-     * @param TransactionHandlerService $transactionHandler
-     * @param WebhookEntityFactory      $webhookEntityFactory
-     * @param Config                     $config
-     * @param Logger                    $logger
+     * @param OrderHandlerService              $orderHandler
+     * @param OrderStatusHandlerService        $orderStatusHandler
+     * @param TransactionHandlerService        $transactionHandler
+     * @param WebhookEntityFactory             $webhookEntityFactory
+     * @param Config                            $config
+     * @param Logger                           $logger
+     * @param WebhookEntityRepositoryInterface $webhookEntityRepository
      */
     public function __construct(
         OrderHandlerService $orderHandler,
@@ -98,14 +106,16 @@ class WebhookHandlerService
         TransactionHandlerService $transactionHandler,
         WebhookEntityFactory $webhookEntityFactory,
         Config $config,
-        Logger $logger
+        Logger $logger,
+        WebhookEntityRepositoryInterface $webhookEntityRepository
     ) {
-        $this->orderHandler         = $orderHandler;
-        $this->orderStatusHandler   = $orderStatusHandler;
-        $this->transactionHandler   = $transactionHandler;
-        $this->webhookEntityFactory = $webhookEntityFactory;
-        $this->config                = $config;
-        $this->logger               = $logger;
+        $this->orderHandler            = $orderHandler;
+        $this->orderStatusHandler      = $orderStatusHandler;
+        $this->transactionHandler      = $transactionHandler;
+        $this->webhookEntityFactory    = $webhookEntityFactory;
+        $this->config                   = $config;
+        $this->logger                  = $logger;
+        $this->webhookEntityRepository = $webhookEntityRepository;
     }
 
     /**
@@ -337,7 +347,7 @@ class WebhookHandlerService
             $entity->setData('processed', false);
 
             // Save the entity
-            $entity->save();
+            $this->webhookEntityRepository->save($entity);
         }
     }
 
@@ -354,29 +364,13 @@ class WebhookHandlerService
         if (!empty($webhooks)) {
             foreach ($webhooks as $webhook) {
                 if (!$webhook['processed']) {
-                    $entity = $this->webhookEntityFactory->create();
-                    $entity->load($webhook['id']);
+                    $entity = $this->webhookEntityRepository->getById((int)$webhook['id']);
                     $entity->setProcessed(true);
                     $entity->setProcessedTime();
-                    $entity->save();
+                    $this->webhookEntityRepository->save($entity);
                 }
             }
         }
-    }
-
-    /**
-     * Delete a webhook by id
-     *
-     * @param $id
-     *
-     * @return void
-     */
-    public function deleteWebhookEntity($id)
-    {
-        // Create the collection
-        $entity = $this->webhookEntityFactory->create();
-        $entity->load($id);
-        $entity->delete();
     }
 
     /**
@@ -391,7 +385,7 @@ class WebhookHandlerService
     {
         if ($payload->type === 'payment_captured') {
             foreach ($webhooks as $webhook) {
-                if ($webhook['event_type'] == 'payment_approved' || $webhook['event_type'] == 'payment_capture_pending') {
+                if ($webhook['event_type'] === 'payment_approved' || $webhook['event_type'] === 'payment_capture_pending') {
                     if ($webhook['processed']) {
                         return true;
                     }
@@ -420,7 +414,7 @@ class WebhookHandlerService
                 continue;
             }
 
-            $this->deleteWebhookEntity($webhook['id']);
+            $this->webhookEntityRepository->deleteById($webhook['id']);
         }
     }
 }

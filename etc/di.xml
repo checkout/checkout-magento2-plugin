@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+
 <!--
 /**
  * Checkout.com Magento 2 Magento2 Payment.
@@ -54,4 +55,6 @@
     </type>
     <!-- END Command line interface -->
 
+    <!-- Webhook entity repository preference -->
+    <preference for="CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface" type="CheckoutCom\Magento2\Model\Api\WebhookEntityRepository" />
 </config>

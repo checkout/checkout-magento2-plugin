@@ -16,17 +16,18 @@
 
 namespace CheckoutCom\Magento2\Console;
 
+use CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
 use Magento\Framework\App\Area;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Magento\Framework\App\State;
-use Magento\Framework\App\ObjectManager;
 
 /**
  * Class Webhooks
@@ -78,16 +79,26 @@ class Webhooks extends Command
      * @var TransactionHandlerService $transactionHandler
      */
     public $transactionHandler;
+    /**
+     * $webhookEntityRepository field
+     *
+     * @var WebhookEntityRepositoryInterface $webhookEntityRepository
+     */
+    private $webhookEntityRepository;
 
     /**
      * Webhooks constructor
      *
-     * @param State $state
+     * @param State                            $state
+     * @param WebhookEntityRepositoryInterface $webhookEntityRepository
      */
     public function __construct(
-        State $state
+        State $state,
+        WebhookEntityRepositoryInterface $webhookEntityRepository
     ) {
-        $this->state = $state;
+        $this->state                   = $state;
+        $this->webhookEntityRepository = $webhookEntityRepository;
+
         parent::__construct();
     }
 
@@ -194,7 +205,7 @@ class Webhooks extends Command
 
             if ($webhook['processed']) {
                 $this->outputWebhook($output, $webhook);
-                $this->webhookHandler->deleteWebhookEntity($webhook['id']);
+                $this->webhookEntityRepository->deleteById($webhook['id']);
                 $deleted++;
             }
         }
