@@ -24,6 +24,7 @@ use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Klarna\Core\Api\OrderRepositoryInterface;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
@@ -142,6 +143,12 @@ class V2 extends Action
      * @var Object $quote
      */
     public $quote;
+    /**
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
+     */
+    private $orderRepository;
 
     /**
      * V2 constructor
@@ -158,6 +165,7 @@ class V2 extends Action
      * @param ApiHandlerService          $apiHandler
      * @param PaymentErrorHandlerService $paymentErrorHandler
      * @param Utilities                  $utilities
+     * @param OrderRepositoryInterface   $orderRepository
      */
     public function __construct(
         Context $context,
@@ -171,7 +179,8 @@ class V2 extends Action
         MethodHandlerService $methodHandler,
         ApiHandlerService $apiHandler,
         PaymentErrorHandlerService $paymentErrorHandler,
-        Utilities $utilities
+        Utilities $utilities,
+        OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
         $this->jsonFactory         = $jsonFactory;
@@ -185,6 +194,7 @@ class V2 extends Action
         $this->apiHandler          = $apiHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
         $this->utilities           = $utilities;
+        $this->orderRepository     = $orderRepository;
     }
 
     /**
@@ -275,7 +285,7 @@ class V2 extends Action
                 $order = $this->utilities->setPaymentData($order, $response);
 
                 // Save the order
-                $order->save();
+                $this->orderRepository->save($order);
 
                 // Update the result
                 $this->result['success'] = $response->isSuccessful();

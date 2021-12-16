@@ -24,6 +24,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\RefundAdapter\Interceptor;
 use Magento\Sales\Model\Order\RefundAdapterInterface;
@@ -61,6 +62,12 @@ class RefundInvoice
      * @var Config $config
      */
     public $config;
+    /**
+     * $orderPaymentRepository field
+     *
+     * @var OrderPaymentRepositoryInterface $orderPaymentRepository
+     */
+    private $orderPaymentRepository;
 
     /**
      * RefundInvoice constructor
@@ -74,12 +81,14 @@ class RefundInvoice
         MethodHandlerService $methodHandler,
         StoreManagerInterface $storeManager,
         ApiHandlerService $apiHandler,
-        Config $config
+        Config $config,
+        OrderPaymentRepositoryInterface $orderPaymentRepository
     ) {
         $this->methodHandler = $methodHandler;
         $this->storeManager  = $storeManager;
         $this->apiHandler    = $apiHandler;
         $this->config         = $config;
+        $this->orderPaymentRepository = $orderPaymentRepository;
     }
 
     /**
@@ -137,7 +146,7 @@ class RefundInvoice
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-            $payment->save();
+            $this->orderPaymentRepository->save($payment);
 
             $result = [$creditMemo, $order, $isOnline];
         } else {

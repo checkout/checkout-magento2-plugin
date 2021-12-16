@@ -39,6 +39,7 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -163,6 +164,12 @@ class V3 implements V3Interface
      * @var Object $quote
      */
     private $quote;
+    /**
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
+     */
+    private $orderRepository;
 
     /**
      * V3 constructor
@@ -180,6 +187,7 @@ class V3 implements V3Interface
      * @param Utilities                  $utilities
      * @param VaultHandlerService        $vaultHandler
      * @param Http                       $request
+     * @param OrderRepositoryInterface   $orderRepository
      */
     public function __construct(
         PaymentResponseFactory $paymentResponseFactory,
@@ -194,7 +202,8 @@ class V3 implements V3Interface
         PaymentErrorHandlerService $paymentErrorHandler,
         Utilities $utilities,
         VaultHandlerService $vaultHandler,
-        Http $request
+        Http $request,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->paymentResponseFactory = $paymentResponseFactory;
         $this->config                  = $config;
@@ -209,6 +218,7 @@ class V3 implements V3Interface
         $this->utilities              = $utilities;
         $this->vaultHandler           = $vaultHandler;
         $this->request                = $request;
+        $this->orderRepository        = $orderRepository;
     }
 
     /**
@@ -329,7 +339,7 @@ class V3 implements V3Interface
                 $order = $this->utilities->setPaymentData($order, $response);
 
                 // Save the order
-                $order->save();
+                $this->orderRepository->save($order);
 
                 // Use custom redirect urls
                 if ($is3ds) {

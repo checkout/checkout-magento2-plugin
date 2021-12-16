@@ -228,7 +228,8 @@ class QuoteHandlerService
      */
     public function getReference($quote)
     {
-        return $quote->reserveOrderId()->save()->getReservedOrderId();
+        $this->cartRepository->save($quote->reserveOrderId());
+        return $quote->getReservedOrderId();
     }
 
     /**

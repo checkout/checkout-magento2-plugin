@@ -30,6 +30,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -125,6 +126,12 @@ class PlaceOrder extends Action
      * @var ScopeConfigInterface $scopeConfig
      */
     public $scopeConfig;
+    /**
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
+     */
+    private $orderRepository;
 
     /**
      * PlaceOrder constructor
@@ -142,6 +149,7 @@ class PlaceOrder extends Action
      * @param Utilities                  $utilities
      * @param Logger                     $logger
      * @param Session                    $session
+     * @param OrderRepositoryInterface   $orderRepository
      */
     public function __construct(
         Context $context,
@@ -156,7 +164,8 @@ class PlaceOrder extends Action
         PaymentErrorHandlerService $paymentErrorHandler,
         Utilities $utilities,
         Logger $logger,
-        Session $session
+        Session $session,
+        OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
 
@@ -172,6 +181,7 @@ class PlaceOrder extends Action
         $this->utilities           = $utilities;
         $this->logger              = $logger;
         $this->session             = $session;
+        $this->orderRepository     = $orderRepository;
     }
 
     /**
@@ -239,7 +249,7 @@ class PlaceOrder extends Action
                             }
 
                             // Save the order
-                            $order->save();
+                            $this->orderRepository->save($order);
 
                             // Update the response parameters
                             $success = $response->isSuccessful();

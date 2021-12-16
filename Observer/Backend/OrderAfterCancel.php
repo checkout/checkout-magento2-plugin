@@ -21,8 +21,11 @@ use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 
 /**
  * Class OrderAfterCancel
@@ -68,28 +71,37 @@ class OrderAfterCancel implements ObserverInterface
      * @var array $params
      */
     public $params;
+    /**
+     * $orderStatusHistoryRepository field
+     *
+     * @var OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+     */
+    private $orderStatusHistoryRepository;
 
     /**
      * OrderAfterCancel constructor
      *
-     * @param Session                  $backendAuthSession
-     * @param RequestInterface         $request
-     * @param Config                    $config
-     * @param OrderManagementInterface $orderManagement
-     * @param Order                    $orderModel
+     * @param Session                               $backendAuthSession
+     * @param RequestInterface                      $request
+     * @param Config                                 $config
+     * @param OrderManagementInterface              $orderManagement
+     * @param Order                                 $orderModel
+     * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
     public function __construct(
         Session $backendAuthSession,
         RequestInterface $request,
         Config $config,
         OrderManagementInterface $orderManagement,
-        Order $orderModel
+        Order $orderModel,
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
-        $this->backendAuthSession = $backendAuthSession;
-        $this->request            = $request;
-        $this->config              = $config;
-        $this->orderManagement    = $orderManagement;
-        $this->orderModel         = $orderModel;
+        $this->backendAuthSession           = $backendAuthSession;
+        $this->request                      = $request;
+        $this->config                        = $config;
+        $this->orderManagement              = $orderManagement;
+        $this->orderModel                   = $orderModel;
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
@@ -98,20 +110,23 @@ class OrderAfterCancel implements ObserverInterface
      * @param Observer $observer
      *
      * @return $this|void
+     * @throws LocalizedException
      */
     public function execute(Observer $observer)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             $this->params = $this->request->getParams();
-            $payment      = $observer->getEvent()->getPayment();
-            $order        = $payment->getOrder();
-            $methodId     = $order->getPayment()->getMethodInstance()->getCode();
+            /** @var Payment $payment */
+            $payment  = $observer->getEvent()->getPayment();
+            $order    = $payment->getOrder();
+            $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
             if (in_array($methodId, $this->config->getMethodsList())) {
                 $orderComments = $order->getStatusHistories();
                 $orderComment  = array_pop($orderComments);
+                $orderComment->setData('status', 'canceled');
 
-                $orderComment->setData('status', 'canceled')->save();
+                $this->orderStatusHistoryRepository->save($orderComment);
             }
 
             return $this;

@@ -17,9 +17,15 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
+use Magento\Sales\Model\Order;
 
 /**
  * Class PaymentErrorHandlerService
@@ -29,6 +35,18 @@ use Magento\Framework\Phrase;
  */
 class PaymentErrorHandlerService
 {
+    /**
+     * $transactionErrorLabel field
+     *
+     * @var array $transactionErrorLabel
+     */
+    public static $transactionErrorLabel = [
+        'payment_declined'         => 'Failed payment authorization',
+        'payment_capture_declined' => 'Failed payment capture',
+        'payment_void_declined'    => 'Failed payment void',
+        'payment_refund_declined'  => 'Failed payment refund',
+        'payment_pending'          => 'Failed payment request',
+    ];
     /**
      * $transactionHandler field
      *
@@ -42,30 +60,57 @@ class PaymentErrorHandlerService
      */
     public $orderHandler;
     /**
-     * $transactionErrorLabel field
+     * $order field
      *
-     * @var array $transactionErrorLabel
+     * @var Order $order
      */
-    public static $transactionErrorLabel = [
-        'payment_declined' => 'Failed payment authorization',
-        'payment_capture_declined' => 'Failed payment capture',
-        'payment_void_declined' => 'Failed payment void',
-        'payment_refund_declined' => 'Failed payment refund',
-        'payment_pending' => 'Failed payment request',
-    ];
+    private $order;
+    /**
+     * $payment field
+     *
+     * @var false|float|DataObject|OrderPaymentInterface|mixed|null $payment
+     */
+    private $payment;
+    /**
+     * $orderPaymentRepository field
+     *
+     * @var OrderPaymentRepositoryInterface $orderPaymentRepository
+     */
+    private $orderPaymentRepository;
+    /**
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
+     */
+    private $orderRepository;
+    /**
+     * $orderStatusHistoryRepository field
+     *
+     * @var OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+     */
+    private $orderStatusHistoryRepository;
 
     /**
      * PaymentErrorHandlerService constructor
      *
-     * @param TransactionHandlerService $transactionHandler
-     * @param OrderHandlerService       $orderHandler
+     * @param TransactionHandlerService             $transactionHandler
+     * @param OrderHandlerService                   $orderHandler
+     * @param OrderRepositoryInterface              $orderRepository
+     * @param OrderPaymentRepositoryInterface       $orderPaymentRepository
+     * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
     public function __construct(
         TransactionHandlerService $transactionHandler,
-        OrderHandlerService $orderHandler
+        OrderHandlerService $orderHandler,
+        OrderRepositoryInterface $orderRepository,
+        OrderPaymentRepositoryInterface $orderPaymentRepository,
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
-        $this->transactionHandler = $transactionHandler;
-        $this->orderHandler       = $orderHandler;
+        $this->transactionHandler           = $transactionHandler;
+        $this->orderHandler                 = $orderHandler;
+        $this->orderRepository              = $orderRepository;
+        $this->orderPaymentRepository       = $orderPaymentRepository;
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
@@ -99,11 +144,11 @@ class PaymentErrorHandlerService
 
         // Add the order comment
         $previousComment = $this->orderHandler->getStatusHistoryByEntity('3ds Fail', $this->order);
-        if ($previousComment && $response->type == 'payment_declined') {
-            $previousComment
-                ->setEntityName('order')
-                ->setComment(__(self::$transactionErrorLabel[$response->type]) . $suffix)
-                ->save();
+        if ($previousComment && $response->type === 'payment_declined') {
+            $previousComment->setEntityName('order')->setComment(
+                __(self::$transactionErrorLabel[$response->type]) . $suffix
+            );
+            $this->orderStatusHistoryRepository->save($previousComment);
         } else {
             // Add the order comment
             $this->order->addStatusHistoryComment(
@@ -112,8 +157,31 @@ class PaymentErrorHandlerService
         }
 
         // Save the data
-        $this->payment->save();
-        $this->order->save();
+        $this->orderPaymentRepository->save($this->payment);
+        $this->orderRepository->save($this->order);
+    }
+
+    /**
+     * Prepare the amount received from the gateway
+     *
+     * @param $amount
+     *
+     * @return string
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function prepareAmount($amount)
+    {
+        // Prepare the amount
+        $amount = $this->transactionHandler->amountFromGateway(
+            $amount,
+            $this->order
+        );
+
+        // Get the currency
+        $currency = $this->orderHandler->getOrderCurrency($this->order);
+
+        return $amount . ' ' . $currency;
     }
 
     /**
@@ -150,31 +218,8 @@ class PaymentErrorHandlerService
         );
 
         // Save the data
-        $this->payment->save();
-        $this->order->save();
-    }
-
-    /**
-     * Prepare the amount received from the gateway
-     *
-     * @param $amount
-     *
-     * @return string
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    public function prepareAmount($amount)
-    {
-        // Prepare the amount
-        $amount = $this->transactionHandler->amountFromGateway(
-            $amount,
-            $this->order
-        );
-
-        // Get the currency
-        $currency = $this->orderHandler->getOrderCurrency($this->order);
-
-        return $amount . ' ' . $currency;
+        $this->orderPaymentRepository->save($this->payment);
+        $this->orderRepository->save($this->order);
     }
 
     /**

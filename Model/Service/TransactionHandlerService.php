@@ -26,6 +26,9 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\TransactionSearchResultInterfaceFactory;
 use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Convert\Order as OrderConvertor;
 use Magento\Sales\Model\Convert\OrderFactory as ConvertorFactory;
 use Magento\Sales\Model\Order;
@@ -157,6 +160,24 @@ class TransactionHandlerService
      * @var ConvertorFactory
      */
     protected $convertorFactory;
+    /**
+     * $orderPaymentRepository field
+     *
+     * @var OrderPaymentRepositoryInterface $orderPaymentRepository
+     */
+    private $orderPaymentRepository;
+    /**
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
+     */
+    private $orderRepository;
+    /**
+     * $orderStatusHistoryRepository field
+     *
+     * @var OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+     */
+    private $orderStatusHistoryRepository;
 
     /**
      * TransactionHandlerService constructor
@@ -171,10 +192,13 @@ class TransactionHandlerService
      * @param SearchCriteriaBuilder                   $searchCriteriaBuilder
      * @param Utilities                               $utilities
      * @param InvoiceHandlerService                   $invoiceHandler
-     * @param Config                                   $config
+     * @param Config                                  $config
      * @param OrderManagementInterface                $orderManagement
      * @param Order                                   $orderModel
      * @param ConvertorFactory                        $convertOrderFactory
+     * @param OrderPaymentRepositoryInterface         $orderPaymentRepository
+     * @param OrderRepositoryInterface                $orderRepository
+     * @param OrderStatusHistoryRepositoryInterface   $orderStatusHistoryRepository
      */
     public function __construct(
         OrderSender $orderSender,
@@ -190,22 +214,29 @@ class TransactionHandlerService
         Config $config,
         OrderManagementInterface $orderManagement,
         Order $orderModel,
-        ConvertorFactory $convertOrderFactory
-    ) {
-        $this->orderSender           = $orderSender;
-        $this->transactionSearch     = $transactionSearch;
-        $this->transactionBuilder    = $transactionBuilder;
-        $this->transactionRepository = $transactionRepository;
-        $this->creditMemoFactory     = $creditMemoFactory;
-        $this->creditMemoService     = $creditMemoService;
-        $this->filterBuilder          = $filterBuilder;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->utilities             = $utilities;
-        $this->invoiceHandler        = $invoiceHandler;
-        $this->config                 = $config;
-        $this->orderManagement       = $orderManagement;
-        $this->orderModel            = $orderModel;
-        $this->convertorFactory      = $convertOrderFactory;
+        ConvertorFactory $convertOrderFactory,
+        OrderPaymentRepositoryInterface $orderPaymentRepository,
+        OrderRepositoryInterface $orderRepository,
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+    )
+    {
+        $this->orderSender                  = $orderSender;
+        $this->transactionSearch            = $transactionSearch;
+        $this->transactionBuilder           = $transactionBuilder;
+        $this->transactionRepository        = $transactionRepository;
+        $this->creditMemoFactory            = $creditMemoFactory;
+        $this->creditMemoService            = $creditMemoService;
+        $this->filterBuilder                 = $filterBuilder;
+        $this->searchCriteriaBuilder        = $searchCriteriaBuilder;
+        $this->utilities                    = $utilities;
+        $this->invoiceHandler               = $invoiceHandler;
+        $this->config                        = $config;
+        $this->orderManagement              = $orderManagement;
+        $this->orderModel                   = $orderModel;
+        $this->convertorFactory             = $convertOrderFactory;
+        $this->orderPaymentRepository       = $orderPaymentRepository;
+        $this->orderRepository              = $orderRepository;
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
@@ -261,9 +292,9 @@ class TransactionHandlerService
                 $this->processEmail($payload);
 
                 // Save
-                $this->transaction->save();
-                $this->payment->save();
-                $this->order->save();
+                $this->transactionRepository->save($this->transaction);
+                $this->orderPaymentRepository->save($this->payment);
+                $this->orderRepository->save($this->order);
 
                 // Process the payment void case
                 $this->processVoid();
@@ -277,9 +308,9 @@ class TransactionHandlerService
                 $this->processEmail($payload);
 
                 // Save
-                $this->transaction->save();
-                $this->payment->save();
-                $this->order->save();
+                $this->transactionRepository->save($this->transaction);
+                $this->orderPaymentRepository->save($this->payment);
+                $this->orderRepository->save($this->order);
             }
         }
     }
@@ -429,8 +460,8 @@ class TransactionHandlerService
             Transaction::TYPE_AUTH
         );
         if ($isVoid && $parentAuth) {
-            $parentAuth->setIsClosed(1)->save();
-
+            $parentAuth->setIsClosed(1);
+            $this->transactionRepository->save($parentAuth);
             return 1;
         }
 
@@ -441,11 +472,13 @@ class TransactionHandlerService
             Transaction::TYPE_AUTH
         );
         if ($isPartialCapture && $parentAuth) {
-            $parentAuth->setIsClosed(1)->save();
+            $parentAuth->setIsClosed(1);
+            $this->transactionRepository->save($parentAuth);
 
             return 0;
         } elseif ($isCapture && $parentAuth) {
-            $parentAuth->setIsClosed(1)->save();
+            $parentAuth->setIsClosed(1);
+            $this->transactionRepository->save($parentAuth);
 
             return 0;
         }
@@ -457,12 +490,13 @@ class TransactionHandlerService
             Transaction::TYPE_CAPTURE
         );
         if ($isPartialRefund && $parentCapture) {
-            $parentCapture->setIsClosed(0)->save();
+            $parentCapture->setIsClosed(0);
+            $this->transactionRepository->save($parentCapture);
 
             return 1;
         } elseif ($isRefund && $parentCapture) {
-            $parentCapture->setIsClosed(1)->save();
-
+            $parentCapture->setIsClosed(1);
+            $this->transactionRepository->save($parentCapture);
             return 1;
         }
 
@@ -623,12 +657,13 @@ class TransactionHandlerService
             $this->creditMemoService->refund($creditMemo);
 
             $status = $isPartialRefund ? $this->config->getValue('order_status_refunded') : 'closed';
-            $orderComment->setData('status', $status)->save();
+            $orderComment->setData('status', $status);
+            $this->orderStatusHistoryRepository->save($orderComment);
 
             // Remove the core credit memo comment
             $orderComments = $this->order->getAllStatusHistory();
             foreach ($orderComments as $orderComment) {
-                if ($orderComment->getEntityName() == 'creditmemo') {
+                if ($orderComment->getEntityName() === 'creditmemo') {
                     $orderComment->delete();
                 }
             }

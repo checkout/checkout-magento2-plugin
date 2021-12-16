@@ -21,8 +21,11 @@ use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 
 /**
  * Class OrderAfterVoid
@@ -68,28 +71,37 @@ class OrderAfterVoid implements ObserverInterface
      * @var array $params
      */
     public $params;
+    /**
+     * $orderStatusHistoryRepository field
+     *
+     * @var OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+     */
+    private $orderStatusHistoryRepository;
 
     /**
      * OrderAfterVoid constructor
      *
-     * @param Session                  $backendAuthSession
-     * @param RequestInterface         $request
-     * @param Config                    $config
-     * @param OrderManagementInterface $orderManagement
-     * @param Order                    $orderModel
+     * @param Session                               $backendAuthSession
+     * @param RequestInterface                      $request
+     * @param Config                                 $config
+     * @param OrderManagementInterface              $orderManagement
+     * @param Order                                 $orderModel
+     * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
     public function __construct(
         Session $backendAuthSession,
         RequestInterface $request,
         Config $config,
         OrderManagementInterface $orderManagement,
-        Order $orderModel
+        Order $orderModel,
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
-        $this->backendAuthSession = $backendAuthSession;
-        $this->request            = $request;
-        $this->config              = $config;
-        $this->orderManagement    = $orderManagement;
-        $this->orderModel         = $orderModel;
+        $this->backendAuthSession           = $backendAuthSession;
+        $this->request                      = $request;
+        $this->config                        = $config;
+        $this->orderManagement              = $orderManagement;
+        $this->orderModel                   = $orderModel;
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
@@ -98,13 +110,14 @@ class OrderAfterVoid implements ObserverInterface
      * @param Observer $observer
      *
      * @return OrderAfterVoid|void
+     * @throws LocalizedException
      */
     public function execute(Observer $observer)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the request parameters
             $this->params = $this->request->getParams();
-
+            /** @var Payment $payment */
             $payment  = $observer->getEvent()->getPayment();
             $order    = $payment->getOrder();
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
@@ -120,8 +133,9 @@ class OrderAfterVoid implements ObserverInterface
                 $comment       = __('The voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
 
                 // Update the order history comment
-                $orderComment->setData('status', $this->config->getValue('order_status_voided'))->save();
-                $orderComment->setData('comment', $comment)->save();
+                $orderComment->setData('status', $this->config->getValue('order_status_voided'));
+                $orderComment->setData('comment', $comment);
+                $this->orderStatusHistoryRepository->save($orderComment);
 
                 if ($this->config->getValue('order_status_voided') == 'canceled') {
                     // Cancel the order if void order status has been set to canceled

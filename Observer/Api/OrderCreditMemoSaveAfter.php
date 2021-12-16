@@ -21,6 +21,9 @@ use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order\Creditmemo;
 
 /**
  * Class OrderCreditMemoSaveAfter
@@ -54,22 +57,31 @@ class OrderCreditMemoSaveAfter implements ObserverInterface
      * @var array $params
      */
     public $params;
+    /**
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
+     */
+    private $orderRepository;
 
     /**
      * OrderCreditMemoSaveAfter constructor
      *
-     * @param Session          $backendAuthSession
-     * @param RequestInterface $request
-     * @param Config            $config
+     * @param Session                  $backendAuthSession
+     * @param RequestInterface         $request
+     * @param Config                    $config
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         Session $backendAuthSession,
         RequestInterface $request,
-        Config $config
+        Config $config,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->request            = $request;
         $this->config              = $config;
+        $this->orderRepository    = $orderRepository;
     }
 
     /**
@@ -78,16 +90,18 @@ class OrderCreditMemoSaveAfter implements ObserverInterface
      * @param Observer $observer
      *
      * @return OrderCreditMemoSaveAfter
+     * @throws LocalizedException
      */
     public function execute(Observer $observer)
     {
+        /** @var Creditmemo $creditMemo */
         $creditMemo = $observer->getEvent()->getCreditmemo();
         $order      = $creditMemo->getOrder();
         $methodId   = $order->getPayment()->getMethodInstance()->getCode();
 
         // Check if payment method is checkout.com
         if (in_array($methodId, $this->config->getMethodsList())) {
-            $status = ($order->getStatus() == 'closed' || $order->getStatus() == 'complete') ? $order->getStatus(
+            $status = ($order->getStatus() === 'closed' || $order->getStatus() === 'complete') ? $order->getStatus(
             ) : $this->config->getValue('order_status_refunded');
 
             // Update the order status
@@ -98,8 +112,7 @@ class OrderCreditMemoSaveAfter implements ObserverInterface
             $orderComment  = array_pop($orderComments);
 
             // Update the order history comment status
-            $orderComment->setData('status', $status)->save();
-            $order->save();
+            $this->orderRepository->save($order);
         }
 
         return $this;

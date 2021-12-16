@@ -182,7 +182,7 @@ class OrderStatusHandlerService
         // Check if order has not been deleted
         if ($this->orderHandler->isOrder($this->order)) {
             // Save the order
-            $this->order->save();
+            $this->orderRepository->save($this->order);
         }
     }
 

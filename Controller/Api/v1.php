@@ -30,6 +30,7 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -94,19 +95,26 @@ class V1 extends Action
      * @var array $data
      */
     public $data;
+    /**
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
+     */
+    private $orderRepository;
 
     /**
      * Callback constructor
      *
-     * @param Context               $context
-     * @param JsonFactory           $jsonFactory
-     * @param Config                 $config
-     * @param StoreManagerInterface $storeManager
-     * @param QuoteHandlerService   $quoteHandler
-     * @param OrderHandlerService   $orderHandler
-     * @param MethodHandlerService  $methodHandler
-     * @param ApiHandlerService     $apiHandler
-     * @param Utilities             $utilities
+     * @param Context                  $context
+     * @param JsonFactory              $jsonFactory
+     * @param Config                   $config
+     * @param StoreManagerInterface    $storeManager
+     * @param QuoteHandlerService      $quoteHandler
+     * @param OrderHandlerService      $orderHandler
+     * @param MethodHandlerService     $methodHandler
+     * @param ApiHandlerService        $apiHandler
+     * @param Utilities                $utilities
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         Context $context,
@@ -117,7 +125,8 @@ class V1 extends Action
         OrderHandlerService $orderHandler,
         MethodHandlerService $methodHandler,
         ApiHandlerService $apiHandler,
-        Utilities $utilities
+        Utilities $utilities,
+        OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
         $this->jsonFactory   = $jsonFactory;
@@ -128,6 +137,7 @@ class V1 extends Action
         $this->methodHandler = $methodHandler;
         $this->apiHandler    = $apiHandler;
         $this->utilities     = $utilities;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -172,7 +182,7 @@ class V1 extends Action
                         $order = $this->utilities->setPaymentData($order, $response);
 
                         // Save the order
-                        $order->save();
+                        $this->orderRepository->save($order);
 
                         // Update the response parameters
                         $success = $response->isSuccessful();
