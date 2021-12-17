@@ -17,12 +17,12 @@
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
+use LimitIterator;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Data\Form\Element\AbstractElement;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
+use SplFileObject;
 
 /**
  * Class LogFiles
@@ -50,6 +50,7 @@ class LogFiles extends Field
         if (!$this->getTemplate()) {
             $this->setTemplate(static::TEMPLATE);
         }
+
         return $this;
     }
 
@@ -75,26 +76,23 @@ class LogFiles extends Field
      */
     protected function _getElementHtml(AbstractElement $element)
     {
-        $file = BP . '/var/log/' . $element->getLabel();
+        $file     = BP . '/var/log/' . $element->getLabel();
         $contents = '';
 
         $url = $this->getUrl('cko/logs/view', [
-            'file' => $element->getLabel()
+            'file' => $element->getLabel(),
         ]);
 
-        if (is_file($file))
-        {
+        if (is_file($file)) {
             // Get the last 50 lines of the log file for the preview
-            $file = new \SplFileObject($file, 'r');
+            $file = new SplFileObject($file, 'r');
             $file->seek(PHP_INT_MAX);
             $last_line = $file->key();
             if ($last_line) {
-                $lines = new \LimitIterator(
-                    $file,
-                    ($last_line - 50) > 0 ? $last_line - 50 : 0,
-                    $last_line
+                $lines    = new LimitIterator(
+                    $file, ($last_line - 50) > 0 ? $last_line - 50 : 0, $last_line
                 );
-                $contents = implode('',iterator_to_array($lines));
+                $contents = implode('', iterator_to_array($lines));
             } else {
                 $contents = '';
             }
@@ -103,12 +101,10 @@ class LogFiles extends Field
         $element->setData('value', $contents);
         $element->setReadonly('readonly');
 
-        $this->addData(
-            [
+        $this->addData([
                 'element_html' => $element->getElementHtml(),
-                'button_url' => $url,
-            ]
-        );
+                'button_url'   => $url,
+            ]);
 
         return $this->_toHtml();
     }
@@ -125,13 +121,11 @@ class LogFiles extends Field
     {
         $button = $this->getLayout()->createBlock(
             'Magento\Backend\Block\Widget\Button'
-        )->setData(
-            [
-                'id' => 'view_more',
-                'label' => __('View More'),
-                'onclick' => 'setLocation(\''.$url.'\')'
-            ]
-        );
+        )->setData([
+                'id'      => 'view_more',
+                'label'   => __('View More'),
+                'onclick' => 'setLocation(\'' . $url . '\')',
+            ]);
 
         return $button->toHtml();
     }

@@ -18,10 +18,10 @@
 namespace CheckoutCom\Magento2\Controller\Apm;
 
 use Checkout\CheckoutApi;
-use \Checkout\Models\Sources\Sepa;
-use \Checkout\Models\Sources\SepaData;
-use \Checkout\Models\Sources\SepaAddress;
-use \Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Sources\Sepa;
+use Checkout\Models\Sources\SepaAddress;
+use Checkout\Models\Sources\SepaData;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -130,7 +130,7 @@ class DisplaySepa extends Action
      * @param Context               $context
      * @param PageFactory           $pageFactory
      * @param JsonFactory           $jsonFactory
-     * @param Config                 $config
+     * @param Config                $config
      * @param ApiHandlerService     $apiHandler
      * @param QuoteHandlerService   $quoteHandler
      * @param Information           $storeInformation
@@ -154,7 +154,7 @@ class DisplaySepa extends Action
 
         $this->pageFactory      = $pageFactory;
         $this->jsonFactory      = $jsonFactory;
-        $this->config            = $config;
+        $this->config           = $config;
         $this->apiHandler       = $apiHandler;
         $this->quoteHandler     = $quoteHandler;
         $this->storeInformation = $storeInformation;

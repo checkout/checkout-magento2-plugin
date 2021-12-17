@@ -17,12 +17,13 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\ThreeDs;
-use \Checkout\Models\Payments\TokenSource;
-use \Checkout\Models\Payments\BillingDescriptor;
-use \Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Payments\BillingDescriptor;
+use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\ThreeDs;
+use Checkout\Models\Payments\TokenSource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
@@ -30,6 +31,7 @@ use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Exception;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Customer\Model\Session as CustomerModelSession;
+use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -44,11 +46,8 @@ use Magento\Framework\Registry;
 use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
-use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Directory\Helper\Data as DirectoryHelper;
-
 
 /**
  * Class CardPaymentMethod
@@ -193,11 +192,11 @@ class CardPaymentMethod extends AbstractMethod
      * @param ExtensionAttributesFactory $extensionFactory
      * @param AttributeValueFactory      $customAttributeFactory
      * @param Data                       $paymentData
-     * @param ScopeConfigInterface        $scopeConfig
+     * @param ScopeConfigInterface       $scopeConfig
      * @param Logger                     $logger
      * @param Session                    $backendAuthSession
      * @param CustomerModelSession       $customerSession
-     * @param Config                      $config
+     * @param Config                     $config
      * @param ApiHandlerService          $apiHandler
      * @param Utilities                  $utilities
      * @param StoreManagerInterface      $storeManager
@@ -249,7 +248,7 @@ class CardPaymentMethod extends AbstractMethod
 
         $this->backendAuthSession = $backendAuthSession;
         $this->customerSession    = $customerSession;
-        $this->config              = $config;
+        $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;
@@ -399,7 +398,7 @@ class CardPaymentMethod extends AbstractMethod
      * Perform a capture request
      *
      * @param InfoInterface $payment
-     * @param float                                $amount
+     * @param float         $amount
      *
      * @return $this|CardPaymentMethod
      * @throws LocalizedException
@@ -523,7 +522,7 @@ class CardPaymentMethod extends AbstractMethod
      * Perform a refund request
      *
      * @param InfoInterface $payment
-     * @param float          $amount
+     * @param float         $amount
      *
      * @return $this|CardPaymentMethod
      * @throws LocalizedException

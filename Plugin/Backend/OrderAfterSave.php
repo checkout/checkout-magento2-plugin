@@ -61,7 +61,7 @@ class OrderAfterSave
      *
      * @param Session               $backendAuthSession
      * @param WebhookHandlerService $webhookHandler
-     * @param Config                 $config
+     * @param Config                $config
      * @param RequestInterface      $request
      */
     public function __construct(
@@ -72,7 +72,7 @@ class OrderAfterSave
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->webhookHandler     = $webhookHandler;
-        $this->config              = $config;
+        $this->config             = $config;
         $this->request            = $request;
     }
 

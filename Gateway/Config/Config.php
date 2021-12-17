@@ -23,6 +23,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -81,7 +82,7 @@ class Config
      *
      * @param Repository            $assetRepository
      * @param StoreManagerInterface $storeManager
-     * @param ScopeConfigInterface   $scopeConfig
+     * @param ScopeConfigInterface  $scopeConfig
      * @param RequestInterface      $request
      * @param Loader                $loader
      * @param Utilities             $utilities
@@ -98,7 +99,7 @@ class Config
     ) {
         $this->assetRepository = $assetRepository;
         $this->storeManager    = $storeManager;
-        $this->scopeConfig      = $scopeConfig;
+        $this->scopeConfig     = $scopeConfig;
         $this->request         = $request;
         $this->loader          = $loader;
         $this->utilities       = $utilities;
@@ -182,7 +183,7 @@ class Config
         $field,
         $methodId = null,
         $storeCode = null,
-        $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        $scope = ScopeInterface::SCOPE_STORE
     ) {
         return $this->loader->init()->getValue($field, $methodId, $storeCode, $scope);
     }
@@ -198,7 +199,7 @@ class Config
     {
         return $this->scopeConfig->getValue(
             $path,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
     }
 
@@ -378,7 +379,7 @@ class Config
 
         return $this->scopeConfig->getValue(
             'general/locale/code',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
     }
@@ -406,7 +407,7 @@ class Config
 
         return $this->scopeConfig->getValue(
             'general/country/default',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
     }

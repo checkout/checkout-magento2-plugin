@@ -16,6 +16,8 @@
 
 namespace CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity;
 
+use CheckoutCom\Magento2\Model\Entity\WebhookEntity as WebhookEntityModel;
+use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity as WebhookEntityResource;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
 /**
@@ -41,8 +43,8 @@ class Collection extends AbstractCollection
     public function _construct()
     {
         $this->_init(
-            \CheckoutCom\Magento2\Model\Entity\WebhookEntity::class,
-            \CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity::class
+            WebhookEntityModel::class,
+            WebhookEntityResource::class
         );
     }
 }

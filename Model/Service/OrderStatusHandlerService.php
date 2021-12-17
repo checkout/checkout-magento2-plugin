@@ -106,7 +106,7 @@ class OrderStatusHandlerService
      * @param StoreManagerInterface     $storeManager
      * @param TransactionHandlerService $transactionHandler
      * @param Order                     $orderModel
-     * @param Config                     $config
+     * @param Config                    $config
      * @param OrderHandlerService       $orderHandler
      * @param OrderManagementInterface  $orderManagement
      * @param OrderRepositoryInterface  $orderRepository
@@ -125,7 +125,7 @@ class OrderStatusHandlerService
         $this->storeManager       = $storeManager;
         $this->transactionHandler = $transactionHandler;
         $this->orderModel         = $orderModel;
-        $this->config              = $config;
+        $this->config             = $config;
         $this->orderHandler       = $orderHandler;
         $this->orderManagement    = $orderManagement;
         $this->orderRepository    = $orderRepository;

@@ -49,8 +49,8 @@ class CardRenderer extends AbstractCardRenderer
      * CardRenderer constructor
      *
      * @param Context            $context
-     * @param CcConfigProvider    $iconsProvider
-     * @param Config              $config
+     * @param CcConfigProvider   $iconsProvider
+     * @param Config             $config
      * @param CardHandlerService $cardHandler
      * @param array              $data
      */
@@ -63,7 +63,7 @@ class CardRenderer extends AbstractCardRenderer
     ) {
         parent::__construct($context, $iconsProvider, $data);
 
-        $this->config       = $config;
+        $this->config      = $config;
         $this->cardHandler = $cardHandler;
     }
 

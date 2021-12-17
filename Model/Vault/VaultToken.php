@@ -18,10 +18,14 @@
 namespace CheckoutCom\Magento2\Model\Vault;
 
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use DateInterval;
+use DateTime;
+use DateTimeZone;
 use Exception;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Vault\Api\Data\PaymentTokenFactoryInterface;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
+use Zend_Json;
 
 /**
  * Class VaultToken
@@ -124,11 +128,11 @@ class VaultToken
      */
     private function getExpirationDate($expiryMonth, $expiryYear)
     {
-        $expDate = new \DateTime(
-            $expiryYear . '-' . $expiryMonth . '-' . '01' . ' ' . '00:00:00', new \DateTimeZone('UTC')
+        $expDate = new DateTime(
+            $expiryYear . '-' . $expiryMonth . '-' . '01' . ' ' . '00:00:00', new DateTimeZone('UTC')
         );
 
-        return $expDate->add(new \DateInterval('P1M'))->format('Y-m-d 00:00:00');
+        return $expDate->add(new DateInterval('P1M'))->format('Y-m-d 00:00:00');
     }
 
     /**
@@ -162,7 +166,7 @@ class VaultToken
      */
     private function convertDetailsToJSON(array $details)
     {
-        $json = \Zend_Json::encode($details);
+        $json = Zend_Json::encode($details);
 
         return $json ?: '{}';
     }

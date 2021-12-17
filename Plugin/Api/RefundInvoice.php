@@ -19,7 +19,6 @@ namespace CheckoutCom\Magento2\Plugin\Api;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
-use Closure;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
@@ -27,7 +26,6 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\RefundAdapter\Interceptor;
-use Magento\Sales\Model\Order\RefundAdapterInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -72,10 +70,11 @@ class RefundInvoice
     /**
      * RefundInvoice constructor
      *
-     * @param MethodHandlerService  $methodHandler
-     * @param StoreManagerInterface $storeManager
-     * @param ApiHandlerService     $apiHandler
-     * @param Config                 $config
+     * @param MethodHandlerService            $methodHandler
+     * @param StoreManagerInterface           $storeManager
+     * @param ApiHandlerService               $apiHandler
+     * @param Config                          $config
+     * @param OrderPaymentRepositoryInterface $orderPaymentRepository
      */
     public function __construct(
         MethodHandlerService $methodHandler,
@@ -84,10 +83,10 @@ class RefundInvoice
         Config $config,
         OrderPaymentRepositoryInterface $orderPaymentRepository
     ) {
-        $this->methodHandler = $methodHandler;
-        $this->storeManager  = $storeManager;
-        $this->apiHandler    = $apiHandler;
-        $this->config         = $config;
+        $this->methodHandler          = $methodHandler;
+        $this->storeManager           = $storeManager;
+        $this->apiHandler             = $apiHandler;
+        $this->config                 = $config;
         $this->orderPaymentRepository = $orderPaymentRepository;
     }
 

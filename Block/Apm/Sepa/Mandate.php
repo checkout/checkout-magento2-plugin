@@ -27,5 +27,4 @@ use Magento\Framework\View\Element\Template;
  */
 class Mandate extends Template
 {
-
 }

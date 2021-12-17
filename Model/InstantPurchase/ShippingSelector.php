@@ -43,6 +43,7 @@ class ShippingSelector
         }
 
         $cheapestRate = $this->selectCheapestRate($shippingRates);
+
         return $cheapestRate->getCode();
     }
 

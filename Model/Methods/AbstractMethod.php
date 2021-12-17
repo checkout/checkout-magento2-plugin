@@ -21,7 +21,6 @@ use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
@@ -39,6 +38,7 @@ use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\PaymentMethodInterface;
 use Magento\Sales\Model\Order\Payment;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 
 /**
@@ -252,7 +252,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @param ExtensionAttributesFactory $extensionFactory
      * @param AttributeValueFactory      $customAttributeFactory
      * @param Data                       $paymentData
-     * @param ScopeConfigInterface        $scopeConfig
+     * @param ScopeConfigInterface       $scopeConfig
      * @param Logger                     $logger
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
@@ -283,7 +283,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
             $data
         );
         $this->_paymentData = $paymentData;
-        $this->_scopeConfig  = $scopeConfig;
+        $this->_scopeConfig = $scopeConfig;
         $this->logger       = $logger;
         $this->directory    = $directory;
         $this->data         = $data;
@@ -449,6 +449,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         if (!empty($this->data['formBlockType'])) {
             $this->_formBlockType = $this->data['formBlockType'];
         }
+
         return $this->_formBlockType;
     }
 
@@ -566,7 +567,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         }
         $path = 'payment/' . $this->getCode() . '/' . $field;
 
-        return $this->_scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
+        return $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**

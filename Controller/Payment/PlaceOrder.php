@@ -24,6 +24,7 @@ use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Exception;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -31,6 +32,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -139,7 +141,7 @@ class PlaceOrder extends Action
      * @param Context                    $context
      * @param StoreManagerInterface      $storeManager
      * @param JsonFactory                $jsonFactory
-     * @param ScopeConfigInterface        $scopeConfig
+     * @param ScopeConfigInterface       $scopeConfig
      * @param QuoteHandlerService        $quoteHandler
      * @param OrderHandlerService        $orderHandler
      * @param OrderStatusHandlerService  $orderStatusHandler
@@ -171,7 +173,7 @@ class PlaceOrder extends Action
 
         $this->storeManager        = $storeManager;
         $this->jsonFactory         = $jsonFactory;
-        $this->scopeConfig          = $scopeConfig;
+        $this->scopeConfig         = $scopeConfig;
         $this->quoteHandler        = $quoteHandler;
         $this->orderHandler        = $orderHandler;
         $this->orderStatusHandler  = $orderStatusHandler;
@@ -245,7 +247,7 @@ class PlaceOrder extends Action
                             // check for redirection
                             if (isset($response->_links['redirect']['href'])) {
                                 // set order status to pending payment
-                                $order->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
+                                $order->setStatus(Order::STATE_PENDING_PAYMENT);
                             }
 
                             // Save the order
@@ -286,7 +288,7 @@ class PlaceOrder extends Action
                 // No token found
                 $message = __("Please enter valid card details.");
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $success = false;
             $message = __($e->getMessage());
             $this->logger->write($message);
@@ -319,11 +321,11 @@ class PlaceOrder extends Action
 
         // Send the charge request
         return $this->methodHandler->get($methodId)->sendPaymentRequest(
-                $this->data,
-                $order->getGrandTotal(),
-                $order->getOrderCurrencyCode(),
-                $order->getIncrementId()
-            );
+            $this->data,
+            $order->getGrandTotal(),
+            $order->getOrderCurrencyCode(),
+            $order->getIncrementId()
+        );
     }
 
     /**

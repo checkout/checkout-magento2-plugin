@@ -56,7 +56,7 @@ class Form extends Template
      * @param Context             $context
      * @param CardHandlerService  $cardHandler
      * @param VaultHandlerService $vaultHandler
-     * @param Config               $config
+     * @param Config              $config
      * @param array               $data
      */
     public function __construct(
@@ -70,6 +70,6 @@ class Form extends Template
 
         $this->cardHandler  = $cardHandler;
         $this->vaultHandler = $vaultHandler;
-        $this->config        = $config;
+        $this->config       = $config;
     }
 }

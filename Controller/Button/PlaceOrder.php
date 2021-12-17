@@ -196,7 +196,7 @@ class PlaceOrder extends Action
     public function execute(): Json
     {
         /** @var array $data */
-        $data = $this->getRequest()->getParams();
+        $data               = $this->getRequest()->getParams();
         $data['publicHash'] = $data['instant_purchase_payment_token'];
 
         // Get the store code

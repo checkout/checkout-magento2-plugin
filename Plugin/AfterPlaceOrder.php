@@ -20,8 +20,8 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 
 /**
  * Class AfterPlaceOrder
@@ -54,7 +54,7 @@ class AfterPlaceOrder
      * AfterPlaceOrder constructor
      *
      * @param Session               $backendAuthSession
-     * @param Config                 $config
+     * @param Config                $config
      * @param WebhookHandlerService $webhookHandler
      */
     public function __construct(
@@ -63,8 +63,8 @@ class AfterPlaceOrder
         WebhookHandlerService $webhookHandler
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->config = $config;
-        $this->webhookHandler = $webhookHandler;
+        $this->config             = $config;
+        $this->webhookHandler     = $webhookHandler;
     }
 
     /**

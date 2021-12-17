@@ -69,7 +69,7 @@ class OrderCreditMemoSaveAfter implements ObserverInterface
      *
      * @param Session                  $backendAuthSession
      * @param RequestInterface         $request
-     * @param Config                    $config
+     * @param Config                   $config
      * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
@@ -80,7 +80,7 @@ class OrderCreditMemoSaveAfter implements ObserverInterface
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->request            = $request;
-        $this->config              = $config;
+        $this->config             = $config;
         $this->orderRepository    = $orderRepository;
     }
 

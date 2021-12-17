@@ -21,6 +21,7 @@ use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use Magento\Backend\Model\Auth\Session;
+use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -34,7 +35,6 @@ use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Directory\Helper\Data as DirectoryHelper;
 
 /**
  * Class MotoMethod
@@ -192,7 +192,7 @@ class MotoMethod extends AbstractMethod
         );
 
         $this->backendAuthSession = $backendAuthSession;
-        $this->config              = $config;
+        $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->messageManager     = $messageManager;
     }
@@ -285,7 +285,7 @@ class MotoMethod extends AbstractMethod
      * Perform a capture request
      *
      * @param InfoInterface $payment
-     * @param float          $amount
+     * @param float         $amount
      *
      * @return $this|MotoMethod
      * @throws LocalizedException
@@ -325,7 +325,7 @@ class MotoMethod extends AbstractMethod
      * Perform a refund request
      *
      * @param InfoInterface $payment
-     * @param float          $amount
+     * @param float         $amount
      *
      * @return $this|MotoMethod
      * @throws LocalizedException

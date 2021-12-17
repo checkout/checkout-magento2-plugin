@@ -96,7 +96,7 @@ class VersionNotification implements MessageInterface
         /** @var mixed $versions */
         $versions = $this->versionHandler->getVersions();
 
-        if (is_array($versions) &&  isset($versions[0]['tag_name'])) {
+        if (is_array($versions) && isset($versions[0]['tag_name'])) {
             $this->current = $this->versionHandler->getModuleVersion();
             $this->latest  = $this->versionHandler->getLatestVersion($versions);
             if ($this->versionHandler->needsUpdate($this->current, $this->latest)) {

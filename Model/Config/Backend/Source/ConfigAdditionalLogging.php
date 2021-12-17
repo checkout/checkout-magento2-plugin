@@ -74,28 +74,28 @@ class ConfigAdditionalLogging implements OptionSourceInterface
         return [
             [
                 'value' => self::WEBHOOK,
-                'label' => __('Webhook')
+                'label' => __('Webhook'),
             ],
             [
                 'value' => self::AUTH_KEYS,
-                'label' => __('Authorisation Keys')
+                'label' => __('Authorisation Keys'),
             ],
             [
                 'value' => self::QUOTE_OBJECT,
-                'label' => __('Quote')
+                'label' => __('Quote'),
             ],
             [
                 'value' => self::ORDER_OBJECT,
-                'label' => __('Order')
+                'label' => __('Order'),
             ],
             [
                 'value' => self::PAYMENT_REQUEST,
-                'label' => __('Payment Request')
+                'label' => __('Payment Request'),
             ],
             [
                 'value' => self::ADMIN_ACTIONS,
-                'label' => __('API Response')
-            ]
+                'label' => __('API Response'),
+            ],
         ];
     }
 }

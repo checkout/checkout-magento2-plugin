@@ -183,7 +183,7 @@ class V3 implements V3Interface
      * V3 constructor
      *
      * @param PaymentResponseFactory     $paymentResponseFactory
-     * @param Config                      $config
+     * @param Config                     $config
      * @param StoreManagerInterface      $storeManager
      * @param QuoteHandlerService        $quoteHandler
      * @param QuoteIdMaskFactory         $quoteIdMaskFactory
@@ -216,7 +216,7 @@ class V3 implements V3Interface
         QuoteIdMaskResource $quoteIdMaskResource
     ) {
         $this->paymentResponseFactory = $paymentResponseFactory;
-        $this->config                  = $config;
+        $this->config                 = $config;
         $this->storeManager           = $storeManager;
         $this->quoteHandler           = $quoteHandler;
         $this->quoteIdMaskFactory     = $quoteIdMaskFactory;
@@ -513,14 +513,14 @@ class V3 implements V3Interface
 
         // Send the charge request
         return $this->methodHandler->get($this->data->getPaymentMethod())->sendPaymentRequest(
-                $payload,
-                $order->getGrandTotal(),
-                $order->getOrderCurrencyCode(),
-                $order->getIncrementId(),
-                $this->quote,
-                true,
-                $this->customer ? $this->customer->getId() : null
-            );
+            $payload,
+            $order->getGrandTotal(),
+            $order->getOrderCurrencyCode(),
+            $order->getIncrementId(),
+            $this->quote,
+            true,
+            $this->customer ? $this->customer->getId() : null
+        );
     }
 
     /**

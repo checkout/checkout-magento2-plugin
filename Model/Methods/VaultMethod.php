@@ -30,6 +30,7 @@ use CheckoutCom\Magento2\Model\Service\CardHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use Magento\Backend\Model\Auth\Session;
+use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -45,8 +46,6 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Directory\Helper\Data as DirectoryHelper;
-
 
 /**
  * Class VaultMethod
@@ -246,7 +245,7 @@ class VaultMethod extends AbstractMethod
         );
 
         $this->backendAuthSession = $backendAuthSession;
-        $this->config              = $config;
+        $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;

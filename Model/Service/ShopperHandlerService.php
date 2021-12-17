@@ -68,8 +68,8 @@ class ShopperHandlerService
     /**
      * ShopperHandlerService constructor
      *
-     * @param Config                       $config
-     * @param ConfigLanguageFallback       $languageCallbackConfig
+     * @param Config                      $config
+     * @param ConfigLanguageFallback      $languageCallbackConfig
      * @param Session                     $customerSession
      * @param CustomerRepositoryInterface $customerRepository
      * @param Resolver                    $localeResolver
@@ -81,8 +81,8 @@ class ShopperHandlerService
         CustomerRepositoryInterface $customerRepository,
         Resolver $localeResolver
     ) {
-        $this->config                  = $config;
-        $this->languageCallbackConfig  = $languageCallbackConfig;
+        $this->config                 = $config;
+        $this->languageCallbackConfig = $languageCallbackConfig;
         $this->customerSession        = $customerSession;
         $this->customerRepository     = $customerRepository;
         $this->localeResolver         = $localeResolver;

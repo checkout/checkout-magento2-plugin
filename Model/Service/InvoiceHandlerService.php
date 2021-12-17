@@ -19,8 +19,8 @@ namespace CheckoutCom\Magento2\Model\Service;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Service\InvoiceService;
 
 /**

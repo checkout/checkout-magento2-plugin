@@ -75,7 +75,7 @@ class CardHandlerService
      * @param Repository $assetRepository
      * @param Reader     $directoryReader
      * @param Csv        $csvParser
-     * @param Config      $config
+     * @param Config     $config
      */
     public function __construct(
         Repository $assetRepository,
@@ -86,7 +86,7 @@ class CardHandlerService
         $this->assetRepository = $assetRepository;
         $this->directoryReader = $directoryReader;
         $this->csvParser       = $csvParser;
-        $this->config           = $config;
+        $this->config          = $config;
     }
 
     /**
@@ -132,8 +132,8 @@ class CardHandlerService
     public function getCardIcon($code)
     {
         return $this->assetRepository->getUrl(
-                'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
-            );
+            'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+        );
     }
 
     /**
@@ -162,8 +162,8 @@ class CardHandlerService
                     'code' => $code,
                     'name' => __($value),
                     'url'  => $this->assetRepository->getUrl(
-                            'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
-                        ),
+                        'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+                    ),
                 ];
             }
         }

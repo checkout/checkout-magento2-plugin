@@ -81,7 +81,7 @@ class ConfigProvider implements ConfigProviderInterface
     /**
      * ConfigProvider constructor
      *
-     * @param Config                 $config
+     * @param Config                $config
      * @param ShopperHandlerService $shopperHandler
      * @param QuoteHandlerService   $quoteHandler
      * @param VaultHandlerService   $vaultHandler
@@ -96,7 +96,7 @@ class ConfigProvider implements ConfigProviderInterface
         CardHandlerService $cardHandler,
         MethodHandlerService $methodHandler
     ) {
-        $this->config          = $config;
+        $this->config         = $config;
         $this->shopperHandler = $shopperHandler;
         $this->quoteHandler   = $quoteHandler;
         $this->vaultHandler   = $vaultHandler;
@@ -139,18 +139,18 @@ class ConfigProvider implements ConfigProviderInterface
                         'name'     => $this->config->getStoreName(),
                         'language' => $this->config->getStoreLanguage(),
                         'code'     => $this->config->getStoreCode(),
-                        'country'  => $this->config->getStoreCountry(),
+                        'country'  => $this->config->getStoreCountry()
                     ],
                     'user'             => [
                         'has_cards'         => $this->vaultHandler->userHasCards(),
                         'language_fallback' => $this->shopperHandler->getLanguageFallback(),
                         'previous_method'   => $this->methodHandler->getPreviousMethod(),
-                        'previous_source'   => $this->methodHandler->getPreviousSource(),
+                        'previous_source'   => $this->methodHandler->getPreviousSource()
                     ],
                     'cards'            => $this->cardHandler->getCardIcons(),
                     'images_path'      => $this->config->getImagesPath(),
                     'css_path'         => $this->config->getCssPath(),
-                    'use_minified_css' => $this->config->getCoreValue('dev/css/minify_files'),
+                    'use_minified_css' => $this->config->getCoreValue('dev/css/minify_files')
                 ],
             ]);
     }

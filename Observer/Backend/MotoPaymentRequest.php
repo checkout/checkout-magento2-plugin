@@ -128,7 +128,7 @@ class MotoPaymentRequest implements ObserverInterface
      * @param ApiHandlerService   $apiHandler
      * @param OrderHandlerService $orderHandler
      * @param VaultHandlerService $vaultHandler
-     * @param Config               $config
+     * @param Config              $config
      * @param Utilities           $utilities
      * @param Logger              $logger
      */
@@ -149,7 +149,7 @@ class MotoPaymentRequest implements ObserverInterface
         $this->apiHandler         = $apiHandler;
         $this->orderHandler       = $orderHandler;
         $this->vaultHandler       = $vaultHandler;
-        $this->config              = $config;
+        $this->config             = $config;
         $this->utilities          = $utilities;
         $this->logger             = $logger;
     }

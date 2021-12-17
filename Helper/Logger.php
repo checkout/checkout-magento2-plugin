@@ -20,6 +20,7 @@ namespace CheckoutCom\Magento2\Helper;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Store\Model\ScopeInterface;
+use Zend\Log\Writer\Stream;
 
 /**
  * Class Logger
@@ -45,7 +46,7 @@ class Logger
     /**
      * Logger constructor
      *
-     * @param ManagerInterface $messageManager
+     * @param ManagerInterface     $messageManager
      * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
@@ -53,7 +54,7 @@ class Logger
         ScopeConfigInterface $scopeConfig
     ) {
         $this->messageManager = $messageManager;
-        $this->scopeConfig     = $scopeConfig;
+        $this->scopeConfig    = $scopeConfig;
     }
 
     /**
@@ -79,7 +80,7 @@ class Logger
 
         // Handle the file logging
         if ($debug && $fileLogging) {
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/checkoutcom_magento2.log');
+            $writer = new Stream(BP . '/var/log/checkoutcom_magento2.log');
             $logger = new \Zend\Log\Logger();
             $logger->addWriter($writer);
             $logger->info($msg);

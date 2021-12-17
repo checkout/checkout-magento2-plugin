@@ -114,7 +114,7 @@ class QuoteHandlerService
      * @param CartRepositoryInterface         $cartRepository
      * @param StoreManagerInterface           $storeManager
      * @param ProductRepositoryInterface      $productRepository
-     * @param Config                           $config
+     * @param Config                          $config
      * @param ShopperHandlerService           $shopperHandler
      * @param Logger                          $logger
      */
@@ -137,7 +137,7 @@ class QuoteHandlerService
         $this->cartRepository    = $cartRepository;
         $this->storeManager      = $storeManager;
         $this->productRepository = $productRepository;
-        $this->config             = $config;
+        $this->config            = $config;
         $this->shopperHandler    = $shopperHandler;
         $this->logger            = $logger;
     }
@@ -216,7 +216,7 @@ class QuoteHandlerService
      */
     public function isQuote($quote)
     {
-        return $quote instanceOf Quote && $quote->getId() > 0;
+        return $quote instanceof Quote && $quote->getId() > 0;
     }
 
     /**
@@ -229,6 +229,7 @@ class QuoteHandlerService
     public function getReference($quote)
     {
         $this->cartRepository->save($quote->reserveOrderId());
+
         return $quote->getReservedOrderId();
     }
 
@@ -285,8 +286,8 @@ class QuoteHandlerService
 
         // Set the quote as guest
         $quote->setCustomerId(null)->setCustomerEmail($guestEmail)->setCustomerIsGuest(true)->setCustomerGroupId(
-                GroupInterface::NOT_LOGGED_IN_ID
-            );
+            GroupInterface::NOT_LOGGED_IN_ID
+        );
 
         // Delete the cookie
         $this->cookieManager->deleteCookie(

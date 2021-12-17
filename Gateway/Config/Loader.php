@@ -22,6 +22,7 @@ use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Module\Dir;
 use Magento\Framework\Module\Dir\Reader;
 use Magento\Framework\Xml\Parser;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -116,7 +117,7 @@ class Loader
      *
      * @param Reader                $moduleDirReader
      * @param Parser                $xmlParser
-     * @param ScopeConfigInterface   $scopeConfig
+     * @param ScopeConfigInterface  $scopeConfig
      * @param StoreManagerInterface $storeManager
      * @param EncryptorInterface    $encryptor
      */
@@ -129,7 +130,7 @@ class Loader
     ) {
         $this->moduleDirReader = $moduleDirReader;
         $this->xmlParser       = $xmlParser;
-        $this->scopeConfig      = $scopeConfig;
+        $this->scopeConfig     = $scopeConfig;
         $this->storeManager    = $storeManager;
         $this->encryptor       = $encryptor;
     }
@@ -191,7 +192,7 @@ class Loader
                 $path  = $parent . '/' . $group . '/' . $key;
                 $value = $this->scopeConfig->getValue(
                     $path,
-                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                    ScopeInterface::SCOPE_STORE
                 );
 
                 // Process encrypted fields
@@ -278,7 +279,7 @@ class Loader
             ',',
             $this->scopeConfig->getValue(
                 'settings/checkoutcom_configuration/fields_hidden',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                ScopeInterface::SCOPE_STORE
             )
         );
 
@@ -287,7 +288,7 @@ class Loader
             ',',
             $this->scopeConfig->getValue(
                 'payment/checkoutcom_apple_pay/fields_hidden',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                ScopeInterface::SCOPE_STORE
             )
         );
 
@@ -307,7 +308,7 @@ class Loader
             ',',
             $this->scopeConfig->getValue(
                 'settings/checkoutcom_configuration/fields_encrypted',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                ScopeInterface::SCOPE_STORE
             )
         );
 
@@ -328,7 +329,7 @@ class Loader
         $key,
         $methodId = null,
         $storeCode = null,
-        $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        $scope = ScopeInterface::SCOPE_STORE
     ) {
         // Prepare the path
         $path = ($methodId) ? 'payment/' . $methodId . '/' . $key : 'settings/checkoutcom_configuration/' . $key;

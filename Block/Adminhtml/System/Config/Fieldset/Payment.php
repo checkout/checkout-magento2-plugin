@@ -51,7 +51,7 @@ class Payment extends Fieldset
      * @param Context               $context
      * @param Session               $authSession
      * @param Js                    $jsHelper
-     * @param Config                 $backendConfig
+     * @param Config                $backendConfig
      * @param VersionHandlerService $versionHandler
      * @param array                 $data
      */

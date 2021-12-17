@@ -83,7 +83,7 @@ class OrderAfterVoid implements ObserverInterface
      *
      * @param Session                               $backendAuthSession
      * @param RequestInterface                      $request
-     * @param Config                                 $config
+     * @param Config                                $config
      * @param OrderManagementInterface              $orderManagement
      * @param Order                                 $orderModel
      * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
@@ -98,7 +98,7 @@ class OrderAfterVoid implements ObserverInterface
     ) {
         $this->backendAuthSession           = $backendAuthSession;
         $this->request                      = $request;
-        $this->config                        = $config;
+        $this->config                       = $config;
         $this->orderManagement              = $orderManagement;
         $this->orderModel                   = $orderModel;
         $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;

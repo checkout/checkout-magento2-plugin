@@ -21,10 +21,8 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Result\PageFactory;
@@ -88,7 +86,7 @@ class Display extends Action
 
         $this->pageFactory  = $pageFactory;
         $this->jsonFactory  = $jsonFactory;
-        $this->config        = $config;
+        $this->config       = $config;
         $this->quoteHandler = $quoteHandler;
     }
 

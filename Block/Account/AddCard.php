@@ -40,7 +40,7 @@ class AddCard extends Template
      * AddCard constructor
      *
      * @param Context $context
-     * @param Config   $config
+     * @param Config  $config
      * @param array   $data
      */
     public function __construct(

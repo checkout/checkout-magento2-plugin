@@ -13,6 +13,7 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;

@@ -50,8 +50,7 @@ class WebhookEntityRepository implements WebhookEntityRepositoryInterface
     public function __construct(
         WebhookResource $resource,
         WebhookEntityFactory $entityFactory
-    )
-    {
+    ) {
         $this->resource       = $resource;
         $this->webhookFactory = $entityFactory;
     }
@@ -67,6 +66,7 @@ class WebhookEntityRepository implements WebhookEntityRepositoryInterface
     public function save(WebhookEntityInterface $webhookEntity): WebhookEntityRepositoryInterface
     {
         $this->resource->save($webhookEntity);
+
         return $this;
     }
 
@@ -85,6 +85,7 @@ class WebhookEntityRepository implements WebhookEntityRepositoryInterface
         if (!$webhookEntity->getId()) {
             throw new NoSuchEntityException(__('Webhook with id "%1" does not exist.', $entityId));
         }
+
         return $webhookEntity;
     }
 
@@ -100,6 +101,7 @@ class WebhookEntityRepository implements WebhookEntityRepositoryInterface
     {
         $webhookEntity = $this->getById($entityId);
         $this->resource->delete($webhookEntity);
+
         return true;
     }
 }

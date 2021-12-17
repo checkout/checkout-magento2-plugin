@@ -27,7 +27,6 @@ use Magento\Framework\Data\OptionSourceInterface;
  */
 class ConfigLanguageFallback implements OptionSourceInterface
 {
-
     /**
      * Language fallback
      *

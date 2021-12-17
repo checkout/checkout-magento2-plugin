@@ -22,6 +22,7 @@ use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
@@ -129,14 +130,14 @@ class V1 extends Action
         OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
-        $this->jsonFactory   = $jsonFactory;
-        $this->config         = $config;
-        $this->storeManager  = $storeManager;
-        $this->quoteHandler  = $quoteHandler;
-        $this->orderHandler  = $orderHandler;
-        $this->methodHandler = $methodHandler;
-        $this->apiHandler    = $apiHandler;
-        $this->utilities     = $utilities;
+        $this->jsonFactory     = $jsonFactory;
+        $this->config          = $config;
+        $this->storeManager    = $storeManager;
+        $this->quoteHandler    = $quoteHandler;
+        $this->orderHandler    = $orderHandler;
+        $this->methodHandler   = $methodHandler;
+        $this->apiHandler      = $apiHandler;
+        $this->utilities       = $utilities;
         $this->orderRepository = $orderRepository;
     }
 
@@ -196,7 +197,7 @@ class V1 extends Action
             } else {
                 $errorMessage = __('The request is invalid.');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $errorMessage = $e->getMessage();
         } finally {
             // Return the json response

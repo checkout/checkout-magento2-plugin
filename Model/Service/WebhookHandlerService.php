@@ -96,7 +96,7 @@ class WebhookHandlerService
      * @param OrderStatusHandlerService        $orderStatusHandler
      * @param TransactionHandlerService        $transactionHandler
      * @param WebhookEntityFactory             $webhookEntityFactory
-     * @param Config                            $config
+     * @param Config                           $config
      * @param Logger                           $logger
      * @param WebhookEntityRepositoryInterface $webhookEntityRepository
      */
@@ -113,7 +113,7 @@ class WebhookHandlerService
         $this->orderStatusHandler      = $orderStatusHandler;
         $this->transactionHandler      = $transactionHandler;
         $this->webhookEntityFactory    = $webhookEntityFactory;
-        $this->config                   = $config;
+        $this->config                  = $config;
         $this->logger                  = $logger;
         $this->webhookEntityRepository = $webhookEntityRepository;
     }

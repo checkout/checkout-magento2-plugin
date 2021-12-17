@@ -57,7 +57,7 @@ class Validation extends Action
      * @param Context    $context
      * @param RawFactory $rawFactory
      * @param Curl       $curl
-     * @param Config      $config
+     * @param Config     $config
      */
     public function __construct(
         Context $context,
@@ -69,7 +69,7 @@ class Validation extends Action
 
         $this->rawFactory = $rawFactory;
         $this->curl       = $curl;
-        $this->config      = $config;
+        $this->config     = $config;
     }
 
     /**
@@ -128,13 +128,13 @@ class Validation extends Action
     public function getParams()
     {
         return [
-            'merchantId' => $this->config->getValue(
+            'merchantId'                => $this->config->getValue(
                 'merchant_id',
                 $this->methodId
             ),
-            'domainName' => $this->getRequest()->getServer('HTTP_HOST'),
-            'displayName' => $this->config->getStoreName(),
-            'processingCertificate' => $this->config->getValue(
+            'domainName'                => $this->getRequest()->getServer('HTTP_HOST'),
+            'displayName'               => $this->config->getStoreName(),
+            'processingCertificate'     => $this->config->getValue(
                 'processing_certificate',
                 $this->methodId
             ),
@@ -142,10 +142,10 @@ class Validation extends Action
                 'processing_certificate_password',
                 $this->methodId
             ),
-            'merchantCertificate' => $this->config->getValue(
+            'merchantCertificate'       => $this->config->getValue(
                 'merchant_id_certificate',
                 $this->methodId
-            )
+            ),
         ];
     }
 }

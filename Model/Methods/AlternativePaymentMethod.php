@@ -17,27 +17,28 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Library\HttpHandler;
-use \Checkout\Models\Product;
-use \Checkout\Models\Address;
-use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\IdSource;
-use \Checkout\Models\Payments\EpsSource;
-use \Checkout\Models\Payments\IdealSource;
-use \Checkout\Models\Payments\AlipaySource;
-use \Checkout\Models\Payments\BoletoSource;
-use \Checkout\Models\Payments\KnetSource;
-use \Checkout\Models\Payments\FawrySource;
-use \Checkout\Models\Payments\BancontactSource;
-use \Checkout\Models\Payments\KlarnaSource;
-use \Checkout\Models\Payments\SofortSource;
-use \Checkout\Models\Payments\GiropaySource;
-use \Checkout\Models\Payments\PoliSource;
-use \Checkout\Models\Payments\PaypalSource;
-use \Checkout\Models\Payments\Payer;
-use \Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Library\HttpHandler;
+use Checkout\Models\Address;
+use Checkout\Models\Payments\AlipaySource;
+use Checkout\Models\Payments\BancontactSource;
+use Checkout\Models\Payments\BoletoSource;
+use Checkout\Models\Payments\EpsSource;
+use Checkout\Models\Payments\FawrySource;
+use Checkout\Models\Payments\GiropaySource;
+use Checkout\Models\Payments\IdealSource;
+use Checkout\Models\Payments\IdSource;
+use Checkout\Models\Payments\KlarnaSource;
+use Checkout\Models\Payments\KnetSource;
+use Checkout\Models\Payments\Payer;
+use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\PaypalSource;
+use Checkout\Models\Payments\PoliSource;
+use Checkout\Models\Payments\SofortSource;
+use Checkout\Models\Product;
 use CheckoutCom\Magento2\Controller\Apm\Display;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
@@ -45,6 +46,10 @@ use CheckoutCom\Magento2\Model\Service\shopperHandlerService;
 use CheckoutCom\Magento2\Model\Service\VersionHandlerService;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Backend\Model\Session\Quote;
+use Magento\Checkout\Helper\Data as CheckoutHelperData;
+use Magento\Checkout\Model\Session as CheckoutModelSession;
+use Magento\Customer\Model\Session as CustomerModelSession;
+use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -68,11 +73,6 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Customer\Model\Session as CustomerModelSession;
-use Magento\Checkout\Model\Session as CheckoutModelSession;
-use Magento\Checkout\Helper\Data as CheckoutHelperData;
-use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
-use Magento\Directory\Helper\Data as DirectoryHelper;
 
 /**
  * Class AlternativePaymentMethod
@@ -289,7 +289,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @param ExtensionAttributesFactory $extensionFactory
      * @param AttributeValueFactory      $customAttributeFactory
      * @param Data                       $paymentData
-     * @param ScopeConfigInterface        $scopeConfig
+     * @param ScopeConfigInterface       $scopeConfig
      * @param Logger                     $logger
      * @param Session                    $backendAuthSession
      * @param UrlInterface               $urlBuilder
@@ -303,7 +303,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @param CartManagementInterface    $quoteManagement
      * @param OrderSender                $orderSender
      * @param Quote                      $sessionQuote
-     * @param Config                      $config
+     * @param Config                     $config
      * @param shopperHandlerService      $shopperHandler
      * @param ApiHandlerService          $apiHandler
      * @param QuoteHandlerService        $quoteHandler
@@ -379,7 +379,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $this->quoteManagement    = $quoteManagement;
         $this->orderSender        = $orderSender;
         $this->sessionQuote       = $sessionQuote;
-        $this->config              = $config;
+        $this->config             = $config;
         $this->shopperHandler     = $shopperHandler;
         $this->apiHandler         = $apiHandler;
         $this->quoteHandler       = $quoteHandler;
@@ -849,7 +849,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * Perform a capture request
      *
      * @param InfoInterface $payment
-     * @param float          $amount
+     * @param float         $amount
      *
      * @return $this|AlternativePaymentMethod
      * @throws LocalizedException
@@ -968,7 +968,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * Perform a refund request.
      *
      * @param InfoInterface $payment The payment
-     * @param float          $amount The amount
+     * @param float         $amount The amount
      *
      * @return self
      * @throws LocalizedException  (description)

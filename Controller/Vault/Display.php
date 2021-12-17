@@ -70,7 +70,7 @@ class Display extends Action
      * @param Context             $context
      * @param PageFactory         $pageFactory
      * @param JsonFactory         $jsonFactory
-     * @param Config               $config
+     * @param Config              $config
      * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
@@ -84,7 +84,7 @@ class Display extends Action
 
         $this->pageFactory  = $pageFactory;
         $this->jsonFactory  = $jsonFactory;
-        $this->config        = $config;
+        $this->config       = $config;
         $this->vaultHandler = $vaultHandler;
     }
 

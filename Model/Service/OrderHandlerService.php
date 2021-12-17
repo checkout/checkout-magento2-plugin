@@ -113,7 +113,7 @@ class OrderHandlerService
      * @param QuoteManagement           $quoteManagement
      * @param OrderRepositoryInterface  $orderRepository
      * @param SearchCriteriaBuilder     $searchBuilder
-     * @param Config                     $config
+     * @param Config                    $config
      * @param QuoteHandlerService       $quoteHandler
      * @param StoreManagerInterface     $storeManager
      * @param Logger                    $logger
@@ -134,7 +134,7 @@ class OrderHandlerService
         $this->quoteManagement    = $quoteManagement;
         $this->orderRepository    = $orderRepository;
         $this->searchBuilder      = $searchBuilder;
-        $this->config              = $config;
+        $this->config             = $config;
         $this->quoteHandler       = $quoteHandler;
         $this->storeManager       = $storeManager;
         $this->logger             = $logger;
@@ -205,7 +205,7 @@ class OrderHandlerService
      */
     public function isOrder($order)
     {
-        return $order instanceOf Order && $order->getId() > 0;
+        return $order instanceof Order && $order->getId() > 0;
     }
 
     /**

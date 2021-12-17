@@ -17,14 +17,14 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use \Checkout\CheckoutApi;
+use Checkout\CheckoutApi;
 use Checkout\Library\Model;
-use \Checkout\Models\Payments\Capture;
-use \Checkout\Models\Payments\Refund;
-use \Checkout\Models\Payments\Voids;
-use \Checkout\Models\Payments\Customer;
-use \Checkout\Models\Address;
-use \Checkout\Models\Payments\Shipping;
+use Checkout\Models\Address;
+use Checkout\Models\Payments\Capture;
+use Checkout\Models\Payments\Customer;
+use Checkout\Models\Payments\Refund;
+use Checkout\Models\Payments\Shipping;
+use Checkout\Models\Payments\Voids;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -97,7 +97,7 @@ class ApiHandlerService
      *
      * @param StoreManagerInterface    $storeManager
      * @param ProductMetadataInterface $productMeta
-     * @param Config                    $config
+     * @param Config                   $config
      * @param Utilities                $utilities
      * @param Logger                   $logger
      * @param OrderHandlerService      $orderHandler
@@ -114,7 +114,7 @@ class ApiHandlerService
     ) {
         $this->storeManager   = $storeManager;
         $this->productMeta    = $productMeta;
-        $this->config          = $config;
+        $this->config         = $config;
         $this->utilities      = $utilities;
         $this->logger         = $logger;
         $this->orderHandler   = $orderHandler;
@@ -161,7 +161,7 @@ class ApiHandlerService
     {
         $this->logger->additional($this->utilities->objectToArray($response), 'api');
 
-        return $response instanceOf Model && $response->isSuccessful();
+        return $response instanceof Model && $response->isSuccessful();
     }
 
     /**

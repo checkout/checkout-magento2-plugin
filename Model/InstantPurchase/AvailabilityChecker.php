@@ -34,7 +34,6 @@ class AvailabilityChecker
      * @var Config $config
      */
     public $config;
-
     /**
      * $vaultHandler field
      *
@@ -45,14 +44,14 @@ class AvailabilityChecker
     /**
      * AvailabilityChecker constructor
      *
-     * @param Config             $config
+     * @param Config              $config
      * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
         Config $config,
         VaultHandlerService $vaultHandler
     ) {
-        $this->config = $config;
+        $this->config       = $config;
         $this->vaultHandler = $vaultHandler;
     }
 

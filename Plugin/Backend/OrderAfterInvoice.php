@@ -52,7 +52,7 @@ class OrderAfterInvoice
      * @param BaseCommandInterface  $subject
      * @param string                $result
      * @param OrderPaymentInterface $payment
-     * @param string|float|int       $amount
+     * @param string|float|int      $amount
      * @param OrderInterface        $order
      *
      * @return string
@@ -105,6 +105,6 @@ class OrderAfterInvoice
         return ($currentState == Order::STATE_PROCESSING
                 && $currentStatus !== $flaggedStatus
                 && $currentStatus !== $desiredStatus
-                && $currentStatus == 'processing') || $order->getIsVirtual();
+                && $currentStatus === 'processing') || $order->getIsVirtual();
     }
 }

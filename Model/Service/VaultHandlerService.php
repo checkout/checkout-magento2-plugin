@@ -17,6 +17,9 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\ThreeDs;
+use Checkout\Models\Payments\TokenSource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Vault\VaultToken;
 use Magento\Customer\Model\Session;
@@ -24,9 +27,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
-use \Checkout\Models\Payments\TokenSource;
-use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\ThreeDs;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 
@@ -140,7 +140,7 @@ class VaultHandlerService
      * @param ManagerInterface                $messageManager
      * @param ApiHandlerService               $apiHandler
      * @param CardHandlerService              $cardHandler
-     * @param Config                           $config
+     * @param Config                          $config
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -161,7 +161,7 @@ class VaultHandlerService
         $this->messageManager         = $messageManager;
         $this->apiHandler             = $apiHandler;
         $this->cardHandler            = $cardHandler;
-        $this->config                  = $config;
+        $this->config                 = $config;
     }
 
     /**

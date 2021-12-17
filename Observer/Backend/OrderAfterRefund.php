@@ -60,7 +60,7 @@ class OrderAfterRefund implements ObserverInterface
      *
      * @param Session          $backendAuthSession
      * @param RequestInterface $request
-     * @param Config            $config
+     * @param Config           $config
      */
     public function __construct(
         Session $backendAuthSession,
@@ -69,7 +69,7 @@ class OrderAfterRefund implements ObserverInterface
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->request            = $request;
-        $this->config              = $config;
+        $this->config             = $config;
     }
 
     /**

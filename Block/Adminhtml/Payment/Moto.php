@@ -74,9 +74,9 @@ class Moto extends Cc
      * Moto constructor
      *
      * @param Context             $context
-     * @param PaymentModelConfig   $paymentModelConfig
+     * @param PaymentModelConfig  $paymentModelConfig
      * @param Quote               $adminQuote
-     * @param GatewayConfig        $config
+     * @param GatewayConfig       $config
      * @param VaultHandlerService $vaultHandler
      * @param CardHandlerService  $cardHandler
      */
@@ -91,7 +91,7 @@ class Moto extends Cc
         parent::__construct($context, $paymentModelConfig);
 
         $this->adminQuote   = $adminQuote;
-        $this->config        = $config;
+        $this->config       = $config;
         $this->vaultHandler = $vaultHandler;
         $this->cardHandler  = $cardHandler;
     }

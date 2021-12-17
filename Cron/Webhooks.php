@@ -19,6 +19,7 @@ namespace CheckoutCom\Magento2\Cron;
 
 use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -53,7 +54,7 @@ class Webhooks
      *
      * @param LoggerInterface       $logger
      * @param WebhookHandlerService $webhookHandler
-     * @param ScopeConfigInterface   $scopeConfig
+     * @param ScopeConfigInterface  $scopeConfig
      */
     public function __construct(
         LoggerInterface $logger,
@@ -62,7 +63,7 @@ class Webhooks
     ) {
         $this->logger         = $logger;
         $this->webhookHandler = $webhookHandler;
-        $this->scopeConfig     = $scopeConfig;
+        $this->scopeConfig    = $scopeConfig;
     }
 
     /**
@@ -74,15 +75,15 @@ class Webhooks
     {
         $clean = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/webhooks_table_clean',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
 
         $cleanOn = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/webhooks_clean_on',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
 
-        if ($clean && $cleanOn == 'cron') {
+        if ($clean && $cleanOn === 'cron') {
             $this->webhookHandler->clean();
             $this->logger->info('Webhookk table has been cleaned.');
         }

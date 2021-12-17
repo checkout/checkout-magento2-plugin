@@ -18,6 +18,7 @@
 namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Checkout\CheckoutApi;
+use Checkout\Library\Exceptions\CheckoutHttpException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -63,6 +64,7 @@ class Fail extends Action
     public $storeManager;
     /**
      * $apiHandler field
+     *
      * @var CheckoutApi $apiHandler
      */
     public $apiHandler;
@@ -122,7 +124,7 @@ class Fail extends Action
      * @param OrderStatusHandlerService  $orderStatusHandler
      * @param Logger                     $logger
      * @param PaymentErrorHandlerService $paymentErrorHandlerService
-     * @param Config                      $config
+     * @param Config                     $config
      * @param Session                    $session
      */
     public function __construct(
@@ -149,7 +151,7 @@ class Fail extends Action
         $this->orderStatusHandler         = $orderStatusHandler;
         $this->logger                     = $logger;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
-        $this->config                      = $config;
+        $this->config                     = $config;
         $this->session                    = $session;
         $this->transactionHandler         = $transactionHandler;
     }
@@ -220,14 +222,14 @@ class Fail extends Action
                             __("The transaction could not be processed.")
                         );
                         $this->messageManager->addComplexNoticeMessage('knetInfoMessage', [
-                                'postDate'      => $response->source['post_date'] ?? null,
-                                'amount'        => $amount ?? null,
-                                'paymentId'     => $response->source['knet_payment_id'] ?? null,
-                                'transactionId' => $response->source['knet_transaction_id'] ?? null,
-                                'authCode'      => $response->source['auth_code'] ?? null,
-                                'reference'     => $response->source['bank_reference'] ?? null,
-                                'resultCode'    => $response->source['knet_result'] ?? null,
-                            ]);
+                            'postDate'      => $response->source['post_date'] ?? null,
+                            'amount'        => $amount ?? null,
+                            'paymentId'     => $response->source['knet_payment_id'] ?? null,
+                            'transactionId' => $response->source['knet_transaction_id'] ?? null,
+                            'authCode'      => $response->source['auth_code'] ?? null,
+                            'reference'     => $response->source['bank_reference'] ?? null,
+                            'resultCode'    => $response->source['knet_result'] ?? null,
+                        ]);
                     } else {
                         $this->messageManager->addErrorMessage(
                             $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')
@@ -249,7 +251,7 @@ class Fail extends Action
                     return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
                 }
             }
-        } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
+        } catch (CheckoutHttpException $e) {
             // Restore the quote
             $this->session->restoreQuote();
 

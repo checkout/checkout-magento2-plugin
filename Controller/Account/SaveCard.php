@@ -111,7 +111,7 @@ class SaveCard extends Action
             if (isset($result->response->_links['redirect']['href'])) {
                 return $this->jsonFactory->create()->setData([
                     'success' => true,
-                    'url'     => $result->response->_links['redirect']['href']
+                    'url'     => $result->response->_links['redirect']['href'],
                 ]);
             } else {
                 // Try to save the card
@@ -133,7 +133,7 @@ class SaveCard extends Action
         // Build the AJAX response
         return $this->jsonFactory->create()->setData([
             'success' => $success,
-            'url'     => $url
+            'url'     => $url,
         ]);
     }
 }

@@ -18,6 +18,7 @@
 namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Checkout\CheckoutApi;
+use Checkout\Library\Exceptions\CheckoutHttpException;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -190,14 +191,14 @@ class Verify extends Action
                                 );
 
                                 $this->messageManager->addComplexNoticeMessage('knetInfoMessage', [
-                                        'postDate'      => $response->source['post_date'] ?? null,
-                                        'amount'        => $amount ?? null,
-                                        'paymentId'     => $response->source['knet_payment_id'] ?? null,
-                                        'transactionId' => $response->source['knet_transaction_id'] ?? null,
-                                        'authCode'      => $response->source['auth_code'] ?? null,
-                                        'reference'     => $response->source['bank_reference'] ?? null,
-                                        'resultCode'    => $response->source['knet_result'] ?? null,
-                                    ]);
+                                    'postDate'      => $response->source['post_date'] ?? null,
+                                    'amount'        => $amount ?? null,
+                                    'paymentId'     => $response->source['knet_payment_id'] ?? null,
+                                    'transactionId' => $response->source['knet_transaction_id'] ?? null,
+                                    'authCode'      => $response->source['auth_code'] ?? null,
+                                    'reference'     => $response->source['bank_reference'] ?? null,
+                                    'resultCode'    => $response->source['knet_result'] ?? null,
+                                ]);
                             }
 
                             if (isset($response->metadata['successUrl']) && !str_contains(
@@ -236,7 +237,7 @@ class Verify extends Action
                     __('Invalid request. No session ID found.')
                 );
             }
-        } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
+        } catch (CheckoutHttpException $e) {
             $this->messageManager->addErrorMessage(
                 __($e->getBody())
             );

@@ -67,7 +67,7 @@ class VersionHandlerService
     /**
      * VersionHandlerService constructor
      *
-     * @param Config                 $config
+     * @param Config                $config
      * @param Curl                  $curl
      * @param Reader                $moduleDirReader
      * @param File                  $fileDriver
@@ -80,10 +80,10 @@ class VersionHandlerService
         File $fileDriver,
         StoreManagerInterface $storeManager
     ) {
-        $this->config           = $config;
+        $this->config          = $config;
         $this->curl            = $curl;
         $this->moduleDirReader = $moduleDirReader;
-        $this->fileDriver       = $fileDriver;
+        $this->fileDriver      = $fileDriver;
         $this->storeManager    = $storeManager;
     }
 
@@ -130,7 +130,7 @@ class VersionHandlerService
         for ($i = 0; $i < 3; $i++) {
             if ($versions[0][$i] < $versions[1][$i]) {
                 return true;
-            };
+            }
         }
 
         return false;

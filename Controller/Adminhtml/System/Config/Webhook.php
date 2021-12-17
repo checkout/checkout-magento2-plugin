@@ -17,15 +17,18 @@
 
 namespace Checkoutcom\Magento2\Controller\Adminhtml\System\Config;
 
+use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use Exception;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Config\Model\ResourceModel\Config;
+use Magento\Framework\App\Cache\Type\Config as CacheTypeConfig;
+use Magento\Framework\App\Cache\TypeListInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\Cache\TypeListInterface;
-use CheckoutCom\Magento2\Helper\Logger;
-use Magento\Config\Model\ResourceModel\Config;
+use Magento\PageCache\Model\Cache\Type;
 
 /**
  * Class Webhook
@@ -89,8 +92,8 @@ class Webhook extends Action
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->apiHandler        = $apiHandler;
-        $this->scopeConfig        = $scopeConfig;
-        $this->resourceConfig     = $resourceConfig;
+        $this->scopeConfig       = $scopeConfig;
+        $this->resourceConfig    = $resourceConfig;
         $this->cacheTypeList     = $cacheTypeList;
         $this->logger            = $logger;
         parent::__construct($context);
@@ -158,9 +161,9 @@ class Webhook extends Action
 
             $success = $response->isSuccessful();
 
-            $this->cacheTypeList->cleanType(\Magento\Framework\App\Cache\Type\Config::TYPE_IDENTIFIER);
-            $this->cacheTypeList->cleanType(\Magento\PageCache\Model\Cache\Type::TYPE_IDENTIFIER);
-        } catch (\Exception $e) {
+            $this->cacheTypeList->cleanType(CacheTypeConfig::TYPE_IDENTIFIER);
+            $this->cacheTypeList->cleanType(Type::TYPE_IDENTIFIER);
+        } catch (Exception $e) {
             $success = false;
             $message = __($e->getMessage());
             $this->logger->write($message);
@@ -168,7 +171,7 @@ class Webhook extends Action
             return $this->resultJsonFactory->create()->setData([
                 'success'          => $success,
                 'privateSharedKey' => isset($privateSharedKey) ? $privateSharedKey : '',
-                'message'          => 'Could not set webhooks, please check your account settings'
+                'message'          => 'Could not set webhooks, please check your account settings',
             ]);
         }
     }

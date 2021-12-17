@@ -136,7 +136,7 @@ class Webhooks extends Command
     {
         try {
             $areaCode = $this->state->getAreaCode();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $areaCode = null;
         }
 

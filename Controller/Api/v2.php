@@ -163,7 +163,7 @@ class V2 extends Action
      *
      * @param Context                    $context
      * @param JsonFactory                $jsonFactory
-     * @param Config                      $config
+     * @param Config                     $config
      * @param StoreManagerInterface      $storeManager
      * @param QuoteHandlerService        $quoteHandler
      * @param QuoteIdMaskFactory         $quoteIdMaskFactory
@@ -194,7 +194,7 @@ class V2 extends Action
     ) {
         parent::__construct($context);
         $this->jsonFactory         = $jsonFactory;
-        $this->config               = $config;
+        $this->config              = $config;
         $this->storeManager        = $storeManager;
         $this->quoteHandler        = $quoteHandler;
         $this->quoteIdMaskFactory  = $quoteIdMaskFactory;

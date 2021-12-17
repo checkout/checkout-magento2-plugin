@@ -35,8 +35,8 @@ use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Json;
-use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
 use Magento\Store\Model\ScopeInterface;
@@ -122,14 +122,14 @@ class Callback extends Action implements CsrfAwareActionInterface
      *
      * @param Context                    $context
      * @param StoreManagerInterface      $storeManager
-     * @param ScopeConfigInterface        $scopeConfig
+     * @param ScopeConfigInterface       $scopeConfig
      * @param ApiHandlerService          $apiHandler
      * @param OrderHandlerService        $orderHandler
      * @param ShopperHandlerService      $shopperHandler
      * @param WebhookHandlerService      $webhookHandler
      * @param VaultHandlerService        $vaultHandler
      * @param PaymentErrorHandlerService $paymentErrorHandler
-     * @param Config                      $config
+     * @param Config                     $config
      * @param Utilities                  $utilities
      * @param Logger                     $logger
      */
@@ -150,14 +150,14 @@ class Callback extends Action implements CsrfAwareActionInterface
         parent::__construct($context);
 
         $this->storeManager        = $storeManager;
-        $this->scopeConfig          = $scopeConfig;
+        $this->scopeConfig         = $scopeConfig;
         $this->apiHandler          = $apiHandler;
         $this->orderHandler        = $orderHandler;
         $this->shopperHandler      = $shopperHandler;
         $this->webhookHandler      = $webhookHandler;
         $this->vaultHandler        = $vaultHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
-        $this->config               = $config;
+        $this->config              = $config;
         $this->utilities           = $utilities;
         $this->logger              = $logger;
     }
@@ -257,7 +257,8 @@ class Callback extends Action implements CsrfAwareActionInterface
                         $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
 
                         return $resultFactory->setData(
-                            ['error_message' => __('The webhook payment response is invalid.')]);
+                            ['error_message' => __('The webhook payment response is invalid.')]
+                        );
                     }
                 }
             } else {
@@ -316,8 +317,8 @@ class Callback extends Action implements CsrfAwareActionInterface
 
         // Save the card
         $success = $this->vaultHandler->setCardToken($this->payload->data->source->id)->setCustomerId(
-                $customer->getId()
-            )->setCustomerEmail($customer->getEmail())->setResponse($response)->saveCard();
+            $customer->getId()
+        )->setCustomerEmail($customer->getEmail())->setResponse($response)->saveCard();
 
         return $success;
     }

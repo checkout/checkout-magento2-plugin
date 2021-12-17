@@ -33,7 +33,7 @@ class InstallSchema implements InstallSchemaInterface
     /**
      * Installs DB schema for the module
      *
-     * @param SchemaSetupInterface   $setup
+     * @param SchemaSetupInterface $setup
      * @param ModuleContextInterface $context
      *
      * @return void

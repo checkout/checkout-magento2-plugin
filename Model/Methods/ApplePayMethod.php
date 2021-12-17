@@ -17,17 +17,18 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Models\Tokens\ApplePay;
-use \Checkout\Models\Tokens\ApplePayHeader;
-use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\TokenSource;
-use \Checkout\Models\Payments\BillingDescriptor;
-use \Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Payments\BillingDescriptor;
+use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\TokenSource;
+use Checkout\Models\Tokens\ApplePay;
+use Checkout\Models\Tokens\ApplePayHeader;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Magento\Backend\Model\Auth\Session;
+use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -43,7 +44,6 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Directory\Helper\Data as DirectoryHelper;
 
 /**
  * Class ApplePayMethod
@@ -219,7 +219,7 @@ class ApplePayMethod extends AbstractMethod
         );
 
         $this->backendAuthSession = $backendAuthSession;
-        $this->config              = $config;
+        $this->config             = $config;
         $this->apiHandler         = $apiHandler;
         $this->utilities          = $utilities;
         $this->storeManager       = $storeManager;
@@ -329,7 +329,7 @@ class ApplePayMethod extends AbstractMethod
      * Perform a capture request
      *
      * @param InfoInterface $payment
-     * @param float          $amount
+     * @param float         $amount
      *
      * @return $this|ApplePayMethod
      * @throws LocalizedException

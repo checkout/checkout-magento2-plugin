@@ -218,19 +218,18 @@ class TransactionHandlerService
         OrderPaymentRepositoryInterface $orderPaymentRepository,
         OrderRepositoryInterface $orderRepository,
         OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
-    )
-    {
+    ) {
         $this->orderSender                  = $orderSender;
         $this->transactionSearch            = $transactionSearch;
         $this->transactionBuilder           = $transactionBuilder;
         $this->transactionRepository        = $transactionRepository;
         $this->creditMemoFactory            = $creditMemoFactory;
         $this->creditMemoService            = $creditMemoService;
-        $this->filterBuilder                 = $filterBuilder;
+        $this->filterBuilder                = $filterBuilder;
         $this->searchCriteriaBuilder        = $searchCriteriaBuilder;
         $this->utilities                    = $utilities;
         $this->invoiceHandler               = $invoiceHandler;
-        $this->config                        = $config;
+        $this->config                       = $config;
         $this->orderManagement              = $orderManagement;
         $this->orderModel                   = $orderModel;
         $this->convertorFactory             = $convertOrderFactory;
@@ -462,6 +461,7 @@ class TransactionHandlerService
         if ($isVoid && $parentAuth) {
             $parentAuth->setIsClosed(1);
             $this->transactionRepository->save($parentAuth);
+
             return 1;
         }
 
@@ -497,6 +497,7 @@ class TransactionHandlerService
         } elseif ($isRefund && $parentCapture) {
             $parentCapture->setIsClosed(1);
             $this->transactionRepository->save($parentCapture);
+
             return 1;
         }
 
@@ -636,7 +637,7 @@ class TransactionHandlerService
             // Create a credit memo
             if ($isPartialRefund) {
                 /** @var OrderConvertor $convertor */
-                $convertor = $this->convertorFactory->create();
+                $convertor  = $this->convertorFactory->create();
                 $creditMemo = $convertor->toCreditmemo($this->order);
                 $creditMemo->setAdjustmentPositive($amount);
                 $creditMemo->setBaseShippingAmount(0);

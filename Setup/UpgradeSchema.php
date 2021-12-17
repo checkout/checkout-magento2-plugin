@@ -33,7 +33,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
     /**
      * Description upgrade function
      *
-     * @param SchemaSetupInterface   $setup
+     * @param SchemaSetupInterface $setup
      * @param ModuleContextInterface $context
      *
      * @return void
