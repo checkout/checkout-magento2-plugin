@@ -85,7 +85,7 @@ class Webhooks
 
         if ($clean && $cleanOn === 'cron') {
             $this->webhookHandler->clean();
-            $this->logger->info('Webhookk table has been cleaned.');
+            $this->logger->info('Webhook table has been cleaned.');
         }
     }
 }

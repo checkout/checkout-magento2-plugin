@@ -24,6 +24,7 @@ use Checkout\Models\Payments\TokenSource;
 use Checkout\Models\Tokens\ApplePay;
 use Checkout\Models\Tokens\ApplePayHeader;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger as MagentoLoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
@@ -165,24 +166,24 @@ class ApplePayMethod extends AbstractMethod
     /**
      * ApplePayMethod constructor
      *
-     * @param Context                             $context
-     * @param Registry                            $registry
-     * @param ExtensionAttributesFactory          $extensionFactory
-     * @param AttributeValueFactory               $customAttributeFactory
-     * @param Data                                $paymentData
-     * @param ScopeConfigInterface                $scopeConfig
-     * @param Logger                              $logger
-     * @param Session                             $backendAuthSession
-     * @param Config                              $config
-     * @param ApiHandlerService                   $apiHandler
-     * @param Utilities                           $utilities
-     * @param StoreManagerInterface               $storeManager
-     * @param QuoteHandlerService                 $quoteHandler
-     * @param \CheckoutCom\Magento2\Helper\Logger $ckoLogger
-     * @param AbstractResource|null               $resource
-     * @param AbstractDb|null                     $resourceCollection
-     * @param array                               $data
-     * @param DirectoryHelper                     $directoryHelper
+     * @param Context                    $context
+     * @param Registry                   $registry
+     * @param ExtensionAttributesFactory $extensionFactory
+     * @param AttributeValueFactory      $customAttributeFactory
+     * @param Data                       $paymentData
+     * @param ScopeConfigInterface       $scopeConfig
+     * @param Logger                     $logger
+     * @param Session                    $backendAuthSession
+     * @param Config                     $config
+     * @param ApiHandlerService          $apiHandler
+     * @param Utilities                  $utilities
+     * @param StoreManagerInterface      $storeManager
+     * @param QuoteHandlerService        $quoteHandler
+     * @param MagentoLoggerHelper        $ckoLogger
+     * @param AbstractResource|null      $resource
+     * @param AbstractDb|null            $resourceCollection
+     * @param array                      $data
+     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
         Context $context,
@@ -198,7 +199,7 @@ class ApplePayMethod extends AbstractMethod
         Utilities $utilities,
         StoreManagerInterface $storeManager,
         QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
+        MagentoLoggerHelper $ckoLogger,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],

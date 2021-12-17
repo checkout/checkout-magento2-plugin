@@ -219,7 +219,7 @@ class Fail extends Action
 
                         // Display error message and knet mandate info
                         $this->messageManager->addErrorMessage(
-                            __("The transaction could not be processed.")
+                            __('The transaction could not be processed.')
                         );
                         $this->messageManager->addComplexNoticeMessage('knetInfoMessage', [
                             'postDate'      => $response->source['post_date'] ?? null,
