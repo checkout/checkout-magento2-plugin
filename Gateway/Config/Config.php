@@ -185,7 +185,7 @@ class Config
         $storeCode = null,
         $scope = ScopeInterface::SCOPE_STORE
     ) {
-        return $this->loader->init()->getValue($field, $methodId, $storeCode, $scope);
+        return $this->loader->getValue($field, $methodId, $storeCode, $scope);
     }
 
     /**
@@ -220,18 +220,34 @@ class Config
      *
      * @return array
      */
-    public function getMethodsConfig()
+    public function getMethodsConfig(): array
     {
-        $methods = [];
-        if ($this->canDisplay()) {
-            foreach ($this->loader->init()->data[Loader::KEY_PAYMENT] as $methodId => $data) {
-                if ($this->getValue('active', $methodId) == 1) {
-                    $methods[$methodId] = $data;
+        $output = [];
+        /** @var mixed[] $paymentMethodsConfig */
+        $paymentMethodsConfig = $this->scopeConfig->getValue(Loader::KEY_PAYMENT);
+
+        /**
+         * Get only the active CheckoutCom methods
+         *
+         * @var string $key
+         * @var string[] $method
+         */
+        foreach($paymentMethodsConfig as $key => $method) {
+            if (str_contains($key, 'checkoutcom')
+               && isset($method['active'])
+               && (int)$method['active'] === 1
+            ) {
+                if (array_key_exists('private_shared_key', $method)) {
+                    unset($method['private_shared_key']);
                 }
+                if (array_key_exists('secret_key', $method)) {
+                    unset($method['secret_key']);
+                }
+                $output[$key] = $method;
             }
         }
 
-        return $methods;
+        return $output;
     }
 
     /**
@@ -310,10 +326,8 @@ class Config
      */
     public function needs3ds($methodId)
     {
-        return (((bool)$this->getValue('three_ds', $methodId) === true) || ((bool)$this->getValue(
-                    'mada_enabled',
-                    $methodId
-                ) === true));
+        return (((bool) $this->getValue('three_ds', $methodId) === true)
+                || ((bool) $this->getValue('mada_enabled', $methodId) === true));
     }
 
     /**
@@ -468,7 +482,7 @@ class Config
      */
     public function getApms()
     {
-        return $this->loader->init()->loadApmList();
+        return $this->loader->loadApmList();
     }
 
     /**
