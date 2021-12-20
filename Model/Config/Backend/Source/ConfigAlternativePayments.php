@@ -43,16 +43,16 @@ class ConfigAlternativePayments implements OptionSourceInterface
     public function __construct(
         Loader $configLoader
     ) {
-        $this->configLoader = $configLoader->init();
+        $this->configLoader = $configLoader;
     }
 
     /**
      * {@inheritDoc}
      *
-     * @return array|mixed
+     * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
-        return $this->configLoader->data['settings']['checkoutcom_configuration']['apm_list'];
+        return $this->configLoader->loadApmList();
     }
 }
