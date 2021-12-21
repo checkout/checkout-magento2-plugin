@@ -228,7 +228,8 @@ class ApplePayMethod extends AbstractMethod
         $this->ckoLogger          = $ckoLogger;
     }
 
-    /**Send a charge requestDescription sendPaymentRequest function
+    /**
+     * Send a charge requestDescription sendPaymentRequest function
      *
      * @param        $data
      * @param        $amount

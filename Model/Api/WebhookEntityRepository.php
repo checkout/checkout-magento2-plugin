@@ -19,6 +19,7 @@ namespace CheckoutCom\Magento2\Model\Api;
 
 use CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 use CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface;
+use CheckoutCom\Magento2\Model\Entity\WebhookEntity;
 use CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory;
 use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity as WebhookResource;
 use Exception;
@@ -75,11 +76,12 @@ class WebhookEntityRepository implements WebhookEntityRepositoryInterface
      *
      * @param int $entityId
      *
-     * @return WebhookEntityRepositoryInterface
+     * @return WebhookEntityInterface
      * @throws NoSuchEntityException
      */
     public function getById(int $entityId): WebhookEntityInterface
     {
+        /** @var WebhookEntityInterface $webhookEntity */
         $webhookEntity = $this->webhookFactory->create();
         $this->resource->load($webhookEntity, $entityId);
         if (!$webhookEntity->getId()) {
@@ -99,6 +101,7 @@ class WebhookEntityRepository implements WebhookEntityRepositoryInterface
      */
     public function deleteById(int $entityId): bool
     {
+        /** @var WebhookEntityInterface $webhookEntity */
         $webhookEntity = $this->getById($entityId);
         $this->resource->delete($webhookEntity);
 

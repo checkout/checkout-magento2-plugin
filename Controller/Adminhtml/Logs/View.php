@@ -38,7 +38,7 @@ class View extends Action
      */
     protected $resultPageFactory;
 
-    /***
+    /**
      * View constructor
      *
      * @param Context     $context

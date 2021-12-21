@@ -37,6 +37,8 @@ use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
 use Magento\Store\Model\ScopeInterface;
@@ -309,6 +311,8 @@ class Callback extends Action implements CsrfAwareActionInterface
      * @param $response
      *
      * @return bool
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function saveCard($response)
     {
@@ -323,11 +327,25 @@ class Callback extends Action implements CsrfAwareActionInterface
         return $success;
     }
 
+    /**
+     * createCsrfValidationException method
+     *
+     * @param RequestInterface $request
+     *
+     * @return InvalidRequestException|null
+     */
     public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
     {
         return null;
     }
 
+    /**
+     * validateForCsrf method
+     * 
+     * @param RequestInterface $request
+     *
+     * @return bool|null
+     */
     public function validateForCsrf(RequestInterface $request): ?bool
     {
         return true;

@@ -106,7 +106,7 @@ class V3 implements V3Interface
      * @var ApiHandlerService $apiHandler
      */
     private $apiHandler;
-    /*
+    /**
      * $paymentErrorHandler field
      *
      * @var PaymentErrorHandlerService $paymentErrorHandler
