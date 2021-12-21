@@ -17,11 +17,10 @@
 namespace CheckoutCom\Magento2\Console;
 
 use CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface;
-use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
-use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
+use CheckoutCom\Magento2\Model\Service\WebhookHandlerServiceFactory;
+use Exception;
 use Magento\Framework\App\Area;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Symfony\Component\Console\Command\Command;
@@ -62,42 +61,39 @@ class Webhooks extends Command
      */
     protected $state;
     /**
-     * $webhookHandler field
+     * $webhookHandlerFactory field
      *
-     * @var WebhookHandlerService $webhookHandler
+     * @var WebhookHandlerServiceFactory $webhookHandlerFactory
      */
-    public $webhookHandler;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    public $orderHandler;
-    /**
-     * $transactionHandler field
-     *
-     * @var TransactionHandlerService $transactionHandler
-     */
-    public $transactionHandler;
+    public $webhookHandlerFactory;
     /**
      * $webhookEntityRepository field
      *
      * @var WebhookEntityRepositoryInterface $webhookEntityRepository
      */
     private $webhookEntityRepository;
+    /**
+     * $webhookHandler field
+     *
+     * @var WebhookHandlerService $webhookHandler
+     */
+    private $webhookHandler;
 
     /**
-     * Webhooks constructor
+     * Webhook constructor
      *
      * @param State                            $state
      * @param WebhookEntityRepositoryInterface $webhookEntityRepository
+     * @param WebhookHandlerServiceFactory     $webhookHandlerServiceFactory
      */
     public function __construct(
         State $state,
-        WebhookEntityRepositoryInterface $webhookEntityRepository
+        WebhookEntityRepositoryInterface $webhookEntityRepository,
+        WebhookHandlerServiceFactory $webhookHandlerServiceFactory
     ) {
         $this->state                   = $state;
         $this->webhookEntityRepository = $webhookEntityRepository;
+        $this->webhookHandlerFactory   = $webhookHandlerServiceFactory;
 
         parent::__construct();
     }
@@ -144,13 +140,7 @@ class Webhooks extends Command
             $this->state->setAreaCode(Area::AREA_GLOBAL);
         }
 
-        $objectManager = ObjectManager::getInstance();
-
-        $this->webhookHandler     = $objectManager->create('CheckoutCom\Magento2\Model\Service\WebhookHandlerService');
-        $this->orderHandler       = $objectManager->create('CheckoutCom\Magento2\Model\Service\OrderHandlerService');
-        $this->transactionHandler = $objectManager->create(
-            'CheckoutCom\Magento2\Model\Service\TransactionHandlerService'
-        );
+        $this->webhookHandler = $this->webhookHandlerFactory->create();
     }
 
     /**
