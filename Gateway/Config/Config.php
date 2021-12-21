@@ -206,12 +206,21 @@ class Config
     /**
      * Returns the module global config.
      *
-     * @return array
+     * @return mixed[]
      */
-    public function getModuleConfig()
+    public function getModuleConfig(): array
     {
+        /** @var mixed[] $moduleConfig */
+        $moduleConfig = $this->scopeConfig->getValue('settings/checkoutcom_configuration');
+        if (array_key_exists('secret_key', $moduleConfig)) {
+            unset($moduleConfig['secret_key']);
+        }
+        if (array_key_exists('private_shared_key', $moduleConfig)) {
+            unset($moduleConfig['private_shared_key']);
+        }
+
         return [
-            Loader::KEY_CONFIG => $this->loader->init()->data[Loader::KEY_SETTINGS][Loader::KEY_CONFIG],
+            Loader::KEY_CONFIG => $moduleConfig,
         ];
     }
 
@@ -253,20 +262,15 @@ class Config
     /**
      * Returns the payment methods list.
      *
-     * @return array
+     * @return string[]
      */
-    public function getMethodsList()
+    public function getMethodsList(): array
     {
-        $methods = [];
         if ($this->canDisplay()) {
-            foreach ($this->loader->init()->data[Loader::KEY_PAYMENT] as $methodId => $data) {
-                if ($this->getValue('active', $methodId) == 1) {
-                    $methods[] = $methodId;
-                }
-            }
+            return array_keys($this->getMethodsConfig());
         }
 
-        return $methods;
+        return [];
     }
 
     /**

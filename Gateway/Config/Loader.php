@@ -105,12 +105,6 @@ class Loader
      * @var EncryptorInterface $encryptor
      */
     public $encryptor;
-    /**
-     * $xmlData field
-     *
-     * @var array $xmlData
-     */
-    public $xmlData;
 
     /**
      * Loader constructor
@@ -136,94 +130,26 @@ class Loader
     }
 
     /**
-     * Prepares the loader class instance.
-     *
-     * @return Loader
-     */
-    public function init()
-    {
-        $this->data = $this->loadConfig();
-
-        return $this;
-    }
-
-    /**
-     * Loads the module configuration values.
-     *
-     * @return array
-     */
-    public function loadConfig()
-    {
-        // Prepare the output array
-        $output = [];
-
-        // Load the xml data
-        $this->xmlData = $this->loadXmlData();
-
-        // Build the config data array
-        foreach ($this->xmlData['config'] as $parent => $child) {
-            foreach ($child as $group => $arr) {
-                $output = $this->processGroupValues($output, $arr, $parent, $group);
-            }
-        }
-
-        // Load the APM list
-        $output['settings']['checkoutcom_configuration']['apm_list'] = $this->loadApmList();
-
-        return $output;
-    }
-
-    /**
-     * Builds the config data array for an XML section
-     *
-     * @param $output
-     * @param $arr
-     * @param $parent
-     * @param $group
-     *
-     * @return array
-     */
-    public function processGroupValues($output, $arr, $parent, $group)
-    {
-        // Loop through values for the payment method
-        foreach ($arr as $key => $val) {
-            if (!$this->isHidden($key)) {
-                // Get the field  value in db
-                $path  = $parent . '/' . $group . '/' . $key;
-                $value = $this->scopeConfig->getValue(
-                    $path,
-                    ScopeInterface::SCOPE_STORE
-                );
-
-                // Process encrypted fields
-                if ($this->isEncrypted($key)) {
-                    $value = $this->encryptor->decrypt($value);
-                }
-
-                // Add the final value to the config array
-                $output[$parent][$group][$key] = $value;
-            }
-        }
-
-        return $output;
-    }
-
-    /**
      * Load the list of Alternative Payments.
      *
      * @return array
      */
-    public function loadApmList()
+    public function loadApmList(): array
     {
+        /** @var array $apmXmlData */
+        $apmXmlData = $this->loadApmXmlData();
+
         // Build the APM array
+        /** @var array $output */
         $output = [];
-        foreach ($this->xmlData['apm'] as $row) {
+        /** @var mixed[] $row */
+        foreach ($apmXmlData as $row) {
             $output[] = [
                 'value'      => $row['id'],
                 'label'      => $row['title'],
                 'currencies' => $row['currencies'],
                 'countries'  => $row['countries'],
-                'mappings'   => isset($row['mappings']) ? $row['mappings'] : '',
+                'mappings'   => $row['mappings'] ?? '',
             ];
         }
 
@@ -237,7 +163,7 @@ class Loader
      *
      * @return string
      */
-    public function getFilePath($fileName)
+    public function getFilePath(string $fileName): string
     {
         return $this->moduleDirReader->getModuleDir(
                 Dir::MODULE_ETC_DIR,
@@ -246,24 +172,14 @@ class Loader
     }
 
     /**
-     * Reads the XML config files.
+     * Load the apm.xml data
      *
      * @return array
      */
-    public function loadXmlData()
+    public function loadApmXmlData(): array
     {
-        // Prepare the output array
-        $output = [];
-
-        // Load config.xml
-        $output['config'] = $this->xmlParser->load($this->getFilePath(self::CONFIGURATION_FILE_NAME))->xmlToArray(
-        )['config']['_value']['default'];
-
-        // Load apm.xml
-        $output['apm'] = $this->xmlParser->load($this->getFilePath(self::APM_FILE_NAME))->xmlToArray(
+        return $this->xmlParser->load($this->getFilePath(self::APM_FILE_NAME))->xmlToArray(
         )['config']['_value']['item'];
-
-        return $output;
     }
 
     /**
