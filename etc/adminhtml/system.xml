@@ -170,8 +170,9 @@
                     </group>
                     <group id="account_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Account Settings</label>
-                        <field id="secret_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="secret_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Secret Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/secret_key</config_path>
                             <validate>required-entry</validate>
                         </field>
@@ -182,8 +183,9 @@
                             <validate>required-entry</validate>
                         </field>
 
-                        <field id="private_shared_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <field id="private_shared_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                             <label>Private Shared Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
                             <validate>required-entry</validate>
                         </field>
@@ -391,7 +393,7 @@
                             <field id="active">1</field>
                         </depends>
                     </field>
-                    
+
                     <field id="enabled_on_cart" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Apple Pay on Cart Page</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -429,7 +431,7 @@
                         <label>Merchant Identity Certificate Key*</label>
                         <config_path>payment/checkoutcom_apple_pay/processing_certificate</config_path>
                         <comment><![CDATA[Absolute path to the <span style="font-weight:bold">.key</span> file on your server. (See how to get <a href="https://docs.checkout.com/docs/apple-pay" target="_blank">here</a>)]]></comment>
-                    </field>    
+                    </field>
 
                     <field id="processing_certificate_password" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant Identity Certificate Password</label>
@@ -583,15 +585,16 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_moto/risk_rules_enabled</config_path>
                     </field>
-                    
+
                     <field id="use_default_account" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Use Default Account</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_moto/use_default_account</config_path>
                     </field>
 
-                    <field id="secret_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="secret_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Secret Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_moto/secret_key</config_path>
                         <depends>
                             <field id="use_default_account">0</field>
@@ -606,8 +609,9 @@
                         </depends>
                     </field>
 
-                    <field id="private_shared_key" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="private_shared_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Private Shared Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>settings/checkoutcom_moto/private_shared_key</config_path>
                         <depends>
                             <field id="use_default_account">0</field>
@@ -624,7 +628,7 @@
                 <group id="checkoutcom_logs" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Log File Reader</label>
                     <comment>This section will show a preview containing the last 50 lines of each log file. To view more use the button below each preview.</comment>
-                    
+
                     <field id="checkout_log" type="textarea" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>checkoutcom_magento2.log</label>
                         <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\LogFiles</frontend_model>
