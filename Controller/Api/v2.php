@@ -268,7 +268,7 @@ class V2 extends Action
      * @return array
      * @throws LocalizedException
      */
-    public function processPayment()
+    protected function processPayment()
     {
         $order = $this->createOrder();
         if ($this->orderHandler->isOrder($order)) {
@@ -335,7 +335,7 @@ class V2 extends Action
      *
      * @return mixed
      */
-    public function requestPayment($order)
+    protected function requestPayment($order)
     {
         // Prepare the payment request payload
         $payload = [
@@ -386,8 +386,10 @@ class V2 extends Action
      * Load the quote
      *
      * @return DataObject|CartInterface|Quote|null
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function loadQuote()
+    protected function loadQuote()
     {
         // Get the quote id
         if (!isset($this->data->quote_id)) {
@@ -431,7 +433,7 @@ class V2 extends Action
      *
      * @return bool
      */
-    public function hasValidFields()
+    protected function hasValidFields()
     {
         $isValid = true;
 

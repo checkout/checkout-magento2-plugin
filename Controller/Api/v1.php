@@ -216,7 +216,7 @@ class V1 extends Action
      *
      * @return mixed
      */
-    public function requestPayment($order)
+    protected function requestPayment($order)
     {
         // Prepare the payment request payload
         $payload = [
@@ -242,7 +242,7 @@ class V1 extends Action
      * @return DataObject|CartInterface|Quote
      * @throws LocalizedException
      */
-    public function loadQuote()
+    protected function loadQuote()
     {
         if (!isset($this->data->quote_id)) {
             $this->data->quote_id = $this->data['quote_id'];
@@ -269,7 +269,7 @@ class V1 extends Action
      * @return bool
      * @throws LocalizedException
      */
-    public function isValidRequest()
+    protected function isValidRequest()
     {
         return $this->config->isValidAuth('pk') && $this->dataIsValid();
     }
@@ -280,7 +280,7 @@ class V1 extends Action
      * @return bool
      * @throws LocalizedException
      */
-    public function dataIsValid()
+    protected function dataIsValid()
     {
         // Check the quote ID
         if ((!isset($this->data->quote_id) && !isset($this->data['quote_id'])) || (int)$this->data->quote_id == 0) {

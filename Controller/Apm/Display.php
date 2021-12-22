@@ -169,18 +169,14 @@ class Display extends Action
      */
     public function countryCurrencyMapping($apm, $billingCountry, $currency)
     {
-        if ($apm['value'] == 'klarna' || $apm['value'] == 'poli') {
-            if (strpos(
-                    $apm['mappings'][$currency],
-                    $billingCountry
-                ) !== false) {
-                return true;
-            }
-
-            return false;
-        } else {
-            return true;
+        if ($apm['value'] === 'klarna' || $apm['value'] === 'poli') {
+            return strpos(
+                       $apm['mappings'][$currency],
+                       $billingCountry
+                   ) !== false;
         }
+
+        return true;
     }
 
     /**

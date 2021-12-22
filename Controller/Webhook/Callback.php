@@ -300,7 +300,7 @@ class Callback extends Action implements CsrfAwareActionInterface
      *
      * @return bool
      */
-    public function cardNeedsSaving()
+    protected function cardNeedsSaving()
     {
         return isset($this->payload->data->metadata->saveCard) && (int)$this->payload->data->metadata->saveCard == 1 && isset($this->payload->data->metadata->customerId) && (int)$this->payload->data->metadata->customerId > 0 && isset($this->payload->data->source->id) && !empty($this->payload->data->source->id);
     }
@@ -314,7 +314,7 @@ class Callback extends Action implements CsrfAwareActionInterface
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function saveCard($response)
+    protected function saveCard($response)
     {
         // Get the customer
         $customer = $this->shopperHandler->getCustomerData(['id' => $this->payload->data->metadata->customerId]);
@@ -341,7 +341,7 @@ class Callback extends Action implements CsrfAwareActionInterface
 
     /**
      * validateForCsrf method
-     * 
+     *
      * @param RequestInterface $request
      *
      * @return bool|null

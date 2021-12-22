@@ -231,7 +231,7 @@ class DisplaySepa extends Action
      *
      * @return string
      */
-    public function buildMethodName()
+    protected function buildMethodName()
     {
         return 'get' . ucfirst($this->task);
     }
@@ -241,7 +241,7 @@ class DisplaySepa extends Action
      *
      * @return boolean
      */
-    public function isValidApm()
+    protected function isValidApm()
     {
         // Get the list of APM
         $apmEnabled = explode(
@@ -261,7 +261,7 @@ class DisplaySepa extends Action
      *
      * @return string
      */
-    public function loadBlock($reference, $url)
+    protected function loadBlock($reference, $url)
     {
         return $this->pageFactory->create()
             ->getLayout()
@@ -298,7 +298,7 @@ class DisplaySepa extends Action
      * @return Sepa
      * @throws NoSuchEntityException
      */
-    public function requestSepa()
+    protected function requestSepa()
     {
         $sepa = null;
 

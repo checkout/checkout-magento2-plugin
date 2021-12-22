@@ -22,6 +22,7 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Raw;
 use Magento\Framework\Controller\Result\RawFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\Client\Curl;
 
 /**
@@ -124,8 +125,9 @@ class Validation extends Action
      * Prepare the Apple Pay request parameters
      *
      * @return array
+     * @throws NoSuchEntityException
      */
-    public function getParams()
+    protected function getParams()
     {
         return [
             'merchantId'                => $this->config->getValue(

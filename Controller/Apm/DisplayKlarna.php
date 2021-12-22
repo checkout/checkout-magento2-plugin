@@ -175,7 +175,7 @@ class DisplayKlarna extends Action
      * @return array
      * @throws NoSuchEntityException
      */
-    public function getKlarna()
+    protected function getKlarna()
     {
         try {
             // Prepare the output array
@@ -228,7 +228,7 @@ class DisplayKlarna extends Action
      *
      * @return array  The products.
      */
-    public function getProducts(array &$response)
+    protected function getProducts(array &$response)
     {
         $products               = [];
         $response['tax_amount'] = 0;
@@ -261,7 +261,7 @@ class DisplayKlarna extends Action
      *
      * @return void
      */
-    public function getShipping(array &$response, array &$products)
+    protected function getShipping(array &$response, array &$products)
     {
         $shipping = $this->quote->getShippingAddress();
 

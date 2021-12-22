@@ -314,7 +314,7 @@ class PlaceOrder extends Action
      *
      * @return mixed
      */
-    public function requestPayment($order)
+    protected function requestPayment($order)
     {
         // Get the method id
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
@@ -337,7 +337,7 @@ class PlaceOrder extends Action
      */
     public function isEmptyCardToken($paymentData)
     {
-        if ($paymentData['methodId'] == "checkoutcom_card_payment") {
+        if ($paymentData['methodId'] === "checkoutcom_card_payment") {
             if (!isset($paymentData['cardToken']) || empty($paymentData['cardToken']) || $paymentData['cardToken'] == "") {
                 return true;
             }

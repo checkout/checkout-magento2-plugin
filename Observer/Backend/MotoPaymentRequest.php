@@ -253,7 +253,7 @@ class MotoPaymentRequest implements ObserverInterface
      *
      * @return bool
      */
-    public function needsMotoProcessing()
+    protected function needsMotoProcessing()
     {
         return $this->backendAuthSession->isLoggedIn(
             ) && isset($this->params['ckoCardToken']) && $this->methodId === 'checkoutcom_moto';
@@ -288,7 +288,7 @@ class MotoPaymentRequest implements ObserverInterface
      * @return IdSource|TokenSource
      * @throws LocalizedException
      */
-    public function getSource(Order $order)
+    protected function getSource(Order $order)
     {
         if ($this->isCardToken()) {
             // Initialize the API handler
@@ -325,7 +325,7 @@ class MotoPaymentRequest implements ObserverInterface
      *
      * @return bool
      */
-    public function isCardToken()
+    protected function isCardToken()
     {
         return isset($this->params['ckoCardToken']) && !empty($this->params['ckoCardToken']);
     }
@@ -335,7 +335,7 @@ class MotoPaymentRequest implements ObserverInterface
      *
      * @return bool
      */
-    public function isSavedCard()
+    protected function isSavedCard()
     {
         return isset($this->params['publicHash']) && !empty($this->params['publicHash']) && isset($this->params['cvv']) && !empty($this->params['cvv']);
     }

@@ -214,7 +214,7 @@ class CustomerData implements SectionSourceInterface
      *
      * @return bool
      */
-    public function canDisplay()
+    protected function canDisplay()
     {
         return $this->customerSession->isLoggedIn(
             ) && !empty($this->paymentToken) && $this->instantPurchaseOption && $this->shippingAddress && $this->billingAddress && $this->shippingMethod;
