@@ -37,6 +37,7 @@ use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Sales\Model\Order;
 
 /**
  * Class MotoPaymentRequest
@@ -107,12 +108,6 @@ class MotoPaymentRequest implements ObserverInterface
      */
     public $params;
     /**
-     * $order field
-     *
-     * @var Order $order
-     */
-    public $order;
-    /**
      * $methodId field
      *
      * @var String $methodId
@@ -170,13 +165,14 @@ class MotoPaymentRequest implements ObserverInterface
         $this->params = $this->request->getParams();
 
         // Get the order
-        $this->order = $observer->getEvent()->getOrder();
+        /** @var Order $order */
+        $order = $observer->getEvent()->getOrder();
 
         // Get the method id
-        $this->methodId = $this->order->getPayment()->getMethodInstance()->getCode();
+        $this->methodId = $order->getPayment()->getMethodInstance()->getCode();
 
         // Get the store code
-        $storeCode = $this->order->getStore()->getCode();
+        $storeCode = $order->getStore()->getCode();
 
         // Process the payment
         if ($this->needsMotoProcessing()) {
@@ -187,11 +183,11 @@ class MotoPaymentRequest implements ObserverInterface
             $api = $this->apiHandler->init($storeCode);
 
             // Set the source
-            $source = $this->getSource();
+            $source = $this->getSource($order);
 
             // Set the payment
             $request = new Payment(
-                $source, $this->order->getOrderCurrencyCode()
+                $source, $order->getOrderCurrencyCode()
             );
 
             // Prepare the metadata array
@@ -209,11 +205,11 @@ class MotoPaymentRequest implements ObserverInterface
 
             // Set the request parameters
             $request->capture      = $this->config->needsAutoCapture($this->methodId);
-            $request->amount       = $this->prepareMotoAmount();
-            $request->reference    = $this->order->getIncrementId();
+            $request->amount       = $this->prepareMotoAmount($order);
+            $request->reference    = $order->getIncrementId();
             $request->payment_type = 'MOTO';
-            if ($this->order->getIsNotVirtual()) {
-                $request->shipping = $api->createShippingAddress($this->order);
+            if ($order->getIsNotVirtual()) {
+                $request->shipping = $api->createShippingAddress($order);
             }
             $request->threeDs = new ThreeDs(false);
             $request->risk    = new Risk($this->config->needsRiskRules($this->methodId));
@@ -237,7 +233,7 @@ class MotoPaymentRequest implements ObserverInterface
 
                 // Add the response to the order
                 if ($api->isValidResponse($response)) {
-                    $this->utilities->setPaymentData($this->order, $response);
+                    $this->utilities->setPaymentData($order, $response);
                     $this->messageManager->addSuccessMessage(
                         __('The payment request was successfully processed.')
                     );
@@ -260,35 +256,39 @@ class MotoPaymentRequest implements ObserverInterface
     public function needsMotoProcessing()
     {
         return $this->backendAuthSession->isLoggedIn(
-            ) && isset($this->params['ckoCardToken']) && $this->methodId == 'checkoutcom_moto';
+            ) && isset($this->params['ckoCardToken']) && $this->methodId === 'checkoutcom_moto';
     }
 
     /**
      * Prepare the payment amount for the MOTO payment request
      *
+     * @param Order $order
+     *
      * @return float|int|mixed
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function prepareMotoAmount()
+    protected function prepareMotoAmount(Order $order)
     {
         // Get the payment instance
-        $amount = $this->order->getGrandTotal();
+        $amount = $order->getGrandTotal();
 
         // Return the formatted amount
         return $this->orderHandler->amountToGateway(
             $this->utilities->formatDecimals($amount),
-            $this->order
+            $order
         );
     }
 
     /**
      * Provide a source from request
      *
+     * @param Order $order
+     *
      * @return IdSource|TokenSource
      * @throws LocalizedException
      */
-    public function getSource()
+    public function getSource(Order $order)
     {
         if ($this->isCardToken()) {
             // Initialize the API handler
@@ -296,13 +296,13 @@ class MotoPaymentRequest implements ObserverInterface
 
             // Create the token source
             $tokenSource                  = new TokenSource($this->params['ckoCardToken']);
-            $tokenSource->billing_address = $api->createBillingAddress($this->order);
+            $tokenSource->billing_address = $api->createBillingAddress($order);
 
             return $tokenSource;
         } elseif ($this->isSavedCard()) {
             $card          = $this->vaultHandler->getCardFromHash(
                 $this->params['publicHash'],
-                $this->order->getCustomerId()
+                $order->getCustomerId()
             );
             $idSource      = new IdSource($card->getGatewayToken());
             $idSource->cvv = $this->params['cvv'];
