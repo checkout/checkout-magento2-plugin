@@ -137,12 +137,12 @@ class OrderAfterVoid implements ObserverInterface
                 $orderComment->setData('comment', $comment);
                 $this->orderStatusHistoryRepository->save($orderComment);
 
-                if ($this->config->getValue('order_status_voided') == 'canceled') {
+                if ($this->config->getValue('order_status_voided') === 'canceled') {
                     // Cancel the order if void order status has been set to canceled
                     $this->orderManagement->cancel($order->getId());
                 } else {
                     // Order state needs to be set to new so that offline transactions update the order status
-                    $order->setState($this->orderModel::STATE_NEW);
+                    $order->setState(Order::STATE_NEW);
                 }
             }
 

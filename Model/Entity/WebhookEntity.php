@@ -19,6 +19,7 @@ namespace CheckoutCom\Magento2\Model\Entity;
 use CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 use Magento\Framework\DataObject\IdentityInterface;
 use Magento\Framework\Model\AbstractModel;
+use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity as WebhookEntityResourceModel;
 
 /**
  * Class WebhookEntity
@@ -55,7 +56,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     public function _construct()
     {
         $this->_init(
-            \CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity::class
+            WebhookEntityResourceModel::class
         );
     }
 

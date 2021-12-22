@@ -251,7 +251,7 @@ class OrderStatusHandlerService
     public function captured()
     {
         $this->status = $this->order->getIsVirtual() ? 'complete' : $this->config->getValue('order_status_captured');
-        $this->state  = $this->orderModel::STATE_PROCESSING;
+        $this->state  = Order::STATE_PROCESSING;
     }
 
     /**
@@ -288,7 +288,7 @@ class OrderStatusHandlerService
         );
         $this->status    = $isPartialRefund ? 'order_status_refunded' : 'closed';
         $this->status    = $this->config->getValue($this->status);
-        $this->state     = $isPartialRefund ? $this->orderModel::STATE_PROCESSING : $this->orderModel::STATE_CLOSED;
+        $this->state     = $isPartialRefund ? Order::STATE_PROCESSING : Order::STATE_CLOSED;
     }
 
     /**
@@ -302,7 +302,7 @@ class OrderStatusHandlerService
     {
         $payload = json_decode($webhook['event_data']);
         if (isset($payload->data->metadata->methodId) && $payload->data->metadata->methodId === 'checkoutcom_apm') {
-            $this->state  = $this->orderModel::STATE_PENDING_PAYMENT;
+            $this->state  = Order::STATE_PENDING_PAYMENT;
             $this->status = $this->order->getConfig()->getStateDefaultStatus($this->state);
             $this->order->addStatusHistoryComment(__('Payment capture initiated, awaiting capture confirmation.'));
         }

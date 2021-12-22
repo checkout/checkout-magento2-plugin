@@ -91,7 +91,7 @@ class VaultToken
         /**
          * @var PaymentTokenInterface $paymentToken
          */
-        $paymentToken = $this->paymentTokenFactory->create($this->paymentTokenFactory::TOKEN_TYPE_CREDIT_CARD);
+        $paymentToken = $this->paymentTokenFactory->create(PaymentTokenFactoryInterface::TOKEN_TYPE_CREDIT_CARD);
         $paymentToken->setExpiresAt($expiresAt);
 
         if (array_key_exists('id', $card)) {
