@@ -122,7 +122,7 @@ class VersionHandlerService
      *
      * @return bool
      */
-    public function needsUpdate($currentVersion, $latestVersion)
+    public function needsUpdate($currentVersion, $latestVersion): bool
     {
         $versions = [explode('.', $currentVersion), explode('.', $latestVersion)];
 
@@ -188,7 +188,7 @@ class VersionHandlerService
      * @return string
      * @throws FileSystemException
      */
-    public function getModuleVersion($prefix = '')
+    public function getModuleVersion(string $prefix = ''): string
     {
         // Build the composer file path
         $filePath = $this->moduleDirReader->getModuleDir(

@@ -212,7 +212,7 @@ class V2 extends Action
      * Handles the controller method
      *
      * @return Json
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function execute()
     {

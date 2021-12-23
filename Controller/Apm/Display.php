@@ -122,8 +122,8 @@ class Display extends Action
 
             foreach ($apms as $apm) {
                 if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    $html .= $this->loadBlock($apm['value'], $apm['label']);
-                    array_push($available, $apm['value']);
+                    $html        .= $this->loadBlock($apm['value'], $apm['label']);
+                    $available[] = $apm['value'];
                 }
             }
         }
@@ -139,6 +139,8 @@ class Display extends Action
      * @param $billingAddress
      *
      * @return bool
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function isValidApm($apm, $apmEnabled, $billingAddress)
     {

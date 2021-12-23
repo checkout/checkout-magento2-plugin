@@ -174,7 +174,7 @@ class OrderStatusHandlerService
             $this->order->setState($this->state);
         }
 
-        if ($this->status && $this->order->getStatus() != 'closed') {
+        if ($this->status && $this->order->getStatus() !== 'closed') {
             // Set the order status
             $this->order->setStatus($this->status);
         }
@@ -195,7 +195,7 @@ class OrderStatusHandlerService
      * @return void
      * @throws NoSuchEntityException
      */
-    public function handleFailedPayment($order, $webhook = false)
+    public function handleFailedPayment($order, bool $webhook = false): void
     {
         $failedWebhooks = [
             "payment_declined",
@@ -211,12 +211,12 @@ class OrderStatusHandlerService
             // Get config for failed payments
             $config = $this->config->getValue('order_action_failed_payment', null, $storeCode);
 
-            if ($config == 'cancel' || $config == 'delete') {
+            if ($config === 'cancel' || $config === 'delete') {
                 if ($order->getState() !== 'canceled') {
                     $this->orderManagement->cancel($order->getId());
                 }
 
-                if ($config == 'delete') {
+                if ($config === 'delete') {
                     $this->registry->register('isSecureArea', true);
                     $this->orderRepository->delete($order);
                     $this->registry->unregister('isSecureArea');
@@ -248,7 +248,7 @@ class OrderStatusHandlerService
      *
      * @return void
      */
-    public function captured()
+    protected function captured()
     {
         $this->status = $this->order->getIsVirtual() ? 'complete' : $this->config->getValue('order_status_captured');
         $this->state  = Order::STATE_PROCESSING;
@@ -271,7 +271,7 @@ class OrderStatusHandlerService
      *
      * @return void
      */
-    public function refund($webhook)
+    protected function refund($webhook)
     {
         // Format the amount
         $payload = json_decode($webhook['event_data']);
@@ -298,7 +298,7 @@ class OrderStatusHandlerService
      *
      * @return void
      */
-    public function capturePending($webhook)
+    protected function capturePending($webhook)
     {
         $payload = json_decode($webhook['event_data']);
         if (isset($payload->data->metadata->methodId) && $payload->data->metadata->methodId === 'checkoutcom_apm') {
@@ -311,7 +311,7 @@ class OrderStatusHandlerService
     /**
      * Set the order status for a payment expired webhook.
      */
-    public function paymentExpired()
+    protected function paymentExpired()
     {
         $this->order->addStatusHistoryComment(__('3DS payment expired.'));
         $this->handleFailedPayment($this->order);

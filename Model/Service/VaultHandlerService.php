@@ -22,6 +22,7 @@ use Checkout\Models\Payments\ThreeDs;
 use Checkout\Models\Payments\TokenSource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Vault\VaultToken;
+use Exception;
 use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
@@ -309,8 +310,9 @@ class VaultHandlerService
      * Validates the authorization response
      *
      * @return bool
+     * @throws Exception
      */
-    public function saveCard()
+    public function saveCard(): bool
     {
         // Initialize the API handler
         $api = $this->apiHandler->init();
@@ -335,7 +337,7 @@ class VaultHandlerService
                     $foundPaymentToken->setIsVisible(true);
                     $this->paymentTokenRepository->save($foundPaymentToken);
                 } else {
-                    // Otherwise save the card
+                    // Otherwise, save the card
                     $gatewayToken = $cardData['id'];
                     $paymentToken->setGatewayToken($gatewayToken);
                     $paymentToken->setIsVisible(true);

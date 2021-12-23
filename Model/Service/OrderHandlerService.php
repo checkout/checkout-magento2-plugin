@@ -144,11 +144,11 @@ class OrderHandlerService
     /**
      * Set the payment method id
      *
-     * @param $methodId
+     * @param string $methodId
      *
      * @return $this
      */
-    public function setMethodId($methodId)
+    public function setMethodId(string $methodId): OrderHandlerService
     {
         $this->methodId = $methodId;
 
@@ -164,7 +164,7 @@ class OrderHandlerService
      * @return AbstractExtensibleModel|OrderInterface|mixed|object|null
      * @throws LocalizedException
      */
-    public function handleOrder($quote = null, $external = false)
+    public function handleOrder($quote = null, bool $external = false)
     {
         if ($this->methodId) {
             // Prepare the quote
@@ -203,7 +203,7 @@ class OrderHandlerService
      *
      * @return bool
      */
-    public function isOrder($order)
+    public function isOrder($order): bool
     {
         return $order instanceof Order && $order->getId() > 0;
     }
@@ -213,9 +213,9 @@ class OrderHandlerService
      *
      * @param $fields
      *
-     * @return DataObject
+     * @return OrderInterface
      */
-    public function getOrder($fields)
+    public function getOrder($fields): OrderInterface
     {
         return $this->findOrderByFields($fields);
     }
@@ -234,7 +234,7 @@ class OrderHandlerService
         $orderCurrencyCode = $order->getOrderCurrencyCode();
         $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
 
-        return ($orderCurrencyCode) ? $orderCurrencyCode : $storeCurrencyCode;
+        return ($orderCurrencyCode) ?: $storeCurrencyCode;
     }
 
     /**
@@ -279,9 +279,9 @@ class OrderHandlerService
      *
      * @param $fields
      *
-     * @return DataObject
+     * @return OrderInterface
      */
-    public function findOrderByFields($fields)
+    public function findOrderByFields($fields): OrderInterface
     {
         // Add each field as filter
         foreach ($fields as $key => $value) {
@@ -295,6 +295,7 @@ class OrderHandlerService
         $search = $this->searchBuilder->create();
 
         // Get the resulting order
+        /** @var OrderInterface $order */
         $order = $this->orderRepository->getList($search)->setPageSize(1)->getLastItem();
 
         if ($order->getId()) {

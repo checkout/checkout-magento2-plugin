@@ -224,7 +224,7 @@ class Callback extends Action implements CsrfAwareActionInterface
                                         $this->payload
                                     );
 
-                                    if ($clean && $cleanOn == 'webhook') {
+                                    if ($clean && $cleanOn === 'webhook') {
                                         $this->webhookHandler->clean();
                                     }
                                 } else {

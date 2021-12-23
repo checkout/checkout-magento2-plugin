@@ -21,11 +21,11 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
-use Magento\Sales\Model\Order;
 
 /**
  * Class PaymentErrorHandlerService
@@ -59,12 +59,6 @@ class PaymentErrorHandlerService
      * @var OrderHandlerService $orderHandler
      */
     public $orderHandler;
-    /**
-     * $order field
-     *
-     * @var Order $order
-     */
-    private $order;
     /**
      * $payment field
      *
@@ -116,25 +110,22 @@ class PaymentErrorHandlerService
     /**
      * Log payment error for webhooks
      *
-     * @param $response
-     * @param $order
+     * @param mixed          $response
+     * @param OrderInterface $order
      *
      * @return void
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function logError($response, $order)
+    public function logError($response, OrderInterface $order): void
     {
-        // Assign the order instance
-        $this->order = $order;
-
         // Assign the payment instance
-        $this->payment = $this->order->getPayment();
+        $payment = $order->getPayment();
 
         // Prepare the failed transaction info
         $suffix = __(
             ' for an amount of %1. Action ID: %2. Event ID: %3. Payment ID: %4. Error: %5 %6',
-            $this->prepareAmount($response->data->amount),
+            $this->prepareAmount($response->data->amount, $order),
             !empty($response->data->action_id) ? $response->data->action_id : __('Not specified.'),
             !empty($response->id) ? $response->id : __('Not specified.'),
             !empty($response->data->id) ? $response->data->id : __('Not specified.'),
@@ -143,7 +134,7 @@ class PaymentErrorHandlerService
         );
 
         // Add the order comment
-        $previousComment = $this->orderHandler->getStatusHistoryByEntity('3ds Fail', $this->order);
+        $previousComment = $this->orderHandler->getStatusHistoryByEntity('3ds Fail', $order);
         if ($previousComment && $response->type === 'payment_declined') {
             $previousComment->setEntityName('order')->setComment(
                 __(self::$transactionErrorLabel[$response->type]) . $suffix
@@ -151,35 +142,36 @@ class PaymentErrorHandlerService
             $this->orderStatusHistoryRepository->save($previousComment);
         } else {
             // Add the order comment
-            $this->order->addStatusHistoryComment(
+            $order->addStatusHistoryComment(
                 __(self::$transactionErrorLabel[$response->type]) . $suffix
             );
         }
 
         // Save the data
-        $this->orderPaymentRepository->save($this->payment);
-        $this->orderRepository->save($this->order);
+        $this->orderPaymentRepository->save($payment);
+        $this->orderRepository->save($order);
     }
 
     /**
      * Prepare the amount received from the gateway
      *
-     * @param $amount
+     * @param                $amount
+     * @param OrderInterface $order
      *
      * @return string
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function prepareAmount($amount)
+    public function prepareAmount($amount, OrderInterface $order): string
     {
         // Prepare the amount
         $amount = $this->transactionHandler->amountFromGateway(
             $amount,
-            $this->order
+            $order
         );
 
         // Get the currency
-        $currency = $this->orderHandler->getOrderCurrency($this->order);
+        $currency = $this->orderHandler->getOrderCurrency($order);
 
         return $amount . ' ' . $currency;
     }
@@ -187,39 +179,36 @@ class PaymentErrorHandlerService
     /**
      * Log the error for 3ds declined payments
      *
-     * @param       $response
-     * @param       $order
-     * @param false $status
+     * @param                $response
+     * @param OrderInterface $order
+     * @param false          $status
      *
      * @return void
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function logPaymentError($response, $order, $status = false)
+    public function logPaymentError($response, OrderInterface $order, bool $status = false): void
     {
-        // Assign the order instance
-        $this->order = $order;
-
         // Assign the payment instance
-        $this->payment = $this->order->getPayment();
+        $payment = $order->getPayment();
 
         // Prepare the failed transaction info
         $suffix = __(
             ' for an amount of %1. Payment ID: %2',
-            $this->prepareAmount($response->amount),
+            $this->prepareAmount($response->amount, $order),
             $response->id
         );
 
         // Add the order comment
-        $this->order->setHistoryEntityName('3ds Fail');
-        $this->order->addStatusHistoryComment(
+        $order->setHistoryEntityName('3ds Fail');
+        $order->addStatusHistoryComment(
             __(self::$transactionErrorLabel['payment_declined']) . $suffix,
             $status
         );
 
         // Save the data
-        $this->orderPaymentRepository->save($this->payment);
-        $this->orderRepository->save($this->order);
+        $this->orderPaymentRepository->save($payment);
+        $this->orderRepository->save($order);
     }
 
     /**
@@ -398,10 +387,6 @@ class PaymentErrorHandlerService
 
         $messageMapper = $generalErrors + $fundingErrors + $technicalErrors + $invalidCardErrors + $blockedCardErrors + $threeDsErrors;
 
-        if (isset($messageMapper[$responseCode])) {
-            return $messageMapper[$responseCode];
-        } else {
-            return __('The transaction could not be processed');
-        }
+        return $messageMapper[$responseCode] ?? __('The transaction could not be processed');
     }
 }

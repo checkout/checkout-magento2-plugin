@@ -30,9 +30,12 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\Information;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
@@ -170,21 +173,10 @@ class DisplaySepa extends Action
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */
-    public function execute()
+    public function execute(): Json
     {
         // Prepare the output container
         $html = '';
-
-        // Get the request parameters
-        $this->source       = $this->getRequest()->getParam('source');
-        $this->task         = $this->getRequest()->getParam('task');
-        $this->bic          = $this->getRequest()->getParam('bic');
-        $this->account_iban = $this->getRequest()->getParam('account_iban');
-
-        // Try to load a quote
-        $this->quote          = $this->quoteHandler->getQuote();
-        $this->billingAddress = $this->quoteHandler->getBillingAddress();
-        $this->store          = $this->storeInformation->getStoreInformationObject($this->storeModel);
 
         // Run the requested task
         if ($this->isValidRequest()) {
@@ -233,7 +225,10 @@ class DisplaySepa extends Action
      */
     protected function buildMethodName()
     {
-        return 'get' . ucfirst($this->task);
+        /** @var string $task */
+        $task = $this->getRequest()->getParam('task');
+
+        return 'get' . ucfirst($task);
     }
 
     /**
@@ -249,8 +244,11 @@ class DisplaySepa extends Action
             $this->config->getValue('apm_enabled', 'checkoutcom_apm')
         );
 
+        /** @var string $source */
+        $source = $this->getRequest()->getParam('source');
+
         // Load block data for each APM
-        return in_array($this->source, $apmEnabled) ? true : false;
+        return in_array($source, $apmEnabled);
     }
 
     /**
@@ -263,12 +261,17 @@ class DisplaySepa extends Action
      */
     protected function loadBlock($reference, $url)
     {
+        /** @var AddressInterface $billingAddress */
+        $billingAddress = $this->quoteHandler->getBillingAddress();
+        /** @var DataObject $store */
+        $store = $this->storeInformation->getStoreInformationObject($this->storeModel);
+
         return $this->pageFactory->create()
             ->getLayout()
             ->createBlock('CheckoutCom\Magento2\Block\Apm\Sepa\Mandate')
             ->setTemplate('CheckoutCom_Magento2::payment/apm/sepa/mandate.phtml')
-            ->setData('billingAddress', $this->billingAddress)
-            ->setData('store', $this->store)
+            ->setData('billingAddress', $billingAddress)
+            ->setData('store', $store)
             ->setData('reference', $reference)
             ->setData('url', $url)
             ->toHtml();
@@ -300,6 +303,14 @@ class DisplaySepa extends Action
      */
     protected function requestSepa()
     {
+        /** @var string $bic */
+        $bic = $this->getRequest()->getParam('bic');
+        /** @var string $accountIban */
+        $accountIban = $this->getRequest()->getParam('account_iban');
+        /** @var CartInterface $quote */
+        $quote = $this->quoteHandler->getQuote();
+        /** @var AddressInterface $billingAddress */
+        $billingAddress = $this->quoteHandler->getBillingAddress();
         $sepa = null;
 
         // Get the store code
@@ -310,27 +321,27 @@ class DisplaySepa extends Action
 
         // Build the address
         $address = new SepaAddress(
-            $this->billingAddress->getStreetLine(1),
-            $this->billingAddress->getCity(),
-            $this->billingAddress->getPostcode(),
-            $this->billingAddress->getCountryId()
+            $billingAddress->getStreetLine(1),
+            $billingAddress->getCity(),
+            $billingAddress->getPostcode(),
+            $billingAddress->getCountryId()
         );
 
         // Address line 2
-        $address->address_line2 = $this->billingAddress->getStreetLine(2);
+        $address->address_line2 = $billingAddress->getStreetLine(2);
 
         // Build the SEPA data
         $data = new SepaData(
-            $this->billingAddress->getFirstname(),
-            $this->billingAddress->getLastname(),
-            $this->account_iban,
-            $this->bic,
+            $billingAddress->getFirstname(),
+            $billingAddress->getLastname(),
+            $accountIban,
+            $bic,
             $this->config->getStoreName(),
             'single'
         );
 
         // Build the customer
-        $customer = $this->apiHandler->createCustomer($this->quote);
+        $customer = $this->apiHandler->createCustomer($quote);
 
         try {
             // Build and add the source

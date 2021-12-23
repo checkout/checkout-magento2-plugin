@@ -88,33 +88,59 @@ class VersionNotification implements MessageInterface
     /**
      * Description isDisplayed function
      *
-     * @return bool|void
+     * @return bool
      * @throws FileSystemException|NoSuchEntityException
      */
     public function isDisplayed()
     {
+        /** @var string[] $versions */
+        $versions = $this->getModuleVersions();
+        if ($this->versionHandler->needsUpdate($versions['current'], $versions['latest'])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get module versions
+     *
+     * @return string[]
+     * @throws FileSystemException
+     * @throws NoSuchEntityException
+     */
+    protected function getModuleVersions(): array
+    {
+        /** @var string $current */
+        $current = '0';
+        /** @var string $latest */
+        $latest = '0';
         /** @var mixed $versions */
         $versions = $this->versionHandler->getVersions();
-
         if (is_array($versions) && isset($versions[0]['tag_name'])) {
-            $this->current = $this->versionHandler->getModuleVersion();
-            $this->latest  = $this->versionHandler->getLatestVersion($versions);
-            if ($this->versionHandler->needsUpdate($this->current, $this->latest)) {
-                return true;
-            }
-        } else {
-            return false;
+            /** @var string $current */
+            $current = $this->versionHandler->getModuleVersion();
+            /** @var string $latest */
+            $latest = $this->versionHandler->getLatestVersion($versions);
         }
+
+        return [
+            'current' => $current,
+            'latest'  => $latest,
+        ];
     }
 
     /**
      * Description getSeverity function
      *
      * @return int
+     * @throws FileSystemException
+     * @throws NoSuchEntityException
      */
-    public function getSeverity()
+    public function getSeverity(): int
     {
-        $releaseType = $this->versionHandler->getVersionType($this->current, $this->latest);
+        $versions    = $this->getModuleVersions();
+        $releaseType = $this->versionHandler->getVersionType($versions['current'], $versions['latest']);
 
         switch ($releaseType) {
             case 'revision':

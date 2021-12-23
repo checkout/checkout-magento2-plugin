@@ -65,12 +65,6 @@ class WebhookHandlerService
      */
     public $logger;
     /**
-     * $order field
-     *
-     * @var Order $order
-     */
-    public $order;
-    /**
      * $config field
      *
      * @var Config $config
@@ -127,11 +121,9 @@ class WebhookHandlerService
      * @return void
      * @throws LocalizedException
      */
-    public function processSingleWebhook($order, $payload)
+    public function processSingleWebhook($order, $payload): void
     {
         if (isset($payload->data->action_id)) {
-            // Store the order in a constant
-            $this->order = $order;
 
             if (!$this->config->getValue('webhooks_table_enabled')) {
                 $this->processWithoutSave($order, $payload);
@@ -249,7 +241,7 @@ class WebhookHandlerService
      * @return void
      * @throws Exception
      */
-    public function webhooksToProcess($order, $webhooks = [])
+    public function webhooksToProcess($order, array $webhooks = []): void
     {
         if (!empty($webhooks)) {
             foreach ($webhooks as $webhook) {

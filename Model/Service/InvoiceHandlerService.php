@@ -17,6 +17,8 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
@@ -88,33 +90,30 @@ class InvoiceHandlerService
     /**
      * Create an invoice
      *
-     * @param $transaction
-     * @param $amount
+     * @param TransactionInterface $transaction
+     * @param float                $amount
      *
      * @return void
      * @throws LocalizedException
      */
-    public function createInvoice($transaction, $amount)
+    public function createInvoice(TransactionInterface $transaction, float $amount): void
     {
-        // Set required properties
-        $this->order       = $transaction->getOrder();
-        $this->transaction = $transaction;
-        $this->amount      = $amount;
+        /** @var Order $order */
+        $order = $transaction->getOrder();
 
         // Prepare the invoice
-        $invoice = $this->invoiceService->prepareInvoice($this->order);
+        /** @var Invoice $invoice */
+        $invoice = $this->invoiceService->prepareInvoice($order);
 
         // Set the invoice transaction ID
-        if ($this->transaction) {
-            $invoice->setTransactionId($this->transaction->getTxnId());
-        }
+        $invoice->setTransactionId($transaction->getTxnId());
 
         // Set the invoice state
-        $invoice = $this->setInvoiceState($invoice);
+        $invoice = $this->setInvoiceState($invoice, $transaction);
 
         // Finalize the invoice
-        $invoice->setBaseGrandTotal($amount / $this->order->getBaseToOrderRate());
-        $invoice->setGrandTotal($this->amount);
+        $invoice->setBaseGrandTotal($amount / $order->getBaseToOrderRate());
+        $invoice->setGrandTotal($amount);
         $invoice->register();
 
         // Save the invoice
@@ -124,23 +123,26 @@ class InvoiceHandlerService
     /**
      * Check if invoicing is needed
      *
+     * @param TransactionInterface $transaction
+     *
      * @return bool
      */
-    public function needsInvoicing()
+    public function needsInvoicing(TransactionInterface $transaction): bool
     {
-        return $this->transaction && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+        return $transaction->getTxnType() === TransactionInterface::TYPE_CAPTURE;
     }
 
     /**
      * Set the invoice state
      *
-     * @param $invoice
+     * @param InvoiceInterface     $invoice
+     * @param TransactionInterface $transaction
      *
-     * @return mixed
+     * @return InvoiceInterface
      */
-    public function setInvoiceState($invoice)
+    public function setInvoiceState(InvoiceInterface $invoice, TransactionInterface $transaction): InvoiceInterface
     {
-        if ($this->needsInvoicing()) {
+        if ($this->needsInvoicing($transaction)) {
             $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
             $invoice->setState(Invoice::STATE_PAID);
             $invoice->setCanVoidFlag(false);

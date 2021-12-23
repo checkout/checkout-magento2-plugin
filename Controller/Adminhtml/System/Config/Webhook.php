@@ -29,6 +29,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\PageCache\Model\Cache\Type;
+use Checkout\Models\Webhooks\Webhook as WebhookModel;
 
 /**
  * Class Webhook
@@ -130,11 +131,11 @@ class Webhook extends Action
             }
 
             if (isset($webhookId)) {
-                $webhook              = new \Checkout\Models\Webhooks\Webhook($webhookUrl, $webhookId);
+                $webhook              = new WebhookModel($webhookUrl, $webhookId);
                 $webhook->event_types = $eventTypes;
                 $response             = $api->checkoutApi->webhooks()->update($webhook, true);
             } else {
-                $webhook  = new \Checkout\Models\Webhooks\Webhook($webhookUrl);
+                $webhook  = new WebhookModel($webhookUrl);
                 $response = $api->checkoutApi->webhooks()->register($webhook, $eventTypes);
             }
 

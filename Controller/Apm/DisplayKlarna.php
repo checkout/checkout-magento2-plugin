@@ -32,6 +32,7 @@ use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -91,12 +92,6 @@ class DisplayKlarna extends Action
      */
     public $logger;
     /**
-     * $quote field
-     *
-     * @var Quote $quote
-     */
-    public $quote;
-    /**
      * $billingAddress field
      *
      * @var Address $billingAddress
@@ -148,14 +143,14 @@ class DisplayKlarna extends Action
      * @return Json
      * @throws NoSuchEntityException|LocalizedException
      */
-    public function execute()
+    public function execute(): Json
     {
         // Get the request data
         $quoteId = $this->getRequest()->getParam('quote_id');
         $storeId = $this->getRequest()->getParam('store_id');
 
         // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote([
+        $quote = $this->quoteHandler->getQuote([
             'entity_id' => $quoteId,
             'store_id'  => $storeId,
         ]);
@@ -164,7 +159,7 @@ class DisplayKlarna extends Action
         $this->locale         = str_replace('_', '-', $this->shopperHandler->getCustomerLocale());
 
         // Get Klarna
-        $klarna = $this->getKlarna();
+        $klarna = $this->getKlarna($quote);
 
         return $this->jsonFactory->create()->setData($klarna);
     }
@@ -172,10 +167,12 @@ class DisplayKlarna extends Action
     /**
      * Gets the Klarna response.
      *
+     * @param CartInterface $quote
+     *
      * @return array
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
      */
-    protected function getKlarna()
+    protected function getKlarna(CartInterface $quote): array
     {
         try {
             // Prepare the output array
@@ -187,16 +184,16 @@ class DisplayKlarna extends Action
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode);
 
-            $products = $this->getProducts($response);
+            $products = $this->getProducts($response, $quote);
             $klarna   = new Klarna(
                 strtolower($this->billingAddress->getCountry()),
-                $this->quote->getQuoteCurrencyCode(),
+                $quote->getQuoteCurrencyCode(),
                 $this->locale,
                 $this->quoteHandler->amountToGateway(
                     $this->utilities->formatDecimals(
-                        $this->quote->getGrandTotal()
+                        $quote->getGrandTotal()
                     ),
-                    $this->quote
+                    $quote
                 ),
                 $response['tax_amount'],
                 $products
@@ -207,32 +204,35 @@ class DisplayKlarna extends Action
                 // Prepare the response
                 $response['source']  = $source->getValues();
                 $response['billing'] = $this->billingAddress->toArray();
-                $response['quote']   = $this->quote->toArray();
+                $response['quote']   = $quote->toArray();
 
                 // Handle missing email for guest checkout
                 if ($response['billing']['email'] === null || empty($response['billing']['email'])) {
-                    $response['billing']['email'] = $this->quoteHandler->findEmail($this->quote);
+                    $response['billing']['email'] = $this->quoteHandler->findEmail($quote);
                 }
             }
 
             return $response;
         } catch (CheckoutHttpException $e) {
             $this->logger->write($e->getBody());
+
+            return [];
         }
     }
 
     /**
      * Gets the products.
      *
-     * @param array $response The response
+     * @param array         $response The response
+     * @param CartInterface $quote
      *
      * @return array  The products.
      */
-    protected function getProducts(array &$response)
+    protected function getProducts(array &$response, CartInterface $quote): array
     {
         $products               = [];
         $response['tax_amount'] = 0;
-        foreach ($this->quote->getAllVisibleItems() as $item) {
+        foreach ($quote->getAllVisibleItems() as $item) {
             $product                   = new Product();
             $product->name             = $item->getName();
             $product->quantity         = $item->getQty();
@@ -247,7 +247,7 @@ class DisplayKlarna extends Action
         }
 
         // Get the shipping
-        $this->getShipping($response, $products);
+        $this->getShipping($response, $products, $quote);
 
         // Return the products
         return $products;
@@ -256,14 +256,15 @@ class DisplayKlarna extends Action
     /**
      * Gets the shipping.
      *
-     * @param array $response The response
-     * @param array $products The products.
+     * @param array         $response The response
+     * @param array         $products The products.
+     * @param CartInterface $quote
      *
      * @return void
      */
-    protected function getShipping(array &$response, array &$products)
+    protected function getShipping(array &$response, array &$products, CartInterface $quote): void
     {
-        $shipping = $this->quote->getShippingAddress();
+        $shipping = $quote->getShippingAddress();
 
         if ($shipping->getShippingDescription()) {
             $product                   = new Product();
