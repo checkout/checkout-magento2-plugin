@@ -19,6 +19,7 @@ namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use Magento\Customer\CustomerData\SectionSourceInterface;
+use Magento\Customer\Model\Address;
 use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -26,6 +27,7 @@ use Magento\InstantPurchase\Model\InstantPurchaseInterface;
 use Magento\InstantPurchase\Model\InstantPurchaseOption;
 use Magento\InstantPurchase\Model\Ui\CustomerAddressesFormatter;
 use Magento\InstantPurchase\Model\Ui\ShippingMethodFormatter;
+use Magento\Quote\Api\Data\ShippingMethodInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -84,6 +86,36 @@ class CustomerData implements SectionSourceInterface
      * @var PaymentTokenFormatter $paymentTokenFormatter
      */
     private $paymentTokenFormatter;
+    /**
+     * $paymentToken field
+     *
+     * @var array|mixed $paymentToken
+     */
+    private $paymentToken;
+    /**
+     * $instantPurchaseOption field
+     *
+     * @var InstantPurchaseOption $instantPurchaseOption
+     */
+    private $instantPurchaseOption;
+    /**
+     * $shippingAddress field
+     *
+     * @var Address $shippingAddress
+     */
+    private $shippingAddress;
+    /**
+     * $billingAddress field
+     *
+     * @var Address $billingAddress
+     */
+    private $billingAddress;
+    /**
+     * $shippingMethod field
+     *
+     * @var ShippingMethodInterface $shippingMethod
+     */
+    private $shippingMethod;
 
     /**
      * CustomerData constructor

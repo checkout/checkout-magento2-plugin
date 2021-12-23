@@ -203,16 +203,16 @@ class PlaceOrder extends Action
             $log          = true;
 
             // Try to load a quote
-            $this->quote = $this->quoteHandler->getQuote();
+            $quote = $this->quoteHandler->getQuote();
 
             // Set some required properties
-            $this->data = $this->getRequest()->getParams();
+            $data = $this->getRequest()->getParams();
 
-            if (!$this->isEmptyCardToken($this->data)) {
+            if (!$this->isEmptyCardToken($data)) {
                 // Process the request
-                if ($this->getRequest()->isAjax() && $this->quote) {
+                if ($this->getRequest()->isAjax() && $quote) {
                     // Create an order
-                    $order = $this->orderHandler->setMethodId($this->data['methodId'])->handleOrder($this->quote);
+                    $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
 
                     // Process the payment
                     if ($this->orderHandler->isOrder($order)) {
@@ -230,7 +230,7 @@ class PlaceOrder extends Action
                         );
 
                         // Get response and success
-                        $response = $this->requestPayment($order);
+                        $response = $this->requestPayment($order, $data);
 
                         // Logging
                         $this->logger->display($response);
@@ -242,7 +242,7 @@ class PlaceOrder extends Action
                         $api = $this->apiHandler->init($storeCode);
                         if ($api->isValidResponse($response)) {
                             // Add the payment info to the order
-                            $order = $this->utilities->setPaymentData($order, $response, $this->data);
+                            $order = $this->utilities->setPaymentData($order, $response, $data);
 
                             // check for redirection
                             if (isset($response->_links['redirect']['href'])) {
@@ -311,17 +311,18 @@ class PlaceOrder extends Action
      * Request payment to API handler
      *
      * @param $order
+     * @param $data
      *
      * @return mixed
      */
-    protected function requestPayment($order)
+    protected function requestPayment($order, $data)
     {
         // Get the method id
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
         // Send the charge request
         return $this->methodHandler->get($methodId)->sendPaymentRequest(
-            $this->data,
+            $data,
             $order->getGrandTotal(),
             $order->getOrderCurrencyCode(),
             $order->getIncrementId()

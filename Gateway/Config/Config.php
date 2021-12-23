@@ -447,7 +447,7 @@ class Config
      */
     public function needsAutoCapture()
     {
-        return ($this->getValue('payment_action') == 'authorize_capture' || (bool)$this->getValue(
+        return ($this->getValue('payment_action') === 'authorize_capture' || (bool)$this->getValue(
                 'mada_enabled',
                 'checkoutcom_card_payment'
             ) === true);
@@ -474,7 +474,7 @@ class Config
      */
     public function getMadaBinFile()
     {
-        return (int)$this->getValue('environment') == 1 ? $this->getValue('mada_test_file') : $this->getValue(
+        return (int)$this->getValue('environment') === 1 ? $this->getValue('mada_test_file') : $this->getValue(
             'mada_live_file'
         );
     }

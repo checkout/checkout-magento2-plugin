@@ -105,10 +105,10 @@ class OrderAfterSave
      *
      * @return bool
      */
-    public function needsWebhookProcessing()
+    public function needsWebhookProcessing(): bool
     {
         $params = $this->request->getParams();
 
-        return isset($params['creditmemo']) ? false : true;
+        return !isset($params['creditmemo']);
     }
 }

@@ -36,9 +36,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Verify
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Verify extends Action
 {
@@ -169,9 +166,6 @@ class Verify extends Action
 
                 // Check for zero dollar auth
                 if ($response->status !== "Card Verified") {
-                    // Set the method ID
-                    $this->methodId = $response->metadata['methodId'];
-
                     // Find the order from increment id
                     $order = $this->orderHandler->getOrder([
                         'increment_id' => $response->reference,

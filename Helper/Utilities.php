@@ -74,11 +74,8 @@ class Utilities
             ->getMethodInstance()
             ->getInfoInstance()
             ->getData();
-        if (isset($paymentData['additional_information']['transaction_info'])) {
-            return $paymentData['additional_information']['transaction_info'];
-        } else {
-            return null;
-        }
+
+        return $paymentData['additional_information']['transaction_info'] ?? null;
     }
 
     /**
@@ -102,13 +99,13 @@ class Utilities
         );
 
         if (isset($source)) {
-            if ($source['methodId'] == 'checkoutcom_apm') {
+            if ($source['methodId'] === 'checkoutcom_apm') {
                 // Add apm to payment information
                 $paymentInfo->setAdditionalInformation(
                     'method_id',
                     $source['source']
                 );
-            } elseif ($source['methodId'] == 'checkoutcom_vault') {
+            } elseif ($source['methodId'] === 'checkoutcom_vault') {
                 // Add vault public hash to payment information
                 $paymentInfo->setAdditionalInformation(
                     'public_hash',

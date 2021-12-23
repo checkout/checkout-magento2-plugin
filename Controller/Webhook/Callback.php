@@ -176,14 +176,15 @@ class Callback extends Action implements CsrfAwareActionInterface
 
         try {
             // Set the payload data
-            $this->payload = $this->getPayload();
+            /** @var mixed $payload */
+            $payload = $this->getPayload();
 
             // Process the request
             if ($this->config->isValidAuth('psk')) {
                 // Filter out verification requests
-                if ($this->payload->type !== "card_verified") {
+                if ($payload->type !== "card_verified") {
                     // Process the request
-                    if (isset($this->payload->data->id)) {
+                    if (isset($payload->data->id)) {
                         // Get the store code
                         $storeCode = $this->storeManager->getStore()->getCode();
 
@@ -191,7 +192,7 @@ class Callback extends Action implements CsrfAwareActionInterface
                         $api = $this->apiHandler->init($storeCode);
 
                         // Get the payment details
-                        $response = $api->getPaymentDetails($this->payload->data->id);
+                        $response = $api->getPaymentDetails($payload->data->id);
 
                         if (isset($response->reference)) {
                             // Find the order from increment id
@@ -203,8 +204,8 @@ class Callback extends Action implements CsrfAwareActionInterface
                             if ($this->orderHandler->isOrder($order)) {
                                 if ($api->isValidResponse($response)) {
                                     // Handle the save card request
-                                    if ($this->cardNeedsSaving()) {
-                                        $this->saveCard($response);
+                                    if ($this->cardNeedsSaving($payload)) {
+                                        $this->saveCard($response, $payload);
                                     }
 
                                     // Clean the webhooks table
@@ -221,7 +222,7 @@ class Callback extends Action implements CsrfAwareActionInterface
                                     // Save the webhook
                                     $this->webhookHandler->processSingleWebhook(
                                         $order,
-                                        $this->payload
+                                        $payload
                                     );
 
                                     if ($clean && $cleanOn === 'webhook') {
@@ -230,7 +231,7 @@ class Callback extends Action implements CsrfAwareActionInterface
                                 } else {
                                     // Log the payment error
                                     $this->paymentErrorHandler->logError(
-                                        $this->payload,
+                                        $payload,
                                         $order
                                     );
                                 }
@@ -298,33 +299,41 @@ class Callback extends Action implements CsrfAwareActionInterface
     /**
      * Check if the card needs saving
      *
+     * @param mixed $payload
+     *
      * @return bool
      */
-    protected function cardNeedsSaving()
+    protected function cardNeedsSaving($payload)
     {
-        return isset($this->payload->data->metadata->saveCard) && (int)$this->payload->data->metadata->saveCard == 1 && isset($this->payload->data->metadata->customerId) && (int)$this->payload->data->metadata->customerId > 0 && isset($this->payload->data->source->id) && !empty($this->payload->data->source->id);
+        return isset(
+            $payload->data->metadata->saveCard,
+            $payload->data->metadata->customerId,
+            $payload->data->source->id
+        )  && (int)$payload->data->metadata->saveCard === 1
+           && (int)$payload->data->metadata->customerId > 0
+           && !empty($payload->data->source->id);
     }
 
     /**
      * Save a card
      *
      * @param $response
+     * @param $payload
      *
      * @return bool
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     * @throws Exception
      */
-    protected function saveCard($response)
+    protected function saveCard($response, $payload): bool
     {
         // Get the customer
-        $customer = $this->shopperHandler->getCustomerData(['id' => $this->payload->data->metadata->customerId]);
+        $customer = $this->shopperHandler->getCustomerData(['id' => $payload->data->metadata->customerId]);
 
         // Save the card
-        $success = $this->vaultHandler->setCardToken($this->payload->data->source->id)->setCustomerId(
+        return $this->vaultHandler->setCardToken($payload->data->source->id)->setCustomerId(
             $customer->getId()
         )->setCustomerEmail($customer->getEmail())->setResponse($response)->saveCard();
-
-        return $success;
     }
 
     /**

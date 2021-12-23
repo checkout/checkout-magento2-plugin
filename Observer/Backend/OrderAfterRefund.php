@@ -48,12 +48,6 @@ class OrderAfterRefund implements ObserverInterface
      * @var Config $config
      */
     public $config;
-    /**
-     * $params field
-     *
-     * @var array $params
-     */
-    public $params;
 
     /**
      * OrderAfterRefund constructor
@@ -82,9 +76,6 @@ class OrderAfterRefund implements ObserverInterface
     public function execute(Observer $observer)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
-            // Get the request parameters
-            $this->params = $this->request->getParams();
-
             $payment  = $observer->getEvent()->getPayment();
             $order    = $payment->getOrder();
             $methodId = $order->getPayment()->getMethodInstance()->getCode();

@@ -38,9 +38,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Fail
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Fail extends Action
 {
@@ -189,7 +186,7 @@ class Fail extends Action
 
                     $storeCode = $this->storeManager->getStore()->getCode();
                     $action    = $this->config->getValue('order_action_failed_payment', null, $storeCode);
-                    $status    = $action == 'cancel' ? 'canceled' : false;
+                    $status    = $action === 'cancel' ? 'canceled' : false;
 
                     // Log the payment error
                     $this->paymentErrorHandlerService->logPaymentError(
@@ -256,7 +253,6 @@ class Fail extends Action
             $this->session->restoreQuote();
 
             $this->messageManager->addErrorMessage(
-
                 __('The transaction could not be processed.')
             );
 

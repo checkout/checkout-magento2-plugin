@@ -101,18 +101,6 @@ class MotoPaymentRequest implements ObserverInterface
      * @var Logger $logger
      */
     public $logger;
-    /**
-     * $params field
-     *
-     * @var array $params
-     */
-    public $params;
-    /**
-     * $methodId field
-     *
-     * @var String $methodId
-     */
-    public $methodId;
 
     /**
      * MotoPaymentRequest constructor
@@ -162,20 +150,21 @@ class MotoPaymentRequest implements ObserverInterface
     public function execute(Observer $observer)
     {
         // Get the request parameters
-        $this->params = $this->request->getParams();
+        /** @var mixed[] $params */
+        $params = $this->request->getParams();
 
         // Get the order
         /** @var Order $order */
         $order = $observer->getEvent()->getOrder();
 
         // Get the method id
-        $this->methodId = $order->getPayment()->getMethodInstance()->getCode();
+        $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
         // Get the store code
         $storeCode = $order->getStore()->getCode();
 
         // Process the payment
-        if ($this->needsMotoProcessing()) {
+        if ($this->needsMotoProcessing($methodId, $params)) {
             // Prepare the response container
             $response = null;
 
@@ -183,7 +172,7 @@ class MotoPaymentRequest implements ObserverInterface
             $api = $this->apiHandler->init($storeCode);
 
             // Set the source
-            $source = $this->getSource($order);
+            $source = $this->getSource($order, $params);
 
             // Set the payment
             $request = new Payment(
@@ -192,19 +181,19 @@ class MotoPaymentRequest implements ObserverInterface
 
             // Prepare the metadata array
             $request->metadata = array_merge(
-                ['methodId' => $this->methodId],
+                ['methodId' => $methodId],
                 $this->apiHandler->getBaseMetadata()
             );
 
             // Prepare the capture setting
-            $needsAutoCapture = $this->config->needsAutoCapture($this->methodId);
+            $needsAutoCapture = $this->config->needsAutoCapture($methodId);
             $request->capture = $needsAutoCapture;
             if ($needsAutoCapture) {
-                $request->capture_on = $this->config->getCaptureTime($this->methodId);
+                $request->capture_on = $this->config->getCaptureTime($methodId);
             }
 
             // Set the request parameters
-            $request->capture      = $this->config->needsAutoCapture($this->methodId);
+            $request->capture      = $this->config->needsAutoCapture($methodId);
             $request->amount       = $this->prepareMotoAmount($order);
             $request->reference    = $order->getIncrementId();
             $request->payment_type = 'MOTO';
@@ -212,7 +201,7 @@ class MotoPaymentRequest implements ObserverInterface
                 $request->shipping = $api->createShippingAddress($order);
             }
             $request->threeDs = new ThreeDs(false);
-            $request->risk    = new Risk($this->config->needsRiskRules($this->methodId));
+            $request->risk    = new Risk($this->config->needsRiskRules($methodId));
             $request->setIdempotencyKey(bin2hex(random_bytes(16)));
 
             // Billing descriptor
@@ -251,12 +240,15 @@ class MotoPaymentRequest implements ObserverInterface
     /**
      * Checks if the MOTO logic should be triggered
      *
+     * @param string  $methodId
+     * @param mixed[] $params
+     *
      * @return bool
      */
-    protected function needsMotoProcessing()
+    protected function needsMotoProcessing(string $methodId, array $params): bool
     {
         return $this->backendAuthSession->isLoggedIn(
-            ) && isset($this->params['ckoCardToken']) && $this->methodId === 'checkoutcom_moto';
+            ) && isset($params['ckoCardToken']) && $methodId === 'checkoutcom_moto';
     }
 
     /**
@@ -284,28 +276,29 @@ class MotoPaymentRequest implements ObserverInterface
      * Provide a source from request
      *
      * @param Order $order
+     * @param mixed[] $params
      *
      * @return IdSource|TokenSource
      * @throws LocalizedException
      */
-    protected function getSource(Order $order)
+    protected function getSource(Order $order, array $params)
     {
-        if ($this->isCardToken()) {
+        if ($this->isCardToken($params)) {
             // Initialize the API handler
             $api = $this->apiHandler->init();
 
             // Create the token source
-            $tokenSource                  = new TokenSource($this->params['ckoCardToken']);
+            $tokenSource                  = new TokenSource($params['ckoCardToken']);
             $tokenSource->billing_address = $api->createBillingAddress($order);
 
             return $tokenSource;
         } elseif ($this->isSavedCard()) {
             $card          = $this->vaultHandler->getCardFromHash(
-                $this->params['publicHash'],
+                $params['publicHash'],
                 $order->getCustomerId()
             );
             $idSource      = new IdSource($card->getGatewayToken());
-            $idSource->cvv = $this->params['cvv'];
+            $idSource->cvv = $params['cvv'];
 
             return $idSource;
         } else {
@@ -323,20 +316,24 @@ class MotoPaymentRequest implements ObserverInterface
     /**
      * Checks if a card token is available
      *
+     * @param mixed[] $params
+     *
      * @return bool
      */
-    protected function isCardToken()
+    protected function isCardToken(array $params): bool
     {
-        return isset($this->params['ckoCardToken']) && !empty($this->params['ckoCardToken']);
+        return isset($params['ckoCardToken']) && !empty($params['ckoCardToken']);
     }
 
     /**
      * Checks if a public hash is available
      *
+     * @param mixed[] $params
+     *
      * @return bool
      */
-    protected function isSavedCard()
+    protected function isSavedCard(array $params): bool
     {
-        return isset($this->params['publicHash']) && !empty($this->params['publicHash']) && isset($this->params['cvv']) && !empty($this->params['cvv']);
+        return isset($params['publicHash'], $params['cvv']) && !empty($params['publicHash']) && !empty($params['cvv']);
     }
 }

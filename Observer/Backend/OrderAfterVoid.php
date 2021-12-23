@@ -66,12 +66,6 @@ class OrderAfterVoid implements ObserverInterface
      */
     public $orderModel;
     /**
-     * $params field
-     *
-     * @var array $params
-     */
-    public $params;
-    /**
      * $orderStatusHistoryRepository field
      *
      * @var OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
@@ -115,8 +109,6 @@ class OrderAfterVoid implements ObserverInterface
     public function execute(Observer $observer)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
-            // Get the request parameters
-            $this->params = $this->request->getParams();
             /** @var Payment $payment */
             $payment  = $observer->getEvent()->getPayment();
             $order    = $payment->getOrder();

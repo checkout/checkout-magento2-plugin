@@ -162,12 +162,12 @@ class RefundInvoice
      *
      * @return bool
      */
-    public function statusNeedsCorrection($order)
+    public function statusNeedsCorrection($order): bool
     {
         $currentState  = $order->getState();
         $currentStatus = $order->getStatus();
         $desiredStatus = $this->config->getValue('order_status_refunded');
 
-        return $currentState == Order::STATE_PROCESSING && $currentStatus !== $desiredStatus && $currentStatus !== 'closed';
+        return $currentState === Order::STATE_PROCESSING && $currentStatus !== $desiredStatus && $currentStatus !== 'closed';
     }
 }

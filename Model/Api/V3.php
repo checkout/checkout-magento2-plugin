@@ -611,7 +611,7 @@ class V3 implements V3Interface
         }
 
         // CKO vault payment method specific validation
-        if ($this->data->getPaymentMethod() == 'checkoutcom_vault' && isset($this->customer)) {
+        if ($this->data->getPaymentMethod() === 'checkoutcom_vault' && isset($this->customer)) {
             // Check the payment method is active
             if (!$this->config->getValue('active', 'checkoutcom_vault')) {
                 $this->result['error_message'][] = __('Vault payment method is not active');

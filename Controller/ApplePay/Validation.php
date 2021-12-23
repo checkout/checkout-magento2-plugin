@@ -77,19 +77,20 @@ class Validation extends Action
      * Handles the controller method.
      *
      * @return Raw
+     * @throws NoSuchEntityException
      */
     public function execute()
     {
         // Get request parameters
-        $this->methodId = $this->getRequest()->getParam('method_id');
-        $this->url      = $this->getRequest()->getParam('u');
+        $methodId = $this->getRequest()->getParam('method_id');
+        $url      = $this->getRequest()->getParam('u');
 
-        if (substr($this->url, 0, 5) == 'https' && substr($this->url, 0, 8) !== 'https://') {
-            $this->url = 'https://' . substr($this->url, 7);
+        if (substr($url, 0, 5) === 'https' && substr($url, 0, 8) !== 'https://') {
+            $url = 'https://' . substr($url, 7);
         }
 
         // Prepare the configuration parameters
-        $params = $this->getParams();
+        $params = $this->getParams($methodId);
 
         // Prepare the data
         $data = $this->buildDataString($params);
@@ -101,7 +102,7 @@ class Validation extends Action
         $this->curl->setOption(CURLOPT_POSTFIELDS, $data);
 
         // Send the request
-        $this->curl->post($this->url, []);
+        $this->curl->post($url, []);
 
         // Return the response
         return $this->rawFactory->create()->setContents(
@@ -124,29 +125,31 @@ class Validation extends Action
     /**
      * Prepare the Apple Pay request parameters
      *
+     * @param string $methodId
+     *
      * @return array
      * @throws NoSuchEntityException
      */
-    protected function getParams()
+    protected function getParams(string $methodId)
     {
         return [
             'merchantId'                => $this->config->getValue(
                 'merchant_id',
-                $this->methodId
+                $methodId
             ),
             'domainName'                => $this->getRequest()->getServer('HTTP_HOST'),
             'displayName'               => $this->config->getStoreName(),
             'processingCertificate'     => $this->config->getValue(
                 'processing_certificate',
-                $this->methodId
+                $methodId
             ),
             'processingCertificatePass' => $this->config->getValue(
                 'processing_certificate_password',
-                $this->methodId
+                $methodId
             ),
             'merchantCertificate'       => $this->config->getValue(
                 'merchant_id_certificate',
-                $this->methodId
+                $methodId
             ),
         ];
     }

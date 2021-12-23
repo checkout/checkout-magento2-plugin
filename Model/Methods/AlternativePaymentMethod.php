@@ -461,8 +461,6 @@ class AlternativePaymentMethod extends AbstractMethod
         string $methodId,
         string $method
     ) {
-        $payment = null;
-
         // Create payment object
         $payment = new Payment($source, $currency);
 
