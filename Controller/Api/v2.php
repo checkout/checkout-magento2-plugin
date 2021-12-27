@@ -54,97 +54,97 @@ class V2 extends Action
      *
      * @var JsonFactory $jsonFactory
      */
-    public $jsonFactory;
+    private $jsonFactory;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $quoteIdMaskFactory field
      *
      * @var QuoteIdMaskFactory $quoteIdMaskFactory
      */
-    public $quoteIdMaskFactory;
+    private $quoteIdMaskFactory;
     /**
      * $orderHandler field
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
+    private $orderHandler;
     /**
      * $orderStatusHandler field
      *
      * @var OrderStatusHandlerService $orderStatusHandler
      */
-    public $orderStatusHandler;
+    private $orderStatusHandler;
     /**
      * $methodHandler field
      *
      * @var MethodHandlerService $methodHandler
      */
-    public $methodHandler;
+    private $methodHandler;
     /**
      * $apiHandler field
      *
      * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $paymentErrorHandler field
      *
      * @var PaymentErrorHandlerService $paymentErrorHandler
      */
-    public $paymentErrorHandler;
+    private $paymentErrorHandler;
     /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $data field
      *
      * @var Object $data
      */
-    public $data;
+    private $data;
     /**
      * $result field
      *
      * @var array $result
      */
-    public $result;
+    private $result;
     /**
      * $api field
      *
      * @var Object $api
      */
-    public $api;
+    private $api;
     /**
      * $order field
      *
      * @var Object $order
      */
-    public $order;
+    private $order;
     /**
      * $quote field
      *
      * @var Object $quote
      */
-    public $quote;
+    private $quote;
     /**
      * $orderRepository field
      *

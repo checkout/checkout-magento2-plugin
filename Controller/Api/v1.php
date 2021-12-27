@@ -47,55 +47,55 @@ class V1 extends Action
      *
      * @var JsonFactory $jsonFactory
      */
-    public $jsonFactory;
+    private $jsonFactory;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $orderHandler field
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
+    private $orderHandler;
     /**
      * $methodHandler field
      *
      * @var MethodHandlerService $methodHandler
      */
-    public $methodHandler;
+    private $methodHandler;
     /**
      * $apiHandler field
      *
      * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $data field
      *
      * @var array $data
      */
-    public $data;
+    private $data;
     /**
      * $orderRepository field
      *

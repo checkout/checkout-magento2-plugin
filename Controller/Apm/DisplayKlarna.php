@@ -44,65 +44,59 @@ use Magento\Store\Model\StoreManagerInterface;
 class DisplayKlarna extends Action
 {
     /**
-     * $context field
-     *
-     * @var Context $context
-     */
-    public $context;
-    /**
      * $storeManager
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $jsonFactory
      *
      * @var JsonFactory $jsonFactory
      */
-    public $jsonFactory;
+    private $jsonFactory;
     /**
      * $apiHandler field
      *
      * @var CheckoutApi $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $shopperHandler field
      *
      * @var ShopperHandlerService $shopperHandler
      */
-    public $shopperHandler;
+    private $shopperHandler;
     /**
      * $utilities
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
     /**
      * $billingAddress field
      *
      * @var Address $billingAddress
      */
-    public $billingAddress;
+    private $billingAddress;
     /**
      * Locale code.
      *
      * @var string $locale
      */
-    public $locale;
+    private $locale;
 
     /**
      * DisplayKlarna constructor

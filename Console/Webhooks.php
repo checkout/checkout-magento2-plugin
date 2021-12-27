@@ -65,7 +65,7 @@ class Webhooks extends Command
      *
      * @var WebhookHandlerServiceFactory $webhookHandlerFactory
      */
-    public $webhookHandlerFactory;
+    private $webhookHandlerFactory;
     /**
      * $webhookEntityRepository field
      *

@@ -49,77 +49,53 @@ use Magento\Store\Model\StoreManagerInterface;
 class DisplaySepa extends Action
 {
     /**
-     * $context field
-     *
-     * @var Context $context
-     */
-    public $context;
-    /**
      * $pageFactory field
      *
      * @var PageFactory $pageFactory
      */
-    public $pageFactory;
+    private $pageFactory;
     /**
      * $jsonFactory field
      *
      * @var JsonFactory $jsonFactory
      */
-    public $jsonFactory;
+    private $jsonFactory;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $apiHandler field
      *
      * @var CheckoutApi $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $storeInformation field
      *
      * @var Information $storeInformation
      */
-    public $storeInformation;
+    private $storeInformation;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
-    /**
-     * $quote field
-     *
-     * @var Quote $quote
-     */
-    public $quote;
-    /**
-     * $billingAddress field
-     *
-     * @var Address $billingAddress
-     */
-    public $billingAddress;
-    /**
-     * $store field
-     *
-     * @var Store $store
-     */
-    public $store;
+    private $logger;
     /**
      * $storeModel field
      *

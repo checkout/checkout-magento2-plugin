@@ -44,61 +44,37 @@ class Verify extends Action
      *
      * @var ManagerInterface $messageManager
      */
-    public $messageManager;
+    protected $messageManager;
     /**
      * $transactionHandler field
      *
      * @var TransactionHandlerService $transactionHandler
      */
-    public $transactionHandler;
+    private $transactionHandler;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $apiHandler field
      *
      * @var CheckoutApi $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $orderHandler field
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    public $quoteHandler;
+    private $orderHandler;
     /**
      * $vaultHandler
      *
      * @var VaultHandlerService $vaultHandler
      */
-    public $vaultHandler;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    public $utilities;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    public $logger;
-    /**
-     * $session field
-     *
-     * @var Session $session
-     */
-    protected $session;
+    private $vaultHandler;
 
     /**
      * Verify constructor
@@ -109,9 +85,7 @@ class Verify extends Action
      * @param StoreManagerInterface     $storeManager
      * @param ApiHandlerService         $apiHandler
      * @param OrderHandlerService       $orderHandler
-     * @param QuoteHandlerService       $quoteHandler
      * @param VaultHandlerService       $vaultHandler
-     * @param Utilities                 $utilities
      * @param Logger                    $logger
      * @param Session                   $session
      */
@@ -122,9 +96,7 @@ class Verify extends Action
         StoreManagerInterface $storeManager,
         ApiHandlerService $apiHandler,
         OrderHandlerService $orderHandler,
-        QuoteHandlerService $quoteHandler,
         VaultHandlerService $vaultHandler,
-        Utilities $utilities,
         Logger $logger,
         Session $session
     ) {
@@ -134,9 +106,7 @@ class Verify extends Action
         $this->storeManager       = $storeManager;
         $this->apiHandler         = $apiHandler;
         $this->orderHandler       = $orderHandler;
-        $this->quoteHandler       = $quoteHandler;
         $this->vaultHandler       = $vaultHandler;
-        $this->utilities          = $utilities;
         $this->logger             = $logger;
         $this->session            = $session;
         $this->transactionHandler = $transactionHandler;

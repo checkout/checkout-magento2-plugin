@@ -47,29 +47,23 @@ class Webhook extends Action
      */
     private $apiHandler;
     /**
-     * $scopeConfig field
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    public $scopeConfig;
-    /**
      * $resourceConfig field
      *
      * @var Config $resourceConfig
      */
-    public $resourceConfig;
+    private $resourceConfig;
     /**
      * $cacheTypeList field
      *
      * @var TypeListInterface $cacheTypeList
      */
-    public $cacheTypeList;
+    private $cacheTypeList;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
 
     /**
      * Webhook constructor
@@ -77,7 +71,6 @@ class Webhook extends Action
      * @param Context              $context
      * @param JsonFactory          $resultJsonFactory
      * @param ApiHandlerService    $apiHandler
-     * @param ScopeConfigInterface $scopeConfig
      * @param Config               $resourceConfig
      * @param TypeListInterface    $cacheTypeList
      * @param Logger               $logger
@@ -86,14 +79,12 @@ class Webhook extends Action
         Context $context,
         JsonFactory $resultJsonFactory,
         ApiHandlerService $apiHandler,
-        ScopeConfigInterface $scopeConfig,
         Config $resourceConfig,
         TypeListInterface $cacheTypeList,
         Logger $logger
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->apiHandler        = $apiHandler;
-        $this->scopeConfig       = $scopeConfig;
         $this->resourceConfig    = $resourceConfig;
         $this->cacheTypeList     = $cacheTypeList;
         $this->logger            = $logger;
