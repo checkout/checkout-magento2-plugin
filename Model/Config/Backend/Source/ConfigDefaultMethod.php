@@ -33,7 +33,7 @@ class ConfigDefaultMethod implements OptionSourceInterface
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
 
     /**
      * ConfigDefaultMethod constructor

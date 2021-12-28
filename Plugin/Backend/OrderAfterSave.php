@@ -36,25 +36,25 @@ class OrderAfterSave
      *
      * @var Session $backendAuthSession
      */
-    public $backendAuthSession;
+    private $backendAuthSession;
     /**
      * $webhookHandler field
      *
      * @var WebhookHandlerService $webhookHandler
      */
-    public $webhookHandler;
+    private $webhookHandler;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $request field
      *
      * @var RequestInterface $request
      */
-    public $request;
+    private $request;
 
     /**
      * OrderAfterSave constructor

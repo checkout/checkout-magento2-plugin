@@ -17,6 +17,7 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
@@ -243,10 +244,17 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @var array $data
      */
     private $data;
+    /**
+     * $config field
+     *
+     * @var Config $config
+     */
+    private $config;
 
     /**
      * AbstractMethod constructor
      *
+     * @param Config                     $config
      * @param Context                    $context
      * @param Registry                   $registry
      * @param ExtensionAttributesFactory $extensionFactory
@@ -261,6 +269,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
+        Config $config,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -282,6 +291,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
             $resourceCollection,
             $data
         );
+        $this->config       = $config;
         $this->_paymentData = $paymentData;
         $this->_scopeConfig = $scopeConfig;
         $this->logger       = $logger;

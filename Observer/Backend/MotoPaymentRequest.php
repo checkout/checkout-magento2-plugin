@@ -52,55 +52,55 @@ class MotoPaymentRequest implements ObserverInterface
      *
      * @var Session $backendAuthSession
      */
-    public $backendAuthSession;
+    private $backendAuthSession;
     /**
      * $request field
      *
      * @var RequestInterface $request
      */
-    public $request;
+    private $request;
     /**
      * $messageManager field
      *
      * @var ManagerInterface $messageManager
      */
-    public $messageManager;
+    private $messageManager;
     /**
      * $apiHandler field
      *
      * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $orderHandler field
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
+    private $orderHandler;
     /**
      * $vaultHandler field
      *
      * @var VaultHandlerService $vaultHandler
      */
-    public $vaultHandler;
+    private $vaultHandler;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
 
     /**
      * MotoPaymentRequest constructor
@@ -213,7 +213,7 @@ class MotoPaymentRequest implements ObserverInterface
 
             // Send the charge request
             try {
-                $response = $api->checkoutApi->payments()->request($request);
+                $response = $api->getCheckoutApi()->payments()->request($request);
             } catch (CheckoutHttpException $e) {
                 $this->logger->write($e->getBody());
             } finally {

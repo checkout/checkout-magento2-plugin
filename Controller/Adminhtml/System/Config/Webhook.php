@@ -109,11 +109,13 @@ class Webhook extends Action
             $webhookUrl = $this->getRequest()->getParam('webhook_url', 0);
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode, $scope, $secretKey);
+            $checkoutApi = $this->apiHandler
+                ->init($storeCode, $scope, $secretKey)
+                ->getCheckoutApi();
 
-            $events     = $api->checkoutApi->events()->types(['version' => '2.0']);
+            $events     = $checkoutApi->events()->types(['version' => '2.0']);
             $eventTypes = $events->list[0]->event_types;
-            $webhooks   = $api->checkoutApi->webhooks()->retrieve();
+            $webhooks   = $checkoutApi->webhooks()->retrieve();
             $webhookId  = null;
             foreach ($webhooks->list as $list) {
                 if ($list->url == $webhookUrl) {
@@ -124,10 +126,10 @@ class Webhook extends Action
             if (isset($webhookId)) {
                 $webhook              = new WebhookModel($webhookUrl, $webhookId);
                 $webhook->event_types = $eventTypes;
-                $response             = $api->checkoutApi->webhooks()->update($webhook, true);
+                $response             = $checkoutApi->webhooks()->update($webhook, true);
             } else {
                 $webhook  = new WebhookModel($webhookUrl);
-                $response = $api->checkoutApi->webhooks()->register($webhook, $eventTypes);
+                $response = $checkoutApi->webhooks()->register($webhook, $eventTypes);
             }
 
             $privateSharedKey = $response->headers->authorization;

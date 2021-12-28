@@ -41,25 +41,25 @@ class RefundInvoice
      *
      * @var MethodHandlerService $methodHandler
      */
-    public $methodHandler;
+    private $methodHandler;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $apiHandler field
      *
      * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $orderPaymentRepository field
      *

@@ -27,9 +27,6 @@ use Magento\Sales\Model\Service\InvoiceService;
 
 /**
  * Class InvoiceHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class InvoiceHandlerService
 {
@@ -38,37 +35,19 @@ class InvoiceHandlerService
      *
      * @var InvoiceService $invoiceService
      */
-    public $invoiceService;
+    private $invoiceService;
     /**
      * $invoiceRepository field
      *
      * @var InvoiceRepositoryInterface $invoiceRepository
      */
-    public $invoiceRepository;
+    private $invoiceRepository;
     /**
      * $invoiceModel field
      *
      * @var Invoice $invoiceModel
      */
-    public $invoiceModel;
-    /**
-     * $order field
-     *
-     * @var Order $order
-     */
-    public $order;
-    /**
-     * $transaction field
-     *
-     * @var Transaction $transaction
-     */
-    public $transaction;
-    /**
-     * $amount field
-     *
-     * @var Float $amount
-     */
-    public $amount;
+    private $invoiceModel;
 
     /**
      * InvoiceHandlerService constructor

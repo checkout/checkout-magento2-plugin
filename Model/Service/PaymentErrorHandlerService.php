@@ -29,18 +29,15 @@ use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 
 /**
  * Class PaymentErrorHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class PaymentErrorHandlerService
 {
     /**
-     * $transactionErrorLabel field
+     * TRANSACTION_ERROR_LABEL const
      *
-     * @var array $transactionErrorLabel
+     * @var array TRANSACTION_ERROR_LABEL
      */
-    public static $transactionErrorLabel = [
+    const TRANSACTION_ERROR_LABEL = [
         'payment_declined'         => 'Failed payment authorization',
         'payment_capture_declined' => 'Failed payment capture',
         'payment_void_declined'    => 'Failed payment void',
@@ -52,19 +49,13 @@ class PaymentErrorHandlerService
      *
      * @var TransactionHandlerService $transactionHandler
      */
-    public $transactionHandler;
+    private $transactionHandler;
     /**
      * $orderHandler field
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
-    /**
-     * $payment field
-     *
-     * @var false|float|DataObject|OrderPaymentInterface|mixed|null $payment
-     */
-    private $payment;
+    private $orderHandler;
     /**
      * $orderPaymentRepository field
      *
@@ -137,13 +128,13 @@ class PaymentErrorHandlerService
         $previousComment = $this->orderHandler->getStatusHistoryByEntity('3ds Fail', $order);
         if ($previousComment && $response->type === 'payment_declined') {
             $previousComment->setEntityName('order')->setComment(
-                __(self::$transactionErrorLabel[$response->type]) . $suffix
+                __(self::TRANSACTION_ERROR_LABEL[$response->type]) . $suffix
             );
             $this->orderStatusHistoryRepository->save($previousComment);
         } else {
             // Add the order comment
             $order->addStatusHistoryComment(
-                __(self::$transactionErrorLabel[$response->type]) . $suffix
+                __(self::TRANSACTION_ERROR_LABEL[$response->type]) . $suffix
             );
         }
 
@@ -202,7 +193,7 @@ class PaymentErrorHandlerService
         // Add the order comment
         $order->setHistoryEntityName('3ds Fail');
         $order->addStatusHistoryComment(
-            __(self::$transactionErrorLabel['payment_declined']) . $suffix,
+            __(self::TRANSACTION_ERROR_LABEL['payment_declined']) . $suffix,
             $status
         );
 

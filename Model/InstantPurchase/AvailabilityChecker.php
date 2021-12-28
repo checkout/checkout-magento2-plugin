@@ -33,7 +33,7 @@ class AvailabilityChecker
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $vaultHandler field
      *

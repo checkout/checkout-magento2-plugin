@@ -33,7 +33,7 @@ class ConfigOrderStatus implements OptionSourceInterface
      *
      * @var Collection $orderStatusCollection
      */
-    public $orderStatusCollection;
+    private $orderStatusCollection;
 
     /**
      * ConfigOrderStatus constructor

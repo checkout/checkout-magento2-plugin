@@ -36,19 +36,6 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      */
     const CACHE_TAG = 'webhook_entity';
     /**
-     * $_cacheTag field
-     *
-     * @var string $_cacheTag
-     */
-    public $_cacheTag = 'webhook_entity';
-    /**
-     * Prefix of model events names
-     *
-     * @var string $_eventPrefix
-     */
-    public $_eventPrefix = 'webhook_entity';
-
-    /**
      * Initialize resource model
      *
      * @return void

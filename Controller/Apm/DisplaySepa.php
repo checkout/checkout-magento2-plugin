@@ -293,7 +293,9 @@ class DisplaySepa extends Action
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode);
+        $checkoutApi = $this->apiHandler
+            ->init($storeCode)
+            ->getCheckoutApi();
 
         // Build the address
         $address = new SepaAddress(
@@ -322,7 +324,7 @@ class DisplaySepa extends Action
         try {
             // Build and add the source
             $source = new Sepa($address, $data, $customer);
-            $sepa   = $api->checkoutApi->sources()->add($source);
+            $sepa   = $checkoutApi->sources()->add($source);
 
             return $sepa;
         } catch (CheckoutHttpException $e) {

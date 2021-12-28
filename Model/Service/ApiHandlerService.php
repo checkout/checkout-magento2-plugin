@@ -37,9 +37,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class ApiHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ApiHandlerService
 {
@@ -48,49 +45,49 @@ class ApiHandlerService
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $productMeta field
      *
      * @var ProductMetadataInterface $productMeta
      */
-    public $productMeta;
+    private $productMeta;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $checkoutApi field
      *
      * @var CheckoutApi $checkoutApi
      */
-    public $checkoutApi;
+    protected $checkoutApi;
     /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
     /**
      * $orderHandler field
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
+    private $orderHandler;
     /**
      * $versionHandler field
      *
      * @var VersionHandlerService $versionHandler
      */
-    public $versionHandler;
+    private $versionHandler;
 
     /**
      * ApiHandlerService constructor
@@ -151,6 +148,16 @@ class ApiHandlerService
     }
 
     /**
+     * Get CheckoutApi
+     *
+     * @return CheckoutApi
+     */
+    public function getCheckoutApi(): CheckoutApi
+    {
+        return $this->checkoutApi;
+    }
+
+    /**
      * Checks if a response is valid
      *
      * @param $response
@@ -192,7 +199,7 @@ class ApiHandlerService
             );
 
             // Get the response
-            $response = $this->checkoutApi->payments()->capture($request);
+            $response = $this->getCheckoutApi()->payments()->capture($request);
 
             // Logging
             $this->logger->display($response);
@@ -219,7 +226,7 @@ class ApiHandlerService
         // Process the void request
         if (isset($paymentInfo['id'])) {
             $request  = new Voids($paymentInfo['id']);
-            $response = $this->checkoutApi->payments()->void($request);
+            $response = $this->getCheckoutApi()->payments()->void($request);
 
             // Logging
             $this->logger->display($response);
@@ -254,7 +261,7 @@ class ApiHandlerService
                 $order
             );
 
-            $response = $this->checkoutApi->payments()->refund($request);
+            $response = $this->getCheckoutApi()->payments()->refund($request);
 
             // Logging
             $this->logger->display($response);
@@ -273,7 +280,7 @@ class ApiHandlerService
      */
     public function getPaymentDetails($paymentId)
     {
-        return $this->checkoutApi->payments()->details($paymentId);
+        return $this->getCheckoutApi()->payments()->details($paymentId);
     }
 
     /**

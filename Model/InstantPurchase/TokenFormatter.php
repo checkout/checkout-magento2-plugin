@@ -33,7 +33,7 @@ class TokenFormatter
      *
      * @var VaultHandlerService $vaultHandler
      */
-    public $vaultHandler;
+    private $vaultHandler;
 
     /**
      * TokenFormatter constructor

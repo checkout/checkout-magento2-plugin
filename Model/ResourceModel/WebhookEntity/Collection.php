@@ -33,7 +33,7 @@ class Collection extends AbstractCollection
      *
      * @var string $_idFieldName
      */
-    public $_idFieldName = 'id';
+    protected $_idFieldName = 'id';
 
     /**
      * Define the resource model

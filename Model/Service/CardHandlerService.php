@@ -25,18 +25,15 @@ use Magento\Framework\View\Asset\Repository;
 
 /**
  * Class CardHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class CardHandlerService
 {
     /**
-     * $cardMapper field
+     * CARD_MAPPER field
      *
-     * @var array $cardMapper
+     * @var array CARD_MAPPER
      */
-    public static $cardMapper = [
+    const CARD_MAPPER = [
         'VI'  => 'Visa',
         'MC'  => 'Mastercard',
         'AE'  => 'American Express',
@@ -49,25 +46,25 @@ class CardHandlerService
      *
      * @var Repository $assetRepository
      */
-    public $assetRepository;
+    private $assetRepository;
     /**
      * $directoryReader field
      *
      * @var Reader $directoryReader
      */
-    public $directoryReader;
+    private $directoryReader;
     /**
      * $csvParser field
      *
      * @var Csv $csvParser
      */
-    public $csvParser;
+    private $csvParser;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
 
     /**
      * CardHandlerService constructor
@@ -104,7 +101,7 @@ class CardHandlerService
 
         return array_search(
             $scheme,
-            self::$cardMapper
+            self::CARD_MAPPER
         );
     }
 
@@ -117,8 +114,8 @@ class CardHandlerService
      */
     public function getCardScheme($code)
     {
-        if (isset(self::$cardMapper[$code])) {
-            return self::$cardMapper[$code];
+        if (isset(self::CARD_MAPPER[$code])) {
+            return self::CARD_MAPPER[$code];
         }
     }
 
@@ -156,7 +153,7 @@ class CardHandlerService
         );
 
         // Build the cards list
-        foreach (self::$cardMapper as $code => $value) {
+        foreach (self::CARD_MAPPER as $code => $value) {
             if (in_array($code, $selectedCards)) {
                 $output[] = [
                     'code' => $code,

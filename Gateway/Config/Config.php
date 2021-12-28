@@ -39,43 +39,43 @@ class Config
      *
      * @var Repository $assetRepository
      */
-    public $assetRepository;
+    private $assetRepository;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $scopeConfig field
      *
      * @var ScopeConfigInterface $scopeConfig
      */
-    public $scopeConfig;
+    private $scopeConfig;
     /**
      * $request field
      *
      * @var RequestInterface $request
      */
-    public $request;
+    private $request;
     /**
      * $loader field
      *
      * @var Loader $loader
      */
-    public $loader;
+    private $loader;
     /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
 
     /**
      * Config constructor

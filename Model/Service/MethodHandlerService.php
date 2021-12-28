@@ -21,9 +21,6 @@ use Magento\Customer\Model\Session;
 
 /**
  * Class MethodHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class MethodHandlerService
 {
@@ -32,19 +29,19 @@ class MethodHandlerService
      *
      * @var array $instances
      */
-    public $instances;
+    private $instances;
     /**
      * $orderHandler field
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
+    private $orderHandler;
     /**
      * $customerSession field
      *
      * @var Session $customerSession
      */
-    public $customerSession;
+    private $customerSession;
 
     /**
      * MethodHandlerService constructor

@@ -35,13 +35,13 @@ class Logger
      *
      * @var ManagerInterface $messageManager
      */
-    public $messageManager;
+    private $messageManager;
     /**
      * $scopeConfig field
      *
      * @var ScopeConfigInterface $scopeConfig
      */
-    public $scopeConfig;
+    private $scopeConfig;
 
     /**
      * Logger constructor

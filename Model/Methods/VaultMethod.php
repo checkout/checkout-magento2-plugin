@@ -66,121 +66,109 @@ class VaultMethod extends AbstractMethod
      *
      * @var string $_code
      */
-    public $_code = self::CODE;
+    protected $_code = self::CODE;
     /**
      * $_canAuthorize field
      *
      * @var bool $_canAuthorize
      */
-    public $_canAuthorize = true;
+    protected $_canAuthorize = true;
     /**
      * $_canCapture field
      *
      * @var bool $_canCapture
      */
-    public $_canCapture = true;
-    /**
-     * $_canCancel field
-     *
-     * @var bool $_canCancel
-     */
-    public $_canCancel = true;
+    protected $_canCapture = true;
     /**
      * $_canCapturePartial field
      *
      * @var bool $_canCapturePartial
      */
-    public $_canCapturePartial = true;
+    protected $_canCapturePartial = true;
     /**
      * $_canVoid field
      *
      * @var bool $_canVoid
      */
-    public $_canVoid = true;
+    protected $_canVoid = true;
     /**
      * $_canUseInternal field
      *
      * @var bool $_canUseInternal
      */
-    public $_canUseInternal = true;
+    protected $_canUseInternal = true;
     /**
      * $_canUseCheckout field
      *
      * @var bool $_canUseCheckout
      */
-    public $_canUseCheckout = true;
+    protected $_canUseCheckout = true;
     /**
      * $_canRefund field
      *
      * @var bool $_canRefund
      */
-    public $_canRefund = true;
+    protected $_canRefund = true;
     /**
      * $_canRefundInvoicePartial field
      *
      * @var bool $_canRefundInvoicePartial
      */
-    public $_canRefundInvoicePartial = true;
+    protected $_canRefundInvoicePartial = true;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $vaultHandler field
      *
      * @var VaultHandlerService $vaultHandler
      */
-    public $vaultHandler;
+    private $vaultHandler;
     /**
      * $cardHandler field
      *
      * @var CardHandlerService $cardHandler
      */
-    public $cardHandler;
+    private $cardHandler;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $apiHandler field
      *
      * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $ckoLogger field
      *
      * @var Logger $ckoLogger
      */
-    public $ckoLogger;
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
-    public $messageManager;
+    private $ckoLogger;
     /**
      * $backendAuthSession field
      *
      * @var Session $backendAuthSession
      */
-    public $backendAuthSession;
+    private $backendAuthSession;
 
     /**
      * VaultMethod constructor
@@ -201,7 +189,6 @@ class VaultMethod extends AbstractMethod
      * @param CardHandlerService         $cardHandler
      * @param QuoteHandlerService        $quoteHandler
      * @param LoggerHelper               $ckoLogger
-     * @param ManagerInterface           $messageManager
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
@@ -224,13 +211,13 @@ class VaultMethod extends AbstractMethod
         CardHandlerService $cardHandler,
         QuoteHandlerService $quoteHandler,
         LoggerHelper $ckoLogger,
-        ManagerInterface $messageManager,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
         DirectoryHelper $directoryHelper
     ) {
         parent::__construct(
+            $config,
             $context,
             $registry,
             $extensionFactory,
@@ -253,7 +240,6 @@ class VaultMethod extends AbstractMethod
         $this->cardHandler        = $cardHandler;
         $this->quoteHandler       = $quoteHandler;
         $this->ckoLogger          = $ckoLogger;
-        $this->messageManager     = $messageManager;
     }
 
     /**
@@ -387,7 +373,7 @@ class VaultMethod extends AbstractMethod
 
         // Send the charge request
         try {
-            $response = $api->checkoutApi->payments()->request($request);
+            $response = $api->getCheckoutApi()->payments()->request($request);
 
             return $response;
         } catch (CheckoutHttpException $e) {

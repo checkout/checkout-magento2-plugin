@@ -33,7 +33,7 @@ class ConfigAlternativePayments implements OptionSourceInterface
      *
      * @var Loader $configLoader
      */
-    public $configLoader;
+    private $configLoader;
 
     /**
      * ConfigAlternativePayments constructor

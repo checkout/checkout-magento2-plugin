@@ -176,7 +176,9 @@ class DisplayKlarna extends Action
             $storeCode = $this->storeManager->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $checkoutApi = $this->apiHandler
+                ->init($storeCode)
+                ->getCheckoutApi();
 
             $products = $this->getProducts($response, $quote);
             $klarna   = new Klarna(
@@ -193,7 +195,7 @@ class DisplayKlarna extends Action
                 $products
             );
 
-            $source = $api->checkoutApi->sources()->add($klarna);
+            $source = $checkoutApi->sources()->add($klarna);
             if ($source->isSuccessful()) {
                 // Prepare the response
                 $response['source']  = $source->getValues();

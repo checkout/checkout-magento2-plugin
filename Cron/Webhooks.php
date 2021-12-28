@@ -41,13 +41,13 @@ class Webhooks
      *
      * @var WebhookHandlerService $webhookHandler
      */
-    public $webhookHandler;
+    private $webhookHandler;
     /**
      * $scopeConfig field
      *
      * @var ScopeConfigInterface $scopeConfig
      */
-    public $scopeConfig;
+    private $scopeConfig;
 
     /**
      * Webhooks constructor

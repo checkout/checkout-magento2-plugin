@@ -34,29 +34,11 @@ use Magento\Sales\Model\Order\Creditmemo;
 class OrderCreditMemoSaveAfter implements ObserverInterface
 {
     /**
-     * $backendAuthSession field
-     *
-     * @var Session $backendAuthSession
-     */
-    public $backendAuthSession;
-    /**
-     * $request field
-     *
-     * @var RequestInterface $request
-     */
-    public $request;
-    /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
-    /**
-     * $params field
-     *
-     * @var array $params
-     */
-    public $params;
+    private $config;
     /**
      * $orderRepository field
      *
@@ -67,19 +49,13 @@ class OrderCreditMemoSaveAfter implements ObserverInterface
     /**
      * OrderCreditMemoSaveAfter constructor
      *
-     * @param Session                  $backendAuthSession
-     * @param RequestInterface         $request
      * @param Config                   $config
      * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
-        Session $backendAuthSession,
-        RequestInterface $request,
         Config $config,
         OrderRepositoryInterface $orderRepository
     ) {
-        $this->backendAuthSession = $backendAuthSession;
-        $this->request            = $request;
         $this->config             = $config;
         $this->orderRepository    = $orderRepository;
     }

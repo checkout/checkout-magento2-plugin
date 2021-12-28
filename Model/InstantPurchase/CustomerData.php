@@ -55,7 +55,7 @@ class CustomerData implements SectionSourceInterface
      *
      * @var Session $customerSession
      */
-    public $customerSession;
+    private $customerSession;
     /**
      * $customerAddressesFormatter field
      *

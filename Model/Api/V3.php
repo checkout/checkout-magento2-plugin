@@ -55,7 +55,7 @@ class V3 implements V3Interface
     /**
      * $paymentResponseFactory field
      *
-     * @var paymentResponseFactory $paymentResponseFactory
+     * @var PaymentResponseFactory $paymentResponseFactory
      */
     private $paymentResponseFactory;
     /**
@@ -123,13 +123,13 @@ class V3 implements V3Interface
      *
      * @var VaultHandlerService $vaultHandler
      */
-    public $vaultHandler;
+    private $vaultHandler;
     /**
      * $request
      *
      * @var Http $request
      */
-    public $request;
+    private $request;
     /**
      * $data field
      *
@@ -159,7 +159,7 @@ class V3 implements V3Interface
      *
      * @var Object $order
      */
-    public $order;
+    private $order;
     /**
      * $quote field
      *

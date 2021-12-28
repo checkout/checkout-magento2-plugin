@@ -40,19 +40,19 @@ class VaultToken
      *
      * @var PaymentTokenFactoryInterface $paymentTokenFactory
      */
-    public $paymentTokenFactory;
+    private $paymentTokenFactory;
     /**
      * $encryptor field
      *
      * @var EncryptorInterface $encryptor
      */
-    public $encryptor;
+    private $encryptor;
     /**
      * $cardHandler field
      *
      * @var CardHandlerService $cardHandler
      */
-    public $cardHandler;
+    private $cardHandler;
 
     /**
      * VaultToken constructor

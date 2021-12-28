@@ -33,9 +33,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class OrderHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class OrderHandlerService
 {
@@ -44,67 +41,61 @@ class OrderHandlerService
      *
      * @var Session $checkoutSession
      */
-    public $checkoutSession;
+    private $checkoutSession;
     /**
      * $quoteManagement field
      *
      * @var QuoteManagement $quoteManagement
      */
-    public $quoteManagement;
+    private $quoteManagement;
     /**
      * $orderRepository field
      *
      * @var OrderRepositoryInterface $orderRepository
      */
-    public $orderRepository;
+    private $orderRepository;
     /**
      * $searchBuilder field
      *
      * @var SearchCriteriaBuilder $searchBuilder
      */
-    public $searchBuilder;
+    private $searchBuilder;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $methodId field
      *
      * @var  $methodId
      */
-    public $methodId;
-    /**
-     * $paymentData field
-     *
-     * @var array $paymentData
-     */
-    public $paymentData;
+    protected $methodId;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
     /**
      * $transactionHandler field
      *
      * @var TransactionHandlerService $transactionHandler
      */
-    public $transactionHandler;
+    private $transactionHandler;
 
     /**
      * OrderHandlerService constructor

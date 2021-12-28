@@ -24,7 +24,6 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Api\Data\TransactionSearchResultInterfaceFactory;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -41,125 +40,110 @@ use Magento\Sales\Model\Service\CreditmemoService;
 
 /**
  * Class TransactionHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class TransactionHandlerService
 {
     /**
-     * $transactionMapper field
+     * TRANSACTION_MAPPER const
      *
-     * @var array $transactionMapper
+     * @var array TRANSACTION_MAPPER
      */
-    public static $transactionMapper = [
+    const TRANSACTION_MAPPER = [
         'payment_approved' => TransactionInterface::TYPE_AUTH,
         'payment_captured' => TransactionInterface::TYPE_CAPTURE,
         'payment_refunded' => TransactionInterface::TYPE_REFUND,
         'payment_voided'   => TransactionInterface::TYPE_VOID,
     ];
     /**
-     * $orderModel field
-     *
-     * @var Order $orderModel
-     */
-    public $orderModel;
-    /**
      * $orderSender field
      *
      * @var OrderSender $orderSender
      */
-    public $orderSender;
-    /**
-     * $transactionSearch field
-     *
-     * @var TransactionSearchResultInterfaceFactory $transactionSearch
-     */
-    public $transactionSearch;
+    private $orderSender;
     /**
      * $transactionBuilder field
      *
      * @var BuilderInterface $transactionBuilder
      */
-    public $transactionBuilder;
+    private $transactionBuilder;
     /**
      * $transactionRepository field
      *
      * @var Repository $transactionRepository
      */
-    public $transactionRepository;
+    private $transactionRepository;
     /**
      * $creditMemoFactory field
      *
      * @var CreditmemoFactory $creditMemoFactory
      */
-    public $creditMemoFactory;
+    private $creditMemoFactory;
     /**
      * $creditMemoService field
      *
      * @var CreditmemoService $creditMemoService
      */
-    public $creditMemoService;
+    private $creditMemoService;
     /**
      * $filterBuilder field
      *
      * @var FilterBuilder $filterBuilder
      */
-    public $filterBuilder;
+    private $filterBuilder;
     /**
      * $searchCriteriaBuilder field
      *
      * @var SearchCriteriaBuilder $searchCriteriaBuilder
      */
-    public $searchCriteriaBuilder;
+    private $searchCriteriaBuilder;
     /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $invoiceHandler field
      *
      * @var InvoiceHandlerService $invoiceHandler
      */
-    public $invoiceHandler;
+    private $invoiceHandler;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $orderManagement field
      *
      * @var OrderManagementInterface $orderManagement
      */
-    public $orderManagement;
+    private $orderManagement;
     /**
      * $order field
      *
      * @var Order $order
      */
-    public $order;
+    private $order;
     /**
      * $transaction field
      *
      * @var Transaction $transaction
      */
-    public $transaction;
+    private $transaction;
     /**
      * $payment field
      *
      * @var Payment $payment
      */
-    public $payment;
+    private $payment;
     /**
      * Order convert object.
      *
      * @var ConvertorFactory
      */
-    protected $convertorFactory;
+    private $convertorFactory;
     /**
      * $orderPaymentRepository field
      *
@@ -183,7 +167,6 @@ class TransactionHandlerService
      * TransactionHandlerService constructor
      *
      * @param OrderSender                             $orderSender
-     * @param TransactionSearchResultInterfaceFactory $transactionSearch
      * @param BuilderInterface                        $transactionBuilder
      * @param Repository                              $transactionRepository
      * @param CreditmemoFactory                       $creditMemoFactory
@@ -194,7 +177,6 @@ class TransactionHandlerService
      * @param InvoiceHandlerService                   $invoiceHandler
      * @param Config                                  $config
      * @param OrderManagementInterface                $orderManagement
-     * @param Order                                   $orderModel
      * @param ConvertorFactory                        $convertOrderFactory
      * @param OrderPaymentRepositoryInterface         $orderPaymentRepository
      * @param OrderRepositoryInterface                $orderRepository
@@ -202,7 +184,6 @@ class TransactionHandlerService
      */
     public function __construct(
         OrderSender $orderSender,
-        TransactionSearchResultInterfaceFactory $transactionSearch,
         BuilderInterface $transactionBuilder,
         Repository $transactionRepository,
         CreditmemoFactory $creditMemoFactory,
@@ -213,14 +194,12 @@ class TransactionHandlerService
         InvoiceHandlerService $invoiceHandler,
         Config $config,
         OrderManagementInterface $orderManagement,
-        Order $orderModel,
         ConvertorFactory $convertOrderFactory,
         OrderPaymentRepositoryInterface $orderPaymentRepository,
         OrderRepositoryInterface $orderRepository,
         OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
         $this->orderSender                  = $orderSender;
-        $this->transactionSearch            = $transactionSearch;
         $this->transactionBuilder           = $transactionBuilder;
         $this->transactionRepository        = $transactionRepository;
         $this->creditMemoFactory            = $creditMemoFactory;
@@ -231,7 +210,6 @@ class TransactionHandlerService
         $this->invoiceHandler               = $invoiceHandler;
         $this->config                       = $config;
         $this->orderManagement              = $orderManagement;
-        $this->orderModel                   = $orderModel;
         $this->convertorFactory             = $convertOrderFactory;
         $this->orderPaymentRepository       = $orderPaymentRepository;
         $this->orderRepository              = $orderRepository;
@@ -267,7 +245,7 @@ class TransactionHandlerService
         );
 
         // Check to see if webhook is supported
-        if (isset(self::$transactionMapper[$webhook['event_type']])) {
+        if (isset(self::TRANSACTION_MAPPER[$webhook['event_type']])) {
             // Create a transaction if needed
             if (!$this->transaction) {
                 // Build the transaction
@@ -387,7 +365,7 @@ class TransactionHandlerService
                 Transaction::RAW_DETAILS => $this->buildDataArray($data),
             ])
             ->setFailSafe(true)
-            ->build(self::$transactionMapper[$webhook['event_type']]);
+            ->build(self::TRANSACTION_MAPPER[$webhook['event_type']]);
 
         // Set the parent transaction id
         $this->transaction->setParentTxnId(

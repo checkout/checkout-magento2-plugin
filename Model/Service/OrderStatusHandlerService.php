@@ -27,9 +27,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class OrderStatusHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class OrderStatusHandlerService
 {
@@ -38,74 +35,67 @@ class OrderStatusHandlerService
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $transactionHandler field
      *
      * @var TransactionHandlerService $transactionHandler
      */
-    public $transactionHandler;
-    /**
-     * $orderModel field
-     *
-     * @var Order $orderModel
-     */
-    public $orderModel;
+    private $transactionHandler;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $orderHandler field
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
+    private $orderHandler;
     /**
      * $orderManagement field
      *
      * @var OrderManagementInterface $orderManagement
      */
-    public $orderManagement;
+    private $orderManagement;
     /**
      * $orderRepository field
      *
      * @var OrderRepositoryInterface $orderRepository
      */
-    public $orderRepository;
+    private $orderRepository;
     /**
      * $registry field
      *
      * @var Registry $registry
      */
-    public $registry;
+    private $registry;
     /**
      * $state field
      *
      * @var State $state
      */
-    public $state;
+    private $state;
     /**
      * $status field
      *
      * @var Status $status
      */
-    public $status;
+    private $status;
     /**
      * $order field
      *
      * @var Order $order
      */
-    public $order;
+    private $order;
 
     /**
      * OrderStatusHandlerService constructor
      *
      * @param StoreManagerInterface     $storeManager
      * @param TransactionHandlerService $transactionHandler
-     * @param Order                     $orderModel
      * @param Config                    $config
      * @param OrderHandlerService       $orderHandler
      * @param OrderManagementInterface  $orderManagement
@@ -115,7 +105,6 @@ class OrderStatusHandlerService
     public function __construct(
         StoreManagerInterface $storeManager,
         TransactionHandlerService $transactionHandler,
-        Order $orderModel,
         Config $config,
         OrderHandlerService $orderHandler,
         OrderManagementInterface $orderManagement,
@@ -124,7 +113,6 @@ class OrderStatusHandlerService
     ) {
         $this->storeManager       = $storeManager;
         $this->transactionHandler = $transactionHandler;
-        $this->orderModel         = $orderModel;
         $this->config             = $config;
         $this->orderHandler       = $orderHandler;
         $this->orderManagement    = $orderManagement;
