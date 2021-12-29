@@ -8,13 +8,13 @@
  * @category  Checkout.com
  * @package   Magento2
  * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://www.checkout.com
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
-    <module name="CheckoutCom_Magento2" setup_version="2.0.5">
+    <module name="CheckoutCom_Magento2" setup_version="3.0.0">
         <sequence>
             <module name="Magento_Sales"/>
             <module name="Magento_Payment"/>
