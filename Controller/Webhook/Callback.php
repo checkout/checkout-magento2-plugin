@@ -61,7 +61,7 @@ class Callback extends Action implements CsrfAwareActionInterface
     /**
      * $apiHandler field
      *
-     * @var apiHandler $apiHandler
+     * @var ApiHandlerService $apiHandler
      */
     private $apiHandler;
     /**

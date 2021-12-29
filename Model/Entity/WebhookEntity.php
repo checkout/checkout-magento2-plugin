@@ -40,7 +40,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      *
      * @return void
      */
-    public function _construct()
+    protected function _construct()
     {
         $this->_init(
             WebhookEntityResourceModel::class

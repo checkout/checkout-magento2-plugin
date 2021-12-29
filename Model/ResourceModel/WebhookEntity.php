@@ -45,7 +45,7 @@ class WebhookEntity extends AbstractDb
      *
      * @return void
      */
-    public function _construct()
+    protected function _construct()
     {
         $this->_init('checkoutcom_webhooks', 'id');
     }
