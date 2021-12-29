@@ -37,13 +37,13 @@ class Payment extends Fieldset
      *
      * @var Config $_backendConfig
      */
-    public $_backendConfig;
+    private $_backendConfig;
     /**
      * $versionHandler field
      *
      * @var VersionHandlerService $versionHandler
      */
-    public $versionHandler;
+    private $versionHandler;
 
     /**
      * Payment constructor

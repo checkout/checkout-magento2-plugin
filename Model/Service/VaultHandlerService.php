@@ -101,7 +101,7 @@ class VaultHandlerService
      *
      * @var mixed $response
      */
-    public $response = [];
+    private $response = [];
     /**
      * $apiHandler field
      *

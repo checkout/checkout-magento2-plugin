@@ -49,7 +49,7 @@ abstract class AbstractCallbackUrl extends Field
      *
      * @var ScopeConfigInterface $scopeConfig
      */
-    public $scopeConfig;
+    private $scopeConfig;
 
     /**
      * Set the template

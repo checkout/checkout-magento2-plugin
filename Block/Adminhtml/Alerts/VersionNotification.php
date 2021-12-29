@@ -36,19 +36,7 @@ class VersionNotification implements MessageInterface
      *
      * @var VersionHandlerService $versionHandler
      */
-    public $versionHandler;
-    /**
-     * $current field
-     *
-     * @var mixed $current
-     */
-    public $current;
-    /**
-     * $latest field
-     *
-     * @var mixed $latest
-     */
-    public $latest;
+    private $versionHandler;
 
     /**
      * @param VersionHandlerService $versionHandler
@@ -63,11 +51,14 @@ class VersionNotification implements MessageInterface
      * Description getText function
      *
      * @return Phrase
+     * @throws FileSystemException
+     * @throws NoSuchEntityException
      */
-    public function getText()
+    public function getText(): Phrase
     {
+        $versions = $this->getModuleVersions();
         $message = __(
-            'Please keep your website safe! Your checkout plugin (v' . $this->current . ') is not the latest version (v' . $this->latest . ').
+            'Please keep your website safe! Your checkout plugin (v' . $versions["current"] . ') is not the latest version (v' . $versions["latest"] . ').
          Update now to get the latest features and security updates.
          See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.'
         );
@@ -93,6 +84,7 @@ class VersionNotification implements MessageInterface
      */
     public function isDisplayed()
     {
+        return true;
         /** @var string[] $versions */
         $versions = $this->getModuleVersions();
         if ($this->versionHandler->needsUpdate($versions['current'], $versions['latest'])) {

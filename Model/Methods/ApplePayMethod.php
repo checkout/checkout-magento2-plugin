@@ -143,13 +143,13 @@ class ApplePayMethod extends AbstractMethod
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $ckoLogger field
      *
      * @var Logger $ckoLogger
      */
-    public $ckoLogger;
+    private $ckoLogger;
     /**
      * $backendAuthSession field
      *

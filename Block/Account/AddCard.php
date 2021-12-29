@@ -34,7 +34,7 @@ class AddCard extends Template
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
 
     /**
      * AddCard constructor
@@ -50,5 +50,15 @@ class AddCard extends Template
     ) {
         $this->config = $config;
         parent::__construct($context, $data);
+    }
+
+    /**
+     * Get config
+     *
+     * @return Config
+     */
+    public function getConfig(): Config
+    {
+        return $this->config;
     }
 }
