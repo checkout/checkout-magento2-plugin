@@ -23,9 +23,6 @@ use Magento\Framework\View\Element\Template\Context;
 
 /**
  * Class AddCard
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class AddCard extends Template
 {

@@ -23,9 +23,6 @@ use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity as WebhookEntityResou
 
 /**
  * Class WebhookEntity
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class WebhookEntity extends AbstractModel implements WebhookEntityInterface, IdentityInterface
 {

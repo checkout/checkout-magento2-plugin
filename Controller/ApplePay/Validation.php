@@ -27,9 +27,6 @@ use Magento\Framework\HTTP\Client\Curl;
 
 /**
  * Class Validation
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Validation extends Action
 {

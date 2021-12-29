@@ -24,9 +24,6 @@ use Magento\Framework\Event\ObserverInterface;
 
 /**
  * Class OrderAfterRefund
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class OrderAfterRefund implements ObserverInterface
 {

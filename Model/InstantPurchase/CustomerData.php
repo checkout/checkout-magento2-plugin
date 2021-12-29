@@ -32,9 +32,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class CustomerData
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class CustomerData implements SectionSourceInterface
 {

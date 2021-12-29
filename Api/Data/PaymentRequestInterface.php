@@ -18,9 +18,6 @@ namespace CheckoutCom\Magento2\Api\Data;
 
 /**
  * Interface used for payment request in API v3
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 interface PaymentRequestInterface
 {

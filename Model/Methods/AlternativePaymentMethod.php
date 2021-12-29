@@ -76,9 +76,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class AlternativePaymentMethod
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class AlternativePaymentMethod extends AbstractMethod
 {

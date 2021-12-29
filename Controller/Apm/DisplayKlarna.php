@@ -37,9 +37,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class DisplayKlarna
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class DisplayKlarna extends Action
 {

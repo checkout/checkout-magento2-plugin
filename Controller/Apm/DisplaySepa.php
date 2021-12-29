@@ -42,9 +42,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class DisplaySepa
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class DisplaySepa extends Action
 {

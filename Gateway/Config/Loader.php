@@ -27,9 +27,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Loader
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Loader
 {

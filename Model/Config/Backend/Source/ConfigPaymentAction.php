@@ -21,9 +21,6 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigPaymentAction
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ConfigPaymentAction implements OptionSourceInterface
 {

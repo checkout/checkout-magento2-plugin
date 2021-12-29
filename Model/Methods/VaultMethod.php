@@ -49,9 +49,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class VaultMethod
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class VaultMethod extends AbstractMethod
 {

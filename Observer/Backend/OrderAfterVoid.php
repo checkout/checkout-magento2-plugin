@@ -29,9 +29,6 @@ use Magento\Sales\Model\Order\Payment;
 
 /**
  * Class OrderAfterVoid
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class OrderAfterVoid implements ObserverInterface
 {

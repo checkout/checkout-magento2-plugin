@@ -25,9 +25,6 @@ use Magento\Framework\Phrase;
 
 /**
  * Class VersionNotification
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class VersionNotification implements MessageInterface
 {

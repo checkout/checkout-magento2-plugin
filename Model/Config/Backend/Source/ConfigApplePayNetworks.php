@@ -21,9 +21,6 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigApplePayNetworks
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ConfigApplePayNetworks implements OptionSourceInterface
 {

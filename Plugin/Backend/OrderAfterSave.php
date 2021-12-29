@@ -25,9 +25,6 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
  * Class OrderAfterSave
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class OrderAfterSave
 {

@@ -26,9 +26,6 @@ use Magento\Framework\View\Helper\Js;
 
 /**
  * Class Payment
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Payment extends Fieldset
 {

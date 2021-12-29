@@ -21,9 +21,6 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigLanguageFallback
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ConfigLanguageFallback implements OptionSourceInterface
 {

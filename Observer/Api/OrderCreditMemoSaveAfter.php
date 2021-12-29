@@ -27,9 +27,6 @@ use Magento\Sales\Model\Order\Creditmemo;
 
 /**
  * Class OrderCreditMemoSaveAfter
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class OrderCreditMemoSaveAfter implements ObserverInterface
 {

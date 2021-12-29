@@ -41,9 +41,6 @@ use Magento\Sales\Model\Order;
 
 /**
  * Class MotoPaymentRequest
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class MotoPaymentRequest implements ObserverInterface
 {

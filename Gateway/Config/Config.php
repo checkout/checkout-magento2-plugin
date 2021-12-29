@@ -28,9 +28,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Config
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Config
 {

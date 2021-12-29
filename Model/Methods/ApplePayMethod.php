@@ -48,9 +48,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class ApplePayMethod
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ApplePayMethod extends AbstractMethod
 {

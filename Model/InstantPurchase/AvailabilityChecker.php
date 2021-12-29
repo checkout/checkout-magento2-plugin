@@ -22,9 +22,6 @@ use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 
 /**
  * Class AvailabilityChecker
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class AvailabilityChecker
 {

@@ -29,9 +29,6 @@ use Zend_Json;
 
 /**
  * Class VaultToken
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class VaultToken
 {

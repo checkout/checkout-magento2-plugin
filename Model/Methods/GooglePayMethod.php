@@ -48,9 +48,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class GooglePayMethod
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class GooglePayMethod extends AbstractMethod
 {

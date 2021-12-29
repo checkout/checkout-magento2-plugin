@@ -21,9 +21,6 @@ use Magento\Framework\View\Element\Template;
 
 /**
  * Class Form
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Form extends Template
 {

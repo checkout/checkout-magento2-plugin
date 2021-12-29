@@ -33,9 +33,6 @@ use Checkout\Models\Webhooks\Webhook as WebhookModel;
 
 /**
  * Class Webhook
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Webhook extends Action
 {

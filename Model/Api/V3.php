@@ -46,9 +46,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class V3 - Execute the API v3 endpoint
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class V3 implements V3Interface
 {

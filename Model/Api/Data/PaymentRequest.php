@@ -22,9 +22,6 @@ use Magento\Framework\Api\AbstractSimpleObject;
 /**
  * Class PaymentRequest
  * Used to retrieve details send to the V3 endpoint
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class PaymentRequest extends AbstractSimpleObject implements PaymentRequestInterface
 {

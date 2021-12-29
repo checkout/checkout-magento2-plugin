@@ -28,9 +28,6 @@ use Magento\Framework\UrlInterface;
 
 /**
  * Class SaveCard
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class SaveCard extends Action
 {

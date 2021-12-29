@@ -28,9 +28,6 @@ use Magento\Sales\Model\Order;
 
 /**
  * Class WebhookHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class WebhookHandlerService
 {

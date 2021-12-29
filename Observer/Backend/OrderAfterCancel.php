@@ -29,9 +29,6 @@ use Magento\Sales\Model\Order\Payment;
 
 /**
  * Class OrderAfterCancel
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class OrderAfterCancel implements ObserverInterface
 {

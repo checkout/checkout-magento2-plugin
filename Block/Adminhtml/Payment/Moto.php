@@ -27,9 +27,6 @@ use Magento\Payment\Model\Config as PaymentModelConfig;
 
 /**
  * Class Moto
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Moto extends Cc
 {

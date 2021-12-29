@@ -29,9 +29,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
  * Class ConfigProvider
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ConfigProvider implements ConfigProviderInterface
 {
