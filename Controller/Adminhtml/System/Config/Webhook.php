@@ -78,13 +78,16 @@ class Webhook extends Action
         ApiHandlerService $apiHandler,
         Config $resourceConfig,
         TypeListInterface $cacheTypeList,
-        Logger $logger
+        Logger $logger,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->apiHandler        = $apiHandler;
         $this->resourceConfig    = $resourceConfig;
         $this->cacheTypeList     = $cacheTypeList;
         $this->logger            = $logger;
+        $this->scopeConfig       = $scopeConfig;
+
         parent::__construct($context);
     }
 
@@ -101,9 +104,9 @@ class Webhook extends Action
             // Get the store code
             $scope      = $this->getRequest()->getParam('scope', 0);
             $storeCode  = $this->getRequest()->getParam('scope_id', 0);
-            $secretKey  = $this->getRequest()->getParam('secret_key', 0);
             $publicKey  = $this->getRequest()->getParam('public_key', 0);
             $webhookUrl = $this->getRequest()->getParam('webhook_url', 0);
+            $secretKey = $this->scopeConfig->getValue('settings/checkoutcom_configuration/secret_key');
 
             // Initialize the API handler
             $checkoutApi = $this->apiHandler
