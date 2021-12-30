@@ -448,7 +448,7 @@ class V2 extends Action
         }
 
         if (isset($this->data->quote_id)) {
-            if (is_integer($this->data->quote_id) && $this->data->quote_id < 1) {
+            if (is_int($this->data->quote_id) && $this->data->quote_id < 1) {
                 $this->result['error_message'][] = __('Quote ID provided must be a positive integer');
                 $isValid                         = false;
             }

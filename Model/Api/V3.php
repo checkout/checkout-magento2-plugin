@@ -545,7 +545,7 @@ class V3 implements V3Interface
 
         // Check the quote id has been specified correctly
         if ($this->data->getQuoteId() !== null) {
-            if (is_integer($this->data->getQuoteId()) && $this->data->getQuoteId() < 1) {
+            if (is_int($this->data->getQuoteId()) && $this->data->getQuoteId() < 1) {
                 $this->result['error_message'][] = __('Quote ID provided must be a positive integer');
                 $isValid                         = false;
             }
