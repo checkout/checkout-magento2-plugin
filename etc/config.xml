@@ -26,9 +26,9 @@
                 <gateway_responses>0</gateway_responses>
                 <additional_logging></additional_logging>
                 <environment>1</environment>
-                <secret_key></secret_key>
-                <public_key></public_key>
-                <private_shared_key></private_shared_key>
+                <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <public_key/>
+                <private_shared_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <mada_test_file>Model/Files/Mada/mada_test.csv</mada_test_file>
                 <mada_live_file>Model/Files/Mada/mada_live.csv</mada_live_file>
                 <email_cookie_name>ckoUserEmail</email_cookie_name>
@@ -215,9 +215,9 @@
                 <use_default_account>1</use_default_account>
                 <risk_rules_enabled>0</risk_rules_enabled>
                 <environment>1</environment>
-                <secret_key></secret_key>
+                <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <public_key></public_key>
-                <private_shared_key></private_shared_key>
+                <private_shared_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
             </checkoutcom_moto>
         </payment>
     </default>

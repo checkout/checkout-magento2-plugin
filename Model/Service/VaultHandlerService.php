@@ -10,122 +10,166 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\ThreeDs;
+use Checkout\Models\Payments\TokenSource;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Vault\VaultToken;
+use Exception;
+use Magento\Customer\Model\Session;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
-use \Checkout\Models\Payments\TokenSource;
-use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\ThreeDs;
+use Magento\Vault\Api\PaymentTokenManagementInterface;
+use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 
 /**
- * Class VaultHandlerService.
+ * Class VaultHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class VaultHandlerService
 {
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var VaultToken
+     * $vaultToken field
+     *
+     * @var VaultToken $vaultToken
      */
     public $vaultToken;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var PaymentTokenRepositoryInterface
+     * $paymentTokenRepository filed
+     *
+     * @var PaymentTokenRepositoryInterface $paymentTokenRepository
      */
     public $paymentTokenRepository;
-
     /**
-     * @var PaymentTokenManagementInterface
+     * $paymentTokenManagement filed
+     *
+     * @var PaymentTokenManagementInterface $paymentTokenManagement
      */
     public $paymentTokenManagement;
-
     /**
-     * @var Session
+     * $customerSession field
+     *
+     * @var Session $customerSession
      */
     public $customerSession;
-
     /**
-     * @var ManagerInterface
+     * $messageManager field
+     *
+     * @var ManagerInterface $messageManager
      */
     public $messageManager;
-
     /**
-     * @var ApiHandlerService
+     * $apiHandlerService field
+     *
+     * @var ApiHandlerService $apiHandlerService
      */
     public $apiHandlerService;
-
     /**
-     * @var CardHandlerService
+     * $cardHandler field
+     *
+     * @var CardHandlerService $cardHandler
      */
     public $cardHandler;
-
     /**
-     * @var string
+     * $customerEmail field
+     *
+     * @var string $customerEmail
      */
     public $customerEmail;
-
     /**
-     * @var int
+     * $customerId field
+     *
+     * @var int $customerId
      */
     public $customerId;
-
     /**
-     * @var string
+     * $cardToken field
+     *
+     * @var string $cardToken
      */
     public $cardToken;
-
     /**
-     * @var array
+     * $cardData field
+     *
+     * @var array $cardData
      */
     public $cardData = [];
-
     /**
-     * @var array
+     * $response field
+     *
+     * @var array $response
      */
     public $response = [];
+    /**
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
+     */
+    private $apiHandler;
 
     /**
-     * VaultHandlerService constructor.
+     * VaultHandlerService constructor
+     *
+     * @param StoreManagerInterface           $storeManager
+     * @param VaultToken                      $vaultToken
+     * @param PaymentTokenRepositoryInterface $paymentTokenRepository
+     * @param PaymentTokenManagementInterface $paymentTokenManagement
+     * @param Session                         $customerSession
+     * @param ManagerInterface                $messageManager
+     * @param ApiHandlerService               $apiHandler
+     * @param CardHandlerService              $cardHandler
+     * @param Config                          $config
      */
     public function __construct(
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Vault\VaultToken $vaultToken,
-        \Magento\Vault\Api\PaymentTokenRepositoryInterface $paymentTokenRepository,
-        \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        StoreManagerInterface $storeManager,
+        VaultToken $vaultToken,
+        PaymentTokenRepositoryInterface $paymentTokenRepository,
+        PaymentTokenManagementInterface $paymentTokenManagement,
+        Session $customerSession,
+        ManagerInterface $messageManager,
+        ApiHandlerService $apiHandler,
+        CardHandlerService $cardHandler,
+        Config $config
     ) {
-        $this->storeManager = $storeManager;
-        $this->vaultToken = $vaultToken;
+        $this->storeManager           = $storeManager;
+        $this->vaultToken             = $vaultToken;
         $this->paymentTokenRepository = $paymentTokenRepository;
         $this->paymentTokenManagement = $paymentTokenManagement;
-        $this->customerSession = $customerSession;
-        $this->messageManager = $messageManager;
-        $this->apiHandler = $apiHandler;
-        $this->cardHandler = $cardHandler;
-        $this->config = $config;
+        $this->customerSession        = $customerSession;
+        $this->messageManager         = $messageManager;
+        $this->apiHandler             = $apiHandler;
+        $this->cardHandler            = $cardHandler;
+        $this->config                 = $config;
     }
 
     /**
      * Returns the payment token instance if exists.
      *
-     * @param  PaymentTokenInterface $paymentToken
+     * @param PaymentTokenInterface $paymentToken
+     *
      * @return PaymentTokenInterface|null
      */
     private function foundExistedPaymentToken(PaymentTokenInterface $paymentToken)
@@ -139,13 +183,13 @@ class VaultHandlerService
     /**
      * Sets the customer ID.
      *
-     * @param  int $customerId
+     * @param null $id
+     *
      * @return VaultHandlerService
      */
     public function setCustomerId($id = null)
     {
-        $this->customerId = (int) $id > 0
-        ? $id : $this->customerSession->getCustomer()->getId();
+        $this->customerId = (int)$id > 0 ? $id : $this->customerSession->getCustomer()->getId();
 
         return $this;
     }
@@ -153,13 +197,13 @@ class VaultHandlerService
     /**
      * Sets the customer email address.
      *
-     * @param  string $customerEmail
+     * @param null $email
+     *
      * @return VaultHandlerService
      */
     public function setCustomerEmail($email = null)
     {
-        $this->customerEmail = ($email)
-        ? $email : $this->customerSession->getCustomer()->getEmail();
+        $this->customerEmail = ($email) ? $email : $this->customerSession->getCustomer()->getEmail();
 
         return $this;
     }
@@ -167,7 +211,8 @@ class VaultHandlerService
     /**
      * Sets the card token.
      *
-     * @param  string $cardToken
+     * @param string $cardToken
+     *
      * @return VaultHandlerService
      */
     public function setCardToken($cardToken)
@@ -178,7 +223,11 @@ class VaultHandlerService
     }
 
     /**
-     * Sets a gateway response if no prior card authorization is needed.
+     * Sets a gateway response if no prior card authorization is needed
+     *
+     * @param $response
+     *
+     * @return $this
      */
     public function setResponse($response)
     {
@@ -188,21 +237,18 @@ class VaultHandlerService
     }
 
     /**
-     * Saves the credit card in the repository.
+     * Saves the credit card in the repository
      *
-     * @throws LocalizedException
-     * @throws ApiClientException
-     * @throws ClientException
-     * @throws \Exception
+     * @return void
      */
     public function save()
     {
         // Create the payment token from response
-        $paymentToken = $this->vaultToken->create(
+        $paymentToken      = $this->vaultToken->create(
             $this->cardData,
             $this->customerId
         );
-        $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
+        $foundPaymentToken = $this->foundExistedPaymentToken($paymentToken);
 
         // Check if card exists
         if ($foundPaymentToken) {
@@ -225,11 +271,10 @@ class VaultHandlerService
     }
 
     /**
-     * Runs the authorization command for the gateway.
+     * Runs the authorization command for the gateway
      *
-     * @throws ApiClientException
-     * @throws ClientException
-     * @throws \Exception
+     * @return $this
+     * @throws NoSuchEntityException
      */
     public function authorizeTransaction()
     {
@@ -244,32 +289,30 @@ class VaultHandlerService
 
         // Set the payment
         $request = new Payment(
-            $tokenSource,
-            $this->config->getValue('request_currency', 'checkoutcom_vault')
+            $tokenSource, $this->config->getValue('request_currency', 'checkoutcom_vault')
         );
 
         // Set the request parameters
-        $request->amount = 0;
-        $request->threeDs = new ThreeDs($this->config->needs3ds('checkoutcom_vault'));
-        $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', 'checkoutcom_vault');
+        $request->amount               = 0;
+        $request->threeDs              = new ThreeDs($this->config->needs3ds('checkoutcom_vault'));
+        $request->threeDs->attempt_n3d = (bool)$this->config->getValue('attempt_n3d', 'checkoutcom_vault');
         // $request->description = __('Save card authorization request from %1', $this->config->getStoreName());
         $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
         $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
 
         // Send the charge request and get the response
-        $this->response = $api->checkoutApi
-            ->payments()
-            ->request($request);
+        $this->response = $api->checkoutApi->payments()->request($request);
 
         return $this;
     }
 
     /**
-     * Validates the authorization response.
+     * Validates the authorization response
      *
-     * @throws LocalizedException
+     * @return bool
+     * @throws Exception
      */
-    public function saveCard()
+    public function saveCard(): bool
     {
         // Initialize the API handler
         $api = $this->apiHandler->init();
@@ -284,7 +327,7 @@ class VaultHandlerService
                 $cardData = $values['source'];
 
                 // Create the payment token
-                $paymentToken = $this->vaultToken->create($cardData, 'checkoutcom_vault', $this->customerId);
+                $paymentToken      = $this->vaultToken->create($cardData, 'checkoutcom_vault', $this->customerId);
                 $foundPaymentToken = $this->foundExistedPaymentToken($paymentToken);
 
                 // Check if card exists
@@ -294,7 +337,7 @@ class VaultHandlerService
                     $foundPaymentToken->setIsVisible(true);
                     $this->paymentTokenRepository->save($foundPaymentToken);
                 } else {
-                    // Otherwise save the card
+                    // Otherwise, save the card
                     $gatewayToken = $cardData['id'];
                     $paymentToken->setGatewayToken($gatewayToken);
                     $paymentToken->setIsVisible(true);
@@ -307,7 +350,11 @@ class VaultHandlerService
     }
 
     /**
-     * Checks if a user has saved cards.
+     * Checks if a user has saved cards
+     *
+     * @param null $customerId
+     *
+     * @return bool
      */
     public function userHasCards($customerId = null)
     {
@@ -316,14 +363,19 @@ class VaultHandlerService
 
         // Check if the user has cards
         if (!empty($cardList)) {
-            return  true;
+            return true;
         }
 
         return false;
     }
 
     /**
-     * Get a user's saved card from public hash.
+     * Get a user's saved card from public hash
+     *
+     * @param      $publicHash
+     * @param null $customerId
+     *
+     * @return mixed|null
      */
     public function getCardFromHash($publicHash, $customerId = null)
     {
@@ -340,7 +392,9 @@ class VaultHandlerService
     }
 
     /**
-     * Get a user's last saved card.
+     * Get a user's last saved card
+     *
+     * @return array|mixed
      */
     public function getLastSavedCard()
     {
@@ -348,12 +402,9 @@ class VaultHandlerService
         $cardList = $this->getUserCards();
         if (!empty($cardList)) {
             // Sort the array by date
-            usort(
-                $cardList,
-                function ($a, $b) {
-                    return strtotime($a->getCreatedAt()) - strtotime($b->getCreatedAt());
-                }
-            );
+            usort($cardList, function ($a, $b) {
+                return strtotime($a->getCreatedAt()) - strtotime($b->getCreatedAt());
+            });
 
             // Return the most recent
             return $cardList[0];
@@ -363,7 +414,11 @@ class VaultHandlerService
     }
 
     /**
-     * Get a user's saved cards.
+     * Get a user's saved cards
+     *
+     * @param null $customerId
+     *
+     * @return array
      */
     public function getUserCards($customerId = null)
     {
@@ -371,11 +426,10 @@ class VaultHandlerService
         $output = [];
 
         // Get the customer id (currently logged in user)
-        $customerId = ($customerId) ? $customerId
-        : $this->customerSession->getCustomer()->getId();
+        $customerId = ($customerId) ? $customerId : $this->customerSession->getCustomer()->getId();
 
         // Find the customer cards
-        if ((int) $customerId > 0) {
+        if ((int)$customerId > 0) {
             $cards = $this->paymentTokenManagement->getListByCustomerId($customerId);
             foreach ($cards as $card) {
                 if ($this->cardHandler->isCardActive($card)) {
@@ -388,7 +442,11 @@ class VaultHandlerService
     }
 
     /**
-     * Render a payment token.
+     * Render a payment token
+     *
+     * @param PaymentTokenInterface $paymentToken
+     *
+     * @return string
      */
     public function renderTokenData(PaymentTokenInterface $paymentToken)
     {

@@ -8,7 +8,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -24,12 +24,12 @@
     background-color: #FFF;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
-  
+
 #checkoutcom_card_payment_frm iframe {
     /* This fixes a mobile Safari bug */
     height: 38px !important;
 }
-  
+
 #checkoutcom_card_payment_frm label {
     display: block;
     height: 10px;
@@ -44,7 +44,7 @@
     display: flex;
     margin-bottom: 8px;
 }
-  
+
 #checkoutcom_card_payment_frm .date-and-code > div:nth-child(1) {
     width: 55.715%;
 }
@@ -52,7 +52,7 @@
 #checkoutcom_card_payment_frm .date-and-code > div:nth-child(2) {
     width: 45.719%;
 }
-  
+
 #checkoutcom_card_payment_frm .input-container {
     position: relative;
     display: flex;
@@ -66,7 +66,7 @@
 #checkoutcom_card_payment_frm .icon-container.payment-method {
     right: 0;
 }
-  
+
 #checkoutcom_card_payment_frm .input-container.card-number {
     margin-bottom: 8px;
 }
@@ -79,7 +79,7 @@
 #checkoutcom_card_payment_frm label[for="cvv"] {
     margin-left: 4px;
 }
-  
+
 #checkoutcom_card_payment_frm .card-number-frame {
     padding-left: 40px;
     width: 100%;
@@ -92,7 +92,7 @@
 #checkoutcom_card_payment_frm .cvv-frame {
     padding-left: 40px;
 }
-  
+
 #checkoutcom_card_payment_frm .icon-container {
     position: absolute;
     top: 0;
@@ -102,14 +102,14 @@
     width: 26px;
     margin: 0 7px;
 }
-  
+
 #checkoutcom_card_payment_frm .icon-container.payment-method  {
     transform: translateY(-50%) rotateY(90deg);
     transition: opacity 0.15s ease-out;
     opacity: 0;
     top: 50%;
 }
-  
+
 #checkoutcom_card_payment_frm .icon-container.payment-method.show {
     opacity: 1;
     transition: all 0.4s ease-out;
@@ -119,30 +119,30 @@
 #checkoutcom_card_payment_frm .icon-container.payment-method img {
     width: 100%;
 }
-  
+
 #checkoutcom_card_payment_frm [id$="-error"] { display: none }
-  
+
 #checkoutcom_card_payment_frm .frame {
     opacity: 0;
 }
-  
+
 #checkoutcom_card_payment_frm .frame--activated {
     opacity: 1;
     border: solid 1px #13395E;
     border-radius: 3px;
     box-shadow: 0 1px 3px 0 rgba(19,57,94,0.2);
 }
-  
+
 #checkoutcom_card_payment_frm .frame--activated.frame--focus {
     border: solid 1px #13395E;
     box-shadow: 0 2px 5px 0 rgba(19,57,94,0.15);
 }
-  
+
 #checkoutcom_card_payment_frm .frame--activated.frame--invalid {
     border: solid 1px #D96830;
     box-shadow: 0 2px 5px 0 rgba(217,104,48,0.15);
 }
-  
+
 #checkoutcom_card_payment_frm .error-message {
     display: block;
     color: #C9501C;
@@ -163,4 +163,3 @@
         line-height: 15px;
     }
 }
-  

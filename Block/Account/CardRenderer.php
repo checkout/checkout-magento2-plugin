@@ -10,44 +10,60 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Block\Account;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Payment\Model\CcConfigProvider;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
+use Magento\Vault\Block\AbstractCardRenderer;
 
 /**
  * Class CardRenderer
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
-class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
+class CardRenderer extends AbstractCardRenderer
 {
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var CardHandlerService
+     * $cardHandler field
+     *
+     * @var CardHandlerService $cardHandler
      */
     public $cardHandler;
 
     /**
-     * CardRenderer constructor.
+     * CardRenderer constructor
+     *
+     * @param Context            $context
+     * @param CcConfigProvider   $iconsProvider
+     * @param Config             $config
+     * @param CardHandlerService $cardHandler
+     * @param array              $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Payment\Model\CcConfigProvider $iconsProvider,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        Context $context,
+        CcConfigProvider $iconsProvider,
+        Config $config,
+        CardHandlerService $cardHandler,
         array $data
     ) {
         parent::__construct($context, $iconsProvider, $data);
 
-        $this->config = $config;
+        $this->config      = $config;
         $this->cardHandler = $cardHandler;
     }
 
@@ -74,7 +90,8 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
     /**
      * Determines if can render the given token.
      *
-     * @param  PaymentTokenInterface $token
+     * @param PaymentTokenInterface $token
+     *
      * @return boolean
      */
     public function canRender(PaymentTokenInterface $token)

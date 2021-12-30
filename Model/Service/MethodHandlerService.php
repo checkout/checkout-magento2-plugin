@@ -10,63 +10,85 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Customer\Model\Session;
+
 /**
- * Class MethodHandlerService.
+ * Class MethodHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class MethodHandlerService
 {
     /**
-     * @var Array
+     * $instances field
+     *
+     * @var array $instances
      */
     public $instances;
-
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
     public $orderHandler;
-
     /**
-     * @var Session
+     * $customerSession field
+     *
+     * @var Session $customerSession
      */
     public $customerSession;
 
     /**
-     * @param MethodHandlerService constructor
+     * MethodHandlerService constructor
+     *
+     * @param                     $instances
+     * @param OrderHandlerService $orderHandler
+     * @param Session             $customerSession
      */
     public function __construct(
         $instances,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \Magento\Customer\Model\Session $customerSession
+        OrderHandlerService $orderHandler,
+        Session $customerSession
     ) {
-        $this->instances = $instances;
-        $this->orderHandler = $orderHandler;
+        $this->instances       = $instances;
+        $this->orderHandler    = $orderHandler;
         $this->customerSession = $customerSession;
     }
 
+    /**
+     * Description get function
+     *
+     * @param $methodId
+     *
+     * @return mixed
+     */
     public function get($methodId)
     {
         return $this->instances[$methodId];
     }
 
     /**
-     * Retrieves the customers last APM payment source.
+     * Retrieves the customers last APM payment source
+     *
+     * @return null
      */
     public function getPreviousSource()
     {
         // Get the customer id (currently logged in user)
         $customerId = $this->customerSession->getCustomer()->getId();
-        
+
         if ($customerId) {
             // Find the order from increment id
             $order = $this->orderHandler->getOrder([
-                'customer_id' => $customerId
+                'customer_id' => $customerId,
             ]);
 
             if ($this->orderHandler->isOrder($order)) {
@@ -77,22 +99,24 @@ class MethodHandlerService
                 }
             }
         }
-        
+
         return null;
     }
 
     /**
-     * Retrieves the customers last used payment method.
+     * Retrieves the customers last used payment method
+     *
+     * @return null
      */
     public function getPreviousMethod()
     {
         // Get the customer id (currently logged in user)
         $customerId = $this->customerSession->getCustomer()->getId();
-        
+
         if ($customerId) {
             // Find the order from increment id
             $order = $this->orderHandler->getOrder([
-                'customer_id' => $customerId
+                'customer_id' => $customerId,
             ]);
 
             if ($this->orderHandler->isOrder($order)) {
@@ -101,7 +125,7 @@ class MethodHandlerService
                 }
             }
         }
-        
+
         return null;
     }
 }

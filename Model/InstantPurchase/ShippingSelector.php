@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -19,6 +19,9 @@ namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
 /**
  * Class ShippingSelector
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class ShippingSelector
 {
@@ -26,6 +29,7 @@ class ShippingSelector
      * Selects a shipping method.
      *
      * @param Address $address
+     *
      * @return Rate
      */
     public function getShippingMethod($address)
@@ -39,6 +43,7 @@ class ShippingSelector
         }
 
         $cheapestRate = $this->selectCheapestRate($shippingRates);
+
         return $cheapestRate->getCode();
     }
 
@@ -46,6 +51,7 @@ class ShippingSelector
      * Selects shipping price with minimal price.
      *
      * @param Rate[] $shippingRates
+     *
      * @return Rate
      */
     private function selectCheapestRate(array $shippingRates)

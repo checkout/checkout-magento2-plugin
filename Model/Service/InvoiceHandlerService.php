@@ -9,88 +9,111 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Sales\Model\Service\InvoiceService;
 
 /**
- * Class InvoiceHandlerService.
+ * Class InvoiceHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class InvoiceHandlerService
 {
     /**
-     * @var InvoiceService
+     * $invoiceService field
+     *
+     * @var InvoiceService $invoiceService
      */
     public $invoiceService;
-
     /**
-     * @var InvoiceRepositoryInterface
+     * $invoiceRepository field
+     *
+     * @var InvoiceRepositoryInterface $invoiceRepository
      */
     public $invoiceRepository;
-
     /**
-     * @var Invoice
+     * $invoiceModel field
+     *
+     * @var Invoice $invoiceModel
      */
     public $invoiceModel;
-
     /**
-     * @var Order
+     * $order field
+     *
+     * @var Order $order
      */
     public $order;
-
     /**
-     * @var Transaction
+     * $transaction field
+     *
+     * @var Transaction $transaction
      */
     public $transaction;
-
     /**
-     * @var Float
+     * $amount field
+     *
+     * @var Float $amount
      */
     public $amount;
 
     /**
-     * InvoiceHandlerService constructor.
+     * InvoiceHandlerService constructor
+     *
+     * @param InvoiceService             $invoiceService
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param Invoice                    $invoiceModel
      */
     public function __construct(
-        \Magento\Sales\Model\Service\InvoiceService $invoiceService,
-        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
-        \Magento\Sales\Model\Order\Invoice $invoiceModel
+        InvoiceService $invoiceService,
+        InvoiceRepositoryInterface $invoiceRepository,
+        Invoice $invoiceModel
     ) {
-        $this->invoiceService     = $invoiceService;
-        $this->invoiceRepository  = $invoiceRepository;
-        $this->invoiceModel       = $invoiceModel;
+        $this->invoiceService    = $invoiceService;
+        $this->invoiceRepository = $invoiceRepository;
+        $this->invoiceModel      = $invoiceModel;
     }
 
     /**
-     * Create an invoice.
+     * Create an invoice
+     *
+     * @param TransactionInterface $transaction
+     * @param float                $amount
+     *
+     * @return void
+     * @throws LocalizedException
      */
-    public function createInvoice($transaction, $amount)
+    public function createInvoice(TransactionInterface $transaction, float $amount): void
     {
-        // Set required properties
-        $this->order = $transaction->getOrder();
-        $this->transaction = $transaction;
-        $this->amount = $amount;
+        /** @var Order $order */
+        $order = $transaction->getOrder();
 
         // Prepare the invoice
-        $invoice = $this->invoiceService->prepareInvoice($this->order);
+        /** @var Invoice $invoice */
+        $invoice = $this->invoiceService->prepareInvoice($order);
 
         // Set the invoice transaction ID
-        if ($this->transaction) {
-            $invoice->setTransactionId($this->transaction->getTxnId());
-        }
+        $invoice->setTransactionId($transaction->getTxnId());
 
         // Set the invoice state
-        $invoice = $this->setInvoiceState($invoice);
+        $invoice = $this->setInvoiceState($invoice, $transaction);
 
         // Finalize the invoice
-        $invoice->setBaseGrandTotal($amount/$this->order->getBaseToOrderRate());
-        $invoice->setGrandTotal($this->amount);
+        $invoice->setBaseGrandTotal($amount / $order->getBaseToOrderRate());
+        $invoice->setGrandTotal($amount);
         $invoice->register();
 
         // Save the invoice
@@ -98,20 +121,28 @@ class InvoiceHandlerService
     }
 
     /**
-     * Check if invoicing is needed.
+     * Check if invoicing is needed
+     *
+     * @param TransactionInterface $transaction
+     *
+     * @return bool
      */
-    public function needsInvoicing()
+    public function needsInvoicing(TransactionInterface $transaction): bool
     {
-        return $this->transaction
-        && $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE;
+        return $transaction->getTxnType() === TransactionInterface::TYPE_CAPTURE;
     }
 
     /**
-     * Set the invoice state.
+     * Set the invoice state
+     *
+     * @param InvoiceInterface     $invoice
+     * @param TransactionInterface $transaction
+     *
+     * @return InvoiceInterface
      */
-    public function setInvoiceState($invoice)
+    public function setInvoiceState(InvoiceInterface $invoice, TransactionInterface $transaction): InvoiceInterface
     {
-        if ($this->needsInvoicing()) {
+        if ($this->needsInvoicing($transaction)) {
             $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
             $invoice->setState(Invoice::STATE_PAID);
             $invoice->setCanVoidFlag(false);
@@ -121,7 +152,11 @@ class InvoiceHandlerService
     }
 
     /**
-     * Load an order invoice.
+     * Load an order invoice
+     *
+     * @param $order
+     *
+     * @return Invoice|null
      */
     public function getInvoice($order)
     {
@@ -142,7 +177,11 @@ class InvoiceHandlerService
     }
 
     /**
-     * Load all order invoices.
+     * Load all order invoices
+     *
+     * @param $order
+     *
+     * @return mixed
      */
     public function getInvoices($order)
     {

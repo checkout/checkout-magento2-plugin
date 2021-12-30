@@ -10,66 +10,90 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\Payment;
 
+use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
+use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
+use Magento\Backend\Model\Session\Quote;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Payment\Block\Form\Cc;
+use Magento\Payment\Model\Config as PaymentModelConfig;
+
 /**
  * Class Moto
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
-class Moto extends \Magento\Payment\Block\Form\Cc
+class Moto extends Cc
 {
     /**
-     * @var String
+     * $_template field
+     *
+     * @var string $_template
      */
-    public $_template;
-
+    public $_template = 'CheckoutCom_Magento2::payment/moto.phtml';
     /**
-     * @var Config
+     * $paymentModelConfig field
+     *
+     * @var PaymentModelConfig $paymentModelConfig
      */
     public $paymentModelConfig;
-
     /**
-     * @var Quote
+     * $adminQuote field
+     *
+     * @var Quote $adminQuote
      */
     public $adminQuote;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var GatewayConfig $config
      */
     public $config;
-
     /**
-     * @var VaultHandlerService
+     * $vaultHandler field
+     *
+     * @var VaultHandlerService $vaultHandler
      */
     public $vaultHandler;
-
     /**
-     * @var CardHandlerService
+     * $cardHandler field
+     *
+     * @var CardHandlerService $cardHandler
      */
     public $cardHandler;
 
     /**
-     * Moto constructor.
+     * Moto constructor
+     *
+     * @param Context             $context
+     * @param PaymentModelConfig  $paymentModelConfig
+     * @param Quote               $adminQuote
+     * @param GatewayConfig       $config
+     * @param VaultHandlerService $vaultHandler
+     * @param CardHandlerService  $cardHandler
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Payment\Model\Config $paymentModelConfig,
-        \Magento\Backend\Model\Session\Quote $adminQuote,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler
+        Context $context,
+        PaymentModelConfig $paymentModelConfig,
+        Quote $adminQuote,
+        GatewayConfig $config,
+        VaultHandlerService $vaultHandler,
+        CardHandlerService $cardHandler
     ) {
         parent::__construct($context, $paymentModelConfig);
 
-        $this->_template = 'CheckoutCom_Magento2::payment/moto.phtml';
-        $this->adminQuote = $adminQuote;
-        $this->config = $config;
+        $this->adminQuote   = $adminQuote;
+        $this->config       = $config;
         $this->vaultHandler = $vaultHandler;
-        $this->cardHandler = $cardHandler;
+        $this->cardHandler  = $cardHandler;
     }
 
     /**
@@ -80,6 +104,7 @@ class Moto extends \Magento\Payment\Block\Form\Cc
     public function _toHtml()
     {
         $this->_eventManager->dispatch('payment_form_block_to_html_before', ['block' => $this]);
+
         return parent::_toHtml();
     }
 
@@ -94,15 +119,16 @@ class Moto extends \Magento\Payment\Block\Form\Cc
         $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();
 
         // Return the check result
-        return $this->config->getValue('saved_cards_enabled', 'checkoutcom_moto')
-        && $this->config->getValue('active', 'checkoutcom_moto')
-        && $this->vaultHandler->userHasCards($customerId);
+        return $this->config->getValue('saved_cards_enabled', 'checkoutcom_moto') && $this->config->getValue(
+                'active',
+                'checkoutcom_moto'
+            ) && $this->vaultHandler->userHasCards($customerId);
     }
 
     /**
-     * Get the saved cards for a customer.
+     * Description getUserCards function
      *
-     * @return bool
+     * @return array
      */
     public function getUserCards()
     {

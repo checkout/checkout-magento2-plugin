@@ -10,61 +10,90 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\Logs;
 
-class View extends \Magento\Framework\View\Element\Template
+use LimitIterator;
+use Magento\Framework\Phrase;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context;
+use SplFileObject;
+
+/**
+ * Class View
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
+class View extends Template
 {
     /**
-     * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param array $data
+     * View constructor
+     *
+     * @param Context $context
+     * @param array   $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
+        Context $context,
         array $data = []
-    )
-    {
+    ) {
         parent::__construct($context, $data);
     }
 
+    /**
+     * Description getLogFile function
+     *
+     * @return string
+     */
     public function getLogFile()
     {
         $file = BP . '/var/log/' . $this->_request->getParam('file');
         if (is_file($file)) {
-            $file = new \SplFileObject($file, 'r');
+            $file = new SplFileObject($file, 'r');
             $file->seek(PHP_INT_MAX);
             $last_line = $file->key();
             if ($last_line) {
                 // Get the last 5000 lines of the log file for the preview
-                $lines = new \LimitIterator(
-                    $file,
-                    ($last_line - 5000) > 0 ? $last_line - 5000 : 0,
-                    $last_line
+                $lines = new LimitIterator(
+                    $file, ($last_line - 5000) > 0 ? $last_line - 5000 : 0, $last_line
                 );
-                return implode('',iterator_to_array($lines));
+
+                return implode('', iterator_to_array($lines));
             }
         }
+
         return '';
     }
-    
+
+    /**
+     * Description getSizeMessage function
+     *
+     * @return false|Phrase
+     */
     public function getSizeMessage()
     {
         $file = BP . '/var/log/' . $this->_request->getParam('file');
         if (is_file($file)) {
-            $file = new \SplFileObject($file, 'r');
+            $file = new SplFileObject($file, 'r');
             $file->seek(PHP_INT_MAX);
             $last_line = $file->key();
             if ($last_line > 5000) {
                 return __('The log file is too large to display in full. This preview displays the last 5000 lines');
             }
         }
+
         return false;
     }
 
+    /**
+     * Description getFileName function
+     *
+     * @return mixed
+     */
     public function getFileName()
     {
         return $this->_request->getParam('file');

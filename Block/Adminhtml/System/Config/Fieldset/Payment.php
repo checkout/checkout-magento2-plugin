@@ -9,41 +9,58 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Fieldset;
 
+use CheckoutCom\Magento2\Model\Service\VersionHandlerService;
+use Magento\Backend\Block\Context;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Config\Block\System\Config\Form\Fieldset;
+use Magento\Config\Model\Config;
+use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Framework\View\Helper\Js;
+
 /**
- * Fieldset renderer
+ * Class Payment
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
-class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
+class Payment extends Fieldset
 {
     /**
-     * @var \Magento\Config\Model\Config
+     * $_backendConfig field
+     *
+     * @var Config $_backendConfig
      */
     public $_backendConfig;
-
     /**
-     * @var \CheckoutCom\Magento2\Model\Service\VersionHandlerService
+     * $versionHandler field
+     *
+     * @var VersionHandlerService $versionHandler
      */
     public $versionHandler;
 
     /**
-     * @param \Magento\Backend\Block\Context $context
-     * @param \Magento\Backend\Model\Auth\Session $authSession
-     * @param \Magento\Framework\View\Helper\Js $jsHelper
-     * @param \Magento\Config\Model\Config $backendConfig
-     * @param array $data
+     * Payment constructor
+     *
+     * @param Context               $context
+     * @param Session               $authSession
+     * @param Js                    $jsHelper
+     * @param Config                $backendConfig
+     * @param VersionHandlerService $versionHandler
+     * @param array                 $data
      */
     public function __construct(
-        \Magento\Backend\Block\Context $context,
-        \Magento\Backend\Model\Auth\Session $authSession,
-        \Magento\Framework\View\Helper\Js $jsHelper,
-        \Magento\Config\Model\Config $backendConfig,
-        \CheckoutCom\Magento2\Model\Service\VersionHandlerService $versionHandler,
+        Context $context,
+        Session $authSession,
+        Js $jsHelper,
+        Config $backendConfig,
+        VersionHandlerService $versionHandler,
         array $data = []
     ) {
         $this->_backendConfig = $backendConfig;
@@ -54,24 +71,27 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     /**
      * Add custom css class
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
      */
     public function _getFrontendClass($element)
     {
         $enabledString = $this->_isPaymentEnabled($element) ? ' enabled' : '';
+
         return parent::_getFrontendClass($element) . ' with-button' . $enabledString;
     }
 
     /**
      * Check whether current payment method is enabled
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return bool
      */
     public function _isPaymentEnabled($element)
     {
-        $groupConfig = $element->getGroup();
+        $groupConfig   = $element->getGroup();
         $activityPaths = isset($groupConfig['activity_path']) ? $groupConfig['activity_path'] : [];
 
         if (!is_array($activityPaths)) {
@@ -80,8 +100,9 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
 
         $isPaymentEnabled = false;
         foreach ($activityPaths as $activityPath) {
-            $isPaymentEnabled = $isPaymentEnabled
-                || (bool)(string)$this->_backendConfig->getConfigDataValue($activityPath);
+            $isPaymentEnabled = $isPaymentEnabled || (bool)(string)$this->_backendConfig->getConfigDataValue(
+                    $activityPath
+                );
         }
 
         return $isPaymentEnabled;
@@ -90,7 +111,8 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     /**
      * Return header title part of html for payment solution
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
@@ -149,7 +171,8 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     /**
      * Return header comment part of html for payment solution
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -161,7 +184,8 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     /**
      * Get collapsed state on-load
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return false
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -171,7 +195,8 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

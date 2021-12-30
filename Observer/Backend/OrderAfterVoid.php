@@ -9,78 +9,109 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Observer\Backend;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 
 /**
- * Class OrderAfterVoid.
+ * Class OrderAfterVoid
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
-class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
+class OrderAfterVoid implements ObserverInterface
 {
     /**
-     * @var Session
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
      */
     public $backendAuthSession;
-
     /**
-     * @var RequestInterface
+     * $request field
+     *
+     * @var RequestInterface $request
      */
     public $request;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var OrderManagementInterface
+     * $orderManagement field
+     *
+     * @var OrderManagementInterface $orderManagement
      */
     public $orderManagement;
-
     /**
-     * @var Order
+     * $orderModel field
+     *
+     * @var Order $orderModel
      */
     public $orderModel;
-
     /**
-     * @var Array
+     * $orderStatusHistoryRepository field
+     *
+     * @var OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
-    public $params;
+    private $orderStatusHistoryRepository;
 
     /**
-     * OrderSaveBefore constructor.
+     * OrderAfterVoid constructor
+     *
+     * @param Session                               $backendAuthSession
+     * @param RequestInterface                      $request
+     * @param Config                                $config
+     * @param OrderManagementInterface              $orderManagement
+     * @param Order                                 $orderModel
+     * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Framework\App\RequestInterface $request,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \Magento\Sales\Api\OrderManagementInterface $orderManagement,
-        \Magento\Sales\Model\Order $orderModel
+        Session $backendAuthSession,
+        RequestInterface $request,
+        Config $config,
+        OrderManagementInterface $orderManagement,
+        Order $orderModel,
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
-        $this->backendAuthSession = $backendAuthSession;
-        $this->request = $request;
-        $this->config = $config;
-        $this->orderManagement = $orderManagement;
-        $this->orderModel = $orderModel;
+        $this->backendAuthSession           = $backendAuthSession;
+        $this->request                      = $request;
+        $this->config                       = $config;
+        $this->orderManagement              = $orderManagement;
+        $this->orderModel                   = $orderModel;
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
-     * Run the observer.
+     * Run the observer
+     *
+     * @param Observer $observer
+     *
+     * @return OrderAfterVoid|void
+     * @throws LocalizedException
      */
     public function execute(Observer $observer)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
-            // Get the request parameters
-            $this->params = $this->request->getParams();
-
-            $payment = $observer->getEvent()->getPayment();
-            $order = $payment->getOrder();
+            /** @var Payment $payment */
+            $payment  = $observer->getEvent()->getPayment();
+            $order    = $payment->getOrder();
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
             // Check if payment method is checkout.com
@@ -90,24 +121,24 @@ class OrderAfterVoid implements \Magento\Framework\Event\ObserverInterface
 
                 // Get the latest order status comment
                 $orderComments = $order->getStatusHistories();
-                $orderComment = array_pop($orderComments);
-                $comment = __('The voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
+                $orderComment  = array_pop($orderComments);
+                $comment       = __('The voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
 
                 // Update the order history comment
-                $orderComment->setData('status', $this->config->getValue('order_status_voided'))->save();
-                $orderComment->setData('comment', $comment)->save();
+                $orderComment->setData('status', $this->config->getValue('order_status_voided'));
+                $orderComment->setData('comment', $comment);
+                $this->orderStatusHistoryRepository->save($orderComment);
 
-                if ($this->config->getValue('order_status_voided') == 'canceled') {
+                if ($this->config->getValue('order_status_voided') === 'canceled') {
                     // Cancel the order if void order status has been set to canceled
                     $this->orderManagement->cancel($order->getId());
                 } else {
                     // Order state needs to be set to new so that offline transactions update the order status
-                    $order->setState($this->orderModel::STATE_NEW);
+                    $order->setState(Order::STATE_NEW);
                 }
             }
 
             return $this;
         }
     }
-
 }

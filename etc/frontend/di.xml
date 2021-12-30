@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+
 <!--
 /**
  * Checkout.com Magento 2 Magento2 Payment.
@@ -61,10 +62,5 @@
                 </item>
             </argument>
         </arguments>
-    </type>
-
-    <!-- CSRF bypass from 2.3.x series -->
-    <type name="Magento\Framework\App\Request\CsrfValidator">
-        <plugin name="cko_csrf_validator_skip" type="CheckoutCom\Magento2\Plugin\Frontend\CsrfValidatorSkip" />
     </type>
 </config>

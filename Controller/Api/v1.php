@@ -9,100 +9,149 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Controller\Api;
 
-use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Exception;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class V1
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
-class V1 extends \Magento\Framework\App\Action\Action
+class V1 extends Action
 {
     /**
-     * @var JsonFactory
+     * $jsonFactory field
+     *
+     * @var JsonFactory $jsonFactory
      */
     public $jsonFactory;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var QuoteHandlerService
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
     public $quoteHandler;
-
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
     public $orderHandler;
-
     /**
-     * @var MethodHandlerService
+     * $methodHandler field
+     *
+     * @var MethodHandlerService $methodHandler
      */
     public $methodHandler;
-
     /**
-     * @var ApiHandlerService
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
     public $apiHandler;
-
     /**
-     * @var Utilities
+     * $utilities field
+     *
+     * @var Utilities $utilities
      */
     public $utilities;
-
     /**
-     * @var Array
+     * $data field
+     *
+     * @var array $data
      */
     public $data;
+    /**
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
+     */
+    private $orderRepository;
 
     /**
      * Callback constructor
+     *
+     * @param Context                  $context
+     * @param JsonFactory              $jsonFactory
+     * @param Config                   $config
+     * @param StoreManagerInterface    $storeManager
+     * @param QuoteHandlerService      $quoteHandler
+     * @param OrderHandlerService      $orderHandler
+     * @param MethodHandlerService     $methodHandler
+     * @param ApiHandlerService        $apiHandler
+     * @param Utilities                $utilities
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities
+        Context $context,
+        JsonFactory $jsonFactory,
+        Config $config,
+        StoreManagerInterface $storeManager,
+        QuoteHandlerService $quoteHandler,
+        OrderHandlerService $orderHandler,
+        MethodHandlerService $methodHandler,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
+        OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
-        $this->jsonFactory = $jsonFactory;
-        $this->config = $config;
-        $this->storeManager = $storeManager;
-        $this->quoteHandler = $quoteHandler;
-        $this->orderHandler = $orderHandler;
-        $this->methodHandler = $methodHandler;
-        $this->apiHandler = $apiHandler;
-        $this->utilities = $utilities;
+        $this->jsonFactory     = $jsonFactory;
+        $this->config          = $config;
+        $this->storeManager    = $storeManager;
+        $this->quoteHandler    = $quoteHandler;
+        $this->orderHandler    = $orderHandler;
+        $this->methodHandler   = $methodHandler;
+        $this->apiHandler      = $apiHandler;
+        $this->utilities       = $utilities;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
-     * Handles the controller method.
+     * Handles the controller method
+     *
+     * @return Json
      */
     public function execute()
     {
         try {
             // Set the response parameters
-            $success = false;
-            $orderId = 0;
+            $success      = false;
+            $orderId      = 0;
             $errorMessage = '';
 
             // Get the request parameters
@@ -114,9 +163,7 @@ class V1 extends \Magento\Framework\App\Action\Action
                 $quote = $this->loadQuote();
 
                 // Create an order
-                $order = $this->orderHandler
-                    ->setMethodId('checkoutcom_card_payment')
-                    ->handleOrder($quote);
+                $order = $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote);
 
                 // Process the payment
                 if ($this->orderHandler->isOrder($order)) {
@@ -136,7 +183,7 @@ class V1 extends \Magento\Framework\App\Action\Action
                         $order = $this->utilities->setPaymentData($order, $response);
 
                         // Save the order
-                        $order->save();
+                        $this->orderRepository->save($order);
 
                         // Update the response parameters
                         $success = $response->isSuccessful();
@@ -150,28 +197,30 @@ class V1 extends \Magento\Framework\App\Action\Action
             } else {
                 $errorMessage = __('The request is invalid.');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $errorMessage = $e->getMessage();
         } finally {
             // Return the json response
             return $this->jsonFactory->create()->setData([
-                'success' => $success,
-                'order_id' => $orderId,
-                'error_message' => $errorMessage
+                'success'       => $success,
+                'order_id'      => $orderId,
+                'error_message' => $errorMessage,
             ]);
         }
     }
 
     /**
-     * Request payment to API handler.
+     * Request payment to API handler
      *
-     * @return Response
+     * @param $order
+     *
+     * @return mixed
      */
-    public function requestPayment($order)
+    protected function requestPayment($order)
     {
         // Prepare the payment request payload
         $payload = [
-            'cardToken' => $this->data->payment_token
+            'cardToken' => $this->data->payment_token,
         ];
 
         if (isset($this->data->card_bin)) {
@@ -179,9 +228,7 @@ class V1 extends \Magento\Framework\App\Action\Action
         }
 
         // Send the charge request
-        return $this->methodHandler
-        ->get('checkoutcom_card_payment')
-        ->sendPaymentRequest(
+        return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
             $payload,
             $order->getGrandTotal(),
             $order->getOrderCurrencyCode(),
@@ -190,9 +237,12 @@ class V1 extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Load the quote.
+     * Load the quote
+     *
+     * @return DataObject|CartInterface|Quote
+     * @throws LocalizedException
      */
-    public function loadQuote()
+    protected function loadQuote()
     {
         if (!isset($this->data->quote_id)) {
             $this->data->quote_id = $this->data['quote_id'];
@@ -200,7 +250,7 @@ class V1 extends \Magento\Framework\App\Action\Action
 
         // Load the quote
         $quote = $this->quoteHandler->getQuote([
-            'entity_id' => $this->data->quote_id
+            'entity_id' => $this->data->quote_id,
         ]);
 
         // Handle a quote not found
@@ -214,21 +264,26 @@ class V1 extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Check if the request is valid.
+     * Check if the request is valid
+     *
+     * @return bool
+     * @throws LocalizedException
      */
-    public function isValidRequest()
+    protected function isValidRequest()
     {
-        return $this->config->isValidAuth('pk')
-        && $this->dataIsValid();
+        return $this->config->isValidAuth('pk') && $this->dataIsValid();
     }
 
     /**
-     * Check if the data is valid.
+     * Check if the data is valid
+     *
+     * @return bool
+     * @throws LocalizedException
      */
-    public function dataIsValid()
+    protected function dataIsValid()
     {
         // Check the quote ID
-        if ((!isset($this->data->quote_id) && !isset($this->data['quote_id'])) || (int) $this->data->quote_id == 0) {
+        if ((!isset($this->data->quote_id) && !isset($this->data['quote_id'])) || (int)$this->data->quote_id == 0) {
             throw new LocalizedException(
                 __('The quote ID is missing or invalid.')
             );

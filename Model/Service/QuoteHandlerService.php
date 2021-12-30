@@ -10,107 +10,152 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Checkout\Model\Session;
 use Magento\Customer\Api\Data\GroupInterface;
+use Magento\Framework\DataObject;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Stdlib\Cookie\FailureToSendException;
+use Magento\Framework\Stdlib\CookieManagerInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteFactory;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Class QuoteHandlerService.
+ * Class QuoteHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class QuoteHandlerService
 {
     /**
-     * @var Session
+     * $checkoutSession field
+     *
+     * @var Session $checkoutSession
      */
     public $checkoutSession;
-
     /**
-     * @var Session
+     * $customerSession field
+     *
+     * @var Session $customerSession
      */
     public $customerSession;
-
     /**
-     * @var CookieManagerInterface
+     * $cookieManager field
+     *
+     * @var CookieManagerInterface $cookieManager
      */
     public $cookieManager;
-
     /**
-     * @var QuoteFactory
+     * $quoteFactory field
+     *
+     * @var QuoteFactory $quoteFactory
      */
     public $quoteFactory;
-
     /**
-     * @var CartRepositoryInterface
+     * $cartRepository field
+     *
+     * @var CartRepositoryInterface $cartRepository
      */
     public $cartRepository;
-
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var ProductRepositoryInterface
+     * $productRepository field
+     *
+     * @var ProductRepositoryInterface $productRepository
      */
     public $productRepository;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var ShopperHandlerService
+     * $shopperHandler field
+     *
+     * @var ShopperHandlerService $shopperHandler
      */
     public $shopperHandler;
-
     /**
-     * @var Logger
+     * $logger field
+     *
+     * @var Logger $logger
      */
     public $logger;
 
     /**
      * QuoteHandlerService constructor
+     *
+     * @param Session                         $checkoutSession
+     * @param \Magento\Customer\Model\Session $customerSession
+     * @param CookieManagerInterface          $cookieManager
+     * @param QuoteFactory                    $quoteFactory
+     * @param CartRepositoryInterface         $cartRepository
+     * @param StoreManagerInterface           $storeManager
+     * @param ProductRepositoryInterface      $productRepository
+     * @param Config                          $config
+     * @param ShopperHandlerService           $shopperHandler
+     * @param Logger                          $logger
      */
     public function __construct(
-        \Magento\Checkout\Model\Session $checkoutSession,
+        Session $checkoutSession,
         \Magento\Customer\Model\Session $customerSession,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
-        \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ShopperHandlerService $shopperHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        CookieManagerInterface $cookieManager,
+        QuoteFactory $quoteFactory,
+        CartRepositoryInterface $cartRepository,
+        StoreManagerInterface $storeManager,
+        ProductRepositoryInterface $productRepository,
+        Config $config,
+        ShopperHandlerService $shopperHandler,
+        Logger $logger
     ) {
-        $this->checkoutSession = $checkoutSession;
-        $this->customerSession = $customerSession;
-        $this->cookieManager = $cookieManager;
-        $this->quoteFactory = $quoteFactory;
-        $this->cartRepository = $cartRepository;
-        $this->storeManager = $storeManager;
+        $this->checkoutSession   = $checkoutSession;
+        $this->customerSession   = $customerSession;
+        $this->cookieManager     = $cookieManager;
+        $this->quoteFactory      = $quoteFactory;
+        $this->cartRepository    = $cartRepository;
+        $this->storeManager      = $storeManager;
         $this->productRepository = $productRepository;
-        $this->config = $config;
-        $this->shopperHandler = $shopperHandler;
-        $this->logger = $logger;
+        $this->config            = $config;
+        $this->shopperHandler    = $shopperHandler;
+        $this->logger            = $logger;
     }
 
     /**
      * Find a quote
+     *
+     * @param array $fields
+     *
+     * @return DataObject|CartInterface|Quote
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function getQuote($fields = [])
     {
         if (!empty($fields)) {
             // Get the quote factory
-            $quoteFactory = $this->quoteFactory
-                ->create()
-                ->getCollection();
+            $quoteFactory = $this->quoteFactory->create()->getCollection();
 
             // Add search filters
             foreach ($fields as $key => $value) {
@@ -126,12 +171,18 @@ class QuoteHandlerService
             // Try to find the quote in session
             $quote = $this->checkoutSession->getQuote();
         }
-        
+
         return $quote;
     }
 
     /**
      * Create a new quote
+     *
+     * @param null $currency
+     * @param null $customer
+     *
+     * @return Quote
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function createQuote($currency = null, $customer = null)
     {
@@ -158,27 +209,39 @@ class QuoteHandlerService
 
     /**
      * Checks if a quote exists and is valid
+     *
+     * @param mixed $quote
+     *
+     * @return bool
      */
     public function isQuote($quote)
     {
-        return $quote
-        && is_object($quote)
-        && method_exists($quote, 'getId')
-        && $quote->getId() > 0;
+        return $quote instanceof Quote && $quote->getId() > 0;
     }
 
     /**
      * Get the order increment id from a quote
+     *
+     * @param $quote
+     *
+     * @return mixed
      */
     public function getReference($quote)
     {
-        return $quote->reserveOrderId()
-            ->save()
-            ->getReservedOrderId();
+        $this->cartRepository->save($quote->reserveOrderId());
+
+        return $quote->getReservedOrderId();
     }
 
     /**
      * Prepares a quote for order placement
+     *
+     * @param      $methodId
+     * @param null $quote
+     *
+     * @return DataObject|CartInterface|Quote|mixed|null
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function prepareQuote($methodId, $quote = null)
     {
@@ -208,6 +271,13 @@ class QuoteHandlerService
 
     /**
      * Sets the email for guest users
+     *
+     * @param      $quote
+     * @param null $email
+     *
+     * @return mixed
+     * @throws InputException
+     * @throws FailureToSendException
      */
     public function prepareGuestQuote($quote, $email = null)
     {
@@ -215,10 +285,9 @@ class QuoteHandlerService
         $guestEmail = ($email) ? $email : $this->findEmail($quote);
 
         // Set the quote as guest
-        $quote->setCustomerId(null)
-            ->setCustomerEmail($guestEmail)
-            ->setCustomerIsGuest(true)
-            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
+        $quote->setCustomerId(null)->setCustomerEmail($guestEmail)->setCustomerIsGuest(true)->setCustomerGroupId(
+            GroupInterface::NOT_LOGGED_IN_ID
+        );
 
         // Delete the cookie
         $this->cookieManager->deleteCookie(
@@ -230,6 +299,10 @@ class QuoteHandlerService
 
     /**
      * Find a customer email
+     *
+     * @param $quote
+     *
+     * @return mixed|null
      */
     public function findEmail($quote)
     {
@@ -239,7 +312,7 @@ class QuoteHandlerService
             $quote->getBillingAddress()->getEmail(),
             $this->cookieManager->getCookie(
                 $this->config->getValue('email_cookie_name')
-            )
+            ),
         ];
 
         // Return the first available value
@@ -254,31 +327,50 @@ class QuoteHandlerService
 
     /**
      * Gets an array of quote parameters
+     *
+     * @return array
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function getQuoteData()
     {
         $data = [
-            'value' => $this->getQuoteValue(),
-            'currency' => $this->getQuoteCurrency()
+            'value'    => $this->getQuoteValue(),
+            'currency' => $this->getQuoteCurrency(),
         ];
-        
-        $this->logger->additional($data,'quote');
+
+        $this->logger->additional($data, 'quote');
+
         return $data;
     }
 
     /**
      * Gets a quote currency
+     *
+     * @param null $quote
+     *
+     * @return string
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function getQuoteCurrency($quote = null)
     {
-        $quote = ($quote) ? $quote : $this->getQuote();
+        $quote             = ($quote) ? $quote : $this->getQuote();
         $quoteCurrencyCode = $quote->getQuoteCurrencyCode();
         $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+
         return ($quoteCurrencyCode) ? $quoteCurrencyCode : $storeCurrencyCode;
     }
 
     /**
-     * Convert a quote amount to integer value for the gateway request.
+     * Convert a quote amount to integer value for the gateway request
+     *
+     * @param $amount
+     * @param $quote
+     *
+     * @return float|int|mixed
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function amountToGateway($amount, $quote)
     {
@@ -301,14 +393,18 @@ class QuoteHandlerService
         if (in_array($currency, $currenciesX1)) {
             return $amount;
         } elseif (in_array($currency, $currenciesX1000)) {
-            return $amount*1000;
+            return $amount * 1000;
         } else {
-            return $amount*100;
+            return $amount * 100;
         }
     }
 
     /**
      * Gets a quote value
+     *
+     * @return float
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function getQuoteValue()
     {
@@ -317,6 +413,10 @@ class QuoteHandlerService
 
     /**
      * Saves the quote. This is needed
+     *
+     * @return void
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function saveQuote()
     {
@@ -325,22 +425,27 @@ class QuoteHandlerService
 
     /**
      * Add product items to a quote
+     *
+     * @param $quote
+     * @param $data
+     *
+     * @return mixed
+     * @throws NoSuchEntityException
      */
     public function addItems($quote, $data)
     {
         $items = $this->buildProductData($data);
         foreach ($items as $item) {
-            if (isset($item['product_id']) && (int) $item['product_id'] > 0) {
+            if (isset($item['product_id']) && (int)$item['product_id'] > 0) {
                 // Load the product
                 $product = $this->productRepository->getById($item['product_id']);
 
                 // Get the quantity
-                $quantity = isset($item['qty']) && (int) $item['qty'] > 0
-                ? $item['qty'] : 1;
+                $quantity = isset($item['qty']) && (int)$item['qty'] > 0 ? $item['qty'] : 1;
 
                 // Add the item
                 if (!empty($item['super_attribute'])) {
-                    $buyRequest = new \Magento\Framework\DataObject($item);
+                    $buyRequest = new DataObject($item);
                     $quote->addProduct($product, $buyRequest);
                 } else {
                     $quote->addProduct($product, $quantity);
@@ -354,14 +459,16 @@ class QuoteHandlerService
     /**
      * Creates a formatted array with the purchased product data.
      *
-     * @return array
+     * @param $data
+     *
+     * @return array[]
      */
     public function buildProductData($data)
     {
         // Prepare the base array
-        $output =[
+        $output = [
             'product_id' => $data['product'],
-            'qty' => $data['qty']
+            'qty'        => $data['qty'],
         ];
 
         // Add product variations
@@ -372,36 +479,43 @@ class QuoteHandlerService
         return [$output];
     }
 
-    /* Gets the billing address.
+    /**
+     * Gets the billing address.
      *
-     * @return     Address  The billing address.
+     * @return AddressInterface|Quote\Address|null
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function getBillingAddress()
     {
         return $this->getQuote()->getBillingAddress();
     }
 
-    /* Gets quote data for a payment request.
+    /**
+     * Gets quote data for a payment request
+     *
+     * @param $quote
      *
      * @return array
      */
     public function getQuoteRequestData($quote)
     {
         $data = [
-            'quote_id' => $quote->getId(),
-            'store_id' => $quote->getStoreId(),
-            'customer_email' => $quote->getCustomerEmail()
+            'quote_id'       => $quote->getId(),
+            'store_id'       => $quote->getStoreId(),
+            'customer_email' => $quote->getCustomerEmail(),
         ];
 
-        $this->logger->additional($data,'quote');
+        $this->logger->additional($data, 'quote');
+
         return $data;
     }
 
     /**
-     * Prepares the quote filters.
+     *  Prepares the quote filters
      *
-     * @param array $paymentDetails
-     * @param string $reservedIncrementId
+     * @param $paymentDetails
+     * @param $reservedIncrementId
      *
      * @return array
      */
@@ -411,10 +525,10 @@ class QuoteHandlerService
         $filters = ['increment_id' => $reservedIncrementId];
 
         // Retrieve the quote metadata
-        $quoteData = isset($paymentDetails->metadata['quoteData'])
-        && !empty($paymentDetails->metadata['quoteData'])
-        ? json_decode($paymentDetails->metadata['quoteData'], true)
-        : [];
+        $quoteData = isset($paymentDetails->metadata['quoteData']) && !empty($paymentDetails->metadata['quoteData']) ? json_decode(
+            $paymentDetails->metadata['quoteData'],
+            true
+        ) : [];
 
         return array_merge($filters, $quoteData);
     }

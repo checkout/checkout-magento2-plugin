@@ -9,7 +9,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -23,117 +23,148 @@ use Checkout\Models\Payments\Payment;
 use Checkout\Models\Payments\Risk;
 use Checkout\Models\Payments\ThreeDs;
 use Checkout\Models\Payments\TokenSource;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
+use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Sales\Model\Order;
 
 /**
- * Class MotoPaymentRequest.
+ * Class MotoPaymentRequest
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
-class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
+class MotoPaymentRequest implements ObserverInterface
 {
     /**
-     * @var Session
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
      */
     public $backendAuthSession;
-
     /**
-     * @var RequestInterface
+     * $request field
+     *
+     * @var RequestInterface $request
      */
     public $request;
-
     /**
-     * @var ManagerInterface
+     * $messageManager field
+     *
+     * @var ManagerInterface $messageManager
      */
     public $messageManager;
-
     /**
-     * @var ApiHandlerService
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
     public $apiHandler;
-
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
     public $orderHandler;
-
     /**
-     * @var VaultHandlerService
+     * $vaultHandler field
+     *
+     * @var VaultHandlerService $vaultHandler
      */
     public $vaultHandler;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var Utilities
+     * $utilities field
+     *
+     * @var Utilities $utilities
      */
     public $utilities;
-
     /**
-     * @var Logger
+     * $logger field
+     *
+     * @var Logger $logger
      */
     public $logger;
 
     /**
-     * @var Array
-     */
-    public $params;
-
-    /**
-     * @var Order
-     */
-    public $order;
-
-    /**
-     * @var String
-     */
-    public $methodId;
-
-    /**
-     * OrderSaveBefore constructor.
+     * MotoPaymentRequest constructor
+     *
+     * @param Session             $backendAuthSession
+     * @param RequestInterface    $request
+     * @param ManagerInterface    $messageManager
+     * @param ApiHandlerService   $apiHandler
+     * @param OrderHandlerService $orderHandler
+     * @param VaultHandlerService $vaultHandler
+     * @param Config              $config
+     * @param Utilities           $utilities
+     * @param Logger              $logger
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Framework\App\RequestInterface $request,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        Session $backendAuthSession,
+        RequestInterface $request,
+        ManagerInterface $messageManager,
+        ApiHandlerService $apiHandler,
+        OrderHandlerService $orderHandler,
+        VaultHandlerService $vaultHandler,
+        Config $config,
+        Utilities $utilities,
+        Logger $logger
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->request = $request;
-        $this->messageManager = $messageManager;
-        $this->apiHandler = $apiHandler;
-        $this->orderHandler = $orderHandler;
-        $this->vaultHandler = $vaultHandler;
-        $this->config = $config;
-        $this->utilities = $utilities;
-        $this->logger = $logger;
+        $this->request            = $request;
+        $this->messageManager     = $messageManager;
+        $this->apiHandler         = $apiHandler;
+        $this->orderHandler       = $orderHandler;
+        $this->vaultHandler       = $vaultHandler;
+        $this->config             = $config;
+        $this->utilities          = $utilities;
+        $this->logger             = $logger;
     }
 
     /**
-     * Run the observer.
+     * Run the observer
+     *
+     * @param Observer $observer
+     *
+     * @return MotoPaymentRequest
+     * @throws FileSystemException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function execute(Observer $observer)
     {
         // Get the request parameters
-        $this->params = $this->request->getParams();
+        /** @var mixed[] $params */
+        $params = $this->request->getParams();
 
         // Get the order
-        $this->order = $observer->getEvent()->getOrder();
+        /** @var Order $order */
+        $order = $observer->getEvent()->getOrder();
 
         // Get the method id
-        $this->methodId = $this->order->getPayment()->getMethodInstance()->getCode();
+        $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
         // Get the store code
-        $storeCode = $this->order->getStore()->getCode();
+        $storeCode = $order->getStore()->getCode();
 
         // Process the payment
-        if ($this->needsMotoProcessing()) {
+        if ($this->needsMotoProcessing($methodId, $params)) {
             // Prepare the response container
             $response = null;
 
@@ -141,51 +172,48 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
             $api = $this->apiHandler->init($storeCode);
 
             // Set the source
-            $source = $this->getSource();
+            $source = $this->getSource($order, $params);
 
             // Set the payment
             $request = new Payment(
-                $source,
-                $this->order->getOrderCurrencyCode()
+                $source, $order->getOrderCurrencyCode()
             );
 
             // Prepare the metadata array
             $request->metadata = array_merge(
-                ['methodId' => $this->methodId],
+                ['methodId' => $methodId],
                 $this->apiHandler->getBaseMetadata()
             );
 
             // Prepare the capture setting
-            $needsAutoCapture = $this->config->needsAutoCapture($this->methodId);
+            $needsAutoCapture = $this->config->needsAutoCapture($methodId);
             $request->capture = $needsAutoCapture;
             if ($needsAutoCapture) {
-                $request->capture_on = $this->config->getCaptureTime($this->methodId);
+                $request->capture_on = $this->config->getCaptureTime($methodId);
             }
 
             // Set the request parameters
-            $request->capture = $this->config->needsAutoCapture($this->methodId);
-            $request->amount = $this->prepareMotoAmount();
-            $request->reference = $this->order->getIncrementId();
+            $request->capture      = $this->config->needsAutoCapture($methodId);
+            $request->amount       = $this->prepareMotoAmount($order);
+            $request->reference    = $order->getIncrementId();
             $request->payment_type = 'MOTO';
-            if ($this->order->getIsNotVirtual()) {
-                $request->shipping = $api->createShippingAddress($this->order);
+            if ($order->getIsNotVirtual()) {
+                $request->shipping = $api->createShippingAddress($order);
             }
             $request->threeDs = new ThreeDs(false);
-            $request->risk = new Risk($this->config->needsRiskRules($this->methodId));
+            $request->risk    = new Risk($this->config->needsRiskRules($methodId));
             $request->setIdempotencyKey(bin2hex(random_bytes(16)));
 
             // Billing descriptor
             if ($this->config->needsDynamicDescriptor()) {
                 $request->billing_descriptor = new BillingDescriptor(
-                    $this->config->getValue('descriptor_name'),
-                    $this->config->getValue('descriptor_city')
+                    $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city')
                 );
             }
 
             // Send the charge request
             try {
-                $response = $api->checkoutApi
-                    ->payments()->request($request);
+                $response = $api->checkoutApi->payments()->request($request);
             } catch (CheckoutHttpException $e) {
                 $this->logger->write($e->getBody());
             } finally {
@@ -194,7 +222,7 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
 
                 // Add the response to the order
                 if ($api->isValidResponse($response)) {
-                    $this->utilities->setPaymentData($this->order, $response);
+                    $this->utilities->setPaymentData($order, $response);
                     $this->messageManager->addSuccessMessage(
                         __('The payment request was successfully processed.')
                     );
@@ -210,57 +238,74 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * Checks if the MOTO logic should be triggered.
+     * Checks if the MOTO logic should be triggered
+     *
+     * @param string  $methodId
+     * @param mixed[] $params
+     *
+     * @return bool
      */
-    public function needsMotoProcessing()
+    protected function needsMotoProcessing(string $methodId, array $params): bool
     {
-        return $this->backendAuthSession->isLoggedIn()
-        && isset($this->params['ckoCardToken'])
-        && $this->methodId == 'checkoutcom_moto';
+        return $this->backendAuthSession->isLoggedIn(
+            ) && isset($params['ckoCardToken']) && $methodId === 'checkoutcom_moto';
     }
 
     /**
-     * Prepare the payment amount for the MOTO payment request.
+     * Prepare the payment amount for the MOTO payment request
+     *
+     * @param Order $order
+     *
+     * @return float|int|mixed
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function prepareMotoAmount()
+    protected function prepareMotoAmount(Order $order)
     {
         // Get the payment instance
-        $amount = $this->order->getGrandTotal();
+        $amount = $order->getGrandTotal();
+
         // Return the formatted amount
         return $this->orderHandler->amountToGateway(
             $this->utilities->formatDecimals($amount),
-            $this->order
+            $order
         );
     }
 
     /**
-     * Provide a source from request.
+     * Provide a source from request
+     *
+     * @param Order $order
+     * @param mixed[] $params
+     *
+     * @return IdSource|TokenSource
+     * @throws LocalizedException
      */
-    public function getSource()
+    protected function getSource(Order $order, array $params)
     {
-        if ($this->isCardToken()) {
+        if ($this->isCardToken($params)) {
             // Initialize the API handler
             $api = $this->apiHandler->init();
 
             // Create the token source
-            $tokenSource = new TokenSource($this->params['ckoCardToken']);
-            $tokenSource->billing_address = $api->createBillingAddress($this->order);
+            $tokenSource                  = new TokenSource($params['ckoCardToken']);
+            $tokenSource->billing_address = $api->createBillingAddress($order);
 
             return $tokenSource;
         } elseif ($this->isSavedCard()) {
-            $card = $this->vaultHandler->getCardFromHash(
-                $this->params['publicHash'],
-                $this->order->getCustomerId()
+            $card          = $this->vaultHandler->getCardFromHash(
+                $params['publicHash'],
+                $order->getCustomerId()
             );
-            $idSource = new IdSource($card->getGatewayToken());
-            $idSource->cvv = $this->params['cvv'];
+            $idSource      = new IdSource($card->getGatewayToken());
+            $idSource->cvv = $params['cvv'];
 
             return $idSource;
         } else {
             $this->messageManager->addErrorMessage(
                 __('Please provide the required card information for the MOTO payment.')
             );
-            throw new \Magento\Framework\Exception\LocalizedException(
+            throw new LocalizedException(
                 __('Missing required card information for the MOTO payment.')
             );
         }
@@ -269,22 +314,26 @@ class MotoPaymentRequest implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * Checks if a card token is available.
+     * Checks if a card token is available
+     *
+     * @param mixed[] $params
+     *
+     * @return bool
      */
-    public function isCardToken()
+    protected function isCardToken(array $params): bool
     {
-        return isset($this->params['ckoCardToken'])
-        && !empty($this->params['ckoCardToken']);
+        return isset($params['ckoCardToken']) && !empty($params['ckoCardToken']);
     }
 
     /**
-     * Checks if a public hash is available.
+     * Checks if a public hash is available
+     *
+     * @param mixed[] $params
+     *
+     * @return bool
      */
-    public function isSavedCard()
+    protected function isSavedCard(array $params): bool
     {
-        return isset($this->params['publicHash'])
-        && !empty($this->params['publicHash'])
-        && isset($this->params['cvv'])
-        && !empty($this->params['cvv']);
+        return isset($params['publicHash'], $params['cvv']) && !empty($params['publicHash']) && !empty($params['cvv']);
     }
 }

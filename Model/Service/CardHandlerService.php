@@ -10,73 +10,95 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Exception;
+use Magento\Framework\File\Csv;
+use Magento\Framework\Module\Dir\Reader;
+use Magento\Framework\View\Asset\Repository;
+
 /**
- * Class CardHandlerService.
+ * Class CardHandlerService
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class CardHandlerService
 {
     /**
-     * @var array
+     * $cardMapper field
+     *
+     * @var array $cardMapper
      */
     public static $cardMapper = [
-        'VI' => 'Visa',
-        'MC' => 'Mastercard',
-        'AE' => 'American Express',
-        'DN' => 'Diners Club International',
-        'DI' => 'Discover',
-        'JCB' => 'JCB'
+        'VI'  => 'Visa',
+        'MC'  => 'Mastercard',
+        'AE'  => 'American Express',
+        'DN'  => 'Diners Club International',
+        'DI'  => 'Discover',
+        'JCB' => 'JCB',
     ];
-
     /**
-     * @var Repository
+     * $assetRepository field
+     *
+     * @var Repository $assetRepository
      */
     public $assetRepository;
-
     /**
-     * @var Reader
+     * $directoryReader field
+     *
+     * @var Reader $directoryReader
      */
     public $directoryReader;
-
     /**
-     * @var Csv
+     * $csvParser field
+     *
+     * @var Csv $csvParser
      */
     public $csvParser;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
 
     /**
-     * CardHandlerService constructor.
+     * CardHandlerService constructor
+     *
+     * @param Repository $assetRepository
+     * @param Reader     $directoryReader
+     * @param Csv        $csvParser
+     * @param Config     $config
      */
     public function __construct(
-        \Magento\Framework\View\Asset\Repository $assetRepository,
-        \Magento\Framework\Module\Dir\Reader $directoryReader,
-        \Magento\Framework\File\Csv $csvParser,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        Repository $assetRepository,
+        Reader $directoryReader,
+        Csv $csvParser,
+        Config $config
     ) {
         $this->assetRepository = $assetRepository;
         $this->directoryReader = $directoryReader;
-        $this->csvParser = $csvParser;
-        $this->config = $config;
+        $this->csvParser       = $csvParser;
+        $this->config          = $config;
     }
 
     /**
-     * Get a card code from name.
+     * Get a card code from name
      *
-     * @return string
+     * @param $scheme
+     *
+     * @return false|int|string
      */
     public function getCardCode($scheme)
     {
-        if ($scheme == 'Amex') {
+        if ($scheme === 'Amex') {
             $scheme = 'American Express';
         }
 
@@ -87,9 +109,11 @@ class CardHandlerService
     }
 
     /**
-     * Get a card scheme from code.
+     * Get a card scheme from code
      *
-     * @return string
+     * @param $code
+     *
+     * @return mixed|string|void
      */
     public function getCardScheme($code)
     {
@@ -97,23 +121,25 @@ class CardHandlerService
             return self::$cardMapper[$code];
         }
     }
+
     /**
-     * Get a card icon.
+     * Get a card icon
+     *
+     * @param $code
      *
      * @return string
      */
     public function getCardIcon($code)
     {
-        return $this->assetRepository
-            ->getUrl(
-                'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
-            );
+        return $this->assetRepository->getUrl(
+            'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+        );
     }
 
     /**
-     * Get all card icons.
+     * Get all card icons
      *
-     * @return string
+     * @return array
      */
     public function getCardIcons()
     {
@@ -135,10 +161,9 @@ class CardHandlerService
                 $output[] = [
                     'code' => $code,
                     'name' => __($value),
-                    'url' => $this->assetRepository
-                    ->getUrl(
+                    'url'  => $this->assetRepository->getUrl(
                         'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
-                    )
+                    ),
                 ];
             }
         }
@@ -147,29 +172,32 @@ class CardHandlerService
     }
 
     /**
-     * Check if a card is active.
+     * Check if a card is active
+     *
+     * @param $card
      *
      * @return bool
      */
     public function isCardActive($card)
     {
-        return $card->getIsActive()
-        && $card->getIsVisible()
-        && $card->getPaymentMethodCode() == 'checkoutcom_vault';
+        return $card->getIsActive() && $card->getIsVisible() && $card->getPaymentMethodCode() === 'checkoutcom_vault';
     }
 
     /**
      * Checks the MADA BIN
      *
+     * @param $bin
+     *
      * @return bool
+     * @throws Exception
      */
     public function isMadaBin($bin)
     {
         // Set the root path
         $csvPath = $this->directoryReader->getModuleDir(
-            '',
-            'CheckoutCom_Magento2'
-        )  . '/' . $this->config->getMadaBinFile();
+                '',
+                'CheckoutCom_Magento2'
+            ) . '/' . $this->config->getMadaBinFile();
 
         // Get the data
         $csvData = $this->csvParser->getData($csvPath);

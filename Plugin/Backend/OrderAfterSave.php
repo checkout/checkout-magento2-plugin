@@ -9,60 +9,81 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Plugin\Backend;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
+use Exception;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Framework\App\RequestInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
- * Class OrderAfterSave.
+ * Class OrderAfterSave
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class OrderAfterSave
 {
     /**
-     * @var Session
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
      */
     public $backendAuthSession;
-
     /**
-     * @var WebhookHandlerService
+     * $webhookHandler field
+     *
+     * @var WebhookHandlerService $webhookHandler
      */
     public $webhookHandler;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var RequestInterface
+     * $request field
+     *
+     * @var RequestInterface $request
      */
     public $request;
 
     /**
-     * OrderAfterSave constructor.
+     * OrderAfterSave constructor
+     *
+     * @param Session               $backendAuthSession
+     * @param WebhookHandlerService $webhookHandler
+     * @param Config                $config
+     * @param RequestInterface      $request
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \Magento\Framework\App\RequestInterface $request
+        Session $backendAuthSession,
+        WebhookHandlerService $webhookHandler,
+        Config $config,
+        RequestInterface $request
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->webhookHandler = $webhookHandler;
-        $this->config = $config;
-        $this->request = $request;
+        $this->webhookHandler     = $webhookHandler;
+        $this->config             = $config;
+        $this->request            = $request;
     }
 
     /**
      * Create transactions for the order.
+     *
      * @param OrderRepositoryInterface $orderRepository
-     * @param $order
+     * @param                          $order
+     *
      * @return mixed
+     * @throws Exception
      */
     public function afterSave(OrderRepositoryInterface $orderRepository, $order)
     {
@@ -71,8 +92,7 @@ class OrderAfterSave
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
             // Process the webhooks if order is not on hold
-            if (in_array($methodId, $this->config->getMethodsList())
-                && $this->needsWebhookProcessing()) {
+            if (in_array($methodId, $this->config->getMethodsList()) && $this->needsWebhookProcessing()) {
                 $this->webhookHandler->processAllWebhooks($order);
             }
         }
@@ -85,10 +105,10 @@ class OrderAfterSave
      *
      * @return bool
      */
-    public function needsWebhookProcessing()
+    public function needsWebhookProcessing(): bool
     {
         $params = $this->request->getParams();
 
-        return isset($params['creditmemo']) ? false : true;
+        return !isset($params['creditmemo']);
     }
 }

@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -19,11 +19,18 @@ namespace CheckoutCom\Magento2\Helper;
 
 /**
  * Class Utilities
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class Utilities
 {
     /**
-     * Convert a date string to ISO8601 format.
+     * Convert a date string to ISO8601 format
+     *
+     * @param $timestamp
+     *
+     * @return false|string
      */
     public function formatDate($timestamp)
     {
@@ -31,7 +38,11 @@ class Utilities
     }
 
     /**
-     * Format an amount to 2 demicals.
+     * Format an amount to 2 decimals
+     *
+     * @param $amount
+     *
+     * @return float|int
      */
     public function formatDecimals($amount)
     {
@@ -39,7 +50,11 @@ class Utilities
     }
 
     /**
-     * Convert an object to array.
+     * Convert an object to array
+     *
+     * @param $object
+     *
+     * @return mixed
      */
     public function objectToArray($object)
     {
@@ -48,6 +63,10 @@ class Utilities
 
     /**
      * Get the gateway payment information from an order
+     *
+     * @param $order
+     *
+     * @return mixed|null
      */
     public function getPaymentData($order)
     {
@@ -55,15 +74,18 @@ class Utilities
             ->getMethodInstance()
             ->getInfoInstance()
             ->getData();
-        if (isset($paymentData['additional_information']['transaction_info'])) {
-            return $paymentData['additional_information']['transaction_info'];
-        } else {
-            return null;
-        }
+
+        return $paymentData['additional_information']['transaction_info'] ?? null;
     }
 
     /**
      * Add the gateway payment information to an order
+     *
+     * @param      $order
+     * @param      $data
+     * @param null $source
+     *
+     * @return mixed
      */
     public function setPaymentData($order, $data, $source = null)
     {
@@ -77,13 +99,13 @@ class Utilities
         );
 
         if (isset($source)) {
-            if ($source['methodId'] == 'checkoutcom_apm') {
+            if ($source['methodId'] === 'checkoutcom_apm') {
                 // Add apm to payment information
                 $paymentInfo->setAdditionalInformation(
                     'method_id',
                     $source['source']
                 );
-            } elseif ($source['methodId'] == 'checkoutcom_vault') {
+            } elseif ($source['methodId'] === 'checkoutcom_vault') {
                 // Add vault public hash to payment information
                 $paymentInfo->setAdditionalInformation(
                     'public_hash',

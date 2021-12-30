@@ -10,139 +10,180 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Controller\Apm;
 
-use \Checkout\Models\Sources\Sepa;
-use \Checkout\Models\Sources\SepaData;
-use \Checkout\Models\Sources\SepaAddress;
-use \Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\CheckoutApi;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Sources\Sepa;
+use Checkout\Models\Sources\SepaAddress;
+use Checkout\Models\Sources\SepaData;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\View\Result\PageFactory;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Store\Model\Information;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class DisplaySepa
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
-class DisplaySepa extends \Magento\Framework\App\Action\Action
+class DisplaySepa extends Action
 {
-
     /**
-     * @var Context
+     * $context field
+     *
+     * @var Context $context
      */
     public $context;
-
     /**
-     * @var PageFactory
+     * $pageFactory field
+     *
+     * @var PageFactory $pageFactory
      */
     public $pageFactory;
-
     /**
-     * @var JsonFactory
+     * $jsonFactory field
+     *
+     * @var JsonFactory $jsonFactory
      */
     public $jsonFactory;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var CheckoutApi
+     * $apiHandler field
+     *
+     * @var CheckoutApi $apiHandler
      */
     public $apiHandler;
-
     /**
-     * @var QuoteHandlerService
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
     public $quoteHandler;
-
     /**
-     * @var Information
+     * $storeInformation field
+     *
+     * @var Information $storeInformation
      */
     public $storeInformation;
-
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var Logger
+     * $logger field
+     *
+     * @var Logger $logger
      */
     public $logger;
-
     /**
-     * @var Quote
+     * $quote field
+     *
+     * @var Quote $quote
      */
     public $quote;
-
     /**
-     * @var Address
+     * $billingAddress field
+     *
+     * @var Address $billingAddress
      */
     public $billingAddress;
-
     /**
-     * @var Store
+     * $store field
+     *
+     * @var Store $store
      */
     public $store;
+    /**
+     * $storeModel field
+     *
+     * @var Store $storeModel
+     */
+    private $storeModel;
 
     /**
-     * Display constructor
+     * DisplaySepa constructor
+     *
+     * @param Context               $context
+     * @param PageFactory           $pageFactory
+     * @param JsonFactory           $jsonFactory
+     * @param Config                $config
+     * @param ApiHandlerService     $apiHandler
+     * @param QuoteHandlerService   $quoteHandler
+     * @param Information           $storeInformation
+     * @param StoreManagerInterface $storeManager
+     * @param Logger                $logger
+     * @param Store                 $storeModel
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $pageFactory,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \Magento\Store\Model\Information $storeInformation,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Helper\Logger $logger,
-        \Magento\Store\Model\Store $storeModel
+        Context $context,
+        PageFactory $pageFactory,
+        JsonFactory $jsonFactory,
+        Config $config,
+        ApiHandlerService $apiHandler,
+        QuoteHandlerService $quoteHandler,
+        Information $storeInformation,
+        StoreManagerInterface $storeManager,
+        Logger $logger,
+        Store $storeModel
     ) {
         parent::__construct($context);
 
-        $this->pageFactory = $pageFactory;
-        $this->jsonFactory = $jsonFactory;
-        $this->config = $config;
-        $this->apiHandler = $apiHandler;
-        $this->quoteHandler = $quoteHandler;
+        $this->pageFactory      = $pageFactory;
+        $this->jsonFactory      = $jsonFactory;
+        $this->config           = $config;
+        $this->apiHandler       = $apiHandler;
+        $this->quoteHandler     = $quoteHandler;
         $this->storeInformation = $storeInformation;
-        $this->storeManager = $storeManager;
-        $this->logger = $logger;
-        $this->storeModel = $storeModel;
+        $this->storeManager     = $storeManager;
+        $this->logger           = $logger;
+        $this->storeModel       = $storeModel;
     }
 
     /**
-     * Handles the controller method.
+     * Handles the controller method
+     *
+     * @return Json
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
      */
-    public function execute()
+    public function execute(): Json
     {
         // Prepare the output container
         $html = '';
-
-        // Get the request parameters
-        $this->source = $this->getRequest()->getParam('source');
-        $this->task = $this->getRequest()->getParam('task');
-        $this->bic = $this->getRequest()->getParam('bic');
-        $this->account_iban = $this->getRequest()->getParam('account_iban');
-
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
-        $this->billingAddress = $this->quoteHandler->getBillingAddress();
-        $this->store = $this->storeInformation->getStoreInformationObject($this->storeModel);
 
         // Run the requested task
         if ($this->isValidRequest()) {
             $html = $this->runTask();
         }
 
-        return $this->jsonFactory->create()->setData(
-            ['html' => $html]
-        );
+        return $this->jsonFactory->create()->setData(['html' => $html]);
     }
 
     /**
@@ -152,9 +193,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      */
     public function isValidRequest()
     {
-        return $this->getRequest()->isAjax()
-        && $this->isValidApm()
-        && $this->isValidTask();
+        return $this->getRequest()->isAjax() && $this->isValidApm() && $this->isValidTask();
     }
 
     /**
@@ -175,6 +214,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
     public function runTask()
     {
         $methodName = $this->buildMethodName();
+
         return $this->$methodName();
     }
 
@@ -183,9 +223,12 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return string
      */
-    public function buildMethodName()
+    protected function buildMethodName()
     {
-        return 'get' . ucfirst($this->task);
+        /** @var string $task */
+        $task = $this->getRequest()->getParam('task');
+
+        return 'get' . ucfirst($task);
     }
 
     /**
@@ -193,7 +236,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      *
      * @return boolean
      */
-    public function isValidApm()
+    protected function isValidApm()
     {
         // Get the list of APM
         $apmEnabled = explode(
@@ -201,22 +244,34 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
             $this->config->getValue('apm_enabled', 'checkoutcom_apm')
         );
 
+        /** @var string $source */
+        $source = $this->getRequest()->getParam('source');
+
         // Load block data for each APM
-        return in_array($this->source, $apmEnabled) ? true : false;
+        return in_array($source, $apmEnabled);
     }
 
     /**
-     * Returns the SEPA mandate block.
+     * Returns the SEPA mandate block
+     *
+     * @param $reference
+     * @param $url
      *
      * @return string
      */
-    public function loadBlock($reference, $url)
+    protected function loadBlock($reference, $url)
     {
-        return $this->pageFactory->create()->getLayout()
+        /** @var AddressInterface $billingAddress */
+        $billingAddress = $this->quoteHandler->getBillingAddress();
+        /** @var DataObject $store */
+        $store = $this->storeInformation->getStoreInformationObject($this->storeModel);
+
+        return $this->pageFactory->create()
+            ->getLayout()
             ->createBlock('CheckoutCom\Magento2\Block\Apm\Sepa\Mandate')
             ->setTemplate('CheckoutCom_Magento2::payment/apm/sepa/mandate.phtml')
-            ->setData('billingAddress', $this->billingAddress)
-            ->setData('store', $this->store)
+            ->setData('billingAddress', $billingAddress)
+            ->setData('store', $store)
             ->setData('reference', $reference)
             ->setData('url', $url)
             ->toHtml();
@@ -226,6 +281,7 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      * Gets the mandate.
      *
      * @return string
+     * @throws NoSuchEntityException
      */
     public function getMandate()
     {
@@ -243,9 +299,18 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
      * Request gateway to add new source.
      *
      * @return Sepa
+     * @throws NoSuchEntityException
      */
-    public function requestSepa()
+    protected function requestSepa()
     {
+        /** @var string $bic */
+        $bic = $this->getRequest()->getParam('bic');
+        /** @var string $accountIban */
+        $accountIban = $this->getRequest()->getParam('account_iban');
+        /** @var CartInterface $quote */
+        $quote = $this->quoteHandler->getQuote();
+        /** @var AddressInterface $billingAddress */
+        $billingAddress = $this->quoteHandler->getBillingAddress();
         $sepa = null;
 
         // Get the store code
@@ -256,34 +321,32 @@ class DisplaySepa extends \Magento\Framework\App\Action\Action
 
         // Build the address
         $address = new SepaAddress(
-            $this->billingAddress->getStreetLine(1),
-            $this->billingAddress->getCity(),
-            $this->billingAddress->getPostcode(),
-            $this->billingAddress->getCountryId()
+            $billingAddress->getStreetLine(1),
+            $billingAddress->getCity(),
+            $billingAddress->getPostcode(),
+            $billingAddress->getCountryId()
         );
 
         // Address line 2
-        $address->address_line2 = $this->billingAddress->getStreetLine(2);
+        $address->address_line2 = $billingAddress->getStreetLine(2);
 
         // Build the SEPA data
         $data = new SepaData(
-            $this->billingAddress->getFirstname(),
-            $this->billingAddress->getLastname(),
-            $this->account_iban,
-            $this->bic,
+            $billingAddress->getFirstname(),
+            $billingAddress->getLastname(),
+            $accountIban,
+            $bic,
             $this->config->getStoreName(),
             'single'
         );
 
         // Build the customer
-        $customer = $this->apiHandler->createCustomer($this->quote);
-        
+        $customer = $this->apiHandler->createCustomer($quote);
+
         try {
             // Build and add the source
             $source = new Sepa($address, $data, $customer);
-            $sepa = $api->checkoutApi
-                ->sources()
-                ->add($source);
+            $sepa   = $api->checkoutApi->sources()->add($source);
 
             return $sepa;
         } catch (CheckoutHttpException $e) {

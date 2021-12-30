@@ -9,22 +9,27 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2020 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Model\Api\Data;
 
+use CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
+use Magento\Framework\Model\AbstractExtensibleModel;
+
 /**
  * Class PaymentResponse
  * Used to set the API v3 response details
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
-class PaymentResponse extends \Magento\Framework\Model\AbstractExtensibleModel implements
-    \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
+class PaymentResponse extends AbstractExtensibleModel implements PaymentResponseInterface
 {
     /**
-     * Get success
+     * {@inheritDoc}
      *
      * @return bool
      */
@@ -34,7 +39,7 @@ class PaymentResponse extends \Magento\Framework\Model\AbstractExtensibleModel i
     }
 
     /**
-     * Get order id
+     * {@inheritDoc}
      *
      * @return int
      */
@@ -44,7 +49,7 @@ class PaymentResponse extends \Magento\Framework\Model\AbstractExtensibleModel i
     }
 
     /**
-     * get redirect url
+     * {@inheritDoc}
      *
      * @return string
      */
@@ -54,7 +59,7 @@ class PaymentResponse extends \Magento\Framework\Model\AbstractExtensibleModel i
     }
 
     /**
-     * Add two numbers.
+     * {@inheritDoc}
      *
      * @return string
      */
@@ -64,10 +69,11 @@ class PaymentResponse extends \Magento\Framework\Model\AbstractExtensibleModel i
     }
 
     /**
-     * Set success
+     * {@inheritDoc}
      *
      * @param $success
-     * @return bool
+     *
+     * @return PaymentResponse
      */
     public function setSuccess($success)
     {
@@ -75,10 +81,11 @@ class PaymentResponse extends \Magento\Framework\Model\AbstractExtensibleModel i
     }
 
     /**
-     * Set order id
+     * {@inheritDoc}
      *
      * @param $orderId
-     * @return int
+     *
+     * @return PaymentResponse
      */
     public function setOrderId($orderId)
     {
@@ -86,10 +93,11 @@ class PaymentResponse extends \Magento\Framework\Model\AbstractExtensibleModel i
     }
 
     /**
-     * Set redirect url
+     * {@inheritDoc}
      *
      * @param $redirectUrl
-     * @return string
+     *
+     * @return PaymentResponse
      */
     public function setRedirectUrl($redirectUrl)
     {
@@ -97,10 +105,11 @@ class PaymentResponse extends \Magento\Framework\Model\AbstractExtensibleModel i
     }
 
     /**
-     * Set error message
+     * {@inheritDoc}
      *
      * @param $errorMessage
-     * @return string
+     *
+     * @return PaymentResponse
      */
     public function setErrorMessage($errorMessage)
     {

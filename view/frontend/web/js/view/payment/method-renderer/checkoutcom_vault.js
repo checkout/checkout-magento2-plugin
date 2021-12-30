@@ -8,7 +8,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -69,7 +69,7 @@ define(
                 checkStoredCard: function () {
                     return Utilities.checkStoredCard();
                 },
-                
+
                 /**
                  * @return {string}
                  */
@@ -170,7 +170,7 @@ define(
 
                     // Start the loader
                     FullScreenLoader.startLoader();
-                
+
                     // Send the content AJAX request
                     $.ajax(
                         {
@@ -222,7 +222,7 @@ define(
                             $(this).removeClass('card-on');
                         }
                     );
-                          
+
                     // Click behaviour
                     listItem.on(
                         'click touch',

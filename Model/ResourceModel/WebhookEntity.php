@@ -9,26 +9,32 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Model\ResourceModel;
 
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Magento\Framework\Model\ResourceModel\Db\Context;
+
 /**
- * Webhook entity mysql resource
+ * Class WebhookEntity mysql resource
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
-class WebhookEntity extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
+class WebhookEntity extends AbstractDb
 {
     /**
-     * Construct
+     * WebhookEntity constructor
      *
-     * @param \Magento\Framework\Model\ResourceModel\Db\Context $context
-     * @param string|null $resourcePrefix
+     * @param Context $context
+     * @param null    $resourcePrefix
      */
     public function __construct(
-        \Magento\Framework\Model\ResourceModel\Db\Context $context,
+        Context $context,
         $resourcePrefix = null
     ) {
         parent::__construct($context, $resourcePrefix);

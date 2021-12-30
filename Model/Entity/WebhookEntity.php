@@ -9,7 +9,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -19,23 +19,32 @@ namespace CheckoutCom\Magento2\Model\Entity;
 use CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 use Magento\Framework\DataObject\IdentityInterface;
 use Magento\Framework\Model\AbstractModel;
+use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity as WebhookEntityResourceModel;
 
+/**
+ * Class WebhookEntity
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
 class WebhookEntity extends AbstractModel implements WebhookEntityInterface, IdentityInterface
 {
     /**
      * Page cache tag
+     *
+     * @var string CACHE_TAG
      */
     const CACHE_TAG = 'webhook_entity';
-
     /**
-     * @var string
+     * $_cacheTag field
+     *
+     * @var string $_cacheTag
      */
     public $_cacheTag = 'webhook_entity';
-
     /**
      * Prefix of model events names
      *
-     * @var string
+     * @var string $_eventPrefix
      */
     public $_eventPrefix = 'webhook_entity';
 
@@ -47,7 +56,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     public function _construct()
     {
         $this->_init(
-            \CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity::class
+            WebhookEntityResourceModel::class
         );
     }
 
@@ -115,7 +124,8 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      * Set the row id
      *
      * @param int $id
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     *
+     * @return WebhookEntityInterface
      */
     public function setId($id)
     {
@@ -126,7 +136,8 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      * Set the event id
      *
      * @param bool $eventId
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     *
+     * @return WebhookEntityInterface
      */
     public function setEventId($eventId)
     {
@@ -137,7 +148,8 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      * Set the event type
      *
      * @param bool $eventType
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     *
+     * @return WebhookEntityInterface
      */
     public function setEventType($eventType)
     {
@@ -148,7 +160,8 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      * Set the event data
      *
      * @param string $eventData
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     *
+     * @return WebhookEntityInterface
      */
     public function setEventData($eventData)
     {
@@ -159,7 +172,8 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      * Set the order id
      *
      * @param string $orderId
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     *
+     * @return WebhookEntityInterface
      */
     public function setOrderId($orderId)
     {
@@ -169,7 +183,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     /**
      * Set datetime webhook is received
      *
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     * @return WebhookEntityInterface
      */
     public function setReceivedTime()
     {
@@ -179,7 +193,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     /**
      * Set datetime webhook is processed
      *
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     * @return WebhookEntityInterface
      */
     public function setProcessedTime()
     {
@@ -190,7 +204,8 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      * Set if a webhook has been processed
      *
      * @param bool $bool
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     *
+     * @return WebhookEntityInterface
      */
     public function setProcessed($bool)
     {

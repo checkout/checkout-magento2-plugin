@@ -10,70 +10,99 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Controller\Apm;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\View\Result\PageFactory;
+
 /**
  * Class Display
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
-class Display extends \Magento\Framework\App\Action\Action
+class Display extends Action
 {
     /**
-     * @var Context
+     * $context field
+     *
+     * @var Context $context
      */
     public $context;
-
     /**
-     * @var PageFactory
+     * $pageFactory field
+     *
+     * @var PageFactory $pageFactory
      */
     public $pageFactory;
-
     /**
-     * @var JsonFactory
+     * $jsonFactory field
+     *
+     * @var JsonFactory $jsonFactory
      */
     public $jsonFactory;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var QuoteHandlerService
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
     public $quoteHandler;
 
     /**
      * Display constructor
+     *
+     * @param Context             $context
+     * @param PageFactory         $pageFactory
+     * @param JsonFactory         $jsonFactory
+     * @param Config              $config
+     * @param QuoteHandlerService $quoteHandler
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $pageFactory,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler
+        Context $context,
+        PageFactory $pageFactory,
+        JsonFactory $jsonFactory,
+        Config $config,
+        QuoteHandlerService $quoteHandler
     ) {
         parent::__construct($context);
 
-        $this->pageFactory = $pageFactory;
-        $this->jsonFactory = $jsonFactory;
-        $this->config = $config;
+        $this->pageFactory  = $pageFactory;
+        $this->jsonFactory  = $jsonFactory;
+        $this->config       = $config;
         $this->quoteHandler = $quoteHandler;
     }
 
     /**
-     * Handles the controller method.
+     * Description execute function
+     *
+     * @return Json
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function execute()
     {
         // Prepare the output
-        $html = '';
+        $html      = '';
         $available = [];
-        
+
         // Process the request
         if ($this->getRequest()->isAjax()) {
             // Get the list of APM
@@ -93,23 +122,25 @@ class Display extends \Magento\Framework\App\Action\Action
 
             foreach ($apms as $apm) {
                 if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    $html .= $this->loadBlock($apm['value'], $apm['label']);
-                    array_push($available, $apm['value']);
+                    $html        .= $this->loadBlock($apm['value'], $apm['label']);
+                    $available[] = $apm['value'];
                 }
             }
         }
 
-        return $this->jsonFactory->create()->setData(
-            ['html' => $html, 'apms' => $available]
-        );
+        return $this->jsonFactory->create()->setData(['html' => $html, 'apms' => $available]);
     }
 
     /**
-     * Check if an APM is valid for display.
+     * Check if an APM is valid for display
      *
-     * @param string $apm
-     * @param array $apmEnabled
-     * @return boolean
+     * @param $apm
+     * @param $apmEnabled
+     * @param $billingAddress
+     *
+     * @return bool
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function isValidApm($apm, $apmEnabled, $billingAddress)
     {
@@ -130,42 +161,38 @@ class Display extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Check for specific country & currency mappings.
+     * Check for specific country & currency mappings
      *
-     * @param string $apmValue
-     * @param string $billingCountry
-     * @param string $currency
-     * @return boolean
+     * @param $apm
+     * @param $billingCountry
+     * @param $currency
+     *
+     * @return bool
      */
     public function countryCurrencyMapping($apm, $billingCountry, $currency)
     {
-        if ($apm['value'] == 'klarna' || $apm['value'] == 'poli') {
-//            var_dump($currency);
-//            var_dump($billingCountry);
-//            die();
-            if (strpos(
-                $apm['mappings'][$currency], 
-                $billingCountry
-                ) !== false
-            ) {
-                return true;
-            }
-            return false;
-        } else {
-            return true;
+        if ($apm['value'] === 'klarna' || $apm['value'] === 'poli') {
+            return strpos(
+                       $apm['mappings'][$currency],
+                       $billingCountry
+                   ) !== false;
         }
+
+        return true;
     }
 
     /**
-     * Generate an APM block.
+     * Generate an APM block
      *
-     * @param string $apmId
-     * @param string $title
+     * @param $apmId
+     * @param $title
+     *
      * @return string
      */
     public function loadBlock($apmId, $title)
     {
-        return $this->pageFactory->create()->getLayout()
+        return $this->pageFactory->create()
+            ->getLayout()
             ->createBlock('CheckoutCom\Magento2\Block\Apm\Form')
             ->setTemplate('CheckoutCom_Magento2::payment/apm/' . $apmId . '.phtml')
             ->setData('apm_id', $apmId)

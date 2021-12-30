@@ -10,108 +10,154 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
+use Checkout\CheckoutApi;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
+use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
 /**
  * Class Fail
  */
-class Fail extends \Magento\Framework\App\Action\Action
+class Fail extends Action
 {
     /**
-     * @var ManagerInterface
+     * $messageManager field
+     *
+     * @var ManagerInterface $messageManager
      */
     public $messageManager;
-
     /**
-     * @var TransactionHandlerService
+     * $transactionHandler field
+     *
+     * @var TransactionHandlerService $transactionHandler
      */
     public $transactionHandler;
-
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var CheckoutApi
+     * $apiHandler field
+     *
+     * @var CheckoutApi $apiHandler
      */
     public $apiHandler;
-
     /**
-     * @var QuoteHandlerService
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
     public $quoteHandler;
-
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
     public $orderHandler;
-
     /**
-     * @var OrderStatusHandlerService
+     * $orderStatusHandler field
+     *
+     * @var OrderStatusHandlerService $orderStatusHandler
      */
     public $orderStatusHandler;
-
     /**
-     * @var Logger
+     * $logger field
+     *
+     * @var Logger $logger
      */
     public $logger;
-
     /**
-     * @var PaymentErrorHandlerService
+     * $paymentErrorHandlerService field
+     *
+     * @var PaymentErrorHandlerService $paymentErrorHandlerService
      */
     public $paymentErrorHandlerService;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var Session
+     * $session field
+     *
+     * @var Session $session
      */
     protected $session;
 
     /**
-     * PlaceOrder constructor
+     * Fail constructor
+     *
+     * @param Context                    $context
+     * @param ManagerInterface           $messageManager
+     * @param TransactionHandlerService  $transactionHandler
+     * @param StoreManagerInterface      $storeManager
+     * @param ApiHandlerService          $apiHandler
+     * @param QuoteHandlerService        $quoteHandler
+     * @param OrderHandlerService        $orderHandler
+     * @param OrderStatusHandlerService  $orderStatusHandler
+     * @param Logger                     $logger
+     * @param PaymentErrorHandlerService $paymentErrorHandlerService
+     * @param Config                     $config
+     * @param Session                    $session
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
-        \CheckoutCom\Magento2\Helper\Logger $logger,
-        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandlerService,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \Magento\Checkout\Model\Session $session
-    )
-    {
+        Context $context,
+        ManagerInterface $messageManager,
+        TransactionHandlerService $transactionHandler,
+        StoreManagerInterface $storeManager,
+        ApiHandlerService $apiHandler,
+        QuoteHandlerService $quoteHandler,
+        OrderHandlerService $orderHandler,
+        OrderStatusHandlerService $orderStatusHandler,
+        Logger $logger,
+        PaymentErrorHandlerService $paymentErrorHandlerService,
+        Config $config,
+        Session $session
+    ) {
         parent::__construct($context);
 
-        $this->messageManager = $messageManager;
-        $this->storeManager = $storeManager;
-        $this->apiHandler = $apiHandler;
-        $this->quoteHandler = $quoteHandler;
-        $this->orderHandler = $orderHandler;
-        $this->orderStatusHandler = $orderStatusHandler;
-        $this->logger = $logger;
+        $this->messageManager             = $messageManager;
+        $this->storeManager               = $storeManager;
+        $this->apiHandler                 = $apiHandler;
+        $this->quoteHandler               = $quoteHandler;
+        $this->orderHandler               = $orderHandler;
+        $this->orderStatusHandler         = $orderStatusHandler;
+        $this->logger                     = $logger;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
-        $this->config = $config;
-        $this->session = $session;
-        $this->transactionHandler = $transactionHandler;
+        $this->config                     = $config;
+        $this->session                    = $session;
+        $this->transactionHandler         = $transactionHandler;
     }
 
     /**
-     * Handles the controller method.
+     * Handles the controller method
+     *
+     * @return ResponseInterface|void
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function execute()
     {
@@ -135,12 +181,12 @@ class Fail extends \Magento\Framework\App\Action\Action
                 if ($response->amount !== 0 && $response->amount !== 100) {
                     // Find the order from increment id
                     $order = $this->orderHandler->getOrder([
-                        'increment_id' => $response->reference
+                        'increment_id' => $response->reference,
                     ]);
 
                     $storeCode = $this->storeManager->getStore()->getCode();
-                    $action = $this->config->getValue('order_action_failed_payment', null, $storeCode);
-                    $status = $action == 'cancel' ? 'canceled' : false;
+                    $action    = $this->config->getValue('order_action_failed_payment', null, $storeCode);
+                    $status    = $action === 'cancel' ? 'canceled' : false;
 
                     // Log the payment error
                     $this->paymentErrorHandlerService->logPaymentError(
@@ -162,35 +208,30 @@ class Fail extends \Magento\Framework\App\Action\Action
                         );
                     }
 
-                if ($response->source['type'] === 'knet') {
+                    if ($response->source['type'] === 'knet') {
+                        $amount = $this->transactionHandler->amountFromGateway(
+                            $response->amount ?? null,
+                            $order
+                        );
 
-                    $amount = $this->transactionHandler->amountFromGateway(
-                        $response->amount ?? null,
-                        $order
-                    );
-
-                    // Display error message and knet mandate info
-                    $this->messageManager->addErrorMessage(
-                        __("The transaction could not be processed.")
-                    );
-                    $this->messageManager->addComplexNoticeMessage(
-                        'knetInfoMessage',
-                        [
-                            'postDate' => $response->source['post_date'] ?? null,
-                            'amount' => $amount ?? null,
-                            'paymentId' => $response->source['knet_payment_id'] ?? null,
+                        // Display error message and knet mandate info
+                        $this->messageManager->addErrorMessage(
+                            __('The transaction could not be processed.')
+                        );
+                        $this->messageManager->addComplexNoticeMessage('knetInfoMessage', [
+                            'postDate'      => $response->source['post_date'] ?? null,
+                            'amount'        => $amount ?? null,
+                            'paymentId'     => $response->source['knet_payment_id'] ?? null,
                             'transactionId' => $response->source['knet_transaction_id'] ?? null,
-                            'authCode' => $response->source['auth_code'] ?? null,
-                            'reference' => $response->source['bank_reference'] ?? null,
-                            'resultCode' => $response->source['knet_result'] ?? null,
-                        ]
-                    );
-
-                } else {
-                    $this->messageManager->addErrorMessage(
-                        $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')
-                    );
-                }
+                            'authCode'      => $response->source['auth_code'] ?? null,
+                            'reference'     => $response->source['bank_reference'] ?? null,
+                            'resultCode'    => $response->source['knet_result'] ?? null,
+                        ]);
+                    } else {
+                        $this->messageManager->addErrorMessage(
+                            $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')
+                        );
+                    }
 
                     // Return to the cart
                     if (isset($response->metadata['failureUrl'])) {
@@ -207,17 +248,15 @@ class Fail extends \Magento\Framework\App\Action\Action
                     return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
                 }
             }
-        } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
+        } catch (CheckoutHttpException $e) {
+            // Restore the quote
+            $this->session->restoreQuote();
 
-                // Restore the quote
-                $this->session->restoreQuote();
+            $this->messageManager->addErrorMessage(
+                __('The transaction could not be processed.')
+            );
 
-                $this->messageManager->addErrorMessage(
-
-                    __('The transaction could not be processed.')
-                );
-
-                return $this->_redirect('checkout/cart', ['_secure' => true]);
-            }
+            return $this->_redirect('checkout/cart', ['_secure' => true]);
+        }
     }
 }

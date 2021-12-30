@@ -10,17 +10,22 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+use Magento\Framework\Data\OptionSourceInterface;
+
 /**
  * Class ConfigEnvironment
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
-class ConfigEnvironment implements \Magento\Framework\Data\OptionSourceInterface
+class ConfigEnvironment implements OptionSourceInterface
 {
     /**
      * Options getter

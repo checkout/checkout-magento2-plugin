@@ -10,153 +10,227 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\ThreeDs;
-use \Checkout\Models\Payments\TokenSource;
-use \Checkout\Models\Payments\BillingDescriptor;
-use \Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Payments\BillingDescriptor;
+use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\ThreeDs;
+use Checkout\Models\Payments\TokenSource;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Exception;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Customer\Model\Session as CustomerModelSession;
+use Magento\Directory\Helper\Data as DirectoryHelper;
+use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Magento\Payment\Helper\Data;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\Method\Logger;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class CardPaymentMethod
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class CardPaymentMethod extends AbstractMethod
 {
     /**
-     * @var string
+     * CODE constant
+     *
+     * @var string CODE
      */
     const CODE = 'checkoutcom_card_payment';
-
     /**
-     * @var string
+     * $_code field
+     *
+     * @var string $_code
      */
     public $_code = self::CODE;
-
     /**
-     * @var bool
+     * $_canAuthorize field
+     *
+     * @var bool $_canAuthorize
      */
     public $_canAuthorize = true;
-
     /**
-     * @var bool
+     * $_canCapture field
+     *
+     * @var bool $_canCapture
      */
     public $_canCapture = true;
-
     /**
-     * @var bool
+     * $_canCancel field
+     *
+     * @var bool $_canCancel
      */
     public $_canCancel = true;
-
     /**
-     * @var bool
+     * $_canCapturePartial field
+     *
+     * @var bool $_canCapturePartial
      */
     public $_canCapturePartial = true;
-
     /**
-     * @var bool
+     * $_canVoid field
+     *
+     * @var bool $_canVoid
      */
     public $_canVoid = true;
-
     /**
-     * @var bool
+     * $_canUseInternal field
+     *
+     * @var bool $_canUseInternal
      */
     public $_canUseInternal = false;
-
     /**
-     * @var bool
+     * $_canUseCheckout field
+     *
+     * @var bool $_canUseCheckout
      */
     public $_canUseCheckout = true;
-
     /**
-     * @var bool
+     * $_canRefund field
+     *
+     * @var bool $_canRefund
      */
     public $_canRefund = true;
-
     /**
-     * @var bool
+     * $_canRefundInvoicePartial field
+     *
+     * @var bool $_canRefundInvoicePartial
      */
     public $_canRefundInvoicePartial = true;
-
     /**
-     * @var QuoteHandlerService
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
     public $quoteHandler;
-
     /**
-     * @var CardHandlerService
+     * $cardHandler field
+     *
+     * @var CardHandlerService $cardHandler
      */
     public $cardHandler;
-
     /**
-     * @var Logger
+     * $ckoLogger field
+     *
+     * @var Logger $ckoLogger
      */
     public $ckoLogger;
-
     /**
-     * @var ManagerInterface
+     * $messageManager field
+     *
+     * @var ManagerInterface $messageManager
      */
     public $messageManager;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var ApiHandlerService
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
     public $apiHandler;
-
     /**
-     * @var Utilities
+     * $utilities field
+     *
+     * @var Utilities $utilities
      */
     public $utilities;
-
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     public $storeManager;
-
     /**
-     * @var Session
+     * $customerSession field
+     *
+     * @var Session $customerSession
      */
     public $customerSession;
-
     /**
-     * @var Session
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
      */
     public $backendAuthSession;
 
     /**
-     * CardPaymentMethod constructor.
+     * CardPaymentMethod constructor
+     *
+     * @param Context                    $context
+     * @param Registry                   $registry
+     * @param ExtensionAttributesFactory $extensionFactory
+     * @param AttributeValueFactory      $customAttributeFactory
+     * @param Data                       $paymentData
+     * @param ScopeConfigInterface       $scopeConfig
+     * @param Logger                     $logger
+     * @param Session                    $backendAuthSession
+     * @param CustomerModelSession       $customerSession
+     * @param Config                     $config
+     * @param ApiHandlerService          $apiHandler
+     * @param Utilities                  $utilities
+     * @param StoreManagerInterface      $storeManager
+     * @param QuoteHandlerService        $quoteHandler
+     * @param CardHandlerService         $cardHandler
+     * @param LoggerHelper               $ckoLogger
+     * @param ManagerInterface           $messageManager
+     * @param AbstractResource|null      $resource
+     * @param AbstractDb|null            $resourceCollection
+     * @param array                      $data
+     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Payment\Helper\Data $paymentData,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Customer\Model\Session $customerSession,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = []
+        Context $context,
+        Registry $registry,
+        ExtensionAttributesFactory $extensionFactory,
+        AttributeValueFactory $customAttributeFactory,
+        Data $paymentData,
+        ScopeConfigInterface $scopeConfig,
+        Logger $logger,
+        Session $backendAuthSession,
+        CustomerModelSession $customerSession,
+        Config $config,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
+        StoreManagerInterface $storeManager,
+        QuoteHandlerService $quoteHandler,
+        CardHandlerService $cardHandler,
+        LoggerHelper $ckoLogger,
+        ManagerInterface $messageManager,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
+        array $data = [],
+        DirectoryHelper $directoryHelper
     ) {
         parent::__construct(
             $context,
@@ -168,7 +242,8 @@ class CardPaymentMethod extends AbstractMethod
             $logger,
             $resource,
             $resourceCollection,
-            $data
+            $data,
+            $directoryHelper
         );
 
         $this->backendAuthSession = $backendAuthSession;
@@ -184,7 +259,20 @@ class CardPaymentMethod extends AbstractMethod
     }
 
     /**
-     * Send a charge request.
+     * Send a charge request
+     *
+     * @param        $data
+     * @param        $amount
+     * @param        $currency
+     * @param string $reference
+     * @param null   $quote
+     * @param null   $isApiOrder
+     * @param null   $customerId
+     *
+     * @return CheckoutHttpException|Exception|mixed|void
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws FileSystemException
      */
     public function sendPaymentRequest(
         $data,
@@ -207,13 +295,12 @@ class CardPaymentMethod extends AbstractMethod
         }
 
         // Set the token source
-        $tokenSource = new TokenSource($data['cardToken']);
+        $tokenSource                  = new TokenSource($data['cardToken']);
         $tokenSource->billing_address = $api->createBillingAddress($quote);
 
         // Set the payment
         $request = new Payment(
-            $tokenSource,
-            $currency
+            $tokenSource, $currency
         );
 
         // Prepare the metadata array
@@ -221,10 +308,7 @@ class CardPaymentMethod extends AbstractMethod
 
         // Prepare the capture setting
         $madaEnabled = $this->config->getValue('mada_enabled', $this->_code);
-        if (isset($data['cardBin'])
-            && $this->cardHandler->isMadaBin($data['cardBin'])
-            && $madaEnabled
-        ) {
+        if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
             $request->metadata['udf1'] = 'MADA';
         } else {
             $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
@@ -233,23 +317,23 @@ class CardPaymentMethod extends AbstractMethod
                 $request->capture_on = $this->config->getCaptureTime($this->_code);
             }
         }
-        
+
         // Prepare the save card setting
         $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code);
 
         // Set the request parameters
-        $request->amount = $this->quoteHandler->amountToGateway(
+        $request->amount               = $this->quoteHandler->amountToGateway(
             $this->utilities->formatDecimals($amount),
             $quote
         );
-        $request->reference = $reference;
-        $request->success_url = $this->getSuccessUrl($data, $isApiOrder);
-        $request->failure_url = $this->getFailureUrl($data, $isApiOrder);
-        $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
-        $request->threeDs->attempt_n3d = (bool) $this->config->getValue('attempt_n3d', $this->_code);
-        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
-        $request->customer = $api->createCustomer($quote);
-        $request->payment_type = 'Regular';
+        $request->reference            = $reference;
+        $request->success_url          = $this->getSuccessUrl($data, $isApiOrder);
+        $request->failure_url          = $this->getFailureUrl($data, $isApiOrder);
+        $request->threeDs              = new ThreeDs($this->config->needs3ds($this->_code));
+        $request->threeDs->attempt_n3d = (bool)$this->config->getValue('attempt_n3d', $this->_code);
+        $request->description          = __('Payment request from %1', $this->config->getStoreName())->render();
+        $request->customer             = $api->createCustomer($quote);
+        $request->payment_type         = 'Regular';
         if (!$quote->getIsVirtual()) {
             $request->shipping = $api->createShippingAddress($quote);
         }
@@ -259,25 +343,20 @@ class CardPaymentMethod extends AbstractMethod
             if (isset($data['successUrl'])) {
                 $request->metadata['successUrl'] = $this->getSuccessUrl($data);
             }
-            
+
             if (isset($data['failureUrl'])) {
                 $request->metadata['failureUrl'] = $this->getFailureUrl($data);
             }
-            
-            if (isset($data['saveCard'])
-                && $data['saveCard'] === true
-                && $saveCardEnabled
-            ) {
-                $request->metadata['saveCard'] = 1;
+
+            if (isset($data['saveCard']) && $data['saveCard'] === true && $saveCardEnabled) {
+                $request->metadata['saveCard']   = 1;
                 $request->metadata['customerId'] = $customerId;
-            }    
+            }
         } else {
-            if (isset($data['saveCard'])
-                && json_decode($data['saveCard']) === true
-                && $saveCardEnabled
-                && $this->customerSession->isLoggedIn()
-            ) {
-                $request->metadata['saveCard'] = 1;
+            if (isset($data['saveCard']) && json_decode(
+                                                $data['saveCard']
+                                            ) === true && $saveCardEnabled && $this->customerSession->isLoggedIn()) {
+                $request->metadata['saveCard']   = 1;
                 $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
             }
         }
@@ -285,8 +364,7 @@ class CardPaymentMethod extends AbstractMethod
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
             $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name'),
-                $this->config->getValue('descriptor_city')
+                $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city')
             );
         }
 
@@ -300,13 +378,12 @@ class CardPaymentMethod extends AbstractMethod
             $request->metadata,
             $this->apiHandler->getBaseMetadata()
         );
-        
+
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
         // Send the charge request
         try {
-            $response = $api->checkoutApi
-                ->payments()->request($request);
+            $response = $api->checkoutApi->payments()->request($request);
 
             return $response;
         } catch (CheckoutHttpException $e) {
@@ -318,16 +395,15 @@ class CardPaymentMethod extends AbstractMethod
     }
 
     /**
-     * Perform a capture request.
+     * Perform a capture request
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
-     * @param float $amount
+     * @param InfoInterface $payment
+     * @param float         $amount
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|CardPaymentMethod
+     * @throws LocalizedException
      */
-    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    public function capture(InfoInterface $payment, $amount)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -338,7 +414,7 @@ class CardPaymentMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canCapture()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The capture action is not available.')
                 );
             }
@@ -346,7 +422,7 @@ class CardPaymentMethod extends AbstractMethod
             // Process the capture request
             $response = $api->captureOrder($payment, $amount);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The capture request could not be processed.')
                 );
             }
@@ -359,15 +435,14 @@ class CardPaymentMethod extends AbstractMethod
     }
 
     /**
-     * Perform a void request.
+     * Perform a void request
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param InfoInterface $payment
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|CardPaymentMethod
+     * @throws LocalizedException
      */
-    public function void(\Magento\Payment\Model\InfoInterface $payment)
+    public function void(InfoInterface $payment)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -378,7 +453,7 @@ class CardPaymentMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canVoid()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void action is not available.')
                 );
             }
@@ -386,33 +461,31 @@ class CardPaymentMethod extends AbstractMethod
             // Process the void request
             $response = $api->voidOrder($payment);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void request could not be processed.')
                 );
             }
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
         }
 
         return $this;
     }
 
     /**
-     * Perform a void request on order cancel.
+     * Perform a void request on order cancel
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param InfoInterface $payment
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|CardPaymentMethod
+     * @throws LocalizedException
      */
-    public function cancel(\Magento\Payment\Model\InfoInterface $payment)
+    public function cancel(InfoInterface $payment)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
-            $order = $payment->getOrder();
+            $order     = $payment->getOrder();
             $storeCode = $order->getStore()->getCode();
 
             // Initialize the API handler
@@ -420,7 +493,7 @@ class CardPaymentMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canVoid()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void action is not available.')
                 );
             }
@@ -428,32 +501,33 @@ class CardPaymentMethod extends AbstractMethod
             // Process the void request
             $response = $api->voidOrder($payment);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void request could not be processed.')
                 );
             }
 
-            $comment = __('Canceled order online, the voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
+            $comment = __(
+                'Canceled order online, the voided amount is %1.',
+                $order->formatPriceTxt($order->getGrandTotal())
+            );
             $payment->setMessage($comment);
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
         }
 
         return $this;
     }
 
     /**
-     * Perform a refund request.
+     * Perform a refund request
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
-     * @param float $amount The amount
+     * @param InfoInterface $payment
+     * @param float         $amount
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|CardPaymentMethod
+     * @throws LocalizedException
      */
-    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    public function refund(InfoInterface $payment, $amount)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -461,10 +535,10 @@ class CardPaymentMethod extends AbstractMethod
 
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode);
-            
+
             // Check the status
             if (!$this->canRefund()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The refund action is not available.')
                 );
             }
@@ -473,14 +547,13 @@ class CardPaymentMethod extends AbstractMethod
             $response = $api->refundOrder($payment, $amount);
 
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The refund request could not be processed.')
                 );
             }
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
         }
 
         return $this;
@@ -489,14 +562,15 @@ class CardPaymentMethod extends AbstractMethod
     /**
      * Check whether method is available
      *
-     * @param  \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @param CartInterface|null $quote
+     *
      * @return bool
+     * @throws LocalizedException
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(CartInterface $quote = null)
     {
         if (parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code)
-            && !$this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->_code) && !$this->backendAuthSession->isLoggedIn();
         }
 
         return false;

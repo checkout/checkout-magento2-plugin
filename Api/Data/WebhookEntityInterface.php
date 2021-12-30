@@ -9,25 +9,71 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Api\Data;
 
+/**
+ * Interface WebhookEntityInterface
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
 interface WebhookEntityInterface
 {
     /**
      * Constants for keys of data array.
      */
+    /**
+     * ID constant
+     *
+     * @var string ID
+     */
     const ID = 'id';
+    /**
+     * EVENT_ID constant
+     *
+     * @var string EVENT_ID
+     */
     const EVENT_ID = 'event_id';
+    /**
+     * EVENT_TYPE constant
+     *
+     * @var string EVENT_TYPE
+     */
     const EVENT_TYPE = 'event_type';
+    /**
+     * EVENT_DATA constant
+     *
+     * @var string EVENT_DATA
+     */
     const EVENT_DATA = 'event_data';
+    /**
+     * ORDER_ID constant
+     *
+     * @var string ORDER_ID
+     */
     const ORDER_ID = 'order_id';
+    /**
+     * RECEIVED_AT constant
+     *
+     * @var string RECEIVED_AT
+     */
     const RECEIVED_AT = 'received_at';
+    /**
+     * PROCESSED_AT constant
+     *
+     * @var string PROCESSED_AT
+     */
     const PROCESSED_AT = 'processed_at';
+    /**
+     * PROCESSED constant
+     *
+     * @var string PROCESSED
+     */
     const PROCESSED = 'processed';
 
     /**

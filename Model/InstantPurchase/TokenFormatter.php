@@ -10,36 +10,48 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
+use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 
 /**
  * Class TokenFormatter
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class TokenFormatter
 {
     /**
-     * @var VaultHandlerService
+     * $vaultHandler field
+     *
+     * @var VaultHandlerService $vaultHandler
      */
     public $vaultHandler;
 
     /**
-     * TokenFormatter constructor.
+     * TokenFormatter constructor
+     *
+     * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
+        VaultHandlerService $vaultHandler
     ) {
         $this->vaultHandler = $vaultHandler;
     }
 
     /**
-     * @inheritdoc
+     * Description formatPaymentToken function
+     *
+     * @param PaymentTokenInterface $paymentToken
+     *
+     * @return string
      */
     public function formatPaymentToken(PaymentTokenInterface $paymentToken)
     {

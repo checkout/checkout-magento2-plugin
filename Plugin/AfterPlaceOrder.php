@@ -9,51 +9,72 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Plugin;
 
-use Magento\Sales\Api\OrderManagementInterface;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 
 /**
- * Class AfterPlaceOrder.
+ * Class AfterPlaceOrder
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 class AfterPlaceOrder
 {
     /**
-     * @var Session
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
      */
     public $backendAuthSession;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
-
     /**
-     * @var WebhookHandlerService
+     * $webhookHandler field
+     *
+     * @var WebhookHandlerService $webhookHandler
      */
     public $webhookHandler;
 
     /**
-     * AfterPlaceOrder constructor.
+     * AfterPlaceOrder constructor
+     *
+     * @param Session               $backendAuthSession
+     * @param Config                $config
+     * @param WebhookHandlerService $webhookHandler
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler
+        Session $backendAuthSession,
+        Config $config,
+        WebhookHandlerService $webhookHandler
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->config = $config;
-        $this->webhookHandler = $webhookHandler;
+        $this->config             = $config;
+        $this->webhookHandler     = $webhookHandler;
     }
 
     /**
-     * Disable order email sending on order creation
+     * Description afterPlace function
+     *
+     * @param OrderManagementInterface $subject
+     * @param OrderInterface           $order
+     *
+     * @return OrderInterface
+     * @throws LocalizedException
      */
     public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
     {

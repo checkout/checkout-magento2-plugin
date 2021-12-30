@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -18,25 +18,39 @@
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use Exception;
 use Magento\Backend\Block\Template\Context;
-use Magento\Framework\App\ObjectManager;
-use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Backend\Block\Widget\Button;
+use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\ScopeInterface;
 
-abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\Form\Field
+/**
+ * Class AbstractCallbackUrl
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
+abstract class AbstractCallbackUrl extends Field
 {
     /**
-     * @var string
+     * TEMPLATE constant
+     *
+     * @var string TEMPLATE
      */
     const TEMPLATE = 'system/config/webhook_admin.phtml';
-
     /**
-     * @var ApiHandlerService
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
     private $apiHandler;
-
     /**
-     * @var ScopeConfigInterface
+     * $scopeConfig field
+     *
+     * @var ScopeConfigInterface $scopeConfig
      */
     public $scopeConfig;
 
@@ -51,14 +65,15 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
         if (!$this->getTemplate()) {
             $this->setTemplate(static::TEMPLATE);
         }
+
         return $this;
     }
 
     /**
-     * @param ApiHandlerService $apiHandler
+     * @param ApiHandlerService    $apiHandler
      * @param ScopeConfigInterface $scopeConfig
-     * @param Context $context
-     * @param array $data
+     * @param Context              $context
+     * @param array                $data
      */
     public function __construct(
         ApiHandlerService $apiHandler,
@@ -67,7 +82,8 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
         array $data = []
     ) {
         parent::__construct($context, $data);
-        $this->apiHandler = $apiHandler;
+
+        $this->apiHandler  = $apiHandler;
         $this->scopeConfig = $scopeConfig;
     }
 
@@ -75,30 +91,31 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
      * Overridden method for rendering a field. In this case the field must be only for read.
      *
      * @param AbstractElement $element
+     *
      * @return string
      */
     protected function _getElementHtml(AbstractElement $element)
     {
         // Get the selected scope and id
         if (array_key_exists('website', $this->getRequest()->getParams())) {
-            $scope = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES;
+            $scope     = ScopeInterface::SCOPE_WEBSITES;
             $storeCode = $this->getRequest()->getParam('website', 0);
         } else {
-            $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORES;
+            $scope     = ScopeInterface::SCOPE_STORES;
             $storeCode = $this->getRequest()->getParam('store', 0);
             if ($storeCode == 0) {
-                $scope = 'default';
+                $scope     = 'default';
                 $storeCode = $this->getRequest()->getParam('site', 0);
             }
         }
 
-        $baseUrl = $this->scopeConfig->getValue(
+        $baseUrl     = $this->scopeConfig->getValue(
             'web/unsecure/base_url',
             $scope,
             $storeCode
         );
         $callbackUrl = $baseUrl . 'checkout_com/' . $this->getControllerUrl();
-        
+
         try {
             // Initialize the API handler
             $api = $this->apiHandler->init($storeCode, $scope);
@@ -117,7 +134,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
 
             // Retrieve all configured webhooks
             $webhooks = $api->checkoutApi->webhooks()->retrieve();
-            $webhook = null;
+            $webhook  = null;
             foreach ($webhooks->list as $list) {
                 if ($list->url == $callbackUrl) {
                     $webhook = $list;
@@ -126,7 +143,7 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
             }
 
             // Get available webhook events
-            $events = $api->checkoutApi->events()->types(['version' => '2.0']);
+            $events     = $api->checkoutApi->events()->types(['version' => '2.0']);
             $eventTypes = $events->list[0]->event_types;
 
             if (!isset($webhook)
@@ -138,47 +155,43 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $element->setReadonly('readonly');
 
                 if (empty($secretKey)) {
-                    $this->addData(
-                        [
+                    $this->addData([
                             'element_html' => $element->getElementHtml(),
                             'button_label' => __('Set Webhooks'),
-                            'hidden' => false,
-                            'scope' => $scope,
-                            'scope_id' => $storeCode,
-                            'webhook_url' => $callbackUrl
-                        ]
-                    );
+                            'hidden'       => false,
+                            'scope'        => $scope,
+                            'scope_id'     => $storeCode,
+                            'webhook_url'  => $callbackUrl
+                        ]);
                 } else {
-                    $this->addData(
-                        [
-                            'element_html' => $element->getElementHtml(),
-                            'button_label' => __('Set Webhooks'),
-                            'message' => __('Attention, webhook not properly configured!'),
+                    $this->addData([
+                            'element_html'  => $element->getElementHtml(),
+                            'button_label'  => __('Set Webhooks'),
+                            'message'       => __('Attention, webhook not properly configured!'),
                             'message_class' => 'no-webhook',
-                            'hidden' => false,
-                            'scope' => $scope,
-                            'scope_id' => $storeCode,
-                            'webhook_url' => $callbackUrl
-                        ]
-                    );
+                            'hidden'        => false,
+                            'scope'         => $scope,
+                            'scope_id'      => $storeCode,
+                            'webhook_url'   => $callbackUrl
+                        ]);
                 }
+
                 return $this->_toHtml();
             } else {
                 // Webhook configured
                 $element->setData('value', $callbackUrl);
                 $element->setReadonly('readonly');
 
-                $this->addData(
-                    [
-                        'element_html'      => $element->getElementHtml(),
-                        'message'           => __('Your webhook is all set!'),
-                        'message_class'     => 'webhook-set',
-                        'hidden'            => true
-                    ]
-                );
+                $this->addData([
+                        'element_html'  => $element->getElementHtml(),
+                        'message'       => __('Your webhook is all set!'),
+                        'message_class' => 'webhook-set',
+                        'hidden'        => true
+                    ]);
+
                 return $this->_toHtml();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Invalid secret key
             $element->setData('value', $callbackUrl);
             $element->setReadonly('readonly');
@@ -188,29 +201,25 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
                 $scope,
                 $storeCode
             );
-            
+
             if (empty($secretKey)) {
-                $this->addData(
-                    [
-                        'element_html'      => $element->getElementHtml(),
-                        'hidden'            => true,
-                        'scope'             => $scope,
-                        'scope_id'          => $storeCode,
-                        'webhook_url' => $callbackUrl
-                    ]
-                );
+                $this->addData([
+                        'element_html' => $element->getElementHtml(),
+                        'hidden'       => true,
+                        'scope'        => $scope,
+                        'scope_id'     => $storeCode,
+                        'webhook_url'  => $callbackUrl
+                    ]);
             } else {
-                $this->addData(
-                    [
-                        'element_html'      => $element->getElementHtml(),
-                        'message'           => __('Attention, secret key incorrect!'),
-                        'message_class'     => 'no-webhook',
-                        'hidden'            => true,
-                        'scope'             => $scope,
-                        'scope_id'          => $storeCode,
-                        'webhook_url' => $callbackUrl
-                    ]
-                );
+                $this->addData([
+                        'element_html'  => $element->getElementHtml(),
+                        'message'       => __('Attention, secret key incorrect!'),
+                        'message_class' => 'no-webhook',
+                        'hidden'        => true,
+                        'scope'         => $scope,
+                        'scope_id'      => $storeCode,
+                        'webhook_url'   => $callbackUrl
+                    ]);
             }
 
             return $this->_toHtml();
@@ -231,17 +240,16 @@ abstract class AbstractCallbackUrl extends \Magento\Config\Block\System\Config\F
      * Generate set webhook button html
      *
      * @return string
+     * @throws LocalizedException
      */
     public function getButtonHtml()
     {
         $button = $this->getLayout()->createBlock(
-            \Magento\Backend\Block\Widget\Button::class
-        )->setData(
-            [
-                'id' => 'webhook_button',
-                'label' => __('Set Webhooks'),
-            ]
-        );
+            Button::class
+        )->setData([
+                'id'    => 'webhook_button',
+                'label' => __('Set Webhooks')
+            ]);
 
         return $button->toHtml();
     }

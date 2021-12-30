@@ -8,7 +8,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -20,7 +20,7 @@ define(
     ],
     function ($, __) {
         'use strict';
-        
+
         return {
             load: function (framesInstance, formId) {
                 // Assign properties
@@ -50,7 +50,7 @@ define(
                 if (event.isValid || event.isEmpty) {
                     return '';
                 }
-              
+
                 return this.getErrors()[event.element];
             },
 

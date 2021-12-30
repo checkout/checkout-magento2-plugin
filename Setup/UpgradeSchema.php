@@ -9,7 +9,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -17,19 +17,31 @@
 namespace CheckoutCom\Magento2\Setup;
 
 use Magento\Framework\DB\Ddl\Table;
+use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\Setup\SchemaSetupInterface;
+use Magento\Framework\Setup\UpgradeSchemaInterface;
+use Zend_Db_Exception;
 
-class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
+/**
+ * Class UpgradeSchema
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ */
+class UpgradeSchema implements UpgradeSchemaInterface
 {
     /**
-     * Upgrades DB schema for the module
+     * Description upgrade function
      *
      * @param SchemaSetupInterface $setup
      * @param ModuleContextInterface $context
+     *
      * @return void
+     * @throws Zend_Db_Exception
      */
     public function upgrade(
-        \Magento\Framework\Setup\SchemaSetupInterface $setup,
-        \Magento\Framework\Setup\ModuleContextInterface $context
+        SchemaSetupInterface $setup,
+        ModuleContextInterface $context
     ) {
         $installer = $setup;
         $installer->startSetup();

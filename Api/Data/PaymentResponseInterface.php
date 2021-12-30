@@ -9,7 +9,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2020 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -19,6 +19,8 @@ namespace CheckoutCom\Magento2\Api\Data;
 /**
  * Interface used to set the API v3 response
  *
+ * @category  Magento2
+ * @package   Checkout.com
  */
 interface PaymentResponseInterface
 {
@@ -26,8 +28,23 @@ interface PaymentResponseInterface
      * Constants for keys of data array.
      */
     const SUCCESS = 'success';
+    /**
+     * ORDER_ID constant
+     *
+     * @var string ORDER_ID
+     */
     const ORDER_ID = 'order_id';
+    /**
+     * REDIRECT_URL constant
+     *
+     * @var string REDIRECT_URL
+     */
     const REDIRECT_URL = 'redirect_url';
+    /**
+     * ERROR_MESSAGE constant
+     *
+     * @var string ERROR_MESSAGE
+     */
     const ERROR_MESSAGE = 'error_message';
 
     /**
