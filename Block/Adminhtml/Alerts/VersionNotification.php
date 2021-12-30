@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Block\Adminhtml\Alerts;
 
 use CheckoutCom\Magento2\Model\Service\VersionHandlerService;
@@ -66,9 +68,9 @@ class VersionNotification implements MessageInterface
     /**
      * Description getIdentity function
      *
-     * @return false|string
+     * @return string
      */
-    public function getIdentity()
+    public function getIdentity(): string
     {
         return hash('sha256', 'Checkout.com' . time());
     }
@@ -79,9 +81,8 @@ class VersionNotification implements MessageInterface
      * @return bool
      * @throws FileSystemException|NoSuchEntityException
      */
-    public function isDisplayed()
+    public function isDisplayed(): bool
     {
-        return true;
         /** @var string[] $versions */
         $versions = $this->getModuleVersions();
         if ($this->versionHandler->needsUpdate($versions['current'], $versions['latest'])) {
