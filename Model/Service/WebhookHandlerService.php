@@ -28,9 +28,6 @@ use Magento\Sales\Model\Order;
 
 /**
  * Class WebhookHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class WebhookHandlerService
 {
@@ -39,43 +36,43 @@ class WebhookHandlerService
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
+    private $orderHandler;
     /**
      * $orderStatusHandler field
      *
      * @var OrderStatusHandlerService $orderStatusHandler
      */
-    public $orderStatusHandler;
+    private $orderStatusHandler;
     /**
      * $transactionHandler field
      *
      * @var TransactionHandlerService $transactionHandler
      */
-    public $transactionHandler;
+    private $transactionHandler;
     /**
      * $webhookEntityFactory field
      *
      * @var WebhookEntityFactory $webhookEntityFactory
      */
-    public $webhookEntityFactory;
+    private $webhookEntityFactory;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $collection field
      *
      * @var Collection $collection
      */
-    public $collection;
+    private $collection;
     /**
      * $webhookEntityRepository field
      *

@@ -37,9 +37,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class QuoteHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class QuoteHandlerService
 {
@@ -48,61 +45,61 @@ class QuoteHandlerService
      *
      * @var Session $checkoutSession
      */
-    public $checkoutSession;
+    private $checkoutSession;
     /**
      * $customerSession field
      *
      * @var Session $customerSession
      */
-    public $customerSession;
+    private $customerSession;
     /**
      * $cookieManager field
      *
      * @var CookieManagerInterface $cookieManager
      */
-    public $cookieManager;
+    private $cookieManager;
     /**
      * $quoteFactory field
      *
      * @var QuoteFactory $quoteFactory
      */
-    public $quoteFactory;
+    private $quoteFactory;
     /**
      * $cartRepository field
      *
      * @var CartRepositoryInterface $cartRepository
      */
-    public $cartRepository;
+    private $cartRepository;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $productRepository field
      *
      * @var ProductRepositoryInterface $productRepository
      */
-    public $productRepository;
+    private $productRepository;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $shopperHandler field
      *
      * @var ShopperHandlerService $shopperHandler
      */
-    public $shopperHandler;
+    private $shopperHandler;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
 
     /**
      * QuoteHandlerService constructor

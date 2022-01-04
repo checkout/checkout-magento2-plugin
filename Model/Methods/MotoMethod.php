@@ -38,9 +38,6 @@ use Magento\Quote\Api\Data\CartInterface;
 
 /**
  * Class MotoMethod
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class MotoMethod extends AbstractMethod
 {
@@ -55,85 +52,73 @@ class MotoMethod extends AbstractMethod
      *
      * @var string $_code
      */
-    public $_code = self::CODE;
+    protected $_code = self::CODE;
     /**
      * $_formBlockType
      *
      * @var string $_formBlockType
      */
-    public $_formBlockType = Moto::class;
+    protected $_formBlockType = Moto::class;
     /**
      * $_canAuthorize
      *
      * @var bool $_canAuthorize
      */
-    public $_canAuthorize = true;
+    protected $_canAuthorize = true;
     /**
      * $_canCapture field
      *
      * @var bool $_canCapture
      */
-    public $_canCapture = true;
-    /**
-     * $_canCancel field
-     *
-     * @var bool $_canCancel
-     */
-    public $_canCancel = true;
+    protected $_canCapture = true;
     /**
      * $_canCapturePartial field
      *
      * @var bool $_canCapturePartial
      */
-    public $_canCapturePartial = true;
+    protected $_canCapturePartial = true;
     /**
      * $_canVoid field
      *
      * @var bool $_canVoid
      */
-    public $_canVoid = true;
+    protected $_canVoid = true;
     /**
      * $_canUseInternal field
      *
      * @var bool $_canUseInternal
      */
-    public $_canUseInternal = true;
+    protected $_canUseInternal = true;
     /**
      * $_canUseCheckout field
      *
      * @var bool $_canUseCheckout
      */
-    public $_canUseCheckout = true;
+    protected $_canUseCheckout = true;
     /**
      * $_canRefund field
      *
      * @var bool $_canRefund
      */
-    public $_canRefund = true;
+    protected $_canRefund = true;
     /**
      * $_canRefundInvoicePartial field
      *
      * @var bool $_canRefundInvoicePartial
      */
-    public $_canRefundInvoicePartial = true;
+    protected $_canRefundInvoicePartial = true;
     /**
      * $apiHandler field
      *
      * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
-    public $messageManager;
+    private $apiHandler;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $backendAuthSession field
      *
@@ -154,7 +139,6 @@ class MotoMethod extends AbstractMethod
      * @param Session                    $backendAuthSession
      * @param Config                     $config
      * @param ApiHandlerService          $apiHandler
-     * @param ManagerInterface           $messageManager
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
@@ -171,13 +155,13 @@ class MotoMethod extends AbstractMethod
         Session $backendAuthSession,
         Config $config,
         ApiHandlerService $apiHandler,
-        ManagerInterface $messageManager,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
         DirectoryHelper $directoryHelper
     ) {
         parent::__construct(
+            $config,
             $context,
             $registry,
             $extensionFactory,
@@ -194,7 +178,6 @@ class MotoMethod extends AbstractMethod
         $this->backendAuthSession = $backendAuthSession;
         $this->config             = $config;
         $this->apiHandler         = $apiHandler;
-        $this->messageManager     = $messageManager;
     }
 
     /**

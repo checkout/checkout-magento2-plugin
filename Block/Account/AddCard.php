@@ -23,9 +23,6 @@ use Magento\Framework\View\Element\Template\Context;
 
 /**
  * Class AddCard
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class AddCard extends Template
 {
@@ -34,7 +31,7 @@ class AddCard extends Template
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
 
     /**
      * AddCard constructor
@@ -50,5 +47,15 @@ class AddCard extends Template
     ) {
         $this->config = $config;
         parent::__construct($context, $data);
+    }
+
+    /**
+     * Get config
+     *
+     * @return Config
+     */
+    public function getConfig(): Config
+    {
+        return $this->config;
     }
 }

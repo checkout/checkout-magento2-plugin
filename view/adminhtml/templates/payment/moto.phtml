@@ -37,9 +37,9 @@ use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
                     $cardsList = $block->getUserCards();
                     foreach ($cardsList as $card):
                         $details = json_decode($card->getTokenDetails() ?: '{}', true);
-                        $iconUrl = $block->cardHandler->getCardIcon($details['type']);
+                        $iconUrl = $block->getCardHandler()->getCardIcon($details['type']);
                         $publicHash = $card->getPublicHash();
-                        $tokenData = $block->vaultHandler->renderTokenData($card);
+                        $tokenData = $block->getVaultHandler()->renderTokenData($card);
                         ?>
                         <div id="cko-vault-card-<?= $block->escapeHtmlAttr($card->getEntityId())?>"
                         class="cko-vault-card">
@@ -79,8 +79,8 @@ use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
 
         Frames.init(
             {
-                publicKey: '<?= $block->escapeHtml($block->config->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
-                debug: Boolean(<?= $block->escapeHtml($block->config->getValue('debug')) ?>),
+                publicKey: '<?= $block->escapeHtml($block->getConfig()->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
+                debug: Boolean(<?= $block->escapeHtml($block->getConfig()->getValue('debug')) ?>),
                 cardValidationChanged: function(event) {
                     if (Frames.isCardValid()) {
                         Frames.submitCard();

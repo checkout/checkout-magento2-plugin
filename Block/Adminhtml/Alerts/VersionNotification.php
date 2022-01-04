@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Block\Adminhtml\Alerts;
 
 use CheckoutCom\Magento2\Model\Service\VersionHandlerService;
@@ -25,9 +27,6 @@ use Magento\Framework\Phrase;
 
 /**
  * Class VersionNotification
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class VersionNotification implements MessageInterface
 {
@@ -36,19 +35,7 @@ class VersionNotification implements MessageInterface
      *
      * @var VersionHandlerService $versionHandler
      */
-    public $versionHandler;
-    /**
-     * $current field
-     *
-     * @var mixed $current
-     */
-    public $current;
-    /**
-     * $latest field
-     *
-     * @var mixed $latest
-     */
-    public $latest;
+    private $versionHandler;
 
     /**
      * @param VersionHandlerService $versionHandler
@@ -63,11 +50,14 @@ class VersionNotification implements MessageInterface
      * Description getText function
      *
      * @return Phrase
+     * @throws FileSystemException
+     * @throws NoSuchEntityException
      */
-    public function getText()
+    public function getText(): Phrase
     {
+        $versions = $this->getModuleVersions();
         $message = __(
-            'Please keep your website safe! Your checkout plugin (v' . $this->current . ') is not the latest version (v' . $this->latest . ').
+            'Please keep your website safe! Your checkout plugin (v' . $versions["current"] . ') is not the latest version (v' . $versions["latest"] . ').
          Update now to get the latest features and security updates.
          See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.'
         );
@@ -78,9 +68,9 @@ class VersionNotification implements MessageInterface
     /**
      * Description getIdentity function
      *
-     * @return false|string
+     * @return string
      */
-    public function getIdentity()
+    public function getIdentity(): string
     {
         return hash('sha256', 'Checkout.com' . time());
     }
@@ -91,7 +81,7 @@ class VersionNotification implements MessageInterface
      * @return bool
      * @throws FileSystemException|NoSuchEntityException
      */
-    public function isDisplayed()
+    public function isDisplayed(): bool
     {
         /** @var string[] $versions */
         $versions = $this->getModuleVersions();

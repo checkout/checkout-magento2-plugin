@@ -29,9 +29,6 @@ use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class AbstractCallbackUrl
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 abstract class AbstractCallbackUrl extends Field
 {
@@ -52,7 +49,7 @@ abstract class AbstractCallbackUrl extends Field
      *
      * @var ScopeConfigInterface $scopeConfig
      */
-    public $scopeConfig;
+    private $scopeConfig;
 
     /**
      * Set the template
@@ -133,7 +130,7 @@ abstract class AbstractCallbackUrl extends Field
             );
 
             // Retrieve all configured webhooks
-            $webhooks = $api->checkoutApi->webhooks()->retrieve();
+            $webhooks = $api->getCheckoutApi()->webhooks()->retrieve();
             $webhook  = null;
             foreach ($webhooks->list as $list) {
                 if ($list->url == $callbackUrl) {
@@ -143,7 +140,7 @@ abstract class AbstractCallbackUrl extends Field
             }
 
             // Get available webhook events
-            $events     = $api->checkoutApi->events()->types(['version' => '2.0']);
+            $events     = $api->getCheckoutApi()->events()->types(['version' => '2.0']);
             $eventTypes = $events->list[0]->event_types;
 
             if (!isset($webhook)

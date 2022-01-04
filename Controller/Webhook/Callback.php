@@ -46,9 +46,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Callback
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Callback extends Action implements CsrfAwareActionInterface
 {
@@ -57,67 +54,61 @@ class Callback extends Action implements CsrfAwareActionInterface
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $apiHandler field
      *
-     * @var apiHandler $apiHandler
+     * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $orderHandler field
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
+    private $orderHandler;
     /**
      * $shopperHandler field
      *
      * @var ShopperHandlerService $shopperHandler
      */
-    public $shopperHandler;
+    private $shopperHandler;
     /**
      * $webhookHandler field
      *
      * @var WebhookHandlerService $webhookHandler
      */
-    public $webhookHandler;
+    private $webhookHandler;
     /**
      * $vaultHandler field
      *
      * @var VaultHandlerService $vaultHandler
      */
-    public $vaultHandler;
+    private $vaultHandler;
     /**
      * $paymentErrorHandler field
      *
      * @var PaymentErrorHandlerService $paymentErrorHandler
      */
-    public $paymentErrorHandler;
+    private $paymentErrorHandler;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    protected $utilities;
+    private $config;
     /**
      * $scopeConfig field
      *
      * @var ScopeConfigInterface $scopeConfig
      */
-    public $scopeConfig;
+    private $scopeConfig;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
 
     /**
      * Callback constructor
@@ -132,7 +123,6 @@ class Callback extends Action implements CsrfAwareActionInterface
      * @param VaultHandlerService        $vaultHandler
      * @param PaymentErrorHandlerService $paymentErrorHandler
      * @param Config                     $config
-     * @param Utilities                  $utilities
      * @param Logger                     $logger
      */
     public function __construct(
@@ -146,7 +136,6 @@ class Callback extends Action implements CsrfAwareActionInterface
         VaultHandlerService $vaultHandler,
         PaymentErrorHandlerService $paymentErrorHandler,
         Config $config,
-        Utilities $utilities,
         Logger $logger
     ) {
         parent::__construct($context);
@@ -160,7 +149,6 @@ class Callback extends Action implements CsrfAwareActionInterface
         $this->vaultHandler        = $vaultHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
         $this->config              = $config;
-        $this->utilities           = $utilities;
         $this->logger              = $logger;
     }
 

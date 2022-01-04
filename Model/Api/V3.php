@@ -46,16 +46,13 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class V3 - Execute the API v3 endpoint
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class V3 implements V3Interface
 {
     /**
      * $paymentResponseFactory field
      *
-     * @var paymentResponseFactory $paymentResponseFactory
+     * @var PaymentResponseFactory $paymentResponseFactory
      */
     private $paymentResponseFactory;
     /**
@@ -123,13 +120,13 @@ class V3 implements V3Interface
      *
      * @var VaultHandlerService $vaultHandler
      */
-    public $vaultHandler;
+    private $vaultHandler;
     /**
      * $request
      *
      * @var Http $request
      */
-    public $request;
+    private $request;
     /**
      * $data field
      *
@@ -159,7 +156,7 @@ class V3 implements V3Interface
      *
      * @var Object $order
      */
-    public $order;
+    private $order;
     /**
      * $quote field
      *
@@ -548,7 +545,7 @@ class V3 implements V3Interface
 
         // Check the quote id has been specified correctly
         if ($this->data->getQuoteId() !== null) {
-            if (is_integer($this->data->getQuoteId()) && $this->data->getQuoteId() < 1) {
+            if (is_int($this->data->getQuoteId()) && $this->data->getQuoteId() < 1) {
                 $this->result['error_message'][] = __('Quote ID provided must be a positive integer');
                 $isValid                         = false;
             }

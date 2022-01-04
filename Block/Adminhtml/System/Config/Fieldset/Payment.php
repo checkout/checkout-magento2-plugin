@@ -26,9 +26,6 @@ use Magento\Framework\View\Helper\Js;
 
 /**
  * Class Payment
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Payment extends Fieldset
 {
@@ -37,13 +34,13 @@ class Payment extends Fieldset
      *
      * @var Config $_backendConfig
      */
-    public $_backendConfig;
+    private $_backendConfig;
     /**
      * $versionHandler field
      *
      * @var VersionHandlerService $versionHandler
      */
-    public $versionHandler;
+    private $versionHandler;
 
     /**
      * Payment constructor
@@ -75,7 +72,7 @@ class Payment extends Fieldset
      *
      * @return string
      */
-    public function _getFrontendClass($element)
+    protected function _getFrontendClass($element)
     {
         $enabledString = $this->_isPaymentEnabled($element) ? ' enabled' : '';
 
@@ -116,7 +113,7 @@ class Payment extends Fieldset
      * @return string
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function _getHeaderTitleHtml($element)
+    protected function _getHeaderTitleHtml($element)
     {
         $html = '<div class="config-heading" >';
 
@@ -176,7 +173,7 @@ class Payment extends Fieldset
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function _getHeaderCommentHtml($element)
+    protected function _getHeaderCommentHtml($element)
     {
         return '';
     }
@@ -189,7 +186,7 @@ class Payment extends Fieldset
      * @return false
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function _isCollapseState($element)
+    protected function _isCollapseState($element)
     {
         return false;
     }
@@ -200,7 +197,7 @@ class Payment extends Fieldset
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function _getExtraJs($element)
+    protected function _getExtraJs($element)
     {
         $script = "require(['jquery', 'prototype'], function(jQuery){
             window.ckoToggleSolution = function (id, url) {

@@ -26,45 +26,43 @@ use Magento\Vault\Block\AbstractCardRenderer;
 
 /**
  * Class CardRenderer
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class CardRenderer extends AbstractCardRenderer
 {
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    public $config;
     /**
      * $cardHandler field
      *
      * @var CardHandlerService $cardHandler
      */
-    public $cardHandler;
+    protected $cardHandler;
 
     /**
      * CardRenderer constructor
      *
      * @param Context            $context
      * @param CcConfigProvider   $iconsProvider
-     * @param Config             $config
      * @param CardHandlerService $cardHandler
      * @param array              $data
      */
     public function __construct(
         Context $context,
         CcConfigProvider $iconsProvider,
-        Config $config,
         CardHandlerService $cardHandler,
         array $data
     ) {
         parent::__construct($context, $iconsProvider, $data);
 
-        $this->config      = $config;
         $this->cardHandler = $cardHandler;
+    }
+
+    /**
+     * Get Card handler
+     *
+     * @return CardHandlerService
+     */
+    public function getCardHandler(): CardHandlerService
+    {
+        return $this->cardHandler;
     }
 
     /**

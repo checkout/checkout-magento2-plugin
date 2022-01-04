@@ -27,9 +27,6 @@ use Magento\Payment\Model\Config as PaymentModelConfig;
 
 /**
  * Class Moto
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Moto extends Cc
 {
@@ -40,35 +37,29 @@ class Moto extends Cc
      */
     public $_template = 'CheckoutCom_Magento2::payment/moto.phtml';
     /**
-     * $paymentModelConfig field
-     *
-     * @var PaymentModelConfig $paymentModelConfig
-     */
-    public $paymentModelConfig;
-    /**
      * $adminQuote field
      *
      * @var Quote $adminQuote
      */
-    public $adminQuote;
+    private $adminQuote;
     /**
      * $config field
      *
      * @var GatewayConfig $config
      */
-    public $config;
+    protected $config;
     /**
      * $vaultHandler field
      *
      * @var VaultHandlerService $vaultHandler
      */
-    public $vaultHandler;
+    protected $vaultHandler;
     /**
      * $cardHandler field
      *
      * @var CardHandlerService $cardHandler
      */
-    public $cardHandler;
+    protected $cardHandler;
 
     /**
      * Moto constructor
@@ -94,6 +85,36 @@ class Moto extends Cc
         $this->config       = $config;
         $this->vaultHandler = $vaultHandler;
         $this->cardHandler  = $cardHandler;
+    }
+
+    /**
+     * Get config
+     *
+     * @return GatewayConfig
+     */
+    public function getConfig(): GatewayConfig
+    {
+        return $this->config;
+    }
+
+    /**
+     * Get VaultHandler
+     *
+     * @return VaultHandlerService
+     */
+    public function getVaultHandler(): VaultHandlerService
+    {
+        return $this->vaultHandler;
+    }
+
+    /**
+     * Get CardHandler
+     *
+     * @return CardHandlerService
+     */
+    public function getCardHandler(): CardHandlerService
+    {
+        return $this->cardHandler;
     }
 
     /**

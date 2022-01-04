@@ -27,9 +27,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Loader
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Loader
 {
@@ -80,31 +77,25 @@ class Loader
      *
      * @var Dir $moduleDirReader
      */
-    public $moduleDirReader;
+    private $moduleDirReader;
     /**
      * $xmlParser field
      *
      * @var Parser $xmlParser
      */
-    public $xmlParser;
+    private $xmlParser;
     /**
      * $scopeConfig field
      *
      * @var ScopeConfigInterface $scopeConfig
      */
-    public $scopeConfig;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    public $storeManager;
+    private $scopeConfig;
     /**
      * $encryptor field
      *
      * @var EncryptorInterface $encryptor
      */
-    public $encryptor;
+    private $encryptor;
 
     /**
      * Loader constructor
@@ -112,20 +103,17 @@ class Loader
      * @param Reader                $moduleDirReader
      * @param Parser                $xmlParser
      * @param ScopeConfigInterface  $scopeConfig
-     * @param StoreManagerInterface $storeManager
      * @param EncryptorInterface    $encryptor
      */
     public function __construct(
         Reader $moduleDirReader,
         Parser $xmlParser,
         ScopeConfigInterface $scopeConfig,
-        StoreManagerInterface $storeManager,
         EncryptorInterface $encryptor
     ) {
         $this->moduleDirReader = $moduleDirReader;
         $this->xmlParser       = $xmlParser;
         $this->scopeConfig     = $scopeConfig;
-        $this->storeManager    = $storeManager;
         $this->encryptor       = $encryptor;
     }
 

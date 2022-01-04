@@ -33,7 +33,7 @@ class OrderAfterInvoice
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
 
     /**
      * OrderAfterInvoice constructor

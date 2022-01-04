@@ -30,9 +30,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class Webhooks
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Webhooks extends Command
 {
@@ -65,7 +62,7 @@ class Webhooks extends Command
      *
      * @var WebhookHandlerServiceFactory $webhookHandlerFactory
      */
-    public $webhookHandlerFactory;
+    private $webhookHandlerFactory;
     /**
      * $webhookEntityRepository field
      *

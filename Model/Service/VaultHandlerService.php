@@ -33,9 +33,6 @@ use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 
 /**
  * Class VaultHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class VaultHandlerService
 {
@@ -44,85 +41,67 @@ class VaultHandlerService
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $vaultToken field
      *
      * @var VaultToken $vaultToken
      */
-    public $vaultToken;
+    private $vaultToken;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $paymentTokenRepository filed
      *
      * @var PaymentTokenRepositoryInterface $paymentTokenRepository
      */
-    public $paymentTokenRepository;
+    private $paymentTokenRepository;
     /**
      * $paymentTokenManagement filed
      *
      * @var PaymentTokenManagementInterface $paymentTokenManagement
      */
-    public $paymentTokenManagement;
+    private $paymentTokenManagement;
     /**
      * $customerSession field
      *
      * @var Session $customerSession
      */
-    public $customerSession;
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
-    public $messageManager;
-    /**
-     * $apiHandlerService field
-     *
-     * @var ApiHandlerService $apiHandlerService
-     */
-    public $apiHandlerService;
+    private $customerSession;
     /**
      * $cardHandler field
      *
      * @var CardHandlerService $cardHandler
      */
-    public $cardHandler;
+    private $cardHandler;
     /**
      * $customerEmail field
      *
      * @var string $customerEmail
      */
-    public $customerEmail;
+    protected $customerEmail;
     /**
      * $customerId field
      *
      * @var int $customerId
      */
-    public $customerId;
+    private $customerId;
     /**
      * $cardToken field
      *
      * @var string $cardToken
      */
-    public $cardToken;
-    /**
-     * $cardData field
-     *
-     * @var array $cardData
-     */
-    public $cardData = [];
+    private $cardToken;
     /**
      * $response field
      *
-     * @var array $response
+     * @var mixed $response
      */
-    public $response = [];
+    private $response = [];
     /**
      * $apiHandler field
      *
@@ -138,7 +117,6 @@ class VaultHandlerService
      * @param PaymentTokenRepositoryInterface $paymentTokenRepository
      * @param PaymentTokenManagementInterface $paymentTokenManagement
      * @param Session                         $customerSession
-     * @param ManagerInterface                $messageManager
      * @param ApiHandlerService               $apiHandler
      * @param CardHandlerService              $cardHandler
      * @param Config                          $config
@@ -149,7 +127,6 @@ class VaultHandlerService
         PaymentTokenRepositoryInterface $paymentTokenRepository,
         PaymentTokenManagementInterface $paymentTokenManagement,
         Session $customerSession,
-        ManagerInterface $messageManager,
         ApiHandlerService $apiHandler,
         CardHandlerService $cardHandler,
         Config $config
@@ -159,7 +136,6 @@ class VaultHandlerService
         $this->paymentTokenRepository = $paymentTokenRepository;
         $this->paymentTokenManagement = $paymentTokenManagement;
         $this->customerSession        = $customerSession;
-        $this->messageManager         = $messageManager;
         $this->apiHandler             = $apiHandler;
         $this->cardHandler            = $cardHandler;
         $this->config                 = $config;
@@ -203,7 +179,7 @@ class VaultHandlerService
      */
     public function setCustomerEmail($email = null)
     {
-        $this->customerEmail = ($email) ? $email : $this->customerSession->getCustomer()->getEmail();
+        $this->customerEmail = ($email) ?: $this->customerSession->getCustomer()->getEmail();
 
         return $this;
     }
@@ -229,7 +205,7 @@ class VaultHandlerService
      *
      * @return $this
      */
-    public function setResponse($response)
+    public function setResponse($response): VaultHandlerService
     {
         $this->response = $response;
 
@@ -237,37 +213,13 @@ class VaultHandlerService
     }
 
     /**
-     * Saves the credit card in the repository
+     * Get response
      *
-     * @return void
+     * @return mixed
      */
-    public function save()
+    public function getResponse()
     {
-        // Create the payment token from response
-        $paymentToken      = $this->vaultToken->create(
-            $this->cardData,
-            $this->customerId
-        );
-        $foundPaymentToken = $this->foundExistedPaymentToken($paymentToken);
-
-        // Check if card exists
-        if ($foundPaymentToken) {
-            // Display a message if the card exists
-            if ($foundPaymentToken->getIsActive() && $foundPaymentToken->getIsVisible()) {
-                $this->messageManager->addNoticeMessage(__('This card is already saved.'));
-            }
-
-            // Activate or reactivate the card
-            $foundPaymentToken->setIsActive(true);
-            $foundPaymentToken->setIsVisible(true);
-            $this->paymentTokenRepository->save($foundPaymentToken);
-        } else {
-            // Otherwise save the card
-            $gatewayToken = $this->response['card']['id'];
-            $paymentToken->setGatewayToken($gatewayToken);
-            $paymentToken->setIsVisible(true);
-            $this->paymentTokenRepository->save($paymentToken);
-        }
+        return $this->response;
     }
 
     /**
@@ -301,7 +253,7 @@ class VaultHandlerService
         $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
 
         // Send the charge request and get the response
-        $this->response = $api->checkoutApi->payments()->request($request);
+        $this->setResponse($api->getCheckoutApi()->payments()->request($request));
 
         return $this;
     }
@@ -318,10 +270,10 @@ class VaultHandlerService
         $api = $this->apiHandler->init();
 
         // Check if the response is success
-        $success = $api->isValidResponse($this->response);
+        $success = $api->isValidResponse($this->getResponse());
         if ($success) {
             // Get the response array
-            $values = $this->response->getValues();
+            $values = $this->getResponse()->getValues();
             if (isset($values['source'])) {
                 // Get the card data
                 $cardData = $values['source'];

@@ -30,9 +30,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class RefundInvoice
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class RefundInvoice
 {
@@ -41,25 +38,25 @@ class RefundInvoice
      *
      * @var MethodHandlerService $methodHandler
      */
-    public $methodHandler;
+    private $methodHandler;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $apiHandler field
      *
      * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $orderPaymentRepository field
      *

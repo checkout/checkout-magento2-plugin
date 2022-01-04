@@ -22,9 +22,6 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigCardIcons
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ConfigCardIcons implements OptionSourceInterface
 {
@@ -36,7 +33,7 @@ class ConfigCardIcons implements OptionSourceInterface
     public function toOptionArray()
     {
         $output = [];
-        foreach (CardHandlerService::$cardMapper as $value => $label) {
+        foreach (CardHandlerService::CARD_MAPPER as $value => $label) {
             $output[] = [
                 'value' => $value,
                 'label' => __($label)

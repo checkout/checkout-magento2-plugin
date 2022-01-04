@@ -76,9 +76,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class AlternativePaymentMethod
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class AlternativePaymentMethod extends AbstractMethod
 {
@@ -93,115 +90,109 @@ class AlternativePaymentMethod extends AbstractMethod
      *
      * @var string $_code
      */
-    public $_code = self::CODE;
+    protected $_code = self::CODE;
     /**
      * $_canAuthorize field
      *
      * @var bool $_canAuthorize
      */
-    public $_canAuthorize = true;
+    protected $_canAuthorize = true;
     /**
      * $_canCapture field
      *
      * @var bool $_canCapture
      */
-    public $_canCapture = true;
-    /**
-     * $_canCancel field
-     *
-     * @var bool $_canCancel
-     */
-    public $_canCancel = true;
+    protected $_canCapture = true;
     /**
      * $_canCapturePartial field
      *
      * @var bool $_canCapturePartial
      */
-    public $_canCapturePartial = true;
+    protected $_canCapturePartial = true;
     /**
      * $_canVoid field
      *
      * @var bool $_canVoid
      */
-    public $_canVoid = true;
+    protected $_canVoid = true;
     /**
      * $_canUseInternal field
      *
      * @var bool $_canUseInternal
      */
-    public $_canUseInternal = false;
+    protected $_canUseInternal = false;
     /**
      * $_canUseCheckout field
      *
      * @var bool $_canUseCheckout
      */
-    public $_canUseCheckout = true;
+    protected $_canUseCheckout = true;
     /**
      * $_canRefund field
      *
      * @var bool $_canRefund
      */
-    public $_canRefund = true;
+    protected $_canRefund = true;
     /**
      * $_canRefundInvoicePartial field
      *
      * @var bool $_canRefundInvoicePartial
      */
-    public $_canRefundInvoicePartial = true;
+    protected $_canRefundInvoicePartial = true;
     /**
      * $shopperHandler field
      *
      * @var ShopperHandlerService $shopperHandler
      */
-    public $shopperHandler;
+    private $shopperHandler;
     /**
      * $apiHandler field
      *
      * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $ckoLogger field
      *
      * @var Logger $ckoLogger
      */
-    public $ckoLogger;
+    private $ckoLogger;
     /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $curl field
      *
      * @var Curl $curl
      */
-    public $curl;
+    private $curl;
     /**
      * $backendAuthSession field
      *
      * @var Session $backendAuthSession
      */
-    public $backendAuthSession;
+    private $backendAuthSession;
     /**
      * $versionHandler field
      *
      * @var VersionHandler $versionHandler
      */
-    public $versionHandler;
+    private $versionHandler;
     /**
      * $config field
      *
@@ -354,6 +345,7 @@ class AlternativePaymentMethod extends AbstractMethod
         DirectoryHelper $directoryHelper
     ) {
         parent::__construct(
+            $config,
             $context,
             $registry,
             $extensionFactory,
@@ -429,15 +421,13 @@ class AlternativePaymentMethod extends AbstractMethod
 
             // Send the charge request
             try {
-                $response = $api->checkoutApi->payments()->request($payment);
-
-                return $response;
+                return $api->getCheckoutApi()->payments()->request($payment);
             } catch (CheckoutHttpException $e) {
                 $this->ckoLogger->write($e->getBody());
             }
         }
 
-        return $response;
+        return null;
     }
 
     /**

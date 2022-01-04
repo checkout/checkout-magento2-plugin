@@ -24,9 +24,6 @@ use Zend\Log\Writer\Stream;
 
 /**
  * Class Logger
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Logger
 {
@@ -35,13 +32,13 @@ class Logger
      *
      * @var ManagerInterface $messageManager
      */
-    public $messageManager;
+    private $messageManager;
     /**
      * $scopeConfig field
      *
      * @var ScopeConfigInterface $scopeConfig
      */
-    public $scopeConfig;
+    private $scopeConfig;
 
     /**
      * Logger constructor

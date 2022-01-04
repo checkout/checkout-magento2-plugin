@@ -25,9 +25,6 @@ use SplFileObject;
 
 /**
  * Class View
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class View extends Template
 {

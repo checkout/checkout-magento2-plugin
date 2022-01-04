@@ -28,9 +28,6 @@ use Magento\Framework\UrlInterface;
 
 /**
  * Class SaveCard
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class SaveCard extends Action
 {
@@ -39,25 +36,25 @@ class SaveCard extends Action
      *
      * @var ManagerInterface $messageManager
      */
-    public $messageManager;
+    protected $messageManager;
     /**
      * $jsonFactory field
      *
      * @var JsonFactory $jsonFactory
      */
-    public $jsonFactory;
+    private $jsonFactory;
     /**
      * $urlInterface field
      *
      * @var UrlInterface $urlInterface
      */
-    public $urlInterface;
+    private $urlInterface;
     /**
      * $vaultHandler field
      *
      * @var VaultHandlerService $vaultHandler
      */
-    public $vaultHandler;
+    private $vaultHandler;
 
     /**
      * SaveCard constructor
@@ -108,10 +105,11 @@ class SaveCard extends Action
                 ->authorizeTransaction();
 
             // Test the 3DS redirection case
-            if (isset($result->response->_links['redirect']['href'])) {
+            $response = $result->getResponse();
+            if (isset($response->_links['redirect']['href'])) {
                 return $this->jsonFactory->create()->setData([
                     'success' => true,
-                    'url'     => $result->response->_links['redirect']['href'],
+                    'url'     => $response->_links['redirect']['href'],
                 ]);
             } else {
                 // Try to save the card

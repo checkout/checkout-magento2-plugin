@@ -33,9 +33,6 @@ use Checkout\Models\Webhooks\Webhook as WebhookModel;
 
 /**
  * Class Webhook
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Webhook extends Action
 {
@@ -47,29 +44,23 @@ class Webhook extends Action
      */
     private $apiHandler;
     /**
-     * $scopeConfig field
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    public $scopeConfig;
-    /**
      * $resourceConfig field
      *
      * @var Config $resourceConfig
      */
-    public $resourceConfig;
+    private $resourceConfig;
     /**
      * $cacheTypeList field
      *
      * @var TypeListInterface $cacheTypeList
      */
-    public $cacheTypeList;
+    private $cacheTypeList;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
 
     /**
      * Webhook constructor
@@ -77,7 +68,6 @@ class Webhook extends Action
      * @param Context              $context
      * @param JsonFactory          $resultJsonFactory
      * @param ApiHandlerService    $apiHandler
-     * @param ScopeConfigInterface $scopeConfig
      * @param Config               $resourceConfig
      * @param TypeListInterface    $cacheTypeList
      * @param Logger               $logger
@@ -86,17 +76,18 @@ class Webhook extends Action
         Context $context,
         JsonFactory $resultJsonFactory,
         ApiHandlerService $apiHandler,
-        ScopeConfigInterface $scopeConfig,
         Config $resourceConfig,
         TypeListInterface $cacheTypeList,
-        Logger $logger
+        Logger $logger,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->apiHandler        = $apiHandler;
-        $this->scopeConfig       = $scopeConfig;
         $this->resourceConfig    = $resourceConfig;
         $this->cacheTypeList     = $cacheTypeList;
         $this->logger            = $logger;
+        $this->scopeConfig       = $scopeConfig;
+
         parent::__construct($context);
     }
 
@@ -113,16 +104,18 @@ class Webhook extends Action
             // Get the store code
             $scope      = $this->getRequest()->getParam('scope', 0);
             $storeCode  = $this->getRequest()->getParam('scope_id', 0);
-            $secretKey  = $this->getRequest()->getParam('secret_key', 0);
             $publicKey  = $this->getRequest()->getParam('public_key', 0);
             $webhookUrl = $this->getRequest()->getParam('webhook_url', 0);
+            $secretKey = $this->scopeConfig->getValue('settings/checkoutcom_configuration/secret_key');
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode, $scope, $secretKey);
+            $checkoutApi = $this->apiHandler
+                ->init($storeCode, $scope, $secretKey)
+                ->getCheckoutApi();
 
-            $events     = $api->checkoutApi->events()->types(['version' => '2.0']);
+            $events     = $checkoutApi->events()->types(['version' => '2.0']);
             $eventTypes = $events->list[0]->event_types;
-            $webhooks   = $api->checkoutApi->webhooks()->retrieve();
+            $webhooks   = $checkoutApi->webhooks()->retrieve();
             $webhookId  = null;
             foreach ($webhooks->list as $list) {
                 if ($list->url == $webhookUrl) {
@@ -133,10 +126,10 @@ class Webhook extends Action
             if (isset($webhookId)) {
                 $webhook              = new WebhookModel($webhookUrl, $webhookId);
                 $webhook->event_types = $eventTypes;
-                $response             = $api->checkoutApi->webhooks()->update($webhook, true);
+                $response             = $checkoutApi->webhooks()->update($webhook, true);
             } else {
                 $webhook  = new WebhookModel($webhookUrl);
-                $response = $api->checkoutApi->webhooks()->register($webhook, $eventTypes);
+                $response = $checkoutApi->webhooks()->register($webhook, $eventTypes);
             }
 
             $privateSharedKey = $response->headers->authorization;

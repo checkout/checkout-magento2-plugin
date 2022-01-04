@@ -22,9 +22,6 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigAlternativePayments
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ConfigAlternativePayments implements OptionSourceInterface
 {
@@ -33,7 +30,7 @@ class ConfigAlternativePayments implements OptionSourceInterface
      *
      * @var Loader $configLoader
      */
-    public $configLoader;
+    private $configLoader;
 
     /**
      * ConfigAlternativePayments constructor

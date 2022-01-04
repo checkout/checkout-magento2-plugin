@@ -24,9 +24,6 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Class Webhooks
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Webhooks
 {
@@ -41,13 +38,13 @@ class Webhooks
      *
      * @var WebhookHandlerService $webhookHandler
      */
-    public $webhookHandler;
+    private $webhookHandler;
     /**
      * $scopeConfig field
      *
      * @var ScopeConfigInterface $scopeConfig
      */
-    public $scopeConfig;
+    private $scopeConfig;
 
     /**
      * Webhooks constructor

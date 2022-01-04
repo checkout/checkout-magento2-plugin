@@ -19,9 +19,6 @@ namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
 /**
  * Class ShippingSelector
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ShippingSelector
 {

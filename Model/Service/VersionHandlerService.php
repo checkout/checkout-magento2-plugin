@@ -27,9 +27,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class VersionHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class VersionHandlerService
 {
@@ -38,25 +35,25 @@ class VersionHandlerService
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $curl field
      *
      * @var Curl $curl
      */
-    public $curl;
+    private $curl;
     /**
      * $moduleDirReader field
      *
      * @var ModuleDirReader $moduleDirReader
      */
-    public $moduleDirReader;
+    private $moduleDirReader;
     /**
      * $storeManager field
      *
      * @var $storeManager $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $fileDriver field
      *

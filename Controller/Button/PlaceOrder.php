@@ -57,61 +57,55 @@ class PlaceOrder extends Action
      *
      * @var ManagerInterface $messageManager
      */
-    public $messageManager;
+    protected $messageManager;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $jsonFactory field
      *
      * @var JsonFactory $jsonFactory
      */
-    public $jsonFactory;
-    /**
-     * $addressManager field
-     *
-     * @var Address $addressManager
-     */
-    public $addressManager;
+    private $jsonFactory;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $orderHandler field
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
+    private $orderHandler;
     /**
      * $methodHandler field
      *
      * @var MethodHandlerService $methodHandler
      */
-    public $methodHandler;
+    private $methodHandler;
     /**
      * $apiHandler field
      *
      * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $shippingSelector field
      *
      * @var ShippingSelector $shippingSelector
      */
-    public $shippingSelector;
+    private $shippingSelector;
     /**
      * $orderRepository field
      *
@@ -138,7 +132,6 @@ class PlaceOrder extends Action
      * @param ManagerInterface           $messageManager
      * @param StoreManagerInterface      $storeManager
      * @param JsonFactory                $jsonFactory
-     * @param Address                    $addressManager
      * @param QuoteHandlerService        $quoteHandler
      * @param OrderHandlerService        $orderHandler
      * @param MethodHandlerService       $methodHandler
@@ -154,7 +147,6 @@ class PlaceOrder extends Action
         ManagerInterface $messageManager,
         StoreManagerInterface $storeManager,
         JsonFactory $jsonFactory,
-        Address $addressManager,
         QuoteHandlerService $quoteHandler,
         OrderHandlerService $orderHandler,
         MethodHandlerService $methodHandler,
@@ -170,7 +162,6 @@ class PlaceOrder extends Action
         $this->messageManager    = $messageManager;
         $this->storeManager      = $storeManager;
         $this->jsonFactory       = $jsonFactory;
-        $this->addressManager    = $addressManager;
         $this->quoteHandler      = $quoteHandler;
         $this->orderHandler      = $orderHandler;
         $this->methodHandler     = $methodHandler;

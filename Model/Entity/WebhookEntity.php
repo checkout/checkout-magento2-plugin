@@ -23,9 +23,6 @@ use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity as WebhookEntityResou
 
 /**
  * Class WebhookEntity
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class WebhookEntity extends AbstractModel implements WebhookEntityInterface, IdentityInterface
 {
@@ -36,24 +33,11 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      */
     const CACHE_TAG = 'webhook_entity';
     /**
-     * $_cacheTag field
-     *
-     * @var string $_cacheTag
-     */
-    public $_cacheTag = 'webhook_entity';
-    /**
-     * Prefix of model events names
-     *
-     * @var string $_eventPrefix
-     */
-    public $_eventPrefix = 'webhook_entity';
-
-    /**
      * Initialize resource model
      *
      * @return void
      */
-    public function _construct()
+    protected function _construct()
     {
         $this->_init(
             WebhookEntityResourceModel::class

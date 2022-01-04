@@ -27,9 +27,6 @@ use Magento\Framework\HTTP\Client\Curl;
 
 /**
  * Class Validation
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Validation extends Action
 {
@@ -38,19 +35,19 @@ class Validation extends Action
      *
      * @var RawFactory $rawFactory
      */
-    public $rawFactory;
+    private $rawFactory;
     /**
      * $curl field
      *
      * @var Curl $curl
      */
-    public $curl;
+    private $curl;
     /**
      * $config field
      *
      * @var Config
      */
-    public $config;
+    private $config;
 
     /**
      * Validation constructor

@@ -18,9 +18,6 @@ namespace CheckoutCom\Magento2\Api\Data;
 
 /**
  * Interface used to set the API v3 response
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 interface PaymentResponseInterface
 {

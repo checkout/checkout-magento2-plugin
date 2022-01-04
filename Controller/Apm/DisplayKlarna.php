@@ -37,72 +37,63 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class DisplayKlarna
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class DisplayKlarna extends Action
 {
-    /**
-     * $context field
-     *
-     * @var Context $context
-     */
-    public $context;
     /**
      * $storeManager
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $jsonFactory
      *
      * @var JsonFactory $jsonFactory
      */
-    public $jsonFactory;
+    private $jsonFactory;
     /**
      * $apiHandler field
      *
      * @var CheckoutApi $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $shopperHandler field
      *
      * @var ShopperHandlerService $shopperHandler
      */
-    public $shopperHandler;
+    private $shopperHandler;
     /**
      * $utilities
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
     /**
      * $billingAddress field
      *
      * @var Address $billingAddress
      */
-    public $billingAddress;
+    private $billingAddress;
     /**
      * Locale code.
      *
      * @var string $locale
      */
-    public $locale;
+    private $locale;
 
     /**
      * DisplayKlarna constructor
@@ -182,7 +173,9 @@ class DisplayKlarna extends Action
             $storeCode = $this->storeManager->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $checkoutApi = $this->apiHandler
+                ->init($storeCode)
+                ->getCheckoutApi();
 
             $products = $this->getProducts($response, $quote);
             $klarna   = new Klarna(
@@ -199,7 +192,7 @@ class DisplayKlarna extends Action
                 $products
             );
 
-            $source = $api->checkoutApi->sources()->add($klarna);
+            $source = $checkoutApi->sources()->add($klarna);
             if ($source->isSuccessful()) {
                 // Prepare the response
                 $response['source']  = $source->getValues();

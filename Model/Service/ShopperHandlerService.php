@@ -28,9 +28,6 @@ use Magento\Framework\Locale\Resolver;
 
 /**
  * Class ShopperHandlerService
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ShopperHandlerService
 {
@@ -39,31 +36,31 @@ class ShopperHandlerService
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $languageCallbackConfig field
      *
      * @var ConfigLanguageFallback $languageCallbackConfig
      */
-    public $languageCallbackConfig;
+    private $languageCallbackConfig;
     /**
      * $customerSession field
      *
      * @var Session $customerSession
      */
-    public $customerSession;
+    private $customerSession;
     /**
      * $customerRepository field
      *
      * @var CustomerRepositoryInterface $customerRepository
      */
-    public $customerRepository;
+    private $customerRepository;
     /**
      * $localeResolver field
      *
      * @var Resolver $localeResolver
      */
-    public $localeResolver;
+    private $localeResolver;
 
     /**
      * ShopperHandlerService constructor

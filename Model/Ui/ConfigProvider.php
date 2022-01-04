@@ -29,9 +29,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
  * Class ConfigProvider
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ConfigProvider implements ConfigProviderInterface
 {
@@ -40,37 +37,31 @@ class ConfigProvider implements ConfigProviderInterface
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $shopperHandler field
      *
      * @var ShopperHandlerService $shopperHandler
      */
-    public $shopperHandler;
+    private $shopperHandler;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
-    /**
-     * $vaultHandlerService field
-     *
-     * @var VaultHandlerService $vaultHandlerService
-     */
-    public $vaultHandlerService;
+    private $quoteHandler;
     /**
      * $cardHandler field
      *
      * @var CardHandlerService $cardHandler
      */
-    public $cardHandler;
+    private $cardHandler;
     /**
      * $methodHandler field
      *
      * @var MethodHandlerService $methodHandler
      */
-    public $methodHandler;
+    private $methodHandler;
     /**
      * $vaultHandler
      *

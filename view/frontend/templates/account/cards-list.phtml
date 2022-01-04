@@ -14,11 +14,10 @@
  * @link      https://docs.checkout.com/
  */
 
-use Magento\Framework\View\Element\Template;
+use CheckoutCom\Magento2\Block\Account\CardRenderer;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
-use Magento\Vault\Block\CardRendererInterface;
 
-/** @var CardRendererInterface|Template $block */
+/** @var CardRenderer $block */
 
 $ccNumberView = $block->getNumberLast4Digits();
 ?>
@@ -30,8 +29,8 @@ $ccNumberView = $block->getNumberLast4Digits();
         <?= $block->escapeHtml($block->getExpDate()); ?>
     </td>
     <td data-th="<?= $block->escapeHtmlAttr(__('Type')) ?>" class="col card-type">
-        <img src="<?= $block->escapeHtmlAttr($block->cardHandler->getCardIcon($block->getCardType())); ?>">
-        <span><?= $block->escapeHtml($block->cardHandler->getCardScheme($block->getCardType())) ?></span>
+        <img src="<?= $block->escapeHtmlAttr($block->getCardHandler()->getCardIcon($block->getCardType())); ?>">
+        <span><?= $block->escapeHtml($block->getCardHandler()->getCardScheme($block->getCardType())) ?></span>
     </td>
     <td data-th="<?= $block->escapeHtmlAttr(__('Actions')) ?>" class="col actions">
         <form

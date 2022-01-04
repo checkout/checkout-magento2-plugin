@@ -22,9 +22,6 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigDefaultMethod
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ConfigDefaultMethod implements OptionSourceInterface
 {
@@ -33,7 +30,7 @@ class ConfigDefaultMethod implements OptionSourceInterface
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
 
     /**
      * ConfigDefaultMethod constructor

@@ -21,9 +21,6 @@ use Magento\Framework\Model\ResourceModel\Db\Context;
 
 /**
  * Class WebhookEntity mysql resource
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class WebhookEntity extends AbstractDb
 {
@@ -45,7 +42,7 @@ class WebhookEntity extends AbstractDb
      *
      * @return void
      */
-    public function _construct()
+    protected function _construct()
     {
         $this->_init('checkoutcom_webhooks', 'id');
     }

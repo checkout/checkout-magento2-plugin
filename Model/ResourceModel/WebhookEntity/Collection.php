@@ -22,9 +22,6 @@ use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
 /**
  * Class Collection
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Collection extends AbstractCollection
 {
@@ -33,14 +30,14 @@ class Collection extends AbstractCollection
      *
      * @var string $_idFieldName
      */
-    public $_idFieldName = 'id';
+    protected $_idFieldName = 'id';
 
     /**
      * Define the resource model
      *
      * @return void
      */
-    public function _construct()
+    protected function _construct()
     {
         $this->_init(
             WebhookEntityModel::class,

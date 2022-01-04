@@ -38,9 +38,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class PlaceOrder
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class PlaceOrder extends Action
 {
@@ -49,85 +46,73 @@ class PlaceOrder extends Action
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $orderHandler field
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
+    private $orderHandler;
     /**
      * $orderStatusHandler field
      *
      * @var OrderStatusHandlerService $orderStatusHandler
      */
-    public $orderStatusHandler;
+    private $orderStatusHandler;
     /**
      * $methodHandler field
      *
      * @var MethodHandlerService $methodHandler
      */
-    public $methodHandler;
+    private $methodHandler;
     /**
      * $apiHandler field
      *
      * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $paymentErrorHandler field
      *
      * @var PaymentErrorHandler $paymentErrorHandler
      */
-    public $paymentErrorHandler;
+    private $paymentErrorHandler;
     /**
      * $jsonFactory field
      *
      * @var JsonFactory $jsonFactory
      */
-    public $jsonFactory;
+    private $jsonFactory;
     /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
     /**
      * $session field
      *
      * @var Session $session
      */
-    protected $session;
-    /**
-     * $data field
-     *
-     * @var array $data
-     */
-    public $data;
-    /**
-     * $quote field
-     *
-     * @var Quote $quote
-     */
-    public $quote;
+    private $session;
     /**
      * $scopeConfig field
      *
      * @var ScopeConfigInterface $scopeConfig
      */
-    public $scopeConfig;
+    private $scopeConfig;
     /**
      * $orderRepository field
      *

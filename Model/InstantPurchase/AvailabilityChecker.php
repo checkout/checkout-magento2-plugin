@@ -22,9 +22,6 @@ use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 
 /**
  * Class AvailabilityChecker
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class AvailabilityChecker
 {
@@ -33,7 +30,7 @@ class AvailabilityChecker
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $vaultHandler field
      *

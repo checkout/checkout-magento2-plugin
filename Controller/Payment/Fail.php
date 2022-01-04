@@ -46,67 +46,61 @@ class Fail extends Action
      *
      * @var ManagerInterface $messageManager
      */
-    public $messageManager;
+    protected $messageManager;
     /**
      * $transactionHandler field
      *
      * @var TransactionHandlerService $transactionHandler
      */
-    public $transactionHandler;
+    private $transactionHandler;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $apiHandler field
      *
      * @var CheckoutApi $apiHandler
      */
-    public $apiHandler;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    public $quoteHandler;
+    private $apiHandler;
     /**
      * $orderHandler field
      *
      * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
+    private $orderHandler;
     /**
      * $orderStatusHandler field
      *
      * @var OrderStatusHandlerService $orderStatusHandler
      */
-    public $orderStatusHandler;
+    private $orderStatusHandler;
     /**
      * $logger field
      *
      * @var Logger $logger
      */
-    public $logger;
+    private $logger;
     /**
      * $paymentErrorHandlerService field
      *
      * @var PaymentErrorHandlerService $paymentErrorHandlerService
      */
-    public $paymentErrorHandlerService;
+    private $paymentErrorHandlerService;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $session field
      *
      * @var Session $session
      */
-    protected $session;
+    private $session;
 
     /**
      * Fail constructor
@@ -116,7 +110,6 @@ class Fail extends Action
      * @param TransactionHandlerService  $transactionHandler
      * @param StoreManagerInterface      $storeManager
      * @param ApiHandlerService          $apiHandler
-     * @param QuoteHandlerService        $quoteHandler
      * @param OrderHandlerService        $orderHandler
      * @param OrderStatusHandlerService  $orderStatusHandler
      * @param Logger                     $logger
@@ -130,7 +123,6 @@ class Fail extends Action
         TransactionHandlerService $transactionHandler,
         StoreManagerInterface $storeManager,
         ApiHandlerService $apiHandler,
-        QuoteHandlerService $quoteHandler,
         OrderHandlerService $orderHandler,
         OrderStatusHandlerService $orderStatusHandler,
         Logger $logger,
@@ -143,7 +135,6 @@ class Fail extends Action
         $this->messageManager             = $messageManager;
         $this->storeManager               = $storeManager;
         $this->apiHandler                 = $apiHandler;
-        $this->quoteHandler               = $quoteHandler;
         $this->orderHandler               = $orderHandler;
         $this->orderStatusHandler         = $orderStatusHandler;
         $this->logger                     = $logger;

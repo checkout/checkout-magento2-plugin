@@ -21,9 +21,6 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigFormTheme
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ConfigFormTheme implements OptionSourceInterface
 {

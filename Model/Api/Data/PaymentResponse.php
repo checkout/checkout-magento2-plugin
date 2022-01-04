@@ -22,9 +22,6 @@ use Magento\Framework\Model\AbstractExtensibleModel;
 /**
  * Class PaymentResponse
  * Used to set the API v3 response details
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class PaymentResponse extends AbstractExtensibleModel implements PaymentResponseInterface
 {

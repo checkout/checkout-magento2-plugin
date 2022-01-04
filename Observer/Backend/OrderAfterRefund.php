@@ -24,9 +24,6 @@ use Magento\Framework\Event\ObserverInterface;
 
 /**
  * Class OrderAfterRefund
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class OrderAfterRefund implements ObserverInterface
 {
@@ -35,34 +32,25 @@ class OrderAfterRefund implements ObserverInterface
      *
      * @var Session $backendAuthSession
      */
-    public $backendAuthSession;
-    /**
-     * $request field
-     *
-     * @var RequestInterface $request
-     */
-    public $request;
+    private $backendAuthSession;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
 
     /**
      * OrderAfterRefund constructor
      *
      * @param Session          $backendAuthSession
-     * @param RequestInterface $request
      * @param Config           $config
      */
     public function __construct(
         Session $backendAuthSession,
-        RequestInterface $request,
         Config $config
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->request            = $request;
         $this->config             = $config;
     }
 

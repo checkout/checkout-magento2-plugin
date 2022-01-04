@@ -32,9 +32,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class CustomerData
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class CustomerData implements SectionSourceInterface
 {
@@ -55,7 +52,7 @@ class CustomerData implements SectionSourceInterface
      *
      * @var Session $customerSession
      */
-    public $customerSession;
+    private $customerSession;
     /**
      * $customerAddressesFormatter field
      *

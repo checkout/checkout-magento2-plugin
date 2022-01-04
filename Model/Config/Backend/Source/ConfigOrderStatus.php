@@ -22,9 +22,6 @@ use Magento\Sales\Model\ResourceModel\Order\Status\Collection;
 
 /**
  * Class ConfigOrderStatus
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class ConfigOrderStatus implements OptionSourceInterface
 {
@@ -33,7 +30,7 @@ class ConfigOrderStatus implements OptionSourceInterface
      *
      * @var Collection $orderStatusCollection
      */
-    public $orderStatusCollection;
+    private $orderStatusCollection;
 
     /**
      * ConfigOrderStatus constructor

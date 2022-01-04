@@ -51,9 +51,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class CardPaymentMethod
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class CardPaymentMethod extends AbstractMethod
 {
@@ -68,121 +65,109 @@ class CardPaymentMethod extends AbstractMethod
      *
      * @var string $_code
      */
-    public $_code = self::CODE;
+    protected $_code = self::CODE;
     /**
      * $_canAuthorize field
      *
      * @var bool $_canAuthorize
      */
-    public $_canAuthorize = true;
+    protected $_canAuthorize = true;
     /**
      * $_canCapture field
      *
      * @var bool $_canCapture
      */
-    public $_canCapture = true;
-    /**
-     * $_canCancel field
-     *
-     * @var bool $_canCancel
-     */
-    public $_canCancel = true;
+    protected $_canCapture = true;
     /**
      * $_canCapturePartial field
      *
      * @var bool $_canCapturePartial
      */
-    public $_canCapturePartial = true;
+    protected $_canCapturePartial = true;
     /**
      * $_canVoid field
      *
      * @var bool $_canVoid
      */
-    public $_canVoid = true;
+    protected $_canVoid = true;
     /**
      * $_canUseInternal field
      *
      * @var bool $_canUseInternal
      */
-    public $_canUseInternal = false;
+    protected $_canUseInternal = false;
     /**
      * $_canUseCheckout field
      *
      * @var bool $_canUseCheckout
      */
-    public $_canUseCheckout = true;
+    protected $_canUseCheckout = true;
     /**
      * $_canRefund field
      *
      * @var bool $_canRefund
      */
-    public $_canRefund = true;
+    protected $_canRefund = true;
     /**
      * $_canRefundInvoicePartial field
      *
      * @var bool $_canRefundInvoicePartial
      */
-    public $_canRefundInvoicePartial = true;
+    protected $_canRefundInvoicePartial = true;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $cardHandler field
      *
      * @var CardHandlerService $cardHandler
      */
-    public $cardHandler;
+    private $cardHandler;
     /**
      * $ckoLogger field
      *
      * @var Logger $ckoLogger
      */
-    public $ckoLogger;
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
-    public $messageManager;
+    private $ckoLogger;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $apiHandler field
      *
      * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $customerSession field
      *
      * @var Session $customerSession
      */
-    public $customerSession;
+    private $customerSession;
     /**
      * $backendAuthSession field
      *
      * @var Session $backendAuthSession
      */
-    public $backendAuthSession;
+    private $backendAuthSession;
 
     /**
      * CardPaymentMethod constructor
@@ -203,7 +188,6 @@ class CardPaymentMethod extends AbstractMethod
      * @param QuoteHandlerService        $quoteHandler
      * @param CardHandlerService         $cardHandler
      * @param LoggerHelper               $ckoLogger
-     * @param ManagerInterface           $messageManager
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
@@ -226,13 +210,13 @@ class CardPaymentMethod extends AbstractMethod
         QuoteHandlerService $quoteHandler,
         CardHandlerService $cardHandler,
         LoggerHelper $ckoLogger,
-        ManagerInterface $messageManager,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
         DirectoryHelper $directoryHelper
     ) {
         parent::__construct(
+            $config,
             $context,
             $registry,
             $extensionFactory,
@@ -255,7 +239,6 @@ class CardPaymentMethod extends AbstractMethod
         $this->quoteHandler       = $quoteHandler;
         $this->cardHandler        = $cardHandler;
         $this->ckoLogger          = $ckoLogger;
-        $this->messageManager     = $messageManager;
     }
 
     /**
@@ -383,7 +366,7 @@ class CardPaymentMethod extends AbstractMethod
 
         // Send the charge request
         try {
-            $response = $api->checkoutApi->payments()->request($request);
+            $response = $api->getCheckoutApi()->payments()->request($request);
 
             return $response;
         } catch (CheckoutHttpException $e) {

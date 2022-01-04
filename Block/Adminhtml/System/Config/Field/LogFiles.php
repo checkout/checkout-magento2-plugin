@@ -26,9 +26,6 @@ use SplFileObject;
 
 /**
  * Class LogFiles
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class LogFiles extends Field
 {

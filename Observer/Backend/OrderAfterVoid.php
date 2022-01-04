@@ -29,9 +29,6 @@ use Magento\Sales\Model\Order\Payment;
 
 /**
  * Class OrderAfterVoid
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class OrderAfterVoid implements ObserverInterface
 {
@@ -40,31 +37,19 @@ class OrderAfterVoid implements ObserverInterface
      *
      * @var Session $backendAuthSession
      */
-    public $backendAuthSession;
-    /**
-     * $request field
-     *
-     * @var RequestInterface $request
-     */
-    public $request;
+    private $backendAuthSession;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $orderManagement field
      *
      * @var OrderManagementInterface $orderManagement
      */
-    public $orderManagement;
-    /**
-     * $orderModel field
-     *
-     * @var Order $orderModel
-     */
-    public $orderModel;
+    private $orderManagement;
     /**
      * $orderStatusHistoryRepository field
      *
@@ -76,25 +61,19 @@ class OrderAfterVoid implements ObserverInterface
      * OrderAfterVoid constructor
      *
      * @param Session                               $backendAuthSession
-     * @param RequestInterface                      $request
      * @param Config                                $config
      * @param OrderManagementInterface              $orderManagement
-     * @param Order                                 $orderModel
      * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
     public function __construct(
         Session $backendAuthSession,
-        RequestInterface $request,
         Config $config,
         OrderManagementInterface $orderManagement,
-        Order $orderModel,
         OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
         $this->backendAuthSession           = $backendAuthSession;
-        $this->request                      = $request;
         $this->config                       = $config;
         $this->orderManagement              = $orderManagement;
-        $this->orderModel                   = $orderModel;
         $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 

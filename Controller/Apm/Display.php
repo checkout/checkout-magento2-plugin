@@ -29,42 +29,33 @@ use Magento\Framework\View\Result\PageFactory;
 
 /**
  * Class Display
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Display extends Action
 {
-    /**
-     * $context field
-     *
-     * @var Context $context
-     */
-    public $context;
     /**
      * $pageFactory field
      *
      * @var PageFactory $pageFactory
      */
-    public $pageFactory;
+    private $pageFactory;
     /**
      * $jsonFactory field
      *
      * @var JsonFactory $jsonFactory
      */
-    public $jsonFactory;
+    private $jsonFactory;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
 
     /**
      * Display constructor

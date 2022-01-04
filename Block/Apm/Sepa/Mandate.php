@@ -21,9 +21,6 @@ use Magento\Framework\View\Element\Template;
 
 /**
  * Class Mandate
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class Mandate extends Template
 {

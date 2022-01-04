@@ -48,9 +48,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class GooglePayMethod
- *
- * @category  Magento2
- * @package   Checkout.com
  */
 class GooglePayMethod extends AbstractMethod
 {
@@ -65,109 +62,97 @@ class GooglePayMethod extends AbstractMethod
      *
      * @var string $_code
      */
-    public $_code = self::CODE;
+    protected $_code = self::CODE;
     /**
      * $_canAuthorize field
      *
      * @var bool $_canAuthorize
      */
-    public $_canAuthorize = true;
+    protected $_canAuthorize = true;
     /**
      * $_canCapture field
      *
      * @var bool $_canCapture
      */
-    public $_canCapture = true;
-    /**
-     * $_canCancel field
-     *
-     * @var bool $_canCancel
-     */
-    public $_canCancel = true;
+    protected $_canCapture = true;
     /**
      * $_canCapturePartial field
      *
      * @var bool $_canCapturePartial
      */
-    public $_canCapturePartial = true;
+    protected $_canCapturePartial = true;
     /**
      * $_canVoid field
      *
      * @var bool $_canVoid
      */
-    public $_canVoid = true;
+    protected $_canVoid = true;
     /**
      * $_canUseInternal field
      *
      * @var bool $_canUseInternal
      */
-    public $_canUseInternal = false;
+    protected $_canUseInternal = false;
     /**
      * $_canUseCheckout field
      *
      * @var bool $_canUseCheckout
      */
-    public $_canUseCheckout = true;
+    protected $_canUseCheckout = true;
     /**
      * $_canRefund field
      *
      * @var bool $_canRefund
      */
-    public $_canRefund = true;
+    protected $_canRefund = true;
     /**
      * $_canRefundInvoicePartial field
      *
      * @var bool $_canRefundInvoicePartial
      */
-    public $_canRefundInvoicePartial = true;
+    protected $_canRefundInvoicePartial = true;
     /**
      * $config field
      *
      * @var Config $config
      */
-    public $config;
+    private $config;
     /**
      * $apiHandler field
      *
      * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
+    private $apiHandler;
     /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
-    public $utilities;
+    private $utilities;
     /**
      * $quoteHandler field
      *
      * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
+    private $quoteHandler;
     /**
      * $ckoLogger field
      *
      * @var Logger $ckoLogger
      */
-    public $ckoLogger;
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
-    public $messageManager;
+    private $ckoLogger;
     /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
+    private $storeManager;
     /**
      * $backendAuthSession field
      *
      * @var Session $backendAuthSession
      */
-    public $backendAuthSession;
+    private $backendAuthSession;
 
     /**
      * GooglePayMethod constructor
@@ -185,7 +170,6 @@ class GooglePayMethod extends AbstractMethod
      * @param StoreManagerInterface      $storeManager
      * @param QuoteHandlerService        $quoteHandler
      * @param LoggerHelper               $ckoLogger
-     * @param ManagerInterface           $messageManager
      * @param Session                    $backendAuthSession
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
@@ -206,7 +190,6 @@ class GooglePayMethod extends AbstractMethod
         StoreManagerInterface $storeManager,
         QuoteHandlerService $quoteHandler,
         LoggerHelper $ckoLogger,
-        ManagerInterface $messageManager,
         Session $backendAuthSession,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
@@ -214,6 +197,7 @@ class GooglePayMethod extends AbstractMethod
         DirectoryHelper $directoryHelper
     ) {
         parent::__construct(
+            $config,
             $context,
             $registry,
             $extensionFactory,
@@ -233,7 +217,6 @@ class GooglePayMethod extends AbstractMethod
         $this->storeManager       = $storeManager;
         $this->quoteHandler       = $quoteHandler;
         $this->ckoLogger          = $ckoLogger;
-        $this->messageManager     = $messageManager;
         $this->backendAuthSession = $backendAuthSession;
     }
 
@@ -257,6 +240,7 @@ class GooglePayMethod extends AbstractMethod
 
         // Initialize the API handler
         $api = $this->apiHandler->init($storeCode);
+        $checkoutApi = $api->getCheckoutApi();
 
         // Get the quote
         $quote = $this->quoteHandler->getQuote();
@@ -267,7 +251,7 @@ class GooglePayMethod extends AbstractMethod
         );
 
         // Get the token data
-        $tokenData = $api->checkoutApi->tokens()->request($googlePayData);
+        $tokenData = $checkoutApi->tokens()->request($googlePayData);
 
         // Create the Apple Pay token source
         $tokenSource = new TokenSource($tokenData->getId());
@@ -318,9 +302,7 @@ class GooglePayMethod extends AbstractMethod
 
         // Send the charge request
         try {
-            $response = $api->checkoutApi->payments()->request($request);
-
-            return $response;
+            return $checkoutApi->payments()->request($request);
         } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
         }
