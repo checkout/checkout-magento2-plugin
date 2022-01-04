@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Block\Adminhtml\Logs;
 
 use LimitIterator;
@@ -46,7 +48,7 @@ class View extends Template
      *
      * @return string
      */
-    public function getLogFile()
+    public function getLogFile(): string
     {
         $file = BP . '/var/log/' . $this->_request->getParam('file');
         if (is_file($file)) {

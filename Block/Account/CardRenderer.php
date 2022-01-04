@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -14,6 +13,8 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+
+declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Block\Account;
 
@@ -70,7 +71,7 @@ class CardRenderer extends AbstractCardRenderer
      *
      * @return string
      */
-    public function getNumberLast4Digits()
+    public function getNumberLast4Digits(): string
     {
         return $this->getTokenDetails()['maskedCC'];
     }
@@ -80,7 +81,7 @@ class CardRenderer extends AbstractCardRenderer
      *
      * @return string
      */
-    public function getExpDate()
+    public function getExpDate(): string
     {
         return $this->getTokenDetails()['expirationDate'];
     }
@@ -90,9 +91,9 @@ class CardRenderer extends AbstractCardRenderer
      *
      * @param PaymentTokenInterface $token
      *
-     * @return boolean
+     * @return bool
      */
-    public function canRender(PaymentTokenInterface $token)
+    public function canRender(PaymentTokenInterface $token): bool
     {
         return $token->getPaymentMethodCode() === 'checkoutcom_vault';
     }
@@ -102,7 +103,7 @@ class CardRenderer extends AbstractCardRenderer
      *
      * @return string
      */
-    public function getCardType()
+    public function getCardType(): string
     {
         return $this->getTokenDetails()['type'];
     }
@@ -112,7 +113,7 @@ class CardRenderer extends AbstractCardRenderer
      *
      * @return string
      */
-    public function getIconUrl()
+    public function getIconUrl(): string
     {
         return $this->getIconForType($this->getCardType())['url'];
     }
@@ -122,7 +123,7 @@ class CardRenderer extends AbstractCardRenderer
      *
      * @return int
      */
-    public function getIconHeight()
+    public function getIconHeight(): int
     {
         return $this->getIconForType($this->getCardType())['height'];
     }
@@ -132,7 +133,7 @@ class CardRenderer extends AbstractCardRenderer
      *
      * @return int
      */
-    public function getIconWidth()
+    public function getIconWidth(): int
     {
         return $this->getIconForType($this->getCardType())['width'];
     }

@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
 use LimitIterator;
@@ -39,9 +41,9 @@ class LogFiles extends Field
     /**
      * Set the template
      *
-     * @return $this
+     * @return LogFiles
      */
-    protected function _prepareLayout()
+    protected function _prepareLayout(): LogFiles
     {
         parent::_prepareLayout();
         if (!$this->getTemplate()) {
@@ -71,7 +73,7 @@ class LogFiles extends Field
      *
      * @return string
      */
-    protected function _getElementHtml(AbstractElement $element)
+    protected function _getElementHtml(AbstractElement $element): string
     {
         $file     = BP . '/var/log/' . $element->getLabel();
         $contents = '';
@@ -109,12 +111,12 @@ class LogFiles extends Field
     /**
      * Generate set webhook button html
      *
-     * @param $url
+     * @param string $url
      *
      * @return string
      * @throws LocalizedException
      */
-    public function getButtonHtml($url)
+    public function getButtonHtml(string $url): string
     {
         $button = $this->getLayout()->createBlock(
             'Magento\Backend\Block\Widget\Button'

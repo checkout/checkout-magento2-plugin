@@ -16,6 +16,7 @@
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
+use Checkout\Models\Payments\Payment;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -176,7 +177,7 @@ class PlaceOrder extends Action
      *
      * @return Json
      */
-    public function execute()
+    public function execute(): Json
     {
         try {
             // Prepare some parameters
@@ -298,9 +299,9 @@ class PlaceOrder extends Action
      * @param $order
      * @param $data
      *
-     * @return mixed
+     * @return Payment|null
      */
-    protected function requestPayment($order, $data)
+    protected function requestPayment($order, $data): ?Payment
     {
         // Get the method id
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
@@ -317,11 +318,11 @@ class PlaceOrder extends Action
     /**
      * Description isEmptyCardToken function
      *
-     * @param $paymentData
+     * @param string[] $paymentData
      *
      * @return bool
      */
-    public function isEmptyCardToken($paymentData)
+    public function isEmptyCardToken(array $paymentData): bool
     {
         if ($paymentData['methodId'] === "checkoutcom_card_payment") {
             if (!isset($paymentData['cardToken']) || empty($paymentData['cardToken']) || $paymentData['cardToken'] == "") {

@@ -22,6 +22,7 @@ use Checkout\Library\Model;
 use Checkout\Models\Address;
 use Checkout\Models\Payments\Capture;
 use Checkout\Models\Payments\Customer;
+use Checkout\Models\Payments\Payment;
 use Checkout\Models\Payments\Refund;
 use Checkout\Models\Payments\Shipping;
 use Checkout\Models\Payments\Voids;
@@ -274,11 +275,11 @@ class ApiHandlerService
     /**
      * Gets payment details
      *
-     * @param $paymentId
+     * @param string $paymentId
      *
-     * @return mixed
+     * @return Payment
      */
-    public function getPaymentDetails($paymentId)
+    public function getPaymentDetails(string $paymentId): Payment
     {
         return $this->getCheckoutApi()->payments()->details($paymentId);
     }

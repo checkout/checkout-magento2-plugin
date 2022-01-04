@@ -19,6 +19,7 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Checkout\CheckoutApi;
 use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Payments\Payment;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -26,6 +27,7 @@ use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
+use Exception;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -118,7 +120,7 @@ class Verify extends Action
      * @return ResponseInterface
      * @throws NoSuchEntityException
      */
-    public function execute()
+    public function execute(): ResponseInterface
     {
         // Return to the cart
         try {
@@ -215,11 +217,12 @@ class Verify extends Action
     /**
      * Description saveCard function
      *
-     * @param $response
+     * @param Payment $response
      *
      * @return void
+     * @throws Exception
      */
-    public function saveCard($response)
+    public function saveCard(Payment $response): void
     {
         // Save the card
         $success = $this->vaultHandler->setCardToken($response->source['id'])

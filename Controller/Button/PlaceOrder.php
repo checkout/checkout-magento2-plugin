@@ -24,6 +24,8 @@
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Button;
 
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -43,6 +45,7 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Phrase;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -265,9 +268,12 @@ class PlaceOrder extends Action
     /**
      * Creates response with the operation status message.
      *
+     * @param Phrase $message
+     * @param bool   $successMessage
+     *
      * @return Json
      */
-    public function createResponse(string $message, bool $successMessage)
+    public function createResponse(Phrase $message, bool $successMessage): Json
     {
         // Prepare the result
         $result = $this->jsonFactory->create()->setData(['response' => $message]);

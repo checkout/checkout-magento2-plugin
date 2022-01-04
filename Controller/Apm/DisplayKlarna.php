@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Apm;
 
 use Checkout\CheckoutApi;
@@ -160,7 +162,7 @@ class DisplayKlarna extends Action
      *
      * @param CartInterface $quote
      *
-     * @return array
+     * @return string[][]
      * @throws NoSuchEntityException|LocalizedException
      */
     protected function getKlarna(CartInterface $quote): array
@@ -216,7 +218,7 @@ class DisplayKlarna extends Action
     /**
      * Gets the products.
      *
-     * @param array         $response The response
+     * @param mixed[]       $response The response
      * @param CartInterface $quote
      *
      * @return array  The products.
@@ -249,8 +251,8 @@ class DisplayKlarna extends Action
     /**
      * Gets the shipping.
      *
-     * @param array         $response The response
-     * @param array         $products The products.
+     * @param mixed[]       $response The response
+     * @param Product[]       $products The products.
      * @param CartInterface $quote
      *
      * @return void

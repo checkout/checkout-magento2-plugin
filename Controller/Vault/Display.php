@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Vault;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -24,6 +26,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Vault\Model\PaymentToken;
 
 /**
  * Class Display
@@ -84,7 +87,7 @@ class Display extends Action
      *
      * @return Json
      */
-    public function execute()
+    public function execute(): Json
     {
         $html = '';
         if ($this->getRequest()->isAjax()) {
@@ -107,11 +110,11 @@ class Display extends Action
     /**
      * Description loadBlock function
      *
-     * @param $card
+     * @param PaymentToken $card
      *
      * @return string
      */
-    private function loadBlock($card)
+    private function loadBlock(PaymentToken $card): string
     {
         return $this->pageFactory->create()
             ->getLayout()

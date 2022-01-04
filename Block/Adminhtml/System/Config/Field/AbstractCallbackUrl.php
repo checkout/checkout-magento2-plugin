@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -54,9 +56,9 @@ abstract class AbstractCallbackUrl extends Field
     /**
      * Set the template
      *
-     * @return $this
+     * @return AbstractCallbackUrl
      */
-    protected function _prepareLayout()
+    protected function _prepareLayout(): AbstractCallbackUrl
     {
         parent::_prepareLayout();
         if (!$this->getTemplate()) {
@@ -91,7 +93,7 @@ abstract class AbstractCallbackUrl extends Field
      *
      * @return string
      */
-    protected function _getElementHtml(AbstractElement $element)
+    protected function _getElementHtml(AbstractElement $element): string
     {
         // Get the selected scope and id
         if (array_key_exists('website', $this->getRequest()->getParams())) {
@@ -228,7 +230,7 @@ abstract class AbstractCallbackUrl extends Field
      *
      * @return string
      */
-    public function getAjaxUrl()
+    public function getAjaxUrl(): string
     {
         return $this->getUrl('cko/system_config/webhook');
     }
@@ -239,7 +241,7 @@ abstract class AbstractCallbackUrl extends Field
      * @return string
      * @throws LocalizedException
      */
-    public function getButtonHtml()
+    public function getButtonHtml(): string
     {
         $button = $this->getLayout()->createBlock(
             Button::class
@@ -256,5 +258,5 @@ abstract class AbstractCallbackUrl extends Field
      *
      * @return string
      */
-    abstract public function getControllerUrl();
+    abstract public function getControllerUrl(): string;
 }

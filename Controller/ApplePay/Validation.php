@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\ApplePay;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -76,7 +78,7 @@ class Validation extends Action
      * @return Raw
      * @throws NoSuchEntityException
      */
-    public function execute()
+    public function execute(): Raw
     {
         // Get request parameters
         $methodId = $this->getRequest()->getParam('method_id');
@@ -110,11 +112,11 @@ class Validation extends Action
     /**
      * Build the Apple Pay data string
      *
-     * @param $params
+     * @param string[] $params
      *
      * @return string
      */
-    public function buildDataString($params)
+    public function buildDataString(array $params): string
     {
         return '{"merchantIdentifier":"' . $params['merchantId'] . '", "domainName":"' . $params['domainName'] . '", "displayName":"' . $params['displayName'] . '"}';
     }
@@ -124,10 +126,10 @@ class Validation extends Action
      *
      * @param string $methodId
      *
-     * @return array
+     * @return string[]
      * @throws NoSuchEntityException
      */
-    protected function getParams(string $methodId)
+    protected function getParams(string $methodId): array
     {
         return [
             'merchantId'                => $this->config->getValue(

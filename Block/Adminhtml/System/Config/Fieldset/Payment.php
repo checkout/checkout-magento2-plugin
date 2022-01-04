@@ -22,6 +22,7 @@ use Magento\Backend\Model\Auth\Session;
 use Magento\Config\Block\System\Config\Form\Fieldset;
 use Magento\Config\Model\Config;
 use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\View\Helper\Js;
 
 /**
@@ -72,7 +73,7 @@ class Payment extends Fieldset
      *
      * @return string
      */
-    protected function _getFrontendClass($element)
+    protected function _getFrontendClass($element): string
     {
         $enabledString = $this->_isPaymentEnabled($element) ? ' enabled' : '';
 
@@ -86,7 +87,7 @@ class Payment extends Fieldset
      *
      * @return bool
      */
-    public function _isPaymentEnabled($element)
+    public function _isPaymentEnabled(AbstractElement $element): bool
     {
         $groupConfig   = $element->getGroup();
         $activityPaths = isset($groupConfig['activity_path']) ? $groupConfig['activity_path'] : [];
@@ -112,8 +113,9 @@ class Payment extends Fieldset
      *
      * @return string
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @throws FileSystemException
      */
-    protected function _getHeaderTitleHtml($element)
+    protected function _getHeaderTitleHtml($element): string
     {
         $html = '<div class="config-heading" >';
 
@@ -173,7 +175,7 @@ class Payment extends Fieldset
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function _getHeaderCommentHtml($element)
+    protected function _getHeaderCommentHtml($element): string
     {
         return '';
     }
@@ -186,7 +188,7 @@ class Payment extends Fieldset
      * @return false
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function _isCollapseState($element)
+    protected function _isCollapseState($element): bool
     {
         return false;
     }
@@ -197,7 +199,7 @@ class Payment extends Fieldset
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function _getExtraJs($element)
+    protected function _getExtraJs($element): string
     {
         $script = "require(['jquery', 'prototype'], function(jQuery){
             window.ckoToggleSolution = function (id, url) {

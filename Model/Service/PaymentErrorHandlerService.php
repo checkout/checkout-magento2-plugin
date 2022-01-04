@@ -172,13 +172,13 @@ class PaymentErrorHandlerService
      *
      * @param                $response
      * @param OrderInterface $order
-     * @param false          $status
+     * @param string         $status
      *
      * @return void
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function logPaymentError($response, OrderInterface $order, bool $status = false): void
+    public function logPaymentError($response, OrderInterface $order, string $status = ''): void
     {
         // Assign the payment instance
         $payment = $order->getPayment();

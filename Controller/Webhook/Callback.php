@@ -15,8 +15,11 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Webhook;
 
+use Checkout\Models\Payments\Payment;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -291,7 +294,7 @@ class Callback extends Action implements CsrfAwareActionInterface
      *
      * @return bool
      */
-    protected function cardNeedsSaving($payload)
+    protected function cardNeedsSaving($payload): bool
     {
         return isset(
             $payload->data->metadata->saveCard,
@@ -305,15 +308,15 @@ class Callback extends Action implements CsrfAwareActionInterface
     /**
      * Save a card
      *
-     * @param $response
-     * @param $payload
+     * @param Payment $response
+     * @param mixed   $payload
      *
      * @return bool
      * @throws LocalizedException
      * @throws NoSuchEntityException
      * @throws Exception
      */
-    protected function saveCard($response, $payload): bool
+    protected function saveCard(Payment $response, $payload): bool
     {
         // Get the customer
         $customer = $this->shopperHandler->getCustomerData(['id' => $payload->data->metadata->customerId]);

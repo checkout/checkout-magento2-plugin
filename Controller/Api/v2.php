@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Api;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -211,7 +213,7 @@ class V2 extends Action
      * @return Json
      * @throws NoSuchEntityException|LocalizedException
      */
-    public function execute()
+    public function execute(): Json
     {
         // Prepare the V2 object
         $this->init();
@@ -240,7 +242,7 @@ class V2 extends Action
      * @return void
      * @throws NoSuchEntityException
      */
-    public function init()
+    public function init(): void
     {
         // Get the request parameters
         $this->data = json_decode($this->getRequest()->getContent());
@@ -262,10 +264,10 @@ class V2 extends Action
     /**
      * Process the payment request and handle the response
      *
-     * @return array
+     * @return mixed[]
      * @throws LocalizedException
      */
-    protected function processPayment()
+    protected function processPayment(): array
     {
         $order = $this->createOrder();
         if ($this->orderHandler->isOrder($order)) {

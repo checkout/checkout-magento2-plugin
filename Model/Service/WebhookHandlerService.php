@@ -392,7 +392,7 @@ class WebhookHandlerService
      *
      * @return void
      */
-    public function clean()
+    public function clean(): void
     {
         $webhooks = $this->loadWebhookEntities();
 

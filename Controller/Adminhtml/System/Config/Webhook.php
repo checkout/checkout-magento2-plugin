@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace Checkoutcom\Magento2\Controller\Adminhtml\System\Config;
 
 use CheckoutCom\Magento2\Helper\Logger;
@@ -71,6 +73,7 @@ class Webhook extends Action
      * @param Config               $resourceConfig
      * @param TypeListInterface    $cacheTypeList
      * @param Logger               $logger
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         Context $context,

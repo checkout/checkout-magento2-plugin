@@ -68,7 +68,7 @@ class Webhooks
      *
      * @return void
      */
-    public function execute()
+    public function execute(): void
     {
         $clean = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/webhooks_table_clean',
