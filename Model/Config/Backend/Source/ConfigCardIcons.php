@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
@@ -28,9 +30,9 @@ class ConfigCardIcons implements OptionSourceInterface
     /**
      * Options getter
      *
-     * @return array
+     * @return string[][]
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         $output = [];
         foreach (CardHandlerService::CARD_MAPPER as $value => $label) {

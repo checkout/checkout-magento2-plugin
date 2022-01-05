@@ -15,7 +15,13 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Helper;
+
+use Checkout\Models\Payments\Payment;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
 
 /**
  * Class Utilities
@@ -25,23 +31,23 @@ class Utilities
     /**
      * Convert a date string to ISO8601 format
      *
-     * @param $timestamp
+     * @param int|float $timestamp
      *
      * @return false|string
      */
-    public function formatDate($timestamp)
+    public function formatDate($timestamp): string
     {
-        return gmdate("Y-m-d\TH:i:s\Z", $timestamp);
+        return gmdate("Y-m-d\TH:i:s\Z", (int)$timestamp);
     }
 
     /**
      * Format an amount to 2 decimals
      *
-     * @param $amount
+     * @param float|int $amount
      *
-     * @return float|int
+     * @return float
      */
-    public function formatDecimals($amount)
+    public function formatDecimals($amount): float
     {
         return round($amount * 100) / 100;
     }
@@ -51,9 +57,9 @@ class Utilities
      *
      * @param $object
      *
-     * @return mixed
+     * @return mixed[]
      */
-    public function objectToArray($object)
+    public function objectToArray($object): array
     {
         return json_decode(json_encode($object), true);
     }
@@ -63,9 +69,9 @@ class Utilities
      *
      * @param $order
      *
-     * @return mixed|null
+     * @return string[]|null
      */
-    public function getPaymentData($order)
+    public function getPaymentData($order): ?array
     {
         $paymentData = $order->getPayment()
             ->getMethodInstance()
@@ -78,13 +84,14 @@ class Utilities
     /**
      * Add the gateway payment information to an order
      *
-     * @param      $order
-     * @param      $data
-     * @param null $source
+     * @param OrderInterface $order
+     * @param Payment        $data
+     * @param array|null     $source
      *
-     * @return mixed
+     * @return OrderInterface
+     * @throws LocalizedException
      */
-    public function setPaymentData($order, $data, $source = null)
+    public function setPaymentData(OrderInterface $order, Payment $data, array $source = null): OrderInterface
     {
         // Get the payment info instance
         $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();

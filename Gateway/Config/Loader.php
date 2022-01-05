@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Gateway\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -120,7 +122,7 @@ class Loader
     /**
      * Load the list of Alternative Payments.
      *
-     * @return array
+     * @return string[][]
      */
     public function loadApmList(): array
     {
@@ -162,7 +164,7 @@ class Loader
     /**
      * Load the apm.xml data
      *
-     * @return array
+     * @return string[][]
      */
     public function loadApmXmlData(): array
     {
@@ -177,26 +179,42 @@ class Loader
      *
      * @return boolean
      */
-    public function isHidden($field)
+    public function isHidden(string $field): bool
     {
-        $configHiddenFields = explode(
-            ',',
-            $this->scopeConfig->getValue(
-                'settings/checkoutcom_configuration/fields_hidden',
-                ScopeInterface::SCOPE_STORE
-            )
+        $configHiddenFields = $this->scopeConfig->getValue(
+            'settings/checkoutcom_configuration/fields_hidden',
+            ScopeInterface::SCOPE_STORE
         );
+        if ($configHiddenFields) {
+            $configHiddenFields = explode(
+                ',',
+                $this->scopeConfig->getValue(
+                    'settings/checkoutcom_configuration/fields_hidden',
+                    ScopeInterface::SCOPE_STORE
+                )
+            );
+
+            return in_array($field, $configHiddenFields);
+        }
 
         // Apple pay configuration
-        $applePayHiddenFields = explode(
-            ',',
-            $this->scopeConfig->getValue(
-                'payment/checkoutcom_apple_pay/fields_hidden',
-                ScopeInterface::SCOPE_STORE
-            )
+        $applePayHiddenFields = $this->scopeConfig->getValue(
+            'payment/checkoutcom_apple_pay/fields_hidden',
+            ScopeInterface::SCOPE_STORE
         );
+        if ($applePayHiddenFields) {
+            $applePayHiddenFields = explode(
+                ',',
+                $this->scopeConfig->getValue(
+                    'payment/checkoutcom_apple_pay/fields_hidden',
+                    ScopeInterface::SCOPE_STORE
+                )
+            );
 
-        return in_array($field, array_merge($configHiddenFields, $applePayHiddenFields));
+            return in_array($field, $applePayHiddenFields);
+        }
+
+        return false;
     }
 
     /**
@@ -206,34 +224,42 @@ class Loader
      *
      * @return boolean
      */
-    public function isEncrypted($field)
+    public function isEncrypted(string $field): bool
     {
-        $encryptedFields = explode(
-            ',',
-            $this->scopeConfig->getValue(
-                'settings/checkoutcom_configuration/fields_encrypted',
-                ScopeInterface::SCOPE_STORE
-            )
+        $encryptedFields = $this->scopeConfig->getValue(
+            'settings/checkoutcom_configuration/fields_encrypted',
+            ScopeInterface::SCOPE_STORE
         );
 
-        return in_array($field, $encryptedFields);
+        if ($encryptedFields) {
+            $encryptedFields = explode(
+                ',',
+                $this->scopeConfig->getValue(
+                    'settings/checkoutcom_configuration/fields_encrypted',
+                    ScopeInterface::SCOPE_STORE
+                )
+            );
+            return in_array($field, $encryptedFields);
+        }
+
+        return false;
     }
 
     /**
      * Get a field value
      *
-     * @param        $key
-     * @param null   $methodId
-     * @param null   $storeCode
-     * @param string $scope
+     * @param string      $key
+     * @param string|null $methodId
+     * @param string|null $storeCode
+     * @param string      $scope
      *
      * @return mixed|string
      */
     public function getValue(
-        $key,
-        $methodId = null,
-        $storeCode = null,
-        $scope = ScopeInterface::SCOPE_STORE
+        string $key,
+        string $methodId = null,
+        string $storeCode = null,
+        string $scope = ScopeInterface::SCOPE_STORE
     ) {
         // Prepare the path
         $path = ($methodId) ? 'payment/' . $methodId . '/' . $key : 'settings/checkoutcom_configuration/' . $key;

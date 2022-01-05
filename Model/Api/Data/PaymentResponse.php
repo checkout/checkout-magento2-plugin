@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Api\Data;
 
 use CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
@@ -30,7 +32,7 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
      *
      * @return bool
      */
-    public function getSuccess()
+    public function getSuccess(): bool
     {
         return $this->getData(self::SUCCESS);
     }
@@ -40,7 +42,7 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
      *
      * @return int
      */
-    public function getOrderId()
+    public function getOrderId(): int
     {
         return $this->getData(self::ORDER_ID);
     }
@@ -50,7 +52,7 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
      *
      * @return string
      */
-    public function getRedirectUrl()
+    public function getRedirectUrl(): string
     {
         return $this->getData(self::REDIRECT_URL);
     }
@@ -58,7 +60,7 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
     /**
      * {@inheritDoc}
      *
-     * @return string
+     * @return string|array
      */
     public function getErrorMessage()
     {
@@ -72,7 +74,7 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
      *
      * @return PaymentResponse
      */
-    public function setSuccess($success)
+    public function setSuccess($success): PaymentResponse
     {
         return $this->setData(self::SUCCESS, $success);
     }
@@ -84,7 +86,7 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
      *
      * @return PaymentResponse
      */
-    public function setOrderId($orderId)
+    public function setOrderId($orderId): PaymentResponse
     {
         return $this->setData(self::ORDER_ID, $orderId);
     }
@@ -96,7 +98,7 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
      *
      * @return PaymentResponse
      */
-    public function setRedirectUrl($redirectUrl)
+    public function setRedirectUrl($redirectUrl): PaymentResponse
     {
         return $this->setData(self::REDIRECT_URL, $redirectUrl);
     }
@@ -104,11 +106,11 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
     /**
      * {@inheritDoc}
      *
-     * @param $errorMessage
+     * @param string|array $errorMessage
      *
      * @return PaymentResponse
      */
-    public function setErrorMessage($errorMessage)
+    public function setErrorMessage($errorMessage): PaymentResponse
     {
         return $this->setData(self::ERROR_MESSAGE, $errorMessage);
     }

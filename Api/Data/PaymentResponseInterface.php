@@ -70,7 +70,7 @@ interface PaymentResponseInterface
     /**
      * Get the error message
      *
-     * @return string
+     * @return string|array
      */
     public function getErrorMessage();
 

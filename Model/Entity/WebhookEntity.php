@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Entity;
 
 use CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
@@ -47,9 +49,9 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     /**
      * Return unique ID(s) for each object in system
      *
-     * @return array
+     * @return string[]
      */
-    public function getIdentities()
+    public function getIdentities(): array
     {
         return [self::CACHE_TAG . '_' . $this->getId()];
     }
@@ -59,7 +61,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      *
      * @return int|null
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->getData(self::ID);
     }
@@ -67,9 +69,9 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     /**
      * Get the event id
      *
-     * @return bool
+     * @return string
      */
-    public function getEventId()
+    public function getEventId(): string
     {
         return $this->getData(self::EVENT_ID);
     }
@@ -77,9 +79,9 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     /**
      * Get the event type
      *
-     * @return bool
+     * @return string
      */
-    public function getEventType()
+    public function getEventType(): string
     {
         return $this->getData(self::EVENT_TYPE);
     }
@@ -89,7 +91,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      *
      * @return string
      */
-    public function getEventData()
+    public function getEventData(): string
     {
         return $this->getData(self::EVENT_DATA);
     }
@@ -99,7 +101,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      *
      * @return string|null
      */
-    public function getOrderId()
+    public function getOrderId(): ?string
     {
         return $this->getData(self::ORDER_ID);
     }
@@ -107,23 +109,23 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     /**
      * Set the row id
      *
-     * @param int $id
+     * @param $rowId
      *
      * @return WebhookEntityInterface
      */
-    public function setId($id)
+    public function setId($rowId): WebhookEntityInterface
     {
-        return $this->setData(self::ID, $id);
+        return $this->setData(self::ID, $rowId);
     }
 
     /**
      * Set the event id
      *
-     * @param bool $eventId
+     * @param string $eventId
      *
      * @return WebhookEntityInterface
      */
-    public function setEventId($eventId)
+    public function setEventId(string $eventId): WebhookEntityInterface
     {
         return $this->setData(self::EVENT_ID, $eventId);
     }
@@ -131,11 +133,11 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     /**
      * Set the event type
      *
-     * @param bool $eventType
+     * @param string $eventType
      *
      * @return WebhookEntityInterface
      */
-    public function setEventType($eventType)
+    public function setEventType(string $eventType): WebhookEntityInterface
     {
         return $this->setData(self::EVENT_TYPE, $eventType);
     }
@@ -147,7 +149,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      *
      * @return WebhookEntityInterface
      */
-    public function setEventData($eventData)
+    public function setEventData(string $eventData): WebhookEntityInterface
     {
         return $this->setData(self::EVENT_DATA, $eventData);
     }
@@ -155,11 +157,11 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     /**
      * Set the order id
      *
-     * @param string $orderId
+     * @param int $orderId
      *
      * @return WebhookEntityInterface
      */
-    public function setOrderId($orderId)
+    public function setOrderId(int $orderId): WebhookEntityInterface
     {
         return $this->setData(self::ORDER_ID, $orderId);
     }
@@ -169,7 +171,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      *
      * @return WebhookEntityInterface
      */
-    public function setReceivedTime()
+    public function setReceivedTime(): WebhookEntityInterface
     {
         return $this->setData(self::RECEIVED_AT, date("Y-m-d H:i:s"));
     }
@@ -179,7 +181,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
      *
      * @return WebhookEntityInterface
      */
-    public function setProcessedTime()
+    public function setProcessedTime(): WebhookEntityInterface
     {
         return $this->setData(self::PROCESSED_AT, date("Y-m-d H:i:s"));
     }
@@ -187,12 +189,12 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     /**
      * Set if a webhook has been processed
      *
-     * @param bool $bool
+     * @param bool $processed
      *
      * @return WebhookEntityInterface
      */
-    public function setProcessed($bool)
+    public function setProcessed(bool $processed): WebhookEntityInterface
     {
-        return $this->setData(self::PROCESSED, $bool);
+        return $this->setData(self::PROCESSED, $processed);
     }
 }

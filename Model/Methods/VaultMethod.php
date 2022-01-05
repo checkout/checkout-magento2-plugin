@@ -312,10 +312,10 @@ class VaultMethod extends AbstractMethod
         }
 
         // Prepare the capture setting
-        $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
+        $needsAutoCapture = $this->config->needsAutoCapture();
         $request->capture = $needsAutoCapture;
         if ($needsAutoCapture) {
-            $request->capture_on = $this->config->getCaptureTime($this->_code);
+            $request->capture_on = $this->config->getCaptureTime();
         }
 
         // Prepare the MADA setting

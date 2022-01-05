@@ -61,7 +61,7 @@ class Logger
      *
      * @return void
      */
-    public function write($msg)
+    public function write($msg): void
     {
         // Get the debug config value
         $debug = $this->scopeConfig->getValue(
@@ -91,7 +91,7 @@ class Logger
      *
      * @return void
      */
-    public function display($response)
+    public function display($response): void
     {
         // Get the debug config value
         $debug = $this->scopeConfig->getValue(
@@ -118,7 +118,7 @@ class Logger
      *
      * @return void
      */
-    public function additional($msg, $type)
+    public function additional($msg, $type): void
     {
         $enabledLogging = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/additional_logging_enabled',
