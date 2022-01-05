@@ -127,6 +127,12 @@ class PlaceOrder extends Action
      * @var AddressRepositoryInterface $addressRepository
      */
     private $addressRepository;
+    /**
+     * $addressManager field
+     *
+     * @var Address $addressManager
+     */
+    private $addressManager;
 
     /**
      * PlaceOrder constructor
@@ -158,7 +164,8 @@ class PlaceOrder extends Action
         ShippingSelector $shippingSelector,
         OrderRepositoryInterface $orderRepository,
         CartRepositoryInterface $cartRepository,
-        AddressRepositoryInterface $addressRepository
+        AddressRepositoryInterface $addressRepository,
+        Address $addressManager
     ) {
         parent::__construct($context);
 
@@ -174,6 +181,7 @@ class PlaceOrder extends Action
         $this->orderRepository   = $orderRepository;
         $this->cartRepository    = $cartRepository;
         $this->addressRepository = $addressRepository;
+        $this->addressManager    = $addressManager;
     }
 
     /**
@@ -208,12 +216,12 @@ class PlaceOrder extends Action
 
         // Set the billing address
         /** @var Address $billingAddress */
-        $billingAddress = $this->addressRepository->getById((int)$data['instant_purchase_billing_address']);
+        $billingAddress = $this->addressManager->load($data['instant_purchase_billing_address']);
         $quote->getBillingAddress()->addData($billingAddress->getData());
 
         // Get the shipping address
         /** @var Address $shippingAddress */
-        $shippingAddress = $this->addressRepository->getById((int)$data['instant_purchase_shipping_address']);
+        $shippingAddress = $this->addressManager->load($data['instant_purchase_shipping_address']);
 
         // Prepare the quote
         $quote->getShippingAddress()->addData($shippingAddress->getData());
@@ -227,6 +235,7 @@ class PlaceOrder extends Action
 
         // Set payment
         $quote->setPaymentMethod(VaultMethod::CODE);
+        $this->cartRepository->save($quote);
         $quote->getPayment()->importData(['method' => VaultMethod::CODE]);
 
         // Save the quote
