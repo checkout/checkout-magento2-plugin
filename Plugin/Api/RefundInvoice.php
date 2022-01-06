@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Plugin\Api;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -26,6 +28,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\RefundAdapter\Interceptor;
+use Magento\Sales\Model\Order\RefundAdapterInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -90,21 +93,21 @@ class RefundInvoice
     /**
      * Refund the order online
      *
-     * @param Interceptor         $subject
-     * @param CreditmemoInterface $creditMemo
-     * @param OrderInterface      $order
-     * @param false               $isOnline
+     * @param RefundAdapterInterface $subject
+     * @param CreditmemoInterface    $creditMemo
+     * @param OrderInterface         $order
+     * @param bool                   $isOnline
      *
-     * @return array
+     * @return mixed[]
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
     public function beforeRefund(
-        Interceptor $subject,
+        RefundAdapterInterface $subject,
         CreditmemoInterface $creditMemo,
         OrderInterface $order,
-        $isOnline = false
-    ) {
+        bool $isOnline = false
+    ): array {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
@@ -155,11 +158,11 @@ class RefundInvoice
     /**
      * Description statusNeedsCorrection function
      *
-     * @param $order
+     * @param OrderInterface $order
      *
      * @return bool
      */
-    public function statusNeedsCorrection($order): bool
+    public function statusNeedsCorrection(OrderInterface $order): bool
     {
         $currentState  = $order->getState();
         $currentStatus = $order->getStatus();

@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Observer\Backend;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -85,7 +87,7 @@ class OrderAfterVoid implements ObserverInterface
      * @return OrderAfterVoid|void
      * @throws LocalizedException
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): ?OrderAfterVoid
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             /** @var Payment $payment */

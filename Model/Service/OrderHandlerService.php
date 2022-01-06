@@ -15,16 +15,20 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\DataObject;
+use Magento\Sales\Model\Order\Status\History as OrderStatusHistory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\AbstractExtensibleModel;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -137,7 +141,7 @@ class OrderHandlerService
      *
      * @param string $methodId
      *
-     * @return $this
+     * @return OrderHandlerService
      */
     public function setMethodId(string $methodId): OrderHandlerService
     {
@@ -149,13 +153,13 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      *
-     * @param null  $quote
+     * @param Quote|null  $quote
      * @param false $external
      *
      * @return AbstractExtensibleModel|OrderInterface|mixed|object|null
      * @throws LocalizedException
      */
-    public function handleOrder($quote = null, bool $external = false)
+    public function handleOrder(Quote $quote = null, bool $external = false): Order
     {
         if ($this->methodId) {
             // Prepare the quote
@@ -202,11 +206,11 @@ class OrderHandlerService
     /**
      * Load an order
      *
-     * @param $fields
+     * @param string[] $fields
      *
      * @return OrderInterface
      */
-    public function getOrder($fields): OrderInterface
+    public function getOrder(array $fields): OrderInterface
     {
         return $this->findOrderByFields($fields);
     }
@@ -214,13 +218,13 @@ class OrderHandlerService
     /**
      * Gets an order currency
      *
-     * @param $order
+     * @param OrderInterface $order
      *
-     * @return mixed|string
+     * @return string
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function getOrderCurrency($order)
+    public function getOrderCurrency(OrderInterface $order): string
     {
         $orderCurrencyCode = $order->getOrderCurrencyCode();
         $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
@@ -231,14 +235,14 @@ class OrderHandlerService
     /**
      * Convert an order amount to integer value for the gateway request
      *
-     * @param $amount
-     * @param $order
+     * @param float          $amount
+     * @param OrderInterface $order
      *
-     * @return float|int|mixed
+     * @return float|int
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function amountToGateway($amount, $order)
+    public function amountToGateway(float $amount, OrderInterface $order)
     {
         // Get the order currency
         $currency = $this->getOrderCurrency($order);
@@ -268,11 +272,12 @@ class OrderHandlerService
     /**
      * Find an order by fields
      *
-     * @param $fields
+     * @param string[] $fields
      *
      * @return OrderInterface
+     * @throws LocalizedException
      */
-    public function findOrderByFields($fields): OrderInterface
+    public function findOrderByFields(array $fields): OrderInterface
     {
         // Add each field as filter
         foreach ($fields as $key => $value) {
@@ -299,12 +304,12 @@ class OrderHandlerService
     /**
      * Tasks after place order
      *
-     * @param $quote
-     * @param $order
+     * @param CartInterface $quote
+     * @param OrderInterface $order
      *
-     * @return mixed
+     * @return OrderInterface
      */
-    public function afterPlaceOrder($quote, $order)
+    public function afterPlaceOrder(CartInterface $quote, OrderInterface $order): OrderInterface
     {
         // Prepare session quote info for redirection after payment
         $this->checkoutSession->setLastQuoteId($quote->getId())
@@ -322,15 +327,15 @@ class OrderHandlerService
     /**
      * Get status history by id
      *
-     * @param $entity
-     * @param $order
+     * @param string $entity
+     * @param OrderInterface $order
      *
-     * @return false|mixed
+     * @return false|OrderStatusHistory
      */
-    public function getStatusHistoryByEntity($entity, $order)
+    public function getStatusHistoryByEntity(string $entity, OrderInterface $order)
     {
         foreach ($order->getStatusHistoryCollection() as $status) {
-            if ($status->getEntityName() == $entity) {
+            if ($status->getEntityName() === $entity) {
                 return $status;
             }
         }
@@ -341,11 +346,12 @@ class OrderHandlerService
     /**
      * Return common order details for additional logging.
      *
-     * @param $order
+     * @param OrderInterface $order
      *
-     * @return array
+     * @return mixed[][]
+     * @throws LocalizedException
      */
-    public function getOrderDetails($order)
+    public function getOrderDetails(OrderInterface $order): array
     {
         return [
             'id'           => $order->getId(),

@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -142,13 +144,13 @@ class QuoteHandlerService
     /**
      * Find a quote
      *
-     * @param array $fields
+     * @param mixed[] $fields
      *
-     * @return DataObject|CartInterface|Quote
+     * @return CartInterface
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function getQuote($fields = [])
+    public function getQuote(array $fields = []): CartInterface
     {
         if (!empty($fields)) {
             // Get the quote factory
@@ -175,13 +177,13 @@ class QuoteHandlerService
     /**
      * Create a new quote
      *
-     * @param null $currency
-     * @param null $customer
+     * @param string|null $currency
+     * @param mixed|null  $customer
      *
-     * @return Quote
+     * @return CartInterface
      * @throws NoSuchEntityException|LocalizedException
      */
-    public function createQuote($currency = null, $customer = null)
+    public function createQuote(string $currency = null, $customer = null): CartInterface
     {
         // Create the quote instance
         $quote = $this->quoteFactory->create();
@@ -211,7 +213,7 @@ class QuoteHandlerService
      *
      * @return bool
      */
-    public function isQuote($quote)
+    public function isQuote($quote): bool
     {
         return $quote instanceof Quote && $quote->getId() > 0;
     }
@@ -219,11 +221,11 @@ class QuoteHandlerService
     /**
      * Get the order increment id from a quote
      *
-     * @param $quote
+     * @param CartInterface $quote
      *
-     * @return mixed
+     * @return string|null
      */
-    public function getReference($quote)
+    public function getReference(CartInterface $quote): ?string
     {
         $this->cartRepository->save($quote->reserveOrderId());
 
@@ -233,14 +235,14 @@ class QuoteHandlerService
     /**
      * Prepares a quote for order placement
      *
-     * @param      $methodId
-     * @param null $quote
+     * @param string             $methodId
+     * @param CartInterface|null $quote
      *
-     * @return DataObject|CartInterface|Quote|mixed|null
+     * @return Quote|null
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function prepareQuote($methodId, $quote = null)
+    public function prepareQuote(string $methodId, CartInterface $quote = null): ?Quote
     {
         // Find quote and perform tasks
         $quote = $quote ? $quote : $this->getQuote();
@@ -269,14 +271,14 @@ class QuoteHandlerService
     /**
      * Sets the email for guest users
      *
-     * @param      $quote
-     * @param null $email
+     * @param CartInterface $quote
+     * @param string|null   $email
      *
-     * @return mixed
+     * @return CartInterface
      * @throws InputException
      * @throws FailureToSendException
      */
-    public function prepareGuestQuote($quote, $email = null)
+    public function prepareGuestQuote(CartInterface $quote, string $email = null): CartInterface
     {
         // Retrieve the user email
         $guestEmail = ($email) ? $email : $this->findEmail($quote);
@@ -297,11 +299,11 @@ class QuoteHandlerService
     /**
      * Find a customer email
      *
-     * @param $quote
+     * @param CartInterface $quote
      *
-     * @return mixed|null
+     * @return string|null
      */
-    public function findEmail($quote)
+    public function findEmail(CartInterface $quote): ?string
     {
         // Get an array of possible values
         $emails = [
@@ -325,11 +327,11 @@ class QuoteHandlerService
     /**
      * Gets an array of quote parameters
      *
-     * @return array
+     * @return mixed[]
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function getQuoteData()
+    public function getQuoteData(): array
     {
         $data = [
             'value'    => $this->getQuoteValue(),
@@ -344,32 +346,32 @@ class QuoteHandlerService
     /**
      * Gets a quote currency
      *
-     * @param null $quote
+     * @param CartInterface|null $quote
      *
      * @return string
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function getQuoteCurrency($quote = null)
+    public function getQuoteCurrency(CartInterface $quote = null): string
     {
         $quote             = ($quote) ? $quote : $this->getQuote();
         $quoteCurrencyCode = $quote->getQuoteCurrencyCode();
         $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
 
-        return ($quoteCurrencyCode) ? $quoteCurrencyCode : $storeCurrencyCode;
+        return ($quoteCurrencyCode) ?: $storeCurrencyCode;
     }
 
     /**
      * Convert a quote amount to integer value for the gateway request
      *
-     * @param $amount
-     * @param $quote
+     * @param float         $amount
+     * @param CartInterface $quote
      *
      * @return float|int|mixed
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function amountToGateway($amount, $quote)
+    public function amountToGateway(float $amount, CartInterface $quote)
     {
         // Get the quote currency
         $currency = $this->getQuoteCurrency($quote);
@@ -403,7 +405,7 @@ class QuoteHandlerService
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function getQuoteValue()
+    public function getQuoteValue(): float
     {
         return $this->getQuote()->collectTotals()->getGrandTotal();
     }
@@ -415,7 +417,7 @@ class QuoteHandlerService
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function saveQuote()
+    public function saveQuote(): void
     {
         $this->cartRepository->save($this->getQuote());
     }
@@ -423,13 +425,13 @@ class QuoteHandlerService
     /**
      * Add product items to a quote
      *
-     * @param $quote
-     * @param $data
+     * @param CartInterface $quote
+     * @param mixed[]       $data
      *
      * @return mixed
      * @throws NoSuchEntityException
      */
-    public function addItems($quote, $data)
+    public function addItems(CartInterface $quote, array $data)
     {
         $items = $this->buildProductData($data);
         foreach ($items as $item) {
@@ -456,11 +458,11 @@ class QuoteHandlerService
     /**
      * Creates a formatted array with the purchased product data.
      *
-     * @param $data
+     * @param mixed[] $data
      *
-     * @return array[]
+     * @return mixed[]
      */
-    public function buildProductData($data)
+    public function buildProductData(array $data): array
     {
         // Prepare the base array
         $output = [
@@ -483,7 +485,7 @@ class QuoteHandlerService
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function getBillingAddress()
+    public function getBillingAddress(): ?AddressInterface
     {
         return $this->getQuote()->getBillingAddress();
     }
@@ -491,11 +493,11 @@ class QuoteHandlerService
     /**
      * Gets quote data for a payment request
      *
-     * @param $quote
+     * @param CartInterface $quote
      *
-     * @return array
+     * @return mixed[]
      */
-    public function getQuoteRequestData($quote)
+    public function getQuoteRequestData(CartInterface $quote): array
     {
         $data = [
             'quote_id'       => $quote->getId(),
@@ -511,12 +513,12 @@ class QuoteHandlerService
     /**
      *  Prepares the quote filters
      *
-     * @param $paymentDetails
-     * @param $reservedIncrementId
+     * @param mixed  $paymentDetails
+     * @param string $reservedIncrementId
      *
-     * @return array
+     * @return mixed[]
      */
-    public function prepareQuoteFilters($paymentDetails, $reservedIncrementId)
+    public function prepareQuoteFilters($paymentDetails, string $reservedIncrementId): array
     {
         // Prepare the filters array
         $filters = ['increment_id' => $reservedIncrementId];

@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Observer\Backend;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -76,7 +78,7 @@ class OrderAfterCancel implements ObserverInterface
      * @return $this|void
      * @throws LocalizedException
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): OrderAfterCancel
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             /** @var Payment $payment */

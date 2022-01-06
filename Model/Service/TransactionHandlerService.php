@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -21,8 +23,8 @@ use CheckoutCom\Magento2\Helper\Utilities;
 use Exception;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
@@ -135,7 +137,7 @@ class TransactionHandlerService
     /**
      * $payment field
      *
-     * @var Payment $payment
+     * @var Order\Payment $payment
      */
     private $payment;
     /**
@@ -219,13 +221,13 @@ class TransactionHandlerService
     /**
      * Handle a webhook transaction
      *
-     * @param $order
-     * @param $webhook
+     * @param OrderInterface $order
+     * @param mixed[] $webhook
      *
      * @return void
      * @throws Exception
      */
-    public function handleTransaction($order, $webhook): void
+    public function handleTransaction(OrderInterface $order, array $webhook): void
     {
         // Check if a transaction already exists
         $this->transaction = $this->hasTransaction(
@@ -295,12 +297,12 @@ class TransactionHandlerService
     /**
      * Get the transactions for an order
      *
-     * @param      $orderId
-     * @param null $transactionId
+     * @param mixed       $orderId
+     * @param string|null $transactionId
      *
-     * @return array|DataObject[]|TransactionInterface[]
+     * @return TransactionInterface[]
      */
-    public function getTransactions($orderId, $transactionId = null)
+    public function getTransactions($orderId, string $transactionId = null): array
     {
         $searchCriteria = $this->searchCriteriaBuilder->addFilter('order_id', $orderId)->create();
 
@@ -326,12 +328,12 @@ class TransactionHandlerService
     /**
      * Get the transactions for an order
      *
-     * @param      $order
-     * @param null $transactionId
+     * @param OrderInterface $order
+     * @param string|null    $transactionId
      *
-     * @return false|DataObject|TransactionInterface|mixed
+     * @return false|TransactionInterface
      */
-    public function hasTransaction($order, $transactionId = null)
+    public function hasTransaction(OrderInterface $order, string $transactionId = null)
     {
         $transaction = $this->getTransactions(
             $order->getId(),
@@ -344,13 +346,13 @@ class TransactionHandlerService
     /**
      * Create a transaction for an order
      *
-     * @param $webhook
-     * @param $amount
+     * @param mixed[] $webhook
+     * @param float   $amount
      *
      * @return void
      * @throws LocalizedException
      */
-    public function buildTransaction($webhook, $amount): void
+    public function buildTransaction(array $webhook, float $amount): void
     {
         // Prepare the data array
         $data = $this->utilities->objectToArray(
@@ -381,7 +383,7 @@ class TransactionHandlerService
     /**
      * Set a transaction parent id
      *
-     * @return null
+     * @return string|int|null
      */
     public function setParentTransactionId()
     {
@@ -418,11 +420,11 @@ class TransactionHandlerService
     /**
      * Set a transaction state
      *
-     * @param $amount
+     * @param float $amount
      *
      * @return int
      */
-    public function setTransactionState($amount): int
+    public function setTransactionState(float $amount): int
     {
         // Handle the first authorization transaction
         $noAuth = !$this->hasTransaction($this->order, $this->transaction->getTxnId());
@@ -485,20 +487,19 @@ class TransactionHandlerService
     /**
      * Get transactions for an order
      *
-     * @param      $transactionType
-     * @param null $order
+     * @param string               $transactionType
+     * @param OrderInterface|null  $order
      *
-     * @return false|mixed
+     * @return TransactionInterface[]|false
      */
-    public function getTransactionByType($transactionType, $order = null)
+    public function getTransactionByType(string $transactionType, OrderInterface $order = null)
     {
         if ($order) {
             $this->order = $order;
         }
 
         // Payment filter
-        $filter1 = $this->filterBuilder->setField('payment_id')->setValue($this->order->getPayment()->getId())->create(
-        );
+        $filter1 = $this->filterBuilder->setField('payment_id')->setValue($this->order->getPayment()->getId())->create();
 
         // Order filter
         $filter2 = $this->filterBuilder->setField('order_id')->setValue($this->order->getId())->create();
@@ -519,11 +520,11 @@ class TransactionHandlerService
     /**
      * Add a transaction comment to an order
      *
-     * @param $amount
+     * @param float $amount
      *
      * @return void
      */
-    public function addTransactionComment($amount): void
+    public function addTransactionComment(float $amount): void
     {
         // Get the transaction type
         $type = $this->transaction->getTxnType();
@@ -557,12 +558,12 @@ class TransactionHandlerService
     /**
      * Convert a gateway to decimal value for processing
      *
-     * @param      $amount
-     * @param null $order
+     * @param float               $amount
+     * @param OrderInterface|null $order
      *
      * @return float|int|mixed
      */
-    public function amountFromGateway($amount, $order = null)
+    public function amountFromGateway(float $amount, OrderInterface $order = null)
     {
         // Get the quote currency
         $currency = $order ? $order->getOrderCurrencyCode() : $this->order->getOrderCurrencyCode();
@@ -592,12 +593,12 @@ class TransactionHandlerService
     /**
      * Create a credit memo for a refunded transaction
      *
-     * @param $amount
+     * @param float $amount
      *
      * @return void
      * @throws LocalizedException
      */
-    public function processCreditMemo($amount): void
+    public function processCreditMemo(float $amount): void
     {
         // Process the credit memo
         $isRefund      = $this->transaction->getTxnType() === TransactionInterface::TYPE_REFUND;
@@ -656,9 +657,9 @@ class TransactionHandlerService
     /**
      * Get the total credit memos amount
      *
-     * @return int
+     * @return int|float
      */
-    public function getCreditMemosTotal(): int
+    public function getCreditMemosTotal()
     {
         $total       = 0;
         $creditMemos = $this->order->getCreditmemosCollection();
@@ -689,18 +690,18 @@ class TransactionHandlerService
             }
         }
 
-        return $result > 0 ? true : false;
+        return $result > 0;
     }
 
     /**
      * Create an invoice for a captured transaction
      *
-     * @param $amount
+     * @param float $amount
      *
      * @return void
      * @throws LocalizedException
      */
-    public function processInvoice($amount): void
+    public function processInvoice(float $amount): void
     {
         $isCapture = $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE;
         if ($isCapture) {
@@ -714,7 +715,7 @@ class TransactionHandlerService
     /**
      * Send the order email
      *
-     * @param $payload
+     * @param mixed $payload
      *
      * @return void
      */
@@ -758,11 +759,11 @@ class TransactionHandlerService
     /**
      * Build a flat array from the gateway response
      *
-     * @param $data
+     * @param mixed[] $data
      *
      * @return array
      */
-    public function buildDataArray($data): array
+    public function buildDataArray(array $data): array
     {
         // Prepare the fields to remove
         $remove = [
@@ -781,11 +782,11 @@ class TransactionHandlerService
     /**
      * Format an amount with currency
      *
-     * @param $amount
+     * @param float $amount
      *
      * @return string
      */
-    public function getFormattedAmount($amount): string
+    public function getFormattedAmount(float $amount): string
     {
         return $this->order->formatPriceTxt($amount);
     }
@@ -793,14 +794,14 @@ class TransactionHandlerService
     /**
      * Check if a refund is partial
      *
-     * @param       $amount
-     * @param       $isRefund
-     * @param null  $order
-     * @param false $processed
+     * @param float               $amount
+     * @param bool                $isRefund
+     * @param OrderInterface|null $order
+     * @param bool                $processed
      *
      * @return bool
      */
-    public function isPartialRefund($amount, $isRefund, $order = null, bool $processed = false): bool
+    public function isPartialRefund(float $amount, bool $isRefund, OrderInterface $order = null, bool $processed = false): bool
     {
         if ($order) {
             $this->order = $order;
@@ -818,12 +819,12 @@ class TransactionHandlerService
     /**
      * Check if a capture is partial
      *
-     * @param $amount
-     * @param $isCapture
+     * @param float $amount
+     * @param bool  $isCapture
      *
      * @return bool
      */
-    public function isPartialCapture($amount, $isCapture): bool
+    public function isPartialCapture(float $amount, bool $isCapture): bool
     {
         // Get the total captured
         $totalCaptured = $this->order->getTotalInvoiced();
@@ -837,7 +838,7 @@ class TransactionHandlerService
     /**
      * Check if payment has been flagged for potential fraud
      *
-     * @param $payload
+     * @param mixed $payload
      *
      * @return bool
      */
@@ -849,11 +850,11 @@ class TransactionHandlerService
     /**
      * Return transaction details for additional logging.
      *
-     * @param $order
+     * @param OrderInterface $order
      *
-     * @return array
+     * @return mixed[]
      */
-    public function getTransactionDetails($order): array
+    public function getTransactionDetails(OrderInterface $order): array
     {
         $transactions = $this->getTransactions($order->getId());
         $items        = [];

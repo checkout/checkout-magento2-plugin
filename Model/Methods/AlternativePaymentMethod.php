@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use Checkout\Library\Exceptions\CheckoutHttpException;
@@ -35,6 +37,7 @@ use Checkout\Models\Payments\Payment;
 use Checkout\Models\Payments\PaypalSource;
 use Checkout\Models\Payments\PoliSource;
 use Checkout\Models\Payments\SofortSource;
+use Checkout\Models\Payments\Source;
 use Checkout\Models\Product;
 use CheckoutCom\Magento2\Controller\Apm\Display;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -386,15 +389,15 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Send a charge request
      *
-     * @param array  $data
-     * @param        $amount
-     * @param        $currency
-     * @param string $reference
+     * @param string[] $data
+     * @param float    $amount
+     * @param string   $currency
+     * @param string   $reference
      *
      * @return mixed|null
      * @throws NoSuchEntityException|LocalizedException
      */
-    public function sendPaymentRequest(array $data, $amount, $currency, $reference = '')
+    public function sendPaymentRequest(array $data, float $amount, string $currency, string $reference = ''): ?Payment
     {
         $method   = $data['source'];
         $response = null;
@@ -433,8 +436,8 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Creates a payment object
      *
-     * @param        $source
-     * @param        $amount
+     * @param Source $source
+     * @param float  $amount
      * @param string $currency
      * @param string $reference
      * @param string $methodId
@@ -444,13 +447,13 @@ class AlternativePaymentMethod extends AbstractMethod
      * @throws NoSuchEntityException|LocalizedException
      */
     public function createPayment(
-        $source,
-        $amount,
+        Source $source,
+        float  $amount,
         string $currency,
         string $reference,
         string $methodId,
         string $method
-    ) {
+    ): Payment {
         // Create payment object
         $payment = new Payment($source, $currency);
 
@@ -494,7 +497,7 @@ class AlternativePaymentMethod extends AbstractMethod
      *
      * @return bool
      */
-    public function validateCurrency(string $method, string $currency)
+    public function validateCurrency(string $method, string $currency): bool
     {
         $apms  = $this->config->getApms();
         $valid = false;
@@ -514,11 +517,12 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Create source
      *
-     * @param $data
+     * @param mixed[] $data
      *
      * @return IdSource
+     * @throws FileSystemException
      */
-    public function sepa($data)
+    public function sepa(array $data): IdSource
     {
         $mandate = $this->activateMandate($data['url']);
         $pos     = strripos($data['url'], '/');
@@ -532,10 +536,10 @@ class AlternativePaymentMethod extends AbstractMethod
      *
      * @param string $url
      *
-     * @return array
+     * @return mixed[]
      * @throws FileSystemException
      */
-    public function activateMandate(string $url)
+    public function activateMandate(string $url): array
     {
         // Get the secret key
         $secret = $this->config->getValue('secret_key');
@@ -566,11 +570,9 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Create source
      *
-     * @param $data
-     *
      * @return AlipaySource
      */
-    public function alipay($data)
+    public function alipay(): AlipaySource
     {
         return new AlipaySource();
     }
@@ -578,13 +580,13 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Create source
      *
-     * @param $data
+     * @param mixed[] $data
      *
      * @return BoletoSource
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function boleto($data)
+    public function boleto(array $data): BoletoSource
     {
         $country = $this->quoteHandler->getBillingAddress()->getCountry();
         $payer   = new Payer($data['name'], $data['email'], $data['document']);
@@ -595,12 +597,12 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Create source
      *
-     * @param array $data
+     * @param mixed[] $data
      *
      * @return GiropaySource
      * @throws NoSuchEntityException
      */
-    public function giropay(array $data)
+    public function giropay(array $data): GiropaySource
     {
         $source       = new GiropaySource(
             __('Payment request from %1', $this->config->getStoreName())->render(), $this->getValue('bic', $data)
@@ -613,11 +615,11 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Create source
      *
-     * @param $data
+     * @param mixed[] $data
      *
      * @return IdealSource
      */
-    public function ideal($data)
+    public function ideal(array $data): IdealSource
     {
         $source           = new IdealSource(
             $data['bic'], $data['description']
@@ -631,26 +633,21 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Create source
      *
-     * @param $data
-     * @param $reference
+     * @param mixed $reference
      *
      * @return PaypalSource
      */
-    public function paypal($data, $reference)
+    public function paypal($reference): PaypalSource
     {
-        $source = new PaypalSource($reference);
-
-        return $source;
+        return new PaypalSource($reference);
     }
 
     /**
      * Create source
      *
-     * @param $data
-     *
      * @return PoliSource
      */
-    public function poli($data)
+    public function poli(): PoliSource
     {
         return new PoliSource();
     }
@@ -658,11 +655,9 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Create source
      *
-     * @param $data
-     *
      * @return SofortSource
      */
-    public function sofort($data)
+    public function sofort(): SofortSource
     {
         return new SofortSource();
     }
@@ -670,13 +665,13 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Create source
      *
-     * @param $data
+     * @param mixed[] $data
      *
      * @return KlarnaSource
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function klarna($data)
+    public function klarna(array $data): KlarnaSource
     {
         $products = [];
         $tax      = 0;
@@ -739,12 +734,10 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Create source
      *
-     * @param $data
-     *
      * @return EpsSource
      * @throws NoSuchEntityException
      */
-    public function eps($data)
+    public function eps(): EpsSource
     {
         return new EpsSource(
             __('Payment request from %1', $this->config->getStoreName())->render()
@@ -754,12 +747,10 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Create source
      *
-     * @param $data
-     *
      * @return FawrySource
      * @throws NoSuchEntityException|LocalizedException
      */
-    public function fawry($data)
+    public function fawry(): FawrySource
     {
         $products = [];
         $quote    = $this->quoteHandler->getQuote();
@@ -800,11 +791,9 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Create source
      *
-     * @param $data
-     *
      * @return KnetSource
      */
-    public function knet($data)
+    public function knet(): KnetSource
     {
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('en_GB'));
 
@@ -814,12 +803,10 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Create source
      *
-     * @param $data
-     *
      * @return BancontactSource
      * @throws NoSuchEntityException|LocalizedException
      */
-    public function bancontact($data)
+    public function bancontact(): BancontactSource
     {
         $billingAddress = $this->quoteHandler->getBillingAddress();
 
@@ -842,7 +829,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @return $this|AlternativePaymentMethod
      * @throws LocalizedException
      */
-    public function capture(InfoInterface $payment, $amount)
+    public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -881,7 +868,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @return self
      * @throws LocalizedException  (description)
      */
-    public function void(InfoInterface $payment)
+    public function void(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -920,7 +907,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @return self
      * @throws LocalizedException  (description)
      */
-    public function cancel(InfoInterface $payment)
+    public function cancel(InfoInterface $payment): AbstractMethod
     {
         // Klarna voids are not currently supported
         if ($this->backendAuthSession->isLoggedIn() && $payment->getAdditionalInformation('method_id') !== 'klarna') {
@@ -961,7 +948,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @return self
      * @throws LocalizedException  (description)
      */
-    public function refund(InfoInterface $payment, $amount)
+    public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -1002,7 +989,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function isAvailable(CartInterface $quote = null)
+    public function isAvailable(CartInterface $quote = null): bool
     {
         $enabled = false;
 
@@ -1033,15 +1020,15 @@ class AlternativePaymentMethod extends AbstractMethod
     }
 
     /**
-     * Safely get value from a multidimentional array
+     * Safely get value from a multidimensional array
      *
-     * @param      $field
-     * @param      $array
-     * @param null $dft
+     * @param mixed   $field
+     * @param mixed[] $array
+     * @param null    $dft
      *
      * @return mixed|null
      */
-    public function getValue($field, $array, $dft = null)
+    public function getValue($field, array $array, $dft = null)
     {
         $value = null;
         $field = (array)$field;

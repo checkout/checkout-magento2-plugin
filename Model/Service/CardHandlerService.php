@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -22,6 +24,7 @@ use Exception;
 use Magento\Framework\File\Csv;
 use Magento\Framework\Module\Dir\Reader;
 use Magento\Framework\View\Asset\Repository;
+use Magento\Vault\Api\Data\PaymentTokenInterface;
 
 /**
  * Class CardHandlerService
@@ -89,11 +92,11 @@ class CardHandlerService
     /**
      * Get a card code from name
      *
-     * @param $scheme
+     * @param string $scheme
      *
      * @return false|int|string
      */
-    public function getCardCode($scheme)
+    public function getCardCode(string $scheme)
     {
         if ($scheme === 'Amex') {
             $scheme = 'American Express';
@@ -108,11 +111,11 @@ class CardHandlerService
     /**
      * Get a card scheme from code
      *
-     * @param $code
+     * @param string $code
      *
      * @return mixed|string|void
      */
-    public function getCardScheme($code)
+    public function getCardScheme(string $code)
     {
         if (isset(self::CARD_MAPPER[$code])) {
             return self::CARD_MAPPER[$code];
@@ -122,11 +125,11 @@ class CardHandlerService
     /**
      * Get a card icon
      *
-     * @param $code
+     * @param string $code
      *
      * @return string
      */
-    public function getCardIcon($code)
+    public function getCardIcon(string $code): string
     {
         return $this->assetRepository->getUrl(
             'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
@@ -136,9 +139,9 @@ class CardHandlerService
     /**
      * Get all card icons
      *
-     * @return array
+     * @return mixed[]
      */
-    public function getCardIcons()
+    public function getCardIcons(): array
     {
         // Prepare the output array
         $output = [];
@@ -171,11 +174,11 @@ class CardHandlerService
     /**
      * Check if a card is active
      *
-     * @param $card
+     * @param PaymentTokenInterface $card
      *
      * @return bool
      */
-    public function isCardActive($card)
+    public function isCardActive(PaymentTokenInterface $card): bool
     {
         return $card->getIsActive() && $card->getIsVisible() && $card->getPaymentMethodCode() === 'checkoutcom_vault';
     }
@@ -183,12 +186,12 @@ class CardHandlerService
     /**
      * Checks the MADA BIN
      *
-     * @param $bin
+     * @param string|int $bin
      *
      * @return bool
      * @throws Exception
      */
-    public function isMadaBin($bin)
+    public function isMadaBin($bin): bool
     {
         // Set the root path
         $csvPath = $this->directoryReader->getModuleDir(

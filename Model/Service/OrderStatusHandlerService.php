@@ -14,12 +14,15 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use Exception;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Registry;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -123,13 +126,13 @@ class OrderStatusHandlerService
     /**
      * Set the current order status
      *
-     * @param $order
-     * @param $webhook
+     * @param OrderInterface $order
+     * @param mixed[]        $webhook
      *
      * @return void
      * @throws Exception
      */
-    public function setOrderStatus($order, $webhook)
+    public function setOrderStatus(OrderInterface $order, array $webhook): void
     {
         // Initialise state, status & order
         $this->state  = null;
@@ -177,13 +180,13 @@ class OrderStatusHandlerService
     /**
      * Sets status/deletes order based on user config if payment fails
      *
-     * @param       $order
-     * @param false $webhook
+     * @param OrderInterface $order
+     * @param mixed          $webhook
      *
      * @return void
      * @throws NoSuchEntityException
      */
-    public function handleFailedPayment($order, bool $webhook = false): void
+    public function handleFailedPayment(OrderInterface $order, $webhook = false): void
     {
         $failedWebhooks = [
             "payment_declined",
@@ -216,11 +219,11 @@ class OrderStatusHandlerService
     /**
      * Set the order status for a payment_approved webhook
      *
-     * @param $webhook
+     * @param mixed [] $webhook
      *
      * @return void
      */
-    public function approved($webhook)
+    public function approved(array $webhook): void
     {
         $payload      = json_decode($webhook['event_data']);
         $this->status = $this->config->getValue('order_status_authorized');
@@ -236,7 +239,7 @@ class OrderStatusHandlerService
      *
      * @return void
      */
-    protected function captured()
+    protected function captured(): void
     {
         $this->status = $this->order->getIsVirtual() ? 'complete' : $this->config->getValue('order_status_captured');
         $this->state  = Order::STATE_PROCESSING;
@@ -247,7 +250,7 @@ class OrderStatusHandlerService
      *
      * @return void
      */
-    public function void()
+    public function void(): void
     {
         $this->status = $this->config->getValue('order_status_voided');
     }
@@ -255,11 +258,11 @@ class OrderStatusHandlerService
     /**
      * Set the order status for a refunded webhook
      *
-     * @param $webhook
+     * @param mixed[] $webhook
      *
      * @return void
      */
-    protected function refund($webhook)
+    protected function refund(array $webhook): void
     {
         // Format the amount
         $payload = json_decode($webhook['event_data']);
@@ -282,11 +285,11 @@ class OrderStatusHandlerService
     /**
      * Set the order status for a payment_capture_pending webhook
      *
-     * @param $webhook
+     * @param mixed[] $webhook
      *
      * @return void
      */
-    protected function capturePending($webhook)
+    protected function capturePending(array $webhook): void
     {
         $payload = json_decode($webhook['event_data']);
         if (isset($payload->data->metadata->methodId) && $payload->data->metadata->methodId === 'checkoutcom_apm') {
@@ -298,8 +301,11 @@ class OrderStatusHandlerService
 
     /**
      * Set the order status for a payment expired webhook.
+     *
+     * @return void
+     * @throws NoSuchEntityException
      */
-    protected function paymentExpired()
+    protected function paymentExpired(): void
     {
         $this->order->addStatusHistoryComment(__('3DS payment expired.'));
         $this->handleFailedPayment($this->order);

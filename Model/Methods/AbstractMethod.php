@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -25,6 +27,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
@@ -306,155 +309,155 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      *
      * @return void
      */
-    public function setStore($storeId)
+    public function setStore($storeId): void
     {
         $this->setData('store', (int)$storeId);
     }
 
     /**
-     * Check partial capture availability
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canCapturePartial()
+    public function canCapturePartial(): bool
     {
         return $this->_canCapturePartial;
     }
 
     /**
-     * Check whether capture can be performed once and no further capture possible
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canCaptureOnce()
+    public function canCaptureOnce(): bool
     {
         return $this->_canCaptureOnce;
     }
 
     /**
-     * Check partial refund availability for invoice
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canRefundPartialPerInvoice()
+    public function canRefundPartialPerInvoice(): bool
     {
         return $this->_canRefundInvoicePartial;
     }
 
     /**
-     * Using internal pages for input payment data.
+     * {@inheritDoc}
      *
      * Can be used in admin.
      *
      * @return bool
      */
-    public function canUseInternal()
+    public function canUseInternal(): bool
     {
         return $this->_canUseInternal;
     }
 
     /**
-     * Can be used in regular checkout
+     * {@inheritDoc}
      *
      * @return bool
      */
-    public function canUseCheckout()
+    public function canUseCheckout(): bool
     {
         return $this->_canUseCheckout;
     }
 
     /**
-     * Can be edit order (renew order)
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canEdit()
+    public function canEdit(): bool
     {
         return true;
     }
 
     /**
-     * Check fetch transaction info availability
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canFetchTransactionInfo()
+    public function canFetchTransactionInfo(): bool
     {
         return $this->_canFetchTransactionInfo;
     }
 
     /**
-     * Fetch transaction info
+     * {@inheritDoc}
      *
      * @param InfoInterface $payment
      * @param string        $transactionId
      *
-     * @return array
+     * @return mixed[]
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @api
      */
-    public function fetchTransactionInfo(InfoInterface $payment, $transactionId)
+    public function fetchTransactionInfo(InfoInterface $payment, $transactionId): array
     {
         return [];
     }
 
     /**
-     * Retrieve payment system relation flag
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function isGateway()
+    public function isGateway(): bool
     {
         return $this->_isGateway;
     }
 
     /**
-     * Retrieve payment method online/offline flag
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function isOffline()
+    public function isOffline(): bool
     {
         return $this->_isOffline;
     }
 
     /**
-     * Flag if we need to run payment initialize while order place
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function isInitializeNeeded()
+    public function isInitializeNeeded(): bool
     {
         return $this->_isInitializeNeeded;
     }
 
     /**
-     * Check method for processing with base currency
+     * {@inheritDoc}
      *
      * @param string $currencyCode
      *
      * @return bool
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function canUseForCurrency($currencyCode)
+    public function canUseForCurrency($currencyCode): bool
     {
         return true;
     }
 
     /**
-     * Retrieve block type for method form generation
+     * {@inheritDoc}
      *
      * @return string
      */
-    public function getFormBlockType()
+    public function getFormBlockType(): string
     {
         if (!empty($this->data['formBlockType'])) {
             $this->_formBlockType = $this->data['formBlockType'];
@@ -464,37 +467,37 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Retrieve block type for display method information
+     * {@inheritDoc}
      *
      * @return string
      * @api
      */
-    public function getInfoBlockType()
+    public function getInfoBlockType(): string
     {
         return $this->_infoBlockType;
     }
 
     /**
-     * Retrieve payment information model object
+     * {@inheritDoc}
      *
      * @param InfoInterface $info
      *
      * @return void
      * @api
      */
-    public function setInfoInstance(InfoInterface $info)
+    public function setInfoInstance(InfoInterface $info): void
     {
         $this->setData('info_instance', $info);
     }
 
     /**
-     * Validate payment method information object
+     * {@inheritDoc}
      *
-     * @return $this
+     * @return AbstractMethod
      * @throws LocalizedException
      * @api
      */
-    public function validate()
+    public function validate(): AbstractMethod
     {
         /**
          * to validate payment method is allowed for billing country or not
@@ -517,13 +520,13 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Retrieve payment information model object
+     * {@inheritDoc}
      *
      * @return InfoInterface
      * @throws LocalizedException
      * @api
      */
-    public function getInfoInstance()
+    public function getInfoInstance(): InfoInterface
     {
         $instance = $this->getData('info_instance');
         if (!$instance instanceof InfoInterface) {
@@ -536,14 +539,14 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * To check billing country is allowed for the payment method
+     * {@inheritDoc}
      *
      * @param string $country
      *
      * @return bool
      * @throws LocalizedException
      */
-    public function canUseForCountry($country)
+    public function canUseForCountry($country): bool
     {
         /*
         for specific country, the flag will set up as 1
@@ -559,7 +562,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Retrieve information from payment configuration
+     * {@inheritDoc}
      *
      * @param string                $field
      * @param int|string|null|Store $storeId
@@ -591,12 +594,12 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Retrieve payment method code
+     * {@inheritDoc}
      *
      * @return string
      * @throws LocalizedException
      */
-    public function getCode()
+    public function getCode(): string
     {
         if (empty($this->_code)) {
             throw new LocalizedException(
@@ -608,17 +611,17 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Order payment abstract method
+     * {@inheritDoc}
      *
      * @param DataObject|InfoInterface $payment
      * @param float                    $amount
      *
-     * @return $this
+     * @return AbstractMethod
      * @throws LocalizedException
      * @api
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function order(InfoInterface $payment, $amount)
+    public function order(InfoInterface $payment, $amount): AbstractMethod
     {
         if (!$this->canOrder()) {
             throw new LocalizedException(__('The order action is not available.'));
@@ -628,28 +631,28 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Check order availability
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canOrder()
+    public function canOrder(): bool
     {
         return $this->_canOrder;
     }
 
     /**
-     * Authorize payment abstract method
+     * {@inheritDoc}
      *
      * @param DataObject|InfoInterface $payment
      * @param float                    $amount
      *
-     * @return $this
+     * @return AbstractMethod
      * @throws LocalizedException
      * @api
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function authorize(InfoInterface $payment, $amount)
+    public function authorize(InfoInterface $payment, $amount): AbstractMethod
     {
         if (!$this->canAuthorize()) {
             throw new LocalizedException(__('The authorize action is not available.'));
@@ -659,18 +662,18 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Check authorize availability
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canAuthorize()
+    public function canAuthorize(): bool
     {
         return $this->_canAuthorize;
     }
 
     /**
-     * Capture payment abstract method
+     * {@inheritDoc}
      *
      * @param DataObject|InfoInterface $payment
      * @param float                    $amount
@@ -680,7 +683,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @api
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function capture(InfoInterface $payment, $amount)
+    public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
         if (!$this->canCapture()) {
             throw new LocalizedException(__('The capture action is not available.'));
@@ -690,28 +693,28 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Check capture availability
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canCapture()
+    public function canCapture(): bool
     {
         return $this->_canCapture;
     }
 
     /**
-     * Refund specified amount for payment
+     * {@inheritDoc}
      *
      * @param DataObject|InfoInterface $payment
      * @param float                    $amount
      *
-     * @return $this
+     * @return AbstractMethod
      * @throws LocalizedException
      * @api
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function refund(InfoInterface $payment, $amount)
+    public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
         if (!$this->canRefund()) {
             throw new LocalizedException(__('The refund action is not available.'));
@@ -721,41 +724,41 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Check refund availability
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canRefund()
+    public function canRefund(): bool
     {
         return $this->_canRefund;
     }
 
     /**
-     * Cancel payment abstract method
+     * {@inheritDoc}
      *
      * @param DataObject|InfoInterface $payment
      *
-     * @return $this
+     * @return AbstractMethod
      * @api
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function cancel(InfoInterface $payment)
+    public function cancel(InfoInterface $payment): AbstractMethod
     {
         return $this;
     }
 
     /**
-     * Void payment abstract method
+     * {@inheritDoc}
      *
      * @param DataObject|InfoInterface $payment
      *
-     * @return $this
+     * @return AbstractMethod
      * @throws LocalizedException
      * @api
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function void(InfoInterface $payment)
+    public function void(InfoInterface $payment): AbstractMethod
     {
         if (!$this->canVoid()) {
             throw new LocalizedException(__('The void action is not available.'));
@@ -765,19 +768,19 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Check void availability.
+     * {@inheritDoc}
      *
      * @return bool
      * @internal param \Magento\Framework\DataObject $payment
      * @api
      */
-    public function canVoid()
+    public function canVoid(): bool
     {
         return $this->_canVoid;
     }
 
     /**
-     * Attempt to accept a payment that us under review
+     * {@inheritDoc}
      *
      * @param InfoInterface $payment
      *
@@ -786,7 +789,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @api
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function acceptPayment(InfoInterface $payment)
+    public function acceptPayment(InfoInterface $payment): bool
     {
         if (!$this->canReviewPayment()) {
             throw new LocalizedException(__('The payment review action is unavailable.'));
@@ -796,18 +799,18 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Whether this method can accept or deny payment.
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canReviewPayment()
+    public function canReviewPayment(): bool
     {
         return $this->_canReviewPayment;
     }
 
     /**
-     * Attempt to deny a payment that us under review
+     * {@inheritDoc}
      *
      * @param InfoInterface $payment
      *
@@ -816,7 +819,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @api
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function denyPayment(InfoInterface $payment)
+    public function denyPayment(InfoInterface $payment): bool
     {
         if (!$this->canReviewPayment()) {
             throw new LocalizedException(__('The payment review action is unavailable.'));
@@ -826,26 +829,26 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Retrieve payment method title
+     * {@inheritDoc}
      *
-     * @return string
+     * @return string|null
      * @throws LocalizedException
      */
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->getConfigData('title');
     }
 
     /**
-     * Assign data to info model instance
+     * {@inheritDoc}
      *
      * @param array|DataObject $data
      *
-     * @return $this
+     * @return AbstractMethod
      * @throws LocalizedException
      * @api
      */
-    public function assignData(DataObject $data)
+    public function assignData(DataObject $data): AbstractMethod
     {
         $this->_eventManager->dispatch('payment_method_assign_data_' . $this->getCode(), [
             AbstractDataAssignObserver::METHOD_CODE => $this,
@@ -863,14 +866,14 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Check whether payment method can be used
+     * {@inheritDoc}
      *
      * @param CartInterface|null $quote
      *
      * @return bool
      * @throws LocalizedException
      */
-    public function isAvailable(CartInterface $quote = null)
+    public function isAvailable(CartInterface $quote = null): bool
     {
         if (!$this->isActive($quote ? $quote->getStoreId() : null)) {
             return false;
@@ -890,43 +893,41 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
-     * Is active
+     * {@inheritDoc}
      *
      * @param int|null $storeId
      *
      * @return bool
      * @throws LocalizedException
      */
-    public function isActive($storeId = null)
+    public function isActive($storeId = null): bool
     {
         return (bool)(int)$this->getConfigData('active', $storeId);
     }
 
     /**
-     * Method that will be executed instead of authorize or capture if flag isInitializeNeeded set to true.
+     * {@inheritDoc}
      *
      * @param string $paymentAction
      * @param object $stateObject
      *
-     * @return $this
+     * @return AbstractMethod
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @api
      */
-    public function initialize($paymentAction, $stateObject)
+    public function initialize($paymentAction, $stateObject): AbstractMethod
     {
         return $this;
     }
 
     /**
-     * Get config payment action url.
+     * {@inheritDoc}
      *
-     * Used to universalize payment actions when processing payment place.
-     *
-     * @return string
+     * @return string|null
      * @throws LocalizedException
      * @api
      */
-    public function getConfigPaymentAction()
+    public function getConfigPaymentAction(): ?string
     {
         return $this->getConfigData('payment_action');
     }
@@ -934,13 +935,13 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * Used to call debug method from not Payment Method context
      *
-     * @param mixed $debugData
+     * @param mixed[] $debugData
      *
      * @return void
      * @throws LocalizedException
      * @api
      */
-    public function debugData($debugData)
+    public function debugData(array $debugData): void
     {
         $this->_debug($debugData);
     }
@@ -948,12 +949,12 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * Log debug data to file
      *
-     * @param array $debugData
+     * @param mixed[] $debugData
      *
      * @return void
      * @throws LocalizedException
      */
-    protected function _debug($debugData)
+    protected function _debug(array $debugData): void
     {
         $this->logger->debug(
             $debugData,
@@ -965,9 +966,9 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * Return replace keys for debug data
      *
-     * @return array
+     * @return mixed[]
      */
-    public function getDebugReplacePrivateDataKeys()
+    public function getDebugReplacePrivateDataKeys(): array
     {
         return (array)$this->_debugReplacePrivateDataKeys;
     }
@@ -980,7 +981,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @throws LocalizedException
      * @api
      */
-    public function getDebugFlag()
+    public function getDebugFlag(): bool
     {
         return (bool)(int)$this->getConfigData('debug');
     }
@@ -988,12 +989,13 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * Get the success redirection URL for the payment request
      *
-     * @param      $data
-     * @param null $isApiOrder
+     * @param string[]  $data
+     * @param bool|null $isApiOrder
      *
      * @return string
+     * @throws NoSuchEntityException
      */
-    public function getSuccessUrl($data, $isApiOrder = null)
+    public function getSuccessUrl(array $data, bool $isApiOrder = null): string
     {
         if (isset($data['successUrl']) && !$isApiOrder) {
             return $data['successUrl'];
@@ -1005,12 +1007,12 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * Get the failure redirection URL for the payment request
      *
-     * @param      $data
-     * @param null $isApiOrder
+     * @param string[]  $data
+     * @param bool|null $isApiOrder
      *
      * @return string
      */
-    public function getFailureUrl($data, $isApiOrder = null)
+    public function getFailureUrl(array $data, bool $isApiOrder = null): string
     {
         if (isset($data['failureUrl']) && !$isApiOrder) {
             return $data['failureUrl'];
@@ -1022,11 +1024,11 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * Initializes injected data
      *
-     * @param array $data
+     * @param mixed[] $data
      *
      * @return void
      */
-    protected function initializeData($data = [])
+    protected function initializeData(array $data = []): void
     {
         if (!empty($data['formBlockType'])) {
             $this->_formBlockType = $data['formBlockType'];

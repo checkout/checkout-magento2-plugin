@@ -139,11 +139,11 @@ class Config
     /**
      * Checks if a private shared key request is valid
      *
-     * @param string $key
+     * @param string|false $key
      *
      * @return bool
      */
-    public function isValidPrivateSharedKey(string $key): bool
+    public function isValidPrivateSharedKey($key): bool
     {
         // Get the private shared key from config
         $privateSharedKey = $this->getValue('private_shared_key');
@@ -156,11 +156,11 @@ class Config
     /**
      * Checks if a public key is valid
      *
-     * @param string $key
+     * @param string|false $key
      *
      * @return bool
      */
-    public function isValidPublicKey(string $key): bool
+    public function isValidPublicKey($key): bool
     {
         // Get the public key from config
         $publicKey = $this->getValue('public_key');
@@ -173,17 +173,17 @@ class Config
     /**
      * Returns a module config value
      *
-     * @param string      $field
-     * @param string|null $methodId
-     * @param string|null $storeCode
-     * @param string      $scope
+     * @param string           $field
+     * @param string|null      $methodId
+     * @param string|int|null  $storeCode
+     * @param string|null      $scope
      *
      * @return mixed
      */
     public function getValue(
         string $field,
         string $methodId = null,
-        string $storeCode = null,
+        $storeCode = null,
         string $scope = ScopeInterface::SCOPE_STORE
     ) {
         return $this->loader->getValue($field, $methodId, $storeCode, $scope);

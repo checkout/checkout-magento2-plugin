@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Vault;
 
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
@@ -71,14 +73,14 @@ class VaultToken
     /**
      * Returns the prepared payment token.
      *
-     * @param array    $card
-     * @param          $methodId
+     * @param mixed[]  $card
+     * @param string   $methodId
      * @param int|null $customerId
      *
      * @return PaymentTokenInterface
      * @throws Exception
      */
-    public function create(array $card, $methodId, $customerId = null)
+    public function create(array $card, string $methodId, int $customerId = null): PaymentTokenInterface
     {
         $expiryMonth = str_pad($card['expiry_month'], 2, '0', STR_PAD_LEFT);
         $expiryYear  = $card['expiry_year'];
@@ -123,7 +125,7 @@ class VaultToken
      * @return string
      * @throws Exception
      */
-    private function getExpirationDate($expiryMonth, $expiryYear)
+    private function getExpirationDate(string $expiryMonth, string $expiryYear): string
     {
         $expDate = new DateTime(
             $expiryYear . '-' . $expiryMonth . '-' . '01' . ' ' . '00:00:00', new DateTimeZone('UTC')
@@ -139,7 +141,7 @@ class VaultToken
      *
      * @return string
      */
-    private function generatePublicHash(PaymentTokenInterface $paymentToken)
+    private function generatePublicHash(PaymentTokenInterface $paymentToken): string
     {
         $hashKey = $paymentToken->getGatewayToken();
 
@@ -157,11 +159,11 @@ class VaultToken
      *
      * Convert payment token details to JSON
      *
-     * @param array $details
+     * @param mixed[] $details
      *
      * @return string
      */
-    private function convertDetailsToJSON(array $details)
+    private function convertDetailsToJSON(array $details): string
     {
         $json = Zend_Json::encode($details);
 

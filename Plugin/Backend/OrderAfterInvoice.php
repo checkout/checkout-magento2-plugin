@@ -14,10 +14,13 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Plugin\Backend;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
@@ -55,7 +58,7 @@ class OrderAfterInvoice
      * @param string|float|int      $amount
      * @param OrderInterface        $order
      *
-     * @return string
+     * @return string|Phrase
      * @throws LocalizedException
      */
     public function afterExecute(
@@ -90,18 +93,18 @@ class OrderAfterInvoice
     /**
      * Check if the order status needs updating.
      *
-     * @param $order
+     * @param OrderInterface $order
      *
      * @return bool
      */
-    public function statusNeedsCorrection($order)
+    public function statusNeedsCorrection(OrderInterface $order): bool
     {
         $currentState  = $order->getState();
         $currentStatus = $order->getStatus();
         $desiredStatus = $this->config->getValue('order_status_captured');
         $flaggedStatus = $this->config->getValue('order_status_flagged');
 
-        return ($currentState == Order::STATE_PROCESSING
+        return ($currentState === Order::STATE_PROCESSING
                 && $currentStatus !== $flaggedStatus
                 && $currentStatus !== $desiredStatus
                 && $currentStatus === 'processing') || $order->getIsVirtual();

@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
@@ -50,7 +52,7 @@ class TokenFormatter
      *
      * @return string
      */
-    public function formatPaymentToken(PaymentTokenInterface $paymentToken)
+    public function formatPaymentToken(PaymentTokenInterface $paymentToken): string
     {
         // Return the formatted token
         return $this->vaultHandler->renderTokenData($paymentToken);

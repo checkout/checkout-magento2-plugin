@@ -25,7 +25,6 @@ use Magento\Framework\Module\Dir;
 use Magento\Framework\Module\Dir\Reader;
 use Magento\Framework\Xml\Parser;
 use Magento\Store\Model\ScopeInterface;
-use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Loader
@@ -248,17 +247,17 @@ class Loader
     /**
      * Get a field value
      *
-     * @param string      $key
-     * @param string|null $methodId
-     * @param string|null $storeCode
-     * @param string      $scope
+     * @param string          $key
+     * @param string|null     $methodId
+     * @param string|int|null $storeCode
+     * @param string|null     $scope
      *
      * @return mixed|string
      */
     public function getValue(
         string $key,
         string $methodId = null,
-        string $storeCode = null,
+        $storeCode = null,
         string $scope = ScopeInterface::SCOPE_STORE
     ) {
         // Prepare the path

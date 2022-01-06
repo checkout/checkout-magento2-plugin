@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -22,7 +24,7 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
-use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Sales\Model\ResourceModel\Order\Invoice\Collection as InvoiceCollection;
 use Magento\Sales\Model\Service\InvoiceService;
 
 /**
@@ -133,11 +135,11 @@ class InvoiceHandlerService
     /**
      * Load an order invoice
      *
-     * @param $order
+     * @param Order $order
      *
      * @return Invoice|null
      */
-    public function getInvoice($order)
+    public function getInvoice(Order $order): ?Invoice
     {
         // Get the invoices collection
         $invoices = $order->getInvoiceCollection();
@@ -158,11 +160,11 @@ class InvoiceHandlerService
     /**
      * Load all order invoices
      *
-     * @param $order
+     * @param Order $order
      *
-     * @return mixed
+     * @return InvoiceCollection
      */
-    public function getInvoices($order)
+    public function getInvoices(Order $order): InvoiceCollection
     {
         return $order->getInvoiceCollection();
     }

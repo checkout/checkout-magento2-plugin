@@ -59,9 +59,9 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     /**
      * Get the row id
      *
-     * @return int|null
+     * @return string|null
      */
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->getData(self::ID);
     }

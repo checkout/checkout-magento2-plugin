@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Observer\Api;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -65,7 +67,7 @@ class OrderCreditMemoSaveAfter implements ObserverInterface
      * @return OrderCreditMemoSaveAfter
      * @throws LocalizedException
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): OrderCreditMemoSaveAfter
     {
         /** @var Creditmemo $creditMemo */
         $creditMemo = $observer->getEvent()->getCreditmemo();

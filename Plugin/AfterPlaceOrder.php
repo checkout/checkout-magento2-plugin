@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Plugin;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -53,7 +55,7 @@ class AfterPlaceOrder
      * @return OrderInterface
      * @throws LocalizedException
      */
-    public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
+    public function afterPlace(OrderManagementInterface $subject, OrderInterface $order): OrderInterface
     {
         // Get the method ID
         $methodId = $order->getPayment()->getMethodInstance()->getCode();

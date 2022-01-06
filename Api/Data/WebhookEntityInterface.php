@@ -76,9 +76,9 @@ interface WebhookEntityInterface
     /**
      * Get the row id
      *
-     * @return int
+     * @return string|null
      */
-    public function getId();
+    public function getId(): ?string;
 
     /**
      * Get the event id

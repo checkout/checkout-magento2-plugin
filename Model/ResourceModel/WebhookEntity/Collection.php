@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity;
 
 use CheckoutCom\Magento2\Model\Entity\WebhookEntity as WebhookEntityModel;
@@ -37,7 +39,7 @@ class Collection extends AbstractCollection
      *
      * @return void
      */
-    protected function _construct()
+    protected function _construct(): void
     {
         $this->_init(
             WebhookEntityModel::class,

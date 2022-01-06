@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
 use Checkout\CheckoutApi;
@@ -122,17 +124,18 @@ class ApiHandlerService
     /**
      * Load the API client
      *
-     * @param null   $storeCode
-     * @param string $scope
-     * @param null   $secretKey
+     * @param string|int|null $storeCode
+     * @param string          $scope
+     * @param string|null     $secretKey
      *
      * @return $this
      */
     public function init(
         $storeCode = null,
         string $scope = ScopeInterface::SCOPE_STORE,
-        $secretKey = null
-    ) {
+        string $secretKey = null
+    ): ApiHandlerService
+    {
         if ($secretKey) {
             $this->checkoutApi = new CheckoutApi(
                 $secretKey, $this->config->getValue('environment', null, $storeCode, $scope)
@@ -161,11 +164,11 @@ class ApiHandlerService
     /**
      * Checks if a response is valid
      *
-     * @param $response
+     * @param mixed $response
      *
      * @return bool
      */
-    public function isValidResponse($response)
+    public function isValidResponse($response): bool
     {
         $this->logger->additional($this->utilities->objectToArray($response), 'api');
 
@@ -175,14 +178,14 @@ class ApiHandlerService
     /**
      * Captures a transaction
      *
-     * @param $payment
-     * @param $amount
+     * @param mixed $payment
+     * @param float $amount
      *
      * @return mixed|void
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */
-    public function captureOrder($payment, $amount)
+    public function captureOrder($payment, float $amount)
     {
         // Get the order
         $order = $payment->getOrder();
@@ -212,7 +215,7 @@ class ApiHandlerService
     /**
      * Voids a transaction
      *
-     * @param $payment
+     * @param mixed $payment
      *
      * @return mixed|void
      */
@@ -239,14 +242,14 @@ class ApiHandlerService
     /**
      * Refunds a transaction
      *
-     * @param $payment
-     * @param $amount
+     * @param mixed $payment
+     * @param float $amount
      *
      * @return mixed|void
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function refundOrder($payment, $amount)
+    public function refundOrder($payment, float $amount)
     {
         // Get the order
         $order = $payment->getOrder();
@@ -287,11 +290,11 @@ class ApiHandlerService
     /**
      * Creates a customer source
      *
-     * @param $entity
+     * @param mixed $entity
      *
      * @return Customer
      */
-    public function createCustomer($entity)
+    public function createCustomer($entity): Customer
     {
         // Get the billing address
         $billingAddress = $entity->getBillingAddress();
@@ -307,11 +310,11 @@ class ApiHandlerService
     /**
      * Creates a billing address
      *
-     * @param $entity
+     * @param mixed $entity
      *
      * @return Address
      */
-    public function createBillingAddress($entity)
+    public function createBillingAddress($entity): Address
     {
         // Get the billing address
         $billingAddress = $entity->getBillingAddress();
@@ -331,11 +334,11 @@ class ApiHandlerService
     /**
      * Creates a shipping address
      *
-     * @param $entity
+     * @param mixed $entity
      *
      * @return Shipping
      */
-    public function createShippingAddress($entity)
+    public function createShippingAddress($entity): Shipping
     {
         // Get the billing address
         $shippingAddress = $entity->getShippingAddress();
@@ -355,10 +358,10 @@ class ApiHandlerService
     /**
      * Get base metadata
      *
-     * @return array
+     * @return mixed[]
      * @throws NoSuchEntityException|FileSystemException
      */
-    public function getBaseMetadata()
+    public function getBaseMetadata(): array
     {
         // Get the website URL
         $serverUrl = $this->storeManager->getStore()->getBaseUrl();

@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -87,12 +89,12 @@ class VersionHandlerService
     /**
      * Returns type of version update
      *
-     * @param $currentVersion
-     * @param $latestVersion
+     * @param string $currentVersion
+     * @param string $latestVersion
      *
-     * @return string|void
+     * @return string
      */
-    public function getVersionType($currentVersion, $latestVersion)
+    public function getVersionType(string $currentVersion, string $latestVersion): string
     {
         $versions = [explode('.', $currentVersion), explode('.', $latestVersion)];
 
@@ -109,17 +111,19 @@ class VersionHandlerService
                 }
             }
         }
+
+        return '';
     }
 
     /**
      * Check if module needs updating
      *
-     * @param $currentVersion
-     * @param $latestVersion
+     * @param string $currentVersion
+     * @param string $latestVersion
      *
      * @return bool
      */
-    public function needsUpdate($currentVersion, $latestVersion): bool
+    public function needsUpdate(string $currentVersion, string $latestVersion): bool
     {
         $versions = [explode('.', $currentVersion), explode('.', $latestVersion)];
 
@@ -163,11 +167,11 @@ class VersionHandlerService
     /**
      * Get latest version number
      *
-     * @param $versions
+     * @param mixed[] $versions
      *
      * @return mixed|void
      */
-    public function getLatestVersion($versions)
+    public function getLatestVersion(array $versions)
     {
         foreach ($versions as $version) {
             // Find latest release that is not beta

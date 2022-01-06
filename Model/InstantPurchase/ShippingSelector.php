@@ -19,6 +19,9 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
+use Magento\Quote\Model\Quote\Address;
+use Magento\Quote\Model\Quote\Address\Rate as QuoteAddressRate;
+
 /**
  * Class ShippingSelector
  */
@@ -29,9 +32,9 @@ class ShippingSelector
      *
      * @param Address $address
      *
-     * @return Rate
+     * @return string
      */
-    public function getShippingMethod($address)
+    public function getShippingMethod(Address $address): ?string
     {
         $address->setCollectShippingRates(true);
         $address->collectShippingRates();
@@ -41,19 +44,17 @@ class ShippingSelector
             return null;
         }
 
-        $cheapestRate = $this->selectCheapestRate($shippingRates);
-
-        return $cheapestRate->getCode();
+        return $this->selectCheapestRate($shippingRates)->getCode();
     }
 
     /**
      * Selects shipping price with minimal price.
      *
-     * @param Rate[] $shippingRates
+     * @param QuoteAddressRate[] $shippingRates
      *
-     * @return Rate
+     * @return QuoteAddressRate
      */
-    private function selectCheapestRate(array $shippingRates)
+    private function selectCheapestRate(array $shippingRates): QuoteAddressRate
     {
         $rate = array_shift($shippingRates);
         foreach ($shippingRates as $tmpRate) {
