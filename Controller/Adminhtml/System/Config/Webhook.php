@@ -112,8 +112,9 @@ class Webhook extends Action
             $storeCode  = $this->getRequest()->getParam('scope_id', 0);
             $publicKey  = $this->getRequest()->getParam('public_key', 0);
             $webhookUrl = $this->getRequest()->getParam('webhook_url', 0);
-            $secretKey = $this->getRequest()->getParam('secret_key', 0) ?:
-                $this->scopeConfig->getValue('settings/checkoutcom_configuration/secret_key');
+            $secretKey  = $this->scopeConfig->getValue('settings/checkoutcom_configuration/secret_key')
+            ?: $this->getRequest()->getParam('secret_key', 0);
+
 
             // Initialize the API handler
             $checkoutApi = $this->apiHandler
