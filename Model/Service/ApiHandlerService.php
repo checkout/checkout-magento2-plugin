@@ -242,14 +242,14 @@ class ApiHandlerService
     /**
      * Refunds a transaction
      *
-     * @param mixed $payment
-     * @param float $amount
+     * @param mixed        $payment
+     * @param float|string $amount
      *
      * @return mixed|void
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function refundOrder($payment, float $amount)
+    public function refundOrder($payment, $amount)
     {
         // Get the order
         $order = $payment->getOrder();

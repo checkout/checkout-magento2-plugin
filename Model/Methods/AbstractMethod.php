@@ -710,7 +710,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * {@inheritDoc}
      *
      * @param DataObject|InfoInterface $payment
-     * @param float                    $amount
+     * @param float|string             $amount
      *
      * @return AbstractMethod
      * @throws LocalizedException
