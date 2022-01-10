@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Api\Data;
 
 /**
@@ -85,37 +87,37 @@ interface WebhookEntityInterface
      *
      * @return string
      */
-    public function getEventId();
+    public function getEventId(): string;
 
     /**
      * Get the event type
      *
      * @return string
      */
-    public function getEventType();
+    public function getEventType(): string;
 
     /**
      * Get the event data
      *
      * @return string
      */
-    public function getEventData();
+    public function getEventData(): string;
 
     /**
      * Get the order id
      *
-     * @return int
+     * @return string|null
      */
-    public function getOrderId();
+    public function getOrderId(): ?string;
 
     /**
      * Set the row id
      *
-     * @param int $rowId
+     * @param $rowId
      *
      * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setId(int $rowId): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
+    public function setId($rowId): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 
     /**
      * Set the event id

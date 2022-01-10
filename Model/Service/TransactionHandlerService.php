@@ -222,7 +222,7 @@ class TransactionHandlerService
      * Handle a webhook transaction
      *
      * @param OrderInterface $order
-     * @param mixed[] $webhook
+     * @param mixed[]        $webhook
      *
      * @return void
      * @throws Exception

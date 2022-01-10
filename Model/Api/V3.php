@@ -236,12 +236,12 @@ class V3 implements V3Interface
      * @param PaymentRequestInterface $paymentRequest
      *
      * @return PaymentResponseInterface
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function executeApiV3(
         CustomerInterface $customer,
         PaymentRequestInterface $paymentRequest
-    ) {
+    ): PaymentResponseInterface {
         // Assign the customer and payment request to be accessible to the whole class
         $this->customer = $customer;
         $this->data     = $paymentRequest;
@@ -256,11 +256,11 @@ class V3 implements V3Interface
      * @param PaymentRequestInterface $paymentRequest
      *
      * @return PaymentResponseInterface
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function executeGuestApiV3(
         PaymentRequestInterface $paymentRequest
-    ) {
+    ): PaymentResponseInterface {
         // Assign the payment request to be accessible to the whole class
         $this->data = $paymentRequest;
 

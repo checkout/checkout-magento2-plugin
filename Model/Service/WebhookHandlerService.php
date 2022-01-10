@@ -115,7 +115,7 @@ class WebhookHandlerService
      * Process a single incoming webhook
      *
      * @param OrderInterface $order
-     * @param mixed $payload
+     * @param mixed          $payload
      *
      * @return void
      * @throws LocalizedException
@@ -166,7 +166,7 @@ class WebhookHandlerService
      * Description processWithSave function
      *
      * @param OrderInterface $order
-     * @param mixed $payload
+     * @param mixed          $payload
      *
      * @return void
      * @throws LocalizedException
@@ -368,7 +368,7 @@ class WebhookHandlerService
      * Description hasAuth function
      *
      * @param mixed[] $webhooks
-     * @param mixed $payload
+     * @param mixed   $payload
      *
      * @return bool
      */

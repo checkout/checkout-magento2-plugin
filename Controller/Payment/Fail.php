@@ -33,6 +33,7 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
@@ -149,7 +150,7 @@ class Fail extends Action
     /**
      * Handles the controller method
      *
-     * @return \Magento\Framework\Controller\ResultInterface|ResponseInterface
+     * @return ResultInterface|ResponseInterface
      * @throws NoSuchEntityException|LocalizedException
      */
     public function execute(): ResponseInterface

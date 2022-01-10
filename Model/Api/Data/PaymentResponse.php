@@ -70,11 +70,11 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
     /**
      * {@inheritDoc}
      *
-     * @param $success
+     * @param bool $success
      *
-     * @return PaymentResponse
+     * @return PaymentResponseInterface
      */
-    public function setSuccess($success): PaymentResponse
+    public function setSuccess(bool $success): PaymentResponseInterface
     {
         return $this->setData(self::SUCCESS, $success);
     }
@@ -82,11 +82,11 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
     /**
      * {@inheritDoc}
      *
-     * @param $orderId
+     * @param int $orderId
      *
-     * @return PaymentResponse
+     * @return PaymentResponseInterface
      */
-    public function setOrderId($orderId): PaymentResponse
+    public function setOrderId(int $orderId): PaymentResponseInterface
     {
         return $this->setData(self::ORDER_ID, $orderId);
     }
@@ -94,11 +94,11 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
     /**
      * {@inheritDoc}
      *
-     * @param $redirectUrl
+     * @param string $redirectUrl
      *
-     * @return PaymentResponse
+     * @return PaymentResponseInterface
      */
-    public function setRedirectUrl($redirectUrl): PaymentResponse
+    public function setRedirectUrl(string $redirectUrl): PaymentResponseInterface
     {
         return $this->setData(self::REDIRECT_URL, $redirectUrl);
     }
@@ -108,9 +108,9 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
      *
      * @param string|array $errorMessage
      *
-     * @return PaymentResponse
+     * @return PaymentResponseInterface
      */
-    public function setErrorMessage($errorMessage): PaymentResponse
+    public function setErrorMessage($errorMessage): PaymentResponseInterface
     {
         return $this->setData(self::ERROR_MESSAGE, $errorMessage);
     }

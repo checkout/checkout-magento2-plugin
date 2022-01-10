@@ -23,7 +23,6 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Sales\Model\Order\Status\History as OrderStatusHistory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\AbstractExtensibleModel;
@@ -33,6 +32,7 @@ use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Status\History as OrderStatusHistory;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -153,8 +153,8 @@ class OrderHandlerService
     /**
      * Places an order if not already created
      *
-     * @param Quote|null  $quote
-     * @param false $external
+     * @param Quote|null $quote
+     * @param false      $external
      *
      * @return AbstractExtensibleModel|OrderInterface|mixed|object|null
      * @throws LocalizedException
@@ -304,7 +304,7 @@ class OrderHandlerService
     /**
      * Tasks after place order
      *
-     * @param CartInterface $quote
+     * @param CartInterface  $quote
      * @param OrderInterface $order
      *
      * @return OrderInterface
@@ -327,7 +327,7 @@ class OrderHandlerService
     /**
      * Get status history by id
      *
-     * @param string $entity
+     * @param string         $entity
      * @param OrderInterface $order
      *
      * @return false|OrderStatusHistory

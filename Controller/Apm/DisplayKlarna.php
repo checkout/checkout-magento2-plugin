@@ -252,7 +252,7 @@ class DisplayKlarna extends Action
      * Gets the shipping.
      *
      * @param mixed[]       $response The response
-     * @param Product[]       $products The products.
+     * @param Product[]     $products The products.
      * @param CartInterface $quote
      *
      * @return void

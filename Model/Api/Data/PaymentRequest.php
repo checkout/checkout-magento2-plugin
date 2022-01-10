@@ -122,9 +122,9 @@ class PaymentRequest extends AbstractSimpleObject implements PaymentRequestInter
      *
      * @param string $paymentToken
      *
-     * @return PaymentRequest
+     * @return PaymentRequestInterface
      */
-    public function setPaymentToken($paymentToken): PaymentRequest
+    public function setPaymentToken(string $paymentToken): PaymentRequestInterface
     {
         return $this->setData(self::PAYMENT_TOKEN, $paymentToken);
     }
@@ -134,9 +134,9 @@ class PaymentRequest extends AbstractSimpleObject implements PaymentRequestInter
      *
      * @param string $paymentMethod
      *
-     * @return PaymentRequest
+     * @return PaymentRequestInterface
      */
-    public function setPaymentMethod($paymentMethod): PaymentRequest
+    public function setPaymentMethod(string $paymentMethod): PaymentRequestInterface
     {
         return $this->setData(self::PAYMENT_METHOD, $paymentMethod);
     }
@@ -146,9 +146,9 @@ class PaymentRequest extends AbstractSimpleObject implements PaymentRequestInter
      *
      * @param string $quoteId
      *
-     * @return PaymentRequest
+     * @return PaymentRequestInterface
      */
-    public function setQuoteId($quoteId): PaymentRequest
+    public function setQuoteId(string $quoteId): PaymentRequestInterface
     {
         return $this->setData(self::QUOTE_ID, $quoteId);
     }
@@ -158,9 +158,9 @@ class PaymentRequest extends AbstractSimpleObject implements PaymentRequestInter
      *
      * @param int $cardBin
      *
-     * @return PaymentRequest
+     * @return PaymentRequestInterface
      */
-    public function setCardBin($cardBin): PaymentRequest
+    public function setCardBin(int $cardBin): PaymentRequestInterface
     {
         return $this->setData(self::CARD_BIN, $cardBin);
     }
@@ -170,9 +170,9 @@ class PaymentRequest extends AbstractSimpleObject implements PaymentRequestInter
      *
      * @param int $cardCvv
      *
-     * @return PaymentRequest
+     * @return PaymentRequestInterface
      */
-    public function setCardCvv($cardCvv): PaymentRequest
+    public function setCardCvv(int $cardCvv): PaymentRequestInterface
     {
         return $this->setData(self::CARD_CVV, $cardCvv);
     }
@@ -182,9 +182,9 @@ class PaymentRequest extends AbstractSimpleObject implements PaymentRequestInter
      *
      * @param string $publicHash
      *
-     * @return PaymentRequest
+     * @return PaymentRequestInterface
      */
-    public function setPublicHash($publicHash): PaymentRequest
+    public function setPublicHash(string $publicHash): PaymentRequestInterface
     {
         return $this->setData(self::PUBLIC_HASH, $publicHash);
     }
@@ -194,9 +194,9 @@ class PaymentRequest extends AbstractSimpleObject implements PaymentRequestInter
      *
      * @param string $saveCard
      *
-     * @return PaymentRequest
+     * @return PaymentRequestInterface
      */
-    public function setSaveCard($saveCard): PaymentRequest
+    public function setSaveCard(string $saveCard): PaymentRequestInterface
     {
         return $this->setData(self::SAVE_CARD, $saveCard);
     }
@@ -206,9 +206,9 @@ class PaymentRequest extends AbstractSimpleObject implements PaymentRequestInter
      *
      * @param string $successUrl
      *
-     * @return PaymentRequest
+     * @return PaymentRequestInterface
      */
-    public function setSuccessUrl($successUrl): PaymentRequest
+    public function setSuccessUrl(string $successUrl): PaymentRequestInterface
     {
         return $this->setData(self::SUCCESS_URL, $successUrl);
     }
@@ -218,9 +218,9 @@ class PaymentRequest extends AbstractSimpleObject implements PaymentRequestInter
      *
      * @param string $failureUrl
      *
-     * @return PaymentRequest
+     * @return PaymentRequestInterface
      */
-    public function setFailureUrl($failureUrl): PaymentRequest
+    public function setFailureUrl(string $failureUrl): PaymentRequestInterface
     {
         return $this->setData(self::FAILURE_URL, $failureUrl);
     }

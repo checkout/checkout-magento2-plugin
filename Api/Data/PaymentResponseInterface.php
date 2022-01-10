@@ -51,21 +51,21 @@ interface PaymentResponseInterface
      *
      * @return boolean
      */
-    public function getSuccess();
+    public function getSuccess(): bool;
 
     /**
      * Get the order id
      *
      * @return int
      */
-    public function getOrderId();
+    public function getOrderId(): int;
 
     /**
      * Get the redirect url
      *
      * @return string
      */
-    public function getRedirectUrl();
+    public function getRedirectUrl(): string;
 
     /**
      * Get the error message
@@ -77,28 +77,36 @@ interface PaymentResponseInterface
     /**
      * Set the success status
      *
+     * @param bool $success
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
      */
-    public function setSuccess($success);
+    public function setSuccess(bool $success): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
 
     /**
      * Set the order id
      *
+     * @param int $orderId
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
      */
-    public function setOrderId($orderId);
+    public function setOrderId(int $orderId): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
 
     /**
      * Set the redirect url
      *
+     * @param string $redirectUrl
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
      */
-    public function setRedirectUrl($redirectUrl);
+    public function setRedirectUrl(string $redirectUrl): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
 
     /**
      * Set the error message
      *
+     * @param string|array $errorMessage
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
      */
-    public function setErrorMessage($errorMessage);
+    public function setErrorMessage($errorMessage): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
 }

@@ -157,8 +157,8 @@ class Display extends Action
      * Check for specific country & currency mappings
      *
      * @param string[] $apm
-     * @param string $billingCountry
-     * @param string $currency
+     * @param string   $billingCountry
+     * @param string   $currency
      *
      * @return bool
      */

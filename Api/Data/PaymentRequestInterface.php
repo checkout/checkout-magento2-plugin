@@ -84,126 +84,144 @@ interface PaymentRequestInterface
     /**
      * Get the payment token
      *
-     * @return string
+     * @return string|null
      */
-    public function getPaymentToken();
+    public function getPaymentToken(): ?string;
 
     /**
      * Get the payment method
      *
-     * @return string
+     * @return string|null
      */
-    public function getPaymentMethod();
+    public function getPaymentMethod(): ?string;
 
     /**
      * Get the quote id
      *
-     * @return string
+     * @return string|null
      */
-    public function getQuoteId();
+    public function getQuoteId(): ?string;
 
     /**
      * Get the card bin
      *
-     * @return int
+     * @return int|null
      */
-    public function getCardBin();
+    public function getCardBin(): ?int;
 
     /**
      * Get the card cvv
      *
-     * @return int
+     * @return int|null
      */
-    public function getCardCvv();
+    public function getCardCvv(): ?int;
 
     /**
      * Get the public hash
      *
-     * @return string
+     * @return string|null
      */
-    public function getPublicHash();
+    public function getPublicHash(): ?string;
 
     /**
      * Get the public hash
      *
-     * @return bool
+     * @return bool|null
      */
-    public function getSaveCard();
+    public function getSaveCard(): ?bool;
 
     /**
      * Get the success url
      *
-     * @return string
+     * @return string|null
      */
-    public function getSuccessUrl();
+    public function getSuccessUrl(): ?string;
 
     /**
      * Get the failure url
      *
-     * @return string
+     * @return string|null
      */
-    public function getFailureUrl();
+    public function getFailureUrl(): ?string;
 
     /**
      * Set the payment token
      *
+     * @param string $paymentToken
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
      */
-    public function setPaymentToken($paymentToken);
+    public function setPaymentToken(string $paymentToken): \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
 
     /**
      * Set the payment method
      *
+     * @param string $paymentMethod
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
      */
-    public function setPaymentMethod($paymentMethod);
+    public function setPaymentMethod(string $paymentMethod): \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
 
     /**
      * Set the quote id
      *
+     * @param string $quoteId
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
      */
-    public function setQuoteId($quoteId);
+    public function setQuoteId(string $quoteId): \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
 
     /**
      * Set the card bin
      *
+     * @param int $cardBin
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
      */
-    public function setCardBin($cardBin);
+    public function setCardBin(int $cardBin): \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
 
     /**
      * Set the card cvv
      *
+     * @param int $cardCvv
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
      */
-    public function setCardCvv($cardCvv);
+    public function setCardCvv(int $cardCvv): \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
 
     /**
      * Set the public hash
      *
+     * @param string $publicHash
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
      */
-    public function setPublicHash($publicHash);
+    public function setPublicHash(string $publicHash): \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
 
     /**
      * Set the save card
      *
+     * @param string $saveCard
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
      */
-    public function setSaveCard($saveCard);
+    public function setSaveCard(string $saveCard): \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
 
     /**
      * Set the success url
      *
+     * @param string $successUrl
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
      */
-    public function setSuccessUrl($successUrl);
+    public function setSuccessUrl(string $successUrl): \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
 
     /**
      * Set the failure url
      *
+     * @param string $failureUrl
+     *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
      */
-    public function setFailureUrl($failureUrl);
+    public function setFailureUrl(string $failureUrl): \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
 }
