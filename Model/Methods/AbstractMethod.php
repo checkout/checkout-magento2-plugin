@@ -26,6 +26,7 @@ use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
+use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\AbstractExtensibleModel;
@@ -283,7 +284,8 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
-        DirectoryHelper $directory
+        DirectoryHelper $directory,
+        DataObjectFactory $dataObjectFactory
     ) {
         parent::__construct(
             $context,
@@ -294,12 +296,13 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
             $resourceCollection,
             $data
         );
-        $this->config       = $config;
-        $this->_paymentData = $paymentData;
-        $this->_scopeConfig = $scopeConfig;
-        $this->logger       = $logger;
-        $this->directory    = $directory;
-        $this->data         = $data;
+        $this->config            = $config;
+        $this->_paymentData      = $paymentData;
+        $this->_scopeConfig      = $scopeConfig;
+        $this->logger            = $logger;
+        $this->directory         = $directory;
+        $this->data              = $data;
+        $this->dataObjectFactory = $dataObjectFactory;
     }
 
     /**
@@ -879,7 +882,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
             return false;
         }
 
-        $checkResult = new DataObject();
+        $checkResult = $this->dataObjectFactory->create();
         $checkResult->setData('is_available', true);
 
         // for future use in observers

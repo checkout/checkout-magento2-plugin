@@ -25,6 +25,7 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Framework\DataObject;
+use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -102,6 +103,12 @@ class QuoteHandlerService
      * @var Logger $logger
      */
     private $logger;
+    /**
+     * $dataObjectFactory field
+     *
+     * @var DataObjectFactory $dataOjbectFactory
+     */
+    private $dataObjectFactory;
 
     /**
      * QuoteHandlerService constructor
@@ -116,6 +123,7 @@ class QuoteHandlerService
      * @param Config                          $config
      * @param ShopperHandlerService           $shopperHandler
      * @param Logger                          $logger
+     * @param DataObjectFactory               $dataObjectFactory
      */
     public function __construct(
         Session $checkoutSession,
@@ -127,7 +135,8 @@ class QuoteHandlerService
         ProductRepositoryInterface $productRepository,
         Config $config,
         ShopperHandlerService $shopperHandler,
-        Logger $logger
+        Logger $logger,
+        DataObjectFactory $dataObjectFactory
     ) {
         $this->checkoutSession   = $checkoutSession;
         $this->customerSession   = $customerSession;
@@ -139,6 +148,7 @@ class QuoteHandlerService
         $this->config            = $config;
         $this->shopperHandler    = $shopperHandler;
         $this->logger            = $logger;
+        $this->dataObjectFactory = $dataObjectFactory;
     }
 
     /**
@@ -245,7 +255,7 @@ class QuoteHandlerService
     public function prepareQuote(string $methodId, CartInterface $quote = null): ?Quote
     {
         // Find quote and perform tasks
-        $quote = $quote ? $quote : $this->getQuote();
+        $quote = $quote ?: $this->getQuote();
         if ($this->isQuote($quote)) {
             // Prepare the inventory
             $quote->setInventoryProcessed(false);
@@ -430,6 +440,7 @@ class QuoteHandlerService
      *
      * @return mixed
      * @throws NoSuchEntityException
+     * @throws LocalizedException
      */
     public function addItems(CartInterface $quote, array $data)
     {
@@ -444,7 +455,8 @@ class QuoteHandlerService
 
                 // Add the item
                 if (!empty($item['super_attribute'])) {
-                    $buyRequest = new DataObject($item);
+                    $buyRequest = $this->dataObjectFactory->create()
+                        ->setData($items);
                     $quote->addProduct($product, $buyRequest);
                 } else {
                     $quote->addProduct($product, $quantity);

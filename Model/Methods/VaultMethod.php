@@ -37,6 +37,7 @@ use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -213,7 +214,8 @@ class VaultMethod extends AbstractMethod
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
-        DirectoryHelper $directoryHelper
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory
     ) {
         parent::__construct(
             $config,
@@ -227,7 +229,8 @@ class VaultMethod extends AbstractMethod
             $resource,
             $resourceCollection,
             $data,
-            $directoryHelper
+            $directoryHelper,
+            $dataObjectFactory
         );
 
         $this->backendAuthSession = $backendAuthSession;
