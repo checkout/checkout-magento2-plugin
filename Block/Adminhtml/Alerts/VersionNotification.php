@@ -102,9 +102,9 @@ class VersionNotification implements MessageInterface
     protected function getModuleVersions(): array
     {
         /** @var string $current */
-        $current = '0';
+        $current = '0.0.0';
         /** @var string $latest */
-        $latest = '0';
+        $latest = '0.0.0';
         /** @var mixed $versions */
         $versions = $this->versionHandler->getVersions();
         if (is_array($versions) && isset($versions[0]['tag_name'])) {
