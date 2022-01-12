@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Api;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -31,6 +33,7 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -143,7 +146,7 @@ class V1 extends Action
      *
      * @return Json
      */
-    public function execute()
+    public function execute(): Json
     {
         try {
             // Set the response parameters
@@ -209,11 +212,11 @@ class V1 extends Action
     /**
      * Request payment to API handler
      *
-     * @param $order
+     * @param OrderInterface $order
      *
      * @return mixed
      */
-    protected function requestPayment($order)
+    protected function requestPayment(OrderInterface $order)
     {
         // Prepare the payment request payload
         $payload = [
@@ -266,7 +269,7 @@ class V1 extends Action
      * @return bool
      * @throws LocalizedException
      */
-    protected function isValidRequest()
+    protected function isValidRequest(): bool
     {
         return $this->config->isValidAuth('pk') && $this->dataIsValid();
     }
@@ -277,7 +280,7 @@ class V1 extends Action
      * @return bool
      * @throws LocalizedException
      */
-    protected function dataIsValid()
+    protected function dataIsValid(): bool
     {
         // Check the quote ID
         if ((!isset($this->data->quote_id) && !isset($this->data['quote_id'])) || (int)$this->data->quote_id == 0) {

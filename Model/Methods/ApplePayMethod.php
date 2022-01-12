@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use Checkout\Library\Exceptions\CheckoutHttpException;
@@ -223,17 +225,17 @@ class ApplePayMethod extends AbstractMethod
     /**
      * Send a charge requestDescription sendPaymentRequest function
      *
-     * @param        $data
-     * @param        $amount
-     * @param        $currency
-     * @param string $reference
+     * @param mixed[] $data
+     * @param float   $amount
+     * @param string  $currency
+     * @param string  $reference
      *
      * @return mixed|void
      * @throws LocalizedException
      * @throws NoSuchEntityException
      * @throws FileSystemException
      */
-    public function sendPaymentRequest($data, $amount, $currency, $reference = '')
+    public function sendPaymentRequest(array $data, float $amount, string $currency, string $reference = '')
     {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
@@ -327,7 +329,7 @@ class ApplePayMethod extends AbstractMethod
      * @return $this|ApplePayMethod
      * @throws LocalizedException
      */
-    public function capture(InfoInterface $payment, $amount)
+    public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -366,7 +368,7 @@ class ApplePayMethod extends AbstractMethod
      * @return $this|ApplePayMethod
      * @throws LocalizedException
      */
-    public function void(InfoInterface $payment)
+    public function void(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -405,7 +407,7 @@ class ApplePayMethod extends AbstractMethod
      * @return $this|ApplePayMethod
      * @throws LocalizedException
      */
-    public function cancel(InfoInterface $payment)
+    public function cancel(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             $order = $payment->getOrder();
@@ -451,7 +453,7 @@ class ApplePayMethod extends AbstractMethod
      * @return $this|ApplePayMethod
      * @throws LocalizedException
      */
-    public function refund(InfoInterface $payment, $amount)
+    public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -490,7 +492,7 @@ class ApplePayMethod extends AbstractMethod
      * @return bool
      * @throws LocalizedException
      */
-    public function isAvailable(CartInterface $quote = null)
+    public function isAvailable(CartInterface $quote = null): bool
     {
         if (parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code) && $this->config->getValue(

@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Apm;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -125,15 +127,15 @@ class Display extends Action
     /**
      * Check if an APM is valid for display
      *
-     * @param $apm
-     * @param $apmEnabled
-     * @param $billingAddress
+     * @param string[] $apm
+     * @param string[] $apmEnabled
+     * @param string[] $billingAddress
      *
      * @return bool
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function isValidApm($apm, $apmEnabled, $billingAddress)
+    public function isValidApm(array $apm, array $apmEnabled, array $billingAddress): bool
     {
         return in_array($apm['value'], $apmEnabled)
         && strpos(
@@ -154,13 +156,13 @@ class Display extends Action
     /**
      * Check for specific country & currency mappings
      *
-     * @param $apm
-     * @param $billingCountry
-     * @param $currency
+     * @param string[] $apm
+     * @param string   $billingCountry
+     * @param string   $currency
      *
      * @return bool
      */
-    public function countryCurrencyMapping($apm, $billingCountry, $currency)
+    public function countryCurrencyMapping(array $apm, string $billingCountry, string $currency): bool
     {
         if ($apm['value'] === 'klarna' || $apm['value'] === 'poli') {
             return strpos(
@@ -175,12 +177,12 @@ class Display extends Action
     /**
      * Generate an APM block
      *
-     * @param $apmId
-     * @param $title
+     * @param string $apmId
+     * @param string $title
      *
      * @return string
      */
-    public function loadBlock($apmId, $title)
+    public function loadBlock(string $apmId, string $title): string
     {
         return $this->pageFactory->create()
             ->getLayout()

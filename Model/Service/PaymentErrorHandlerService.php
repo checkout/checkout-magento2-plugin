@@ -15,14 +15,14 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
@@ -146,7 +146,7 @@ class PaymentErrorHandlerService
     /**
      * Prepare the amount received from the gateway
      *
-     * @param                $amount
+     * @param float|int      $amount
      * @param OrderInterface $order
      *
      * @return string
@@ -170,15 +170,15 @@ class PaymentErrorHandlerService
     /**
      * Log the error for 3ds declined payments
      *
-     * @param                $response
+     * @param mixed          $response
      * @param OrderInterface $order
-     * @param false          $status
+     * @param string         $status
      *
      * @return void
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function logPaymentError($response, OrderInterface $order, bool $status = false): void
+    public function logPaymentError($response, OrderInterface $order, string $status = ''): void
     {
         // Assign the payment instance
         $payment = $order->getPayment();
@@ -205,11 +205,11 @@ class PaymentErrorHandlerService
     /**
      * Description getErrorMessage function
      *
-     * @param $responseCode
+     * @param string $responseCode
      *
-     * @return Phrase|mixed
+     * @return Phrase
      */
-    public function getErrorMessage($responseCode)
+    public function getErrorMessage(string $responseCode): Phrase
     {
         $generalErrors = array_fill_keys(
             [

@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Api;
 
 /**
@@ -31,7 +33,7 @@ interface V3Interface
     public function executeApiV3(
         \Magento\Customer\Api\Data\CustomerInterface $customer,
         \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
-    );
+    ): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
 
     /**
      * Set payment information and place order for a guest quote.
@@ -41,5 +43,5 @@ interface V3Interface
      */
     public function executeGuestApiV3(
         \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
-    );
+    ): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
 }

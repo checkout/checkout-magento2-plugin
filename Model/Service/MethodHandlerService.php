@@ -15,8 +15,11 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Model\Methods\AbstractMethod;
 use Magento\Customer\Model\Session;
 
 /**
@@ -63,11 +66,11 @@ class MethodHandlerService
     /**
      * Description get function
      *
-     * @param $methodId
+     * @param string $methodId
      *
-     * @return mixed
+     * @return AbstractMethod
      */
-    public function get($methodId)
+    public function get(string $methodId): AbstractMethod
     {
         return $this->instances[$methodId];
     }
@@ -75,7 +78,7 @@ class MethodHandlerService
     /**
      * Retrieves the customers last APM payment source
      *
-     * @return null
+     * @return string[]|string|null
      */
     public function getPreviousSource()
     {
@@ -103,9 +106,9 @@ class MethodHandlerService
     /**
      * Retrieves the customers last used payment method
      *
-     * @return null
+     * @return string|null
      */
-    public function getPreviousMethod()
+    public function getPreviousMethod(): ?string
     {
         // Get the customer id (currently logged in user)
         $customerId = $this->customerSession->getCustomer()->getId();

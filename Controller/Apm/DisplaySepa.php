@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Apm;
 
 use Checkout\CheckoutApi;
@@ -164,7 +166,7 @@ class DisplaySepa extends Action
      *
      * @return boolean
      */
-    public function isValidRequest()
+    public function isValidRequest(): bool
     {
         return $this->getRequest()->isAjax() && $this->isValidApm() && $this->isValidTask();
     }
@@ -174,7 +176,7 @@ class DisplaySepa extends Action
      *
      * @return boolean
      */
-    public function isValidTask()
+    public function isValidTask(): bool
     {
         return method_exists($this, $this->buildMethodName());
     }
@@ -184,7 +186,7 @@ class DisplaySepa extends Action
      *
      * @return string
      */
-    public function runTask()
+    public function runTask(): string
     {
         $methodName = $this->buildMethodName();
 
@@ -196,7 +198,7 @@ class DisplaySepa extends Action
      *
      * @return string
      */
-    protected function buildMethodName()
+    protected function buildMethodName(): string
     {
         /** @var string $task */
         $task = $this->getRequest()->getParam('task');
@@ -209,7 +211,7 @@ class DisplaySepa extends Action
      *
      * @return boolean
      */
-    protected function isValidApm()
+    protected function isValidApm(): bool
     {
         // Get the list of APM
         $apmEnabled = explode(
@@ -227,12 +229,14 @@ class DisplaySepa extends Action
     /**
      * Returns the SEPA mandate block
      *
-     * @param $reference
-     * @param $url
+     * @param string $reference
+     * @param string $url
      *
      * @return string
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    protected function loadBlock($reference, $url)
+    protected function loadBlock(string $reference, string $url): string
     {
         /** @var AddressInterface $billingAddress */
         $billingAddress = $this->quoteHandler->getBillingAddress();
@@ -254,9 +258,9 @@ class DisplaySepa extends Action
      * Gets the mandate.
      *
      * @return string
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
      */
-    public function getMandate()
+    public function getMandate(): string
     {
         $html = '';
 
@@ -272,9 +276,9 @@ class DisplaySepa extends Action
      * Request gateway to add new source.
      *
      * @return Sepa
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
      */
-    protected function requestSepa()
+    protected function requestSepa(): Sepa
     {
         /** @var string $bic */
         $bic = $this->getRequest()->getParam('bic');

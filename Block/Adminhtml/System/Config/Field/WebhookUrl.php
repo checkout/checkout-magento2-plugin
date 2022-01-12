@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
 /**
@@ -27,7 +29,7 @@ class WebhookUrl extends AbstractCallbackUrl
      *
      * @return string
      */
-    public function getControllerUrl()
+    public function getControllerUrl(): string
     {
         return 'webhook/callback';
     }

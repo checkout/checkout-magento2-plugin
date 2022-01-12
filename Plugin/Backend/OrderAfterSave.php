@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Plugin\Backend;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -21,6 +23,7 @@ use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
 use Exception;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\App\RequestInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
@@ -77,12 +80,12 @@ class OrderAfterSave
      * Create transactions for the order.
      *
      * @param OrderRepositoryInterface $orderRepository
-     * @param                          $order
+     * @param OrderInterface           $order
      *
-     * @return mixed
+     * @return OrderInterface
      * @throws Exception
      */
-    public function afterSave(OrderRepositoryInterface $orderRepository, $order)
+    public function afterSave(OrderRepositoryInterface $orderRepository, OrderInterface $order): OrderInterface
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the method ID

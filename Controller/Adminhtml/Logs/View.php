@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace Checkoutcom\Magento2\Controller\Adminhtml\Logs;
 
 use Magento\Backend\App\Action;
@@ -53,7 +55,7 @@ class View extends Action
     /**
      * Load the page defined in view/adminhtml/layout/cko_logs_view.xml
      *
-     * @return ResultInterface|Page
+     * @return Page
      */
     public function execute()
     {

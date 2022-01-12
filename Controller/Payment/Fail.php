@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Checkout\CheckoutApi;
@@ -31,6 +33,7 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
@@ -147,10 +150,10 @@ class Fail extends Action
     /**
      * Handles the controller method
      *
-     * @return ResponseInterface|void
+     * @return ResultInterface|ResponseInterface
      * @throws NoSuchEntityException|LocalizedException
      */
-    public function execute()
+    public function execute(): ResponseInterface
     {
         try {
             // Get the session id

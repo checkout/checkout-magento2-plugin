@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -46,9 +48,9 @@ class ConfigDefaultMethod implements OptionSourceInterface
     /**
      * Return the order status options
      *
-     * @return array
+     * @return string[][]
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         // Prepare the default array
         $options = [

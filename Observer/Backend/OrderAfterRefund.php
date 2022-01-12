@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Observer\Backend;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -59,9 +61,9 @@ class OrderAfterRefund implements ObserverInterface
      *
      * @param Observer $observer
      *
-     * @return $this|void
+     * @return $this|null
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): ?OrderAfterRefund
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             $payment  = $observer->getEvent()->getPayment();
@@ -72,7 +74,7 @@ class OrderAfterRefund implements ObserverInterface
             if (in_array($methodId, $this->config->getMethodsList())) {
                 $creditmemo = $observer->getEvent()->getCreditmemo();
 
-                $status = ($order->getStatus() == 'closed' || $order->getStatus() == 'complete') ? $order->getStatus(
+                $status = ($order->getStatus() === 'closed' || $order->getStatus() === 'complete') ? $order->getStatus(
                 ) : $this->config->getValue('order_status_refunded');
 
                 // Update the order status
@@ -81,5 +83,7 @@ class OrderAfterRefund implements ObserverInterface
 
             return $this;
         }
+
+        return null;
     }
 }

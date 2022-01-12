@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use Checkout\Library\Exceptions\CheckoutHttpException;
@@ -35,9 +37,9 @@ use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
@@ -242,28 +244,29 @@ class VaultMethod extends AbstractMethod
     /**
      * Sends a payment request
      *
-     * @param        $data
-     * @param        $amount
-     * @param        $currency
-     * @param string $reference
-     * @param null   $quote
-     * @param null   $isApiOrder
-     * @param null   $customerId
-     * @param null   $isInstantPurchase
+     * @param string[]           $data
+     * @param float              $amount
+     * @param string             $currency
+     * @param string             $reference
+     * @param CartInterface|null $quote
+     * @param bool|null          $isApiOrder
+     * @param mixed|null         $customerId
+     * @param bool|null          $isInstantPurchase
      *
      * @return mixed|void
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     * @throws FileSystemException
      */
     public function sendPaymentRequest(
-        $data,
-        $amount,
-        $currency,
-        $reference = '',
-        $quote = null,
-        $isApiOrder = null,
+        array $data,
+        float $amount,
+        string $currency,
+        string $reference = '',
+        CartInterface $quote = null,
+        bool $isApiOrder = null,
         $customerId = null,
-        $isInstantPurchase = null
+        bool $isInstantPurchase = null
     ) {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
@@ -312,10 +315,10 @@ class VaultMethod extends AbstractMethod
         }
 
         // Prepare the capture setting
-        $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
+        $needsAutoCapture = $this->config->needsAutoCapture();
         $request->capture = $needsAutoCapture;
         if ($needsAutoCapture) {
-            $request->capture_on = $this->config->getCaptureTime($this->_code);
+            $request->capture_on = $this->config->getCaptureTime();
         }
 
         // Prepare the MADA setting
@@ -387,7 +390,7 @@ class VaultMethod extends AbstractMethod
      * @return $this|VaultMethod
      * @throws LocalizedException
      */
-    public function capture(InfoInterface $payment, $amount)
+    public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -426,7 +429,7 @@ class VaultMethod extends AbstractMethod
      * @return $this|VaultMethod
      * @throws LocalizedException
      */
-    public function void(InfoInterface $payment)
+    public function void(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -465,7 +468,7 @@ class VaultMethod extends AbstractMethod
      * @return $this|VaultMethod
      * @throws LocalizedException
      */
-    public function cancel(InfoInterface $payment)
+    public function cancel(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             $order = $payment->getOrder();
@@ -511,7 +514,7 @@ class VaultMethod extends AbstractMethod
      * @return $this|VaultMethod
      * @throws LocalizedException
      */
-    public function refund(InfoInterface $payment, $amount)
+    public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -549,7 +552,7 @@ class VaultMethod extends AbstractMethod
      *
      * @return bool
      */
-    public function isAvailable(CartInterface $quote = null)
+    public function isAvailable(CartInterface $quote = null): bool
     {
         return $this->config->getValue('active', $this->_code) && $this->vaultHandler->userHasCards(
             ) && !$this->backendAuthSession->isLoggedIn();

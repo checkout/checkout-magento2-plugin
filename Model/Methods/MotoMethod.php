@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
@@ -188,7 +190,7 @@ class MotoMethod extends AbstractMethod
      * @return $this|MotoMethod
      * @throws LocalizedException
      */
-    public function void(InfoInterface $payment)
+    public function void(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -227,7 +229,7 @@ class MotoMethod extends AbstractMethod
      * @return $this|MotoMethod
      * @throws LocalizedException
      */
-    public function cancel(InfoInterface $payment)
+    public function cancel(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             $order = $payment->getOrder();
@@ -273,7 +275,7 @@ class MotoMethod extends AbstractMethod
      * @return $this|MotoMethod
      * @throws LocalizedException
      */
-    public function capture(InfoInterface $payment, $amount)
+    public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -313,7 +315,7 @@ class MotoMethod extends AbstractMethod
      * @return $this|MotoMethod
      * @throws LocalizedException
      */
-    public function refund(InfoInterface $payment, $amount)
+    public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -347,12 +349,12 @@ class MotoMethod extends AbstractMethod
     /**
      * Check whether method is enabled in config
      *
-     * @param null $quote
+     * @param CartInterface|null $quote
      *
      * @return bool
      * @throws LocalizedException
      */
-    public function isAvailableInConfig($quote = null)
+    public function isAvailableInConfig(CartInterface $quote = null): bool
     {
         return parent::isAvailable($quote);
     }
@@ -365,7 +367,7 @@ class MotoMethod extends AbstractMethod
      * @return bool
      * @throws LocalizedException
      */
-    public function isAvailable(CartInterface $quote = null)
+    public function isAvailable(CartInterface $quote = null): bool
     {
         if (parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code) && $this->backendAuthSession->isLoggedIn();

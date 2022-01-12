@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use Checkout\Library\Exceptions\CheckoutHttpException;
@@ -39,7 +41,6 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
@@ -244,26 +245,26 @@ class CardPaymentMethod extends AbstractMethod
     /**
      * Send a charge request
      *
-     * @param        $data
-     * @param        $amount
-     * @param        $currency
-     * @param string $reference
-     * @param null   $quote
-     * @param null   $isApiOrder
-     * @param null   $customerId
+     * @param string[]           $data
+     * @param float              $amount
+     * @param string             $currency
+     * @param string             $reference
+     * @param CartInterface|null $quote
+     * @param bool|null          $isApiOrder
+     * @param mixed|null         $customerId
      *
      * @return CheckoutHttpException|Exception|mixed|void
+     * @throws FileSystemException
      * @throws LocalizedException
      * @throws NoSuchEntityException
-     * @throws FileSystemException
      */
     public function sendPaymentRequest(
-        $data,
-        $amount,
-        $currency,
-        $reference = '',
-        $quote = null,
-        $isApiOrder = null,
+        array $data,
+        float $amount,
+        string $currency,
+        string $reference = '',
+        CartInterface $quote = null,
+        bool $isApiOrder = null,
         $customerId = null
     ) {
         // Get the store code
@@ -386,7 +387,7 @@ class CardPaymentMethod extends AbstractMethod
      * @return $this|CardPaymentMethod
      * @throws LocalizedException
      */
-    public function capture(InfoInterface $payment, $amount)
+    public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -425,7 +426,7 @@ class CardPaymentMethod extends AbstractMethod
      * @return $this|CardPaymentMethod
      * @throws LocalizedException
      */
-    public function void(InfoInterface $payment)
+    public function void(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -464,7 +465,7 @@ class CardPaymentMethod extends AbstractMethod
      * @return $this|CardPaymentMethod
      * @throws LocalizedException
      */
-    public function cancel(InfoInterface $payment)
+    public function cancel(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -510,7 +511,7 @@ class CardPaymentMethod extends AbstractMethod
      * @return $this|CardPaymentMethod
      * @throws LocalizedException
      */
-    public function refund(InfoInterface $payment, $amount)
+    public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -550,7 +551,7 @@ class CardPaymentMethod extends AbstractMethod
      * @return bool
      * @throws LocalizedException
      */
-    public function isAvailable(CartInterface $quote = null)
+    public function isAvailable(CartInterface $quote = null): bool
     {
         if (parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code) && !$this->backendAuthSession->isLoggedIn();

@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
 use CheckoutCom\Magento2\Gateway\Config\Loader;
@@ -46,7 +48,7 @@ class ConfigAlternativePayments implements OptionSourceInterface
     /**
      * {@inheritDoc}
      *
-     * @return array
+     * @return string[][]
      */
     public function toOptionArray(): array
     {

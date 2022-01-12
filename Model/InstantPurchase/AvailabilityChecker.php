@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -57,7 +59,7 @@ class AvailabilityChecker
      *
      * @return bool
      */
-    public function isAvailable()
+    public function isAvailable(): bool
     {
         // Get the vault state
         $vaultEnabled = $this->config->getValue(

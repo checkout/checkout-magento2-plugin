@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Block\Adminhtml\Payment;
 
 use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
@@ -24,6 +26,8 @@ use Magento\Backend\Model\Session\Quote;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Payment\Block\Form\Cc;
 use Magento\Payment\Model\Config as PaymentModelConfig;
+use Magento\Vault\Api\Data\PaymentTokenInterface;
+use Magento\Vault\Model\PaymentToken;
 
 /**
  * Class Moto
@@ -122,7 +126,7 @@ class Moto extends Cc
      *
      * @return string
      */
-    public function _toHtml()
+    public function _toHtml(): string
     {
         $this->_eventManager->dispatch('payment_form_block_to_html_before', ['block' => $this]);
 
@@ -134,7 +138,7 @@ class Moto extends Cc
      *
      * @return bool
      */
-    public function canDisplayAdminCards()
+    public function canDisplayAdminCards(): bool
     {
         // Get the customer id
         $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();
@@ -149,9 +153,9 @@ class Moto extends Cc
     /**
      * Description getUserCards function
      *
-     * @return array
+     * @return PaymentTokenInterface[]
      */
-    public function getUserCards()
+    public function getUserCards(): array
     {
         // Get the customer id
         $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();

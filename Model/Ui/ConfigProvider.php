@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Ui;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -98,11 +100,11 @@ class ConfigProvider implements ConfigProviderInterface
     /**
      * Send the configuration to the frontend
      *
-     * @return array[][]
+     * @return mixed[][]
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         return [
             Loader::KEY_PAYMENT => [
@@ -114,11 +116,11 @@ class ConfigProvider implements ConfigProviderInterface
     /**
      * Returns a merged array of config values
      *
-     * @return array
+     * @return mixed[]
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function getConfigArray()
+    public function getConfigArray(): array
     {
         // This is needed to save the billing address for virtual orders.
         $this->quoteHandler->saveQuote();

@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
@@ -26,6 +28,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\InstantPurchase\Model\InstantPurchaseInterface;
 use Magento\InstantPurchase\Model\InstantPurchaseOption;
 use Magento\InstantPurchase\Model\Ui\CustomerAddressesFormatter;
+use Magento\InstantPurchase\Model\Ui\PaymentTokenFormatter;
 use Magento\InstantPurchase\Model\Ui\ShippingMethodFormatter;
 use Magento\Quote\Api\Data\ShippingMethodInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -149,7 +152,7 @@ class CustomerData implements SectionSourceInterface
     /**
      * {@inheritDoc}
      *
-     * @return array|array[]
+     * @return mixed[]|mixed[][]
      * @throws LocalizedException
      */
     public function getSectionData(): array
@@ -198,7 +201,7 @@ class CustomerData implements SectionSourceInterface
      * @return void
      * @throws LocalizedException
      */
-    public function prepareData()
+    public function prepareData(): void
     {
         // Get the  payment token
         $this->paymentToken = $this->vaultHandler->getLastSavedCard();
@@ -220,7 +223,7 @@ class CustomerData implements SectionSourceInterface
      * @return InstantPurchaseOption
      * @throws NoSuchEntityException
      */
-    public function loadOption()
+    public function loadOption(): InstantPurchaseOption
     {
         return $this->instantPurchase->getOption(
             $this->storeManager->getStore(),
@@ -233,7 +236,7 @@ class CustomerData implements SectionSourceInterface
      *
      * @return bool
      */
-    public function isAvailable()
+    public function isAvailable(): bool
     {
         return $this->availabilityChecker->isAvailable();
     }
@@ -243,7 +246,7 @@ class CustomerData implements SectionSourceInterface
      *
      * @return bool
      */
-    protected function canDisplay()
+    protected function canDisplay(): bool
     {
         return $this->customerSession->isLoggedIn(
             ) && !empty($this->paymentToken) && $this->instantPurchaseOption && $this->shippingAddress && $this->billingAddress && $this->shippingMethod;

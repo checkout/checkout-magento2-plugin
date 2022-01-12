@@ -24,6 +24,8 @@
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Button;
 
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -43,6 +45,7 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Phrase;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -124,6 +127,12 @@ class PlaceOrder extends Action
      * @var AddressRepositoryInterface $addressRepository
      */
     private $addressRepository;
+    /**
+     * $addressManager field
+     *
+     * @var Address $addressManager
+     */
+    private $addressManager;
 
     /**
      * PlaceOrder constructor
@@ -155,7 +164,8 @@ class PlaceOrder extends Action
         ShippingSelector $shippingSelector,
         OrderRepositoryInterface $orderRepository,
         CartRepositoryInterface $cartRepository,
-        AddressRepositoryInterface $addressRepository
+        AddressRepositoryInterface $addressRepository,
+        Address $addressManager
     ) {
         parent::__construct($context);
 
@@ -171,6 +181,7 @@ class PlaceOrder extends Action
         $this->orderRepository   = $orderRepository;
         $this->cartRepository    = $cartRepository;
         $this->addressRepository = $addressRepository;
+        $this->addressManager    = $addressManager;
     }
 
     /**
@@ -205,12 +216,12 @@ class PlaceOrder extends Action
 
         // Set the billing address
         /** @var Address $billingAddress */
-        $billingAddress = $this->addressRepository->getById((int)$data['instant_purchase_billing_address']);
+        $billingAddress = $this->addressManager->load($data['instant_purchase_billing_address']);
         $quote->getBillingAddress()->addData($billingAddress->getData());
 
         // Get the shipping address
         /** @var Address $shippingAddress */
-        $shippingAddress = $this->addressRepository->getById((int)$data['instant_purchase_shipping_address']);
+        $shippingAddress = $this->addressManager->load($data['instant_purchase_shipping_address']);
 
         // Prepare the quote
         $quote->getShippingAddress()->addData($shippingAddress->getData());
@@ -224,6 +235,7 @@ class PlaceOrder extends Action
 
         // Set payment
         $quote->setPaymentMethod(VaultMethod::CODE);
+        $this->cartRepository->save($quote);
         $quote->getPayment()->importData(['method' => VaultMethod::CODE]);
 
         // Save the quote
@@ -265,9 +277,12 @@ class PlaceOrder extends Action
     /**
      * Creates response with the operation status message.
      *
+     * @param Phrase $message
+     * @param bool   $successMessage
+     *
      * @return Json
      */
-    public function createResponse(string $message, bool $successMessage)
+    public function createResponse(Phrase $message, bool $successMessage): Json
     {
         // Prepare the result
         $result = $this->jsonFactory->create()->setData(['response' => $message]);

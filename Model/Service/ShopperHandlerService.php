@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -88,13 +90,13 @@ class ShopperHandlerService
     /**
      * Description getCustomerData function
      *
-     * @param array $filters
+     * @param mixed[] $filters
      *
      * @return CustomerInterface
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function getCustomerData($filters = [])
+    public function getCustomerData(array $filters = []): CustomerInterface
     {
         if (isset($filters['id'])) {
             return $this->customerRepository->getById($filters['id']);
@@ -119,7 +121,7 @@ class ShopperHandlerService
      *
      * @return string
      */
-    public function getCustomerLocale($default = 'en_GB')
+    public function getCustomerLocale(string $default = 'en_GB'): string
     {
         $locale = $this->localeResolver->getLocale();
         if (!$locale) {
@@ -136,7 +138,7 @@ class ShopperHandlerService
      *
      * @return mixed|string
      */
-    public function getLanguageFallback($default = 'en_GB')
+    public function getLanguageFallback(string $default = 'en_GB')
     {
         // Get and format customer locale
         $customerLocale = strtoupper($this->getCustomerLocale());

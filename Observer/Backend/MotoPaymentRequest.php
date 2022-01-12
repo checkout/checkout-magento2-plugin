@@ -14,6 +14,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Observer\Backend;
 
 use Checkout\Library\Exceptions\CheckoutHttpException;
@@ -144,7 +146,7 @@ class MotoPaymentRequest implements ObserverInterface
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): MotoPaymentRequest
     {
         // Get the request parameters
         /** @var mixed[] $params */

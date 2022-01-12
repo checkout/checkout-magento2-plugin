@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Account;
 
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
@@ -86,7 +88,7 @@ class SaveCard extends Action
      * @return Json
      * @throws Exception
      */
-    public function execute()
+    public function execute(): Json
     {
         // Prepare the parameters
         $success        = false;
@@ -111,10 +113,10 @@ class SaveCard extends Action
                     'success' => true,
                     'url'     => $response->_links['redirect']['href'],
                 ]);
-            } else {
-                // Try to save the card
-                $success = $result->saveCard();
             }
+
+            // Try to save the card
+            $success = $result->saveCard();
         }
 
         // Prepare the response UI message

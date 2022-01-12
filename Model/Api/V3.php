@@ -236,12 +236,12 @@ class V3 implements V3Interface
      * @param PaymentRequestInterface $paymentRequest
      *
      * @return PaymentResponseInterface
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function executeApiV3(
         CustomerInterface $customer,
         PaymentRequestInterface $paymentRequest
-    ) {
+    ): PaymentResponseInterface {
         // Assign the customer and payment request to be accessible to the whole class
         $this->customer = $customer;
         $this->data     = $paymentRequest;
@@ -256,11 +256,11 @@ class V3 implements V3Interface
      * @param PaymentRequestInterface $paymentRequest
      *
      * @return PaymentResponseInterface
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function executeGuestApiV3(
         PaymentRequestInterface $paymentRequest
-    ) {
+    ): PaymentResponseInterface {
         // Assign the payment request to be accessible to the whole class
         $this->data = $paymentRequest;
 
@@ -271,10 +271,10 @@ class V3 implements V3Interface
     /**
      * Get an API handler instance and the request data
      *
-     * @return mixed
-     * @throws NoSuchEntityException
+     * @return PaymentResponseInterface
+     * @throws NoSuchEntityException|LocalizedException
      */
-    private function execute()
+    private function execute(): PaymentResponseInterface
     {
         // Get an API handler instance
         $this->api = $this->apiHandler->init(
@@ -316,9 +316,9 @@ class V3 implements V3Interface
     /**
      * Check if the request is valid
      *
-     * @return bool|void
+     * @return bool
      */
-    private function isValidPublicKey()
+    private function isValidPublicKey(): bool
     {
         return $this->config->isValidAuth('pk', 'Cko-Authorization');
     }
@@ -326,10 +326,10 @@ class V3 implements V3Interface
     /**
      * Process the payment request and handle the response.
      *
-     * @return array
+     * @return mixed[]
      * @throws LocalizedException
      */
-    private function processPayment()
+    private function processPayment(): array
     {
         $order = $this->createOrder($this->data->getPaymentMethod());
         if ($this->orderHandler->isOrder($order)) {
@@ -389,12 +389,12 @@ class V3 implements V3Interface
     /**
      * Create an order
      *
-     * @param $methodId
+     * @param string $methodId
      *
      * @return AbstractExtensibleModel|OrderInterface|mixed|object|null
      * @throws LocalizedException
      */
-    private function createOrder($methodId)
+    private function createOrder(string $methodId): ?OrderInterface
     {
         // Load the quote
         $this->quote = $this->loadQuote();
@@ -415,7 +415,7 @@ class V3 implements V3Interface
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    private function loadQuote()
+    private function loadQuote(): ?CartInterface
     {
         // Convert masked quote ID hash to quote ID int
         if (preg_match("/([A-Za-z])\w+/", $this->data->getQuoteId())) {
@@ -442,11 +442,11 @@ class V3 implements V3Interface
     /**
      * Get a payment response
      *
-     * @param $order
+     * @param OrderInterface $order
      *
-     * @return Response
+     * @return mixed
      */
-    private function getPaymentResponse($order)
+    private function getPaymentResponse(OrderInterface $order)
     {
         $sessionId = $this->request->getParam('cko-session-id');
 
@@ -458,11 +458,11 @@ class V3 implements V3Interface
     /**
      * Request payment to API handler
      *
-     * @param $order
+     * @param OrderInterface $order
      *
      * @return mixed
      */
-    private function requestPayment($order)
+    private function requestPayment(OrderInterface $order)
     {
         // Prepare the payment request payload
         $payload = [];
@@ -525,7 +525,7 @@ class V3 implements V3Interface
      *
      * @return bool
      */
-    private function hasValidFields()
+    private function hasValidFields(): bool
     {
         $isValid = true;
 

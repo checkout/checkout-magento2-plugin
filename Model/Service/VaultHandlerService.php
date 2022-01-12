@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
 use Checkout\Models\Payments\Payment;
@@ -25,7 +27,6 @@ use CheckoutCom\Magento2\Model\Vault\VaultToken;
 use Exception;
 use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Message\ManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
@@ -148,7 +149,7 @@ class VaultHandlerService
      *
      * @return PaymentTokenInterface|null
      */
-    private function foundExistedPaymentToken(PaymentTokenInterface $paymentToken)
+    private function foundExistedPaymentToken(PaymentTokenInterface $paymentToken): ?PaymentTokenInterface
     {
         return $this->paymentTokenManagement->getByPublicHash(
             $paymentToken->getPublicHash(),
@@ -159,11 +160,11 @@ class VaultHandlerService
     /**
      * Sets the customer ID.
      *
-     * @param null $id
+     * @param mixed|null $id
      *
      * @return VaultHandlerService
      */
-    public function setCustomerId($id = null)
+    public function setCustomerId($id = null): VaultHandlerService
     {
         $this->customerId = (int)$id > 0 ? $id : $this->customerSession->getCustomer()->getId();
 
@@ -173,11 +174,11 @@ class VaultHandlerService
     /**
      * Sets the customer email address.
      *
-     * @param null $email
+     * @param string|null $email
      *
      * @return VaultHandlerService
      */
-    public function setCustomerEmail($email = null)
+    public function setCustomerEmail(string $email = null): VaultHandlerService
     {
         $this->customerEmail = ($email) ?: $this->customerSession->getCustomer()->getEmail();
 
@@ -191,7 +192,7 @@ class VaultHandlerService
      *
      * @return VaultHandlerService
      */
-    public function setCardToken($cardToken)
+    public function setCardToken(string $cardToken): VaultHandlerService
     {
         $this->cardToken = $cardToken;
 
@@ -201,7 +202,7 @@ class VaultHandlerService
     /**
      * Sets a gateway response if no prior card authorization is needed
      *
-     * @param $response
+     * @param mixed $response
      *
      * @return $this
      */
@@ -228,7 +229,7 @@ class VaultHandlerService
      * @return $this
      * @throws NoSuchEntityException
      */
-    public function authorizeTransaction()
+    public function authorizeTransaction(): VaultHandlerService
     {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
@@ -304,11 +305,11 @@ class VaultHandlerService
     /**
      * Checks if a user has saved cards
      *
-     * @param null $customerId
+     * @param mixed|null $customerId
      *
      * @return bool
      */
-    public function userHasCards($customerId = null)
+    public function userHasCards($customerId = null): bool
     {
         // Get the card list
         $cardList = $this->getUserCards($customerId);
@@ -324,12 +325,12 @@ class VaultHandlerService
     /**
      * Get a user's saved card from public hash
      *
-     * @param      $publicHash
-     * @param null $customerId
+     * @param string     $publicHash
+     * @param mixed|null $customerId
      *
      * @return mixed|null
      */
-    public function getCardFromHash($publicHash, $customerId = null)
+    public function getCardFromHash(string $publicHash, $customerId = null)
     {
         if ($publicHash) {
             $cardList = $this->getUserCards($customerId);
@@ -368,11 +369,11 @@ class VaultHandlerService
     /**
      * Get a user's saved cards
      *
-     * @param null $customerId
+     * @param mixed|null $customerId
      *
-     * @return array
+     * @return PaymentTokenInterface[]
      */
-    public function getUserCards($customerId = null)
+    public function getUserCards($customerId = null): array
     {
         // Output array
         $output = [];
