@@ -30,6 +30,7 @@ use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\PageCache\Model\Cache\Type;
 use Checkout\Models\Webhooks\Webhook as WebhookModel;
 
@@ -82,7 +83,8 @@ class Webhook extends Action
         Config $resourceConfig,
         TypeListInterface $cacheTypeList,
         Logger $logger,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        EncryptorInterface $encryptor
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->apiHandler        = $apiHandler;
@@ -90,6 +92,7 @@ class Webhook extends Action
         $this->cacheTypeList     = $cacheTypeList;
         $this->logger            = $logger;
         $this->scopeConfig       = $scopeConfig;
+        $this->encryptor         = $encryptor;
 
         parent::__construct($context);
     }
@@ -109,7 +112,9 @@ class Webhook extends Action
             $storeCode  = $this->getRequest()->getParam('scope_id', 0);
             $publicKey  = $this->getRequest()->getParam('public_key', 0);
             $webhookUrl = $this->getRequest()->getParam('webhook_url', 0);
-            $secretKey = $this->scopeConfig->getValue('settings/checkoutcom_configuration/secret_key');
+            $secretKey  = $this->scopeConfig->getValue('settings/checkoutcom_configuration/secret_key')
+            ?: $this->getRequest()->getParam('secret_key', 0);
+
 
             // Initialize the API handler
             $checkoutApi = $this->apiHandler
@@ -136,16 +141,12 @@ class Webhook extends Action
             }
 
             $privateSharedKey = $response->headers->authorization;
+            /** @var string $encryptedPrivateSharedKey */
+            $encryptedPrivateSharedKey = $this->encryptor->encrypt($privateSharedKey);
 
             $this->resourceConfig->saveConfig(
                 'settings/checkoutcom_configuration/private_shared_key',
-                $response->headers->authorization,
-                $scope,
-                $storeCode
-            );
-            $this->resourceConfig->saveConfig(
-                'settings/checkoutcom_configuration/secret_key',
-                $secretKey,
+                $encryptedPrivateSharedKey,
                 $scope,
                 $storeCode
             );
@@ -167,7 +168,7 @@ class Webhook extends Action
         } finally {
             return $this->resultJsonFactory->create()->setData([
                 'success'          => $success,
-                'privateSharedKey' => isset($privateSharedKey) ? $privateSharedKey : '',
+                'privateSharedKey' => $privateSharedKey ?? '',
                 'message'          => 'Could not set webhooks, please check your account settings',
             ]);
         }

@@ -73,16 +73,16 @@ class VaultToken
     /**
      * Returns the prepared payment token.
      *
-     * @param mixed[]  $card
-     * @param string   $methodId
-     * @param int|null $customerId
+     * @param mixed[]         $card
+     * @param string          $methodId
+     * @param int|string|null $customerId
      *
      * @return PaymentTokenInterface
      * @throws Exception
      */
-    public function create(array $card, string $methodId, int $customerId = null): PaymentTokenInterface
+    public function create(array $card, string $methodId, $customerId = null): PaymentTokenInterface
     {
-        $expiryMonth = str_pad($card['expiry_month'], 2, '0', STR_PAD_LEFT);
+        $expiryMonth = str_pad((string)$card['expiry_month'], 2, '0', STR_PAD_LEFT);
         $expiryYear  = $card['expiry_year'];
         $expiresAt   = $this->getExpirationDate($expiryMonth, $expiryYear);
         $cardScheme  = $card['scheme'];
@@ -119,13 +119,13 @@ class VaultToken
     /**
      * Returns the date time object with the given expiration month and year.
      *
-     * @param string $expiryMonth
-     * @param string $expiryYear
+     * @param string|int $expiryMonth
+     * @param string|int $expiryYear
      *
      * @return string
      * @throws Exception
      */
-    private function getExpirationDate(string $expiryMonth, string $expiryYear): string
+    private function getExpirationDate($expiryMonth, $expiryYear): string
     {
         $expDate = new DateTime(
             $expiryYear . '-' . $expiryMonth . '-' . '01' . ' ' . '00:00:00', new DateTimeZone('UTC')
