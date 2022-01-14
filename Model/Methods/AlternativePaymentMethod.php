@@ -996,10 +996,12 @@ class AlternativePaymentMethod extends AbstractMethod
     {
         $enabled = false;
 
+        /** @var string|null $apmMethods */
+        $apmMethods = $this->config->getValue('apm_enabled', 'checkoutcom_apm') ?: '';
         // Get the list of enabled apms.
         $apmEnabled = explode(
             ',',
-            $this->config->getValue('apm_enabled', 'checkoutcom_apm')
+            $apmMethods
         );
 
         $apms           = $this->config->getApms();
