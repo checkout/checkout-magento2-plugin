@@ -146,26 +146,31 @@ class CardHandlerService
         // Prepare the output array
         $output = [];
 
-        // Get the selected cards
-        $selectedCards = explode(
-            ',',
-            $this->config->getValue(
-                'card_icons',
-                'checkoutcom_card_payment'
-            )
+        /** @var string|null $cardIcons */
+        $cardIcons = $this->config->getValue(
+            'card_icons',
+            'checkoutcom_card_payment'
         );
+
+        if (!$cardIcons) {
+            return $output;
+        }
+
+        // Get the selected cards
+        $selectedCards = explode(',', $cardIcons);
 
         // Build the cards list
         foreach (self::CARD_MAPPER as $code => $value) {
-            if (in_array($code, $selectedCards)) {
-                $output[] = [
-                    'code' => $code,
-                    'name' => __($value),
-                    'url'  => $this->assetRepository->getUrl(
-                        'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
-                    ),
-                ];
+            if (!in_array($code, $selectedCards)) {
+                continue;
             }
+            $output[] = [
+                'code' => $code,
+                'name' => __($value),
+                'url'  => $this->assetRepository->getUrl(
+                    'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+                ),
+            ];
         }
 
         return $output;
