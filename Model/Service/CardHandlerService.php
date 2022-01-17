@@ -152,26 +152,27 @@ class CardHandlerService
             'checkoutcom_card_payment'
         );
 
-        if ($cardIcons) {
-            // Get the selected cards
-            $selectedCards = explode(
-                ',',
-                $cardIcons
-            );
-
-            // Build the cards list
-            foreach (self::CARD_MAPPER as $code => $value) {
-                if (in_array($code, $selectedCards)) {
-                    $output[] = [
-                        'code' => $code,
-                        'name' => __($value),
-                        'url'  => $this->assetRepository->getUrl(
-                            'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
-                        ),
-                    ];
-                }
-            }
+        if (!$cardIcons) {
+            return $output;
         }
+
+        // Get the selected cards
+        $selectedCards = explode(',', $cardIcons);
+
+        // Build the cards list
+        foreach (self::CARD_MAPPER as $code => $value) {
+            if (!in_array($code, $selectedCards)) {
+                continue;
+            }
+            $output[] = [
+                'code' => $code,
+                'name' => __($value),
+                'url'  => $this->assetRepository->getUrl(
+                    'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+                ),
+            ];
+        }
+
         return $output;
     }
 
