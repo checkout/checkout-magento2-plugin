@@ -405,7 +405,7 @@ class WebhookHandlerService
                 continue;
             }
 
-            $this->webhookEntityRepository->deleteById($webhook['id']);
+            $this->webhookEntityRepository->deleteById((int)$webhook['id']);
         }
     }
 }
