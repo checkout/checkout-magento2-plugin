@@ -194,7 +194,7 @@ class Webhooks extends Command
 
             if ($webhook['processed']) {
                 $this->outputWebhook($output, $webhook);
-                $this->webhookEntityRepository->deleteById($webhook['id']);
+                $this->webhookEntityRepository->deleteById((int)$webhook['id']);
                 $deleted++;
             }
         }
