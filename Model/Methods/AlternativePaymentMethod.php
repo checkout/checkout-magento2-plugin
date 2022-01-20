@@ -640,7 +640,7 @@ class AlternativePaymentMethod extends AbstractMethod
      *
      * @return PaypalSource
      */
-    public function paypal($reference): PaypalSource
+    public function paypal($data, $reference): PaypalSource
     {
         return new PaypalSource($reference);
     }
