@@ -291,7 +291,7 @@ class MotoPaymentRequest implements ObserverInterface
             $tokenSource->billing_address = $api->createBillingAddress($order);
 
             return $tokenSource;
-        } elseif ($this->isSavedCard()) {
+        } elseif ($this->isSavedCard($params)) {
             $card          = $this->vaultHandler->getCardFromHash(
                 $params['publicHash'],
                 $order->getCustomerId()
