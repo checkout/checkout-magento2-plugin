@@ -21,20 +21,13 @@
     <column xsi:type="text" name="event_data" nullable="false" comment="Event_data"/>
     <column xsi:type="varchar" name="action_id" nullable="false" length="255" comment="Action_id"/>
     <column xsi:type="varchar" name="payment_id" nullable="false" length="255" comment="Payment_id"/>
-    <column xsi:type="int" name="order_id" padding="11" unsigned="true" nullable="false" identity="false" comment="Order_id"/>
+    <column xsi:type="int" name="order_id" unsigned="true" nullable="false" identity="false" comment="Order_id"/>
     <column xsi:type="datetime" name="received_at" on_update="false" nullable="false" default="NULL" comment="Received At"/>
     <column xsi:type="datetime" name="processed_at" on_update="false" nullable="false" default="NULL" comment="Processed At"/>
     <column xsi:type="boolean" name="processed" nullable="false" comment="Processed"/>
     <constraint xsi:type="primary" referenceId="PRIMARY">
       <column name="id"/>
     </constraint>
-    <constraint xsi:type="foreign"
-        referenceId="CHECKOUTCOM_WEBHOOKS_ORDER_ID_SALES_ORDER_ENTITY_ID"
-        table="checkoutcom_webhooks"
-        column="order_id"
-        referenceTable="sales_order"
-        referenceColumn="entity_id"
-        onDelete="CASCADE"/>
     <index referenceId="CHECKOUTCOM_WEBHOOKS_INDEX_ID" indexType="btree">
       <column name="id"/>
     </index>
