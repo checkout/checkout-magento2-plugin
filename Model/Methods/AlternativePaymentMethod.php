@@ -542,7 +542,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @return mixed[]
      * @throws FileSystemException
      */
-    public function activateMandate(string $url): array
+    public function activateMandate(string $url): ?array
     {
         // Get the secret key
         $secret = $this->config->getValue('secret_key');
