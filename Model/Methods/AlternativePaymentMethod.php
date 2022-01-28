@@ -607,8 +607,15 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function giropay(array $data): GiropaySource
     {
+        /** @var string $purpose */
+        $purpose = substr(
+            __('Pay. req. from %1', $this->config->getStoreName())->render(),
+            0,
+            27
+        );
+
         $source       = new GiropaySource(
-            __('Payment request from %1', $this->config->getStoreName())->render(), $this->getValue('bic', $data)
+            $purpose, $this->getValue('bic', $data)
         );
         $source->iban = $this->getValue('iban', $data);
 
