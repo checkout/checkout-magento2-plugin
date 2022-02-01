@@ -221,14 +221,14 @@ class OrderHandlerService
                 $value
             );
         }
-
+        $this->searchBuilder->setPageSize(1);
+        
         // Create the search instance
         $search = $this->searchBuilder->create();
 
         // Get the resulting order
         $order = $this->orderRepository
             ->getList($search)
-            ->setPageSize(1)
             ->getLastItem();
 
         if ($order->getId()) {
