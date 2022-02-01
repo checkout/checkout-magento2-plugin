@@ -749,9 +749,14 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function eps(): EpsSource
     {
-        return new EpsSource(
-            __('Payment request from %1', $this->config->getStoreName())->render()
+        /** @var string $purpose */
+        $purpose = substr(
+            __('Pay. req. from %1', $this->config->getStoreName())->render(),
+            0,
+            27
         );
+
+        return new EpsSource($purpose);
     }
 
     /**
