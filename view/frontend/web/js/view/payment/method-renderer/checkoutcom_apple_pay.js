@@ -101,7 +101,7 @@ define(
                  */
                 processSupportedNetworks: function(networksEnabled) {
                     if (networksEnabled.includes("mada")) {
-                        return Utilities.getStoreCountry == "SA" ? networksEnabled : networksEnabled.splice(networksEnabled.indexof("mada"), 1);
+                        return Utilities.getStoreCountry == "SA" ? networksEnabled : networksEnabled.splice(networksEnabled.indexOf("mada"), 1);
                     } else {
                         return networksEnabled;
                     }
