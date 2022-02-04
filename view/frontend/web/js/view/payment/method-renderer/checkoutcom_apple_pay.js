@@ -91,7 +91,7 @@ define(
                  */
                 getSupportedNetworks: function () {
                     let networksEnabled = this.getValue("supported_networks").split(",");
-                    return processSupportedNetworks(networksEnabled);
+                    return this.processSupportedNetworks(networksEnabled);
                 },
 
                 /**
