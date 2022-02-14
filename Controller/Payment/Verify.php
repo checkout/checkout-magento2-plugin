@@ -10,102 +10,117 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
+use Checkout\CheckoutApi;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Payments\Payment;
+use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
+use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
+use Exception;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
 /**
  * Class Verify
  */
-class Verify extends \Magento\Framework\App\Action\Action
+class Verify extends Action
 {
     /**
-     * @var ManagerInterface
+     * $messageManager field
+     *
+     * @var ManagerInterface $messageManager
      */
-    public $messageManager;
-
+    protected $messageManager;
     /**
-     * @var TransactionHandlerService
+     * $transactionHandler field
+     *
+     * @var TransactionHandlerService $transactionHandler
      */
-    public $transactionHandler;
-
+    private $transactionHandler;
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
-
+    private $storeManager;
     /**
-     * @var CheckoutApi
+     * $apiHandler field
+     *
+     * @var CheckoutApi $apiHandler
      */
-    public $apiHandler;
-
+    private $apiHandler;
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
-
+    private $orderHandler;
     /**
-     * @var QuoteHandlerService
+     * $vaultHandler
+     *
+     * @var VaultHandlerService $vaultHandler
      */
-    public $quoteHandler;
-
-    /**
-     * @var VaultHandlerService
-     */
-    public $vaultHandler;
-
-    /**
-     * @var Utilities
-     */
-    public $utilities;
-
-    /**
-     * @var Logger
-     */
-    public $logger;
-
-    /**
-     * @var Session
-     */
-    protected $session;
+    private $vaultHandler;
 
     /**
      * Verify constructor
+     *
+     * @param Context                   $context
+     * @param ManagerInterface          $messageManager
+     * @param TransactionHandlerService $transactionHandler
+     * @param StoreManagerInterface     $storeManager
+     * @param ApiHandlerService         $apiHandler
+     * @param OrderHandlerService       $orderHandler
+     * @param VaultHandlerService       $vaultHandler
+     * @param Logger                    $logger
+     * @param Session                   $session
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionHandler,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger,
-        \Magento\Checkout\Model\Session $session
+        Context $context,
+        ManagerInterface $messageManager,
+        TransactionHandlerService $transactionHandler,
+        StoreManagerInterface $storeManager,
+        ApiHandlerService $apiHandler,
+        OrderHandlerService $orderHandler,
+        VaultHandlerService $vaultHandler,
+        Logger $logger,
+        Session $session
     ) {
         parent::__construct($context);
 
-        $this->messageManager = $messageManager;
-        $this->storeManager = $storeManager;
-        $this->apiHandler = $apiHandler;
-        $this->orderHandler = $orderHandler;
-        $this->quoteHandler = $quoteHandler;
-        $this->vaultHandler = $vaultHandler;
-        $this->utilities = $utilities;
-        $this->logger = $logger;
-        $this->session = $session;
+        $this->messageManager     = $messageManager;
+        $this->storeManager       = $storeManager;
+        $this->apiHandler         = $apiHandler;
+        $this->orderHandler       = $orderHandler;
+        $this->vaultHandler       = $vaultHandler;
+        $this->logger             = $logger;
+        $this->session            = $session;
         $this->transactionHandler = $transactionHandler;
     }
 
     /**
-     * Handles the controller method.
+     * Handles the controller method
+     *
+     * @return ResponseInterface
+     * @throws NoSuchEntityException
      */
-    public function execute()
+    public function execute(): ResponseInterface
     {
         // Return to the cart
         try {
@@ -123,13 +138,9 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                 // Check for zero dollar auth
                 if ($response->status !== "Card Verified") {
-
-                    // Set the method ID
-                    $this->methodId = $response->metadata['methodId'];
-
                     // Find the order from increment id
                     $order = $this->orderHandler->getOrder([
-                        'increment_id' => $response->reference
+                        'increment_id' => $response->reference,
                     ]);
 
                     // Process the order
@@ -139,30 +150,27 @@ class Verify extends \Magento\Framework\App\Action\Action
 
                         // Process the response
                         if ($api->isValidResponse($response)) {
-
                             if ($response->source['type'] === 'knet') {
-
                                 $amount = $this->transactionHandler->amountFromGateway(
                                     $response->amount ?? null,
                                     $order
                                 );
-                                
-                                $this->messageManager->addComplexNoticeMessage(
-                                    'knetInfoMessage',
-                                    [
-                                        'postDate' => $response->source['post_date'] ?? null,
-                                        'amount' => $amount ?? null,
-                                        'paymentId' => $response->source['knet_payment_id'] ?? null,
-                                        'transactionId' => $response->source['knet_transaction_id'] ?? null,
-                                        'authCode' => $response->source['auth_code'] ?? null,
-                                        'reference' => $response->source['bank_reference'] ?? null,
-                                        'resultCode' => $response->source['knet_result'] ?? null,
-                                    ]
-                                );
+
+                                $this->messageManager->addComplexNoticeMessage('knetInfoMessage', [
+                                    'postDate'      => $response->source['post_date'] ?? null,
+                                    'amount'        => $amount ?? null,
+                                    'paymentId'     => $response->source['knet_payment_id'] ?? null,
+                                    'transactionId' => $response->source['knet_transaction_id'] ?? null,
+                                    'authCode'      => $response->source['auth_code'] ?? null,
+                                    'reference'     => $response->source['bank_reference'] ?? null,
+                                    'resultCode'    => $response->source['knet_result'] ?? null,
+                                ]);
                             }
 
-                            if (isset($response->metadata['successUrl']) &&
-                                !str_contains($response->metadata['successUrl'], 'checkout_com/payment/verify')) {
+                            if (isset($response->metadata['successUrl']) && !str_contains(
+                                    $response->metadata['successUrl'],
+                                    'checkout_com/payment/verify'
+                                )) {
                                 return $this->_redirect($response->metadata['successUrl']);
                             } else {
                                 return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
@@ -195,22 +203,29 @@ class Verify extends \Magento\Framework\App\Action\Action
                     __('Invalid request. No session ID found.')
                 );
             }
-        } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
+        } catch (CheckoutHttpException $e) {
             $this->messageManager->addErrorMessage(
                 __($e->getBody())
             );
+
             return $this->_redirect('checkout/cart', ['_secure' => true]);
         }
 
         return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 
-    public function saveCard($response)
+    /**
+     * Description saveCard function
+     *
+     * @param Payment $response
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function saveCard(Payment $response): void
     {
-
         // Save the card
-        $success = $this->vaultHandler
-            ->setCardToken($response->source['id'])
+        $success = $this->vaultHandler->setCardToken($response->source['id'])
             ->setCustomerId()
             ->setCustomerEmail()
             ->setResponse($response)

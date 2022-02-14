@@ -9,53 +9,53 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Plugin;
 
-use Magento\Sales\Api\OrderManagementInterface;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 
 /**
- * Class AfterPlaceOrder.
+ * Class AfterPlaceOrder
  */
 class AfterPlaceOrder
 {
     /**
-     * @var Session
+     * $config field
+     *
+     * @var Config $config
      */
-    public $backendAuthSession;
+    private $config;
 
     /**
-     * @var Config
-     */
-    public $config;
-
-    /**
-     * @var WebhookHandlerService
-     */
-    public $webhookHandler;
-
-    /**
-     * AfterPlaceOrder constructor.
+     * AfterPlaceOrder constructor
+     *
+     * @param Config $config
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler
+        Config $config
     ) {
-        $this->backendAuthSession = $backendAuthSession;
         $this->config = $config;
-        $this->webhookHandler = $webhookHandler;
     }
 
     /**
-     * Disable order email sending on order creation
+     * Description afterPlace function
+     *
+     * @param OrderManagementInterface $subject
+     * @param OrderInterface           $order
+     *
+     * @return OrderInterface
+     * @throws LocalizedException
      */
-    public function afterPlace(OrderManagementInterface $subject, OrderInterface $order)
+    public function afterPlace(OrderManagementInterface $subject, OrderInterface $order): OrderInterface
     {
         // Get the method ID
         $methodId = $order->getPayment()->getMethodInstance()->getCode();

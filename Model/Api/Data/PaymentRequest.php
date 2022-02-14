@@ -9,205 +9,218 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2020 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Api\Data;
+
+use CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
+use Magento\Framework\Api\AbstractSimpleObject;
 
 /**
  * Class PaymentRequest
- * Used to retrieve details send to the V3 endpoint.
+ * Used to retrieve details send to the V3 endpoint
  */
-class PaymentRequest extends \Magento\Framework\Api\AbstractSimpleObject implements
-    \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
+class PaymentRequest extends AbstractSimpleObject implements PaymentRequestInterface
 {
     /**
-     * Get payment token
+     * {@inheritDoc}
      *
      * @return string|null
      */
-    public function getPaymentToken()
+    public function getPaymentToken(): ?string
     {
         return $this->_get(self::PAYMENT_TOKEN);
     }
-    
+
     /**
-     * Get payment method
+     * {@inheritDoc}
      *
      * @return string|null
      */
-    public function getPaymentMethod()
+    public function getPaymentMethod(): ?string
     {
         return $this->_get(self::PAYMENT_METHOD);
     }
 
     /**
-     * Get quote id
+     * {@inheritDoc}
      *
      * @return string|null
      */
-    public function getQuoteId()
+    public function getQuoteId(): ?string
     {
         return $this->_get(self::QUOTE_ID);
     }
 
     /**
-     * Get card bin
+     * {@inheritDoc}
      *
      * @return int|null
      */
-    public function getCardBin()
+    public function getCardBin(): ?int
     {
         return $this->_get(self::CARD_BIN);
     }
 
     /**
-     * Get card cvv
+     * {@inheritDoc}
      *
      * @return int|null
      */
-    public function getCardCvv()
+    public function getCardCvv(): ?int
     {
         return $this->_get(self::CARD_CVV);
     }
 
     /**
-     * Get public hash
+     * {@inheritDoc}
      *
      * @return string|null
      */
-    public function getPublicHash()
+    public function getPublicHash(): ?string
     {
         return $this->_get(self::PUBLIC_HASH);
     }
 
     /**
-     * Get save card
+     * {@inheritDoc}
      *
      * @return bool|null
      */
-    public function getSaveCard()
+    public function getSaveCard(): ?bool
     {
         return $this->_get(self::SAVE_CARD);
     }
-    
+
     /**
-     * Get success url
+     * {@inheritDoc}
      *
      * @return string|null
      */
-    public function getSuccessUrl()
+    public function getSuccessUrl(): ?string
     {
         return $this->_get(self::SUCCESS_URL);
     }
 
     /**
-     * Get failure url
+     * {@inheritDoc}
      *
      * @return string|null
      */
-    public function getFailureUrl()
+    public function getFailureUrl(): ?string
     {
         return $this->_get(self::FAILURE_URL);
     }
 
     /**
-     * Set payment token
+     * {@inheritDoc}
      *
      * @param string $paymentToken
-     * @return $this
+     *
+     * @return PaymentRequestInterface
      */
-    public function setPaymentToken($paymentToken)
+    public function setPaymentToken(string $paymentToken): PaymentRequestInterface
     {
         return $this->setData(self::PAYMENT_TOKEN, $paymentToken);
     }
 
     /**
-     * Set payment method
+     * {@inheritDoc}
      *
      * @param string $paymentMethod
-     * @return $this
+     *
+     * @return PaymentRequestInterface
      */
-    public function setPaymentMethod($paymentMethod)
+    public function setPaymentMethod(string $paymentMethod): PaymentRequestInterface
     {
         return $this->setData(self::PAYMENT_METHOD, $paymentMethod);
     }
-    
+
     /**
-     * Set quote id
+     * {@inheritDoc}
      *
      * @param string $quoteId
-     * @return $this
+     *
+     * @return PaymentRequestInterface
      */
-    public function setQuoteId($quoteId)
+    public function setQuoteId(string $quoteId): PaymentRequestInterface
     {
         return $this->setData(self::QUOTE_ID, $quoteId);
     }
 
     /**
-     * Set card bin
+     * {@inheritDoc}
      *
      * @param int $cardBin
-     * @return $this
+     *
+     * @return PaymentRequestInterface
      */
-    public function setCardBin($cardBin)
+    public function setCardBin(int $cardBin): PaymentRequestInterface
     {
         return $this->setData(self::CARD_BIN, $cardBin);
     }
 
     /**
-     * Set card bin
+     * {@inheritDoc}
      *
      * @param int $cardCvv
-     * @return $this
+     *
+     * @return PaymentRequestInterface
      */
-    public function setCardCvv($cardCvv)
+    public function setCardCvv(int $cardCvv): PaymentRequestInterface
     {
         return $this->setData(self::CARD_CVV, $cardCvv);
     }
-    
+
     /**
-     * Set public hash
+     * {@inheritDoc}
      *
      * @param string $publicHash
-     * @return $this
+     *
+     * @return PaymentRequestInterface
      */
-    public function setPublicHash($publicHash)
+    public function setPublicHash(string $publicHash): PaymentRequestInterface
     {
         return $this->setData(self::PUBLIC_HASH, $publicHash);
     }
 
     /**
-     * Set save card
+     * {@inheritDoc}
      *
      * @param string $saveCard
-     * @return $this
+     *
+     * @return PaymentRequestInterface
      */
-    public function setSaveCard($saveCard)
+    public function setSaveCard(string $saveCard): PaymentRequestInterface
     {
         return $this->setData(self::SAVE_CARD, $saveCard);
     }
 
     /**
-     * Set success url
+     * {@inheritDoc}
      *
      * @param string $successUrl
-     * @return $this
+     *
+     * @return PaymentRequestInterface
      */
-    public function setSuccessUrl($successUrl)
+    public function setSuccessUrl(string $successUrl): PaymentRequestInterface
     {
         return $this->setData(self::SUCCESS_URL, $successUrl);
     }
 
     /**
-     * Set failure url
+     * {@inheritDoc}
      *
      * @param string $failureUrl
-     * @return $this
+     *
+     * @return PaymentRequestInterface
      */
-    public function setFailureUrl($failureUrl)
+    public function setFailureUrl(string $failureUrl): PaymentRequestInterface
     {
         return $this->setData(self::FAILURE_URL, $failureUrl);
     }

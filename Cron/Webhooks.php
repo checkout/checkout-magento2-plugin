@@ -10,41 +10,57 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Cron;
 
+use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
+use Psr\Log\LoggerInterface;
+
 /**
- * Class Webhooks.
+ * Class Webhooks
  */
 class Webhooks
 {
     /**
-     * @var LoggerInterface
+     * $logger field
+     *
+     * @var LoggerInterface $logger
      */
     protected $logger;
+    /**
+     * $webhookHandler field
+     *
+     * @var WebhookHandlerService $webhookHandler
+     */
+    private $webhookHandler;
+    /**
+     * $scopeConfig field
+     *
+     * @var ScopeConfigInterface $scopeConfig
+     */
+    private $scopeConfig;
 
     /**
-     * @var WebhookHandlerService
+     * Webhooks constructor
+     *
+     * @param LoggerInterface       $logger
+     * @param WebhookHandlerService $webhookHandler
+     * @param ScopeConfigInterface  $scopeConfig
      */
-    public $webhookHandler;
-
-    /**
-     * @var ScopeConfigInterface
-     */
-    public $scopeConfig;
-
     public function __construct(
-        \Psr\Log\LoggerInterface $logger,
-        \CheckoutCom\Magento2\Model\Service\WebhookHandlerService $webhookHandler,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        LoggerInterface $logger,
+        WebhookHandlerService $webhookHandler,
+        ScopeConfigInterface $scopeConfig
     ) {
-        $this->logger = $logger;
+        $this->logger         = $logger;
         $this->webhookHandler = $webhookHandler;
-        $this->scopeConfig = $scopeConfig;
+        $this->scopeConfig    = $scopeConfig;
     }
 
     /**
@@ -52,19 +68,19 @@ class Webhooks
      *
      * @return void
      */
-    public function execute()
+    public function execute(): void
     {
         $clean = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/webhooks_table_clean',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
 
         $cleanOn = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/webhooks_clean_on',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
-        
-        if ($clean && $cleanOn == 'cron') {
+
+        if ($clean && $cleanOn === 'cron') {
             $this->webhookHandler->clean();
             $this->logger->info('Webhook table has been cleaned.');
         }

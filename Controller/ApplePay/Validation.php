@@ -10,66 +10,86 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\ApplePay;
+
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\Raw;
+use Magento\Framework\Controller\Result\RawFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\HTTP\Client\Curl;
 
 /**
  * Class Validation
  */
-class Validation extends \Magento\Framework\App\Action\Action
+class Validation extends Action
 {
     /**
-     * @var RawFactory
+     * $rawFactory field
+     *
+     * @var RawFactory $rawFactory
      */
-    public $rawFactory;
-
+    private $rawFactory;
     /**
-     * @var Curl
+     * $curl field
+     *
+     * @var Curl $curl
      */
-    public $curl;
-
+    private $curl;
     /**
+     * $config field
+     *
      * @var Config
      */
-    public $config;
+    private $config;
 
     /**
-     * Validation constructor.
+     * Validation constructor
+     *
+     * @param Context    $context
+     * @param RawFactory $rawFactory
+     * @param Curl       $curl
+     * @param Config     $config
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Controller\Result\RawFactory $rawFactory,
-        \Magento\Framework\HTTP\Client\Curl $curl,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        Context $context,
+        RawFactory $rawFactory,
+        Curl $curl,
+        Config $config
     ) {
         parent::__construct($context);
 
         $this->rawFactory = $rawFactory;
-        $this->curl = $curl;
-        $this->config = $config;
+        $this->curl       = $curl;
+        $this->config     = $config;
     }
 
     /**
      * Handles the controller method.
      *
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @return Raw
+     * @throws NoSuchEntityException
      */
-    public function execute()
+    public function execute(): Raw
     {
         // Get request parameters
-        $this->methodId = $this->getRequest()->getParam('method_id');
-        $this->url = $this->getRequest()->getParam('u');
+        $methodId = $this->getRequest()->getParam('method_id');
+        $url      = $this->getRequest()->getParam('u');
 
-        if (substr($this->url, 0, 5) == 'https' && substr($this->url, 0, 8) !== 'https://') {
-            $this->url = 'https://' . substr($this->url, 7);
+        if (substr($url, 0, 5) === 'https' && substr($url, 0, 8) !== 'https://') {
+            $url = 'https://' . substr($url, 7);
         }
 
         // Prepare the configuration parameters
-        $params = $this->getParams();
+        $params = $this->getParams($methodId);
 
         // Prepare the data
         $data = $this->buildDataString($params);
@@ -81,7 +101,7 @@ class Validation extends \Magento\Framework\App\Action\Action
         $this->curl->setOption(CURLOPT_POSTFIELDS, $data);
 
         // Send the request
-        $this->curl->post($this->url, []);
+        $this->curl->post($url, []);
 
         // Return the response
         return $this->rawFactory->create()->setContents(
@@ -92,45 +112,44 @@ class Validation extends \Magento\Framework\App\Action\Action
     /**
      * Build the Apple Pay data string
      *
-     * @return array
+     * @param string[] $params
+     *
+     * @return string
      */
-    public function buildDataString($params)
+    public function buildDataString(array $params): string
     {
-        return '{"merchantIdentifier":"'
-            . $params['merchantId']
-            .'", "domainName":"'
-            . $params['domainName']
-            .'", "displayName":"'
-            . $params['displayName']
-            .'"}';
+        return '{"merchantIdentifier":"' . $params['merchantId'] . '", "domainName":"' . $params['domainName'] . '", "displayName":"' . $params['displayName'] . '"}';
     }
 
     /**
      * Prepare the Apple Pay request parameters
      *
-     * @return array
+     * @param string $methodId
+     *
+     * @return string[]
+     * @throws NoSuchEntityException
      */
-    public function getParams()
+    protected function getParams(string $methodId): array
     {
         return [
-            'merchantId' => $this->config->getValue(
+            'merchantId'                => $this->config->getValue(
                 'merchant_id',
-                $this->methodId
+                $methodId
             ),
-            'domainName' => $this->getRequest()->getServer('HTTP_HOST'),
-            'displayName' => $this->config->getStoreName(),
-            'processingCertificate' => $this->config->getValue(
+            'domainName'                => $this->getRequest()->getServer('HTTP_HOST'),
+            'displayName'               => $this->config->getStoreName(),
+            'processingCertificate'     => $this->config->getValue(
                 'processing_certificate',
-                $this->methodId
+                $methodId
             ),
             'processingCertificatePass' => $this->config->getValue(
                 'processing_certificate_password',
-                $this->methodId
+                $methodId
             ),
-            'merchantCertificate' => $this->config->getValue(
+            'merchantCertificate'       => $this->config->getValue(
                 'merchant_id_certificate',
-                $this->methodId
-            )
+                $methodId
+            ),
         ];
     }
 }

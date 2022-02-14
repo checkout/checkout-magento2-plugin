@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -18,121 +18,186 @@
 /**
  * Checkout.com Magento 2 Payment module (https://www.checkout.com)
  *
- * Copyright (c) 2017 Checkout.com (https://www.checkout.com)
+ * Copyright (c) 2010-present Checkout.com (https://www.checkout.com)
  * Author: David Fiaty | integration@checkout.com
  *
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Button;
 
-use \Checkout\Models\Payments\Refund;
-use \Checkout\Models\Payments\Voids;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\InstantPurchase\ShippingSelector;
+use CheckoutCom\Magento2\Model\Methods\VaultMethod;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Exception;
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Customer\Model\Address;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Phrase;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class PlaceOrder
  */
-class PlaceOrder extends \Magento\Framework\App\Action\Action
+class PlaceOrder extends Action
 {
     /**
-     * @var ManagerInterface
+     * $messageManager field
+     *
+     * @var ManagerInterface $messageManager
      */
-    public $messageManager;
-
+    protected $messageManager;
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
-
+    private $storeManager;
     /**
-     * @var JsonFactory
+     * $jsonFactory field
+     *
+     * @var JsonFactory $jsonFactory
      */
-    public $jsonFactory;
-
+    private $jsonFactory;
     /**
-     * @var Address
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
-    public $addressManager;
-
+    private $quoteHandler;
     /**
-     * @var QuoteHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
-    public $quoteHandler;
-
+    private $orderHandler;
     /**
-     * @var OrderHandlerService
+     * $methodHandler field
+     *
+     * @var MethodHandlerService $methodHandler
      */
-    public $orderHandler;
-
+    private $methodHandler;
     /**
-     * @var MethodHandlerService
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
-    public $methodHandler;
-
+    private $apiHandler;
     /**
-     * @var ApiHandlerService
+     * $utilities field
+     *
+     * @var Utilities $utilities
      */
-    public $apiHandler;
-
+    private $utilities;
     /**
-     * @var Utilities
+     * $shippingSelector field
+     *
+     * @var ShippingSelector $shippingSelector
      */
-    public $utilities;
-
+    private $shippingSelector;
     /**
-     * @var ShippingSelector
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
      */
-    public $shippingSelector;
+    private $orderRepository;
+    /**
+     * $cartRepository field
+     *
+     * @var CartRepositoryInterface $cartRepository
+     */
+    private $cartRepository;
+    /**
+     * $addressRepository field
+     *
+     * @var AddressRepositoryInterface $addressRepository
+     */
+    private $addressRepository;
+    /**
+     * $addressManager field
+     *
+     * @var Address $addressManager
+     */
+    private $addressManager;
 
     /**
      * PlaceOrder constructor
+     *
+     * @param Context                    $context
+     * @param ManagerInterface           $messageManager
+     * @param StoreManagerInterface      $storeManager
+     * @param JsonFactory                $jsonFactory
+     * @param QuoteHandlerService        $quoteHandler
+     * @param OrderHandlerService        $orderHandler
+     * @param MethodHandlerService       $methodHandler
+     * @param ApiHandlerService          $apiHandler
+     * @param Utilities                  $utilities
+     * @param ShippingSelector           $shippingSelector
+     * @param OrderRepositoryInterface   $orderRepository
+     * @param CartRepositoryInterface    $cartRepository
+     * @param AddressRepositoryInterface $addressRepository
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Customer\Model\Address $addressManager,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Model\InstantPurchase\ShippingSelector $shippingSelector
+        Context $context,
+        ManagerInterface $messageManager,
+        StoreManagerInterface $storeManager,
+        JsonFactory $jsonFactory,
+        QuoteHandlerService $quoteHandler,
+        OrderHandlerService $orderHandler,
+        MethodHandlerService $methodHandler,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
+        ShippingSelector $shippingSelector,
+        OrderRepositoryInterface $orderRepository,
+        CartRepositoryInterface $cartRepository,
+        AddressRepositoryInterface $addressRepository,
+        Address $addressManager
     ) {
         parent::__construct($context);
 
-        $this->messageManager = $messageManager;
-        $this->storeManager = $storeManager;
-        $this->jsonFactory = $jsonFactory;
-        $this->addressManager = $addressManager;
-        $this->quoteHandler = $quoteHandler;
-        $this->orderHandler = $orderHandler;
-        $this->methodHandler = $methodHandler;
-        $this->apiHandler = $apiHandler;
-        $this->utilities = $utilities;
-        $this->shippingSelector = $shippingSelector;
-
-        // Try to load a quote
-        $this->quote = $this->quoteHandler->getQuote();
-
-        // Set some required properties
-        $this->data = $this->getRequest()->getParams();
-
-        // Prepare the public hash
-        $this->data['publicHash'] = $this->data['instant_purchase_payment_token'];
-
-        // Set some required properties
-        $this->methodId = 'checkoutcom_vault';
+        $this->messageManager    = $messageManager;
+        $this->storeManager      = $storeManager;
+        $this->jsonFactory       = $jsonFactory;
+        $this->quoteHandler      = $quoteHandler;
+        $this->orderHandler      = $orderHandler;
+        $this->methodHandler     = $methodHandler;
+        $this->apiHandler        = $apiHandler;
+        $this->utilities         = $utilities;
+        $this->shippingSelector  = $shippingSelector;
+        $this->orderRepository   = $orderRepository;
+        $this->cartRepository    = $cartRepository;
+        $this->addressRepository = $addressRepository;
+        $this->addressManager    = $addressManager;
     }
 
     /**
-     * Handles the controller method.
+     * Handles the controller method
      *
-     * @return array
+     * @return Json
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws Exception
      */
-    public function execute()
+    public function execute(): Json
     {
+        /** @var array $data */
+        $data               = $this->getRequest()->getParams();
+        $data['publicHash'] = $data['instant_purchase_payment_token'];
+
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
@@ -146,44 +211,42 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         $quote = $this->quoteHandler->createQuote();
         $quote = $this->quoteHandler->addItems(
             $quote,
-            $this->data
+            $data
         );
 
         // Set the billing address
-        $billingAddress = $this->addressManager->load($this->data['instant_purchase_billing_address']);
+        /** @var Address $billingAddress */
+        $billingAddress = $this->addressManager->load($data['instant_purchase_billing_address']);
         $quote->getBillingAddress()->addData($billingAddress->getData());
 
         // Get the shipping address
-        $shippingAddress = $this->addressManager->load($this->data['instant_purchase_shipping_address']);
+        /** @var Address $shippingAddress */
+        $shippingAddress = $this->addressManager->load($data['instant_purchase_shipping_address']);
 
         // Prepare the quote
         $quote->getShippingAddress()->addData($shippingAddress->getData());
 
         // Set the shipping method
         $shippingMethodCode = $this->shippingSelector->getShippingMethod($quote->getShippingAddress());
-        $quote->getShippingAddress()->setShippingMethod($shippingMethodCode)
+        $quote->getShippingAddress()
+            ->setShippingMethod($shippingMethodCode)
             ->setCollectShippingRates(true)
             ->collectShippingRates();
 
         // Set payment
-        $quote->setPaymentMethod($this->methodId);
-        $quote->save();
-        $quote->getPayment()->importData(
-            ['method' => $this->methodId]
-        );
+        $quote->setPaymentMethod(VaultMethod::CODE);
+        $this->cartRepository->save($quote);
+        $quote->getPayment()->importData(['method' => VaultMethod::CODE]);
 
         // Save the quote
-        $quote->collectTotals()->save();
+        $this->cartRepository->save($quote->collectTotals());
 
         // Create the order
-        $order = $this->orderHandler
-            ->setMethodId($this->methodId)
-            ->handleOrder($quote);
+        $order = $this->orderHandler->setMethodId(VaultMethod::CODE)->handleOrder($quote);
 
         // Process the payment
-        $response = $this->methodHandler->get($this->methodId)
-        ->sendPaymentRequest(
-            $this->data,
+        $response = $this->methodHandler->get(VaultMethod::CODE)->sendPaymentRequest(
+            $data,
             $order->getGrandTotal(),
             $order->getOrderCurrencyCode(),
             $order->getIncrementId(),
@@ -194,11 +257,10 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
         );
 
         // Add the payment info to the order
-        $order = $this->utilities
-        ->setPaymentData($order, $response);
+        $order = $this->utilities->setPaymentData($order, $response);
 
         // Save the order
-        $order->save();
+        $this->orderRepository->save($order);
 
         // Process a successful response
         if ($api->isValidResponse($response)) {
@@ -215,14 +277,15 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
     /**
      * Creates response with the operation status message.
      *
-     * @return array
+     * @param Phrase $message
+     * @param bool   $successMessage
+     *
+     * @return Json
      */
-    public function createResponse(string $message, bool $successMessage)
+    public function createResponse(Phrase $message, bool $successMessage): Json
     {
         // Prepare the result
-        $result = $this->jsonFactory->create()->setData(
-            ['response' => $message]
-        );
+        $result = $this->jsonFactory->create()->setData(['response' => $message]);
 
         // Prepare the response message
         if ($successMessage) {

@@ -10,64 +10,132 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Block\Adminhtml\Alerts;
+
+use CheckoutCom\Magento2\Model\Service\VersionHandlerService;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Notification\MessageInterface;
+use Magento\Framework\Phrase;
 
 /**
  * Class VersionNotification
  */
-class VersionNotification implements \Magento\Framework\Notification\MessageInterface
+class VersionNotification implements MessageInterface
 {
-    public $versionHandler;
-    public $versions;
-    public $current;
-    public $latest;
+    /**
+     * $versionHandler field
+     *
+     * @var VersionHandlerService $versionHandler
+     */
+    private $versionHandler;
 
+    /**
+     * @param VersionHandlerService $versionHandler
+     */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Service\VersionHandlerService $versionHandler
+        VersionHandlerService $versionHandler
     ) {
         $this->versionHandler = $versionHandler;
-        $this->versions = $this->versionHandler->getVersions();
     }
 
-    public function getText()
+    /**
+     * Description getText function
+     *
+     * @return Phrase
+     * @throws FileSystemException
+     * @throws NoSuchEntityException
+     */
+    public function getText(): Phrase
     {
-        $message = __('Please keep your website safe! Your checkout plugin (v'. $this->current .') is not the latest version (v'. $this->latest .').
-         Update now to get the latest features and security updates. 
-         See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.');
+        $versions = $this->getModuleVersions();
+        $message = __(
+            'Please keep your website safe! Your checkout plugin (v' . $versions["current"] . ') is not the latest version (v' . $versions["latest"] . ').
+         Update now to get the latest features and security updates.
+         See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.'
+        );
+
         return $message;
     }
 
-    public function getIdentity()
+    /**
+     * Description getIdentity function
+     *
+     * @return string
+     */
+    public function getIdentity(): string
     {
         return hash('sha256', 'Checkout.com' . time());
     }
 
-    public function isDisplayed()
+    /**
+     * Description isDisplayed function
+     *
+     * @return bool
+     * @throws FileSystemException|NoSuchEntityException
+     */
+    public function isDisplayed(): bool
     {
-        if (isset($this->versions[0]['tag_name'])) {
-            $this->current = $this->versionHandler->getModuleVersion();
-            $this->latest = $this->versionHandler->getLatestVersion($this->versions);
-            if ($this->versionHandler->needsUpdate($this->current, $this->latest)) {
-                return true;
-            }
-        } else {
-            return false;
+        /** @var string[] $versions */
+        $versions = $this->getModuleVersions();
+        if ($this->versionHandler->needsUpdate($versions['current'], $versions['latest'])) {
+            return true;
         }
+
+        return false;
     }
 
-    public function getSeverity()
+    /**
+     * Get module versions
+     *
+     * @return string[]
+     * @throws FileSystemException
+     * @throws NoSuchEntityException
+     */
+    protected function getModuleVersions(): array
     {
-        $releaseType = $this->versionHandler->getVersionType($this->current, $this->latest);
+        /** @var string $current */
+        $current = '0.0.0';
+        /** @var string $latest */
+        $latest = '0.0.0';
+        /** @var mixed $versions */
+        $versions = $this->versionHandler->getVersions();
+        if (is_array($versions) && isset($versions[0]['tag_name'])) {
+            /** @var string $current */
+            $current = $this->versionHandler->getModuleVersion();
+            /** @var string $latest */
+            $latest = $this->versionHandler->getLatestVersion($versions);
+        }
+
+        return [
+            'current' => $current,
+            'latest'  => $latest,
+        ];
+    }
+
+    /**
+     * Description getSeverity function
+     *
+     * @return int
+     * @throws FileSystemException
+     * @throws NoSuchEntityException
+     */
+    public function getSeverity(): int
+    {
+        $versions    = $this->getModuleVersions();
+        $releaseType = $this->versionHandler->getVersionType($versions['current'], $versions['latest']);
 
         switch ($releaseType) {
             case 'revision':
                 return self::SEVERITY_MINOR;
-                
+
             case 'minor':
                 return self::SEVERITY_MAJOR;
 

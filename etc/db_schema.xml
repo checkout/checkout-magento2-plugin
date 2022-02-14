@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+  <table name="checkoutcom_webhooks" resource="default" engine="innodb" comment="Webhooks table">
+    <column xsi:type="int" name="id" padding="11" unsigned="false" nullable="false" identity="true" comment="Webhook ID"/>
+    <column xsi:type="varchar" name="event_id" nullable="false" length="255" comment="Event_id"/>
+    <column xsi:type="varchar" name="event_type" nullable="false" length="255" comment="Event_type"/>
+    <column xsi:type="text" name="event_data" nullable="false" comment="Event_data"/>
+    <column xsi:type="varchar" name="action_id" nullable="false" length="255" comment="Action_id"/>
+    <column xsi:type="varchar" name="payment_id" nullable="false" length="255" comment="Payment_id"/>
+    <column xsi:type="int" name="order_id" unsigned="true" nullable="false" identity="false" comment="Order_id"/>
+    <column xsi:type="datetime" name="received_at" on_update="false" nullable="false" default="NULL" comment="Received At"/>
+    <column xsi:type="datetime" name="processed_at" on_update="false" nullable="false" default="NULL" comment="Processed At"/>
+    <column xsi:type="boolean" name="processed" nullable="false" comment="Processed"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+    <index referenceId="CHECKOUTCOM_WEBHOOKS_INDEX_ID" indexType="btree">
+      <column name="id"/>
+    </index>
+  </table>
+</schema>

@@ -9,156 +9,196 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use \Checkout\Models\Payments\Refund;
-use \Checkout\Models\Payments\Voids;
+use Checkout\Models\Payments\Payment;
+use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Exception;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class PlaceOrder
  */
-class PlaceOrder extends \Magento\Framework\App\Action\Action
+class PlaceOrder extends Action
 {
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
-
+    private $storeManager;
     /**
-     * @var QuoteHandlerService
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
-    public $quoteHandler;
-
+    private $quoteHandler;
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
-    public $orderHandler;
-
+    private $orderHandler;
     /**
-     * @var OrderStatusHandlerService
+     * $orderStatusHandler field
+     *
+     * @var OrderStatusHandlerService $orderStatusHandler
      */
-    public $orderStatusHandler;
-
+    private $orderStatusHandler;
     /**
-     * @var MethodHandlerService
+     * $methodHandler field
+     *
+     * @var MethodHandlerService $methodHandler
      */
-    public $methodHandler;
-
+    private $methodHandler;
     /**
-     * @var ApiHandlerService
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
-    public $apiHandler;
-
+    private $apiHandler;
     /**
-     * @var PaymentErrorHandler
+     * $paymentErrorHandler field
+     *
+     * @var PaymentErrorHandler $paymentErrorHandler
      */
-    public $paymentErrorHandler;
-
+    private $paymentErrorHandler;
     /**
-     * @var JsonFactory
+     * $jsonFactory field
+     *
+     * @var JsonFactory $jsonFactory
      */
-    public $jsonFactory;
-
+    private $jsonFactory;
     /**
-     * @var Utilities
+     * $utilities field
+     *
+     * @var Utilities $utilities
      */
-    public $utilities;
-
+    private $utilities;
     /**
-     * @var Logger
+     * $logger field
+     *
+     * @var Logger $logger
      */
-    public $logger;
-
+    private $logger;
     /**
-     * @var Session
+     * $session field
+     *
+     * @var Session $session
      */
-    protected $session;
-
+    private $session;
     /**
-     * @var array
+     * $scopeConfig field
+     *
+     * @var ScopeConfigInterface $scopeConfig
      */
-    public $data;
-
+    private $scopeConfig;
     /**
-     * @var Quote
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
      */
-    public $quote;
-
-    /**
-     * @var ScopeConfigInterface
-     */
-    public $scopeConfig;
+    private $orderRepository;
 
     /**
      * PlaceOrder constructor
+     *
+     * @param Context                    $context
+     * @param StoreManagerInterface      $storeManager
+     * @param JsonFactory                $jsonFactory
+     * @param ScopeConfigInterface       $scopeConfig
+     * @param QuoteHandlerService        $quoteHandler
+     * @param OrderHandlerService        $orderHandler
+     * @param OrderStatusHandlerService  $orderStatusHandler
+     * @param MethodHandlerService       $methodHandler
+     * @param ApiHandlerService          $apiHandler
+     * @param PaymentErrorHandlerService $paymentErrorHandler
+     * @param Utilities                  $utilities
+     * @param Logger                     $logger
+     * @param Session                    $session
+     * @param OrderRepositoryInterface   $orderRepository
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
-        \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger,
-        \Magento\Checkout\Model\Session $session
+        Context $context,
+        StoreManagerInterface $storeManager,
+        JsonFactory $jsonFactory,
+        ScopeConfigInterface $scopeConfig,
+        QuoteHandlerService $quoteHandler,
+        OrderHandlerService $orderHandler,
+        OrderStatusHandlerService $orderStatusHandler,
+        MethodHandlerService $methodHandler,
+        ApiHandlerService $apiHandler,
+        PaymentErrorHandlerService $paymentErrorHandler,
+        Utilities $utilities,
+        Logger $logger,
+        Session $session,
+        OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
 
-        $this->storeManager = $storeManager;
-        $this->jsonFactory = $jsonFactory;
-        $this->scopeConfig = $scopeConfig;
-        $this->quoteHandler = $quoteHandler;
-        $this->orderHandler = $orderHandler;
-        $this->orderStatusHandler = $orderStatusHandler;
-        $this->methodHandler = $methodHandler;
-        $this->apiHandler = $apiHandler;
+        $this->storeManager        = $storeManager;
+        $this->jsonFactory         = $jsonFactory;
+        $this->scopeConfig         = $scopeConfig;
+        $this->quoteHandler        = $quoteHandler;
+        $this->orderHandler        = $orderHandler;
+        $this->orderStatusHandler  = $orderStatusHandler;
+        $this->methodHandler       = $methodHandler;
+        $this->apiHandler          = $apiHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
-        $this->utilities = $utilities;
-        $this->logger = $logger;
-        $this->session = $session;
+        $this->utilities           = $utilities;
+        $this->logger              = $logger;
+        $this->session             = $session;
+        $this->orderRepository     = $orderRepository;
     }
 
     /**
-     * Main controller function.
+     * Main controller function
      *
-     * @return JSON
+     * @return Json
      */
-    public function execute()
+    public function execute(): Json
     {
         try {
             // Prepare some parameters
-            $url = '';
-            $message = '';
+            $url          = '';
+            $message      = '';
             $debugMessage = '';
             $responseCode = '';
-            $success = false;
-            $log = true;
+            $success      = false;
+            $log          = true;
 
             // Try to load a quote
-            $this->quote = $this->quoteHandler->getQuote();
+            $quote = $this->quoteHandler->getQuote();
 
             // Set some required properties
-            $this->data = $this->getRequest()->getParams();
+            $data = $this->getRequest()->getParams();
 
-            if (!$this->isEmptyCardToken($this->data)) {
+            if (!$this->isEmptyCardToken($data)) {
                 // Process the request
-                if ($this->getRequest()->isAjax() && $this->quote) {
+                if ($this->getRequest()->isAjax() && $quote) {
                     // Create an order
-                    $order = $this->orderHandler
-                        ->setMethodId($this->data['methodId'])
-                        ->handleOrder($this->quote);
+                    $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
 
                     // Process the payment
                     if ($this->orderHandler->isOrder($order)) {
@@ -176,7 +216,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                         );
 
                         // Get response and success
-                        $response = $this->requestPayment($order);
+                        $response = $this->requestPayment($order, $data);
 
                         // Logging
                         $this->logger->display($response);
@@ -188,22 +228,21 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                         $api = $this->apiHandler->init($storeCode);
                         if ($api->isValidResponse($response)) {
                             // Add the payment info to the order
-                            $order = $this->utilities->setPaymentData($order, $response, $this->data);
+                            $order = $this->utilities->setPaymentData($order, $response, $data);
 
                             // check for redirection
                             if (isset($response->_links['redirect']['href'])) {
                                 // set order status to pending payment
-                                $order->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
+                                $order->setStatus(Order::STATE_PENDING_PAYMENT);
                             }
 
                             // Save the order
-                            $order->save();
+                            $this->orderRepository->save($order);
 
                             // Update the response parameters
                             $success = $response->isSuccessful();
-                            $url = $response->getRedirection();
+                            $url     = $response->getRedirection();
                         } else {
-
                             // Payment failed
                             if (isset($response->response_code)) {
                                 $message = $this->paymentErrorHandler->getErrorMessage($response->response_code);
@@ -235,7 +274,7 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
                 // No token found
                 $message = __("Please enter valid card details.");
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $success = false;
             $message = __($e->getMessage());
             $this->logger->write($message);
@@ -245,48 +284,52 @@ class PlaceOrder extends \Magento\Framework\App\Action\Action
             }
 
             return $this->jsonFactory->create()->setData([
-                'success' => $success,
-                'message' => $message,
+                'success'      => $success,
+                'message'      => $message,
                 'responseCode' => $responseCode,
                 'debugMessage' => $debugMessage,
-                'url' => $url
+                'url'          => $url,
             ]);
         }
     }
 
     /**
-     * Request payment to API handler.
+     * Request payment to API handler
      *
-     * @return Response
+     * @param $order
+     * @param $data
+     *
+     * @return Payment|null
      */
-    public function requestPayment($order)
+    protected function requestPayment($order, $data): ?Payment
     {
         // Get the method id
-        $methodId = $order->getPayment()
-        ->getMethodInstance()
-        ->getCode();
+        $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
         // Send the charge request
-        return $this->methodHandler
-        ->get($methodId)
-        ->sendPaymentRequest(
-            $this->data,
+        return $this->methodHandler->get($methodId)->sendPaymentRequest(
+            $data,
             $order->getGrandTotal(),
             $order->getOrderCurrencyCode(),
             $order->getIncrementId()
         );
     }
 
-    public function isEmptyCardToken($paymentData)
+    /**
+     * Description isEmptyCardToken function
+     *
+     * @param string[] $paymentData
+     *
+     * @return bool
+     */
+    public function isEmptyCardToken(array $paymentData): bool
     {
-        if ($paymentData['methodId'] == "checkoutcom_card_payment") {
-            if (!isset($paymentData['cardToken'])
-                || empty($paymentData['cardToken'])
-                || $paymentData['cardToken'] == ""
-            ) {
+        if ($paymentData['methodId'] === "checkoutcom_card_payment") {
+            if (!isset($paymentData['cardToken']) || empty($paymentData['cardToken']) || $paymentData['cardToken'] == "") {
                 return true;
             }
         }
+
         return false;
     }
 }

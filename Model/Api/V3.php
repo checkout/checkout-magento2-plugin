@@ -9,158 +9,258 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2020 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Model\Api;
 
+use CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
+use CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
+use CheckoutCom\Magento2\Api\V3Interface;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Api\Data\PaymentResponseFactory;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
+use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
+use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Framework\App\Request\Http;
+use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Model\AbstractExtensibleModel;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteIdMask;
+use Magento\Quote\Model\QuoteIdMaskFactory;
+use Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask as QuoteIdMaskResource;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
 /**
- * Class v3 - Execute the API v3 endpoint
+ * Class V3 - Execute the API v3 endpoint
  */
-class V3 implements \CheckoutCom\Magento2\Api\V3Interface
+class V3 implements V3Interface
 {
     /**
-     * @var paymentResponseFactory
+     * $paymentResponseFactory field
+     *
+     * @var PaymentResponseFactory $paymentResponseFactory
      */
     private $paymentResponseFactory;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     private $config;
-
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
     private $storeManager;
-
     /**
-     * @var QuoteHandlerService
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
     private $quoteHandler;
-
     /**
-     * @var QuoteIdMaskFactory
+     * $quoteIdMaskFactory field
+     *
+     * @var QuoteIdMaskFactory $quoteIdMaskFactory
      */
     private $quoteIdMaskFactory;
-
     /**
-     * @var OrderHandlerService
+     * $orderHandler field
+     *
+     * @var OrderHandlerService $orderHandler
      */
     private $orderHandler;
-
     /**
-     * @var OrderStatusHandlerService
+     * $orderStatusHandler field
+     *
+     * @var OrderStatusHandlerService $orderStatusHandler
      */
     private $orderStatusHandler;
-
     /**
-     * @var MethodHandlerService
+     * $methodHandler field
+     *
+     * @var MethodHandlerService $methodHandler
      */
     private $methodHandler;
-
     /**
-     * @var ApiHandlerService
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
     private $apiHandler;
-
-    /*
-     * @var PaymentErrorHandlerService
+    /**
+     * $paymentErrorHandler field
+     *
+     * @var PaymentErrorHandlerService $paymentErrorHandler
      */
     private $paymentErrorHandler;
-
     /**
-     * @var Utilities
+     * $utilities field
+     *
+     * @var Utilities $utilities
      */
     private $utilities;
-
     /**
-     * @var VaultHandlerService
+     * $vaultHandler field
+     *
+     * @var VaultHandlerService $vaultHandler
      */
-    public $vaultHandler;
-
+    private $vaultHandler;
     /**
-     * @var Http
+     * $request
+     *
+     * @var Http $request
      */
-    public $request;
-    
+    private $request;
     /**
-     * @var \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface
+     * $data field
+     *
+     * @var PaymentRequestInterface $data
      */
     private $data;
-
     /**
-     * @var \Magento\Customer\Api\Data\CustomerInterface
+     * $customer field
+     *
+     * @var CustomerInterface $customer
      */
     private $customer;
-
     /**
-     * @var Array
+     * $result field
+     *
+     * @var array $result
      */
     private $result;
-
     /**
-     * @var Object
+     * $api field
+     *
+     * @var Object $api
      */
     private $api;
-
     /**
-     * @var Object
+     * $order field
+     *
+     * @var Object $order
      */
-    public $order;
-
+    private $order;
     /**
-     * @var Object
+     * $quote field
+     *
+     * @var Object $quote
      */
     private $quote;
+    /**
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
+     */
+    private $orderRepository;
+    /**
+     * $quoteIdMaskResource field
+     *
+     * @var QuoteIdMaskResource $quoteIdMaskResource
+     */
+    private $quoteIdMaskResource;
 
+    /**
+     * V3 constructor
+     *
+     * @param PaymentResponseFactory     $paymentResponseFactory
+     * @param Config                     $config
+     * @param StoreManagerInterface      $storeManager
+     * @param QuoteHandlerService        $quoteHandler
+     * @param QuoteIdMaskFactory         $quoteIdMaskFactory
+     * @param OrderHandlerService        $orderHandler
+     * @param OrderStatusHandlerService  $orderStatusHandler
+     * @param MethodHandlerService       $methodHandler
+     * @param ApiHandlerService          $apiHandler
+     * @param PaymentErrorHandlerService $paymentErrorHandler
+     * @param Utilities                  $utilities
+     * @param VaultHandlerService        $vaultHandler
+     * @param Http                       $request
+     * @param OrderRepositoryInterface   $orderRepository
+     * @param QuoteIdMaskResource        $quoteIdMaskResource
+     */
     public function __construct(
-        \CheckoutCom\Magento2\Model\Api\Data\PaymentResponseFactory $paymentResponseFactory,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
-        \CheckoutCom\Magento2\Model\Service\OrderHandlerService $orderHandler,
-        \CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService $orderStatusHandler,
-        \CheckoutCom\Magento2\Model\Service\MethodHandlerService $methodHandler,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService $paymentErrorHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \Magento\Framework\App\Request\Http $request
+        PaymentResponseFactory $paymentResponseFactory,
+        Config $config,
+        StoreManagerInterface $storeManager,
+        QuoteHandlerService $quoteHandler,
+        QuoteIdMaskFactory $quoteIdMaskFactory,
+        OrderHandlerService $orderHandler,
+        OrderStatusHandlerService $orderStatusHandler,
+        MethodHandlerService $methodHandler,
+        ApiHandlerService $apiHandler,
+        PaymentErrorHandlerService $paymentErrorHandler,
+        Utilities $utilities,
+        VaultHandlerService $vaultHandler,
+        Http $request,
+        OrderRepositoryInterface $orderRepository,
+        QuoteIdMaskResource $quoteIdMaskResource
     ) {
         $this->paymentResponseFactory = $paymentResponseFactory;
-        $this->config = $config;
-        $this->storeManager = $storeManager;
-        $this->quoteHandler = $quoteHandler;
-        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
-        $this->orderHandler = $orderHandler;
-        $this->orderStatusHandler = $orderStatusHandler;
-        $this->methodHandler = $methodHandler;
-        $this->apiHandler = $apiHandler;
-        $this->paymentErrorHandler = $paymentErrorHandler;
-        $this->utilities = $utilities;
-        $this->vaultHandler = $vaultHandler;
-        $this->request = $request;
+        $this->config                 = $config;
+        $this->storeManager           = $storeManager;
+        $this->quoteHandler           = $quoteHandler;
+        $this->quoteIdMaskFactory     = $quoteIdMaskFactory;
+        $this->orderHandler           = $orderHandler;
+        $this->orderStatusHandler     = $orderStatusHandler;
+        $this->methodHandler          = $methodHandler;
+        $this->apiHandler             = $apiHandler;
+        $this->paymentErrorHandler    = $paymentErrorHandler;
+        $this->utilities              = $utilities;
+        $this->vaultHandler           = $vaultHandler;
+        $this->request                = $request;
+        $this->orderRepository        = $orderRepository;
+        $this->quoteIdMaskResource    = $quoteIdMaskResource;
     }
 
+    /**
+     * Description executeApiV3 function
+     *
+     * @param CustomerInterface       $customer
+     * @param PaymentRequestInterface $paymentRequest
+     *
+     * @return PaymentResponseInterface
+     * @throws NoSuchEntityException|LocalizedException
+     */
     public function executeApiV3(
-        \Magento\Customer\Api\Data\CustomerInterface $customer,
-        \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
-    ) {
+        CustomerInterface $customer,
+        PaymentRequestInterface $paymentRequest
+    ): PaymentResponseInterface {
         // Assign the customer and payment request to be accessible to the whole class
         $this->customer = $customer;
-        $this->data = $paymentRequest;
+        $this->data     = $paymentRequest;
 
         // Prepare the V3 object
         return $this->execute();
     }
 
+    /**
+     * Description executeGuestApiV3 function
+     *
+     * @param PaymentRequestInterface $paymentRequest
+     *
+     * @return PaymentResponseInterface
+     * @throws NoSuchEntityException|LocalizedException
+     */
     public function executeGuestApiV3(
-        \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
-    ) {
+        PaymentRequestInterface $paymentRequest
+    ): PaymentResponseInterface {
         // Assign the payment request to be accessible to the whole class
         $this->data = $paymentRequest;
 
@@ -169,9 +269,12 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
     }
 
     /**
-     * Get an API handler instance and the request data.
+     * Get an API handler instance and the request data
+     *
+     * @return PaymentResponseInterface
+     * @throws NoSuchEntityException|LocalizedException
      */
-    private function execute()
+    private function execute(): PaymentResponseInterface
     {
         // Get an API handler instance
         $this->api = $this->apiHandler->init(
@@ -180,12 +283,12 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
 
         // Prepare the default response
         $this->result = [
-            'success' => false,
-            'order_id' => 0,
-            'redirect_url' => '',
-            'error_message' => []
+            'success'       => false,
+            'order_id'      => 0,
+            'redirect_url'  => '',
+            'error_message' => [],
         ];
-        
+
         // Validate the public key
         if ($this->isValidPublicKey()) {
             if ($this->hasValidFields()) {
@@ -206,13 +309,16 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         $responseDetails->setOrderId($this->result['order_id']);
         $responseDetails->setRedirectUrl($this->result['redirect_url']);
         $responseDetails->setErrorMessage($this->result['error_message']);
+
         return $responseDetails;
     }
 
     /**
-     * Check if the request is valid.
+     * Check if the request is valid
+     *
+     * @return bool
      */
-    private function isValidPublicKey()
+    private function isValidPublicKey(): bool
     {
         return $this->config->isValidAuth('pk', 'Cko-Authorization');
     }
@@ -220,9 +326,10 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
     /**
      * Process the payment request and handle the response.
      *
-     * @return Array
+     * @return mixed[]
+     * @throws LocalizedException
      */
-    private function processPayment()
+    private function processPayment(): array
     {
         $order = $this->createOrder($this->data->getPaymentMethod());
         if ($this->orderHandler->isOrder($order)) {
@@ -231,7 +338,6 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
             $response = $this->getPaymentResponse($order);
 
             if ($this->api->isValidResponse($response)) {
-
                 // Process the payment response
                 $is3ds = property_exists($response, '_links')
                     && isset($response->_links['redirect'])
@@ -241,7 +347,7 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
                 $order = $this->utilities->setPaymentData($order, $response);
 
                 // Save the order
-                $order->save();
+                $this->orderRepository->save($order);
 
                 // Use custom redirect urls
                 if ($is3ds) {
@@ -281,71 +387,82 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
     }
 
     /**
-     * Create an order.
+     * Create an order
      *
-     * @param $methodId
-     * @return Order
+     * @param string $methodId
+     *
+     * @return AbstractExtensibleModel|OrderInterface|mixed|object|null
+     * @throws LocalizedException
      */
-    private function createOrder($methodId)
+    private function createOrder(string $methodId): ?OrderInterface
     {
         // Load the quote
         $this->quote = $this->loadQuote();
-        $order = null;
+        $order       = null;
 
         if ($this->quote) {
             // Create an order
-            $order = $this->orderHandler
-                ->setMethodId($methodId)
-                ->handleOrder($this->quote);
+            $order = $this->orderHandler->setMethodId($methodId)->handleOrder($this->quote);
         }
+
         return $order;
     }
 
     /**
-     * Load the quote.
+     * Load the quote
+     *
+     * @return DataObject|CartInterface|Quote|null
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    private function loadQuote()
+    private function loadQuote(): ?CartInterface
     {
         // Convert masked quote ID hash to quote ID int
         if (preg_match("/([A-Za-z])\w+/", $this->data->getQuoteId())) {
-            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($this->data->getQuoteId(), 'masked_id');
+            /** @var QuoteIdMask $quoteIdMask */
+            $quoteIdMask = $this->quoteIdMaskFactory->create();
+            $this->quoteIdMaskResource->load($quoteIdMask, $this->data->getQuoteId(), 'masked_id');
             $this->data->setQuoteId($quoteIdMask->getQuoteId());
         }
-        
+
         // Load the quote
         $quote = $this->quoteHandler->getQuote([
-            'entity_id' => $this->data->getQuoteId()
+            'entity_id' => $this->data->getQuoteId(),
         ]);
 
         // Handle a quote not found
         if (!$this->quoteHandler->isQuote($quote)) {
             $this->result['error_message'][] = __('No quote found with the provided ID');
-            $quote = null;
+            $quote                           = null;
         }
 
         return $quote;
     }
-    
+
     /**
-     * Get a payment response.
+     * Get a payment response
      *
-     * @return Object
+     * @param OrderInterface $order
+     *
+     * @return mixed
      */
-    private function getPaymentResponse($order)
+    private function getPaymentResponse(OrderInterface $order)
     {
         $sessionId = $this->request->getParam('cko-session-id');
 
-        return ($sessionId && !empty($sessionId))
-            ? $this->api->getPaymentDetails($sessionId)
-            : $this->requestPayment($order);
+        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment(
+            $order
+        );
     }
 
     /**
-     * Request payment to API handler.
+     * Request payment to API handler
      *
-     * @return Response
+     * @param OrderInterface $order
+     *
+     * @return mixed
      */
-    private function requestPayment($order)
+    private function requestPayment(OrderInterface $order)
     {
         // Prepare the payment request payload
         $payload = [];
@@ -359,19 +476,16 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         if ($this->data->getPaymentMethod() == 'checkoutcom_card_payment') {
             // Add the card token to the request
             $payload['cardToken'] = $this->data->getPaymentToken();
-            
+
             // Prepare the save card setting
             $saveCardEnabled = $this->config->getValue('save_card_option', 'checkoutcom_card_payment');
-            
-            if ($this->data->getSaveCard() !== null
-                && $this->data->getSaveCard() === true
-                && $saveCardEnabled
-                && isset($this->customer)
-            ) {
+
+            if ($this->data->getSaveCard() !== null && $this->data->getSaveCard(
+                ) === true && $saveCardEnabled && isset($this->customer)) {
                 $payload['saveCard'] = true;
             }
         }
-        
+
         // Add vault specific details to the payment request
         if ($this->data->getPaymentMethod() == 'checkoutcom_vault') {
             // Set the public hash - Only for vault method
@@ -388,27 +502,30 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         if (!empty($this->data->getSuccessUrl())) {
             $payload['successUrl'] = $this->data->getSuccessUrl();
         }
-        
+
         // Set the failure URL
         if (!empty($this->data->getFailureUrl())) {
             $payload['failureUrl'] = $this->data->getFailureUrl();
         }
 
         // Send the charge request
-        return $this->methodHandler
-            ->get($this->data->getPaymentMethod())
-            ->sendPaymentRequest(
-                $payload,
-                $order->getGrandTotal(),
-                $order->getOrderCurrencyCode(),
-                $order->getIncrementId(),
-                $this->quote,
-                true,
-                $this->customer ? $this->customer->getId() : null
-            );
+        return $this->methodHandler->get($this->data->getPaymentMethod())->sendPaymentRequest(
+            $payload,
+            $order->getGrandTotal(),
+            $order->getOrderCurrencyCode(),
+            $order->getIncrementId(),
+            $this->quote,
+            true,
+            $this->customer ? $this->customer->getId() : null
+        );
     }
 
-    private function hasValidFields()
+    /**
+     * Description hasValidFields function
+     *
+     * @return bool
+     */
+    private function hasValidFields(): bool
     {
         $isValid = true;
 
@@ -416,32 +533,32 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         if ($this->data->getPaymentMethod() !== null) {
             if (!is_string($this->data->getPaymentMethod())) {
                 $this->result['error_message'][] = __('Payment method provided is not a string');
-                $isValid = false;
+                $isValid                         = false;
             } elseif ($this->data->getPaymentMethod() == '') {
                 $this->result['error_message'][] = __('Payment method provided is empty string');
-                $isValid = false;
+                $isValid                         = false;
             }
         } else {
             $this->result['error_message'][] = __('Payment method is missing from request body');
-            $isValid = false;
+            $isValid                         = false;
         }
 
         // Check the quote id has been specified correctly
         if ($this->data->getQuoteId() !== null) {
-            if (is_integer($this->data->getQuoteId()) && $this->data->getQuoteId() < 1) {
+            if (is_int($this->data->getQuoteId()) && $this->data->getQuoteId() < 1) {
                 $this->result['error_message'][] = __('Quote ID provided must be a positive integer');
-                $isValid = false;
+                $isValid                         = false;
             }
         } else {
             $this->result['error_message'][] = __('Quote ID is missing from request body');
-            $isValid = false;
+            $isValid                         = false;
         }
 
         // Check the card bin has been specified correctly
         if ($this->data->getCardBin() !== null) {
             if ($this->data->getCardBin() == '') {
                 $this->result['error_message'][] = __('Card BIN is empty string');
-                $isValid = false;
+                $isValid                         = false;
             }
         }
 
@@ -449,10 +566,10 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         if ($this->data->getSuccessUrl() !== null) {
             if (!is_string($this->data->getSuccessUrl())) {
                 $this->result['error_message'][] = __('Success URL provided is not a string');
-                $isValid = false;
+                $isValid                         = false;
             } elseif ($this->data->getSuccessUrl() == '') {
                 $this->result['error_message'][] = __('Success URL is empty string');
-                $isValid = false;
+                $isValid                         = false;
             }
         }
 
@@ -460,80 +577,81 @@ class V3 implements \CheckoutCom\Magento2\Api\V3Interface
         if ($this->data->getFailureUrl() !== null) {
             if (!is_string($this->data->getFailureUrl())) {
                 $this->result['error_message'][] = __('Failure URL provided is not a string');
-                $isValid = false;
+                $isValid                         = false;
             } elseif ($this->data->getFailureUrl() == '') {
                 $this->result['error_message'][] = __('Failure URL is empty string');
-                $isValid = false;
+                $isValid                         = false;
             }
         }
-        
+
         // CKO card payment method specific validation
         if ($this->data->getPaymentMethod() == 'checkoutcom_card_payment') {
             // Check the payment method is active
             if (!$this->config->getValue('active', 'checkoutcom_card_payment')) {
                 $this->result['error_message'][] = __('Card payment method is not active');
-                $isValid = false;
+                $isValid                         = false;
             }
 
             // Check the payment token has been specified correctly
             if ($this->data->getPaymentToken() !== null) {
                 if (!is_string($this->data->getPaymentToken())) {
                     $this->result['error_message'][] = __('Payment token provided is not a string');
-                    $isValid = false;
+                    $isValid                         = false;
                 } elseif ($this->data->getPaymentToken() == '') {
                     $this->result['error_message'][] = __('Payment token provided is empty string');
-                    $isValid = false;
+                    $isValid                         = false;
                 }
             } else {
                 $this->result['error_message'][] = __('Payment token is missing from request body');
-                $isValid = false;
+                $isValid                         = false;
             }
         }
 
         // CKO vault payment method specific validation
-        if ($this->data->getPaymentMethod()== 'checkoutcom_vault' && isset($this->customer)) {
+        if ($this->data->getPaymentMethod() === 'checkoutcom_vault' && isset($this->customer)) {
             // Check the payment method is active
             if (!$this->config->getValue('active', 'checkoutcom_vault')) {
                 $this->result['error_message'][] = __('Vault payment method is not active');
-                $isValid = false;
+                $isValid                         = false;
             }
 
             // Public hash error messages
             if ($this->data->getPublicHash() !== null) {
                 if (!is_string($this->data->getPublicHash())) {
                     $this->result['error_message'][] = __('Public hash provided is not a string');
-                    $isValid = false;
+                    $isValid                         = false;
                 } elseif ($this->data->getPublicHash() == '') {
                     $this->result['error_message'][] = __('Public hash provided is empty string');
-                    $isValid = false;
+                    $isValid                         = false;
                 } elseif ($this->vaultHandler->getCardFromHash(
-                    $this->data->getPublicHash(),
-                    $this->customer->getId()
-                ) == null
-                ) {
+                        $this->data->getPublicHash(),
+                        $this->customer->getId()
+                    ) == null) {
                     $this->result['error_message'][] = __('Public hash provided is not valid');
-                    $isValid = false;
+                    $isValid                         = false;
                 }
             } else {
                 $this->result['error_message'][] = __('Public hash is missing from request body');
-                $isValid = false;
+                $isValid                         = false;
             }
 
             // Check the card cvv has been specified correctly
             if ($this->config->getValue('require_cvv', 'checkoutcom_vault')) {
-                if ($this->data->getCardCvv() == null || (int) $this->data->getCardCvv() == 0) {
+                if ($this->data->getCardCvv() == null || (int)$this->data->getCardCvv() == 0) {
                     $this->result['error_message'][] = __('CVV value is required');
-                    $isValid = false;
+                    $isValid                         = false;
                 }
-            } else if ($this->data->getCardCvv()) {
-                $this->result['error_message'][] = __('CVV value is not required');
-                $isValid = false;
+            } else {
+                if ($this->data->getCardCvv()) {
+                    $this->result['error_message'][] = __('CVV value is not required');
+                    $isValid                         = false;
+                }
             }
-        } elseif ($this->data->getPaymentMethod()== 'checkoutcom_vault' && !isset($this->customer)) {
+        } elseif ($this->data->getPaymentMethod() == 'checkoutcom_vault' && !isset($this->customer)) {
             $this->result['error_message'][] = __('Vault payment method is not available for guest checkouts.');
-            $isValid = false;
+            $isValid                         = false;
         }
-        
+
         return $isValid;
     }
 }

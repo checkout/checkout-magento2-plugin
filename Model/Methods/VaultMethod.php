@@ -10,155 +10,215 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Models\Payments\IdSource;
-use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\ThreeDs;
-use \Checkout\Models\Payments\BillingDescriptor;
-use \Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Payments\BillingDescriptor;
+use Checkout\Models\Payments\IdSource;
+use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\ThreeDs;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Directory\Helper\Data as DirectoryHelper;
+use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Magento\Payment\Helper\Data;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\Method\Logger;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Class VaultMethod.
+ * Class VaultMethod
  */
 class VaultMethod extends AbstractMethod
 {
     /**
-     * @var string
+     * CODE constant
+     *
+     * @var string CODE
      */
     const CODE = 'checkoutcom_vault';
-
     /**
-     * @var string
+     * $_code field
+     *
+     * @var string $_code
      */
-    public $_code = self::CODE;
-
+    protected $_code = self::CODE;
     /**
-     * @var bool
+     * $_canAuthorize field
+     *
+     * @var bool $_canAuthorize
      */
-    public $_canAuthorize = true;
-
+    protected $_canAuthorize = true;
     /**
-     * @var bool
+     * $_canCapture field
+     *
+     * @var bool $_canCapture
      */
-    public $_canCapture = true;
-
+    protected $_canCapture = true;
     /**
-     * @var bool
+     * $_canCapturePartial field
+     *
+     * @var bool $_canCapturePartial
      */
-    public $_canCancel = true;
-
+    protected $_canCapturePartial = true;
     /**
-     * @var bool
+     * $_canVoid field
+     *
+     * @var bool $_canVoid
      */
-    public $_canCapturePartial = true;
-
+    protected $_canVoid = true;
     /**
-     * @var bool
+     * $_canUseInternal field
+     *
+     * @var bool $_canUseInternal
      */
-    public $_canVoid = true;
-
+    protected $_canUseInternal = true;
     /**
-     * @var bool
+     * $_canUseCheckout field
+     *
+     * @var bool $_canUseCheckout
      */
-    public $_canUseInternal = true;
-
+    protected $_canUseCheckout = true;
     /**
-     * @var bool
+     * $_canRefund field
+     *
+     * @var bool $_canRefund
      */
-    public $_canUseCheckout = true;
-
+    protected $_canRefund = true;
     /**
-     * @var bool
+     * $_canRefundInvoicePartial field
+     *
+     * @var bool $_canRefundInvoicePartial
      */
-    public $_canRefund = true;
-
+    protected $_canRefundInvoicePartial = true;
     /**
-     * @var bool
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
-    public $_canRefundInvoicePartial = true;
-
+    private $storeManager;
     /**
-     * @var StoreManagerInterface
+     * $vaultHandler field
+     *
+     * @var VaultHandlerService $vaultHandler
      */
-    public $storeManager;
-
+    private $vaultHandler;
     /**
-     * @var VaultHandlerService
+     * $cardHandler field
+     *
+     * @var CardHandlerService $cardHandler
      */
-    public $vaultHandler;
-
+    private $cardHandler;
     /**
-     * @var CardHandlerService
+     * $config field
+     *
+     * @var Config $config
      */
-    public $cardHandler;
-
+    private $config;
     /**
-     * @var Config
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
-    public $config;
-
+    private $apiHandler;
     /**
-     * @var ApiHandlerService
+     * $utilities field
+     *
+     * @var Utilities $utilities
      */
-    public $apiHandler;
-
+    private $utilities;
     /**
-     * @var Utilities
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
-    public $utilities;
-
+    private $quoteHandler;
     /**
-     * @var QuoteHandlerService
+     * $ckoLogger field
+     *
+     * @var Logger $ckoLogger
      */
-    public $quoteHandler;
-
+    private $ckoLogger;
     /**
-     * @var Logger
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
      */
-    public $ckoLogger;
+    private $backendAuthSession;
 
     /**
-     * @var ManagerInterface
-     */
-    public $messageManager;
-
-    /**
-     * @var Session
-     */
-    public $backendAuthSession;
-
-    /**
-     * VaultMethod constructor.
+     * VaultMethod constructor
+     *
+     * @param Context                    $context
+     * @param Registry                   $registry
+     * @param ExtensionAttributesFactory $extensionFactory
+     * @param AttributeValueFactory      $customAttributeFactory
+     * @param Data                       $paymentData
+     * @param ScopeConfigInterface       $scopeConfig
+     * @param Logger                     $logger
+     * @param Session                    $backendAuthSession
+     * @param Config                     $config
+     * @param ApiHandlerService          $apiHandler
+     * @param Utilities                  $utilities
+     * @param StoreManagerInterface      $storeManager
+     * @param VaultHandlerService        $vaultHandler
+     * @param CardHandlerService         $cardHandler
+     * @param QuoteHandlerService        $quoteHandler
+     * @param LoggerHelper               $ckoLogger
+     * @param AbstractResource|null      $resource
+     * @param AbstractDb|null            $resourceCollection
+     * @param array                      $data
+     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Payment\Helper\Data $paymentData,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = []
+        Context $context,
+        Registry $registry,
+        ExtensionAttributesFactory $extensionFactory,
+        AttributeValueFactory $customAttributeFactory,
+        Data $paymentData,
+        ScopeConfigInterface $scopeConfig,
+        Logger $logger,
+        Session $backendAuthSession,
+        Config $config,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
+        StoreManagerInterface $storeManager,
+        VaultHandlerService $vaultHandler,
+        CardHandlerService $cardHandler,
+        QuoteHandlerService $quoteHandler,
+        LoggerHelper $ckoLogger,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
+        array $data = [],
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory
     ) {
         parent::__construct(
+            $config,
             $context,
             $registry,
             $extensionFactory,
@@ -168,7 +228,9 @@ class VaultMethod extends AbstractMethod
             $logger,
             $resource,
             $resourceCollection,
-            $data
+            $data,
+            $directoryHelper,
+            $dataObjectFactory
         );
 
         $this->backendAuthSession = $backendAuthSession;
@@ -180,30 +242,34 @@ class VaultMethod extends AbstractMethod
         $this->cardHandler        = $cardHandler;
         $this->quoteHandler       = $quoteHandler;
         $this->ckoLogger          = $ckoLogger;
-        $this->messageManager     = $messageManager;
     }
 
     /**
-     * Sends a payment request.
+     * Sends a payment request
      *
-     * @param array   $data      The data
-     * @param integer $amount    The amount
-     * @param string  $currency  The currency
-     * @param string  $reference The reference
+     * @param string[]           $data
+     * @param float              $amount
+     * @param string             $currency
+     * @param string             $reference
+     * @param CartInterface|null $quote
+     * @param bool|null          $isApiOrder
+     * @param mixed|null         $customerId
+     * @param bool|null          $isInstantPurchase
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return mixed|void
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws FileSystemException
      */
     public function sendPaymentRequest(
-        $data, 
-        $amount,
-        $currency,
-        $reference = '',
-        $quote = null,
-        $isApiOrder = null,
+        array $data,
+        float $amount,
+        string $currency,
+        string $reference = '',
+        CartInterface $quote = null,
+        bool $isApiOrder = null,
         $customerId = null,
-        $isInstantPurchase = null
+        bool $isInstantPurchase = null
     ) {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
@@ -226,8 +292,8 @@ class VaultMethod extends AbstractMethod
 
         // Check CVV config
         if ($this->config->getValue('require_cvv', $this->_code)) {
-            if (!isset($data['cvv']) || (int) $data['cvv'] == 0) {
-                throw new \Magento\Framework\Exception\LocalizedException(__('The CVV value is required.'));
+            if (!isset($data['cvv']) || (int)$data['cvv'] == 0) {
+                throw new LocalizedException(__('The CVV value is required.'));
             } else {
                 $idSource->cvv = $data['cvv'];
             }
@@ -235,8 +301,7 @@ class VaultMethod extends AbstractMethod
 
         // Set the payment
         $request = new Payment(
-            $idSource,
-            $currency
+            $idSource, $currency
         );
 
         // Prepare the metadata array
@@ -253,52 +318,48 @@ class VaultMethod extends AbstractMethod
         }
 
         // Prepare the capture setting
-        $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
+        $needsAutoCapture = $this->config->needsAutoCapture();
         $request->capture = $needsAutoCapture;
         if ($needsAutoCapture) {
-            $request->capture_on = $this->config->getCaptureTime($this->_code);
+            $request->capture_on = $this->config->getCaptureTime();
         }
 
         // Prepare the MADA setting
-        $madaEnabled = (bool) $this->config->getValue('mada_enabled', $this->_code);
+        $madaEnabled = (bool)$this->config->getValue('mada_enabled', $this->_code);
 
         // Set the request parameters
-        $request->amount = $this->quoteHandler->amountToGateway(
+        $request->amount    = $this->quoteHandler->amountToGateway(
             $this->utilities->formatDecimals($amount),
             $quote
         );
         $request->reference = $reference;
-       if ($isInstantPurchase) {
-           $request->threeDs = new ThreeDs(false);
-       } else {
-           $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
-           $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-           $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
-           $request->threeDs->attempt_n3d = (bool)$this->config->getValue(
-               'attempt_n3d',
-               $this->_code
-           );
-       }
+        if ($isInstantPurchase) {
+            $request->threeDs = new ThreeDs(false);
+        } else {
+            $request->success_url          = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+            $request->failure_url          = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+            $request->threeDs              = new ThreeDs($this->config->needs3ds($this->_code));
+            $request->threeDs->attempt_n3d = (bool)$this->config->getValue(
+                'attempt_n3d',
+                $this->_code
+            );
+        }
 
-        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
+        $request->description  = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->payment_type = 'Regular';
         if (!$quote->getIsVirtual()) {
             $request->shipping = $api->createShippingAddress($quote);
         }
 
         // Mada BIN Check
-        if (isset($data['cardBin'])
-            && $this->cardHandler->isMadaBin($data['cardBin'])
-            && $madaEnabled
-        ) {
+        if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
             $request->metadata = ['udf1' => 'MADA'];
         }
 
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
             $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name'),
-                $this->config->getValue('descriptor_city')
+                $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city')
             );
         }
 
@@ -312,11 +373,10 @@ class VaultMethod extends AbstractMethod
         );
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
-        
+
         // Send the charge request
         try {
-            $response = $api->checkoutApi
-                ->payments()->request($request);
+            $response = $api->getCheckoutApi()->payments()->request($request);
 
             return $response;
         } catch (CheckoutHttpException $e) {
@@ -325,16 +385,15 @@ class VaultMethod extends AbstractMethod
     }
 
     /**
-     * Perform a capture request.
+     * Perform a capture request
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
-     * @param float $amount
+     * @param InfoInterface $payment
+     * @param float         $amount
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|VaultMethod
+     * @throws LocalizedException
      */
-    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -345,7 +404,7 @@ class VaultMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canCapture()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The capture action is not available.')
                 );
             }
@@ -353,29 +412,27 @@ class VaultMethod extends AbstractMethod
             // Process the capture request
             $response = $api->captureOrder($payment, $amount);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The capture request could not be processed.')
                 );
             }
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
         }
 
         return $this;
     }
 
     /**
-     * Perform a void request.
+     * Perform a void request
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param InfoInterface $payment
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|VaultMethod
+     * @throws LocalizedException
      */
-    public function void(\Magento\Payment\Model\InfoInterface $payment)
+    public function void(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -386,7 +443,7 @@ class VaultMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canVoid()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void action is not available.')
                 );
             }
@@ -394,29 +451,27 @@ class VaultMethod extends AbstractMethod
             // Process the void request
             $response = $api->voidOrder($payment);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void request could not be processed.')
                 );
             }
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
         }
 
         return $this;
     }
 
     /**
-     * Perform a void request on order cancel.
+     * Perform a void request on order cancel
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param InfoInterface $payment
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|VaultMethod
+     * @throws LocalizedException
      */
-    public function cancel(\Magento\Payment\Model\InfoInterface $payment)
+    public function cancel(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             $order = $payment->getOrder();
@@ -428,7 +483,7 @@ class VaultMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canVoid()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void action is not available.')
                 );
             }
@@ -436,32 +491,33 @@ class VaultMethod extends AbstractMethod
             // Process the void request
             $response = $api->voidOrder($payment);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void request could not be processed.')
                 );
             }
 
-            $comment = __('Canceled order online, the voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
+            $comment = __(
+                'Canceled order online, the voided amount is %1.',
+                $order->formatPriceTxt($order->getGrandTotal())
+            );
             $payment->setMessage($comment);
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
         }
 
         return $this;
     }
-    
+
     /**
-     * Perform a refund request.
+     * Perform a refund request
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
-     * @param float $amount The amount
+     * @param InfoInterface $payment
+     * @param float         $amount
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|VaultMethod
+     * @throws LocalizedException
      */
-    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -472,7 +528,7 @@ class VaultMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canRefund()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The refund action is not available.')
                 );
             }
@@ -480,14 +536,13 @@ class VaultMethod extends AbstractMethod
             // Process the refund request
             $response = $api->refundOrder($payment, $amount);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The refund request could not be processed.')
                 );
             }
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
         }
 
         return $this;
@@ -496,13 +551,13 @@ class VaultMethod extends AbstractMethod
     /**
      * Check whether method is available
      *
-     * @param  \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @param CartInterface|null $quote
+     *
      * @return bool
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(CartInterface $quote = null): bool
     {
-        return $this->config->getValue('active', $this->_code)
-        && $this->vaultHandler->userHasCards()
-        && !$this->backendAuthSession->isLoggedIn();
+        return $this->config->getValue('active', $this->_code) && $this->vaultHandler->userHasCards(
+            ) && !$this->backendAuthSession->isLoggedIn();
     }
 }

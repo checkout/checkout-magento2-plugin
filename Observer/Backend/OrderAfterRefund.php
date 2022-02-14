@@ -9,73 +9,73 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Observer\Backend;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
 
 /**
- * Class OrderAfterRefund.
+ * Class OrderAfterRefund
  */
-class OrderAfterRefund implements \Magento\Framework\Event\ObserverInterface
+class OrderAfterRefund implements ObserverInterface
 {
     /**
-     * @var Session
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
      */
-    public $backendAuthSession;
+    private $backendAuthSession;
+    /**
+     * $config field
+     *
+     * @var Config $config
+     */
+    private $config;
 
     /**
-     * @var RequestInterface
-     */
-    public $request;
-
-    /**
-     * @var Config
-     */
-    public $config;
-
-    /**
-     * @var Array
-     */
-    public $params;
-
-    /**
-     * OrderSaveBefore constructor.
+     * OrderAfterRefund constructor
+     *
+     * @param Session          $backendAuthSession
+     * @param Config           $config
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Framework\App\RequestInterface $request,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        Session $backendAuthSession,
+        Config $config
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->request = $request;
-        $this->config = $config;
+        $this->config             = $config;
     }
 
     /**
-     * Run the observer.
+     * Run the observer
+     *
+     * @param Observer $observer
+     *
+     * @return $this|null
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): ?OrderAfterRefund
     {
         if ($this->backendAuthSession->isLoggedIn()) {
-            // Get the request parameters
-            $this->params = $this->request->getParams();
-
-            $payment = $observer->getEvent()->getPayment();
-            $order = $payment->getOrder();
+            $payment  = $observer->getEvent()->getPayment();
+            $order    = $payment->getOrder();
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
             // Check if payment method is checkout.com
             if (in_array($methodId, $this->config->getMethodsList())) {
                 $creditmemo = $observer->getEvent()->getCreditmemo();
-                
-                $status = ($order->getStatus() == 'closed' || $order->getStatus() == 'complete') 
-                    ? $order->getStatus() 
-                    : $this->config->getValue('order_status_refunded');
+
+                $status = ($order->getStatus() === 'closed' || $order->getStatus() === 'complete') ? $order->getStatus(
+                ) : $this->config->getValue('order_status_refunded');
 
                 // Update the order status
                 $order->setStatus($status);
@@ -83,5 +83,7 @@ class OrderAfterRefund implements \Magento\Framework\Event\ObserverInterface
 
             return $this;
         }
+
+        return null;
     }
 }

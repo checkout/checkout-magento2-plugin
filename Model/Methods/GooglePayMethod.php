@@ -10,18 +10,44 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Models\Tokens\GooglePay;
-use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\TokenSource;
-use \Checkout\Models\Payments\BillingDescriptor;
-use \Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Payments\BillingDescriptor;
+use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\TokenSource;
+use Checkout\Models\Tokens\GooglePay;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Directory\Helper\Data as DirectoryHelper;
+use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Magento\Payment\Helper\Data;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\Method\Logger;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class GooglePayMethod
@@ -29,124 +55,153 @@ use \Checkout\Library\Exceptions\CheckoutHttpException;
 class GooglePayMethod extends AbstractMethod
 {
     /**
-     * @var string
+     * CODE constant
+     *
+     * @var string CODE
      */
     const CODE = 'checkoutcom_google_pay';
+    /**
+     * $_code field
+     *
+     * @var string $_code
+     */
+    protected $_code = self::CODE;
+    /**
+     * $_canAuthorize field
+     *
+     * @var bool $_canAuthorize
+     */
+    protected $_canAuthorize = true;
+    /**
+     * $_canCapture field
+     *
+     * @var bool $_canCapture
+     */
+    protected $_canCapture = true;
+    /**
+     * $_canCapturePartial field
+     *
+     * @var bool $_canCapturePartial
+     */
+    protected $_canCapturePartial = true;
+    /**
+     * $_canVoid field
+     *
+     * @var bool $_canVoid
+     */
+    protected $_canVoid = true;
+    /**
+     * $_canUseInternal field
+     *
+     * @var bool $_canUseInternal
+     */
+    protected $_canUseInternal = false;
+    /**
+     * $_canUseCheckout field
+     *
+     * @var bool $_canUseCheckout
+     */
+    protected $_canUseCheckout = true;
+    /**
+     * $_canRefund field
+     *
+     * @var bool $_canRefund
+     */
+    protected $_canRefund = true;
+    /**
+     * $_canRefundInvoicePartial field
+     *
+     * @var bool $_canRefundInvoicePartial
+     */
+    protected $_canRefundInvoicePartial = true;
+    /**
+     * $config field
+     *
+     * @var Config $config
+     */
+    private $config;
+    /**
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
+     */
+    private $apiHandler;
+    /**
+     * $utilities field
+     *
+     * @var Utilities $utilities
+     */
+    private $utilities;
+    /**
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
+     */
+    private $quoteHandler;
+    /**
+     * $ckoLogger field
+     *
+     * @var Logger $ckoLogger
+     */
+    private $ckoLogger;
+    /**
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
+     */
+    private $storeManager;
+    /**
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
+     */
+    private $backendAuthSession;
 
     /**
-     * @var string
-     */
-    public $_code = self::CODE;
-
-    /**
-     * @var bool
-     */
-    public $_canAuthorize = true;
-
-    /**
-     * @var bool
-     */
-    public $_canCapture = true;
-
-    /**
-     * @var bool
-     */
-    public $_canCancel = true;
-
-    /**
-     * @var bool
-     */
-    public $_canCapturePartial = true;
-
-    /**
-     * @var bool
-     */
-    public $_canVoid = true;
-
-    /**
-     * @var bool
-     */
-    public $_canUseInternal = false;
-
-    /**
-     * @var bool
-     */
-    public $_canUseCheckout = true;
-
-    /**
-     * @var bool
-     */
-    public $_canRefund = true;
-
-    /**
-     * @var bool
-     */
-    public $_canRefundInvoicePartial = true;
-
-    /**
-     * @var Config
-     */
-    public $config;
-
-    /**
-     * @var ApiHandlerService
-     */
-    public $apiHandler;
-
-    /**
-     * @var Utilities
-     */
-    public $utilities;
-
-    /**
-     * @var QuoteHandlerService
-     */
-    public $quoteHandler;
-
-    /**
-     * @var Logger
-     */
-    public $ckoLogger;
-    
-    /**
-     * @var ManagerInterface
-     */
-    public $messageManager;
-
-    /**
-     * @var StoreManagerInterface
-     */
-    public $storeManager;
-
-    /**
-     * @var Session
-     */
-    public $backendAuthSession;
-
-    /**
-     * GooglePayMethod constructor.
+     * GooglePayMethod constructor
+     *
+     * @param Context                    $context
+     * @param Registry                   $registry
+     * @param ExtensionAttributesFactory $extensionFactory
+     * @param AttributeValueFactory      $customAttributeFactory
+     * @param Data                       $paymentData
+     * @param ScopeConfigInterface       $scopeConfig
+     * @param Logger                     $logger
+     * @param Config                     $config
+     * @param ApiHandlerService          $apiHandler
+     * @param Utilities                  $utilities
+     * @param StoreManagerInterface      $storeManager
+     * @param QuoteHandlerService        $quoteHandler
+     * @param LoggerHelper               $ckoLogger
+     * @param Session                    $backendAuthSession
+     * @param AbstractResource|null      $resource
+     * @param AbstractDb|null            $resourceCollection
+     * @param array                      $data
+     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Payment\Helper\Data $paymentData,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Payment\Model\Method\Logger $logger,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = []
+        Context $context,
+        Registry $registry,
+        ExtensionAttributesFactory $extensionFactory,
+        AttributeValueFactory $customAttributeFactory,
+        Data $paymentData,
+        ScopeConfigInterface $scopeConfig,
+        Logger $logger,
+        Config $config,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
+        StoreManagerInterface $storeManager,
+        QuoteHandlerService $quoteHandler,
+        LoggerHelper $ckoLogger,
+        Session $backendAuthSession,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
+        array $data = [],
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory
     ) {
         parent::__construct(
+            $config,
             $context,
             $registry,
             $extensionFactory,
@@ -156,7 +211,9 @@ class GooglePayMethod extends AbstractMethod
             $logger,
             $resource,
             $resourceCollection,
-            $data
+            $data,
+            $directoryHelper,
+            $dataObjectFactory
         );
 
         $this->config             = $config;
@@ -165,43 +222,48 @@ class GooglePayMethod extends AbstractMethod
         $this->storeManager       = $storeManager;
         $this->quoteHandler       = $quoteHandler;
         $this->ckoLogger          = $ckoLogger;
-        $this->messageManager     = $messageManager;
         $this->backendAuthSession = $backendAuthSession;
     }
 
     /**
-     * Send a charge request.
+     * Send a charge request
+     *
+     * @param string[] $data
+     * @param float    $amount
+     * @param string   $currency
+     * @param string   $reference
+     *
+     * @return mixed|void
+     * @throws FileSystemException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function sendPaymentRequest($data, $amount, $currency, $reference = '')
+    public function sendPaymentRequest(array $data, float $amount, string $currency, string $reference = '')
     {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
         $api = $this->apiHandler->init($storeCode);
+        $checkoutApi = $api->getCheckoutApi();
 
         // Get the quote
         $quote = $this->quoteHandler->getQuote();
 
         // Create the Google Pay data
         $googlePayData = new GooglePay(
-            $data['cardToken']['protocolVersion'],
-            $data['cardToken']['signature'],
-            $data['cardToken']['signedMessage']
+            $data['cardToken']['protocolVersion'], $data['cardToken']['signature'], $data['cardToken']['signedMessage']
         );
 
         // Get the token data
-        $tokenData = $api->checkoutApi
-            ->tokens()
-            ->request($googlePayData);
+        $tokenData = $checkoutApi->tokens()->request($googlePayData);
 
         // Create the Apple Pay token source
         $tokenSource = new TokenSource($tokenData->getId());
 
         // Set the payment
         $request = new Payment(
-            $tokenSource,
-            $currency
+            $tokenSource, $currency
         );
 
         // Prepare the metadata array
@@ -215,21 +277,20 @@ class GooglePayMethod extends AbstractMethod
         }
 
         // Set the request parameters
-        $request->amount = $this->quoteHandler->amountToGateway(
+        $request->amount       = $this->quoteHandler->amountToGateway(
             $this->utilities->formatDecimals($amount),
             $quote
         );
-        $request->reference = $reference;
-        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
-        $request->customer = $api->createCustomer($quote);
+        $request->reference    = $reference;
+        $request->description  = __('Payment request from %1', $this->config->getStoreName())->render();
+        $request->customer     = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
-        $request->shipping = $api->createShippingAddress($quote);
+        $request->shipping     = $api->createShippingAddress($quote);
 
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
             $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name'),
-                $this->config->getValue('descriptor_city')
+                $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city')
             );
         }
 
@@ -246,26 +307,22 @@ class GooglePayMethod extends AbstractMethod
 
         // Send the charge request
         try {
-            $response = $api->checkoutApi
-                ->payments()->request($request);
-    
-            return $response;
+            return $checkoutApi->payments()->request($request);
         } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
         }
     }
 
     /**
-     * Perform a capture request.
+     * Perform a capture request
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
-     * @param float $amount
+     * @param InfoInterface $payment
+     * @param float         $amount
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|GooglePayMethod
+     * @throws LocalizedException
      */
-    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -276,7 +333,7 @@ class GooglePayMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canCapture()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The capture action is not available.')
                 );
             }
@@ -284,29 +341,27 @@ class GooglePayMethod extends AbstractMethod
             // Process the capture request
             $response = $api->captureOrder($payment, $amount);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The capture request could not be processed.')
                 );
             }
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
         }
 
         return $this;
     }
 
     /**
-     * Perform a void request.
+     * Perform a void request
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param InfoInterface $payment
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|GooglePayMethod
+     * @throws LocalizedException
      */
-    public function void(\Magento\Payment\Model\InfoInterface $payment)
+    public function void(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -317,7 +372,7 @@ class GooglePayMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canVoid()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void action is not available.')
                 );
             }
@@ -325,29 +380,27 @@ class GooglePayMethod extends AbstractMethod
             // Process the void request
             $response = $api->voidOrder($payment);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void request could not be processed.')
                 );
             }
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
         }
 
         return $this;
     }
 
     /**
-     * Perform a void request on order cancel.
+     * Perform a void request on order cancel
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param InfoInterface $payment
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|GooglePayMethod
+     * @throws LocalizedException
      */
-    public function cancel(\Magento\Payment\Model\InfoInterface $payment)
+    public function cancel(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             $order = $payment->getOrder();
@@ -359,7 +412,7 @@ class GooglePayMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canVoid()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void action is not available.')
                 );
             }
@@ -367,32 +420,33 @@ class GooglePayMethod extends AbstractMethod
             // Process the void request
             $response = $api->voidOrder($payment);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void request could not be processed.')
                 );
             }
 
-            $comment = __('Canceled order online, the voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
+            $comment = __(
+                'Canceled order online, the voided amount is %1.',
+                $order->formatPriceTxt($order->getGrandTotal())
+            );
             $payment->setMessage($comment);
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
         }
 
         return $this;
     }
-    
+
     /**
-     * Perform a refund request.
+     * Perform a refund request
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
-     * @param float $amount The amount
+     * @param InfoInterface $payment
+     * @param float         $amount
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|GooglePayMethod
+     * @throws LocalizedException
      */
-    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -403,7 +457,7 @@ class GooglePayMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canRefund()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The refund action is not available.')
                 );
             }
@@ -411,30 +465,30 @@ class GooglePayMethod extends AbstractMethod
             // Process the refund request
             $response = $api->refundOrder($payment, $amount);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The refund request could not be processed.')
                 );
             }
 
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
-
         }
 
         return $this;
     }
-    
+
     /**
      * Check whether method is available
      *
-     * @param  \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @param CartInterface|null $quote
+     *
      * @return bool
+     * @throws LocalizedException
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(CartInterface $quote = null): bool
     {
         if (parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code)
-            && !$this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->_code) && !$this->backendAuthSession->isLoggedIn();
         }
 
         return false;

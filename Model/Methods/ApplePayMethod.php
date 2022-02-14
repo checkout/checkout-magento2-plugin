@@ -10,19 +10,44 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use \Checkout\Models\Tokens\ApplePay;
-use \Checkout\Models\Tokens\ApplePayHeader;
-use \Checkout\Models\Payments\Payment;
-use \Checkout\Models\Payments\TokenSource;
-use \Checkout\Models\Payments\BillingDescriptor;
-use \Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Payments\BillingDescriptor;
+use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\TokenSource;
+use Checkout\Models\Tokens\ApplePay;
+use Checkout\Models\Tokens\ApplePayHeader;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger as MagentoLoggerHelper;
+use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Directory\Helper\Data as DirectoryHelper;
+use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Magento\Payment\Helper\Data;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\Method\Logger;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class ApplePayMethod
@@ -30,113 +55,153 @@ use \Checkout\Library\Exceptions\CheckoutHttpException;
 class ApplePayMethod extends AbstractMethod
 {
     /**
-     * @var string
+     * CODE constant
+     *
+     * @var string CODE
      */
     const CODE = 'checkoutcom_apple_pay';
-
     /**
-     * @var string
+     * $_code field
+     *
+     * @var string $_code
      */
-    public $_code = self::CODE;
-
+    protected $_code = self::CODE;
     /**
-     * @var bool
+     * $_canAuthorize field
+     *
+     * @var bool $_canAuthorize
      */
-    public $_canAuthorize = true;
-
+    protected $_canAuthorize = true;
     /**
-     * @var bool
+     * $_canCapture field
+     *
+     * @var bool $_canCapture
      */
-    public $_canCapture = true;
-
+    protected $_canCapture = true;
     /**
-     * @var bool
+     * $_canCapturePartial field
+     *
+     * @var bool $_canCapturePartial
      */
-    public $_canCancel = true;
-
+    protected $_canCapturePartial = true;
     /**
-     * @var bool
+     * $_canVoid field
+     *
+     * @var bool $_canVoid
      */
-    public $_canCapturePartial = true;
-
+    protected $_canVoid = true;
     /**
-     * @var bool
+     * $_canUseInternal field
+     *
+     * @var bool $_canUseInternal
      */
-    public $_canVoid = true;
-
+    protected $_canUseInternal = false;
     /**
-     * @var bool
+     * $_canUseCheckout field
+     *
+     * @var bool $_canUseCheckout
      */
-    public $_canUseInternal = false;
-
+    protected $_canUseCheckout = true;
     /**
-     * @var bool
+     * $_canRefund field
+     *
+     * @var bool $_canRefund
      */
-    public $_canUseCheckout = true;
-
+    protected $_canRefund = true;
     /**
-     * @var bool
+     * $_canRefundInvoicePartial field
+     *
+     * @var bool $_canRefundInvoicePartial
      */
-    public $_canRefund = true;
-
+    protected $_canRefundInvoicePartial = true;
     /**
-     * @var bool
+     * $config field
+     *
+     * @var Config $config
      */
-    public $_canRefundInvoicePartial = true;
-
+    private $config;
     /**
-     * @var Config
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
      */
-    public $config;
-
+    private $apiHandler;
     /**
-     * @var ApiHandlerService
+     * $utilities field
+     *
+     * @var Utilities $utilities
      */
-    public $apiHandler;
-
+    private $utilities;
     /**
-     * @var Utilities
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
-    public $utilities;
-
+    private $storeManager;
     /**
-     * @var StoreManagerInterface
+     * $quoteHandler field
+     *
+     * @var QuoteHandlerService $quoteHandler
      */
-    public $storeManager;
-
+    private $quoteHandler;
     /**
-     * @var QuoteHandlerService
+     * $ckoLogger field
+     *
+     * @var Logger $ckoLogger
      */
-    public $quoteHandler;
-
+    private $ckoLogger;
     /**
-     * @var Logger
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
      */
-    public $ckoLogger;
+    private $backendAuthSession;
 
     /**
-     * ApplePayMethod constructor.
+     * ApplePayMethod constructor
+     *
+     * @param Context                    $context
+     * @param Registry                   $registry
+     * @param ExtensionAttributesFactory $extensionFactory
+     * @param AttributeValueFactory      $customAttributeFactory
+     * @param Data                       $paymentData
+     * @param ScopeConfigInterface       $scopeConfig
+     * @param Logger                     $logger
+     * @param Session                    $backendAuthSession
+     * @param Config                     $config
+     * @param ApiHandlerService          $apiHandler
+     * @param Utilities                  $utilities
+     * @param StoreManagerInterface      $storeManager
+     * @param QuoteHandlerService        $quoteHandler
+     * @param MagentoLoggerHelper        $ckoLogger
+     * @param AbstractResource|null      $resource
+     * @param AbstractDb|null            $resourceCollection
+     * @param array                      $data
+     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Payment\Helper\Data $paymentData,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\ApiHandlerService $apiHandler,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \CheckoutCom\Magento2\Model\Service\QuoteHandlerService $quoteHandler,
-        \CheckoutCom\Magento2\Helper\Logger $ckoLogger,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = []
+        Context $context,
+        Registry $registry,
+        ExtensionAttributesFactory $extensionFactory,
+        AttributeValueFactory $customAttributeFactory,
+        Data $paymentData,
+        ScopeConfigInterface $scopeConfig,
+        Logger $logger,
+        Session $backendAuthSession,
+        Config $config,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
+        StoreManagerInterface $storeManager,
+        QuoteHandlerService $quoteHandler,
+        MagentoLoggerHelper $ckoLogger,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
+        array $data = [],
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory
     ) {
         parent::__construct(
+            $config,
             $context,
             $registry,
             $extensionFactory,
@@ -146,7 +211,9 @@ class ApplePayMethod extends AbstractMethod
             $logger,
             $resource,
             $resourceCollection,
-            $data
+            $data,
+            $directoryHelper,
+            $dataObjectFactory
         );
 
         $this->backendAuthSession = $backendAuthSession;
@@ -159,15 +226,26 @@ class ApplePayMethod extends AbstractMethod
     }
 
     /**
-     * Send a charge request.
+     * Send a charge requestDescription sendPaymentRequest function
+     *
+     * @param mixed[] $data
+     * @param float   $amount
+     * @param string  $currency
+     * @param string  $reference
+     *
+     * @return mixed|void
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws FileSystemException
      */
-    public function sendPaymentRequest($data, $amount, $currency, $reference = '')
+    public function sendPaymentRequest(array $data, float $amount, string $currency, string $reference = '')
     {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
         $api = $this->apiHandler->init($storeCode);
+        $checkoutApi = $api->getCheckoutApi();
 
         // Get the quote
         $quote = $this->quoteHandler->getQuote();
@@ -188,17 +266,14 @@ class ApplePayMethod extends AbstractMethod
         );
 
         // Get the token data
-        $tokenData = $api->checkoutApi
-            ->tokens()
-            ->request($applePayData);
+        $tokenData = $checkoutApi->tokens()->request($applePayData);
 
         // Create the Apple Pay token source
         $tokenSource = new TokenSource($tokenData->getId());
 
         // Set the payment
         $request = new Payment(
-            $tokenSource,
-            $currency
+            $tokenSource, $currency
         );
 
         // Prepare the metadata array
@@ -218,21 +293,20 @@ class ApplePayMethod extends AbstractMethod
         }
 
         // Set the request parameters
-        $request->amount = $this->quoteHandler->amountToGateway(
+        $request->amount       = $this->quoteHandler->amountToGateway(
             $this->utilities->formatDecimals($amount),
             $quote
         );
-        $request->reference = $reference;
-        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
-        $request->customer = $api->createCustomer($quote);
+        $request->reference    = $reference;
+        $request->description  = __('Payment request from %1', $this->config->getStoreName())->render();
+        $request->customer     = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
-        $request->shipping = $api->createShippingAddress($quote);
+        $request->shipping     = $api->createShippingAddress($quote);
 
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
             $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name'),
-                $this->config->getValue('descriptor_city')
+                $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city')
             );
         }
 
@@ -243,26 +317,22 @@ class ApplePayMethod extends AbstractMethod
 
         // Send the charge request
         try {
-            $response = $api->checkoutApi
-                ->payments()->request($request);
-
-            return $response;
+            return $checkoutApi->payments()->request($request);
         } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
         }
     }
 
     /**
-     * Perform a capture request.
+     * Perform a capture request
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
-     * @param float $amount
+     * @param InfoInterface $payment
+     * @param float         $amount
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|ApplePayMethod
+     * @throws LocalizedException
      */
-    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -273,7 +343,7 @@ class ApplePayMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canCapture()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The capture action is not available.')
                 );
             }
@@ -281,7 +351,7 @@ class ApplePayMethod extends AbstractMethod
             // Process the capture request
             $response = $api->captureOrder($payment, $amount);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The capture request could not be processed.')
                 );
             }
@@ -294,15 +364,14 @@ class ApplePayMethod extends AbstractMethod
     }
 
     /**
-     * Perform a void request.
+     * Perform a void request
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param InfoInterface $payment
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|ApplePayMethod
+     * @throws LocalizedException
      */
-    public function void(\Magento\Payment\Model\InfoInterface $payment)
+    public function void(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -313,7 +382,7 @@ class ApplePayMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canVoid()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void action is not available.')
                 );
             }
@@ -321,7 +390,7 @@ class ApplePayMethod extends AbstractMethod
             // Process the void request
             $response = $api->voidOrder($payment);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void request could not be processed.')
                 );
             }
@@ -334,15 +403,14 @@ class ApplePayMethod extends AbstractMethod
     }
 
     /**
-     * Perform a void request on order cancel.
+     * Perform a void request on order cancel
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
+     * @param InfoInterface $payment
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|ApplePayMethod
+     * @throws LocalizedException
      */
-    public function cancel(\Magento\Payment\Model\InfoInterface $payment)
+    public function cancel(InfoInterface $payment): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             $order = $payment->getOrder();
@@ -354,7 +422,7 @@ class ApplePayMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canVoid()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void action is not available.')
                 );
             }
@@ -362,12 +430,15 @@ class ApplePayMethod extends AbstractMethod
             // Process the void request
             $response = $api->voidOrder($payment);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The void request could not be processed.')
                 );
             }
 
-            $comment = __('Canceled order online, the voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
+            $comment = __(
+                'Canceled order online, the voided amount is %1.',
+                $order->formatPriceTxt($order->getGrandTotal())
+            );
             $payment->setMessage($comment);
             // Set the transaction id from response
             $payment->setTransactionId($response->action_id);
@@ -375,18 +446,17 @@ class ApplePayMethod extends AbstractMethod
 
         return $this;
     }
-    
+
     /**
-     * Perform a refund request.
+     * Perform a refund request
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment The payment
-     * @param float $amount The amount
+     * @param InfoInterface $payment
+     * @param float         $amount
      *
-     * @throws \Magento\Framework\Exception\LocalizedException  (description)
-     *
-     * @return self
+     * @return $this|ApplePayMethod
+     * @throws LocalizedException
      */
-    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
@@ -397,7 +467,7 @@ class ApplePayMethod extends AbstractMethod
 
             // Check the status
             if (!$this->canRefund()) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The refund action is not available.')
                 );
             }
@@ -405,7 +475,7 @@ class ApplePayMethod extends AbstractMethod
             // Process the refund request
             $response = $api->refundOrder($payment, $amount);
             if (!$api->isValidResponse($response)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The refund request could not be processed.')
                 );
             }
@@ -416,19 +486,22 @@ class ApplePayMethod extends AbstractMethod
 
         return $this;
     }
-    
+
     /**
      * Check whether method is available
      *
-     * @param  \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @param CartInterface|null $quote
+     *
      * @return bool
+     * @throws LocalizedException
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(CartInterface $quote = null): bool
     {
         if (parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code)
-            && $this->config->getValue('enabled_on_checkout', $this->_code)
-            && !$this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->_code) && $this->config->getValue(
+                    'enabled_on_checkout',
+                    $this->_code
+                ) && !$this->backendAuthSession->isLoggedIn();
         }
 
         return false;

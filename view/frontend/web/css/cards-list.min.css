@@ -8,9 +8,9 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
- 
+
 #closebtn{margin-left:15px;color:#fff;font-weight:700;float:right;font-size:22px;line-height:20px;cursor:pointer;transition:.3s}#payment_form_checkout_com{padding-top:20px}#card-holder,#card-number{width:220px}#expiry-month{width:140px}#expiry-year{width:80px}.ccv{width:100px}#info-icon,#info-icon svg{width:30px;height:30px}#info-icon,#info-text{float:left}#info-text{margin-top:10px;text-align:left;margin-bottom:10px;width:90%}td.card-type img{vertical-align:middle;display:inline-block!important}td.card-type span{display:inline-block;margin-left:5px}

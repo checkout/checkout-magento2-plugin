@@ -1,3 +1,25 @@
+<?php
+
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
+
+/** @var Moto $block */
+
+?>
 <fieldset class="admin__fieldset payment-method checkoutcom_moto"
           id="payment_form_checkoutcom_moto" style="display: none;">
     <div id="cko-form-holder">
@@ -15,9 +37,9 @@
                     $cardsList = $block->getUserCards();
                     foreach ($cardsList as $card):
                         $details = json_decode($card->getTokenDetails() ?: '{}', true);
-                        $iconUrl = $block->cardHandler->getCardIcon($details['type']);
+                        $iconUrl = $block->getCardHandler()->getCardIcon($details['type']);
                         $publicHash = $card->getPublicHash();
-                        $tokenData = $block->vaultHandler->renderTokenData($card);
+                        $tokenData = $block->getVaultHandler()->renderTokenData($card);
                         ?>
                         <div id="cko-vault-card-<?= $block->escapeHtmlAttr($card->getEntityId())?>"
                         class="cko-vault-card">
@@ -57,8 +79,8 @@
 
         Frames.init(
             {
-                publicKey: '<?= $block->escapeHtml($block->config->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
-                debug: Boolean(<?= $block->escapeHtml($block->config->getValue('debug')) ?>),
+                publicKey: '<?= $block->escapeHtml($block->getConfig()->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
+                debug: Boolean(<?= $block->escapeHtml($block->getConfig()->getValue('debug')) ?>),
                 cardValidationChanged: function(event) {
                     if (Frames.isCardValid()) {
                         Frames.submitCard();

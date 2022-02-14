@@ -10,15 +10,23 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Gateway\Config;
 
-use CheckoutCom\Magento2\Gateway\Config\Loader;
+use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Helper\Utilities;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Config
@@ -26,65 +34,86 @@ use Magento\Store\Model\ScopeInterface;
 class Config
 {
     /**
-     * @var Repository
+     * $assetRepository field
+     *
+     * @var Repository $assetRepository
      */
-    public $assetRepository;
-
+    private $assetRepository;
     /**
-     * @var StoreManagerInterface
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
-    public $storeManager;
-
+    private $storeManager;
     /**
-     * @var ScopeConfigInterface
+     * $scopeConfig field
+     *
+     * @var ScopeConfigInterface $scopeConfig
      */
-    public $scopeConfig;
-
+    private $scopeConfig;
     /**
-     * @var RequestInterface
+     * $request field
+     *
+     * @var RequestInterface $request
      */
-    public $request;
-
+    private $request;
     /**
-     * @var Loader
+     * $loader field
+     *
+     * @var Loader $loader
      */
-    public $loader;
-
+    private $loader;
     /**
-     * @var Utilities
+     * $utilities field
+     *
+     * @var Utilities $utilities
      */
-    public $utilities;
-
+    private $utilities;
     /**
-     * @var Logger
+     * $logger field
+     *
+     * @var Logger $logger
      */
-    public $logger;
+    private $logger;
 
     /**
      * Config constructor
+     *
+     * @param Repository            $assetRepository
+     * @param StoreManagerInterface $storeManager
+     * @param ScopeConfigInterface  $scopeConfig
+     * @param RequestInterface      $request
+     * @param Loader                $loader
+     * @param Utilities             $utilities
+     * @param Logger                $logger
      */
     public function __construct(
-        \Magento\Framework\View\Asset\Repository $assetRepository,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\App\RequestInterface $request,
-        \CheckoutCom\Magento2\Gateway\Config\Loader $loader,
-        \CheckoutCom\Magento2\Helper\Utilities $utilities,
-        \CheckoutCom\Magento2\Helper\Logger $logger
+        Repository $assetRepository,
+        StoreManagerInterface $storeManager,
+        ScopeConfigInterface $scopeConfig,
+        RequestInterface $request,
+        Loader $loader,
+        Utilities $utilities,
+        Logger $logger
     ) {
         $this->assetRepository = $assetRepository;
-        $this->storeManager = $storeManager;
-        $this->scopeConfig = $scopeConfig;
-        $this->request = $request;
-        $this->loader = $loader;
-        $this->utilities = $utilities;
-        $this->logger = $logger;
+        $this->storeManager    = $storeManager;
+        $this->scopeConfig     = $scopeConfig;
+        $this->request         = $request;
+        $this->loader          = $loader;
+        $this->utilities       = $utilities;
+        $this->logger          = $logger;
     }
 
     /**
-     * Checks if an external request is valid.
+     * Checks if an external request is valid
+     *
+     * @param string      $type
+     * @param string|null $header
+     *
+     * @return bool
      */
-    public function isValidAuth($type, $header = null)
+    public function isValidAuth(string $type, string $header = null): bool
     {
         // Get the authorization header
         if ($header) {
@@ -103,112 +132,146 @@ class Config
             case 'psk':
                 return $this->isValidPrivateSharedKey($key);
         }
+
+        return false;
     }
 
     /**
-     * Checks if a private shared key request is valid.
+     * Checks if a private shared key request is valid
+     *
+     * @param string|false $key
+     *
+     * @return bool
      */
-    public function isValidPrivateSharedKey($key)
+    public function isValidPrivateSharedKey($key): bool
     {
         // Get the private shared key from config
         $privateSharedKey = $this->getValue('private_shared_key');
         $this->logger->additional('private shared key: ' . $privateSharedKey, 'auth');
 
         // Return the validity check
-        return $key == $privateSharedKey
-        && $this->request->isPost();
+        return $key === $privateSharedKey && $this->request->isPost();
     }
 
     /**
-     * Checks if a public key is valid.
+     * Checks if a public key is valid
+     *
+     * @param string|false $key
+     *
+     * @return bool
      */
-    public function isValidPublicKey($key)
+    public function isValidPublicKey($key): bool
     {
         // Get the public key from config
         $publicKey = $this->getValue('public_key');
         $this->logger->additional('public key: ' . $publicKey, 'auth');
 
         // Return the validity check
-        return $key == $publicKey
-        && $this->request->isPost();
+        return $key === $publicKey && $this->request->isPost();
     }
 
     /**
-     * Returns a module config value.
+     * Returns a module config value
      *
-     * @return string
+     * @param string           $field
+     * @param string|null      $methodId
+     * @param string|int|null  $storeCode
+     * @param string|null      $scope
+     *
+     * @return mixed
      */
     public function getValue(
-        $field,
-        $methodId = null,
+        string $field,
+        string $methodId = null,
         $storeCode = null,
-        $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        string $scope = ScopeInterface::SCOPE_STORE
     ) {
-        return $this->loader->init()->getValue($field, $methodId, $storeCode, $scope);
+        return $this->loader->getValue($field, $methodId, $storeCode, $scope);
     }
 
     /**
-     * Returns a Magento core value.
+     * Returns a Magento core value
      *
-     * @return string
+     * @param string $path
+     *
+     * @return mixed
      */
-    public function getCoreValue($path)
+    public function getCoreValue(string $path)
     {
         return $this->scopeConfig->getValue(
             $path,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
     }
 
     /**
      * Returns the module global config.
      *
-     * @return array
+     * @return mixed[]
      */
-    public function getModuleConfig()
+    public function getModuleConfig(): array
     {
+        /** @var mixed[] $moduleConfig */
+        $moduleConfig = $this->scopeConfig->getValue('settings/checkoutcom_configuration');
+        if (array_key_exists('secret_key', $moduleConfig)) {
+            unset($moduleConfig['secret_key']);
+        }
+        if (array_key_exists('private_shared_key', $moduleConfig)) {
+            unset($moduleConfig['private_shared_key']);
+        }
+
         return [
-            Loader::KEY_CONFIG => $this->loader->init()
-                ->data[Loader::KEY_SETTINGS][Loader::KEY_CONFIG]
+            Loader::KEY_CONFIG => $moduleConfig,
         ];
     }
 
     /**
      * Returns the payment methods config.
      *
-     * @return array
+     * @return string[]
      */
-    public function getMethodsConfig()
+    public function getMethodsConfig(): array
     {
-        $methods = [];
-        if ($this->canDisplay()) {
-            foreach ($this->loader->init()->data[Loader::KEY_PAYMENT] as $methodId => $data) {
-                if ($this->getValue('active', $methodId) == 1) {
-                    $methods[$methodId] = $data;
+        $output = [];
+        /** @var mixed[] $paymentMethodsConfig */
+        $paymentMethodsConfig = $this->scopeConfig->getValue(Loader::KEY_PAYMENT);
+
+        /**
+         * Get only the active CheckoutCom methods
+         *
+         * @var string $key
+         * @var string[] $method
+         */
+        foreach($paymentMethodsConfig as $key => $method) {
+            if (str_contains($key, 'checkoutcom')
+               && isset($method['active'])
+               && (int)$method['active'] === 1
+            ) {
+                if (array_key_exists('private_shared_key', $method)) {
+                    unset($method['private_shared_key']);
                 }
+                if (array_key_exists('secret_key', $method)) {
+                    unset($method['secret_key']);
+                }
+                $output[$key] = $method;
             }
         }
 
-        return $methods;
+        return $output;
     }
 
     /**
      * Returns the payment methods list.
      *
-     * @return array
+     * @return string[][]
      */
-    public function getMethodsList()
+    public function getMethodsList(): array
     {
-        $methods = [];
         if ($this->canDisplay()) {
-            foreach ($this->loader->init()->data[Loader::KEY_PAYMENT] as $methodId => $data) {
-                if ($this->getValue('active', $methodId) == 1) {
-                    $methods[] = $methodId;
-                }
-            }
+            return array_keys($this->getMethodsConfig());
         }
 
-        return $methods;
+        return [];
     }
 
     /**
@@ -216,58 +279,60 @@ class Config
      *
      * @return bool
      */
-    public function canDisplay()
+    public function canDisplay(): bool
     {
         // Get the account keys
         $accountKeys = $this->getAccountKeys();
 
         // Return the check result
-        return $this->getValue('active') == 1
-        && !in_array('', array_map('trim', $accountKeys));
+        return $this->getValue('active') == 1 && !in_array('', array_map('trim', $accountKeys));
     }
 
     /**
-     * Gets the account keys.
+     * Gets the account keys
      *
-     * @return array
+     * @param string|null $methodId
+     *
+     * @return string[]
      */
-    public function getAccountKeys($methodId = null)
+    public function getAccountKeys(string $methodId = null): array
     {
         // Get the account keys for a method
         if ($methodId) {
-            $publicKey = $this->getValue('public_key', $methodId);
-            $secretKey = $this->getValue('secret_key', $methodId);
+            $publicKey        = $this->getValue('public_key', $methodId);
+            $secretKey        = $this->getValue('secret_key', $methodId);
             $privateSharedKey = $this->getValue('private_shared_key', $methodId);
-            if (!empty($publicKey)
-                && !empty($secretKey)
-                && !empty($privateSharedKey)
-                && !$this->getValue('use_default_account', $methodId)
-            ) {
+            if (!empty($publicKey) && !empty($secretKey) && !empty($privateSharedKey) && !$this->getValue(
+                    'use_default_account',
+                    $methodId
+                )) {
                 return [
-                    'public_key' => $publicKey,
-                    'secretKey' => $secretKey,
-                    'privateSharedKey' => $privateSharedKey
+                    'public_key'       => $publicKey,
+                    'secretKey'        => $secretKey,
+                    'privateSharedKey' => $privateSharedKey,
                 ];
             }
         }
 
         // Return the default account keys
         return [
-            'public_key' => $this->getValue('public_key'),
-            'secret_key' => $this->getValue('secret_key'),
-            'private_shared_key' => $this->getValue('private_shared_key')
+            'public_key'         => $this->getValue('public_key'),
+            'secret_key'         => $this->getValue('secret_key'),
+            'private_shared_key' => $this->getValue('private_shared_key'),
         ];
     }
 
     /**
-     * Determines if 3DS should be enabled for a payment request.
+     * Determines if 3DS should be enabled for a payment request
      *
-     * @return string
+     * @param string $methodId
+     *
+     * @return bool
      */
-    public function needs3ds($methodId)
+    public function needs3ds(string $methodId): bool
     {
         return (((bool) $this->getValue('three_ds', $methodId) === true)
-        || ((bool) $this->getValue('mada_enabled', $methodId) === true));
+                || ((bool) $this->getValue('mada_enabled', $methodId) === true));
     }
 
     /**
@@ -275,56 +340,64 @@ class Config
      *
      * @return string
      */
-    public function getCaptureTime()
+    public function getCaptureTime(): string
     {
         // Get the capture time from config and covert from hours to seconds
         $captureTime = $this->getValue('capture_time');
         $captureTime *= 3600;
 
         // Force capture time to a minimum of 36 seconds
-        $min = $this->getValue('min_capture_time');
+        $min         = $this->getValue('min_capture_time');
         $captureTime = $captureTime >= $min ? $captureTime : $min;
 
         // Check the setting
         if ($this->needsAutoCapture()) {
             // Calculate the capture date
             $captureDate = time() + $captureTime;
+
             return $this->utilities->formatDate($captureDate);
         }
 
-        return false;
+        return '';
     }
 
     /**
      * Returns the store name.
      *
      * @return string
+     * @throws NoSuchEntityException
      */
-    public function getStoreName()
+    public function getStoreName(): string
     {
         $storeName = $this->getCoreValue('general/store_information/name');
-        trim($storeName);
-        return !empty($storeName) ? $storeName
-        : $this->storeManager->getStore()->getBaseUrl();
+
+        return !empty($storeName) ? trim($storeName) : $this->storeManager->getStore()->getBaseUrl();
     }
 
     /**
      * Returns the store name.
      *
      * @return string
+     * @throws NoSuchEntityException
      */
-    public function getStoreUrl()
+    public function getStoreUrl(): string
     {
         return $this->storeManager->getStore()->getBaseUrl();
     }
 
-    public function getStoreLanguage()
+    /**
+     * Description getStoreLanguage function
+     *
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function getStoreLanguage(): string
     {
-        $storeId =  $this->storeManager->getStore()->getId();
+        $storeId = $this->storeManager->getStore()->getId();
 
-        return  $this->scopeConfig->getValue(
+        return $this->scopeConfig->getValue(
             'general/locale/code',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
     }
@@ -333,19 +406,26 @@ class Config
      * Returns the store code.
      *
      * @return string
+     * @throws NoSuchEntityException
      */
-    public function getStoreCode()
+    public function getStoreCode(): string
     {
         return $this->storeManager->getStore()->getCode();
     }
-    
-    public function getStoreCountry()
-    {
-        $storeId =  $this->storeManager->getStore()->getId();
 
-        return  $this->scopeConfig->getValue(
+    /**
+     * Description getStoreCountry function
+     *
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function getStoreCountry(): string
+    {
+        $storeId = $this->storeManager->getStore()->getId();
+
+        return $this->scopeConfig->getValue(
             'general/country/default',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
     }
@@ -355,7 +435,7 @@ class Config
      *
      * @return bool
      */
-    public function isLive()
+    public function isLive(): bool
     {
         return $this->getValue('environment') == 1;
     }
@@ -365,10 +445,12 @@ class Config
      *
      * @return bool
      */
-    public function needsAutoCapture()
+    public function needsAutoCapture(): bool
     {
-        return ($this->getValue('payment_action') == 'authorize_capture'
-        || (bool) $this->getValue('mada_enabled', 'checkoutcom_card_payment') === true);
+        return ($this->getValue('payment_action') === 'authorize_capture' || (bool)$this->getValue(
+                'mada_enabled',
+                'checkoutcom_card_payment'
+            ) === true);
     }
 
     /**
@@ -376,63 +458,66 @@ class Config
      *
      * @return bool
      */
-    public function needsDynamicDescriptor()
+    public function needsDynamicDescriptor(): bool
     {
-        return $this->getValue('dynamic_descriptor_enabled')
-        && !empty($this->getValue('descriptor_name'))
-        && !empty($this->getValue('descriptor_city'));
+        return $this->getValue('dynamic_descriptor_enabled') && !empty(
+            $this->getValue(
+                'descriptor_name'
+            )
+            ) && !empty($this->getValue('descriptor_city'));
     }
 
     /**
      * Get the MADA BIN file.
      *
-     * @return bool
+     * @return string
      */
-    public function getMadaBinFile()
+    public function getMadaBinFile(): string
     {
-        return (int) $this->getValue('environment') == 1
-        ? $this->getValue('mada_test_file') : $this->getValue('mada_live_file');
+        return (int)$this->getValue('environment') === 1 ? $this->getValue('mada_test_file') : $this->getValue(
+            'mada_live_file'
+        );
     }
 
     /**
      * Gets the Alternative Payments.
      *
-     * @return array
+     * @return string[][]
      */
-    public function getApms()
+    public function getApms(): array
     {
-        return $this->loader->init()->loadApmList();
+        return $this->loader->loadApmList();
     }
 
     /**
-     * Gets the module images path.
+     * Gets the module images path
      *
-     * @return array
+     * @return string
      */
-    public function getImagesPath()
+    public function getImagesPath(): string
     {
-        return $this->assetRepository
-        ->getUrl('CheckoutCom_Magento2::images');
+        return $this->assetRepository->getUrl('CheckoutCom_Magento2::images');
     }
 
     /**
-     * Gets the module CSS path.
+     * Gets the module CSS path
      *
-     * @return array
+     * @return string
      */
-    public function getCssPath()
+    public function getCssPath(): string
     {
-        return $this->assetRepository
-        ->getUrl('CheckoutCom_Magento2::css');
+        return $this->assetRepository->getUrl('CheckoutCom_Magento2::css');
     }
 
     /**
-     * Determines if risk rules should be enabled for a payment request.
+     * Determines if risk rules should be enabled for a payment request
+     *
+     * @param $methodId
      *
      * @return bool
      */
-    public function needsRiskRules($methodId)
+    public function needsRiskRules($methodId): bool
     {
-        return ((bool) !$this->getValue('risk_rules_enabled', $methodId) === true);
+        return (!$this->getValue('risk_rules_enabled', $methodId) === true);
     }
 }

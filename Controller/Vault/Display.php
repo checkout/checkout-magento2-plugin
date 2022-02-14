@@ -10,66 +10,84 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Vault;
+
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\View\Result\PageFactory;
+use Magento\Vault\Model\PaymentToken;
 
 /**
  * Class Display
  */
-class Display extends \Magento\Framework\App\Action\Action
+class Display extends Action
 {
-
     /**
-     * @var Context
+     * $pageFactory field
+     *
+     * @var PageFactory $pageFactory
      */
-    public $context;
-
+    private $pageFactory;
     /**
-     * @var PageFactory
+     * $jsonFactory field
+     *
+     * @var JsonFactory $jsonFactory
      */
-    public $pageFactory;
-
+    private $jsonFactory;
     /**
-     * @var JsonFactory
+     * $config field
+     *
+     * @var Config $config
      */
-    public $jsonFactory;
-
+    private $config;
     /**
-     * @var Config
+     * $vaultHandler field
+     *
+     * @var VaultHandlerService $vaultHandler
      */
-    public $config;
-
-    /**
-     * @var VaultHandlerService
-     */
-    public $vaultHandler;
+    private $vaultHandler;
 
     /**
      * Display constructor
+     *
+     * @param Context             $context
+     * @param PageFactory         $pageFactory
+     * @param JsonFactory         $jsonFactory
+     * @param Config              $config
+     * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $pageFactory,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
+        Context $context,
+        PageFactory $pageFactory,
+        JsonFactory $jsonFactory,
+        Config $config,
+        VaultHandlerService $vaultHandler
     ) {
         parent::__construct($context);
 
-        $this->pageFactory = $pageFactory;
-        $this->jsonFactory = $jsonFactory;
-        $this->config = $config;
+        $this->pageFactory  = $pageFactory;
+        $this->jsonFactory  = $jsonFactory;
+        $this->config       = $config;
         $this->vaultHandler = $vaultHandler;
     }
 
     /**
-     * Handles the controller method.
+     * Handles the controller method
+     *
+     * @return Json
      */
-    public function execute()
+    public function execute(): Json
     {
         $html = '';
         if ($this->getRequest()->isAjax()) {
@@ -86,17 +104,23 @@ class Display extends \Magento\Framework\App\Action\Action
             }
         }
 
-        return $this->jsonFactory->create()->setData(
-            ['html' => $html]
-        );
+        return $this->jsonFactory->create()->setData(['html' => $html]);
     }
 
-    private function loadBlock($card)
+    /**
+     * Description loadBlock function
+     *
+     * @param PaymentToken $card
+     *
+     * @return string
+     */
+    private function loadBlock(PaymentToken $card): string
     {
-        return $this->pageFactory->create()->getLayout()
-        ->createBlock('CheckoutCom\Magento2\Block\Vault\Form')
-        ->setTemplate('CheckoutCom_Magento2::payment/vault/card.phtml')
-        ->setData('card', $card)
-        ->toHtml();
+        return $this->pageFactory->create()
+            ->getLayout()
+            ->createBlock('CheckoutCom\Magento2\Block\Vault\Form')
+            ->setTemplate('CheckoutCom_Magento2::payment/vault/card.phtml')
+            ->setData('card', $card)
+            ->toHtml();
     }
 }

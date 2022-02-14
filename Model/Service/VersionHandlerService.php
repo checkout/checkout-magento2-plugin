@@ -10,60 +10,91 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Filesystem\Driver\File;
+use Magento\Framework\HTTP\Client\Curl;
+use Magento\Framework\Module\Dir\Reader;
+use Magento\Store\Model\StoreManagerInterface;
+
 /**
- * Class VersionHandlerService.
+ * Class VersionHandlerService
  */
 class VersionHandlerService
 {
+    /**
+     * $config field
+     *
+     * @var Config $config
+     */
+    private $config;
+    /**
+     * $curl field
+     *
+     * @var Curl $curl
+     */
+    private $curl;
+    /**
+     * $moduleDirReader field
+     *
+     * @var ModuleDirReader $moduleDirReader
+     */
+    private $moduleDirReader;
+    /**
+     * $storeManager field
+     *
+     * @var $storeManager $storeManager
+     */
+    private $storeManager;
+    /**
+     * $fileDriver field
+     *
+     * @var File $fileDriver
+     */
+    private $fileDriver;
 
     /**
-     * @var Config
-     */
-    public $config;
-
-    /**
-     * @var Curl
-     */
-    public $curl;
-
-    /*
-     * @var ModuleDirReader
-     */
-    public $moduleDirReader;
-
-    /*
-     * @var $storeManager
-     */
-    public $storeManager;
-
-    /**
-     * ApiHandlerService constructor.
+     * VersionHandlerService constructor
+     *
+     * @param Config                $config
+     * @param Curl                  $curl
+     * @param Reader                $moduleDirReader
+     * @param File                  $fileDriver
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \Magento\Framework\HTTP\Client\Curl $curl,
-        \Magento\Framework\Module\Dir\Reader $moduleDirReader,
-        \Magento\Framework\Filesystem\Driver\File $fileDriver,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        Config $config,
+        Curl $curl,
+        Reader $moduleDirReader,
+        File $fileDriver,
+        StoreManagerInterface $storeManager
     ) {
-        $this->config = $config;
-        $this->curl = $curl;
+        $this->config          = $config;
+        $this->curl            = $curl;
         $this->moduleDirReader = $moduleDirReader;
-        $this->fileDriver = $fileDriver;
-        $this->storeManager = $storeManager;
+        $this->fileDriver      = $fileDriver;
+        $this->storeManager    = $storeManager;
     }
 
-    /*
+    /**
      * Returns type of version update
+     *
+     * @param string $currentVersion
+     * @param string $latestVersion
+     *
+     * @return string
      */
-    public function getVersionType($currentVersion, $latestVersion)
+    public function getVersionType(string $currentVersion, string $latestVersion): string
     {
         $versions = [explode('.', $currentVersion), explode('.', $latestVersion)];
 
@@ -72,7 +103,7 @@ class VersionHandlerService
             if ($versions[0][$i] < $versions[1][$i]) {
                 switch ($i) {
                     case 0:
-                        return  'major';
+                        return 'major';
                     case 1:
                         return 'minor';
                     case 2:
@@ -80,12 +111,19 @@ class VersionHandlerService
                 }
             }
         }
+
+        return '';
     }
 
-    /*
+    /**
      * Check if module needs updating
+     *
+     * @param string $currentVersion
+     * @param string $latestVersion
+     *
+     * @return bool
      */
-    public function needsUpdate($currentVersion, $latestVersion)
+    public function needsUpdate(string $currentVersion, string $latestVersion): bool
     {
         $versions = [explode('.', $currentVersion), explode('.', $latestVersion)];
 
@@ -93,18 +131,22 @@ class VersionHandlerService
         for ($i = 0; $i < 3; $i++) {
             if ($versions[0][$i] < $versions[1][$i]) {
                 return true;
-            };
+            }
         }
+
         return false;
     }
 
-    /*
+    /**
      * Get array of releases from Github
+     *
+     * @return mixed
+     * @throws NoSuchEntityException
      */
     public function getVersions()
     {
         $this->curl->setHeaders([
-            'User-Agent' => 'checkout-magento2-plugin'
+            'User-Agent' => 'checkout-magento2-plugin',
         ]);
 
         $storeCode = $this->storeManager->getStore()->getCode();
@@ -122,10 +164,14 @@ class VersionHandlerService
         return json_decode($content, true);
     }
 
-    /*
+    /**
      * Get latest version number
+     *
+     * @param mixed[] $versions
+     *
+     * @return mixed|void
      */
-    public function getLatestVersion($versions)
+    public function getLatestVersion(array $versions)
     {
         foreach ($versions as $version) {
             // Find latest release that is not beta
@@ -137,14 +183,19 @@ class VersionHandlerService
 
     /**
      * Get the module version
+     *
+     * @param string $prefix
+     *
+     * @return string
+     * @throws FileSystemException
      */
-    public function getModuleVersion($prefix = '')
+    public function getModuleVersion(string $prefix = ''): string
     {
         // Build the composer file path
         $filePath = $this->moduleDirReader->getModuleDir(
-            '',
-            'CheckoutCom_Magento2'
-        ) . '/composer.json';
+                '',
+                'CheckoutCom_Magento2'
+            ) . '/composer.json';
 
         // Get the composer file content
         $fileContent = json_decode(

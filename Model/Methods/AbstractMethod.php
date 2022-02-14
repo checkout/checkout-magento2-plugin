@@ -10,25 +10,47 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use Magento\Framework\App\ObjectManager;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Directory\Helper\Data as DirectoryHelper;
+use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
+use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Model\AbstractExtensibleModel;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Magento\Payment\Block\Form;
+use Magento\Payment\Block\Info;
+use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\Method\Logger;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\PaymentMethodInterface;
 use Magento\Sales\Model\Order\Payment;
-use Magento\Directory\Helper\Data as DirectoryHelper;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\Store;
 
 /**
  * Payment method abstract model
+ *
+ * @category  Magento2
+ * @package   Checkout.com
  *
  * @SuppressWarnings(PHPMD.ExcessivePublicCount)
  * @SuppressWarnings(PHPMD.TooManyFields)
@@ -37,206 +59,233 @@ use Magento\Directory\Helper\Data as DirectoryHelper;
  * @see https://devdocs.magento.com/guides/v2.1/payments-integrations/payment-gateway/payment-gateway-intro.html
  * @since 100.0.2
  */
-abstract class AbstractMethod extends \Magento\Framework\Model\AbstractExtensibleModel implements
-    MethodInterface,
-    PaymentMethodInterface
+abstract class AbstractMethod extends AbstractExtensibleModel implements MethodInterface, PaymentMethodInterface
 {
-    const STATUS_UNKNOWN = 'UNKNOWN';
-
-    const STATUS_APPROVED = 'APPROVED';
-
-    const STATUS_ERROR = 'ERROR';
-
-    const STATUS_DECLINED = 'DECLINED';
-
-    const STATUS_VOID = 'VOID';
-
-    const STATUS_SUCCESS = 'SUCCESS';
-
     /**
-     * @var string
+     * STATUS_UNKNOWN constant
+     *
+     * @var string STATUS_UNKNOWN
+     */
+    const STATUS_UNKNOWN = 'UNKNOWN';
+    /**
+     * STATUS_APPROVED constant
+     *
+     * @var string STATUS_APPROVED
+     */
+    const STATUS_APPROVED = 'APPROVED';
+    /**
+     * STATUS_ERROR constant
+     *
+     * @var string STATUS_ERROR
+     */
+    const STATUS_ERROR = 'ERROR';
+    /**
+     * STATUS_DECLINED constant
+     *
+     * @var string STATUS_DECLINED
+     */
+    const STATUS_DECLINED = 'DECLINED';
+    /**
+     * STATUS_VOID constant
+     *
+     * @var string STATUS_VOID
+     */
+    const STATUS_VOID = 'VOID';
+    /**
+     * STATUS_SUCCESS constant
+     *
+     * @var string STATUS_SUCCESS
+     */
+    const STATUS_SUCCESS = 'SUCCESS';
+    /**
+     * $_code field
+     *
+     * @var string $_code
      */
     protected $_code;
-
     /**
-     * @var string
+     * $_formBlockType field
+     *
+     * @var string $_formBlockType
      */
-    protected $_formBlockType = \Magento\Payment\Block\Form::class;
-
+    protected $_formBlockType = Form::class;
     /**
-     * @var string
+     * $_infoBlockType field
+     *
+     * @var string $_infoBlockType
      */
-    protected $_infoBlockType = \Magento\Payment\Block\Info::class;
-
+    protected $_infoBlockType = Info::class;
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_isGateway
      */
     protected $_isGateway = false;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_isOffline
      */
     protected $_isOffline = false;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_canOrder
      */
     protected $_canOrder = false;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_canAuthorize
      */
     protected $_canAuthorize = false;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_canCapture
      */
     protected $_canCapture = false;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_canCapturePartial
      */
     protected $_canCapturePartial = false;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_canCaptureOnce
      */
     protected $_canCaptureOnce = false;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_canRefund
      */
     protected $_canRefund = false;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_canRefundInvoicePartial
      */
     protected $_canRefundInvoicePartial = false;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_canVoid
      */
     protected $_canVoid = false;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_canUseInternal
      */
     protected $_canUseInternal = true;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_canUseCheckout
      */
     protected $_canUseCheckout = true;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_isInitializeNeeded
      */
     protected $_isInitializeNeeded = false;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_canFetchTransactionInfo
      */
     protected $_canFetchTransactionInfo = false;
-
     /**
      * Payment Method feature
      *
-     * @var bool
+     * @var bool $_canReviewPayment
      */
     protected $_canReviewPayment = false;
-
     /**
      * TODO: whether a captured transaction may be voided by this gateway
      * This may happen when amount is captured, but not settled
-     * @var bool
+     *
+     * @var bool $_canCancelInvoice
      */
     protected $_canCancelInvoice = false;
-
     /**
      * Fields that should be replaced in debug with '***'
      *
-     * @var array
+     * @var array $_debugReplacePrivateDataKeys
      */
     protected $_debugReplacePrivateDataKeys = [];
-
     /**
      * Payment data
      *
-     * @var \Magento\Payment\Helper\Data
+     * @var Data $_paymentData
      */
     protected $_paymentData;
-
     /**
      * Core store config
      *
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface $_scopeConfig
      */
     protected $_scopeConfig;
-
     /**
-     * @var Logger
+     * $logger field
+     *
+     * @var Logger $logger
      */
     protected $logger;
-
     /**
-     * @var DirectoryHelper
+     * $directory field
+     *
+     * @var DirectoryHelper $directory
      */
     private $directory;
+    /**
+     * $data field
+     *
+     * @var array $data
+     */
+    private $data;
+    /**
+     * $config field
+     *
+     * @var Config $config
+     */
+    private $config;
 
     /**
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
-     * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
-     * @param \Magento\Payment\Helper\Data $paymentData
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param Logger $logger
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
-     * @param array $data
-     * @param DirectoryHelper $directory
+     * AbstractMethod constructor
+     *
+     * @param Config                     $config
+     * @param Context                    $context
+     * @param Registry                   $registry
+     * @param ExtensionAttributesFactory $extensionFactory
+     * @param AttributeValueFactory      $customAttributeFactory
+     * @param Data                       $paymentData
+     * @param ScopeConfigInterface       $scopeConfig
+     * @param Logger                     $logger
+     * @param AbstractResource|null      $resource
+     * @param AbstractDb|null            $resourceCollection
+     * @param array                      $data
+     * @param DirectoryHelper|null       $directory
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Payment\Helper\Data $paymentData,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        Config $config,
+        Context $context,
+        Registry $registry,
+        ExtensionAttributesFactory $extensionFactory,
+        AttributeValueFactory $customAttributeFactory,
+        Data $paymentData,
+        ScopeConfigInterface $scopeConfig,
+        Logger $logger,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         array $data = [],
-        DirectoryHelper $directory = null
+        DirectoryHelper $directory,
+        DataObjectFactory $dataObjectFactory
     ) {
         parent::__construct(
             $context,
@@ -247,329 +296,211 @@ abstract class AbstractMethod extends \Magento\Framework\Model\AbstractExtensibl
             $resourceCollection,
             $data
         );
-        $this->_paymentData = $paymentData;
-        $this->_scopeConfig = $scopeConfig;
-        $this->logger = $logger;
-        $this->directory = $directory ?: ObjectManager::getInstance()->get(DirectoryHelper::class);
-        $this->initializeData($data);
+        $this->config            = $config;
+        $this->_paymentData      = $paymentData;
+        $this->_scopeConfig      = $scopeConfig;
+        $this->logger            = $logger;
+        $this->directory         = $directory;
+        $this->data              = $data;
+        $this->dataObjectFactory = $dataObjectFactory;
     }
 
     /**
-     * Initializes injected data
+     * {@inheritDoc}
      *
-     * @param array $data
+     * @param int $storeId
+     *
      * @return void
      */
-    protected function initializeData($data = [])
-    {
-        if (!empty($data['formBlockType'])) {
-            $this->_formBlockType = $data['formBlockType'];
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setStore($storeId)
+    public function setStore($storeId): void
     {
         $this->setData('store', (int)$storeId);
     }
 
     /**
-     * @inheritdoc
-     */
-    public function getStore()
-    {
-        return $this->getData('store');
-    }
-
-    /**
-     * Check order availability
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canOrder()
-    {
-        return $this->_canOrder;
-    }
-
-    /**
-     * Check authorize availability
-     *
-     * @return bool
-     * @api
-     */
-    public function canAuthorize()
-    {
-        return $this->_canAuthorize;
-    }
-
-    /**
-     * Check capture availability
-     *
-     * @return bool
-     * @api
-     */
-    public function canCapture()
-    {
-        return $this->_canCapture;
-    }
-
-    /**
-     * Check partial capture availability
-     *
-     * @return bool
-     * @api
-     */
-    public function canCapturePartial()
+    public function canCapturePartial(): bool
     {
         return $this->_canCapturePartial;
     }
 
     /**
-     * Check whether capture can be performed once and no further capture possible
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canCaptureOnce()
+    public function canCaptureOnce(): bool
     {
         return $this->_canCaptureOnce;
     }
 
     /**
-     * Check refund availability
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canRefund()
-    {
-        return $this->_canRefund;
-    }
-
-    /**
-     * Check partial refund availability for invoice
-     *
-     * @return bool
-     * @api
-     */
-    public function canRefundPartialPerInvoice()
+    public function canRefundPartialPerInvoice(): bool
     {
         return $this->_canRefundInvoicePartial;
     }
 
     /**
-     * Check void availability.
-     *
-     * @return bool
-     * @internal param \Magento\Framework\DataObject $payment
-     * @api
-     */
-    public function canVoid()
-    {
-        return $this->_canVoid;
-    }
-
-    /**
-     * Using internal pages for input payment data.
+     * {@inheritDoc}
      *
      * Can be used in admin.
      *
      * @return bool
      */
-    public function canUseInternal()
+    public function canUseInternal(): bool
     {
         return $this->_canUseInternal;
     }
 
     /**
-     * Can be used in regular checkout
+     * {@inheritDoc}
      *
      * @return bool
      */
-    public function canUseCheckout()
+    public function canUseCheckout(): bool
     {
         return $this->_canUseCheckout;
     }
 
     /**
-     * Can be edit order (renew order)
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canEdit()
+    public function canEdit(): bool
     {
         return true;
     }
 
     /**
-     * Check fetch transaction info availability
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function canFetchTransactionInfo()
+    public function canFetchTransactionInfo(): bool
     {
         return $this->_canFetchTransactionInfo;
     }
 
     /**
-     * Fetch transaction info
+     * {@inheritDoc}
      *
      * @param InfoInterface $payment
-     * @param string $transactionId
-     * @return array
+     * @param string        $transactionId
+     *
+     * @return mixed[]
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @api
      */
-    public function fetchTransactionInfo(InfoInterface $payment, $transactionId)
+    public function fetchTransactionInfo(InfoInterface $payment, $transactionId): array
     {
         return [];
     }
 
     /**
-     * Retrieve payment system relation flag
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function isGateway()
+    public function isGateway(): bool
     {
         return $this->_isGateway;
     }
 
     /**
-     * Retrieve payment method online/offline flag
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function isOffline()
+    public function isOffline(): bool
     {
         return $this->_isOffline;
     }
 
     /**
-     * Flag if we need to run payment initialize while order place
+     * {@inheritDoc}
      *
      * @return bool
      * @api
      */
-    public function isInitializeNeeded()
+    public function isInitializeNeeded(): bool
     {
         return $this->_isInitializeNeeded;
     }
 
     /**
-     * To check billing country is allowed for the payment method
-     *
-     * @param string $country
-     * @return bool
-     */
-    public function canUseForCountry($country)
-    {
-        /*
-        for specific country, the flag will set up as 1
-        */
-        if ($this->getConfigData('allowspecific') == 1) {
-            $availableCountries = explode(',', $this->getConfigData('specificcountry'));
-            if (!in_array($country, $availableCountries)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Check method for processing with base currency
+     * {@inheritDoc}
      *
      * @param string $currencyCode
+     *
      * @return bool
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function canUseForCurrency($currencyCode)
+    public function canUseForCurrency($currencyCode): bool
     {
         return true;
     }
 
     /**
-     * Retrieve payment method code
+     * {@inheritDoc}
      *
      * @return string
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function getCode()
+    public function getFormBlockType(): string
     {
-        if (empty($this->_code)) {
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __('We cannot retrieve the payment method code.')
-            );
+        if (!empty($this->data['formBlockType'])) {
+            $this->_formBlockType = $this->data['formBlockType'];
         }
-        return $this->_code;
-    }
 
-    /**
-     * Retrieve block type for method form generation
-     *
-     * @return string
-     */
-    public function getFormBlockType()
-    {
         return $this->_formBlockType;
     }
 
     /**
-     * Retrieve block type for display method information
+     * {@inheritDoc}
      *
      * @return string
      * @api
      */
-    public function getInfoBlockType()
+    public function getInfoBlockType(): string
     {
         return $this->_infoBlockType;
     }
 
     /**
-     * Retrieve payment information model object
-     *
-     * @return InfoInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @api
-     */
-    public function getInfoInstance()
-    {
-        $instance = $this->getData('info_instance');
-        if (!$instance instanceof InfoInterface) {
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __('We cannot retrieve the payment information object instance.')
-            );
-        }
-        return $instance;
-    }
-
-    /**
-     * Retrieve payment information model object
+     * {@inheritDoc}
      *
      * @param InfoInterface $info
+     *
      * @return void
      * @api
      */
-    public function setInfoInstance(InfoInterface $info)
+    public function setInfoInstance(InfoInterface $info): void
     {
         $this->setData('info_instance', $info);
     }
 
     /**
-     * Validate payment method information object
+     * {@inheritDoc}
      *
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return AbstractMethod
+     * @throws LocalizedException
      * @api
      */
-    public function validate()
+    public function validate(): AbstractMethod
     {
         /**
          * to validate payment method is allowed for billing country or not
@@ -583,7 +514,7 @@ abstract class AbstractMethod extends \Magento\Framework\Model\AbstractExtensibl
         $billingCountry = $billingCountry ?: $this->directory->getDefaultCountry();
 
         if (!$this->canUseForCountry($billingCountry)) {
-            throw new \Magento\Framework\Exception\LocalizedException(
+            throw new LocalizedException(
                 __('You can\'t use the payment type you selected to make payments to the billing country.')
             );
         }
@@ -592,170 +523,55 @@ abstract class AbstractMethod extends \Magento\Framework\Model\AbstractExtensibl
     }
 
     /**
-     * Order payment abstract method
+     * {@inheritDoc}
      *
-     * @param \Magento\Framework\DataObject|InfoInterface $payment
-     * @param float $amount
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return InfoInterface
+     * @throws LocalizedException
      * @api
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function order(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    public function getInfoInstance(): InfoInterface
     {
-        if (!$this->canOrder()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The order action is not available.'));
-        }
-        return $this;
-    }
-
-    /**
-     * Authorize payment abstract method
-     *
-     * @param \Magento\Framework\DataObject|InfoInterface $payment
-     * @param float $amount
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @api
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function authorize(\Magento\Payment\Model\InfoInterface $payment, $amount)
-    {
-        if (!$this->canAuthorize()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The authorize action is not available.'));
-        }
-        return $this;
-    }
-
-    /**
-     * Capture payment abstract method
-     *
-     * @param \Magento\Framework\DataObject|InfoInterface $payment
-     * @param float $amount
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @api
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
-    {
-        if (!$this->canCapture()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The capture action is not available.'));
+        $instance = $this->getData('info_instance');
+        if (!$instance instanceof InfoInterface) {
+            throw new LocalizedException(
+                __('We cannot retrieve the payment information object instance.')
+            );
         }
 
-        return $this;
+        return $instance;
     }
 
     /**
-     * Refund specified amount for payment
+     * {@inheritDoc}
      *
-     * @param \Magento\Framework\DataObject|InfoInterface $payment
-     * @param float $amount
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @api
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
-    {
-        if (!$this->canRefund()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available.'));
-        }
-        return $this;
-    }
-
-    /**
-     * Cancel payment abstract method
-     *
-     * @param \Magento\Framework\DataObject|InfoInterface $payment
-     * @return $this
-     * @api
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function cancel(\Magento\Payment\Model\InfoInterface $payment)
-    {
-        return $this;
-    }
-
-    /**
-     * Void payment abstract method
-     *
-     * @param \Magento\Framework\DataObject|InfoInterface $payment
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @api
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function void(\Magento\Payment\Model\InfoInterface $payment)
-    {
-        if (!$this->canVoid()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available.'));
-        }
-        return $this;
-    }
-
-    /**
-     * Whether this method can accept or deny payment.
+     * @param string $country
      *
      * @return bool
-     * @api
+     * @throws LocalizedException
      */
-    public function canReviewPayment()
+    public function canUseForCountry($country): bool
     {
-        return $this->_canReviewPayment;
-    }
-
-    /**
-     * Attempt to accept a payment that us under review
-     *
-     * @param InfoInterface $payment
-     * @return false
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @api
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function acceptPayment(InfoInterface $payment)
-    {
-        if (!$this->canReviewPayment()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The payment review action is unavailable.'));
+        /*
+        for specific country, the flag will set up as 1
+        */
+        if ($this->getConfigData('allowspecific') == 1) {
+            $availableCountries = explode(',', $this->getConfigData('specificcountry'));
+            if (!in_array($country, $availableCountries)) {
+                return false;
+            }
         }
-        return false;
+
+        return true;
     }
 
     /**
-     * Attempt to deny a payment that us under review
+     * {@inheritDoc}
      *
-     * @param InfoInterface $payment
-     * @return false
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @api
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function denyPayment(InfoInterface $payment)
-    {
-        if (!$this->canReviewPayment()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The payment review action is unavailable.'));
-        }
-        return false;
-    }
-
-    /**
-     * Retrieve payment method title
-     *
-     * @return string
-     */
-    public function getTitle()
-    {
-        return $this->getConfigData('title');
-    }
-
-    /**
-     * Retrieve information from payment configuration
-     *
-     * @param string $field
-     * @param int|string|null|\Magento\Store\Model\Store $storeId
+     * @param string                $field
+     * @param int|string|null|Store $storeId
      *
      * @return mixed
+     * @throws LocalizedException
      */
     public function getConfigData($field, $storeId = null)
     {
@@ -766,114 +582,382 @@ abstract class AbstractMethod extends \Magento\Framework\Model\AbstractExtensibl
             $storeId = $this->getStore();
         }
         $path = 'payment/' . $this->getCode() . '/' . $field;
-        return $this->_scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
+
+        return $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
-     * Assign data to info model instance
+     * {@inheritDoc}
      *
-     * @param array|\Magento\Framework\DataObject $data
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @api
+     * @return int|mixed|null
      */
-    public function assignData(\Magento\Framework\DataObject $data)
+    public function getStore()
     {
-        $this->_eventManager->dispatch(
-            'payment_method_assign_data_' . $this->getCode(),
-            [
-                AbstractDataAssignObserver::METHOD_CODE => $this,
-                AbstractDataAssignObserver::MODEL_CODE => $this->getInfoInstance(),
-                AbstractDataAssignObserver::DATA_CODE => $data
-            ]
-        );
+        return $this->getData('store');
+    }
 
-        $this->_eventManager->dispatch(
-            'payment_method_assign_data',
-            [
-                AbstractDataAssignObserver::METHOD_CODE => $this,
-                AbstractDataAssignObserver::MODEL_CODE => $this->getInfoInstance(),
-                AbstractDataAssignObserver::DATA_CODE => $data
-            ]
-        );
+    /**
+     * {@inheritDoc}
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    public function getCode(): string
+    {
+        if (empty($this->_code)) {
+            throw new LocalizedException(
+                __('We cannot retrieve the payment method code.')
+            );
+        }
+
+        return $this->_code;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param DataObject|InfoInterface $payment
+     * @param float                    $amount
+     *
+     * @return AbstractMethod
+     * @throws LocalizedException
+     * @api
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function order(InfoInterface $payment, $amount): AbstractMethod
+    {
+        if (!$this->canOrder()) {
+            throw new LocalizedException(__('The order action is not available.'));
+        }
 
         return $this;
     }
 
     /**
-     * Check whether payment method can be used
+     * {@inheritDoc}
      *
-     * @param \Magento\Quote\Api\Data\CartInterface|null $quote
      * @return bool
+     * @api
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function canOrder(): bool
+    {
+        return $this->_canOrder;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param DataObject|InfoInterface $payment
+     * @param float                    $amount
+     *
+     * @return AbstractMethod
+     * @throws LocalizedException
+     * @api
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function authorize(InfoInterface $payment, $amount): AbstractMethod
+    {
+        if (!$this->canAuthorize()) {
+            throw new LocalizedException(__('The authorize action is not available.'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return bool
+     * @api
+     */
+    public function canAuthorize(): bool
+    {
+        return $this->_canAuthorize;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param DataObject|InfoInterface $payment
+     * @param float                    $amount
+     *
+     * @return $this
+     * @throws LocalizedException
+     * @api
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function capture(InfoInterface $payment, $amount): AbstractMethod
+    {
+        if (!$this->canCapture()) {
+            throw new LocalizedException(__('The capture action is not available.'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return bool
+     * @api
+     */
+    public function canCapture(): bool
+    {
+        return $this->_canCapture;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param DataObject|InfoInterface $payment
+     * @param float|string             $amount
+     *
+     * @return AbstractMethod
+     * @throws LocalizedException
+     * @api
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function refund(InfoInterface $payment, $amount): AbstractMethod
+    {
+        if (!$this->canRefund()) {
+            throw new LocalizedException(__('The refund action is not available.'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return bool
+     * @api
+     */
+    public function canRefund(): bool
+    {
+        return $this->_canRefund;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param DataObject|InfoInterface $payment
+     *
+     * @return AbstractMethod
+     * @api
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function cancel(InfoInterface $payment): AbstractMethod
+    {
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param DataObject|InfoInterface $payment
+     *
+     * @return AbstractMethod
+     * @throws LocalizedException
+     * @api
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function void(InfoInterface $payment): AbstractMethod
+    {
+        if (!$this->canVoid()) {
+            throw new LocalizedException(__('The void action is not available.'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return bool
+     * @internal param \Magento\Framework\DataObject $payment
+     * @api
+     */
+    public function canVoid(): bool
+    {
+        return $this->_canVoid;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param InfoInterface $payment
+     *
+     * @return false
+     * @throws LocalizedException
+     * @api
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function acceptPayment(InfoInterface $payment): bool
+    {
+        if (!$this->canReviewPayment()) {
+            throw new LocalizedException(__('The payment review action is unavailable.'));
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return bool
+     * @api
+     */
+    public function canReviewPayment(): bool
+    {
+        return $this->_canReviewPayment;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param InfoInterface $payment
+     *
+     * @return false
+     * @throws LocalizedException
+     * @api
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function denyPayment(InfoInterface $payment): bool
+    {
+        if (!$this->canReviewPayment()) {
+            throw new LocalizedException(__('The payment review action is unavailable.'));
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return string|null
+     * @throws LocalizedException
+     */
+    public function getTitle(): ?string
+    {
+        return $this->getConfigData('title');
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param array|DataObject $data
+     *
+     * @return AbstractMethod
+     * @throws LocalizedException
+     * @api
+     */
+    public function assignData(DataObject $data): AbstractMethod
+    {
+        $this->_eventManager->dispatch('payment_method_assign_data_' . $this->getCode(), [
+            AbstractDataAssignObserver::METHOD_CODE => $this,
+            AbstractDataAssignObserver::MODEL_CODE  => $this->getInfoInstance(),
+            AbstractDataAssignObserver::DATA_CODE   => $data,
+        ]);
+
+        $this->_eventManager->dispatch('payment_method_assign_data', [
+            AbstractDataAssignObserver::METHOD_CODE => $this,
+            AbstractDataAssignObserver::MODEL_CODE  => $this->getInfoInstance(),
+            AbstractDataAssignObserver::DATA_CODE   => $data,
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param CartInterface|null $quote
+     *
+     * @return bool
+     * @throws LocalizedException
+     */
+    public function isAvailable(CartInterface $quote = null): bool
     {
         if (!$this->isActive($quote ? $quote->getStoreId() : null)) {
             return false;
         }
 
-        $checkResult = new DataObject();
+        $checkResult = $this->dataObjectFactory->create();
         $checkResult->setData('is_available', true);
 
         // for future use in observers
-        $this->_eventManager->dispatch(
-            'payment_method_is_active',
-            [
-                'result' => $checkResult,
-                'method_instance' => $this,
-                'quote' => $quote
-            ]
-        );
+        $this->_eventManager->dispatch('payment_method_is_active', [
+            'result'          => $checkResult,
+            'method_instance' => $this,
+            'quote'           => $quote,
+        ]);
 
         return $checkResult->getData('is_available');
     }
 
     /**
-     * Is active
+     * {@inheritDoc}
      *
      * @param int|null $storeId
+     *
      * @return bool
+     * @throws LocalizedException
      */
-    public function isActive($storeId = null)
+    public function isActive($storeId = null): bool
     {
         return (bool)(int)$this->getConfigData('active', $storeId);
     }
 
     /**
-     * Method that will be executed instead of authorize or capture if flag isInitializeNeeded set to true.
+     * {@inheritDoc}
      *
      * @param string $paymentAction
      * @param object $stateObject
      *
-     * @return $this
+     * @return AbstractMethod
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @api
      */
-    public function initialize($paymentAction, $stateObject)
+    public function initialize($paymentAction, $stateObject): AbstractMethod
     {
         return $this;
     }
 
     /**
-     * Get config payment action url.
+     * {@inheritDoc}
      *
-     * Used to universalize payment actions when processing payment place.
-     *
-     * @return string
+     * @return string|null
+     * @throws LocalizedException
      * @api
      */
-    public function getConfigPaymentAction()
+    public function getConfigPaymentAction(): ?string
     {
         return $this->getConfigData('payment_action');
     }
 
     /**
+     * Used to call debug method from not Payment Method context
+     *
+     * @param mixed[] $debugData
+     *
+     * @return void
+     * @throws LocalizedException
+     * @api
+     */
+    public function debugData(array $debugData): void
+    {
+        $this->_debug($debugData);
+    }
+
+    /**
      * Log debug data to file
      *
-     * @param array $debugData
+     * @param mixed[] $debugData
+     *
      * @return void
+     * @throws LocalizedException
      */
-    protected function _debug($debugData)
+    protected function _debug(array $debugData): void
     {
         $this->logger->debug(
             $debugData,
@@ -883,45 +967,38 @@ abstract class AbstractMethod extends \Magento\Framework\Model\AbstractExtensibl
     }
 
     /**
+     * Return replace keys for debug data
+     *
+     * @return mixed[]
+     */
+    public function getDebugReplacePrivateDataKeys(): array
+    {
+        return (array)$this->_debugReplacePrivateDataKeys;
+    }
+
+    /**
      * Define if debugging is enabled
      *
      * @return bool
      * @SuppressWarnings(PHPMD.BooleanGetMethodName)
+     * @throws LocalizedException
      * @api
      */
-    public function getDebugFlag()
+    public function getDebugFlag(): bool
     {
         return (bool)(int)$this->getConfigData('debug');
     }
 
     /**
-     * Used to call debug method from not Payment Method context
+     * Get the success redirection URL for the payment request
      *
-     * @param mixed $debugData
-     * @return void
-     * @api
-     */
-    public function debugData($debugData)
-    {
-        $this->_debug($debugData);
-    }
-
-    /**
-     * Return replace keys for debug data
-     *
-     * @return array
-     */
-    public function getDebugReplacePrivateDataKeys()
-    {
-        return (array) $this->_debugReplacePrivateDataKeys;
-    }
-
-    /**
-     * Get the success redirection URL for the payment request.
+     * @param string[]  $data
+     * @param bool|null $isApiOrder
      *
      * @return string
+     * @throws NoSuchEntityException
      */
-    public function getSuccessUrl($data, $isApiOrder = null)
+    public function getSuccessUrl(array $data, bool $isApiOrder = null): string
     {
         if (isset($data['successUrl']) && !$isApiOrder) {
             return $data['successUrl'];
@@ -931,16 +1008,33 @@ abstract class AbstractMethod extends \Magento\Framework\Model\AbstractExtensibl
     }
 
     /**
-     * Get the failure redirection URL for the payment request.
+     * Get the failure redirection URL for the payment request
+     *
+     * @param string[]  $data
+     * @param bool|null $isApiOrder
      *
      * @return string
      */
-    public function getFailureUrl($data, $isApiOrder = null)
+    public function getFailureUrl(array $data, bool $isApiOrder = null): string
     {
         if (isset($data['failureUrl']) && !$isApiOrder) {
             return $data['failureUrl'];
         }
 
         return $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+    }
+
+    /**
+     * Initializes injected data
+     *
+     * @param mixed[] $data
+     *
+     * @return void
+     */
+    protected function initializeData(array $data = []): void
+    {
+        if (!empty($data['formBlockType'])) {
+            $this->_formBlockType = $data['formBlockType'];
+        }
     }
 }

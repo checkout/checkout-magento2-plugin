@@ -9,83 +9,89 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Observer\Backend;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 
 /**
- * Class OrderAfterCancel.
+ * Class OrderAfterCancel
  */
-class OrderAfterCancel implements \Magento\Framework\Event\ObserverInterface
+class OrderAfterCancel implements ObserverInterface
 {
     /**
-     * @var Session
+     * $backendAuthSession field
+     *
+     * @var Session $backendAuthSession
      */
-    public $backendAuthSession;
+    private $backendAuthSession;
+    /**
+     * $config field
+     *
+     * @var Config $config
+     */
+    private $config;
+    /**
+     * $orderStatusHistoryRepository field
+     *
+     * @var OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+     */
+    private $orderStatusHistoryRepository;
 
     /**
-     * @var RequestInterface
-     */
-    public $request;
-
-    /**
-     * @var Config
-     */
-    public $config;
-
-    /**
-     * @var OrderManagementInterface
-     */
-    public $orderManagement;
-
-    /**
-     * @var Order
-     */
-    public $orderModel;
-
-    /**
-     * @var Array
-     */
-    public $params;
-
-    /**
-     * OrderSaveBefore constructor.
+     * OrderAfterCancel constructor
+     *
+     * @param Session                               $backendAuthSession
+     * @param Config                                $config
+     * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
     public function __construct(
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Framework\App\RequestInterface $request,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \Magento\Sales\Api\OrderManagementInterface $orderManagement,
-        \Magento\Sales\Model\Order $orderModel
+        Session $backendAuthSession,
+        Config $config,
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
-        $this->backendAuthSession = $backendAuthSession;
-        $this->request = $request;
-        $this->config = $config;
-        $this->orderManagement = $orderManagement;
-        $this->orderModel = $orderModel;
+        $this->backendAuthSession           = $backendAuthSession;
+        $this->config                       = $config;
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
-     * Run the observer.
+     * Run the observer
+     *
+     * @param Observer $observer
+     *
+     * @return $this|void
+     * @throws LocalizedException
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): OrderAfterCancel
     {
         if ($this->backendAuthSession->isLoggedIn()) {
-            $this->params = $this->request->getParams();
-            $payment = $observer->getEvent()->getPayment();
-            $order = $payment->getOrder();
+            /** @var Payment $payment */
+            $payment  = $observer->getEvent()->getPayment();
+            $order    = $payment->getOrder();
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
-            
+
             if (in_array($methodId, $this->config->getMethodsList())) {
                 $orderComments = $order->getStatusHistories();
-                $orderComment = array_pop($orderComments);
-                
-                $orderComment->setData('status', 'canceled')->save();
+                $orderComment  = array_pop($orderComments);
+                $orderComment->setData('status', 'canceled');
+
+                $this->orderStatusHistoryRepository->save($orderComment);
             }
 
             return $this;

@@ -10,47 +10,63 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
 namespace CheckoutCom\Magento2\Block\Vault;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context;
+
 /**
  * Class Form
  */
-class Form extends \Magento\Framework\View\Element\Template
+class Form extends Template
 {
     /**
-     * @var CardHandlerService
+     * $cardHandler field
+     *
+     * @var CardHandlerService $cardHandler
      */
     public $cardHandler;
-
     /**
-     * @var VaultHandlerService
+     * $vaultHandler field
+     *
+     * @var VaultHandlerService $vaultHandler
      */
     public $vaultHandler;
-
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
     public $config;
 
     /**
-     * Form constructor.
+     * Form constructor
+     *
+     * @param Context             $context
+     * @param CardHandlerService  $cardHandler
+     * @param VaultHandlerService $vaultHandler
+     * @param Config              $config
+     * @param array               $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
+        Context $context,
+        CardHandlerService $cardHandler,
+        VaultHandlerService $vaultHandler,
+        Config $config,
         array $data = []
     ) {
         parent::__construct($context, $data);
 
-        $this->cardHandler = $cardHandler;
+        $this->cardHandler  = $cardHandler;
         $this->vaultHandler = $vaultHandler;
-        $this->config = $config;
+        $this->config       = $config;
     }
 }

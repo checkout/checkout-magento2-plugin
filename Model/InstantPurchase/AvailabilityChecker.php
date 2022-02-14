@@ -10,12 +10,17 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\InstantPurchase;
+
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 
 /**
  * Class AvailabilityChecker
@@ -23,30 +28,38 @@ namespace CheckoutCom\Magento2\Model\InstantPurchase;
 class AvailabilityChecker
 {
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
-    public $config;
-
+    private $config;
     /**
-     * @var VaultHandlerService
+     * $vaultHandler field
+     *
+     * @var VaultHandlerService $vaultHandler
      */
     private $vaultHandler;
 
     /**
      * AvailabilityChecker constructor
+     *
+     * @param Config              $config
+     * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\VaultHandlerService $vaultHandler
+        Config $config,
+        VaultHandlerService $vaultHandler
     ) {
-        $this->config = $config;
+        $this->config       = $config;
         $this->vaultHandler = $vaultHandler;
     }
 
     /**
-     * @inheritdoc
+     * Description isAvailable function
+     *
+     * @return bool
      */
-    public function isAvailable()
+    public function isAvailable(): bool
     {
         // Get the vault state
         $vaultEnabled = $this->config->getValue(

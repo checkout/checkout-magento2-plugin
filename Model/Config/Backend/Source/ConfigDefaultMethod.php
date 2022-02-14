@@ -10,30 +10,37 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
+
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class ConfigDefaultMethod
  */
-class ConfigDefaultMethod implements \Magento\Framework\Data\OptionSourceInterface
+class ConfigDefaultMethod implements OptionSourceInterface
 {
     /**
-     * @var Config
+     * $config field
+     *
+     * @var Config $config
      */
-    public $config;
+    private $config;
 
     /**
-     * ConfigDefaultMethod constructor.
+     * ConfigDefaultMethod constructor
      *
      * @param Config $config
      */
     public function __construct(
-        \CheckoutCom\Magento2\Gateway\Config\Config $config
+        Config $config
     ) {
         $this->config = $config;
     }
@@ -41,9 +48,9 @@ class ConfigDefaultMethod implements \Magento\Framework\Data\OptionSourceInterfa
     /**
      * Return the order status options
      *
-     * @return array
+     * @return string[][]
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         // Prepare the default array
         $options = [
@@ -54,7 +61,7 @@ class ConfigDefaultMethod implements \Magento\Framework\Data\OptionSourceInterfa
         // Get the available payment methods
         $methods = $this->config->getMethodsConfig();
 
-        // Build an array of optionss
+        // Build an array of options
         foreach ($methods as $id => $data) {
             $options[] = [
                 'value' => $id,

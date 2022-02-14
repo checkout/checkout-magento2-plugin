@@ -1,0 +1,189 @@
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+.sepa-card-title {
+    font-weight: bold;
+}
+
+.sepa-creditor h2,
+.sepa-creditor h3,
+.sepa-creditor p,
+.sepa-debitor h2,
+.sepa-debitor h3,
+.sepa-debitor .address,
+.sepa-debitor .address p {
+    margin: unset;
+}
+
+.sepa-creditor h3,
+.sepa-debitor h3 {
+    margin: unset;
+    font-weight: bold;
+}
+
+.sepa-par hr, .sepa-right hr {
+    opacity: 0.3;
+}
+
+.sepa-par h4 {
+    font-size: 12px;
+    display: inline;
+}
+
+.sepa-info {
+    padding-top: 15px;
+    display: table-cell;
+    text-align: right;
+}
+
+.sepa-info label{
+    padding-bottom: 10px;
+}
+
+.sepa-heading {
+    text-align: left;
+}
+
+.sepa-mandate-card {
+    box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+    padding-top: 0px;
+    margin-top: 20px;
+}
+
+.sepa-card-title h3 {
+    display: block;
+    font-size: 1.4em;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+}
+
+.sepa-card-header {
+    display: flex;
+    flex-direction: row;
+}
+
+.sepa-card-header-text {
+    margin: 0 16px;
+}
+
+.sepa-mandate-content {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.sepa-mandate-content h2{
+    display: block;
+    font-size: 1.5em;
+    margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+}
+
+.sepa-mandate-content h3{
+    display: block;
+    font-size: 1.17em;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+}
+
+.sepa-mandate-content p {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+}
+
+.sepa-creditor {
+    flex: 1 0 auto;
+    margin: 16px;
+    font-size: smaller;
+}
+
+.sepa-creditor h2 {
+    margin: unset;
+
+    display: block;
+    font-size: 1.5em;
+    margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+}
+
+.sepa-creditor h3 {
+    margin: unset;
+
+    display: block;
+    font-size: 1.17em;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+}
+
+.sepa-creditor p {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+}
+
+.sepa-debitor {
+    flex: 1 0 auto;
+    margin: 16px;
+    font-size: smaller;
+}
+
+.sepa-par p{
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    margin: 16px;
+}
+
+.sepa-checkbox-container label {
+    display: flex;
+}
+
+.sepa-checkbox-container {
+    margin: 16px;
+    padding-top: 10px;
+}
+
+.sepa-checkbox-inner-container {
+    margin-right: 5px;
+}
+
+.sepa-footer-title {
+    font-size: 11px;
+    margin: 16px;
+    padding-bottom: 16px;
+    text-align: center;
+    opacity: 0.7;
+}

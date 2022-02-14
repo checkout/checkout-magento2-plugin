@@ -9,54 +9,58 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2020 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Api\Data;
+
+use CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
+use Magento\Framework\Model\AbstractExtensibleModel;
 
 /**
  * Class PaymentResponse
  * Used to set the API v3 response details
  */
-class PaymentResponse extends \Magento\Framework\Model\AbstractExtensibleModel implements
-    \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
+class PaymentResponse extends AbstractExtensibleModel implements PaymentResponseInterface
 {
     /**
-     * Get success
+     * {@inheritDoc}
      *
      * @return bool
      */
-    public function getSuccess()
+    public function getSuccess(): bool
     {
         return $this->getData(self::SUCCESS);
     }
 
     /**
-     * Get order id
+     * {@inheritDoc}
      *
      * @return int
      */
-    public function getOrderId()
+    public function getOrderId(): int
     {
         return $this->getData(self::ORDER_ID);
     }
 
     /**
-     * get redirect url
+     * {@inheritDoc}
      *
      * @return string
      */
-    public function getRedirectUrl()
+    public function getRedirectUrl(): string
     {
         return $this->getData(self::REDIRECT_URL);
     }
 
     /**
-     * Add two numbers.
+     * {@inheritDoc}
      *
-     * @return string
+     * @return string|array
      */
     public function getErrorMessage()
     {
@@ -64,45 +68,49 @@ class PaymentResponse extends \Magento\Framework\Model\AbstractExtensibleModel i
     }
 
     /**
-     * Set success
+     * {@inheritDoc}
      *
-     * @param $success
-     * @return bool
+     * @param bool $success
+     *
+     * @return PaymentResponseInterface
      */
-    public function setSuccess($success)
+    public function setSuccess(bool $success): PaymentResponseInterface
     {
         return $this->setData(self::SUCCESS, $success);
     }
 
     /**
-     * Set order id
+     * {@inheritDoc}
      *
-     * @param $orderId
-     * @return int
+     * @param int $orderId
+     *
+     * @return PaymentResponseInterface
      */
-    public function setOrderId($orderId)
+    public function setOrderId(int $orderId): PaymentResponseInterface
     {
         return $this->setData(self::ORDER_ID, $orderId);
     }
 
     /**
-     * Set redirect url
+     * {@inheritDoc}
      *
-     * @param $redirectUrl
-     * @return string
+     * @param string $redirectUrl
+     *
+     * @return PaymentResponseInterface
      */
-    public function setRedirectUrl($redirectUrl)
+    public function setRedirectUrl(string $redirectUrl): PaymentResponseInterface
     {
         return $this->setData(self::REDIRECT_URL, $redirectUrl);
     }
 
     /**
-     * Set error message
+     * {@inheritDoc}
      *
-     * @param $errorMessage
-     * @return string
+     * @param string|array $errorMessage
+     *
+     * @return PaymentResponseInterface
      */
-    public function setErrorMessage($errorMessage)
+    public function setErrorMessage($errorMessage): PaymentResponseInterface
     {
         return $this->setData(self::ERROR_MESSAGE, $errorMessage);
     }

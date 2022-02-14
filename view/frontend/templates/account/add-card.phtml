@@ -10,10 +10,14 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+
+use CheckoutCom\Magento2\Block\Account\AddCard;
+
+/** @var AddCard $block */
 ?>
 
 <button id="ckoShowForm" class="action submit primary">
@@ -47,14 +51,14 @@
         var showFormButton = $('#ckoShowForm');
         var cardTokenField = $('#ckoCardToken');
         var cardFormContainerId = '#cko-form-holder';
-        var ckoPublicKey = '<?= $block->escapeHtml($block->config->getValue('public_key')); ?>';
+        var ckoPublicKey = '<?= $block->escapeHtml($block->getConfig()->getValue('public_key')); ?>';
         var paymentForm = document.getElementById('saveCardForm');
 
         // Initialize the embedded form
         Frames.init(
             {
                 publicKey: ckoPublicKey,
-                debug: Boolean(<?= $block->escapeHtml(($block->config->getValue('debug') && $block->config->getValue('console_logging'))); ?>),
+                debug: Boolean(<?= $block->escapeHtml(($block->getConfig()->getValue('debug') && $block->getConfig()->getValue('console_logging'))); ?>),
                 cardValidationChanged: function() {
                     if (Frames.isCardValid()) {
                         Frames.submitCard();

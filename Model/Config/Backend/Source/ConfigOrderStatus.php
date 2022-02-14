@@ -10,30 +10,37 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
+
+use Magento\Framework\Data\OptionSourceInterface;
+use Magento\Sales\Model\ResourceModel\Order\Status\Collection;
 
 /**
  * Class ConfigOrderStatus
  */
-class ConfigOrderStatus implements \Magento\Framework\Data\OptionSourceInterface
+class ConfigOrderStatus implements OptionSourceInterface
 {
     /**
-     * @var Collection
+     * $orderStatusCollection field
+     *
+     * @var Collection $orderStatusCollection
      */
-    public $orderStatusCollection;
+    private $orderStatusCollection;
 
     /**
-     * OrderStatus constructor.
+     * ConfigOrderStatus constructor
      *
-     * @param Collection $statusCollection
+     * @param Collection $orderStatusCollection
      */
     public function __construct(
-        \Magento\Sales\Model\ResourceModel\Order\Status\Collection $orderStatusCollection
+        Collection $orderStatusCollection
     ) {
         $this->orderStatusCollection = $orderStatusCollection;
     }
@@ -41,9 +48,9 @@ class ConfigOrderStatus implements \Magento\Framework\Data\OptionSourceInterface
     /**
      * Return the order status options
      *
-     * @return array
+     * @return string[][]
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         return $this->getStatusOptions();
     }
@@ -51,9 +58,9 @@ class ConfigOrderStatus implements \Magento\Framework\Data\OptionSourceInterface
     /**
      * Get the order status options
      *
-     * @return array
+     * @return string[][]
      */
-    public function getStatusOptions()
+    public function getStatusOptions(): array
     {
         // Return the options as array
         return $this->orderStatusCollection->toOptionArray();

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -10,45 +9,61 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Block\Account;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Payment\Model\CcConfigProvider;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
+use Magento\Vault\Block\AbstractCardRenderer;
 
 /**
  * Class CardRenderer
  */
-class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
+class CardRenderer extends AbstractCardRenderer
 {
-
     /**
-     * @var Config
+     * $cardHandler field
+     *
+     * @var CardHandlerService $cardHandler
      */
-    public $config;
+    protected $cardHandler;
 
     /**
-     * @var CardHandlerService
-     */
-    public $cardHandler;
-
-    /**
-     * CardRenderer constructor.
+     * CardRenderer constructor
+     *
+     * @param Context            $context
+     * @param CcConfigProvider   $iconsProvider
+     * @param CardHandlerService $cardHandler
+     * @param array              $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Payment\Model\CcConfigProvider $iconsProvider,
-        \CheckoutCom\Magento2\Gateway\Config\Config $config,
-        \CheckoutCom\Magento2\Model\Service\CardHandlerService $cardHandler,
+        Context $context,
+        CcConfigProvider $iconsProvider,
+        CardHandlerService $cardHandler,
         array $data
     ) {
         parent::__construct($context, $iconsProvider, $data);
 
-        $this->config = $config;
         $this->cardHandler = $cardHandler;
+    }
+
+    /**
+     * Get Card handler
+     *
+     * @return CardHandlerService
+     */
+    public function getCardHandler(): CardHandlerService
+    {
+        return $this->cardHandler;
     }
 
     /**
@@ -56,7 +71,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      *
      * @return string
      */
-    public function getNumberLast4Digits()
+    public function getNumberLast4Digits(): string
     {
         return $this->getTokenDetails()['maskedCC'];
     }
@@ -66,7 +81,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      *
      * @return string
      */
-    public function getExpDate()
+    public function getExpDate(): string
     {
         return $this->getTokenDetails()['expirationDate'];
     }
@@ -74,10 +89,11 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
     /**
      * Determines if can render the given token.
      *
-     * @param  PaymentTokenInterface $token
-     * @return boolean
+     * @param PaymentTokenInterface $token
+     *
+     * @return bool
      */
-    public function canRender(PaymentTokenInterface $token)
+    public function canRender(PaymentTokenInterface $token): bool
     {
         return $token->getPaymentMethodCode() === 'checkoutcom_vault';
     }
@@ -87,7 +103,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      *
      * @return string
      */
-    public function getCardType()
+    public function getCardType(): string
     {
         return $this->getTokenDetails()['type'];
     }
@@ -97,7 +113,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      *
      * @return string
      */
-    public function getIconUrl()
+    public function getIconUrl(): string
     {
         return $this->getIconForType($this->getCardType())['url'];
     }
@@ -107,7 +123,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      *
      * @return int
      */
-    public function getIconHeight()
+    public function getIconHeight(): int
     {
         return $this->getIconForType($this->getCardType())['height'];
     }
@@ -117,7 +133,7 @@ class CardRenderer extends \Magento\Vault\Block\AbstractCardRenderer
      *
      * @return int
      */
-    public function getIconWidth()
+    public function getIconWidth(): int
     {
         return $this->getIconForType($this->getCardType())['width'];
     }

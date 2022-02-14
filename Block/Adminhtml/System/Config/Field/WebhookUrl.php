@@ -10,13 +10,18 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-2019 Checkout.com
+ * @copyright 2010-present Checkout.com
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
+/**
+ * Class WebhookUrl
+ */
 class WebhookUrl extends AbstractCallbackUrl
 {
     /**
@@ -24,7 +29,7 @@ class WebhookUrl extends AbstractCallbackUrl
      *
      * @return string
      */
-    public function getControllerUrl()
+    public function getControllerUrl(): string
     {
         return 'webhook/callback';
     }
