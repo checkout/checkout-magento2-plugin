@@ -381,13 +381,12 @@ require([
          *
          * @return {array}
          */
-        function processSupportedNetworks(networksEnabled)
-        {
-            if (networksEnabled.includes("mada")) {
-                return Utilities.getStoreCountry == "SA" ? networksEnabled : networksEnabled.splice(networksEnabled.indexof("mada"), 1);
-            } else {
-                return networksEnabled;
+        function processSupportedNetworks (networksEnabled) {
+            if (networksEnabled.includes("mada") && !(Utilities.getStoreCountry === "SA")) {
+                networksEnabled.splice(networksEnabled.indexOf("mada"), 1);
             }
+
+            return networksEnabled;
         }
 
         /**
