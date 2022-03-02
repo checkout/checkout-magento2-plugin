@@ -15,7 +15,7 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-
+    <preference for="Magento\Framework\Logger\Handler\Debug" type="CheckoutCom\Magento2\Model\Logger\CustomLogger" />
     <!-- Method handler configurations -->
     <type name="CheckoutCom\Magento2\Model\Service\MethodHandlerService">
         <arguments>
