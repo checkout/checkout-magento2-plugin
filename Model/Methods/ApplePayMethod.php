@@ -194,11 +194,11 @@ class ApplePayMethod extends AbstractMethod
         StoreManagerInterface $storeManager,
         QuoteHandlerService $quoteHandler,
         MagentoLoggerHelper $ckoLogger,
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = [],
-        DirectoryHelper $directoryHelper,
-        DataObjectFactory $dataObjectFactory
+        array $data = []
     ) {
         parent::__construct(
             $config,
@@ -209,11 +209,11 @@ class ApplePayMethod extends AbstractMethod
             $paymentData,
             $scopeConfig,
             $logger,
+            $directoryHelper,
+            $dataObjectFactory,
             $resource,
             $resourceCollection,
-            $data,
-            $directoryHelper,
-            $dataObjectFactory
+            $data
         );
 
         $this->backendAuthSession = $backendAuthSession;

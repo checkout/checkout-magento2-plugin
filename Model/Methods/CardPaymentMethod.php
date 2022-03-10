@@ -212,11 +212,11 @@ class CardPaymentMethod extends AbstractMethod
         QuoteHandlerService $quoteHandler,
         CardHandlerService $cardHandler,
         LoggerHelper $ckoLogger,
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = [],
-        DirectoryHelper $directoryHelper,
-        DataObjectFactory $dataObjectFactory
+        array $data = []
     ) {
         parent::__construct(
             $config,
@@ -227,11 +227,11 @@ class CardPaymentMethod extends AbstractMethod
             $paymentData,
             $scopeConfig,
             $logger,
+            $directoryHelper,
+            $dataObjectFactory,
             $resource,
             $resourceCollection,
-            $data,
-            $directoryHelper,
-            $dataObjectFactory
+            $data
         );
 
         $this->backendAuthSession = $backendAuthSession;

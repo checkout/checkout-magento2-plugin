@@ -158,11 +158,11 @@ class MotoMethod extends AbstractMethod
         Session $backendAuthSession,
         Config $config,
         ApiHandlerService $apiHandler,
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = [],
-        DirectoryHelper $directoryHelper,
-        DataObjectFactory $dataObjectFactory
+        array $data = []
     ) {
         parent::__construct(
             $config,
@@ -173,11 +173,11 @@ class MotoMethod extends AbstractMethod
             $paymentData,
             $scopeConfig,
             $logger,
+            $directoryHelper,
+            $dataObjectFactory,
             $resource,
             $resourceCollection,
-            $data,
-            $directoryHelper,
-            $dataObjectFactory
+            $data
         );
 
         $this->backendAuthSession = $backendAuthSession;

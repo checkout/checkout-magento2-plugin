@@ -770,9 +770,12 @@ class AlternativePaymentMethod extends AbstractMethod
         $products = [];
         $quote    = $this->quoteHandler->getQuote();
         foreach ($quote->getAllVisibleItems() as $item) {
+            $converter = \Magento\Framework\App\ObjectManager::getInstance()->create(\Magento\Directory\Model\Currency::class);
+
             $lineTotal            = (($item->getPrice() * $item->getQty()) - $item->getDiscountAmount(
                 ) + $item->getTaxAmount());
             $price                = ($lineTotal * 100) / $item->getQty();
+            $price                = $converter->convert($price, $quote->getCurrency()->getQuoteCurrencyCode());
             $product              = new Product();
             $product->description = $item->getName();
             $product->quantity    = $item->getQty();

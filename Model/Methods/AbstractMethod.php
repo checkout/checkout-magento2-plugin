@@ -281,11 +281,11 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         Data $paymentData,
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
+        DirectoryHelper $directory,
+        DataObjectFactory $dataObjectFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = [],
-        DirectoryHelper $directory,
-        DataObjectFactory $dataObjectFactory
+        array $data = []
     ) {
         parent::__construct(
             $context,
