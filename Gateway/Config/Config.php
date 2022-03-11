@@ -243,7 +243,7 @@ class Config
          * @var string[] $method
          */
         foreach($paymentMethodsConfig as $key => $method) {
-            if (str_contains($key, 'checkoutcom')
+            if (false !== strpos($key, 'checkoutcom')
                && isset($method['active'])
                && (int)$method['active'] === 1
             ) {
