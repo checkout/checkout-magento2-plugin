@@ -174,10 +174,11 @@ class ApplePayMethod extends AbstractMethod
      * @param StoreManagerInterface      $storeManager
      * @param QuoteHandlerService        $quoteHandler
      * @param MagentoLoggerHelper        $ckoLogger
+     * @param DirectoryHelper            $directoryHelper
+     * @param DataObjectFactory          $dataObjectFactory
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
-     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
         Context $context,

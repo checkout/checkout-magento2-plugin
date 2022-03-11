@@ -142,10 +142,11 @@ class MotoMethod extends AbstractMethod
      * @param Session                    $backendAuthSession
      * @param Config                     $config
      * @param ApiHandlerService          $apiHandler
+     * @param DirectoryHelper            $directoryHelper
+     * @param DataObjectFactory          $dataObjectFactory
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
-     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
         Context $context,

@@ -174,10 +174,11 @@ class GooglePayMethod extends AbstractMethod
      * @param QuoteHandlerService        $quoteHandler
      * @param LoggerHelper               $ckoLogger
      * @param Session                    $backendAuthSession
+     * @param DirectoryHelper            $directoryHelper
+     * @param DataObjectFactory          $dataObjectFactory
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
-     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
         Context $context,

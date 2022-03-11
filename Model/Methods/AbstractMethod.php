@@ -256,8 +256,6 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     private $config;
 
     /**
-     * AbstractMethod constructor
-     *
      * @param Config                     $config
      * @param Context                    $context
      * @param Registry                   $registry
@@ -266,10 +264,11 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @param Data                       $paymentData
      * @param ScopeConfigInterface       $scopeConfig
      * @param Logger                     $logger
+     * @param DirectoryHelper            $directory
+     * @param DataObjectFactory          $dataObjectFactory
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
-     * @param DirectoryHelper|null       $directory
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
