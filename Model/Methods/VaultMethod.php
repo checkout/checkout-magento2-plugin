@@ -557,7 +557,9 @@ class VaultMethod extends AbstractMethod
      */
     public function isAvailable(CartInterface $quote = null): bool
     {
-        return $this->config->getValue('active', $this->_code) && $this->vaultHandler->userHasCards(
-            ) && !$this->backendAuthSession->isLoggedIn();
+        return $this->isModuleActive() && $this->config->getValue(
+                'active',
+                $this->_code
+            ) && $this->vaultHandler->userHasCards() && !$this->backendAuthSession->isLoggedIn();
     }
 }
