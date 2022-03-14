@@ -1026,7 +1026,7 @@ class AlternativePaymentMethod extends AbstractMethod
                 }
             }
         }
-        if (parent::isAvailable($quote) && null !== $quote) {
+        if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code)
             && count($this->config->getApms()) > 0
             && !$this->backendAuthSession->isLoggedIn()

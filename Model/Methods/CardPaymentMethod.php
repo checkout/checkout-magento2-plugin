@@ -556,7 +556,7 @@ class CardPaymentMethod extends AbstractMethod
      */
     public function isAvailable(CartInterface $quote = null): bool
     {
-        if (parent::isAvailable($quote) && null !== $quote) {
+        if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code) && !$this->backendAuthSession->isLoggedIn();
         }
 

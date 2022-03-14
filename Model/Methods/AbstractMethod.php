@@ -227,9 +227,9 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * Core store config
      *
-     * @var ScopeConfigInterface $_scopeConfig
+     * @var ScopeConfigInterface $scopeConfig
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     /**
      * $logger field
      *
@@ -298,7 +298,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         );
         $this->config            = $config;
         $this->_paymentData      = $paymentData;
-        $this->_scopeConfig      = $scopeConfig;
+        $this->scopeConfig       = $scopeConfig;
         $this->logger            = $logger;
         $this->directory         = $directory;
         $this->data              = $data;
@@ -583,7 +583,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         }
         $path = 'payment/' . $this->getCode() . '/' . $field;
 
-        return $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
+        return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
@@ -1036,5 +1036,15 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         if (!empty($data['formBlockType'])) {
             $this->_formBlockType = $data['formBlockType'];
         }
+    }
+
+    /**
+     * Description isModuleActive function
+     *
+     * @return bool
+     */
+    public function isModuleActive(): bool
+    {
+        return (bool)$this->scopeConfig->getValue('settings/checkoutcom_configuration/active');
     }
 }
