@@ -189,10 +189,11 @@ class VaultMethod extends AbstractMethod
      * @param CardHandlerService         $cardHandler
      * @param QuoteHandlerService        $quoteHandler
      * @param LoggerHelper               $ckoLogger
+     * @param DirectoryHelper            $directoryHelper
+     * @param DataObjectFactory          $dataObjectFactory
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
-     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
         Context $context,
@@ -211,11 +212,11 @@ class VaultMethod extends AbstractMethod
         CardHandlerService $cardHandler,
         QuoteHandlerService $quoteHandler,
         LoggerHelper $ckoLogger,
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = [],
-        DirectoryHelper $directoryHelper,
-        DataObjectFactory $dataObjectFactory
+        array $data = []
     ) {
         parent::__construct(
             $config,
@@ -226,11 +227,11 @@ class VaultMethod extends AbstractMethod
             $paymentData,
             $scopeConfig,
             $logger,
+            $directoryHelper,
+            $dataObjectFactory,
             $resource,
             $resourceCollection,
-            $data,
-            $directoryHelper,
-            $dataObjectFactory
+            $data
         );
 
         $this->backendAuthSession = $backendAuthSession;
