@@ -167,7 +167,8 @@ class Verify extends Action
                                 ]);
                             }
 
-                            if (isset($response->metadata['successUrl']) && !str_contains(
+                            if (isset($response->metadata['successUrl']) &&
+                                false === strpos(
                                     $response->metadata['successUrl'],
                                     'checkout_com/payment/verify'
                                 )) {
