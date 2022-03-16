@@ -57,6 +57,9 @@ Amongst many others, the major features are:
 * REST API for mobile payments
 * Payment form customization
 
+## Multi-shipping
+The Checkout.com extension for Magento 2 is not compatible with Magento multi-shipping feature.
+
 ## Installation
 The easiest and recommended way to install the Checkout.com Magento 2 extension is to run the following commands in a terminal, from your Magento 2 root directory:
 
