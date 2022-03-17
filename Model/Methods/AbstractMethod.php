@@ -227,9 +227,9 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * Core store config
      *
-     * @var ScopeConfigInterface $_scopeConfig
+     * @var ScopeConfigInterface $scopeConfig
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     /**
      * $logger field
      *
@@ -256,8 +256,6 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     private $config;
 
     /**
-     * AbstractMethod constructor
-     *
      * @param Config                     $config
      * @param Context                    $context
      * @param Registry                   $registry
@@ -266,10 +264,11 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @param Data                       $paymentData
      * @param ScopeConfigInterface       $scopeConfig
      * @param Logger                     $logger
+     * @param DirectoryHelper            $directory
+     * @param DataObjectFactory          $dataObjectFactory
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
-     * @param DirectoryHelper|null       $directory
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -281,11 +280,11 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         Data $paymentData,
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
+        DirectoryHelper $directory,
+        DataObjectFactory $dataObjectFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = [],
-        DirectoryHelper $directory,
-        DataObjectFactory $dataObjectFactory
+        array $data = []
     ) {
         parent::__construct(
             $context,
@@ -298,7 +297,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         );
         $this->config            = $config;
         $this->_paymentData      = $paymentData;
-        $this->_scopeConfig      = $scopeConfig;
+        $this->scopeConfig       = $scopeConfig;
         $this->logger            = $logger;
         $this->directory         = $directory;
         $this->data              = $data;
@@ -583,7 +582,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         }
         $path = 'payment/' . $this->getCode() . '/' . $field;
 
-        return $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
+        return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
@@ -1036,5 +1035,15 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         if (!empty($data['formBlockType'])) {
             $this->_formBlockType = $data['formBlockType'];
         }
+    }
+
+    /**
+     * Description isModuleActive function
+     *
+     * @return bool
+     */
+    public function isModuleActive(): bool
+    {
+        return (bool)$this->scopeConfig->getValue('settings/checkoutcom_configuration/active');
     }
 }

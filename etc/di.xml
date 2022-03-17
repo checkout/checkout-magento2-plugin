@@ -15,7 +15,24 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-
+    <!-- Logger -->
+    <virtualType name="checkoutcom_magento2_logger_handler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/checkoutcom_magento2.log</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="checkoutcom_magento2_logger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="debug" xsi:type="object">checkoutcom_magento2_logger_handler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="CheckoutCom\Magento2\Helper\Logger">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
     <!-- Method handler configurations -->
     <type name="CheckoutCom\Magento2\Model\Service\MethodHandlerService">
         <arguments>

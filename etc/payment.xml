@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2020 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
+ */
+-->
+
+<payment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Payment:etc/payment.xsd">
+    <methods>
+        <method name="checkoutcom_card_payment">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="checkoutcom_apm">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="checkoutcom_apple_pay">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="checkoutcom_google_pay">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="checkoutcom_vault">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+    </methods>
+</payment>

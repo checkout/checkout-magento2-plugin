@@ -122,9 +122,6 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfigArray(): array
     {
-        // This is needed to save the billing address for virtual orders.
-        $this->quoteHandler->saveQuote();
-
         return array_merge($this->config->getModuleConfig(), $this->config->getMethodsConfig(), [
                 'checkoutcom_data' => [
                     'quote'            => $this->quoteHandler->getQuoteData(),

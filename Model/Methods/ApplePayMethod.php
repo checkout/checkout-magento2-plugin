@@ -174,10 +174,11 @@ class ApplePayMethod extends AbstractMethod
      * @param StoreManagerInterface      $storeManager
      * @param QuoteHandlerService        $quoteHandler
      * @param MagentoLoggerHelper        $ckoLogger
+     * @param DirectoryHelper            $directoryHelper
+     * @param DataObjectFactory          $dataObjectFactory
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
-     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
         Context $context,
@@ -194,11 +195,11 @@ class ApplePayMethod extends AbstractMethod
         StoreManagerInterface $storeManager,
         QuoteHandlerService $quoteHandler,
         MagentoLoggerHelper $ckoLogger,
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = [],
-        DirectoryHelper $directoryHelper,
-        DataObjectFactory $dataObjectFactory
+        array $data = []
     ) {
         parent::__construct(
             $config,
@@ -209,11 +210,11 @@ class ApplePayMethod extends AbstractMethod
             $paymentData,
             $scopeConfig,
             $logger,
+            $directoryHelper,
+            $dataObjectFactory,
             $resource,
             $resourceCollection,
-            $data,
-            $directoryHelper,
-            $dataObjectFactory
+            $data
         );
 
         $this->backendAuthSession = $backendAuthSession;
@@ -497,7 +498,7 @@ class ApplePayMethod extends AbstractMethod
      */
     public function isAvailable(CartInterface $quote = null): bool
     {
-        if (parent::isAvailable($quote) && null !== $quote) {
+        if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code) && $this->config->getValue(
                     'enabled_on_checkout',
                     $this->_code

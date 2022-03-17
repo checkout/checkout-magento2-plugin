@@ -142,10 +142,11 @@ class MotoMethod extends AbstractMethod
      * @param Session                    $backendAuthSession
      * @param Config                     $config
      * @param ApiHandlerService          $apiHandler
+     * @param DirectoryHelper            $directoryHelper
+     * @param DataObjectFactory          $dataObjectFactory
      * @param AbstractResource|null      $resource
      * @param AbstractDb|null            $resourceCollection
      * @param array                      $data
-     * @param DirectoryHelper            $directoryHelper
      */
     public function __construct(
         Context $context,
@@ -158,11 +159,11 @@ class MotoMethod extends AbstractMethod
         Session $backendAuthSession,
         Config $config,
         ApiHandlerService $apiHandler,
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        array $data = [],
-        DirectoryHelper $directoryHelper,
-        DataObjectFactory $dataObjectFactory
+        array $data = []
     ) {
         parent::__construct(
             $config,
@@ -173,11 +174,11 @@ class MotoMethod extends AbstractMethod
             $paymentData,
             $scopeConfig,
             $logger,
+            $directoryHelper,
+            $dataObjectFactory,
             $resource,
             $resourceCollection,
-            $data,
-            $directoryHelper,
-            $dataObjectFactory
+            $data
         );
 
         $this->backendAuthSession = $backendAuthSession;
@@ -372,7 +373,7 @@ class MotoMethod extends AbstractMethod
      */
     public function isAvailable(CartInterface $quote = null): bool
     {
-        if (parent::isAvailable($quote) && null !== $quote) {
+        if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code) && $this->backendAuthSession->isLoggedIn();
         }
 
