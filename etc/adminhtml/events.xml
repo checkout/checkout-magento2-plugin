@@ -18,7 +18,7 @@
     <event name="sales_order_save_before">
         <observer name="cko_order_save_before" instance="CheckoutCom\Magento2\Observer\Backend\MotoPaymentRequest" />
     </event>
-    
+
     <!-- Order after void event -->
     <event name="sales_order_payment_void">
         <observer name="cko_order_payment_void" instance="CheckoutCom\Magento2\Observer\Backend\OrderAfterVoid" />
@@ -32,5 +32,9 @@
     <!-- Order after cancel event -->
     <event name="sales_order_payment_cancel">
         <observer name="cko_order_payment_cancel" instance="CheckoutCom\Magento2\Observer\Backend\OrderAfterCancel" />
+    </event>
+
+    <event name="admin_system_config_changed_section_payment">
+        <observer name="cko_add_bearer_when_nas" instance="CheckoutCom\Magento2\Observer\Backend\AddBearerWhenNas"/>
     </event>
 </config>
