@@ -31,6 +31,8 @@ use Checkout\Models\Payments\Voids;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
@@ -110,7 +112,8 @@ class ApiHandlerService
         Utilities $utilities,
         Logger $logger,
         OrderHandlerService $orderHandler,
-        VersionHandlerService $versionHandler
+        VersionHandlerService $versionHandler,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->storeManager   = $storeManager;
         $this->productMeta    = $productMeta;
@@ -119,6 +122,7 @@ class ApiHandlerService
         $this->logger         = $logger;
         $this->orderHandler   = $orderHandler;
         $this->versionHandler = $versionHandler;
+        $this->scopeConfig    = $scopeConfig;
     }
 
     /**
@@ -136,15 +140,30 @@ class ApiHandlerService
         string $secretKey = null
     ): ApiHandlerService
     {
-        if ($secretKey) {
+        /** @var bool $secretKeyPassed */
+        $secretKeyPassed = (bool)$secretKey;
+        /** @var string $service */
+        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH);
+        /** @var string $publicKey */
+        $publicKey = $this->config->getValue('public_key', null, $storeCode, $scope);
+        if (!$secretKeyPassed) {
+            $secretKey = $this->config->getValue('secret_key', null, $storeCode, $scope);
+        }
+
+        if ($service === ConfigService::SERVICE_NAS) {
+            $secretKey = ConfigService::BEARER_KEY . $secretKey;
+            $publicKey = ConfigService::BEARER_KEY . $publicKey;
+        }
+
+        if ($secretKeyPassed) {
             $this->checkoutApi = new CheckoutApi(
                 $secretKey, $this->config->getValue('environment', null, $storeCode, $scope)
             );
         } else {
             $this->checkoutApi = new CheckoutApi(
-                $this->config->getValue('secret_key', null, $storeCode, $scope),
+                $secretKey,
                 $this->config->getValue('environment', null, $storeCode, $scope),
-                $this->config->getValue('public_key', null, $storeCode, $scope)
+                $publicKey
             );
         }
 

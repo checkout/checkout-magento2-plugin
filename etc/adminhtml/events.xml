@@ -33,8 +33,4 @@
     <event name="sales_order_payment_cancel">
         <observer name="cko_order_payment_cancel" instance="CheckoutCom\Magento2\Observer\Backend\OrderAfterCancel" />
     </event>
-
-    <event name="admin_system_config_changed_section_payment">
-        <observer name="cko_add_bearer_when_nas" instance="CheckoutCom\Magento2\Observer\Backend\AddBearerWhenNas"/>
-    </event>
 </config>
