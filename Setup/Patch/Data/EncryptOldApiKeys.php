@@ -116,17 +116,29 @@ class EncryptOldApiKeys implements DataPatchInterface
             /** @var string $coreConfigDataTable */
             $coreConfigDataTable = $setup->getTableName('core_config_data');
             /** @var Select $query */
-            $query = $setup->select()->from($coreConfigDataTable, ['value'])->where('path = ?', $configPath);
-            /** @var mixed $oldKey */
-            $oldKey = $setup->fetchRow($query);
+            $query = $setup->select()->from($coreConfigDataTable, ['scope', 'scope_id', 'value'])->where('path = ?', $configPath);
+            /** @var mixed[] $oldKeys */
+            $oldKeys = $setup->fetchAll($query);
 
-            if ($oldKey) {
-                $oldKey = $oldKey['value'];
-                /** @var string $encryptedKey */
-                $encryptedKey = $this->encryptor->encrypt($oldKey);
-                $this->writer->save($configPath, $encryptedKey);
+            /** @var mixed[] $oldKey */
+            foreach ($oldKeys as $oldKey) {
+                $this->encryptKey($oldKey, $configPath);
             }
         }
         $this->moduleDataSetup->getConnection()->endSetup();
+    }
+
+    /**
+     * @param mixed[]  $oldKey
+     * @param string $configPath
+     *
+     * @return void
+     */
+    public function encryptKey(array $oldKey, string $configPath): void {
+        if ($oldKey) {
+            /** @var string $encryptedKey */
+            $encryptedKey = $this->encryptor->encrypt($oldKey['value']);
+            $this->writer->save($configPath, $encryptedKey, $oldKey['scope'], (int)$oldKey['scope_id']);
+        }
     }
 }
