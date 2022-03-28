@@ -22,6 +22,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\BillingDescriptor;
 use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\ThreeDs;
 use Checkout\Models\Payments\TokenSource;
 use Checkout\Models\Tokens\GooglePay;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -39,7 +40,6 @@ use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
@@ -160,25 +160,25 @@ class GooglePayMethod extends AbstractMethod
     /**
      * GooglePayMethod constructor
      *
-     * @param Context                    $context
-     * @param Registry                   $registry
+     * @param Context $context
+     * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory      $customAttributeFactory
-     * @param Data                       $paymentData
-     * @param ScopeConfigInterface       $scopeConfig
-     * @param Logger                     $logger
-     * @param Config                     $config
-     * @param ApiHandlerService          $apiHandler
-     * @param Utilities                  $utilities
-     * @param StoreManagerInterface      $storeManager
-     * @param QuoteHandlerService        $quoteHandler
-     * @param LoggerHelper               $ckoLogger
-     * @param Session                    $backendAuthSession
-     * @param DirectoryHelper            $directoryHelper
-     * @param DataObjectFactory          $dataObjectFactory
-     * @param AbstractResource|null      $resource
-     * @param AbstractDb|null            $resourceCollection
-     * @param array                      $data
+     * @param AttributeValueFactory $customAttributeFactory
+     * @param Data $paymentData
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
+     * @param Config $config
+     * @param ApiHandlerService $apiHandler
+     * @param Utilities $utilities
+     * @param StoreManagerInterface $storeManager
+     * @param QuoteHandlerService $quoteHandler
+     * @param LoggerHelper $ckoLogger
+     * @param Session $backendAuthSession
+     * @param DirectoryHelper $directoryHelper
+     * @param DataObjectFactory $dataObjectFactory
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
      */
     public function __construct(
         Context $context,
@@ -217,12 +217,12 @@ class GooglePayMethod extends AbstractMethod
             $data
         );
 
-        $this->config             = $config;
-        $this->apiHandler         = $apiHandler;
-        $this->utilities          = $utilities;
-        $this->storeManager       = $storeManager;
-        $this->quoteHandler       = $quoteHandler;
-        $this->ckoLogger          = $ckoLogger;
+        $this->config = $config;
+        $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
+        $this->storeManager = $storeManager;
+        $this->quoteHandler = $quoteHandler;
+        $this->ckoLogger = $ckoLogger;
         $this->backendAuthSession = $backendAuthSession;
     }
 
@@ -230,9 +230,9 @@ class GooglePayMethod extends AbstractMethod
      * Send a charge request
      *
      * @param string[] $data
-     * @param float    $amount
-     * @param string   $currency
-     * @param string   $reference
+     * @param float $amount
+     * @param string $currency
+     * @param string $reference
      *
      * @return mixed|void
      * @throws FileSystemException
@@ -263,6 +263,7 @@ class GooglePayMethod extends AbstractMethod
         $tokenSource = new TokenSource($tokenData->getId());
 
         // Set the payment
+        /** @var Payment $request */
         $request = new Payment(
             $tokenSource, $currency
         );
@@ -278,15 +279,19 @@ class GooglePayMethod extends AbstractMethod
         }
 
         // Set the request parameters
-        $request->amount       = $this->quoteHandler->amountToGateway(
+        $request->amount = $this->quoteHandler->amountToGateway(
             $this->utilities->formatDecimals($amount),
             $quote
         );
-        $request->reference    = $reference;
-        $request->description  = __('Payment request from %1', $this->config->getStoreName())->render();
-        $request->customer     = $api->createCustomer($quote);
+
+        $request->reference = $reference;
+        $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+        $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+        $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
+        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
+        $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
-        $request->shipping     = $api->createShippingAddress($quote);
+            $request->shipping = $api->createShippingAddress($quote);
 
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
@@ -318,7 +323,7 @@ class GooglePayMethod extends AbstractMethod
      * Perform a capture request
      *
      * @param InfoInterface $payment
-     * @param float         $amount
+     * @param float $amount
      *
      * @return $this|GooglePayMethod
      * @throws LocalizedException
@@ -442,7 +447,7 @@ class GooglePayMethod extends AbstractMethod
      * Perform a refund request
      *
      * @param InfoInterface $payment
-     * @param float         $amount
+     * @param float $amount
      *
      * @return $this|GooglePayMethod
      * @throws LocalizedException

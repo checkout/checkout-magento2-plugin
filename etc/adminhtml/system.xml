@@ -94,7 +94,7 @@
                             <label>Enable Webhook Table</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                             <config_path>settings/checkoutcom_configuration/webhooks_table_enabled</config_path>
-                            <comment>This enables webhooks to be logged to a dedicated table to improve traceability for when webhook events are received. </comment>
+                            <comment>This enables webhooks to be logged to a dedicated table to improve traceability for when webhook events are received.</comment>
                         </field>
 
                         <field id="webhooks_table_clean_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -420,7 +420,6 @@
                         <comment>The Apple Pay merchant id (e.g. merchant.example.com.sandbox). Make sure you validated this domain in the mercahnt id settings.</comment>
                     </field>
 
-
                     <field id="merchant_id_certificate" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant Identity Certificate*</label>
                         <config_path>payment/checkoutcom_apple_pay/merchant_id_certificate</config_path>
@@ -475,6 +474,12 @@
                         <requires>
                             <field id="merchant_id"/>
                         </requires>
+                    </field>
+
+                    <field id="three_ds" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Used 3D Secure</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_google_pay/three_ds</config_path>
                     </field>
 
                     <field id="sort_order" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
