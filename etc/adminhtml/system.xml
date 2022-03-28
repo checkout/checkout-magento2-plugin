@@ -477,7 +477,7 @@
                     </field>
 
                     <field id="three_ds" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Used 3D Secure</label>
+                        <label>Use 3D Secure</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_google_pay/three_ds</config_path>
                     </field>

@@ -291,7 +291,7 @@ class GooglePayMethod extends AbstractMethod
         $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
-            $request->shipping = $api->createShippingAddress($quote);
+        $request->shipping = $api->createShippingAddress($quote);
 
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
