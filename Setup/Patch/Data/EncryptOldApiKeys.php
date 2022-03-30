@@ -67,8 +67,8 @@ class EncryptOldApiKeys implements DataPatchInterface
      * EncryptOldApiKeys constructor
      *
      * @param ModuleDataSetupInterface $moduleDataSetup
-     * @param EncryptorInterface       $encryptor
-     * @param WriterInterface          $writer
+     * @param EncryptorInterface $encryptor
+     * @param WriterInterface $writer
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
@@ -76,8 +76,8 @@ class EncryptOldApiKeys implements DataPatchInterface
         WriterInterface $writer
     ) {
         $this->moduleDataSetup = $moduleDataSetup;
-        $this->encryptor       = $encryptor;
-        $this->writer          = $writer;
+        $this->encryptor = $encryptor;
+        $this->writer = $writer;
     }
 
     /**
@@ -129,12 +129,13 @@ class EncryptOldApiKeys implements DataPatchInterface
     }
 
     /**
-     * @param mixed[]  $oldKey
+     * @param mixed[] $oldKey
      * @param string $configPath
      *
      * @return void
      */
-    public function encryptKey(array $oldKey, string $configPath): void {
+    public function encryptKey(array $oldKey, string $configPath): void
+    {
         if ($oldKey) {
             /** @var string $encryptedKey */
             $encryptedKey = $this->encryptor->encrypt($oldKey['value']);
