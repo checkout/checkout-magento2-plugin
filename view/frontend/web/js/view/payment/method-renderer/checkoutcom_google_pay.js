@@ -22,9 +22,11 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/action/redirect-on-success',
         'mage/translate',
-        'googlepayjs'
+        'googlepayjs',
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, RedirectOnSuccessAction, __) {
+    function(
+        $, Component, Utilities, FullScreenLoader, AdditionalValidators,
+        RedirectOnSuccessAction, __) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_google_pay';
@@ -32,15 +34,16 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
+                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID +
+                        '.html',
                     button_target: '#ckoGooglePayButton',
-                    redirectAfterPlaceOrder: false
+                    redirectAfterPlaceOrder: false,
                 },
 
                 /**
                  * @return {exports}
                  */
-                initialize: function () {
+                initialize: function() {
                     this._super();
                     Utilities.setEmail();
                     Utilities.loadCss('google-pay', 'google-pay');
@@ -55,14 +58,14 @@ define(
                 /**
                  * @return {string}
                  */
-                getCode: function () {
+                getCode: function() {
                     return METHOD_ID;
                 },
 
                 /**
                  * @return {string}
                  */
-                getValue: function (field) {
+                getValue: function(field) {
                     return Utilities.getValue(METHOD_ID, field);
                 },
 
@@ -72,23 +75,25 @@ define(
                 /**
                  * @return {array}
                  */
-                getAllowedNetworks: function () {
+                getAllowedNetworks: function() {
                     return this.getValue('allowed_card_networks').split(',');
                 },
 
                 /**
                  * @return {bool}
                  */
-                launchGooglePay: function () {
+                launchGooglePay: function() {
                     // Prepare the parameters
                     var self = this;
 
                     // Apply the button style
-                    $(self.button_target).addClass('google-pay-button-' + self.getValue('button_style'));
+                    $(self.button_target).
+                        addClass('google-pay-button-' +
+                            self.getValue('button_style'));
 
                     //  Button click event
                     $(self.button_target).click(
-                        function (evt) {
+                        function(evt) {
                             if (Utilities.methodIsSelected(METHOD_ID)) {
                                 // Validate T&C submission
                                 if (!AdditionalValidators.validate()) {
@@ -96,16 +101,20 @@ define(
                                 }
 
                                 // Prepare the payment parameters
-                                var allowedPaymentMethods = ['CARD', 'TOKENIZED_CARD'];
+                                var allowedPaymentMethods = [
+                                    'CARD',
+                                    'TOKENIZED_CARD'];
                                 var allowedCardNetworks = self.getAllowedNetworks();
 
                                 var tokenizationParameters = {
                                     tokenizationType: 'PAYMENT_GATEWAY',
                                     parameters: {
-                                        'gateway': self.getValue('gateway_name'),
-                                        'gatewayMerchantId': self.getValue('public_key')
-                                    }
-                                }
+                                        'gateway': self.getValue(
+                                            'gateway_name'),
+                                        'gatewayMerchantId': self.getValue(
+                                            'public_key'),
+                                    },
+                                };
 
                                 // Prepare the Google Pay client
                                 onGooglePayLoaded();
@@ -117,17 +126,16 @@ define(
                                 paymentDataRequest.transactionInfo = getGoogleTransactionInfo();
 
                                 var paymentsClient = getGooglePaymentsClient();
-                                paymentsClient.loadPaymentData(paymentDataRequest)
-                                .then(
-                                    function (paymentData) {
+                                paymentsClient.loadPaymentData(
+                                    paymentDataRequest).then(
+                                    function(paymentData) {
                                         // handle the response
                                         processPayment(paymentData);
-                                    }
-                                )
-                                .catch(
-                                    function (error) {
+                                    },
+                                ).catch(
+                                    function(error) {
                                         Utilities.log(error);
-                                    }
+                                    },
                                 );
 
                                 /**
@@ -135,34 +143,34 @@ define(
                                  *
                                  * @return {google.payments.api.PaymentsClient} Google Pay API client
                                  */
-                                function getGooglePaymentsClient()
-                                {
+                                function getGooglePaymentsClient() {
                                     return (new google.payments.api.PaymentsClient(
                                         {
-                                            environment: self.getValue('environment')
-                                        }
+                                            environment: self.getValue(
+                                                'environment'),
+                                        },
                                     ));
                                 }
 
                                 /**
                                  * Initialize Google PaymentsClient after Google-hosted JavaScript has loaded
                                  */
-                                function onGooglePayLoaded()
-                                {
+                                function onGooglePayLoaded() {
                                     var paymentsClient = getGooglePaymentsClient();
-                                    paymentsClient.isReadyToPay({ allowedPaymentMethods: allowedPaymentMethods })
-                                    .then(
-                                        function (response) {
-                                            if (response.result) {
-                                                prefetchGooglePaymentData();
-                                            }
-                                        }
-                                    )
-                                    .catch(
-                                        function (err) {
-                                            Utilities.log(err);
-                                        }
-                                    );
+                                    paymentsClient.isReadyToPay(
+                                        {allowedPaymentMethods: allowedPaymentMethods}).
+                                        then(
+                                            function(response) {
+                                                if (response.result) {
+                                                    prefetchGooglePaymentData();
+                                                }
+                                            },
+                                        ).
+                                        catch(
+                                            function(err) {
+                                                Utilities.log(err);
+                                            },
+                                        );
                                 }
 
                                 /**
@@ -171,15 +179,15 @@ define(
                                  * @see     {@link https://developers.google.com/pay/api/web/reference/object#PaymentDataRequest|PaymentDataRequest}
                                  * @return {object} PaymentDataRequest fields
                                  */
-                                function getGooglePaymentDataConfiguration()
-                                {
+                                function getGooglePaymentDataConfiguration() {
                                     return {
-                                        merchantId: self.getValue('merchant_id'),
+                                        merchantId: self.getValue(
+                                            'merchant_id'),
                                         paymentMethodTokenizationParameters: tokenizationParameters,
                                         allowedPaymentMethods: allowedPaymentMethods,
                                         cardRequirements: {
-                                            allowedCardNetworks: allowedCardNetworks
-                                        }
+                                            allowedCardNetworks: allowedCardNetworks,
+                                        },
                                     };
                                 }
 
@@ -189,30 +197,29 @@ define(
                                  * @see     {@link https://developers.google.com/pay/api/web/reference/object#TransactionInfo|TransactionInfo}
                                  * @return {object} transaction info, suitable for use as transactionInfo property of PaymentDataRequest
                                  */
-                                function getGoogleTransactionInfo()
-                                {
+                                function getGoogleTransactionInfo() {
                                     return {
                                         currencyCode: Utilities.getQuoteCurrency(),
                                         totalPriceStatus: 'FINAL',
-                                        totalPrice: Utilities.getQuoteValue()
+                                        totalPrice: Utilities.getQuoteValue(),
                                     };
                                 }
 
                                 /**
                                  * Prefetch payment data to improve performance
                                  */
-                                function prefetchGooglePaymentData()
-                                {
+                                function prefetchGooglePaymentData() {
                                     var paymentDataRequest = getGooglePaymentDataConfiguration();
 
                                     // TransactionInfo must be set but does not affect cache
                                     paymentDataRequest.transactionInfo = {
                                         totalPriceStatus: 'NOT_CURRENTLY_KNOWN',
-                                        currencyCode: Utilities.getQuoteCurrency()
+                                        currencyCode: Utilities.getQuoteCurrency(),
                                     };
 
                                     var paymentsClient = getGooglePaymentsClient();
-                                    paymentsClient.prefetchPaymentData(paymentDataRequest);
+                                    paymentsClient.prefetchPaymentData(
+                                        paymentDataRequest);
                                 }
 
                                 /**
@@ -221,8 +228,7 @@ define(
                                  * @param {object} paymentData response from Google Pay API after shopper approves payment
                                  * @see   {@link https://developers.google.com/pay/api/web/reference/object#PaymentData|PaymentData object reference}
                                  */
-                                function processPayment(paymentData)
-                                {
+                                function processPayment(paymentData) {
                                     // Start the loader
                                     FullScreenLoader.startLoader();
 
@@ -230,30 +236,39 @@ define(
                                     var payload = {
                                         methodId: METHOD_ID,
                                         cardToken: {
-                                            signature: JSON.parse(paymentData.paymentMethodToken.token).signature,
-                                            protocolVersion: JSON.parse(paymentData.paymentMethodToken.token).protocolVersion,
-                                            signedMessage: JSON.parse(paymentData.paymentMethodToken.token).signedMessage,
+                                            signature: JSON.parse(
+                                                paymentData.paymentMethodToken.token).signature,
+                                            protocolVersion: JSON.parse(
+                                                paymentData.paymentMethodToken.token).protocolVersion,
+                                            signedMessage: JSON.parse(
+                                                paymentData.paymentMethodToken.token).signedMessage,
                                         },
-                                        source: METHOD_ID
+                                        source: METHOD_ID,
                                     };
 
                                     // Send the request
                                     $.post(
                                         Utilities.getUrl('payment/placeorder'),
                                         payload,
-                                        function (data, status) {
+                                        function(data, status) {
                                             if (data.success === true) {
-                                                // Redirect to success page
-                                                RedirectOnSuccessAction.execute();
+                                                // Redirect to 3Ds page
+                                                if (data.url) {
+                                                    window.location.href = data.url;
+                                                } else {
+                                                    // Redirect to success page
+                                                    RedirectOnSuccessAction.execute();
+                                                }
                                             } else {
                                                 FullScreenLoader.stopLoader();
-                                                alert(__('An error has occurred. Please try again.'));
+                                                alert(
+                                                    __('An error has occurred. Please try again.'));
                                             }
-                                        }
+                                        },
                                     );
                                 }
                             }
-                        }
+                        },
                     );
                 },
 
@@ -264,7 +279,7 @@ define(
                 /**
                  * @return {string}
                  */
-                beforePlaceOrder: function () {
+                beforePlaceOrder: function() {
                     // Start the loader
                     FullScreenLoader.startLoader();
 
@@ -274,8 +289,8 @@ define(
                     } else {
                         FullScreenLoader.stopLoader();
                     }
-                }
-            }
+                },
+            },
         );
-    }
+    },
 );
