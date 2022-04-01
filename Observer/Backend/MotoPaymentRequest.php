@@ -195,6 +195,7 @@ class MotoPaymentRequest implements ObserverInterface
             $request->capture      = $this->config->needsAutoCapture($methodId);
             $request->amount       = $this->prepareMotoAmount($order);
             $request->reference    = $order->getIncrementId();
+            $request->customer     = $api->createCustomer($order);
             $request->payment_type = 'MOTO';
             if ($order->getIsNotVirtual()) {
                 $request->shipping = $api->createShippingAddress($order);

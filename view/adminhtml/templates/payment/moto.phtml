@@ -82,7 +82,14 @@ use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
                 publicKey: '<?= $block->escapeHtml($block->getConfig()->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
                 debug: Boolean(<?= $block->escapeHtml($block->getConfig()->getValue('debug')) ?>),
                 cardValidationChanged: function(event) {
+                    var cardholderName = $('#order-billing_address_firstname').val() + ' ' + $('#order-billing_address_lastname').val();
+
                     if (Frames.isCardValid()) {
+                        if(cardholderName.length > 0) {
+                            Frames.cardholder = {
+                                name: cardholderName
+                            };
+                        }
                         Frames.submitCard();
                     }
                 },
