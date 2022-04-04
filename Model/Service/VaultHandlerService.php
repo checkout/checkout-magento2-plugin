@@ -27,6 +27,7 @@ use CheckoutCom\Magento2\Model\Vault\VaultToken;
 use Exception;
 use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
@@ -113,14 +114,14 @@ class VaultHandlerService
     /**
      * VaultHandlerService constructor
      *
-     * @param StoreManagerInterface           $storeManager
-     * @param VaultToken                      $vaultToken
+     * @param StoreManagerInterface $storeManager
+     * @param VaultToken $vaultToken
      * @param PaymentTokenRepositoryInterface $paymentTokenRepository
      * @param PaymentTokenManagementInterface $paymentTokenManagement
-     * @param Session                         $customerSession
-     * @param ApiHandlerService               $apiHandler
-     * @param CardHandlerService              $cardHandler
-     * @param Config                          $config
+     * @param Session $customerSession
+     * @param ApiHandlerService $apiHandler
+     * @param CardHandlerService $cardHandler
+     * @param Config $config
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -132,14 +133,14 @@ class VaultHandlerService
         CardHandlerService $cardHandler,
         Config $config
     ) {
-        $this->storeManager           = $storeManager;
-        $this->vaultToken             = $vaultToken;
+        $this->storeManager = $storeManager;
+        $this->vaultToken = $vaultToken;
         $this->paymentTokenRepository = $paymentTokenRepository;
         $this->paymentTokenManagement = $paymentTokenManagement;
-        $this->customerSession        = $customerSession;
-        $this->apiHandler             = $apiHandler;
-        $this->cardHandler            = $cardHandler;
-        $this->config                 = $config;
+        $this->customerSession = $customerSession;
+        $this->apiHandler = $apiHandler;
+        $this->cardHandler = $cardHandler;
+        $this->config = $config;
     }
 
     /**
@@ -246,9 +247,9 @@ class VaultHandlerService
         );
 
         // Set the request parameters
-        $request->amount               = 0;
-        $request->threeDs              = new ThreeDs($this->config->needs3ds('checkoutcom_vault'));
-        $request->threeDs->attempt_n3d = (bool)$this->config->getValue('attempt_n3d', 'checkoutcom_vault');
+        $request->amount = 0;
+        $request->threeDs = new ThreeDs($this->config->needs3ds('checkoutcom_vault'));
+        $request->threeDs->attempt_n3d = (bool)$this->config->getValue('attempt_n3d', 'checkoutcom_vault', null, ScopeInterface::SCOPE_WEBSITE);
         // $request->description = __('Save card authorization request from %1', $this->config->getStoreName());
         $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
         $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
@@ -280,7 +281,7 @@ class VaultHandlerService
                 $cardData = $values['source'];
 
                 // Create the payment token
-                $paymentToken      = $this->vaultToken->create($cardData, 'checkoutcom_vault', $this->customerId);
+                $paymentToken = $this->vaultToken->create($cardData, 'checkoutcom_vault', $this->customerId);
                 $foundPaymentToken = $this->foundExistedPaymentToken($paymentToken);
 
                 // Check if card exists
@@ -325,7 +326,7 @@ class VaultHandlerService
     /**
      * Get a user's saved card from public hash
      *
-     * @param string     $publicHash
+     * @param string $publicHash
      * @param mixed|null $customerId
      *
      * @return mixed|null

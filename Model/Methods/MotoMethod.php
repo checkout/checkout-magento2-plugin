@@ -30,7 +30,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
@@ -38,6 +37,7 @@ use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class MotoMethod
@@ -132,21 +132,21 @@ class MotoMethod extends AbstractMethod
     /**
      * MotoMethod constructor
      *
-     * @param Context                    $context
-     * @param Registry                   $registry
+     * @param Context $context
+     * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory      $customAttributeFactory
-     * @param Data                       $paymentData
-     * @param ScopeConfigInterface       $scopeConfig
-     * @param Logger                     $logger
-     * @param Session                    $backendAuthSession
-     * @param Config                     $config
-     * @param ApiHandlerService          $apiHandler
-     * @param DirectoryHelper            $directoryHelper
-     * @param DataObjectFactory          $dataObjectFactory
-     * @param AbstractResource|null      $resource
-     * @param AbstractDb|null            $resourceCollection
-     * @param array                      $data
+     * @param AttributeValueFactory $customAttributeFactory
+     * @param Data $paymentData
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
+     * @param Session $backendAuthSession
+     * @param Config $config
+     * @param ApiHandlerService $apiHandler
+     * @param DirectoryHelper $directoryHelper
+     * @param DataObjectFactory $dataObjectFactory
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
      */
     public function __construct(
         Context $context,
@@ -182,8 +182,8 @@ class MotoMethod extends AbstractMethod
         );
 
         $this->backendAuthSession = $backendAuthSession;
-        $this->config             = $config;
-        $this->apiHandler         = $apiHandler;
+        $this->config = $config;
+        $this->apiHandler = $apiHandler;
     }
 
     /**
@@ -274,7 +274,7 @@ class MotoMethod extends AbstractMethod
      * Perform a capture request
      *
      * @param InfoInterface $payment
-     * @param float         $amount
+     * @param float $amount
      *
      * @return $this|MotoMethod
      * @throws LocalizedException
@@ -314,7 +314,7 @@ class MotoMethod extends AbstractMethod
      * Perform a refund request
      *
      * @param InfoInterface $payment
-     * @param float         $amount
+     * @param float $amount
      *
      * @return $this|MotoMethod
      * @throws LocalizedException
@@ -374,7 +374,7 @@ class MotoMethod extends AbstractMethod
     public function isAvailable(CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code) && $this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->_code, null, ScopeInterface::SCOPE_WEBSITE) && $this->backendAuthSession->isLoggedIn();
         }
 
         return false;

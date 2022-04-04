@@ -49,6 +49,7 @@ use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -174,27 +175,27 @@ class CardPaymentMethod extends AbstractMethod
     /**
      * CardPaymentMethod constructor
      *
-     * @param Context                    $context
-     * @param Registry                   $registry
+     * @param Context $context
+     * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory      $customAttributeFactory
-     * @param Data                       $paymentData
-     * @param ScopeConfigInterface       $scopeConfig
-     * @param Logger                     $logger
-     * @param Session                    $backendAuthSession
-     * @param CustomerModelSession       $customerSession
-     * @param Config                     $config
-     * @param ApiHandlerService          $apiHandler
-     * @param Utilities                  $utilities
-     * @param StoreManagerInterface      $storeManager
-     * @param QuoteHandlerService        $quoteHandler
-     * @param CardHandlerService         $cardHandler
-     * @param LoggerHelper               $ckoLogger
-     * @param DirectoryHelper            $directoryHelper
-     * @param DataObjectFactory          $dataObjectFactory
-     * @param AbstractResource|null      $resource
-     * @param AbstractDb|null            $resourceCollection
-     * @param array                      $data
+     * @param AttributeValueFactory $customAttributeFactory
+     * @param Data $paymentData
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
+     * @param Session $backendAuthSession
+     * @param CustomerModelSession $customerSession
+     * @param Config $config
+     * @param ApiHandlerService $apiHandler
+     * @param Utilities $utilities
+     * @param StoreManagerInterface $storeManager
+     * @param QuoteHandlerService $quoteHandler
+     * @param CardHandlerService $cardHandler
+     * @param LoggerHelper $ckoLogger
+     * @param DirectoryHelper $directoryHelper
+     * @param DataObjectFactory $dataObjectFactory
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
      */
     public function __construct(
         Context $context,
@@ -236,26 +237,26 @@ class CardPaymentMethod extends AbstractMethod
         );
 
         $this->backendAuthSession = $backendAuthSession;
-        $this->customerSession    = $customerSession;
-        $this->config             = $config;
-        $this->apiHandler         = $apiHandler;
-        $this->utilities          = $utilities;
-        $this->storeManager       = $storeManager;
-        $this->quoteHandler       = $quoteHandler;
-        $this->cardHandler        = $cardHandler;
-        $this->ckoLogger          = $ckoLogger;
+        $this->customerSession = $customerSession;
+        $this->config = $config;
+        $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
+        $this->storeManager = $storeManager;
+        $this->quoteHandler = $quoteHandler;
+        $this->cardHandler = $cardHandler;
+        $this->ckoLogger = $ckoLogger;
     }
 
     /**
      * Send a charge request
      *
-     * @param string[]           $data
-     * @param float              $amount
-     * @param string             $currency
-     * @param string             $reference
+     * @param string[] $data
+     * @param float $amount
+     * @param string $currency
+     * @param string $reference
      * @param CartInterface|null $quote
-     * @param bool|null          $isApiOrder
-     * @param mixed|null         $customerId
+     * @param bool|null $isApiOrder
+     * @param mixed|null $customerId
      *
      * @return CheckoutHttpException|Exception|mixed|void
      * @throws FileSystemException
@@ -283,7 +284,7 @@ class CardPaymentMethod extends AbstractMethod
         }
 
         // Set the token source
-        $tokenSource                  = new TokenSource($data['cardToken']);
+        $tokenSource = new TokenSource($data['cardToken']);
         $tokenSource->billing_address = $api->createBillingAddress($quote);
 
         // Set the payment
@@ -295,7 +296,7 @@ class CardPaymentMethod extends AbstractMethod
         $request->metadata['methodId'] = $this->_code;
 
         // Prepare the capture setting
-        $madaEnabled = $this->config->getValue('mada_enabled', $this->_code);
+        $madaEnabled = $this->config->getValue('mada_enabled', $this->_code, null, ScopeInterface::SCOPE_WEBSITE);
         if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
             $request->metadata['udf1'] = 'MADA';
         } else {
@@ -307,21 +308,21 @@ class CardPaymentMethod extends AbstractMethod
         }
 
         // Prepare the save card setting
-        $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code);
+        $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code, null, ScopeInterface::SCOPE_WEBSITE);
 
         // Set the request parameters
-        $request->amount               = $this->quoteHandler->amountToGateway(
+        $request->amount = $this->quoteHandler->amountToGateway(
             $this->utilities->formatDecimals($amount),
             $quote
         );
-        $request->reference            = $reference;
-        $request->success_url          = $this->getSuccessUrl($data, $isApiOrder);
-        $request->failure_url          = $this->getFailureUrl($data, $isApiOrder);
-        $request->threeDs              = new ThreeDs($this->config->needs3ds($this->_code));
-        $request->threeDs->attempt_n3d = (bool)$this->config->getValue('attempt_n3d', $this->_code);
-        $request->description          = __('Payment request from %1', $this->config->getStoreName())->render();
-        $request->customer             = $api->createCustomer($quote);
-        $request->payment_type         = 'Regular';
+        $request->reference = $reference;
+        $request->success_url = $this->getSuccessUrl($data, $isApiOrder);
+        $request->failure_url = $this->getFailureUrl($data, $isApiOrder);
+        $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
+        $request->threeDs->attempt_n3d = (bool)$this->config->getValue('attempt_n3d', $this->_code, null, ScopeInterface::SCOPE_WEBSITE);
+        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
+        $request->customer = $api->createCustomer($quote);
+        $request->payment_type = 'Regular';
         if (!$quote->getIsVirtual()) {
             $request->shipping = $api->createShippingAddress($quote);
         }
@@ -337,14 +338,15 @@ class CardPaymentMethod extends AbstractMethod
             }
 
             if (isset($data['saveCard']) && $data['saveCard'] === true && $saveCardEnabled) {
-                $request->metadata['saveCard']   = 1;
+                $request->metadata['saveCard'] = 1;
                 $request->metadata['customerId'] = $customerId;
             }
         } else {
             if (isset($data['saveCard']) && json_decode(
                                                 $data['saveCard']
-                                            ) === true && $saveCardEnabled && $this->customerSession->isLoggedIn()) {
-                $request->metadata['saveCard']   = 1;
+                                            ) === true && $saveCardEnabled && $this->customerSession->isLoggedIn()
+            ) {
+                $request->metadata['saveCard'] = 1;
                 $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
             }
         }
@@ -352,7 +354,7 @@ class CardPaymentMethod extends AbstractMethod
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
             $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city')
+                $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city', null, null, ScopeInterface::SCOPE_WEBSITE)
             );
         }
 
@@ -386,7 +388,7 @@ class CardPaymentMethod extends AbstractMethod
      * Perform a capture request
      *
      * @param InfoInterface $payment
-     * @param float         $amount
+     * @param float $amount
      *
      * @return $this|CardPaymentMethod
      * @throws LocalizedException
@@ -473,7 +475,7 @@ class CardPaymentMethod extends AbstractMethod
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
-            $order     = $payment->getOrder();
+            $order = $payment->getOrder();
             $storeCode = $order->getStore()->getCode();
 
             // Initialize the API handler
@@ -510,7 +512,7 @@ class CardPaymentMethod extends AbstractMethod
      * Perform a refund request
      *
      * @param InfoInterface $payment
-     * @param float         $amount
+     * @param float $amount
      *
      * @return $this|CardPaymentMethod
      * @throws LocalizedException
@@ -558,7 +560,7 @@ class CardPaymentMethod extends AbstractMethod
     public function isAvailable(CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code) && !$this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->_code, null, ScopeInterface::SCOPE_WEBSITE) && !$this->backendAuthSession->isLoggedIn();
         }
 
         return false;

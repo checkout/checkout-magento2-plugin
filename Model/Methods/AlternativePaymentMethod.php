@@ -76,6 +76,7 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -279,40 +280,40 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * AlternativePaymentMethod constructor
      *
-     * @param Context                    $context
-     * @param Registry                   $registry
+     * @param Context $context
+     * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory      $customAttributeFactory
-     * @param Data                       $paymentData
-     * @param ScopeConfigInterface       $scopeConfig
-     * @param Logger                     $logger
-     * @param Session                    $backendAuthSession
-     * @param UrlInterface               $urlBuilder
-     * @param ObjectManagerInterface     $objectManager
-     * @param InvoiceSender              $invoiceSender
-     * @param TransactionFactory         $transactionFactory
-     * @param CustomerModelSession       $customerSession
-     * @param CheckoutModelSession       $checkoutSession
-     * @param CheckoutHelperData         $checkoutData
-     * @param CartRepositoryInterface    $quoteRepository
-     * @param CartManagementInterface    $quoteManagement
-     * @param OrderSender                $orderSender
-     * @param Quote                      $sessionQuote
-     * @param Config                     $config
-     * @param shopperHandlerService      $shopperHandler
-     * @param ApiHandlerService          $apiHandler
-     * @param QuoteHandlerService        $quoteHandler
-     * @param LoggerHelper               $ckoLogger
-     * @param Utilities                  $utilities
-     * @param VersionHandlerService      $versionHandler
-     * @param Display                    $display
-     * @param StoreManagerInterface      $storeManager
-     * @param Curl                       $curl
-     * @param AbstractResource|null      $resource
-     * @param AbstractDb|null            $resourceCollection
-     * @param array                      $data
-     * @param DirectoryHelper            $directoryHelper
-     * @param DataObjectFactory          $dataObjectFactory
+     * @param AttributeValueFactory $customAttributeFactory
+     * @param Data $paymentData
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
+     * @param Session $backendAuthSession
+     * @param UrlInterface $urlBuilder
+     * @param ObjectManagerInterface $objectManager
+     * @param InvoiceSender $invoiceSender
+     * @param TransactionFactory $transactionFactory
+     * @param CustomerModelSession $customerSession
+     * @param CheckoutModelSession $checkoutSession
+     * @param CheckoutHelperData $checkoutData
+     * @param CartRepositoryInterface $quoteRepository
+     * @param CartManagementInterface $quoteManagement
+     * @param OrderSender $orderSender
+     * @param Quote $sessionQuote
+     * @param Config $config
+     * @param shopperHandlerService $shopperHandler
+     * @param ApiHandlerService $apiHandler
+     * @param QuoteHandlerService $quoteHandler
+     * @param LoggerHelper $ckoLogger
+     * @param Utilities $utilities
+     * @param VersionHandlerService $versionHandler
+     * @param Display $display
+     * @param StoreManagerInterface $storeManager
+     * @param Curl $curl
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
+     * @param DirectoryHelper $directoryHelper
+     * @param DataObjectFactory $dataObjectFactory
      */
     public function __construct(
         Context $context,
@@ -366,44 +367,44 @@ class AlternativePaymentMethod extends AbstractMethod
             $data
         );
 
-        $this->urlBuilder         = $urlBuilder;
+        $this->urlBuilder = $urlBuilder;
         $this->backendAuthSession = $backendAuthSession;
-        $this->_objectManager     = $objectManager;
-        $this->invoiceSender      = $invoiceSender;
+        $this->_objectManager = $objectManager;
+        $this->invoiceSender = $invoiceSender;
         $this->transactionFactory = $transactionFactory;
-        $this->customerSession    = $customerSession;
-        $this->checkoutSession    = $checkoutSession;
-        $this->checkoutData       = $checkoutData;
-        $this->quoteRepository    = $quoteRepository;
-        $this->quoteManagement    = $quoteManagement;
-        $this->orderSender        = $orderSender;
-        $this->sessionQuote       = $sessionQuote;
-        $this->config             = $config;
-        $this->shopperHandler     = $shopperHandler;
-        $this->apiHandler         = $apiHandler;
-        $this->quoteHandler       = $quoteHandler;
-        $this->ckoLogger          = $ckoLogger;
-        $this->utilities          = $utilities;
-        $this->storeManager       = $storeManager;
-        $this->curl               = $curl;
-        $this->versionHandler     = $versionHandler;
-        $this->display            = $display;
+        $this->customerSession = $customerSession;
+        $this->checkoutSession = $checkoutSession;
+        $this->checkoutData = $checkoutData;
+        $this->quoteRepository = $quoteRepository;
+        $this->quoteManagement = $quoteManagement;
+        $this->orderSender = $orderSender;
+        $this->sessionQuote = $sessionQuote;
+        $this->config = $config;
+        $this->shopperHandler = $shopperHandler;
+        $this->apiHandler = $apiHandler;
+        $this->quoteHandler = $quoteHandler;
+        $this->ckoLogger = $ckoLogger;
+        $this->utilities = $utilities;
+        $this->storeManager = $storeManager;
+        $this->curl = $curl;
+        $this->versionHandler = $versionHandler;
+        $this->display = $display;
     }
 
     /**
      * Send a charge request
      *
      * @param string[] $data
-     * @param float    $amount
-     * @param string   $currency
-     * @param string   $reference
+     * @param float $amount
+     * @param string $currency
+     * @param string $reference
      *
      * @return mixed|null
      * @throws NoSuchEntityException|LocalizedException
      */
     public function sendPaymentRequest(array $data, float $amount, string $currency, string $reference = ''): ?Payment
     {
-        $method   = $data['source'];
+        $method = $data['source'];
         $response = null;
 
         if ($this->validateCurrency($method, $currency)) {
@@ -414,7 +415,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $api = $this->apiHandler->init($storeCode);
 
             // Create source object
-            $source  = $this->{$method}($data, $reference);
+            $source = $this->{$method}($data, $reference);
             $payment = $this->createPayment(
                 $source,
                 $amount,
@@ -441,7 +442,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * Creates a payment object
      *
      * @param Source $source
-     * @param float  $amount
+     * @param float $amount
      * @param string $currency
      * @param string $reference
      * @param string $methodId
@@ -452,7 +453,7 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function createPayment(
         Source $source,
-        float  $amount,
+        float $amount,
         string $currency,
         string $reference,
         string $methodId,
@@ -474,17 +475,17 @@ class AlternativePaymentMethod extends AbstractMethod
         );
 
         // Set the payment specifications
-        $payment->capture      = $this->config->needsAutoCapture($this->_code);
-        $payment->amount       = $this->quoteHandler->amountToGateway(
+        $payment->capture = $this->config->needsAutoCapture($this->_code);
+        $payment->amount = $this->quoteHandler->amountToGateway(
             $this->utilities->formatDecimals($amount),
             $quote
         );
-        $payment->reference    = $reference;
-        $payment->success_url  = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
-        $payment->failure_url  = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-        $payment->customer     = $this->apiHandler->createCustomer($quote);
-        $payment->shipping     = $this->apiHandler->createShippingAddress($quote);
-        $payment->description  = __(
+        $payment->reference = $reference;
+        $payment->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
+        $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+        $payment->customer = $this->apiHandler->createCustomer($quote);
+        $payment->shipping = $this->apiHandler->createShippingAddress($quote);
+        $payment->description = __(
             'Payment request from %1',
             $this->config->getStoreName()
         )->render();
@@ -503,7 +504,7 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function validateCurrency(string $method, string $currency): bool
     {
-        $apms  = $this->config->getApms();
+        $apms = $this->config->getApms();
         $valid = false;
         foreach ($apms as $apm) {
             if ($apm['value'] === $method) {
@@ -529,8 +530,8 @@ class AlternativePaymentMethod extends AbstractMethod
     public function sepa(array $data): IdSource
     {
         $mandate = $this->activateMandate($data['url']);
-        $pos     = strripos($data['url'], '/');
-        $id      = substr($data['url'], $pos + 1);
+        $pos = strripos($data['url'], '/');
+        $id = substr($data['url'], $pos + 1);
 
         return new IdSource($id);
     }
@@ -546,7 +547,7 @@ class AlternativePaymentMethod extends AbstractMethod
     public function activateMandate(string $url): ?array
     {
         // Get the secret key
-        $secret = $this->config->getValue('secret_key');
+        $secret = $this->config->getValue('secret_key', null, null, ScopeInterface::SCOPE_WEBSITE);
 
         // Prepare the options
         // Set the CURL headers
@@ -593,7 +594,7 @@ class AlternativePaymentMethod extends AbstractMethod
     public function boleto(array $data): BoletoSource
     {
         $country = $this->quoteHandler->getBillingAddress()->getCountry();
-        $payer   = new Payer($data['name'], $data['email'], $data['document']);
+        $payer = new Payer($data['name'], $data['email'], $data['document']);
 
         return new BoletoSource('redirect', $country, $payer, 'Test Description');
     }
@@ -615,7 +616,7 @@ class AlternativePaymentMethod extends AbstractMethod
             27
         );
 
-        $source       = new GiropaySource(
+        $source = new GiropaySource(
             $purpose, $this->getValue('bic', $data)
         );
         $source->iban = $this->getValue('iban', $data);
@@ -632,10 +633,10 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function ideal(array $data): IdealSource
     {
-        $source           = new IdealSource(
+        $source = new IdealSource(
             $data['bic'], $data['description']
         );
-        $locale           = explode('_', $this->shopperHandler->getCustomerLocale('nl_NL'));
+        $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl_NL'));
         $source->language = $locale[0];
 
         return $source;
@@ -685,18 +686,18 @@ class AlternativePaymentMethod extends AbstractMethod
     public function klarna(array $data): KlarnaSource
     {
         $products = [];
-        $tax      = 0;
-        $quote    = $this->quoteHandler->getQuote();
+        $tax = 0;
+        $quote = $this->quoteHandler->getQuote();
         foreach ($quote->getAllVisibleItems() as $item) {
-            $product                   = new Product();
-            $product->name             = $item->getName();
-            $product->quantity         = $item->getQty();
-            $product->unit_price       = $item->getPriceInclTax() * 100;
-            $product->tax_rate         = $item->getTaxPercent() * 100;
-            $product->total_amount     = $item->getRowTotalInclTax() * 100;
+            $product = new Product();
+            $product->name = $item->getName();
+            $product->quantity = $item->getQty();
+            $product->unit_price = $item->getPriceInclTax() * 100;
+            $product->tax_rate = $item->getTaxPercent() * 100;
+            $product->total_amount = $item->getRowTotalInclTax() * 100;
             $product->total_tax_amount = $item->getTaxAmount() * 100;
 
-            $tax         += $product->total_tax_amount;
+            $tax += $product->total_tax_amount;
             $products [] = $product;
         }
 
@@ -704,31 +705,31 @@ class AlternativePaymentMethod extends AbstractMethod
         $shipping = $quote->getShippingAddress();
 
         if ($shipping->getShippingDescription()) {
-            $product                   = new Product();
-            $product->name             = $shipping->getShippingDescription();
-            $product->quantity         = 1;
-            $product->unit_price       = $shipping->getShippingInclTax() * 100;
-            $product->tax_rate         = $shipping->getTaxPercent() * 100;
-            $product->total_amount     = $shipping->getShippingAmount() * 100;
+            $product = new Product();
+            $product->name = $shipping->getShippingDescription();
+            $product->quantity = 1;
+            $product->unit_price = $shipping->getShippingInclTax() * 100;
+            $product->tax_rate = $shipping->getTaxPercent() * 100;
+            $product->total_amount = $shipping->getShippingAmount() * 100;
             $product->total_tax_amount = $shipping->getTaxAmount() * 100;
-            $product->type             = 'shipping_fee';
+            $product->type = 'shipping_fee';
 
-            $tax         += $product->total_tax_amount;
+            $tax += $product->total_tax_amount;
             $products [] = $product;
         }
 
         /* Billing */
-        $billingAddress          = $this->quoteHandler->getBillingAddress();
-        $address                 = new Address();
-        $address->given_name     = $billingAddress->getFirstname();
-        $address->family_name    = $billingAddress->getLastname();
-        $address->email          = $billingAddress->getEmail();
+        $billingAddress = $this->quoteHandler->getBillingAddress();
+        $address = new Address();
+        $address->given_name = $billingAddress->getFirstname();
+        $address->family_name = $billingAddress->getLastname();
+        $address->email = $billingAddress->getEmail();
         $address->street_address = $billingAddress->getStreetLine(1);
-        $address->postal_code    = $billingAddress->getPostcode();
-        $address->city           = $billingAddress->getCity();
-        $address->region         = $billingAddress->getRegion();
-        $address->phone          = $billingAddress->getTelephone();
-        $address->country        = strtolower($billingAddress->getCountry());
+        $address->postal_code = $billingAddress->getPostcode();
+        $address->city = $billingAddress->getCity();
+        $address->region = $billingAddress->getRegion();
+        $address->phone = $billingAddress->getTelephone();
+        $address->country = strtolower($billingAddress->getCountry());
 
         $klarna = new KlarnaSource(
             $data['authorization_token'],
@@ -769,37 +770,36 @@ class AlternativePaymentMethod extends AbstractMethod
     public function fawry(): FawrySource
     {
         $products = [];
-        $quote    = $this->quoteHandler->getQuote();
+        $quote = $this->quoteHandler->getQuote();
         foreach ($quote->getAllVisibleItems() as $item) {
-            $lineTotal            = (($item->getPrice() * $item->getQty()) - $item->getDiscountAmount(
-                ) + $item->getTaxAmount());
-            $price                = ($lineTotal * 100) / $item->getQty();
-            $product              = new Product();
+            $lineTotal = (($item->getPrice() * $item->getQty()) - $item->getDiscountAmount() + $item->getTaxAmount());
+            $price = ($lineTotal * 100) / $item->getQty();
+            $product = new Product();
             $product->description = $item->getName();
-            $product->quantity    = $item->getQty();
-            $product->price       = $price;
-            $product->product_id  = $item->getId();
-            $products []          = $product;
+            $product->quantity = $item->getQty();
+            $product->price = $price;
+            $product->product_id = $item->getId();
+            $products [] = $product;
         }
 
         // Shipping fee
         $shipping = $quote->getShippingAddress();
 
         if ($shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
-            $product              = new Product();
+            $product = new Product();
             $product->description = $shipping->getShippingDescription();
-            $product->quantity    = 1;
-            $product->price       = $shipping->getShippingInclTax() * 100;
-            $product->product_id  = 0;
+            $product->quantity = 1;
+            $product->price = $shipping->getShippingInclTax() * 100;
+            $product->product_id = 0;
 
             $products[] = $product;
         }
 
         /* Billing */
         $billingAddress = $this->quoteHandler->getBillingAddress();
-        $email          = $billingAddress->getEmail();
-        $phone          = $billingAddress->getTelephone();
-        $description    = __('Payment request from %1', $this->config->getStoreName())->render();
+        $email = $billingAddress->getEmail();
+        $phone = $billingAddress->getTelephone();
+        $description = __('Payment request from %1', $this->config->getStoreName())->render();
 
         return new FawrySource($email, $phone, $description, $products);
     }
@@ -826,8 +826,8 @@ class AlternativePaymentMethod extends AbstractMethod
     {
         $billingAddress = $this->quoteHandler->getBillingAddress();
 
-        $name      = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
-        $country   = $billingAddress->getCountry();
+        $name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
+        $country = $billingAddress->getCountry();
         $desciptor = __(
             'Payment request from %1',
             $this->config->getStoreName()
@@ -840,7 +840,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * Perform a capture request
      *
      * @param InfoInterface $payment
-     * @param float         $amount
+     * @param float $amount
      *
      * @return $this|AlternativePaymentMethod
      * @throws LocalizedException
@@ -959,7 +959,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * Perform a refund request.
      *
      * @param InfoInterface $payment The payment
-     * @param float         $amount The amount
+     * @param float $amount The amount
      *
      * @return self
      * @throws LocalizedException  (description)
@@ -1010,14 +1010,14 @@ class AlternativePaymentMethod extends AbstractMethod
         $enabled = false;
 
         /** @var string|null $apmMethods */
-        $apmMethods = $this->config->getValue('apm_enabled', 'checkoutcom_apm') ?: '';
+        $apmMethods = $this->config->getValue('apm_enabled', 'checkoutcom_apm', null, ScopeInterface::SCOPE_WEBSITE) ?: '';
         // Get the list of enabled apms.
         $apmEnabled = explode(
             ',',
             $apmMethods
         );
 
-        $apms           = $this->config->getApms();
+        $apms = $this->config->getApms();
         $billingAddress = $this->quoteHandler->getBillingAddress()->getData();
 
         if (isset($billingAddress['country_id'])) {
@@ -1028,10 +1028,10 @@ class AlternativePaymentMethod extends AbstractMethod
             }
         }
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code)
-            && count($this->config->getApms()) > 0
-            && !$this->backendAuthSession->isLoggedIn()
-            && $enabled;
+            return $this->config->getValue('active', $this->_code, null, ScopeInterface::SCOPE_WEBSITE)
+                   && count($this->config->getApms()) > 0
+                   && !$this->backendAuthSession->isLoggedIn()
+                   && $enabled;
         }
 
         return false;
@@ -1040,9 +1040,9 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Safely get value from a multidimensional array
      *
-     * @param mixed   $field
+     * @param mixed $field
      * @param mixed[] $array
-     * @param null    $dft
+     * @param null $dft
      *
      * @return mixed|null
      */

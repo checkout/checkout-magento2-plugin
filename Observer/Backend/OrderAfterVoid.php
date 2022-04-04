@@ -20,7 +20,6 @@ namespace CheckoutCom\Magento2\Observer\Backend;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use Magento\Backend\Model\Auth\Session;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -28,6 +27,7 @@ use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class OrderAfterVoid
@@ -62,9 +62,9 @@ class OrderAfterVoid implements ObserverInterface
     /**
      * OrderAfterVoid constructor
      *
-     * @param Session                               $backendAuthSession
-     * @param Config                                $config
-     * @param OrderManagementInterface              $orderManagement
+     * @param Session $backendAuthSession
+     * @param Config $config
+     * @param OrderManagementInterface $orderManagement
      * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
     public function __construct(
@@ -73,9 +73,9 @@ class OrderAfterVoid implements ObserverInterface
         OrderManagementInterface $orderManagement,
         OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
-        $this->backendAuthSession           = $backendAuthSession;
-        $this->config                       = $config;
-        $this->orderManagement              = $orderManagement;
+        $this->backendAuthSession = $backendAuthSession;
+        $this->config = $config;
+        $this->orderManagement = $orderManagement;
         $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
@@ -91,26 +91,26 @@ class OrderAfterVoid implements ObserverInterface
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             /** @var Payment $payment */
-            $payment  = $observer->getEvent()->getPayment();
-            $order    = $payment->getOrder();
+            $payment = $observer->getEvent()->getPayment();
+            $order = $payment->getOrder();
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
             // Check if payment method is checkout.com
             if (in_array($methodId, $this->config->getMethodsList())) {
                 // Update the order status
-                $order->setStatus($this->config->getValue('order_status_voided'));
+                $order->setStatus($this->config->getValue('order_status_voided', null, null, ScopeInterface::SCOPE_WEBSITE));
 
                 // Get the latest order status comment
                 $orderComments = $order->getStatusHistories();
-                $orderComment  = array_pop($orderComments);
-                $comment       = __('The voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
+                $orderComment = array_pop($orderComments);
+                $comment = __('The voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
 
                 // Update the order history comment
-                $orderComment->setData('status', $this->config->getValue('order_status_voided'));
+                $orderComment->setData('status', $this->config->getValue('order_status_voided', null, null, ScopeInterface::SCOPE_WEBSITE));
                 $orderComment->setData('comment', $comment);
                 $this->orderStatusHistoryRepository->save($orderComment);
 
-                if ($this->config->getValue('order_status_voided') === 'canceled') {
+                if ($this->config->getValue('order_status_voided', null, null, ScopeInterface::SCOPE_WEBSITE) === 'canceled') {
                     // Cancel the order if void order status has been set to canceled
                     $this->orderManagement->cancel($order->getId());
                 } else {

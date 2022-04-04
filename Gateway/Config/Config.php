@@ -79,13 +79,13 @@ class Config
     /**
      * Config constructor
      *
-     * @param Repository            $assetRepository
+     * @param Repository $assetRepository
      * @param StoreManagerInterface $storeManager
-     * @param ScopeConfigInterface  $scopeConfig
-     * @param RequestInterface      $request
-     * @param Loader                $loader
-     * @param Utilities             $utilities
-     * @param Logger                $logger
+     * @param ScopeConfigInterface $scopeConfig
+     * @param RequestInterface $request
+     * @param Loader $loader
+     * @param Utilities $utilities
+     * @param Logger $logger
      */
     public function __construct(
         Repository $assetRepository,
@@ -97,18 +97,18 @@ class Config
         Logger $logger
     ) {
         $this->assetRepository = $assetRepository;
-        $this->storeManager    = $storeManager;
-        $this->scopeConfig     = $scopeConfig;
-        $this->request         = $request;
-        $this->loader          = $loader;
-        $this->utilities       = $utilities;
-        $this->logger          = $logger;
+        $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->request = $request;
+        $this->loader = $loader;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
     }
 
     /**
      * Checks if an external request is valid
      *
-     * @param string      $type
+     * @param string $type
      * @param string|null $header
      *
      * @return bool
@@ -146,7 +146,7 @@ class Config
     public function isValidPrivateSharedKey($key): bool
     {
         // Get the private shared key from config
-        $privateSharedKey = $this->getValue('private_shared_key');
+        $privateSharedKey = $this->getValue('private_shared_key', null, null, ScopeInterface::SCOPE_WEBSITE);
         $this->logger->additional('private shared key: ' . $privateSharedKey, 'auth');
 
         // Return the validity check
@@ -163,7 +163,7 @@ class Config
     public function isValidPublicKey($key): bool
     {
         // Get the public key from config
-        $publicKey = $this->getValue('public_key');
+        $publicKey = $this->getValue('public_key', null, null, ScopeInterface::SCOPE_WEBSITE);
         $this->logger->additional('public key: ' . $publicKey, 'auth');
 
         // Return the validity check
@@ -173,10 +173,10 @@ class Config
     /**
      * Returns a module config value
      *
-     * @param string           $field
-     * @param string|null      $methodId
-     * @param string|int|null  $storeCode
-     * @param string|null      $scope
+     * @param string $field
+     * @param string|null $methodId
+     * @param string|int|null $storeCode
+     * @param string|null $scope
      *
      * @return mixed
      */
@@ -242,10 +242,10 @@ class Config
          * @var string $key
          * @var string[] $method
          */
-        foreach($paymentMethodsConfig as $key => $method) {
+        foreach ($paymentMethodsConfig as $key => $method) {
             if (false !== strpos($key, 'checkoutcom')
-               && isset($method['active'])
-               && (int)$method['active'] === 1
+                && isset($method['active'])
+                && (int)$method['active'] === 1
             ) {
                 if (array_key_exists('private_shared_key', $method)) {
                     unset($method['private_shared_key']);
@@ -285,7 +285,7 @@ class Config
         $accountKeys = $this->getAccountKeys();
 
         // Return the check result
-        return $this->getValue('active') == 1 && !in_array('', array_map('trim', $accountKeys));
+        return $this->getValue('active', null, null, ScopeInterface::SCOPE_WEBSITE) == 1 && !in_array('', array_map('trim', $accountKeys));
     }
 
     /**
@@ -299,16 +299,19 @@ class Config
     {
         // Get the account keys for a method
         if ($methodId) {
-            $publicKey        = $this->getValue('public_key', $methodId);
-            $secretKey        = $this->getValue('secret_key', $methodId);
-            $privateSharedKey = $this->getValue('private_shared_key', $methodId);
+            $publicKey = $this->getValue('public_key', $methodId, null, ScopeInterface::SCOPE_WEBSITE);
+            $secretKey = $this->getValue('secret_key', $methodId, null, ScopeInterface::SCOPE_WEBSITE);
+            $privateSharedKey = $this->getValue('private_shared_key', $methodId, null, ScopeInterface::SCOPE_WEBSITE);
             if (!empty($publicKey) && !empty($secretKey) && !empty($privateSharedKey) && !$this->getValue(
                     'use_default_account',
-                    $methodId
-                )) {
+                    $methodId,
+                    null,
+                    ScopeInterface::SCOPE_WEBSITE
+                )
+            ) {
                 return [
-                    'public_key'       => $publicKey,
-                    'secretKey'        => $secretKey,
+                    'public_key' => $publicKey,
+                    'secretKey' => $secretKey,
                     'privateSharedKey' => $privateSharedKey,
                 ];
             }
@@ -316,9 +319,9 @@ class Config
 
         // Return the default account keys
         return [
-            'public_key'         => $this->getValue('public_key'),
-            'secret_key'         => $this->getValue('secret_key'),
-            'private_shared_key' => $this->getValue('private_shared_key'),
+            'public_key' => $this->getValue('public_key', null, null, ScopeInterface::SCOPE_WEBSITE),
+            'secret_key' => $this->getValue('secret_key', null, null, ScopeInterface::SCOPE_WEBSITE),
+            'private_shared_key' => $this->getValue('private_shared_key', null, null, ScopeInterface::SCOPE_WEBSITE),
         ];
     }
 
@@ -331,8 +334,8 @@ class Config
      */
     public function needs3ds(string $methodId): bool
     {
-        return (((bool) $this->getValue('three_ds', $methodId) === true)
-                || ((bool) $this->getValue('mada_enabled', $methodId) === true));
+        return (((bool)$this->getValue('three_ds', $methodId, null, ScopeInterface::SCOPE_WEBSITE) === true)
+                || ((bool)$this->getValue('mada_enabled', $methodId, null, ScopeInterface::SCOPE_WEBSITE) === true));
     }
 
     /**
@@ -343,11 +346,11 @@ class Config
     public function getCaptureTime(): string
     {
         // Get the capture time from config and covert from hours to seconds
-        $captureTime = $this->getValue('capture_time');
+        $captureTime = $this->getValue('capture_time', null, null, ScopeInterface::SCOPE_WEBSITE);
         $captureTime *= 3600;
 
         // Force capture time to a minimum of 36 seconds
-        $min         = $this->getValue('min_capture_time');
+        $min = $this->getValue('min_capture_time', null, null, ScopeInterface::SCOPE_WEBSITE);
         $captureTime = $captureTime >= $min ? $captureTime : $min;
 
         // Check the setting
@@ -437,7 +440,7 @@ class Config
      */
     public function isLive(): bool
     {
-        return $this->getValue('environment') == 1;
+        return $this->getValue('environment', null, null, ScopeInterface::SCOPE_WEBSITE) === 1;
     }
 
     /**
@@ -447,9 +450,11 @@ class Config
      */
     public function needsAutoCapture(): bool
     {
-        return ($this->getValue('payment_action') === 'authorize_capture' || (bool)$this->getValue(
+        return ($this->getValue('payment_action', null, null, ScopeInterface::SCOPE_WEBSITE) === 'authorize_capture' || (bool)$this->getValue(
                 'mada_enabled',
-                'checkoutcom_card_payment'
+                'checkoutcom_card_payment',
+                null,
+                ScopeInterface::SCOPE_WEBSITE
             ) === true);
     }
 
@@ -460,11 +465,11 @@ class Config
      */
     public function needsDynamicDescriptor(): bool
     {
-        return $this->getValue('dynamic_descriptor_enabled') && !empty(
+        return $this->getValue('dynamic_descriptor_enabled', null, null, ScopeInterface::SCOPE_WEBSITE) && !empty(
             $this->getValue(
                 'descriptor_name'
             )
-            ) && !empty($this->getValue('descriptor_city'));
+            ) && !empty($this->getValue('descriptor_city', null, null, ScopeInterface::SCOPE_WEBSITE));
     }
 
     /**
@@ -474,7 +479,7 @@ class Config
      */
     public function getMadaBinFile(): string
     {
-        return (int)$this->getValue('environment') === 1 ? $this->getValue('mada_test_file') : $this->getValue(
+        return (int)$this->getValue('environment', null, null, ScopeInterface::SCOPE_WEBSITE) === 1 ? $this->getValue('mada_test_file') : $this->getValue(
             'mada_live_file'
         );
     }
@@ -518,6 +523,6 @@ class Config
      */
     public function needsRiskRules($methodId): bool
     {
-        return (!$this->getValue('risk_rules_enabled', $methodId) === true);
+        return (!$this->getValue('risk_rules_enabled', $methodId, null, ScopeInterface::SCOPE_WEBSITE) === true);
     }
 }

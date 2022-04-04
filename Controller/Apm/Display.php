@@ -28,6 +28,7 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class Display
@@ -62,10 +63,10 @@ class Display extends Action
     /**
      * Display constructor
      *
-     * @param Context             $context
-     * @param PageFactory         $pageFactory
-     * @param JsonFactory         $jsonFactory
-     * @param Config              $config
+     * @param Context $context
+     * @param PageFactory $pageFactory
+     * @param JsonFactory $jsonFactory
+     * @param Config $config
      * @param QuoteHandlerService $quoteHandler
      */
     public function __construct(
@@ -77,9 +78,9 @@ class Display extends Action
     ) {
         parent::__construct($context);
 
-        $this->pageFactory  = $pageFactory;
-        $this->jsonFactory  = $jsonFactory;
-        $this->config       = $config;
+        $this->pageFactory = $pageFactory;
+        $this->jsonFactory = $jsonFactory;
+        $this->config = $config;
         $this->quoteHandler = $quoteHandler;
     }
 
@@ -93,7 +94,7 @@ class Display extends Action
     public function execute()
     {
         // Prepare the output
-        $html      = '';
+        $html = '';
         $available = [];
 
         // Process the request
@@ -101,7 +102,7 @@ class Display extends Action
             // Get the list of APM
             $apmEnabled = explode(
                 ',',
-                $this->config->getValue('apm_enabled', 'checkoutcom_apm')
+                $this->config->getValue('apm_enabled', 'checkoutcom_apm', null, ScopeInterface::SCOPE_WEBSITE)
             );
 
             $apms = $this->config->getApms();
@@ -115,7 +116,7 @@ class Display extends Action
 
             foreach ($apms as $apm) {
                 if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    $html        .= $this->loadBlock($apm['value'], $apm['label']);
+                    $html .= $this->loadBlock($apm['value'], $apm['label']);
                     $available[] = $apm['value'];
                 }
             }
@@ -138,27 +139,27 @@ class Display extends Action
     public function isValidApm(array $apm, array $apmEnabled, array $billingAddress): bool
     {
         return in_array($apm['value'], $apmEnabled)
-        && strpos(
-            $apm['countries'],
-            $billingAddress['country_id']
-        ) !== false
-        && strpos(
-            $apm['currencies'],
-            $this->quoteHandler->getQuoteCurrency()
-        ) !== false
-        && $this->countryCurrencyMapping(
-            $apm,
-            $billingAddress['country_id'],
-            $this->quoteHandler->getQuoteCurrency()
-        );
+               && strpos(
+                      $apm['countries'],
+                      $billingAddress['country_id']
+                  ) !== false
+               && strpos(
+                      $apm['currencies'],
+                      $this->quoteHandler->getQuoteCurrency()
+                  ) !== false
+               && $this->countryCurrencyMapping(
+                $apm,
+                $billingAddress['country_id'],
+                $this->quoteHandler->getQuoteCurrency()
+            );
     }
 
     /**
      * Check for specific country & currency mappings
      *
      * @param string[] $apm
-     * @param string   $billingCountry
-     * @param string   $currency
+     * @param string $billingCountry
+     * @param string $currency
      *
      * @return bool
      */

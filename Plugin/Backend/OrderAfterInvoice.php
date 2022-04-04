@@ -25,6 +25,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface as BaseCommandInterface;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class OrderAfterInvoice
@@ -52,11 +53,11 @@ class OrderAfterInvoice
     /**
      * Sets the correct order status for orders captured from the hub.
      *
-     * @param BaseCommandInterface  $subject
-     * @param string                $result
+     * @param BaseCommandInterface $subject
+     * @param string $result
      * @param OrderPaymentInterface $payment
-     * @param string|float|int      $amount
-     * @param OrderInterface        $order
+     * @param string|float|int $amount
+     * @param OrderInterface $order
      *
      * @return string|Phrase
      * @throws LocalizedException
@@ -77,12 +78,12 @@ class OrderAfterInvoice
                 if ($order->getIsVirtual()) {
                     $order->setStatus('complete');
                 } else {
-                    $order->setStatus($this->config->getValue('order_status_captured'));
+                    $order->setStatus($this->config->getValue('order_status_captured', null, null, ScopeInterface::SCOPE_WEBSITE));
                 }
             }
 
             // Changes order history comment to display currency
-            $amount  = $order->getInvoiceCollection()->getFirstItem()->getGrandTotal();
+            $amount = $order->getInvoiceCollection()->getFirstItem()->getGrandTotal();
 
             return __('The captured amount is %1.', $order->formatPriceTxt($amount));
         }
@@ -99,10 +100,10 @@ class OrderAfterInvoice
      */
     public function statusNeedsCorrection(OrderInterface $order): bool
     {
-        $currentState  = $order->getState();
+        $currentState = $order->getState();
         $currentStatus = $order->getStatus();
-        $desiredStatus = $this->config->getValue('order_status_captured');
-        $flaggedStatus = $this->config->getValue('order_status_flagged');
+        $desiredStatus = $this->config->getValue('order_status_captured', null, null, ScopeInterface::SCOPE_WEBSITE);
+        $flaggedStatus = $this->config->getValue('order_status_flagged', null, null, ScopeInterface::SCOPE_WEBSITE);
 
         return ($currentState === Order::STATE_PROCESSING
                 && $currentStatus !== $flaggedStatus

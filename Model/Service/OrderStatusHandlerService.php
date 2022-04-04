@@ -26,6 +26,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -97,13 +98,13 @@ class OrderStatusHandlerService
     /**
      * OrderStatusHandlerService constructor
      *
-     * @param StoreManagerInterface     $storeManager
+     * @param StoreManagerInterface $storeManager
      * @param TransactionHandlerService $transactionHandler
-     * @param Config                    $config
-     * @param OrderHandlerService       $orderHandler
-     * @param OrderManagementInterface  $orderManagement
-     * @param OrderRepositoryInterface  $orderRepository
-     * @param Registry                  $registry
+     * @param Config $config
+     * @param OrderHandlerService $orderHandler
+     * @param OrderManagementInterface $orderManagement
+     * @param OrderRepositoryInterface $orderRepository
+     * @param Registry $registry
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -114,20 +115,20 @@ class OrderStatusHandlerService
         OrderRepositoryInterface $orderRepository,
         Registry $registry
     ) {
-        $this->storeManager       = $storeManager;
+        $this->storeManager = $storeManager;
         $this->transactionHandler = $transactionHandler;
-        $this->config             = $config;
-        $this->orderHandler       = $orderHandler;
-        $this->orderManagement    = $orderManagement;
-        $this->orderRepository    = $orderRepository;
-        $this->registry           = $registry;
+        $this->config = $config;
+        $this->orderHandler = $orderHandler;
+        $this->orderManagement = $orderManagement;
+        $this->orderRepository = $orderRepository;
+        $this->registry = $registry;
     }
 
     /**
      * Set the current order status
      *
      * @param OrderInterface $order
-     * @param mixed[]        $webhook
+     * @param mixed[] $webhook
      *
      * @return void
      * @throws Exception
@@ -135,9 +136,9 @@ class OrderStatusHandlerService
     public function setOrderStatus(OrderInterface $order, array $webhook): void
     {
         // Initialise state, status & order
-        $this->state  = null;
+        $this->state = null;
         $this->status = null;
-        $this->order  = $order;
+        $this->order = $order;
 
         switch ($webhook['event_type']) {
             case 'payment_approved':
@@ -181,7 +182,7 @@ class OrderStatusHandlerService
      * Sets status/deletes order based on user config if payment fails
      *
      * @param OrderInterface $order
-     * @param mixed          $webhook
+     * @param mixed $webhook
      *
      * @return void
      * @throws NoSuchEntityException
@@ -200,7 +201,7 @@ class OrderStatusHandlerService
             // Get store code
             $storeCode = $this->storeManager->getStore()->getCode();
             // Get config for failed payments
-            $config = $this->config->getValue('order_action_failed_payment', null, $storeCode);
+            $config = $this->config->getValue('order_action_failed_payment', null, $storeCode, ScopeInterface::SCOPE_WEBSITE);
 
             if ($config === 'cancel' || $config === 'delete') {
                 if ($order->getState() !== 'canceled') {
@@ -225,12 +226,12 @@ class OrderStatusHandlerService
      */
     public function approved(array $webhook): void
     {
-        $payload      = json_decode($webhook['event_data']);
-        $this->status = $this->config->getValue('order_status_authorized');
+        $payload = json_decode($webhook['event_data']);
+        $this->status = $this->config->getValue('order_status_authorized', null, null, ScopeInterface::SCOPE_WEBSITE);
 
         // Flag order if potential fraud
         if ($this->transactionHandler->isFlagged($payload)) {
-            $this->status = $this->config->getValue('order_status_flagged');
+            $this->status = $this->config->getValue('order_status_flagged', null, null, ScopeInterface::SCOPE_WEBSITE);
         }
     }
 
@@ -241,8 +242,8 @@ class OrderStatusHandlerService
      */
     protected function captured(): void
     {
-        $this->status = $this->order->getIsVirtual() ? 'complete' : $this->config->getValue('order_status_captured');
-        $this->state  = Order::STATE_PROCESSING;
+        $this->status = $this->order->getIsVirtual() ? 'complete' : $this->config->getValue('order_status_captured', null, null, ScopeInterface::SCOPE_WEBSITE);
+        $this->state = Order::STATE_PROCESSING;
     }
 
     /**
@@ -252,7 +253,7 @@ class OrderStatusHandlerService
      */
     public function void(): void
     {
-        $this->status = $this->config->getValue('order_status_voided');
+        $this->status = $this->config->getValue('order_status_voided', null, null, ScopeInterface::SCOPE_WEBSITE);
     }
 
     /**
@@ -266,7 +267,7 @@ class OrderStatusHandlerService
     {
         // Format the amount
         $payload = json_decode($webhook['event_data']);
-        $amount  = $this->transactionHandler->amountFromGateway(
+        $amount = $this->transactionHandler->amountFromGateway(
             $payload->data->amount,
             $this->order
         );
@@ -277,9 +278,9 @@ class OrderStatusHandlerService
             $this->order,
             true
         );
-        $this->status    = $isPartialRefund ? 'order_status_refunded' : 'closed';
-        $this->status    = $this->config->getValue($this->status);
-        $this->state     = $isPartialRefund ? Order::STATE_PROCESSING : Order::STATE_CLOSED;
+        $this->status = $isPartialRefund ? 'order_status_refunded' : 'closed';
+        $this->status = $this->config->getValue($this->status);
+        $this->state = $isPartialRefund ? Order::STATE_PROCESSING : Order::STATE_CLOSED;
     }
 
     /**
@@ -293,7 +294,7 @@ class OrderStatusHandlerService
     {
         $payload = json_decode($webhook['event_data']);
         if (isset($payload->data->metadata->methodId) && $payload->data->metadata->methodId === 'checkoutcom_apm') {
-            $this->state  = Order::STATE_PENDING_PAYMENT;
+            $this->state = Order::STATE_PENDING_PAYMENT;
             $this->status = $this->order->getConfig()->getStateDefaultStatus($this->state);
             $this->order->addStatusHistoryComment(__('Payment capture initiated, awaiting capture confirmation.'));
         }

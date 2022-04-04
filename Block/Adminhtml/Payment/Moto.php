@@ -26,8 +26,8 @@ use Magento\Backend\Model\Session\Quote;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Payment\Block\Form\Cc;
 use Magento\Payment\Model\Config as PaymentModelConfig;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
-use Magento\Vault\Model\PaymentToken;
 
 /**
  * Class Moto
@@ -68,12 +68,12 @@ class Moto extends Cc
     /**
      * Moto constructor
      *
-     * @param Context             $context
-     * @param PaymentModelConfig  $paymentModelConfig
-     * @param Quote               $adminQuote
-     * @param GatewayConfig       $config
+     * @param Context $context
+     * @param PaymentModelConfig $paymentModelConfig
+     * @param Quote $adminQuote
+     * @param GatewayConfig $config
      * @param VaultHandlerService $vaultHandler
-     * @param CardHandlerService  $cardHandler
+     * @param CardHandlerService $cardHandler
      */
     public function __construct(
         Context $context,
@@ -85,10 +85,10 @@ class Moto extends Cc
     ) {
         parent::__construct($context, $paymentModelConfig);
 
-        $this->adminQuote   = $adminQuote;
-        $this->config       = $config;
+        $this->adminQuote = $adminQuote;
+        $this->config = $config;
         $this->vaultHandler = $vaultHandler;
-        $this->cardHandler  = $cardHandler;
+        $this->cardHandler = $cardHandler;
     }
 
     /**
@@ -144,9 +144,11 @@ class Moto extends Cc
         $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();
 
         // Return the check result
-        return $this->config->getValue('saved_cards_enabled', 'checkoutcom_moto') && $this->config->getValue(
+        return $this->config->getValue('saved_cards_enabled', 'checkoutcom_moto', null, ScopeInterface::SCOPE_WEBSITE) && $this->config->getValue(
                 'active',
-                'checkoutcom_moto'
+                'checkoutcom_moto',
+                null,
+                ScopeInterface::SCOPE_WEBSITE
             ) && $this->vaultHandler->userHasCards($customerId);
     }
 

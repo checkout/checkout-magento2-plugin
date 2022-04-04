@@ -256,19 +256,19 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     private $config;
 
     /**
-     * @param Config                     $config
-     * @param Context                    $context
-     * @param Registry                   $registry
+     * @param Config $config
+     * @param Context $context
+     * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory      $customAttributeFactory
-     * @param Data                       $paymentData
-     * @param ScopeConfigInterface       $scopeConfig
-     * @param Logger                     $logger
-     * @param DirectoryHelper            $directory
-     * @param DataObjectFactory          $dataObjectFactory
-     * @param AbstractResource|null      $resource
-     * @param AbstractDb|null            $resourceCollection
-     * @param array                      $data
+     * @param AttributeValueFactory $customAttributeFactory
+     * @param Data $paymentData
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
+     * @param DirectoryHelper $directory
+     * @param DataObjectFactory $dataObjectFactory
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -295,12 +295,12 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
             $resourceCollection,
             $data
         );
-        $this->config            = $config;
-        $this->_paymentData      = $paymentData;
-        $this->scopeConfig       = $scopeConfig;
-        $this->logger            = $logger;
-        $this->directory         = $directory;
-        $this->data              = $data;
+        $this->config = $config;
+        $this->_paymentData = $paymentData;
+        $this->scopeConfig = $scopeConfig;
+        $this->logger = $logger;
+        $this->directory = $directory;
+        $this->data = $data;
         $this->dataObjectFactory = $dataObjectFactory;
     }
 
@@ -397,7 +397,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * {@inheritDoc}
      *
      * @param InfoInterface $payment
-     * @param string        $transactionId
+     * @param string $transactionId
      *
      * @return mixed[]
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -566,7 +566,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * {@inheritDoc}
      *
-     * @param string                $field
+     * @param string $field
      * @param int|string|null|Store $storeId
      *
      * @return mixed
@@ -582,7 +582,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         }
         $path = 'payment/' . $this->getCode() . '/' . $field;
 
-        return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
+        return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_WEBSITE, $storeId);
     }
 
     /**
@@ -616,7 +616,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * {@inheritDoc}
      *
      * @param DataObject|InfoInterface $payment
-     * @param float                    $amount
+     * @param float $amount
      *
      * @return AbstractMethod
      * @throws LocalizedException
@@ -647,7 +647,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * {@inheritDoc}
      *
      * @param DataObject|InfoInterface $payment
-     * @param float                    $amount
+     * @param float $amount
      *
      * @return AbstractMethod
      * @throws LocalizedException
@@ -678,7 +678,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * {@inheritDoc}
      *
      * @param DataObject|InfoInterface $payment
-     * @param float                    $amount
+     * @param float $amount
      *
      * @return $this
      * @throws LocalizedException
@@ -709,7 +709,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * {@inheritDoc}
      *
      * @param DataObject|InfoInterface $payment
-     * @param float|string             $amount
+     * @param float|string $amount
      *
      * @return AbstractMethod
      * @throws LocalizedException
@@ -854,14 +854,14 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     {
         $this->_eventManager->dispatch('payment_method_assign_data_' . $this->getCode(), [
             AbstractDataAssignObserver::METHOD_CODE => $this,
-            AbstractDataAssignObserver::MODEL_CODE  => $this->getInfoInstance(),
-            AbstractDataAssignObserver::DATA_CODE   => $data,
+            AbstractDataAssignObserver::MODEL_CODE => $this->getInfoInstance(),
+            AbstractDataAssignObserver::DATA_CODE => $data,
         ]);
 
         $this->_eventManager->dispatch('payment_method_assign_data', [
             AbstractDataAssignObserver::METHOD_CODE => $this,
-            AbstractDataAssignObserver::MODEL_CODE  => $this->getInfoInstance(),
-            AbstractDataAssignObserver::DATA_CODE   => $data,
+            AbstractDataAssignObserver::MODEL_CODE => $this->getInfoInstance(),
+            AbstractDataAssignObserver::DATA_CODE => $data,
         ]);
 
         return $this;
@@ -886,9 +886,9 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
 
         // for future use in observers
         $this->_eventManager->dispatch('payment_method_is_active', [
-            'result'          => $checkResult,
+            'result' => $checkResult,
             'method_instance' => $this,
-            'quote'           => $quote,
+            'quote' => $quote,
         ]);
 
         return $checkResult->getData('is_available');
@@ -991,7 +991,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * Get the success redirection URL for the payment request
      *
-     * @param string[]  $data
+     * @param string[] $data
      * @param bool|null $isApiOrder
      *
      * @return string
@@ -1009,7 +1009,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * Get the failure redirection URL for the payment request
      *
-     * @param string[]  $data
+     * @param string[] $data
      * @param bool|null $isApiOrder
      *
      * @return string
@@ -1044,6 +1044,6 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function isModuleActive(): bool
     {
-        return (bool)$this->scopeConfig->getValue('settings/checkoutcom_configuration/active');
+        return (bool)$this->scopeConfig->getValue('settings/checkoutcom_configuration/active',  ScopeInterface::SCOPE_WEBSITE);
     }
 }

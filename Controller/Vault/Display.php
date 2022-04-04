@@ -26,6 +26,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Vault\Model\PaymentToken;
 
 /**
@@ -61,10 +62,10 @@ class Display extends Action
     /**
      * Display constructor
      *
-     * @param Context             $context
-     * @param PageFactory         $pageFactory
-     * @param JsonFactory         $jsonFactory
-     * @param Config              $config
+     * @param Context $context
+     * @param PageFactory $pageFactory
+     * @param JsonFactory $jsonFactory
+     * @param Config $config
      * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
@@ -76,9 +77,9 @@ class Display extends Action
     ) {
         parent::__construct($context);
 
-        $this->pageFactory  = $pageFactory;
-        $this->jsonFactory  = $jsonFactory;
-        $this->config       = $config;
+        $this->pageFactory = $pageFactory;
+        $this->jsonFactory = $jsonFactory;
+        $this->config = $config;
         $this->vaultHandler = $vaultHandler;
     }
 
@@ -92,7 +93,7 @@ class Display extends Action
         $html = '';
         if ($this->getRequest()->isAjax()) {
             // Check if vault is enabled
-            $vaultEnabled = $this->config->getValue('active', 'checkoutcom_vault');
+            $vaultEnabled = $this->config->getValue('active', 'checkoutcom_vault', null, ScopeInterface::SCOPE_WEBSITE);
 
             // Load block data for vault
             if ($vaultEnabled) {

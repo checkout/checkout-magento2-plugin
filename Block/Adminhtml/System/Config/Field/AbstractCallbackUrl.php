@@ -108,6 +108,8 @@ abstract class AbstractCallbackUrl extends Field
             }
         }
 
+        //debug $scope pour voir si OK
+
         $baseUrl     = $this->scopeConfig->getValue(
             'web/unsecure/base_url',
             $scope,
@@ -131,8 +133,26 @@ abstract class AbstractCallbackUrl extends Field
                 $storeCode
             );
 
-            // Retrieve all configured webhooks
-            $webhooks = $api->getCheckoutApi()->webhooks()->retrieve();
+            $service = $this->scopeConfig->getValue(
+                'settings/checkoutcom_configuration/service',
+                $scope,
+                $storeCode
+            );
+
+            $this->_logger->debug('OK');
+
+            if($service === 'ABC') {
+                // Retrieve all configured webhooks in ABC mode
+                $webhooks = $api->getCheckoutApi()->webhooks()->retrieve();
+            }elseif ($service === 'NAS') {
+                // Retrieve all configured webhooks in NAS mode
+                $webhooks = $api->getCheckoutApi()->webhooks()->retrieve();
+            }
+
+            $this->_logger->debug('$webhooks' , [$webhooks]);
+
+            $this->_logger->debug('OKI DOKI');
+
             $webhook  = null;
             foreach ($webhooks->list as $list) {
                 if ($list->url == $callbackUrl) {
@@ -141,17 +161,26 @@ abstract class AbstractCallbackUrl extends Field
                 }
             }
 
+            $this->_logger->debug('OK 1');
+
             // Get available webhook events
             $events     = $api->getCheckoutApi()->events()->types(['version' => '2.0']);
             $eventTypes = $events->list[0]->event_types;
+
+            $this->_logger->debug('OK 2');
 
             if (!isset($webhook)
                 || $webhook->event_types != $eventTypes
                 || $headers['authorization'] != $privateSharedKey
             ) {
+
+                $this->_logger->debug('OK 3');
+
                 // Webhook not configured
                 $element->setData('value', $callbackUrl);
                 $element->setReadonly('readonly');
+
+                $this->_logger->debug('OK 4');
 
                 if (empty($secretKey)) {
                     $this->addData([
@@ -175,11 +204,17 @@ abstract class AbstractCallbackUrl extends Field
                         ]);
                 }
 
+                $this->_logger->debug('OK 5');
+
                 return $this->_toHtml();
             } else {
+                $this->_logger->debug('OK 6');
+
                 // Webhook configured
                 $element->setData('value', $callbackUrl);
                 $element->setReadonly('readonly');
+
+                $this->_logger->debug('OK 7');
 
                 $this->addData([
                         'element_html'  => $element->getElementHtml(),
@@ -191,6 +226,12 @@ abstract class AbstractCallbackUrl extends Field
                 return $this->_toHtml();
             }
         } catch (Exception $e) {
+
+            $this->_logger->debug('OK 8');
+
+            $this->_logger->debug('$e' , [$e->getTraceAsString()]);
+            $this->_logger->debug('$e' , [$e->getMessage()]);
+
             // Invalid secret key
             $element->setData('value', $callbackUrl);
             $element->setReadonly('readonly');
@@ -201,7 +242,12 @@ abstract class AbstractCallbackUrl extends Field
                 $storeCode
             );
 
+            $this->_logger->debug('$secretKey' , [$secretKey]);
+
             if (empty($secretKey)) {
+
+                $this->_logger->debug('OK 9');
+
                 $this->addData([
                         'element_html' => $element->getElementHtml(),
                         'hidden'       => true,
@@ -210,6 +256,9 @@ abstract class AbstractCallbackUrl extends Field
                         'webhook_url'  => $callbackUrl
                     ]);
             } else {
+
+                $this->_logger->debug('ICI');
+
                 $this->addData([
                         'element_html'  => $element->getElementHtml(),
                         'message'       => __('Attention, secret key incorrect!'),

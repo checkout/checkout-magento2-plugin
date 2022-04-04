@@ -47,6 +47,7 @@ use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -296,7 +297,7 @@ class GooglePayMethod extends AbstractMethod
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
             $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city')
+                $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city', null, null, ScopeInterface::SCOPE_WEBSITE)
             );
         }
 
@@ -494,7 +495,7 @@ class GooglePayMethod extends AbstractMethod
     public function isAvailable(CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code) && !$this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->_code, null, ScopeInterface::SCOPE_WEBSITE) && !$this->backendAuthSession->isLoggedIn();
         }
 
         return false;
