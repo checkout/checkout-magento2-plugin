@@ -95,13 +95,13 @@ class ApiHandlerService
     /**
      * ApiHandlerService constructor
      *
-     * @param StoreManagerInterface    $storeManager
+     * @param StoreManagerInterface $storeManager
      * @param ProductMetadataInterface $productMeta
-     * @param Config                   $config
-     * @param Utilities                $utilities
-     * @param Logger                   $logger
-     * @param OrderHandlerService      $orderHandler
-     * @param VersionHandlerService    $versionHandler
+     * @param Config $config
+     * @param Utilities $utilities
+     * @param Logger $logger
+     * @param OrderHandlerService $orderHandler
+     * @param VersionHandlerService $versionHandler
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -132,7 +132,7 @@ class ApiHandlerService
      */
     public function init(
         $storeCode = null,
-        string $scope = ScopeInterface::SCOPE_STORE,
+        string $scope = ScopeInterface::SCOPE_WEBSITE,
         string $secretKey = null
     ): ApiHandlerService
     {

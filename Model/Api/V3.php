@@ -279,7 +279,7 @@ class V3 implements V3Interface
     {
         // Get an API handler instance
         $this->api = $this->apiHandler->init(
-            $this->storeManager->getStore()->getCode()
+            $this->storeManager->getStore()->getCode(),ScopeInterface::SCOPE_STORE
         );
 
         // Prepare the default response
@@ -479,7 +479,7 @@ class V3 implements V3Interface
             $payload['cardToken'] = $this->data->getPaymentToken();
 
             // Prepare the save card setting
-            $saveCardEnabled = $this->config->getValue('save_card_option', 'checkoutcom_card_payment', null, ScopeInterface::SCOPE_WEBSITE);
+            $saveCardEnabled = $this->config->getValue('save_card_option', 'checkoutcom_card_payment');
 
             if ($this->data->getSaveCard() !== null && $this->data->getSaveCard() === true && $saveCardEnabled && isset($this->customer)) {
                 $payload['saveCard'] = true;
@@ -493,7 +493,7 @@ class V3 implements V3Interface
                 $payload['publicHash'] = $this->data->getPublicHash();
             }
 
-            if ($this->config->getValue('require_cvv', 'checkoutcom_vault', null, ScopeInterface::SCOPE_WEBSITE)) {
+            if ($this->config->getValue('require_cvv', 'checkoutcom_vault')) {
                 $payload['cvv'] = $this->data->getCardCvv();
             }
         }
@@ -587,7 +587,7 @@ class V3 implements V3Interface
         // CKO card payment method specific validation
         if ($this->data->getPaymentMethod() == 'checkoutcom_card_payment') {
             // Check the payment method is active
-            if (!$this->config->getValue('active', 'checkoutcom_card_payment', null, ScopeInterface::SCOPE_WEBSITE)) {
+            if (!$this->config->getValue('active', 'checkoutcom_card_payment')) {
                 $this->result['error_message'][] = __('Card payment method is not active');
                 $isValid = false;
             }
@@ -610,7 +610,7 @@ class V3 implements V3Interface
         // CKO vault payment method specific validation
         if ($this->data->getPaymentMethod() === 'checkoutcom_vault' && isset($this->customer)) {
             // Check the payment method is active
-            if (!$this->config->getValue('active', 'checkoutcom_vault', null, ScopeInterface::SCOPE_WEBSITE)) {
+            if (!$this->config->getValue('active', 'checkoutcom_vault')) {
                 $this->result['error_message'][] = __('Vault payment method is not active');
                 $isValid = false;
             }
@@ -637,7 +637,7 @@ class V3 implements V3Interface
             }
 
             // Check the card cvv has been specified correctly
-            if ($this->config->getValue('require_cvv', 'checkoutcom_vault', null, ScopeInterface::SCOPE_WEBSITE)) {
+            if ($this->config->getValue('require_cvv', 'checkoutcom_vault')) {
                 if ($this->data->getCardCvv() == null || (int)$this->data->getCardCvv() == 0) {
                     $this->result['error_message'][] = __('CVV value is required');
                     $isValid = false;

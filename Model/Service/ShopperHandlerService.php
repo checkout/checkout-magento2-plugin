@@ -155,9 +155,7 @@ class ShopperHandlerService
         // Language fallback
         return $this->config->getValue(
             'language_fallback',
-            'checkoutcom_card_payment',
-            null,
-            ScopeInterface::SCOPE_WEBSITE
+            'checkoutcom_card_payment'
         );
     }
 }

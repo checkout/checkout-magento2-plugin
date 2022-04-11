@@ -25,6 +25,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem\Driver\File;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Module\Dir\Reader;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -152,7 +153,7 @@ class VersionHandlerService
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Get Github API URL from config
-        $gitApiUrl = $this->config->getValue('github_api_url', null, $storeCode);
+        $gitApiUrl = $this->config->getValue('github_api_url', null, $storeCode, ScopeInterface::SCOPE_STORE);
 
         // Send the request
         $this->curl->get($gitApiUrl);

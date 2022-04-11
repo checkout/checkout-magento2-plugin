@@ -98,7 +98,7 @@ class OrderAfterVoid implements ObserverInterface
             // Check if payment method is checkout.com
             if (in_array($methodId, $this->config->getMethodsList())) {
                 // Update the order status
-                $order->setStatus($this->config->getValue('order_status_voided', null, null, ScopeInterface::SCOPE_WEBSITE));
+                $order->setStatus($this->config->getValue('order_status_voided'));
 
                 // Get the latest order status comment
                 $orderComments = $order->getStatusHistories();
@@ -106,11 +106,11 @@ class OrderAfterVoid implements ObserverInterface
                 $comment = __('The voided amount is %1.', $order->formatPriceTxt($order->getGrandTotal()));
 
                 // Update the order history comment
-                $orderComment->setData('status', $this->config->getValue('order_status_voided', null, null, ScopeInterface::SCOPE_WEBSITE));
+                $orderComment->setData('status', $this->config->getValue('order_status_voided'));
                 $orderComment->setData('comment', $comment);
                 $this->orderStatusHistoryRepository->save($orderComment);
 
-                if ($this->config->getValue('order_status_voided', null, null, ScopeInterface::SCOPE_WEBSITE) === 'canceled') {
+                if ($this->config->getValue('order_status_voided') === 'canceled') {
                     // Cancel the order if void order status has been set to canceled
                     $this->orderManagement->cancel($order->getId());
                 } else {

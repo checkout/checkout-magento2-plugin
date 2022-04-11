@@ -277,7 +277,7 @@ class VaultMethod extends AbstractMethod
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode);
+        $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
         // Get the quote
         $quote = $this->quoteHandler->getQuote();
@@ -293,7 +293,7 @@ class VaultMethod extends AbstractMethod
         $idSource = new IdSource($card->getGatewayToken());
 
         // Check CVV config
-        if ($this->config->getValue('require_cvv', $this->_code, null, ScopeInterface::SCOPE_WEBSITE)) {
+        if ($this->config->getValue('require_cvv', $this->_code)) {
             if (!isset($data['cvv']) || (int)$data['cvv'] == 0) {
                 throw new LocalizedException(__('The CVV value is required.'));
             } else {
@@ -363,7 +363,7 @@ class VaultMethod extends AbstractMethod
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
             $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city', null, null, ScopeInterface::SCOPE_WEBSITE)
+                $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE), $this->config->getValue('descriptor_city')
             );
         }
 
@@ -404,7 +404,7 @@ class VaultMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canCapture()) {
@@ -443,7 +443,7 @@ class VaultMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -483,7 +483,7 @@ class VaultMethod extends AbstractMethod
             $storeCode = $order->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -528,7 +528,7 @@ class VaultMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canRefund()) {

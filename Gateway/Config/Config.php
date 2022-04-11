@@ -146,7 +146,7 @@ class Config
     public function isValidPrivateSharedKey($key): bool
     {
         // Get the private shared key from config
-        $privateSharedKey = $this->getValue('private_shared_key', null, null, ScopeInterface::SCOPE_WEBSITE);
+        $privateSharedKey = $this->getValue('private_shared_key');
         $this->logger->additional('private shared key: ' . $privateSharedKey, 'auth');
 
         // Return the validity check
@@ -163,7 +163,7 @@ class Config
     public function isValidPublicKey($key): bool
     {
         // Get the public key from config
-        $publicKey = $this->getValue('public_key', null, null, ScopeInterface::SCOPE_WEBSITE);
+        $publicKey = $this->getValue('public_key');
         $this->logger->additional('public key: ' . $publicKey, 'auth');
 
         // Return the validity check
@@ -184,8 +184,9 @@ class Config
         string $field,
         string $methodId = null,
         $storeCode = null,
-        string $scope = ScopeInterface::SCOPE_STORE
+        string $scope = ScopeInterface::SCOPE_WEBSITE
     ) {
+
         return $this->loader->getValue($field, $methodId, $storeCode, $scope);
     }
 
@@ -285,7 +286,7 @@ class Config
         $accountKeys = $this->getAccountKeys();
 
         // Return the check result
-        return $this->getValue('active', null, null, ScopeInterface::SCOPE_WEBSITE) == 1 && !in_array('', array_map('trim', $accountKeys));
+        return $this->getValue('active') == 1 && !in_array('', array_map('trim', $accountKeys));
     }
 
     /**
@@ -299,14 +300,12 @@ class Config
     {
         // Get the account keys for a method
         if ($methodId) {
-            $publicKey = $this->getValue('public_key', $methodId, null, ScopeInterface::SCOPE_WEBSITE);
-            $secretKey = $this->getValue('secret_key', $methodId, null, ScopeInterface::SCOPE_WEBSITE);
-            $privateSharedKey = $this->getValue('private_shared_key', $methodId, null, ScopeInterface::SCOPE_WEBSITE);
+            $publicKey = $this->getValue('public_key', $methodId);
+            $secretKey = $this->getValue('secret_key', $methodId);
+            $privateSharedKey = $this->getValue('private_shared_key', $methodId);
             if (!empty($publicKey) && !empty($secretKey) && !empty($privateSharedKey) && !$this->getValue(
                     'use_default_account',
-                    $methodId,
-                    null,
-                    ScopeInterface::SCOPE_WEBSITE
+                    $methodId
                 )
             ) {
                 return [
@@ -319,9 +318,9 @@ class Config
 
         // Return the default account keys
         return [
-            'public_key' => $this->getValue('public_key', null, null, ScopeInterface::SCOPE_WEBSITE),
-            'secret_key' => $this->getValue('secret_key', null, null, ScopeInterface::SCOPE_WEBSITE),
-            'private_shared_key' => $this->getValue('private_shared_key', null, null, ScopeInterface::SCOPE_WEBSITE),
+            'public_key' => $this->getValue('public_key'),
+            'secret_key' => $this->getValue('secret_key'),
+            'private_shared_key' => $this->getValue('private_shared_key'),
         ];
     }
 
@@ -334,8 +333,8 @@ class Config
      */
     public function needs3ds(string $methodId): bool
     {
-        return (((bool)$this->getValue('three_ds', $methodId, null, ScopeInterface::SCOPE_WEBSITE) === true)
-                || ((bool)$this->getValue('mada_enabled', $methodId, null, ScopeInterface::SCOPE_WEBSITE) === true));
+        return (((bool)$this->getValue('three_ds', $methodId) === true)
+                || ((bool)$this->getValue('mada_enabled', $methodId) === true));
     }
 
     /**
@@ -346,11 +345,11 @@ class Config
     public function getCaptureTime(): string
     {
         // Get the capture time from config and covert from hours to seconds
-        $captureTime = $this->getValue('capture_time', null, null, ScopeInterface::SCOPE_WEBSITE);
+        $captureTime = $this->getValue('capture_time');
         $captureTime *= 3600;
 
         // Force capture time to a minimum of 36 seconds
-        $min = $this->getValue('min_capture_time', null, null, ScopeInterface::SCOPE_WEBSITE);
+        $min = $this->getValue('min_capture_time', ScopeInterface::SCOPE_STORE);
         $captureTime = $captureTime >= $min ? $captureTime : $min;
 
         // Check the setting
@@ -440,7 +439,7 @@ class Config
      */
     public function isLive(): bool
     {
-        return $this->getValue('environment', null, null, ScopeInterface::SCOPE_WEBSITE) === 1;
+        return $this->getValue('environment') === 1;
     }
 
     /**
@@ -450,11 +449,9 @@ class Config
      */
     public function needsAutoCapture(): bool
     {
-        return ($this->getValue('payment_action', null, null, ScopeInterface::SCOPE_WEBSITE) === 'authorize_capture' || (bool)$this->getValue(
+        return ($this->getValue('payment_action') === 'authorize_capture' || (bool)$this->getValue(
                 'mada_enabled',
-                'checkoutcom_card_payment',
-                null,
-                ScopeInterface::SCOPE_WEBSITE
+                'checkoutcom_card_payment'
             ) === true);
     }
 
@@ -465,11 +462,14 @@ class Config
      */
     public function needsDynamicDescriptor(): bool
     {
-        return $this->getValue('dynamic_descriptor_enabled', null, null, ScopeInterface::SCOPE_WEBSITE) && !empty(
+        return $this->getValue('dynamic_descriptor_enabled') && !empty(
             $this->getValue(
-                'descriptor_name'
+                'descriptor_name',
+                null,
+                null,
+                ScopeInterface::SCOPE_STORE
             )
-            ) && !empty($this->getValue('descriptor_city', null, null, ScopeInterface::SCOPE_WEBSITE));
+            ) && !empty($this->getValue('descriptor_city'));
     }
 
     /**
@@ -479,7 +479,7 @@ class Config
      */
     public function getMadaBinFile(): string
     {
-        return (int)$this->getValue('environment', null, null, ScopeInterface::SCOPE_WEBSITE) === 1 ? $this->getValue('mada_test_file') : $this->getValue(
+        return (int)$this->getValue('environment') === 1 ? $this->getValue('mada_test_file') : $this->getValue(
             'mada_live_file'
         );
     }
@@ -523,6 +523,6 @@ class Config
      */
     public function needsRiskRules($methodId): bool
     {
-        return (!$this->getValue('risk_rules_enabled', $methodId, null, ScopeInterface::SCOPE_WEBSITE) === true);
+        return (!$this->getValue('risk_rules_enabled', $methodId) === true);
     }
 }

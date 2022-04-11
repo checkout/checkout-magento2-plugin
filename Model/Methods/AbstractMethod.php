@@ -572,7 +572,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @return mixed
      * @throws LocalizedException
      */
-    public function getConfigData($field, $storeId = null)
+    public function getConfigData($field, $storeId = null) //ici
     {
         if ('order_place_redirect_url' === $field) {
             return $this->getOrderPlaceRedirectUrl();
@@ -582,7 +582,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         }
         $path = 'payment/' . $this->getCode() . '/' . $field;
 
-        return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_WEBSITE, $storeId);
+        return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**

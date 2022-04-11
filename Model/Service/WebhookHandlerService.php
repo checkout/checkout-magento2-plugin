@@ -124,7 +124,7 @@ class WebhookHandlerService
     public function processSingleWebhook(OrderInterface $order, $payload): void
     {
         if (isset($payload->data->action_id)) {
-            if (!$this->config->getValue('webhooks_table_enabled', null, null, ScopeInterface::SCOPE_WEBSITE)) {
+            if (!$this->config->getValue('webhooks_table_enabled')) {
                 $this->processWithoutSave($order, $payload);
             } else {
                 $this->processWithSave($order, $payload);

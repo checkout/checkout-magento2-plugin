@@ -78,7 +78,7 @@ class OrderAfterInvoice
                 if ($order->getIsVirtual()) {
                     $order->setStatus('complete');
                 } else {
-                    $order->setStatus($this->config->getValue('order_status_captured', null, null, ScopeInterface::SCOPE_WEBSITE));
+                    $order->setStatus($this->config->getValue('order_status_captured'));
                 }
             }
 
@@ -102,8 +102,8 @@ class OrderAfterInvoice
     {
         $currentState = $order->getState();
         $currentStatus = $order->getStatus();
-        $desiredStatus = $this->config->getValue('order_status_captured', null, null, ScopeInterface::SCOPE_WEBSITE);
-        $flaggedStatus = $this->config->getValue('order_status_flagged', null, null, ScopeInterface::SCOPE_WEBSITE);
+        $desiredStatus = $this->config->getValue('order_status_captured');
+        $flaggedStatus = $this->config->getValue('order_status_flagged');
 
         return ($currentState === Order::STATE_PROCESSING
                 && $currentStatus !== $flaggedStatus

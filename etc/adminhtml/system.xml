@@ -168,7 +168,7 @@
                             <comment>Select the status that should be used for flagged orders.</comment>
                         </field>
                     </group>
-                    <group id="account_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <group id="account_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Account Settings</label>
                         <field id="secret_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Secret Key</label>

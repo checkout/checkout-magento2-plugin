@@ -276,7 +276,7 @@ class CardPaymentMethod extends AbstractMethod
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode);
+        $api = $this->apiHandler->init($storeCode ,ScopeInterface::SCOPE_STORE);
 
         if (!$quote) {
             // Get the quote
@@ -296,7 +296,7 @@ class CardPaymentMethod extends AbstractMethod
         $request->metadata['methodId'] = $this->_code;
 
         // Prepare the capture setting
-        $madaEnabled = $this->config->getValue('mada_enabled', $this->_code, null, ScopeInterface::SCOPE_WEBSITE);
+        $madaEnabled = $this->config->getValue('mada_enabled', $this->_code);
         if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
             $request->metadata['udf1'] = 'MADA';
         } else {
@@ -308,7 +308,7 @@ class CardPaymentMethod extends AbstractMethod
         }
 
         // Prepare the save card setting
-        $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code, null, ScopeInterface::SCOPE_WEBSITE);
+        $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code);
 
         // Set the request parameters
         $request->amount = $this->quoteHandler->amountToGateway(
@@ -319,7 +319,7 @@ class CardPaymentMethod extends AbstractMethod
         $request->success_url = $this->getSuccessUrl($data, $isApiOrder);
         $request->failure_url = $this->getFailureUrl($data, $isApiOrder);
         $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
-        $request->threeDs->attempt_n3d = (bool)$this->config->getValue('attempt_n3d', $this->_code, null, ScopeInterface::SCOPE_WEBSITE);
+        $request->threeDs->attempt_n3d = (bool)$this->config->getValue('attempt_n3d', $this->_code);
         $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
@@ -354,7 +354,7 @@ class CardPaymentMethod extends AbstractMethod
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
             $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city', null, null, ScopeInterface::SCOPE_WEBSITE)
+                $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE), $this->config->getValue('descriptor_city')
             );
         }
 
@@ -373,9 +373,7 @@ class CardPaymentMethod extends AbstractMethod
 
         // Send the charge request
         try {
-            $response = $api->getCheckoutApi()->payments()->request($request);
-
-            return $response;
+            return $api->getCheckoutApi()->payments()->request($request);
         } catch (CheckoutHttpException $e) {
             $this->ckoLogger->write($e->getBody());
             if ($isApiOrder) {
@@ -400,7 +398,7 @@ class CardPaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canCapture()) {
@@ -439,7 +437,7 @@ class CardPaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -479,7 +477,7 @@ class CardPaymentMethod extends AbstractMethod
             $storeCode = $order->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -524,7 +522,7 @@ class CardPaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canRefund()) {
@@ -560,7 +558,7 @@ class CardPaymentMethod extends AbstractMethod
     public function isAvailable(CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code, null, ScopeInterface::SCOPE_WEBSITE) && !$this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->_code) && !$this->backendAuthSession->isLoggedIn();
         }
 
         return false;

@@ -246,7 +246,7 @@ class GooglePayMethod extends AbstractMethod
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode);
+        $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
         $checkoutApi = $api->getCheckoutApi();
 
         // Get the quote
@@ -297,7 +297,7 @@ class GooglePayMethod extends AbstractMethod
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
             $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city', null, null, ScopeInterface::SCOPE_WEBSITE)
+                $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE), $this->config->getValue('descriptor_city')
             );
         }
 
@@ -336,7 +336,7 @@ class GooglePayMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canCapture()) {
@@ -375,7 +375,7 @@ class GooglePayMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -415,7 +415,7 @@ class GooglePayMethod extends AbstractMethod
             $storeCode = $order->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -460,7 +460,7 @@ class GooglePayMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canRefund()) {
@@ -495,7 +495,7 @@ class GooglePayMethod extends AbstractMethod
     public function isAvailable(CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code, null, ScopeInterface::SCOPE_WEBSITE) && !$this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->_code) && !$this->backendAuthSession->isLoggedIn();
         }
 
         return false;

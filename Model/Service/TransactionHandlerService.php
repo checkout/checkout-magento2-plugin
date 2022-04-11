@@ -638,7 +638,7 @@ class TransactionHandlerService
             // Refund
             $this->creditMemoService->refund($creditMemo);
 
-            $status = $isPartialRefund ? $this->config->getValue('order_status_refunded', null, null, ScopeInterface::SCOPE_WEBSITE) : 'closed';
+            $status = $isPartialRefund ? $this->config->getValue('order_status_refunded') : 'closed';
             $orderComment->setData('status', $status);
             $this->orderStatusHistoryRepository->save($orderComment);
 
@@ -728,15 +728,15 @@ class TransactionHandlerService
 
         // Prepare the authorization condition
         $condition1 =
-            $this->config->getValue('order_email', null, null, ScopeInterface::SCOPE_WEBSITE) === 'authorize' && $this->transaction->getTxnType(
+            $this->config->getValue('order_email') === 'authorize' && $this->transaction->getTxnType(
             ) === TransactionInterface::TYPE_AUTH && $emailSent == 0;
 
         // Prepare the capture condition
         $condition2 =
-            $this->config->getValue('order_email', null, null, ScopeInterface::SCOPE_WEBSITE) === 'authorize_capture' && $this->transaction->getTxnType(
+            $this->config->getValue('order_email') === 'authorize_capture' && $this->transaction->getTxnType(
             ) === TransactionInterface::TYPE_CAPTURE && $emailSent == 0;
 
-        $condition3 = $this->config->getValue('order_email', null, null, ScopeInterface::SCOPE_WEBSITE) === 'authorize' && $this->transaction->getTxnType(
+        $condition3 = $this->config->getValue('order_email') === 'authorize' && $this->transaction->getTxnType(
             ) === TransactionInterface::TYPE_CAPTURE && $payload->data->metadata->methodId === 'checkoutcom_apm' && $emailSent == 0;
 
         // Send the order email
@@ -755,7 +755,7 @@ class TransactionHandlerService
     public function processVoid(): void
     {
         $isVoid = $this->transaction->getTxnType() === TransactionInterface::TYPE_VOID;
-        if ($isVoid && $this->config->getValue('order_status_voided', null, null, ScopeInterface::SCOPE_WEBSITE) === 'canceled') {
+        if ($isVoid && $this->config->getValue('order_status_voided') === 'canceled') {
             $this->orderManagement->cancel($this->order->getEntityId());
         }
     }

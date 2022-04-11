@@ -201,7 +201,7 @@ class OrderStatusHandlerService
             // Get store code
             $storeCode = $this->storeManager->getStore()->getCode();
             // Get config for failed payments
-            $config = $this->config->getValue('order_action_failed_payment', null, $storeCode, ScopeInterface::SCOPE_WEBSITE);
+            $config = $this->config->getValue('order_action_failed_payment');
 
             if ($config === 'cancel' || $config === 'delete') {
                 if ($order->getState() !== 'canceled') {
@@ -227,11 +227,11 @@ class OrderStatusHandlerService
     public function approved(array $webhook): void
     {
         $payload = json_decode($webhook['event_data']);
-        $this->status = $this->config->getValue('order_status_authorized', null, null, ScopeInterface::SCOPE_WEBSITE);
+        $this->status = $this->config->getValue('order_status_authorized');
 
         // Flag order if potential fraud
         if ($this->transactionHandler->isFlagged($payload)) {
-            $this->status = $this->config->getValue('order_status_flagged', null, null, ScopeInterface::SCOPE_WEBSITE);
+            $this->status = $this->config->getValue('order_status_flagged');
         }
     }
 
@@ -242,7 +242,7 @@ class OrderStatusHandlerService
      */
     protected function captured(): void
     {
-        $this->status = $this->order->getIsVirtual() ? 'complete' : $this->config->getValue('order_status_captured', null, null, ScopeInterface::SCOPE_WEBSITE);
+        $this->status = $this->order->getIsVirtual() ? 'complete' : $this->config->getValue('order_status_captured');
         $this->state = Order::STATE_PROCESSING;
     }
 
@@ -253,7 +253,7 @@ class OrderStatusHandlerService
      */
     public function void(): void
     {
-        $this->status = $this->config->getValue('order_status_voided', null, null, ScopeInterface::SCOPE_WEBSITE);
+        $this->status = $this->config->getValue('order_status_voided');
     }
 
     /**

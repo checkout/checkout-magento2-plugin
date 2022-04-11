@@ -34,6 +34,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -131,7 +132,7 @@ class Verify extends Action
                 $storeCode = $this->storeManager->getStore()->getCode();
 
                 // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
+                $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
                 // Get the payment details
                 $response = $api->getPaymentDetails($sessionId);

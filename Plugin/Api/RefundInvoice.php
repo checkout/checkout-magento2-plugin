@@ -113,7 +113,7 @@ class RefundInvoice
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode);
+        $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
         // Get the method and method id
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
@@ -141,7 +141,7 @@ class RefundInvoice
             }
 
             if ($this->statusNeedsCorrection($order)) {
-                $order->setStatus($this->config->getValue('order_status_refunded', null, null, ScopeInterface::SCOPE_WEBSITE));
+                $order->setStatus($this->config->getValue('order_status_refunded'));
             }
 
             // Set the transaction id from response
@@ -167,7 +167,7 @@ class RefundInvoice
     {
         $currentState = $order->getState();
         $currentStatus = $order->getStatus();
-        $desiredStatus = $this->config->getValue('order_status_refunded', null, null, ScopeInterface::SCOPE_WEBSITE);
+        $desiredStatus = $this->config->getValue('order_status_refunded');
 
         return $currentState === Order::STATE_PROCESSING && $currentStatus !== $desiredStatus && $currentStatus !== 'closed';
     }

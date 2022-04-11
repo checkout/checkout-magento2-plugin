@@ -412,7 +412,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $storeCode = $this->storeManager->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Create source object
             $source = $this->{$method}($data, $reference);
@@ -547,7 +547,7 @@ class AlternativePaymentMethod extends AbstractMethod
     public function activateMandate(string $url): ?array
     {
         // Get the secret key
-        $secret = $this->config->getValue('secret_key', null, null, ScopeInterface::SCOPE_WEBSITE);
+        $secret = $this->config->getValue('secret_key');
 
         // Prepare the options
         // Set the CURL headers
@@ -852,7 +852,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canCapture()) {
@@ -891,7 +891,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -931,7 +931,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -971,7 +971,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canRefund()) {
@@ -1010,7 +1010,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $enabled = false;
 
         /** @var string|null $apmMethods */
-        $apmMethods = $this->config->getValue('apm_enabled', 'checkoutcom_apm', null, ScopeInterface::SCOPE_WEBSITE) ?: '';
+        $apmMethods = $this->config->getValue('apm_enabled', 'checkoutcom_apm') ?: '';
         // Get the list of enabled apms.
         $apmEnabled = explode(
             ',',
@@ -1028,7 +1028,7 @@ class AlternativePaymentMethod extends AbstractMethod
             }
         }
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code, null, ScopeInterface::SCOPE_WEBSITE)
+            return $this->config->getValue('active', $this->_code)
                    && count($this->config->getApms()) > 0
                    && !$this->backendAuthSession->isLoggedIn()
                    && $enabled;

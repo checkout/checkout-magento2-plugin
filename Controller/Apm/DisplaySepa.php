@@ -217,7 +217,7 @@ class DisplaySepa extends Action
         // Get the list of APM
         $apmEnabled = explode(
             ',',
-            $this->config->getValue('apm_enabled', 'checkoutcom_apm', null, ScopeInterface::SCOPE_WEBSITE)
+            $this->config->getValue('apm_enabled', 'checkoutcom_apm')
         );
 
         /** @var string $source */

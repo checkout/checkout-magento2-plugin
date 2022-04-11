@@ -144,11 +144,9 @@ class Moto extends Cc
         $customerId = $this->adminQuote->getQuote()->getCustomer()->getId();
 
         // Return the check result
-        return $this->config->getValue('saved_cards_enabled', 'checkoutcom_moto', null, ScopeInterface::SCOPE_WEBSITE) && $this->config->getValue(
+        return $this->config->getValue('saved_cards_enabled', 'checkoutcom_moto') && $this->config->getValue(
                 'active',
-                'checkoutcom_moto',
-                null,
-                ScopeInterface::SCOPE_WEBSITE
+                'checkoutcom_moto'
             ) && $this->vaultHandler->userHasCards($customerId);
     }
 

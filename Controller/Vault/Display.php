@@ -93,7 +93,7 @@ class Display extends Action
         $html = '';
         if ($this->getRequest()->isAjax()) {
             // Check if vault is enabled
-            $vaultEnabled = $this->config->getValue('active', 'checkoutcom_vault', null, ScopeInterface::SCOPE_WEBSITE);
+            $vaultEnabled = $this->config->getValue('active', 'checkoutcom_vault');
 
             // Load block data for vault
             if ($vaultEnabled) {
