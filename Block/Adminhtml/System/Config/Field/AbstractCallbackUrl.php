@@ -69,10 +69,10 @@ abstract class AbstractCallbackUrl extends Field
     }
 
     /**
-     * @param ApiHandlerService    $apiHandler
+     * @param ApiHandlerService $apiHandler
      * @param ScopeConfigInterface $scopeConfig
-     * @param Context              $context
-     * @param array                $data
+     * @param Context $context
+     * @param array $data
      */
     public function __construct(
         ApiHandlerService $apiHandler,
@@ -149,6 +149,7 @@ abstract class AbstractCallbackUrl extends Field
                 || $webhook->event_types != $eventTypes
                 || $headers['authorization'] != $privateSharedKey
             ) {
+
                 // Webhook not configured
                 $element->setData('value', $callbackUrl);
                 $element->setReadonly('readonly');

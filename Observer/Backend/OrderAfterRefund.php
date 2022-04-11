@@ -20,9 +20,9 @@ namespace CheckoutCom\Magento2\Observer\Backend;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use Magento\Backend\Model\Auth\Session;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class OrderAfterRefund
@@ -45,15 +45,15 @@ class OrderAfterRefund implements ObserverInterface
     /**
      * OrderAfterRefund constructor
      *
-     * @param Session          $backendAuthSession
-     * @param Config           $config
+     * @param Session $backendAuthSession
+     * @param Config $config
      */
     public function __construct(
         Session $backendAuthSession,
         Config $config
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->config             = $config;
+        $this->config = $config;
     }
 
     /**
@@ -66,16 +66,20 @@ class OrderAfterRefund implements ObserverInterface
     public function execute(Observer $observer): ?OrderAfterRefund
     {
         if ($this->backendAuthSession->isLoggedIn()) {
-            $payment  = $observer->getEvent()->getPayment();
-            $order    = $payment->getOrder();
+            $payment = $observer->getEvent()->getPayment();
+            $order = $payment->getOrder();
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
             // Check if payment method is checkout.com
             if (in_array($methodId, $this->config->getMethodsList())) {
                 $creditmemo = $observer->getEvent()->getCreditmemo();
 
-                $status = ($order->getStatus() === 'closed' || $order->getStatus() === 'complete') ? $order->getStatus(
-                ) : $this->config->getValue('order_status_refunded');
+                $status = ($order->getStatus() === 'closed' || $order->getStatus() === 'complete') ? $order->getStatus() : $this->config->getValue(
+                    'order_status_refunded',
+                    null,
+                    null,
+                    ScopeInterface::SCOPE_WEBSITE
+                );
 
                 // Update the order status
                 $order->setStatus($status);

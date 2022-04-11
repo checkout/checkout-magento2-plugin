@@ -42,6 +42,7 @@ use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask as QuoteIdMaskResource;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -179,21 +180,21 @@ class V3 implements V3Interface
     /**
      * V3 constructor
      *
-     * @param PaymentResponseFactory     $paymentResponseFactory
-     * @param Config                     $config
-     * @param StoreManagerInterface      $storeManager
-     * @param QuoteHandlerService        $quoteHandler
-     * @param QuoteIdMaskFactory         $quoteIdMaskFactory
-     * @param OrderHandlerService        $orderHandler
-     * @param OrderStatusHandlerService  $orderStatusHandler
-     * @param MethodHandlerService       $methodHandler
-     * @param ApiHandlerService          $apiHandler
+     * @param PaymentResponseFactory $paymentResponseFactory
+     * @param Config $config
+     * @param StoreManagerInterface $storeManager
+     * @param QuoteHandlerService $quoteHandler
+     * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param OrderHandlerService $orderHandler
+     * @param OrderStatusHandlerService $orderStatusHandler
+     * @param MethodHandlerService $methodHandler
+     * @param ApiHandlerService $apiHandler
      * @param PaymentErrorHandlerService $paymentErrorHandler
-     * @param Utilities                  $utilities
-     * @param VaultHandlerService        $vaultHandler
-     * @param Http                       $request
-     * @param OrderRepositoryInterface   $orderRepository
-     * @param QuoteIdMaskResource        $quoteIdMaskResource
+     * @param Utilities $utilities
+     * @param VaultHandlerService $vaultHandler
+     * @param Http $request
+     * @param OrderRepositoryInterface $orderRepository
+     * @param QuoteIdMaskResource $quoteIdMaskResource
      */
     public function __construct(
         PaymentResponseFactory $paymentResponseFactory,
@@ -213,26 +214,26 @@ class V3 implements V3Interface
         QuoteIdMaskResource $quoteIdMaskResource
     ) {
         $this->paymentResponseFactory = $paymentResponseFactory;
-        $this->config                 = $config;
-        $this->storeManager           = $storeManager;
-        $this->quoteHandler           = $quoteHandler;
-        $this->quoteIdMaskFactory     = $quoteIdMaskFactory;
-        $this->orderHandler           = $orderHandler;
-        $this->orderStatusHandler     = $orderStatusHandler;
-        $this->methodHandler          = $methodHandler;
-        $this->apiHandler             = $apiHandler;
-        $this->paymentErrorHandler    = $paymentErrorHandler;
-        $this->utilities              = $utilities;
-        $this->vaultHandler           = $vaultHandler;
-        $this->request                = $request;
-        $this->orderRepository        = $orderRepository;
-        $this->quoteIdMaskResource    = $quoteIdMaskResource;
+        $this->config = $config;
+        $this->storeManager = $storeManager;
+        $this->quoteHandler = $quoteHandler;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
+        $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
+        $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
+        $this->paymentErrorHandler = $paymentErrorHandler;
+        $this->utilities = $utilities;
+        $this->vaultHandler = $vaultHandler;
+        $this->request = $request;
+        $this->orderRepository = $orderRepository;
+        $this->quoteIdMaskResource = $quoteIdMaskResource;
     }
 
     /**
      * Description executeApiV3 function
      *
-     * @param CustomerInterface       $customer
+     * @param CustomerInterface $customer
      * @param PaymentRequestInterface $paymentRequest
      *
      * @return PaymentResponseInterface
@@ -244,7 +245,7 @@ class V3 implements V3Interface
     ): PaymentResponseInterface {
         // Assign the customer and payment request to be accessible to the whole class
         $this->customer = $customer;
-        $this->data     = $paymentRequest;
+        $this->data = $paymentRequest;
 
         // Prepare the V3 object
         return $this->execute();
@@ -278,14 +279,14 @@ class V3 implements V3Interface
     {
         // Get an API handler instance
         $this->api = $this->apiHandler->init(
-            $this->storeManager->getStore()->getCode()
+            $this->storeManager->getStore()->getCode(),ScopeInterface::SCOPE_STORE
         );
 
         // Prepare the default response
         $this->result = [
-            'success'       => false,
-            'order_id'      => 0,
-            'redirect_url'  => '',
+            'success' => false,
+            'order_id' => 0,
+            'redirect_url' => '',
             'error_message' => [],
         ];
 
@@ -340,8 +341,8 @@ class V3 implements V3Interface
             if ($this->api->isValidResponse($response)) {
                 // Process the payment response
                 $is3ds = property_exists($response, '_links')
-                    && isset($response->_links['redirect'])
-                    && isset($response->_links['redirect']['href']);
+                         && isset($response->_links['redirect'])
+                         && isset($response->_links['redirect']['href']);
 
                 // Add the payment info to the order
                 $order = $this->utilities->setPaymentData($order, $response);
@@ -398,7 +399,7 @@ class V3 implements V3Interface
     {
         // Load the quote
         $this->quote = $this->loadQuote();
-        $order       = null;
+        $order = null;
 
         if ($this->quote) {
             // Create an order
@@ -433,7 +434,7 @@ class V3 implements V3Interface
         // Handle a quote not found
         if (!$this->quoteHandler->isQuote($quote)) {
             $this->result['error_message'][] = __('No quote found with the provided ID');
-            $quote                           = null;
+            $quote = null;
         }
 
         return $quote;
@@ -480,8 +481,7 @@ class V3 implements V3Interface
             // Prepare the save card setting
             $saveCardEnabled = $this->config->getValue('save_card_option', 'checkoutcom_card_payment');
 
-            if ($this->data->getSaveCard() !== null && $this->data->getSaveCard(
-                ) === true && $saveCardEnabled && isset($this->customer)) {
+            if ($this->data->getSaveCard() !== null && $this->data->getSaveCard() === true && $saveCardEnabled && isset($this->customer)) {
                 $payload['saveCard'] = true;
             }
         }
@@ -533,32 +533,32 @@ class V3 implements V3Interface
         if ($this->data->getPaymentMethod() !== null) {
             if (!is_string($this->data->getPaymentMethod())) {
                 $this->result['error_message'][] = __('Payment method provided is not a string');
-                $isValid                         = false;
+                $isValid = false;
             } elseif ($this->data->getPaymentMethod() == '') {
                 $this->result['error_message'][] = __('Payment method provided is empty string');
-                $isValid                         = false;
+                $isValid = false;
             }
         } else {
             $this->result['error_message'][] = __('Payment method is missing from request body');
-            $isValid                         = false;
+            $isValid = false;
         }
 
         // Check the quote id has been specified correctly
         if ($this->data->getQuoteId() !== null) {
             if (is_int($this->data->getQuoteId()) && $this->data->getQuoteId() < 1) {
                 $this->result['error_message'][] = __('Quote ID provided must be a positive integer');
-                $isValid                         = false;
+                $isValid = false;
             }
         } else {
             $this->result['error_message'][] = __('Quote ID is missing from request body');
-            $isValid                         = false;
+            $isValid = false;
         }
 
         // Check the card bin has been specified correctly
         if ($this->data->getCardBin() !== null) {
             if ($this->data->getCardBin() == '') {
                 $this->result['error_message'][] = __('Card BIN is empty string');
-                $isValid                         = false;
+                $isValid = false;
             }
         }
 
@@ -566,10 +566,10 @@ class V3 implements V3Interface
         if ($this->data->getSuccessUrl() !== null) {
             if (!is_string($this->data->getSuccessUrl())) {
                 $this->result['error_message'][] = __('Success URL provided is not a string');
-                $isValid                         = false;
+                $isValid = false;
             } elseif ($this->data->getSuccessUrl() == '') {
                 $this->result['error_message'][] = __('Success URL is empty string');
-                $isValid                         = false;
+                $isValid = false;
             }
         }
 
@@ -577,10 +577,10 @@ class V3 implements V3Interface
         if ($this->data->getFailureUrl() !== null) {
             if (!is_string($this->data->getFailureUrl())) {
                 $this->result['error_message'][] = __('Failure URL provided is not a string');
-                $isValid                         = false;
+                $isValid = false;
             } elseif ($this->data->getFailureUrl() == '') {
                 $this->result['error_message'][] = __('Failure URL is empty string');
-                $isValid                         = false;
+                $isValid = false;
             }
         }
 
@@ -589,21 +589,21 @@ class V3 implements V3Interface
             // Check the payment method is active
             if (!$this->config->getValue('active', 'checkoutcom_card_payment')) {
                 $this->result['error_message'][] = __('Card payment method is not active');
-                $isValid                         = false;
+                $isValid = false;
             }
 
             // Check the payment token has been specified correctly
             if ($this->data->getPaymentToken() !== null) {
                 if (!is_string($this->data->getPaymentToken())) {
                     $this->result['error_message'][] = __('Payment token provided is not a string');
-                    $isValid                         = false;
+                    $isValid = false;
                 } elseif ($this->data->getPaymentToken() == '') {
                     $this->result['error_message'][] = __('Payment token provided is empty string');
-                    $isValid                         = false;
+                    $isValid = false;
                 }
             } else {
                 $this->result['error_message'][] = __('Payment token is missing from request body');
-                $isValid                         = false;
+                $isValid = false;
             }
         }
 
@@ -612,44 +612,45 @@ class V3 implements V3Interface
             // Check the payment method is active
             if (!$this->config->getValue('active', 'checkoutcom_vault')) {
                 $this->result['error_message'][] = __('Vault payment method is not active');
-                $isValid                         = false;
+                $isValid = false;
             }
 
             // Public hash error messages
             if ($this->data->getPublicHash() !== null) {
                 if (!is_string($this->data->getPublicHash())) {
                     $this->result['error_message'][] = __('Public hash provided is not a string');
-                    $isValid                         = false;
+                    $isValid = false;
                 } elseif ($this->data->getPublicHash() == '') {
                     $this->result['error_message'][] = __('Public hash provided is empty string');
-                    $isValid                         = false;
+                    $isValid = false;
                 } elseif ($this->vaultHandler->getCardFromHash(
                         $this->data->getPublicHash(),
                         $this->customer->getId()
-                    ) == null) {
+                    ) == null
+                ) {
                     $this->result['error_message'][] = __('Public hash provided is not valid');
-                    $isValid                         = false;
+                    $isValid = false;
                 }
             } else {
                 $this->result['error_message'][] = __('Public hash is missing from request body');
-                $isValid                         = false;
+                $isValid = false;
             }
 
             // Check the card cvv has been specified correctly
             if ($this->config->getValue('require_cvv', 'checkoutcom_vault')) {
                 if ($this->data->getCardCvv() == null || (int)$this->data->getCardCvv() == 0) {
                     $this->result['error_message'][] = __('CVV value is required');
-                    $isValid                         = false;
+                    $isValid = false;
                 }
             } else {
                 if ($this->data->getCardCvv()) {
                     $this->result['error_message'][] = __('CVV value is not required');
-                    $isValid                         = false;
+                    $isValid = false;
                 }
             }
         } elseif ($this->data->getPaymentMethod() == 'checkoutcom_vault' && !isset($this->customer)) {
             $this->result['error_message'][] = __('Vault payment method is not available for guest checkouts.');
-            $isValid                         = false;
+            $isValid = false;
         }
 
         return $isValid;

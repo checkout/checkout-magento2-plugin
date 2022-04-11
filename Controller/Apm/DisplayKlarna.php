@@ -35,6 +35,7 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -176,7 +177,7 @@ class DisplayKlarna extends Action
 
             // Initialize the API handler
             $checkoutApi = $this->apiHandler
-                ->init($storeCode)
+                ->init($storeCode,ScopeInterface::SCOPE_STORE)
                 ->getCheckoutApi();
 
             $products = $this->getProducts($response, $quote);

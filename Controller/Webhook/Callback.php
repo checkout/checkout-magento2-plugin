@@ -180,7 +180,7 @@ class Callback extends Action implements CsrfAwareActionInterface
                         $storeCode = $this->storeManager->getStore()->getCode();
 
                         // Initialize the API handler
-                        $api = $this->apiHandler->init($storeCode);
+                        $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
                         // Get the payment details
                         $response = $api->getPaymentDetails($payload->data->id);

@@ -47,6 +47,7 @@ use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -160,25 +161,25 @@ class ApplePayMethod extends AbstractMethod
     /**
      * ApplePayMethod constructor
      *
-     * @param Context                    $context
-     * @param Registry                   $registry
+     * @param Context $context
+     * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory      $customAttributeFactory
-     * @param Data                       $paymentData
-     * @param ScopeConfigInterface       $scopeConfig
-     * @param Logger                     $logger
-     * @param Session                    $backendAuthSession
-     * @param Config                     $config
-     * @param ApiHandlerService          $apiHandler
-     * @param Utilities                  $utilities
-     * @param StoreManagerInterface      $storeManager
-     * @param QuoteHandlerService        $quoteHandler
-     * @param MagentoLoggerHelper        $ckoLogger
-     * @param DirectoryHelper            $directoryHelper
-     * @param DataObjectFactory          $dataObjectFactory
-     * @param AbstractResource|null      $resource
-     * @param AbstractDb|null            $resourceCollection
-     * @param array                      $data
+     * @param AttributeValueFactory $customAttributeFactory
+     * @param Data $paymentData
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
+     * @param Session $backendAuthSession
+     * @param Config $config
+     * @param ApiHandlerService $apiHandler
+     * @param Utilities $utilities
+     * @param StoreManagerInterface $storeManager
+     * @param QuoteHandlerService $quoteHandler
+     * @param MagentoLoggerHelper $ckoLogger
+     * @param DirectoryHelper $directoryHelper
+     * @param DataObjectFactory $dataObjectFactory
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
      */
     public function __construct(
         Context $context,
@@ -218,21 +219,21 @@ class ApplePayMethod extends AbstractMethod
         );
 
         $this->backendAuthSession = $backendAuthSession;
-        $this->config             = $config;
-        $this->apiHandler         = $apiHandler;
-        $this->utilities          = $utilities;
-        $this->storeManager       = $storeManager;
-        $this->quoteHandler       = $quoteHandler;
-        $this->ckoLogger          = $ckoLogger;
+        $this->config = $config;
+        $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
+        $this->storeManager = $storeManager;
+        $this->quoteHandler = $quoteHandler;
+        $this->ckoLogger = $ckoLogger;
     }
 
     /**
      * Send a charge requestDescription sendPaymentRequest function
      *
      * @param mixed[] $data
-     * @param float   $amount
-     * @param string  $currency
-     * @param string  $reference
+     * @param float $amount
+     * @param string $currency
+     * @param string $reference
      *
      * @return mixed|void
      * @throws LocalizedException
@@ -245,7 +246,7 @@ class ApplePayMethod extends AbstractMethod
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode);
+        $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
         $checkoutApi = $api->getCheckoutApi();
 
         // Get the quote
@@ -294,20 +295,20 @@ class ApplePayMethod extends AbstractMethod
         }
 
         // Set the request parameters
-        $request->amount       = $this->quoteHandler->amountToGateway(
+        $request->amount = $this->quoteHandler->amountToGateway(
             $this->utilities->formatDecimals($amount),
             $quote
         );
-        $request->reference    = $reference;
-        $request->description  = __('Payment request from %1', $this->config->getStoreName())->render();
-        $request->customer     = $api->createCustomer($quote);
+        $request->reference = $reference;
+        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
+        $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
-        $request->shipping     = $api->createShippingAddress($quote);
+        $request->shipping = $api->createShippingAddress($quote);
 
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
             $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city')
+                $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE), $this->config->getValue('descriptor_city')
             );
         }
 
@@ -328,7 +329,7 @@ class ApplePayMethod extends AbstractMethod
      * Perform a capture request
      *
      * @param InfoInterface $payment
-     * @param float         $amount
+     * @param float $amount
      *
      * @return $this|ApplePayMethod
      * @throws LocalizedException
@@ -340,7 +341,7 @@ class ApplePayMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canCapture()) {
@@ -379,7 +380,7 @@ class ApplePayMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -419,7 +420,7 @@ class ApplePayMethod extends AbstractMethod
             $storeCode = $order->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -452,7 +453,7 @@ class ApplePayMethod extends AbstractMethod
      * Perform a refund request
      *
      * @param InfoInterface $payment
-     * @param float         $amount
+     * @param float $amount
      *
      * @return $this|ApplePayMethod
      * @throws LocalizedException
@@ -464,7 +465,7 @@ class ApplePayMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canRefund()) {

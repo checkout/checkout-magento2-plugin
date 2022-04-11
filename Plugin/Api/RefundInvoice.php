@@ -29,6 +29,7 @@ use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\RefundAdapter\Interceptor;
 use Magento\Sales\Model\Order\RefundAdapterInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -70,10 +71,10 @@ class RefundInvoice
     /**
      * RefundInvoice constructor
      *
-     * @param MethodHandlerService            $methodHandler
-     * @param StoreManagerInterface           $storeManager
-     * @param ApiHandlerService               $apiHandler
-     * @param Config                          $config
+     * @param MethodHandlerService $methodHandler
+     * @param StoreManagerInterface $storeManager
+     * @param ApiHandlerService $apiHandler
+     * @param Config $config
      * @param OrderPaymentRepositoryInterface $orderPaymentRepository
      */
     public function __construct(
@@ -83,10 +84,10 @@ class RefundInvoice
         Config $config,
         OrderPaymentRepositoryInterface $orderPaymentRepository
     ) {
-        $this->methodHandler          = $methodHandler;
-        $this->storeManager           = $storeManager;
-        $this->apiHandler             = $apiHandler;
-        $this->config                 = $config;
+        $this->methodHandler = $methodHandler;
+        $this->storeManager = $storeManager;
+        $this->apiHandler = $apiHandler;
+        $this->config = $config;
         $this->orderPaymentRepository = $orderPaymentRepository;
     }
 
@@ -94,9 +95,9 @@ class RefundInvoice
      * Refund the order online
      *
      * @param RefundAdapterInterface $subject
-     * @param CreditmemoInterface    $creditMemo
-     * @param OrderInterface         $order
-     * @param bool                   $isOnline
+     * @param CreditmemoInterface $creditMemo
+     * @param OrderInterface $order
+     * @param bool $isOnline
      *
      * @return mixed[]
      * @throws LocalizedException
@@ -112,7 +113,7 @@ class RefundInvoice
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode);
+        $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
 
         // Get the method and method id
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
@@ -121,8 +122,8 @@ class RefundInvoice
         if (in_array($methodId, $this->config->getMethodsList()) && $isOnline) {
             // Get the payment and amount to refund
             $payment = $order->getPayment();
-            $amount  = $creditMemo->getBaseGrandTotal();
-            $method  = $this->methodHandler->get($methodId);
+            $amount = $creditMemo->getBaseGrandTotal();
+            $method = $this->methodHandler->get($methodId);
 
             if (!$method->canRefund()) {
                 throw new LocalizedException(
@@ -164,7 +165,7 @@ class RefundInvoice
      */
     public function statusNeedsCorrection(OrderInterface $order): bool
     {
-        $currentState  = $order->getState();
+        $currentState = $order->getState();
         $currentStatus = $order->getStatus();
         $desiredStatus = $this->config->getValue('order_status_refunded');
 

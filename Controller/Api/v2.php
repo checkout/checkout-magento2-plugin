@@ -41,6 +41,7 @@ use Magento\Quote\Model\QuoteIdMask;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask as QuoteIdMaskResource;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -249,7 +250,8 @@ class V2 extends Action
 
         // Get an API handler instance
         $this->api = $this->apiHandler->init(
-            $this->storeManager->getStore()->getCode()
+            $this->storeManager->getStore()->getCode(),
+            ScopeInterface::SCOPE_STORE
         );
 
         // Prepare the default response
