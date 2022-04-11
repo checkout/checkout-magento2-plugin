@@ -170,27 +170,33 @@
                     </group>
                     <group id="account_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Account Settings</label>
-                        <field id="secret_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <field id="service" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Service</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService</source_model>
+                            <config_path>settings/checkoutcom_configuration/service</config_path>
+                            <validate>required-entry</validate>
+                        </field>
+                        <field id="secret_key" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Secret Key</label>
                             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/secret_key</config_path>
                             <validate>required-entry</validate>
                         </field>
 
-                        <field id="public_key" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <field id="public_key" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Public Key</label>
                             <config_path>settings/checkoutcom_configuration/public_key</config_path>
                             <validate>required-entry</validate>
                         </field>
 
-                        <field id="private_shared_key" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <field id="private_shared_key" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Private Shared Key</label>
                             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
                             <validate>required-entry</validate>
                         </field>
 
-                        <field id="webhook_url" sortOrder="0" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <field id="webhook_url" sortOrder="50" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Webhook Url</label>
                             <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\WebhookUrl</frontend_model>
                         </field>
