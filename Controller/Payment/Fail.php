@@ -181,7 +181,7 @@ class Fail extends Action
 
                     $storeCode = $this->storeManager->getStore()->getCode();
                     $action    = $this->config->getValue('order_action_failed_payment', null, $storeCode);
-                    $status    = $action === 'cancel' ? 'canceled' : false;
+                    $status    = $action === 'cancel' ? 'canceled' : 'false';
 
                     // Log the payment error
                     $this->paymentErrorHandlerService->logPaymentError(
