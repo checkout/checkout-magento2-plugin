@@ -202,12 +202,12 @@ class Callback extends Action implements CsrfAwareActionInterface
                                     // Clean the webhooks table
                                     $clean = $this->scopeConfig->getValue(
                                         'settings/checkoutcom_configuration/webhooks_table_clean',
-                                        ScopeInterface::SCOPE_STORE
+                                        ScopeInterface::SCOPE_WEBSITE
                                     );
 
                                     $cleanOn = $this->scopeConfig->getValue(
                                         'settings/checkoutcom_configuration/webhooks_clean_on',
-                                        ScopeInterface::SCOPE_STORE
+                                        ScopeInterface::SCOPE_WEBSITE
                                     );
 
                                     // Save the webhook
