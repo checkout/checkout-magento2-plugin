@@ -286,9 +286,7 @@ define(
                             var valid = Frames.isCardValid()
                             if (valid) {
                                 if(cardholderName.length === 0) {
-                                    var validBillingAddress = Utilities.getBillingAddress() != null;
-
-                                    if(validBillingAddress) {
+                                    if(Utilities.getBillingAddress()) {
                                         cardholderName = Utilities.getCustomerName();
                                     }
                                 }
