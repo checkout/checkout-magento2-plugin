@@ -177,7 +177,7 @@ class DisplayKlarna extends Action
 
             // Initialize the API handler
             $checkoutApi = $this->apiHandler
-                ->init($storeCode,ScopeInterface::SCOPE_STORE)
+                ->init($storeCode, ScopeInterface::SCOPE_STORE)
                 ->getCheckoutApi();
 
             $products = $this->getProducts($response, $quote);

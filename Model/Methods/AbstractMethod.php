@@ -1044,6 +1044,6 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function isModuleActive(): bool
     {
-        return (bool)$this->scopeConfig->getValue('settings/checkoutcom_configuration/active',  ScopeInterface::SCOPE_WEBSITE);
+        return (bool)$this->scopeConfig->getValue('settings/checkoutcom_configuration/active', ScopeInterface::SCOPE_WEBSITE);
     }
 }
