@@ -281,9 +281,9 @@ define(
             getCustomerName: function () {
                 var billingAddress = this.getBillingAddress();
                 var customerName = '';
-                if (billingAddress) {
-                    customerName += billingAddress.firstname;
-                    customerName += ' ' + billingAddress.lastname;
+                if (billingAddress && billingAddress.firstname && billingAddress.lastname) {
+                        customerName += billingAddress.firstname;
+                        customerName += ' ' + billingAddress.lastname;
                 }
 
                 return customerName;
