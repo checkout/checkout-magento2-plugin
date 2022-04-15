@@ -27,7 +27,6 @@ use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
-use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
@@ -164,7 +163,7 @@ class Fail extends Action
                 $storeCode = $this->storeManager->getStore()->getCode();
 
                 // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+                $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
                 // Get the payment details
                 $response = $api->getPaymentDetails($sessionId);

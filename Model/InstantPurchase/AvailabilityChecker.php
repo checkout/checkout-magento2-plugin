@@ -21,7 +21,6 @@ namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class AvailabilityChecker
@@ -65,20 +64,16 @@ class AvailabilityChecker
         // Get the vault state
         $vaultEnabled = $this->config->getValue(
             'active',
-            'checkoutcom_vault',
-            null,
-            ScopeInterface::SCOPE_WEBSITE
+            'checkoutcom_vault'
         );
 
         // Get the instant purchase state
         $instantPurchaseEnabled = $this->config->getValue(
             'instant_purchase_enabled',
-            'checkoutcom_vault',
-            null,
-            ScopeInterface::SCOPE_WEBSITE
+            'checkoutcom_vault'
         );
 
-        $madaEnabled = $this->config->getValue('mada_enabled', 'checkoutcom_vault');//ici bizarre
+        $madaEnabled = $this->config->getValue('mada_enabled', 'checkoutcom_vault');
 
         return $vaultEnabled
                && $instantPurchaseEnabled

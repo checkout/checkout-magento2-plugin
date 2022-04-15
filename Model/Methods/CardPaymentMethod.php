@@ -276,7 +276,7 @@ class CardPaymentMethod extends AbstractMethod
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode ,ScopeInterface::SCOPE_STORE);
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
         if (!$quote) {
             // Get the quote
@@ -398,7 +398,7 @@ class CardPaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canCapture()) {
@@ -437,7 +437,7 @@ class CardPaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -477,7 +477,7 @@ class CardPaymentMethod extends AbstractMethod
             $storeCode = $order->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -522,7 +522,7 @@ class CardPaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canRefund()) {

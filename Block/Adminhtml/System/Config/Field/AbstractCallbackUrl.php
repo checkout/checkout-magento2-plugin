@@ -149,7 +149,6 @@ abstract class AbstractCallbackUrl extends Field
                 || $webhook->event_types != $eventTypes
                 || $headers['authorization'] != $privateSharedKey
             ) {
-
                 // Webhook not configured
                 $element->setData('value', $callbackUrl);
                 $element->setReadonly('readonly');

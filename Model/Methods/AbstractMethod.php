@@ -572,7 +572,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @return mixed
      * @throws LocalizedException
      */
-    public function getConfigData($field, $storeId = null) //ici
+    public function getConfigData($field, $storeId = null)
     {
         if ('order_place_redirect_url' === $field) {
             return $this->getOrderPlaceRedirectUrl();
