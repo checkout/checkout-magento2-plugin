@@ -143,7 +143,7 @@ class ApiHandlerService
         /** @var bool $secretKeyPassed */
         $secretKeyPassed = (bool)$secretKey;
         /** @var string $service */
-        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH);
+        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, ScopeInterface::SCOPE_WEBSITE);
         /** @var string $publicKey */
         $publicKey = $this->config->getValue('public_key', null, $storeCode, $scope);
         if (!$secretKeyPassed) {

@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace Checkoutcom\Magento2\Controller\Adminhtml\System\Config;
 
+use Checkout\Models\Webhooks\Webhook as WebhookModel;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use Exception;
@@ -32,7 +33,7 @@ use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\PageCache\Model\Cache\Type;
-use Checkout\Models\Webhooks\Webhook as WebhookModel;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class Webhook
@@ -112,7 +113,7 @@ class Webhook extends Action
             $storeCode  = $this->getRequest()->getParam('scope_id', 0);
             $publicKey  = $this->getRequest()->getParam('public_key', 0);
             $webhookUrl = $this->getRequest()->getParam('webhook_url', 0);
-            $secretKey  = $this->scopeConfig->getValue('settings/checkoutcom_configuration/secret_key')
+            $secretKey = $this->scopeConfig->getValue('settings/checkoutcom_configuration/secret_key', ScopeInterface::SCOPE_WEBSITE)
             ?: $this->getRequest()->getParam('secret_key', 0);
 
 
