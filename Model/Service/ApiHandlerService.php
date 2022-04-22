@@ -28,6 +28,7 @@ use Checkout\Models\Payments\Payment;
 use Checkout\Models\Payments\Refund;
 use Checkout\Models\Payments\Shipping;
 use Checkout\Models\Payments\Voids;
+use Checkout\Models\Product;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -37,6 +38,8 @@ use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Api\Data\CartItemInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -88,6 +91,10 @@ class ApiHandlerService
      */
     private $orderHandler;
     /**
+     * @var QuoteHandlerService $quoteHandler
+     */
+    private QuoteHandlerService $quoteHandler;
+    /**
      * $versionHandler field
      *
      * @var VersionHandlerService $versionHandler
@@ -103,7 +110,9 @@ class ApiHandlerService
      * @param Utilities $utilities
      * @param Logger $logger
      * @param OrderHandlerService $orderHandler
+     * @param QuoteHandlerService $quoteHandler
      * @param VersionHandlerService $versionHandler
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -112,6 +121,7 @@ class ApiHandlerService
         Utilities $utilities,
         Logger $logger,
         OrderHandlerService $orderHandler,
+        QuoteHandlerService $quoteHandler,
         VersionHandlerService $versionHandler,
         ScopeConfigInterface $scopeConfig
     ) {
@@ -121,6 +131,7 @@ class ApiHandlerService
         $this->utilities      = $utilities;
         $this->logger         = $logger;
         $this->orderHandler   = $orderHandler;
+        $this->quoteHandler = $quoteHandler;
         $this->versionHandler = $versionHandler;
         $this->scopeConfig    = $scopeConfig;
     }
@@ -372,6 +383,37 @@ class ApiHandlerService
         $address->state         = $shippingAddress->getRegion();
 
         return new Shipping($address);
+    }
+
+    /**
+     * @param CartInterface $entity
+     *
+     * @return Product[]
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function createItems(CartInterface $entity): array
+    {
+        /** @var Product[] $items */
+        $items = [];
+        /** @var CartItemInterface $item */
+        foreach ($entity->getItems() as $item) {
+            /** @var Product $product */
+            $product = new Product();
+            /** @var float|int|mixed $unitPrice */
+            $unitPrice = $this->quoteHandler->amountToGateway(
+                $this->utilities->formatDecimals($item->getPriceInclTax()),
+                $entity
+            );
+
+            $product->name = $item->getName();
+            $product->unit_price = $unitPrice;
+            $product->quantity = $item->getQty();
+
+            $items[] = $product;
+        }
+
+        return $items;
     }
 
     /**

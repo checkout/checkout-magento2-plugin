@@ -485,6 +485,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $payment->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
         $payment->customer = $this->apiHandler->createCustomer($quote);
         $payment->shipping = $this->apiHandler->createShippingAddress($quote);
+        $payment->items = $this->apiHandler->createItems($quote);
         $payment->description = __(
             'Payment request from %1',
             $this->config->getStoreName()
