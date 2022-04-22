@@ -113,7 +113,7 @@ class RefundInvoice
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
         // Get the method and method id
         $methodId = $order->getPayment()->getMethodInstance()->getCode();

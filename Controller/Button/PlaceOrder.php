@@ -203,7 +203,7 @@ class PlaceOrder extends Action
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
         // Prepare a default error message
         $message = __('An error occurred and the order could not be created.');

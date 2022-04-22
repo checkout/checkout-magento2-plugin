@@ -225,7 +225,7 @@ class PlaceOrder extends Action
                         $storeCode = $this->storeManager->getStore()->getCode();
 
                         // Process the response
-                        $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+                        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
                         if ($api->isValidResponse($response)) {
                             // Add the payment info to the order
                             $order = $this->utilities->setPaymentData($order, $response, $data);

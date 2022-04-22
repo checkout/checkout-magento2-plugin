@@ -246,7 +246,7 @@ class GooglePayMethod extends AbstractMethod
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
         $checkoutApi = $api->getCheckoutApi();
 
         // Get the quote
@@ -336,7 +336,7 @@ class GooglePayMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canCapture()) {
@@ -375,7 +375,7 @@ class GooglePayMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -415,7 +415,7 @@ class GooglePayMethod extends AbstractMethod
             $storeCode = $order->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -460,7 +460,7 @@ class GooglePayMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canRefund()) {

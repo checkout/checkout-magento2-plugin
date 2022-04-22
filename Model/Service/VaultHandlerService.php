@@ -236,7 +236,7 @@ class VaultHandlerService
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
         // Set the token source
         $tokenSource = new TokenSource($this->cardToken);

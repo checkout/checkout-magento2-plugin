@@ -279,7 +279,8 @@ class V3 implements V3Interface
     {
         // Get an API handler instance
         $this->api = $this->apiHandler->init(
-            $this->storeManager->getStore()->getCode(),ScopeInterface::SCOPE_STORE
+            $this->storeManager->getStore()->getCode(),
+            ScopeInterface::SCOPE_STORE
         );
 
         // Prepare the default response

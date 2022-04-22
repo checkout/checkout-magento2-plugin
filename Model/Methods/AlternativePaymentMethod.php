@@ -412,7 +412,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $storeCode = $this->storeManager->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Create source object
             $source = $this->{$method}($data, $reference);
@@ -853,7 +853,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canCapture()) {
@@ -892,7 +892,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -932,7 +932,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -972,7 +972,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canRefund()) {

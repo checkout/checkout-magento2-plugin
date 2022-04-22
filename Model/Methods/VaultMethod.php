@@ -277,7 +277,7 @@ class VaultMethod extends AbstractMethod
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
         // Get the quote
         $quote = $this->quoteHandler->getQuote();
@@ -327,7 +327,7 @@ class VaultMethod extends AbstractMethod
         }
 
         // Prepare the MADA setting
-        $madaEnabled = (bool)$this->config->getValue('mada_enabled', $this->_code);//ici bizarre
+        $madaEnabled = (bool)$this->config->getValue('mada_enabled', $this->_code);
 
         // Set the request parameters
         $request->amount = $this->quoteHandler->amountToGateway(
@@ -404,7 +404,7 @@ class VaultMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canCapture()) {
@@ -443,7 +443,7 @@ class VaultMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -483,7 +483,7 @@ class VaultMethod extends AbstractMethod
             $storeCode = $order->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canVoid()) {
@@ -528,7 +528,7 @@ class VaultMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode,ScopeInterface::SCOPE_STORE);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Check the status
             if (!$this->canRefund()) {

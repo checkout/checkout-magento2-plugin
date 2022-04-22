@@ -186,7 +186,6 @@ class Config
         $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
     ) {
-
         return $this->loader->getValue($field, $methodId, $storeCode, $scope);
     }
 
@@ -213,7 +212,7 @@ class Config
     public function getModuleConfig(): array
     {
         /** @var mixed[] $moduleConfig */
-        $moduleConfig = $this->scopeConfig->getValue('settings/checkoutcom_configuration');
+        $moduleConfig = $this->scopeConfig->getValue('settings/checkoutcom_configuration', ScopeInterface::SCOPE_WEBSITE);
         if (array_key_exists('secret_key', $moduleConfig)) {
             unset($moduleConfig['secret_key']);
         }
@@ -235,7 +234,7 @@ class Config
     {
         $output = [];
         /** @var mixed[] $paymentMethodsConfig */
-        $paymentMethodsConfig = $this->scopeConfig->getValue(Loader::KEY_PAYMENT);
+        $paymentMethodsConfig = $this->scopeConfig->getValue(Loader::KEY_PAYMENT, ScopeInterface::SCOPE_WEBSITE);
 
         /**
          * Get only the active CheckoutCom methods

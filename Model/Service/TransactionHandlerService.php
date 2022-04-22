@@ -39,7 +39,6 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Sales\Model\Order\Payment\Transaction\Repository;
 use Magento\Sales\Model\Service\CreditmemoService;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class TransactionHandlerService
@@ -509,9 +508,11 @@ class TransactionHandlerService
         $filter3 = $this->filterBuilder->setField('txn_type')->setValue($transactionType)->create();
 
         // Build the search criteria
-        $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter1])->addFilters([$filter2])->addFilters(
-            [$filter3]
-        )->setPageSize(1)->create();
+        $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter1])
+            ->addFilters([$filter2])
+            ->addFilters([$filter3])
+            ->setPageSize(1)
+            ->create();
 
         // Get the list of transactions
         $transactions = $this->transactionRepository->getList($searchCriteria)->getItems();
@@ -727,17 +728,19 @@ class TransactionHandlerService
         $emailSent = $this->order->getEmailSent();
 
         // Prepare the authorization condition
-        $condition1 =
-            $this->config->getValue('order_email') === 'authorize' && $this->transaction->getTxnType(
-            ) === TransactionInterface::TYPE_AUTH && $emailSent == 0;
+        $condition1 = $this->config->getValue('order_email') === 'authorize'
+                      && $this->transaction->getTxnType() === TransactionInterface::TYPE_AUTH
+                      && $emailSent == 0;
 
         // Prepare the capture condition
-        $condition2 =
-            $this->config->getValue('order_email') === 'authorize_capture' && $this->transaction->getTxnType(
-            ) === TransactionInterface::TYPE_CAPTURE && $emailSent == 0;
+        $condition2 = $this->config->getValue('order_email') === 'authorize_capture'
+                      && $this->transaction->getTxnType() === TransactionInterface::TYPE_CAPTURE
+                      && $emailSent == 0;
 
-        $condition3 = $this->config->getValue('order_email') === 'authorize' && $this->transaction->getTxnType(
-            ) === TransactionInterface::TYPE_CAPTURE && $payload->data->metadata->methodId === 'checkoutcom_apm' && $emailSent == 0;
+        $condition3 = $this->config->getValue('order_email') === 'authorize'
+                      && $this->transaction->getTxnType() === TransactionInterface::TYPE_CAPTURE
+                      && $payload->data->metadata->methodId === 'checkoutcom_apm'
+                      && $emailSent == 0;
 
         // Send the order email
         if ($condition1 || $condition2 || $condition3) {
