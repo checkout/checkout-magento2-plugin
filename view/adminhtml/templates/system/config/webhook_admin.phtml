@@ -44,7 +44,7 @@ require([
     }
 
     function processNAS() {
-        label[0].innerText = 'Authorization Header Key';
+        label[0].innerText = "<?= __('Authorization Header Key') ?>";
         document.getElementById('webhook_auto_set').style.display = 'none';
         document.getElementById('webhook-message').style.display = 'none';
         document.getElementById('webhook_spinner').style.display = 'none';
@@ -52,7 +52,7 @@ require([
     }
 
     function processABC() {
-        label[0].innerText = 'Private Shared Key';
+        label[0].innerText = "<?= __('Private Shared Key') ?>";
         document.getElementById('webhook_nas').style.display = 'none';
         if (checkFormFields()) {
             document.getElementById('webhook_auto_set').style.display = 'block';
