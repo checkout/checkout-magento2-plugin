@@ -59,6 +59,14 @@ require([
         }
     }
 
+    function checkService() {
+        if (getService() === "<?= ConfigService::SERVICE_NAS ?>") {
+            processNAS();
+        } else if (getService() === "<?= ConfigService::SERVICE_ABC ?>") {
+            processABC();
+        }
+    }
+
     function checkFormFields() {
         let environment = document.getElementsByName(
             'groups[checkoutcom][groups][module][groups][global_settings][fields][environment][value]')[0].value;
@@ -75,27 +83,15 @@ require([
     }
 
     window.addEventListener('DOMContentLoaded', event => {
-        if (getService() === "<?= ConfigService::SERVICE_NAS ?>") {
-            processNAS();
-        } else if (getService() === "<?= ConfigService::SERVICE_ABC ?>") {
-            processABC();
-        }
+        checkService();
     });
 
     service[0].addEventListener('input', event => {
-        if (getService() === "<?= ConfigService::SERVICE_NAS ?>") {
-            processNAS();
-        } else if (getService() === "<?= ConfigService::SERVICE_ABC ?>") {
-            processABC();
-        }
+        checkService();
     });
 
     secretKey[0].addEventListener('input', event => {
-        if (getService() === "<?= ConfigService::SERVICE_ABC ?>") {
-            processABC();
-        } else if (getService() === "<?= ConfigService::SERVICE_NAS ?>") {
-            processNAS();
-        }
+        checkService();
     });
 
     jQuery('#webhook_button').click(function() {
