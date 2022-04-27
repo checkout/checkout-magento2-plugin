@@ -93,7 +93,7 @@ class ApiHandlerService
     /**
      * @var QuoteHandlerService $quoteHandler
      */
-    private QuoteHandlerService $quoteHandler;
+    private $quoteHandler;
     /**
      * $versionHandler field
      *
