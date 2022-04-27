@@ -101,10 +101,10 @@ class Loader
     /**
      * Loader constructor
      *
-     * @param Reader                $moduleDirReader
-     * @param Parser                $xmlParser
-     * @param ScopeConfigInterface  $scopeConfig
-     * @param EncryptorInterface    $encryptor
+     * @param Reader $moduleDirReader
+     * @param Parser $xmlParser
+     * @param ScopeConfigInterface $scopeConfig
+     * @param EncryptorInterface $encryptor
      */
     public function __construct(
         Reader $moduleDirReader,
@@ -113,9 +113,9 @@ class Loader
         EncryptorInterface $encryptor
     ) {
         $this->moduleDirReader = $moduleDirReader;
-        $this->xmlParser       = $xmlParser;
-        $this->scopeConfig     = $scopeConfig;
-        $this->encryptor       = $encryptor;
+        $this->xmlParser = $xmlParser;
+        $this->scopeConfig = $scopeConfig;
+        $this->encryptor = $encryptor;
     }
 
     /**
@@ -258,7 +258,7 @@ class Loader
         string $key,
         string $methodId = null,
         $storeCode = null,
-        string $scope = ScopeInterface::SCOPE_STORE
+        string $scope = ScopeInterface::SCOPE_WEBSITE
     ) {
         // Prepare the path
         $path = ($methodId) ? 'payment/' . $methodId . '/' . $key : 'settings/checkoutcom_configuration/' . $key;

@@ -22,7 +22,6 @@ namespace CheckoutCom\Magento2\Controller\Webhook;
 use Checkout\Models\Payments\Payment;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
-use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
@@ -180,7 +179,7 @@ class Callback extends Action implements CsrfAwareActionInterface
                         $storeCode = $this->storeManager->getStore()->getCode();
 
                         // Initialize the API handler
-                        $api = $this->apiHandler->init($storeCode);
+                        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
                         // Get the payment details
                         $response = $api->getPaymentDetails($payload->data->id);
@@ -202,12 +201,12 @@ class Callback extends Action implements CsrfAwareActionInterface
                                     // Clean the webhooks table
                                     $clean = $this->scopeConfig->getValue(
                                         'settings/checkoutcom_configuration/webhooks_table_clean',
-                                        ScopeInterface::SCOPE_STORE
+                                        ScopeInterface::SCOPE_WEBSITE
                                     );
 
                                     $cleanOn = $this->scopeConfig->getValue(
                                         'settings/checkoutcom_configuration/webhooks_clean_on',
-                                        ScopeInterface::SCOPE_STORE
+                                        ScopeInterface::SCOPE_WEBSITE
                                     );
 
                                     // Save the webhook

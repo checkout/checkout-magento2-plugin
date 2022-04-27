@@ -49,18 +49,18 @@ class Webhooks
     /**
      * Webhooks constructor
      *
-     * @param LoggerInterface       $logger
+     * @param LoggerInterface $logger
      * @param WebhookHandlerService $webhookHandler
-     * @param ScopeConfigInterface  $scopeConfig
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         LoggerInterface $logger,
         WebhookHandlerService $webhookHandler,
         ScopeConfigInterface $scopeConfig
     ) {
-        $this->logger         = $logger;
+        $this->logger = $logger;
         $this->webhookHandler = $webhookHandler;
-        $this->scopeConfig    = $scopeConfig;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -72,12 +72,12 @@ class Webhooks
     {
         $clean = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/webhooks_table_clean',
-            ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_WEBSITE
         );
 
         $cleanOn = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/webhooks_clean_on',
-            ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_WEBSITE
         );
 
         if ($clean && $cleanOn === 'cron') {

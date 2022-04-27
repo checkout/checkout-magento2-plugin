@@ -27,6 +27,7 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\Resolver;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class ShopperHandlerService
@@ -67,11 +68,11 @@ class ShopperHandlerService
     /**
      * ShopperHandlerService constructor
      *
-     * @param Config                      $config
-     * @param ConfigLanguageFallback      $languageCallbackConfig
-     * @param Session                     $customerSession
+     * @param Config $config
+     * @param ConfigLanguageFallback $languageCallbackConfig
+     * @param Session $customerSession
      * @param CustomerRepositoryInterface $customerRepository
-     * @param Resolver                    $localeResolver
+     * @param Resolver $localeResolver
      */
     public function __construct(
         Config $config,
@@ -80,11 +81,11 @@ class ShopperHandlerService
         CustomerRepositoryInterface $customerRepository,
         Resolver $localeResolver
     ) {
-        $this->config                 = $config;
+        $this->config = $config;
         $this->languageCallbackConfig = $languageCallbackConfig;
-        $this->customerSession        = $customerSession;
-        $this->customerRepository     = $customerRepository;
-        $this->localeResolver         = $localeResolver;
+        $this->customerSession = $customerSession;
+        $this->customerRepository = $customerRepository;
+        $this->localeResolver = $localeResolver;
     }
 
     /**

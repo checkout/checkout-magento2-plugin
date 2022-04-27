@@ -27,6 +27,7 @@ use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity\Collection;
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class WebhookHandlerService
@@ -85,12 +86,12 @@ class WebhookHandlerService
     /**
      * WebhookHandlerService constructor
      *
-     * @param OrderHandlerService              $orderHandler
-     * @param OrderStatusHandlerService        $orderStatusHandler
-     * @param TransactionHandlerService        $transactionHandler
-     * @param WebhookEntityFactory             $webhookEntityFactory
-     * @param Config                           $config
-     * @param Logger                           $logger
+     * @param OrderHandlerService $orderHandler
+     * @param OrderStatusHandlerService $orderStatusHandler
+     * @param TransactionHandlerService $transactionHandler
+     * @param WebhookEntityFactory $webhookEntityFactory
+     * @param Config $config
+     * @param Logger $logger
      * @param WebhookEntityRepositoryInterface $webhookEntityRepository
      */
     public function __construct(
@@ -102,12 +103,12 @@ class WebhookHandlerService
         Logger $logger,
         WebhookEntityRepositoryInterface $webhookEntityRepository
     ) {
-        $this->orderHandler            = $orderHandler;
-        $this->orderStatusHandler      = $orderStatusHandler;
-        $this->transactionHandler      = $transactionHandler;
-        $this->webhookEntityFactory    = $webhookEntityFactory;
-        $this->config                  = $config;
-        $this->logger                  = $logger;
+        $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
+        $this->transactionHandler = $transactionHandler;
+        $this->webhookEntityFactory = $webhookEntityFactory;
+        $this->config = $config;
+        $this->logger = $logger;
         $this->webhookEntityRepository = $webhookEntityRepository;
     }
 
@@ -115,7 +116,7 @@ class WebhookHandlerService
      * Process a single incoming webhook
      *
      * @param OrderInterface $order
-     * @param mixed          $payload
+     * @param mixed $payload
      *
      * @return void
      * @throws LocalizedException
@@ -123,7 +124,6 @@ class WebhookHandlerService
     public function processSingleWebhook(OrderInterface $order, $payload): void
     {
         if (isset($payload->data->action_id)) {
-
             if (!$this->config->getValue('webhooks_table_enabled')) {
                 $this->processWithoutSave($order, $payload);
             } else {
@@ -166,7 +166,7 @@ class WebhookHandlerService
      * Description processWithSave function
      *
      * @param OrderInterface $order
-     * @param mixed          $payload
+     * @param mixed $payload
      *
      * @return void
      * @throws LocalizedException
@@ -184,7 +184,7 @@ class WebhookHandlerService
 
             // Only return the single webhook that needs to be processed
             $webhook = $this->loadWebhookEntities([
-                'order_id'  => $order->getId(),
+                'order_id' => $order->getId(),
                 'action_id' => $payload->data->action_id,
             ]);
 
@@ -205,22 +205,22 @@ class WebhookHandlerService
      * Description processWithoutSave function
      *
      * @param OrderInterface $order
-     * @param mixed          $payload
+     * @param mixed $payload
      *
      * @return void
      * @throws Exception
      */
     public function processWithoutSave(OrderInterface $order, $payload): void
     {
-        $webhooks   = [];
-        $webhook    = [
-            'event_id'   => $payload->id,
+        $webhooks = [];
+        $webhook = [
+            'event_id' => $payload->id,
             'event_type' => $payload->type,
             'event_data' => json_encode($payload),
-            'action_id'  => $payload->data->action_id,
+            'action_id' => $payload->data->action_id,
             'payment_id' => $payload->data->id,
-            'order_id'   => $order->getId(),
-            'processed'  => false,
+            'order_id' => $order->getId(),
+            'processed' => false,
         ];
         $webhooks[] = $webhook;
 
@@ -235,7 +235,7 @@ class WebhookHandlerService
      * Generate transactions and set order status from webhooks
      *
      * @param OrderInterface $order
-     * @param mixed[][]      $webhooks
+     * @param mixed[][] $webhooks
      *
      * @return void
      * @throws Exception
@@ -271,7 +271,7 @@ class WebhookHandlerService
     public function loadWebhookEntities(array $fields = []): array
     {
         // Create the collection
-        $entities         = $this->webhookEntityFactory->create();
+        $entities = $this->webhookEntityFactory->create();
         $this->collection = $entities->getCollection();
 
         // Add the field filters if needed
@@ -312,7 +312,7 @@ class WebhookHandlerService
     /**
      * Save the incoming webhook
      *
-     * @param mixed          $payload
+     * @param mixed $payload
      * @param OrderInterface $order
      *
      * @return void
@@ -368,7 +368,7 @@ class WebhookHandlerService
      * Description hasAuth function
      *
      * @param mixed[] $webhooks
-     * @param mixed   $payload
+     * @param mixed $payload
      *
      * @return bool
      */
@@ -400,7 +400,7 @@ class WebhookHandlerService
 
         foreach ($webhooks as $webhook) {
             $webhookDate = strtotime($webhook['received_at']);
-            $date        = strtotime('-1 day');
+            $date = strtotime('-1 day');
             if ($webhookDate > $date && $webhook['processed']) {
                 continue;
             }

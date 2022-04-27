@@ -27,7 +27,6 @@ use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
-use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
@@ -37,6 +36,7 @@ use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -163,7 +163,7 @@ class Fail extends Action
                 $storeCode = $this->storeManager->getStore()->getCode();
 
                 // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
+                $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
                 // Get the payment details
                 $response = $api->getPaymentDetails($sessionId);
@@ -180,7 +180,7 @@ class Fail extends Action
 
                     $storeCode = $this->storeManager->getStore()->getCode();
                     $action    = $this->config->getValue('order_action_failed_payment', null, $storeCode);
-                    $status    = $action === 'cancel' ? 'canceled' : false;
+                    $status    = $action === 'cancel' ? 'canceled' : 'false';
 
                     // Log the payment error
                     $this->paymentErrorHandlerService->logPaymentError(

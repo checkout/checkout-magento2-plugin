@@ -26,6 +26,7 @@
                 <gateway_responses>0</gateway_responses>
                 <additional_logging></additional_logging>
                 <environment>1</environment>
+                <service>ABC</service>
                 <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <public_key/>
                 <private_shared_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
@@ -47,7 +48,7 @@
                 <descriptor_city></descriptor_city>
                 <webhooks_table_enabled>1</webhooks_table_enabled>
                 <webhooks_table_clean>0</webhooks_table_clean>
-                <webhooks_clean_on></webhooks_clean_on>
+                <webhooks_clean_on>webhook</webhooks_clean_on>
                 <currencies_x1>BIF,DJF,GNF,ISK,KMF,XAF,CLF,XPF,JPY,PYG,RWF,KRW,VUV,VND,XOF</currencies_x1>
                 <currencies_x1000>BHD,LYD,JOD,KWD,OMR,TND</currencies_x1000>
                 <default_method>checkoutcom_card_payment</default_method>

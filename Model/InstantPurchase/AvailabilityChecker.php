@@ -43,14 +43,14 @@ class AvailabilityChecker
     /**
      * AvailabilityChecker constructor
      *
-     * @param Config              $config
+     * @param Config $config
      * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
         Config $config,
         VaultHandlerService $vaultHandler
     ) {
-        $this->config       = $config;
+        $this->config = $config;
         $this->vaultHandler = $vaultHandler;
     }
 
@@ -76,8 +76,8 @@ class AvailabilityChecker
         $madaEnabled = $this->config->getValue('mada_enabled', 'checkoutcom_vault');
 
         return $vaultEnabled
-        && $instantPurchaseEnabled
-        && !$madaEnabled
-        && $this->vaultHandler->userHasCards();
+               && $instantPurchaseEnabled
+               && !$madaEnabled
+               && $this->vaultHandler->userHasCards();
     }
 }

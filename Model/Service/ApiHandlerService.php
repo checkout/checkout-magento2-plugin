@@ -28,13 +28,18 @@ use Checkout\Models\Payments\Payment;
 use Checkout\Models\Payments\Refund;
 use Checkout\Models\Payments\Shipping;
 use Checkout\Models\Payments\Voids;
+use Checkout\Models\Product;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Api\Data\CartItemInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -86,6 +91,10 @@ class ApiHandlerService
      */
     private $orderHandler;
     /**
+     * @var QuoteHandlerService $quoteHandler
+     */
+    private QuoteHandlerService $quoteHandler;
+    /**
      * $versionHandler field
      *
      * @var VersionHandlerService $versionHandler
@@ -95,13 +104,15 @@ class ApiHandlerService
     /**
      * ApiHandlerService constructor
      *
-     * @param StoreManagerInterface    $storeManager
+     * @param StoreManagerInterface $storeManager
      * @param ProductMetadataInterface $productMeta
-     * @param Config                   $config
-     * @param Utilities                $utilities
-     * @param Logger                   $logger
-     * @param OrderHandlerService      $orderHandler
-     * @param VersionHandlerService    $versionHandler
+     * @param Config $config
+     * @param Utilities $utilities
+     * @param Logger $logger
+     * @param OrderHandlerService $orderHandler
+     * @param QuoteHandlerService $quoteHandler
+     * @param VersionHandlerService $versionHandler
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -110,43 +121,59 @@ class ApiHandlerService
         Utilities $utilities,
         Logger $logger,
         OrderHandlerService $orderHandler,
-        VersionHandlerService $versionHandler
+        QuoteHandlerService $quoteHandler,
+        VersionHandlerService $versionHandler,
+        ScopeConfigInterface $scopeConfig
     ) {
-        $this->storeManager   = $storeManager;
-        $this->productMeta    = $productMeta;
-        $this->config         = $config;
-        $this->utilities      = $utilities;
-        $this->logger         = $logger;
-        $this->orderHandler   = $orderHandler;
+        $this->storeManager = $storeManager;
+        $this->productMeta = $productMeta;
+        $this->config = $config;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
+        $this->orderHandler = $orderHandler;
+        $this->quoteHandler = $quoteHandler;
         $this->versionHandler = $versionHandler;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
      * Load the API client
      *
      * @param string|int|null $storeCode
-     * @param string          $scope
-     * @param string|null     $secretKey
+     * @param string $scope
+     * @param string|null $secretKey
      *
      * @return $this
      */
     public function init(
         $storeCode = null,
-        string $scope = ScopeInterface::SCOPE_STORE,
+        string $scope = ScopeInterface::SCOPE_WEBSITE,
         string $secretKey = null
-    ): ApiHandlerService
-    {
-        if ($secretKey) {
-            $this->checkoutApi = new CheckoutApi(
-                $secretKey, $this->config->getValue('environment', null, $storeCode, $scope)
-            );
-        } else {
-            $this->checkoutApi = new CheckoutApi(
-                $this->config->getValue('secret_key', null, $storeCode, $scope),
-                $this->config->getValue('environment', null, $storeCode, $scope),
-                $this->config->getValue('public_key', null, $storeCode, $scope)
-            );
+    ): ApiHandlerService {
+        $secretKeyPassed = (bool)$secretKey;
+
+        if (!$secretKeyPassed) {
+            $secretKey = $this->config->getValue('secret_key', null, $storeCode, $scope);
         }
+        /** @var string $service */
+        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, ScopeInterface::SCOPE_WEBSITE);
+        /** @var string $publicKey */
+        $publicKey = $this->config->getValue('public_key', null, $storeCode, $scope);
+
+        if ($service === ConfigService::SERVICE_NAS) {
+            $secretKey = ConfigService::BEARER_KEY . $secretKey;
+            $publicKey = ConfigService::BEARER_KEY . $publicKey;
+        }
+
+        if ($secretKeyPassed) {
+            $publicKey = null;
+        }
+
+        $this->checkoutApi = new CheckoutApi(
+            $secretKey,
+            $this->config->getValue('environment', null, $storeCode, $scope),
+            $publicKey
+        );
 
         return $this;
     }
@@ -196,7 +223,7 @@ class ApiHandlerService
         // Process the capture request
         if (isset($paymentInfo['id'])) {
             // Prepare the request
-            $request         = new Capture($paymentInfo['id']);
+            $request = new Capture($paymentInfo['id']);
             $request->amount = $this->orderHandler->amountToGateway(
                 $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
                 $order
@@ -229,7 +256,7 @@ class ApiHandlerService
 
         // Process the void request
         if (isset($paymentInfo['id'])) {
-            $request  = new Voids($paymentInfo['id']);
+            $request = new Voids($paymentInfo['id']);
             $response = $this->getCheckoutApi()->payments()->void($request);
 
             // Logging
@@ -242,7 +269,7 @@ class ApiHandlerService
     /**
      * Refunds a transaction
      *
-     * @param mixed        $payment
+     * @param mixed $payment
      * @param float|string $amount
      *
      * @return mixed|void
@@ -259,7 +286,7 @@ class ApiHandlerService
 
         // Process the refund request
         if (isset($paymentInfo['id'])) {
-            $request         = new Refund($paymentInfo['id']);
+            $request = new Refund($paymentInfo['id']);
             $request->amount = $this->orderHandler->amountToGateway(
                 $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
                 $order
@@ -300,9 +327,9 @@ class ApiHandlerService
         $billingAddress = $entity->getBillingAddress();
 
         // Create the customer
-        $customer        = new Customer();
+        $customer = new Customer();
         $customer->email = $billingAddress->getEmail();
-        $customer->name  = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
+        $customer->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
 
         return $customer;
     }
@@ -320,13 +347,13 @@ class ApiHandlerService
         $billingAddress = $entity->getBillingAddress();
 
         // Create the address
-        $address                = new Address();
+        $address = new Address();
         $address->address_line1 = $billingAddress->getStreetLine(1);
         $address->address_line2 = $billingAddress->getStreetLine(2);
-        $address->city          = $billingAddress->getCity();
-        $address->zip           = $billingAddress->getPostcode();
-        $address->country       = $billingAddress->getCountry();
-        $address->state         = $billingAddress->getRegion();
+        $address->city = $billingAddress->getCity();
+        $address->zip = $billingAddress->getPostcode();
+        $address->country = $billingAddress->getCountry();
+        $address->state = $billingAddress->getRegion();
 
         return $address;
     }
@@ -344,15 +371,45 @@ class ApiHandlerService
         $shippingAddress = $entity->getShippingAddress();
 
         // Create the address
-        $address                = new Address();
+        $address = new Address();
         $address->address_line1 = $shippingAddress->getStreetLine(1);
         $address->address_line2 = $shippingAddress->getStreetLine(2);
-        $address->city          = $shippingAddress->getCity();
-        $address->zip           = $shippingAddress->getPostcode();
-        $address->country       = $shippingAddress->getCountry();
-        $address->state         = $shippingAddress->getRegion();
+        $address->city = $shippingAddress->getCity();
+        $address->zip = $shippingAddress->getPostcode();
+        $address->country = $shippingAddress->getCountry();
+        $address->state = $shippingAddress->getRegion();
 
         return new Shipping($address);
+    }
+
+    /**
+     * @param CartInterface $entity
+     *
+     * @return Product[]
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function createItems(CartInterface $entity): array
+    {
+        /** @var Product[] $items */
+        $items = [];
+        /** @var CartItemInterface $item */
+        foreach ($entity->getItems() as $item) {
+            $product = new Product();
+            /** @var float|int|mixed $unitPrice */
+            $unitPrice = $this->quoteHandler->amountToGateway(
+                $this->utilities->formatDecimals($item->getPriceInclTax()),
+                $entity
+            );
+
+            $product->name = $item->getName();
+            $product->unit_price = $unitPrice;
+            $product->quantity = $item->getQty();
+
+            $items[] = $product;
+        }
+
+        return $items;
     }
 
     /**
@@ -378,10 +435,10 @@ class ApiHandlerService
 
         return [
             'udf5' => json_encode([
-                'server_url'       => $serverUrl,
-                'sdk_data'         => $sdkData,
+                'server_url' => $serverUrl,
+                'sdk_data' => $sdkData,
                 'integration_data' => $integrationData,
-                'platform_data'    => $platformData,
+                'platform_data' => $platformData,
             ]),
         ];
     }
