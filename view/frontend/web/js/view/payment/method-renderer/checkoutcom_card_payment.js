@@ -285,10 +285,15 @@ define(
                         function (event) {
                             var valid = Frames.isCardValid()
                             if (valid) {
-                                if(cardholderName.length > 0) {
-                                    // Add the card holder name
+                                if(cardholderName.length === 0) {
+                                    if(Utilities.getBillingAddress()) {
+                                        cardholderName = Utilities.getCustomerName();
+                                    }
+                                }
+
+                                if (cardholderName.length > 0) {
                                     Frames.cardholder = {
-                                       name: cardholderName
+                                        name: cardholderName
                                     };
                                 }
 

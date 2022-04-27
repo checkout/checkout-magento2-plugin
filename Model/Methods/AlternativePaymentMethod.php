@@ -45,7 +45,7 @@ use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
-use CheckoutCom\Magento2\Model\Service\shopperHandlerService;
+use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
 use CheckoutCom\Magento2\Model\Service\VersionHandlerService;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Backend\Model\Session\Quote;
