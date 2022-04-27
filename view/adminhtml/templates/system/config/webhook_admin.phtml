@@ -28,7 +28,9 @@ require([
     'jquery',
     'prototype',
 ], function(jQuery) {
-    let label = document.getElementById('row_payment_us_checkoutcom_module_account_settings_private_shared_key').getElementsByClassName('label');
+    let privateKeyId = document.getElementsByName(
+    'groups[checkoutcom][groups][module][groups][account_settings][fields][private_shared_key][value]')[0].id;
+    let label = document.getElementById('row_' + privateKeyId).getElementsByClassName('label');
     let service = document.getElementsByName(
         'groups[checkoutcom][groups][module][groups][account_settings][fields][service][value]');
     let secretKey = document.getElementsByName(
@@ -44,7 +46,7 @@ require([
     }
 
     function processNAS() {
-        label[0].innerText = "<?= __('Authorization Header Key') ?>";
+        label[0].children[0].children[0].innerText = "<?= __('Authorization Header Key') ?>";
         document.getElementById('webhook_auto_set').style.display = 'none';
         document.getElementById('webhook-message').style.display = 'none';
         document.getElementById('webhook_spinner').style.display = 'none';
@@ -52,7 +54,7 @@ require([
     }
 
     function processABC() {
-        label[0].innerText = "<?= __('Private Shared Key') ?>";
+        label[0].children[0].children[0].innerText = "<?= __('Private Shared Key') ?>";
         document.getElementById('webhook_nas').style.display = 'none';
         if (checkFormFields()) {
             document.getElementById('webhook_auto_set').style.display = 'block';
