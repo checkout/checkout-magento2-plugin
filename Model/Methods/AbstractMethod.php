@@ -554,7 +554,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         for specific country, the flag will set up as 1
         */
         if ($this->getConfigData('allowspecific') == 1) {
-            $availableCountries = explode(',', $this->getConfigData('specificcountry'));
+            $availableCountries = explode(',', $this->getConfigData('specificcountry') ?? '');
             if (!in_array($country, $availableCountries)) {
                 return false;
             }

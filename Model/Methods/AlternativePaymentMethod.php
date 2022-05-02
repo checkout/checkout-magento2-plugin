@@ -637,7 +637,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $source = new IdealSource(
             $data['bic'], $data['description']
         );
-        $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl_NL'));
+        $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl_NL') ?? '');
         $source->language = $locale[0];
 
         return $source;
@@ -812,7 +812,7 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function knet(): KnetSource
     {
-        $locale = explode('_', $this->shopperHandler->getCustomerLocale('en_GB'));
+        $locale = explode('_', $this->shopperHandler->getCustomerLocale('en_GB') ?? '');
 
         return new KnetSource($locale[0]);
     }
@@ -1015,7 +1015,7 @@ class AlternativePaymentMethod extends AbstractMethod
         // Get the list of enabled apms.
         $apmEnabled = explode(
             ',',
-            $apmMethods
+            $apmMethods ?? ''
         );
 
         $apms = $this->config->getApms();

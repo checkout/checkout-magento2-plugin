@@ -28,7 +28,6 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Result\PageFactory;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class Display
@@ -102,7 +101,7 @@ class Display extends Action
             // Get the list of APM
             $apmEnabled = explode(
                 ',',
-                $this->config->getValue('apm_enabled', 'checkoutcom_apm')
+                $this->config->getValue('apm_enabled', 'checkoutcom_apm') ?? ''
             );
 
             $apms = $this->config->getApms();

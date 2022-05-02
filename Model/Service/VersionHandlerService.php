@@ -67,10 +67,10 @@ class VersionHandlerService
     /**
      * VersionHandlerService constructor
      *
-     * @param Config                $config
-     * @param Curl                  $curl
-     * @param Reader                $moduleDirReader
-     * @param File                  $fileDriver
+     * @param Config $config
+     * @param Curl $curl
+     * @param Reader $moduleDirReader
+     * @param File $fileDriver
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
@@ -80,11 +80,11 @@ class VersionHandlerService
         File $fileDriver,
         StoreManagerInterface $storeManager
     ) {
-        $this->config          = $config;
-        $this->curl            = $curl;
+        $this->config = $config;
+        $this->curl = $curl;
         $this->moduleDirReader = $moduleDirReader;
-        $this->fileDriver      = $fileDriver;
-        $this->storeManager    = $storeManager;
+        $this->fileDriver = $fileDriver;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -97,7 +97,7 @@ class VersionHandlerService
      */
     public function getVersionType(string $currentVersion, string $latestVersion): string
     {
-        $versions = [explode('.', $currentVersion), explode('.', $latestVersion)];
+        $versions = [explode('.', $currentVersion ?? ''), explode('.', $latestVersion ?? '')];
 
         // Compare version numbers - major, minor and then revision
         for ($i = 0; $i < 3; $i++) {
@@ -126,7 +126,7 @@ class VersionHandlerService
      */
     public function needsUpdate(string $currentVersion, string $latestVersion): bool
     {
-        $versions = [explode('.', $currentVersion), explode('.', $latestVersion)];
+        $versions = [explode('.', $currentVersion ?? ''), explode('.', $latestVersion ?? '')];
 
         // Compare version numbers - major, minor and then revision
         for ($i = 0; $i < 3; $i++) {
@@ -176,7 +176,7 @@ class VersionHandlerService
     {
         foreach ($versions as $version) {
             // Find latest release that is not beta
-            if (isset($version['tag_name']) && count(explode('-', $version['tag_name'])) == 1) {
+            if (isset($version['tag_name']) && count(explode('-', $version['tag_name'] ?? '')) == 1) {
                 return $version['tag_name'];
             }
         }

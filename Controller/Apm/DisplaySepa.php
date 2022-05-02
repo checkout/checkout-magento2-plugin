@@ -39,7 +39,6 @@ use Magento\Framework\View\Result\PageFactory;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\Information;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -217,7 +216,7 @@ class DisplaySepa extends Action
         // Get the list of APM
         $apmEnabled = explode(
             ',',
-            $this->config->getValue('apm_enabled', 'checkoutcom_apm')
+            $this->config->getValue('apm_enabled', 'checkoutcom_apm') ?? ''
         );
 
         /** @var string $source */

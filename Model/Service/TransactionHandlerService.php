@@ -574,13 +574,13 @@ class TransactionHandlerService
         // Get the x1 currency calculation mapping
         $currenciesX1 = explode(
             ',',
-            $this->config->getValue('currencies_x1')
+            $this->config->getValue('currencies_x1') ?? ''
         );
 
         // Get the x1000 currency calculation mapping
         $currenciesX1000 = explode(
             ',',
-            $this->config->getValue('currencies_x1000')
+            $this->config->getValue('currencies_x1000') ?? ''
         );
 
         // Prepare the amount
