@@ -107,6 +107,7 @@ require([
             secret_key: secretKey[0].value,
             public_key: publicKey[0].value,
         };
+        console.log("Debug @DND // params :", params); // Debug @DND
         new Ajax.Request('<?php echo $block->getAjaxUrl() ?>', {
             parameters: params,
             loaderArea: false,
@@ -123,9 +124,9 @@ require([
                     document.getElementById('webhook-message').classList.toggle('webhook-set');
                     document.getElementById('webhook_auto_set').style.display = 'none';
                 } else {
-                    document.getElementById('webhook_spinner').style.display = 'none';
                     alert("<?= __('Error! Could not set webhooks. Please check your secret key.'); ?>");
                 }
+                document.getElementById('webhook_spinner').style.display = 'none';
             },
         });
     });
