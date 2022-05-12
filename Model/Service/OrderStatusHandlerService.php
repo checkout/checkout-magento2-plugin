@@ -293,7 +293,8 @@ class OrderStatusHandlerService
     protected function capturePending(array $webhook): void
     {
         $payload = json_decode($webhook['event_data']);
-        if (isset($payload->data->metadata->methodId) && $payload->data->metadata->methodId === 'checkoutcom_apm') {
+        $methodId = $payload->data->metadata->methodId ?? $payload->data->metadata->method_id;
+        if ($methodId === 'checkoutcom_apm') {
             $this->state = Order::STATE_PENDING_PAYMENT;
             $this->status = $this->order->getConfig()->getStateDefaultStatus($this->state);
             $this->order->addStatusHistoryComment(__('Payment capture initiated, awaiting capture confirmation.'));
