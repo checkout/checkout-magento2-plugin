@@ -295,11 +295,13 @@ class Callback extends Action implements CsrfAwareActionInterface
      */
     protected function cardNeedsSaving($payload): bool
     {
+        $saveCard = isset($payload->data->metadata->saveCard) ? $payload->data->metadata->saveCard : $payload->data->metadata->save_card;
+
         return isset(
-            $payload->data->metadata->saveCard,
+            $saveCard,
             $payload->data->metadata->customerId,
             $payload->data->source->id
-        )  && (int)$payload->data->metadata->saveCard === 1
+        )  && (int)$saveCard === 1
            && (int)$payload->data->metadata->customerId > 0
            && !empty($payload->data->source->id);
     }
