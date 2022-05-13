@@ -295,13 +295,15 @@ class Callback extends Action implements CsrfAwareActionInterface
      */
     protected function cardNeedsSaving($payload): bool
     {
-        return isset(
-            $payload->data->metadata->saveCard,
-            $payload->data->metadata->customerId,
-            $payload->data->source->id
-        )  && (int)$payload->data->metadata->saveCard === 1
-           && (int)$payload->data->metadata->customerId > 0
-           && !empty($payload->data->source->id);
+        $metadata = $payload->data->metadata;
+        $saveCard = $metadata->saveCard ?? $metadata->save_card;
+        $customerId = $metadata->customerId ?? $metadata->customer_id;
+        $id = $payload->data->source->id ?? '';
+
+        return isset($saveCard, $customerId, $id) &&
+               (int)$saveCard === 1 &&
+               (int)$customerId > 0 &&
+               !empty($id);
     }
 
     /**
@@ -318,7 +320,8 @@ class Callback extends Action implements CsrfAwareActionInterface
     protected function saveCard(Payment $response, $payload): bool
     {
         // Get the customer
-        $customer = $this->shopperHandler->getCustomerData(['id' => $payload->data->metadata->customerId]);
+        $customerId = $payload->data->metadata->customerId ?? $payload->data->metadata->customer_id;
+        $customer   = $this->shopperHandler->getCustomerData(['id' => $customerId]);
 
         // Save the card
         return $this->vaultHandler->setCardToken($payload->data->source->id)->setCustomerId(

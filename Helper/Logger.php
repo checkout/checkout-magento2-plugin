@@ -86,7 +86,8 @@ class Logger
 
         // Handle the file logging
         if ($debug && $fileLogging) {
-            $this->logger->debug('Checkout Logging: ', $msg);
+            $message = is_array($msg) ? $msg : [$msg];
+            $this->logger->debug('Checkout Logging: ' , $message);
         }
     }
 
