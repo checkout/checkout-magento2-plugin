@@ -137,7 +137,7 @@ class Logger
             $this->scopeConfig->getValue(
                 'settings/checkoutcom_configuration/additional_logging',
                 ScopeInterface::SCOPE_WEBSITE
-            )
+            ) ?? ''
         );
 
         if ($enabledLogging && in_array($type, $loggingOptions)) {

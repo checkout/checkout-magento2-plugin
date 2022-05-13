@@ -134,11 +134,11 @@ class Loader
         /** @var mixed[] $row */
         foreach ($apmXmlData as $row) {
             $output[] = [
-                'value'      => $row['id'],
-                'label'      => $row['title'],
+                'value' => $row['id'],
+                'label' => $row['title'],
                 'currencies' => $row['currencies'],
-                'countries'  => $row['countries'],
-                'mappings'   => $row['mappings'] ?? '',
+                'countries' => $row['countries'],
+                'mappings' => $row['mappings'] ?? '',
             ];
         }
 
@@ -167,8 +167,7 @@ class Loader
      */
     public function loadApmXmlData(): array
     {
-        return $this->xmlParser->load($this->getFilePath(self::APM_FILE_NAME))->xmlToArray(
-        )['config']['_value']['item'];
+        return $this->xmlParser->load($this->getFilePath(self::APM_FILE_NAME))->xmlToArray()['config']['_value']['item'];
     }
 
     /**
@@ -190,7 +189,7 @@ class Loader
                 $this->scopeConfig->getValue(
                     'settings/checkoutcom_configuration/fields_hidden',
                     ScopeInterface::SCOPE_STORE
-                )
+                ) ?? ''
             );
 
             return in_array($field, $configHiddenFields);
@@ -207,7 +206,7 @@ class Loader
                 $this->scopeConfig->getValue(
                     'payment/checkoutcom_apple_pay/fields_hidden',
                     ScopeInterface::SCOPE_STORE
-                )
+                ) ?? ''
             );
 
             return in_array($field, $applePayHiddenFields);
@@ -236,8 +235,9 @@ class Loader
                 $this->scopeConfig->getValue(
                     'settings/checkoutcom_configuration/fields_encrypted',
                     ScopeInterface::SCOPE_STORE
-                )
+                ) ?? ''
             );
+
             return in_array($field, $encryptedFields);
         }
 
@@ -247,10 +247,10 @@ class Loader
     /**
      * Get a field value
      *
-     * @param string          $key
-     * @param string|null     $methodId
+     * @param string $key
+     * @param string|null $methodId
      * @param string|int|null $storeCode
-     * @param string|null     $scope
+     * @param string|null $scope
      *
      * @return mixed|string
      */

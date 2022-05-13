@@ -61,10 +61,10 @@ class SaveCard extends Action
     /**
      * SaveCard constructor
      *
-     * @param Context             $context
-     * @param ManagerInterface    $messageManager
-     * @param JsonFactory         $jsonFactory
-     * @param UrlInterface        $urlInterface
+     * @param Context $context
+     * @param ManagerInterface $messageManager
+     * @param JsonFactory $jsonFactory
+     * @param UrlInterface $urlInterface
      * @param VaultHandlerService $vaultHandler
      */
     public function __construct(
@@ -77,9 +77,9 @@ class SaveCard extends Action
         parent::__construct($context);
 
         $this->messageManager = $messageManager;
-        $this->jsonFactory    = $jsonFactory;
-        $this->urlInterface   = $urlInterface;
-        $this->vaultHandler   = $vaultHandler;
+        $this->jsonFactory = $jsonFactory;
+        $this->urlInterface = $urlInterface;
+        $this->vaultHandler = $vaultHandler;
     }
 
     /**
@@ -91,9 +91,9 @@ class SaveCard extends Action
     public function execute(): Json
     {
         // Prepare the parameters
-        $success        = false;
-        $url            = $this->urlInterface->getUrl('vault/cards/listaction');
-        $requestContent = explode("=", $this->getRequest()->getContent());
+        $success = false;
+        $url = $this->urlInterface->getUrl('vault/cards/listaction');
+        $requestContent = explode("=", $this->getRequest()->getContent() ?? '');
         if (isset($requestContent[1])) {
             $ckoCardToken = $requestContent[1];
         }
@@ -111,7 +111,7 @@ class SaveCard extends Action
             if (isset($response->_links['redirect']['href'])) {
                 return $this->jsonFactory->create()->setData([
                     'success' => true,
-                    'url'     => $response->_links['redirect']['href'],
+                    'url' => $response->_links['redirect']['href'],
                 ]);
             }
 
@@ -133,7 +133,7 @@ class SaveCard extends Action
         // Build the AJAX response
         return $this->jsonFactory->create()->setData([
             'success' => $success,
-            'url'     => $url,
+            'url' => $url,
         ]);
     }
 }

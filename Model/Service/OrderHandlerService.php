@@ -104,14 +104,14 @@ class OrderHandlerService
     /**
      * OrderHandlerService constructor
      *
-     * @param Session                   $checkoutSession
-     * @param QuoteManagement           $quoteManagement
-     * @param OrderRepositoryInterface  $orderRepository
-     * @param SearchCriteriaBuilder     $searchBuilder
-     * @param Config                    $config
-     * @param QuoteHandlerService       $quoteHandler
-     * @param StoreManagerInterface     $storeManager
-     * @param Logger                    $logger
+     * @param Session $checkoutSession
+     * @param QuoteManagement $quoteManagement
+     * @param OrderRepositoryInterface $orderRepository
+     * @param SearchCriteriaBuilder $searchBuilder
+     * @param Config $config
+     * @param QuoteHandlerService $quoteHandler
+     * @param StoreManagerInterface $storeManager
+     * @param Logger $logger
      * @param TransactionHandlerService $transactionHandler
      */
     public function __construct(
@@ -125,14 +125,14 @@ class OrderHandlerService
         Logger $logger,
         TransactionHandlerService $transactionHandler
     ) {
-        $this->checkoutSession    = $checkoutSession;
-        $this->quoteManagement    = $quoteManagement;
-        $this->orderRepository    = $orderRepository;
-        $this->searchBuilder      = $searchBuilder;
-        $this->config             = $config;
-        $this->quoteHandler       = $quoteHandler;
-        $this->storeManager       = $storeManager;
-        $this->logger             = $logger;
+        $this->checkoutSession = $checkoutSession;
+        $this->quoteManagement = $quoteManagement;
+        $this->orderRepository = $orderRepository;
+        $this->searchBuilder = $searchBuilder;
+        $this->config = $config;
+        $this->quoteHandler = $quoteHandler;
+        $this->storeManager = $storeManager;
+        $this->logger = $logger;
         $this->transactionHandler = $transactionHandler;
     }
 
@@ -154,7 +154,7 @@ class OrderHandlerService
      * Places an order if not already created
      *
      * @param Quote|null $quote
-     * @param false      $external
+     * @param false $external
      *
      * @return AbstractExtensibleModel|OrderInterface|mixed|object|null
      * @throws LocalizedException
@@ -235,7 +235,7 @@ class OrderHandlerService
     /**
      * Convert an order amount to integer value for the gateway request
      *
-     * @param float          $amount
+     * @param float $amount
      * @param OrderInterface $order
      *
      * @return float|int
@@ -250,13 +250,13 @@ class OrderHandlerService
         // Get the x1 currency calculation mapping
         $currenciesX1 = explode(
             ',',
-            $this->config->getValue('currencies_x1')
+            $this->config->getValue('currencies_x1') ?? ''
         );
 
         // Get the x1000 currency calculation mapping
         $currenciesX1000 = explode(
             ',',
-            $this->config->getValue('currencies_x1000')
+            $this->config->getValue('currencies_x1000') ?? ''
         );
 
         // Prepare the amount
@@ -304,7 +304,7 @@ class OrderHandlerService
     /**
      * Tasks after place order
      *
-     * @param CartInterface  $quote
+     * @param CartInterface $quote
      * @param OrderInterface $order
      *
      * @return OrderInterface
@@ -327,7 +327,7 @@ class OrderHandlerService
     /**
      * Get status history by id
      *
-     * @param string         $entity
+     * @param string $entity
      * @param OrderInterface $order
      *
      * @return false|OrderStatusHistory
@@ -354,13 +354,13 @@ class OrderHandlerService
     public function getOrderDetails(OrderInterface $order): array
     {
         return [
-            'id'           => $order->getId(),
+            'id' => $order->getId(),
             'increment_id' => $order->getIncrementId(),
-            'state'        => $order->getState(),
-            'status'       => $order->getStatus(),
-            'grand_total'  => $order->getGrandTotal(),
-            'currency'     => $order->getOrderCurrencyCode(),
-            'payment'      => [
+            'state' => $order->getState(),
+            'status' => $order->getStatus(),
+            'grand_total' => $order->getGrandTotal(),
+            'currency' => $order->getOrderCurrencyCode(),
+            'payment' => [
                 'method_id' => $order->getPayment() ? $order->getPayment()->getMethodInstance()->getCode() : null,
             ],
             'transactions' => $this->transactionHandler->getTransactionDetails($order),
