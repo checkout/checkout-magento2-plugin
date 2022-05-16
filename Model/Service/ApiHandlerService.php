@@ -156,7 +156,7 @@ class ApiHandlerService
             $secretKey = $this->config->getValue('secret_key', null, $storeCode, $scope);
         }
         /** @var string $service */
-        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, ScopeInterface::SCOPE_WEBSITE);
+        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, $scope, $storeCode);
         /** @var string $publicKey */
         $publicKey = $this->config->getValue('public_key', null, $storeCode, $scope);
 
