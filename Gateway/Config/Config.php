@@ -79,13 +79,13 @@ class Config
     /**
      * Config constructor
      *
-     * @param Repository            $assetRepository
+     * @param Repository $assetRepository
      * @param StoreManagerInterface $storeManager
-     * @param ScopeConfigInterface  $scopeConfig
-     * @param RequestInterface      $request
-     * @param Loader                $loader
-     * @param Utilities             $utilities
-     * @param Logger                $logger
+     * @param ScopeConfigInterface $scopeConfig
+     * @param RequestInterface $request
+     * @param Loader $loader
+     * @param Utilities $utilities
+     * @param Logger $logger
      */
     public function __construct(
         Repository $assetRepository,
@@ -97,18 +97,18 @@ class Config
         Logger $logger
     ) {
         $this->assetRepository = $assetRepository;
-        $this->storeManager    = $storeManager;
-        $this->scopeConfig     = $scopeConfig;
-        $this->request         = $request;
-        $this->loader          = $loader;
-        $this->utilities       = $utilities;
-        $this->logger          = $logger;
+        $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->request = $request;
+        $this->loader = $loader;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
     }
 
     /**
      * Checks if an external request is valid
      *
-     * @param string      $type
+     * @param string $type
      * @param string|null $header
      *
      * @return bool
@@ -173,10 +173,10 @@ class Config
     /**
      * Returns a module config value
      *
-     * @param string           $field
-     * @param string|null      $methodId
-     * @param string|int|null  $storeCode
-     * @param string|null      $scope
+     * @param string $field
+     * @param string|null $methodId
+     * @param string|int|null $storeCode
+     * @param string|null $scope
      *
      * @return mixed
      */
@@ -184,7 +184,7 @@ class Config
         string $field,
         string $methodId = null,
         $storeCode = null,
-        string $scope = ScopeInterface::SCOPE_STORE
+        string $scope = ScopeInterface::SCOPE_WEBSITE
     ) {
         return $this->loader->getValue($field, $methodId, $storeCode, $scope);
     }
@@ -212,7 +212,7 @@ class Config
     public function getModuleConfig(): array
     {
         /** @var mixed[] $moduleConfig */
-        $moduleConfig = $this->scopeConfig->getValue('settings/checkoutcom_configuration');
+        $moduleConfig = $this->scopeConfig->getValue('settings/checkoutcom_configuration', ScopeInterface::SCOPE_WEBSITE);
         if (array_key_exists('secret_key', $moduleConfig)) {
             unset($moduleConfig['secret_key']);
         }
@@ -234,7 +234,7 @@ class Config
     {
         $output = [];
         /** @var mixed[] $paymentMethodsConfig */
-        $paymentMethodsConfig = $this->scopeConfig->getValue(Loader::KEY_PAYMENT);
+        $paymentMethodsConfig = $this->scopeConfig->getValue(Loader::KEY_PAYMENT, ScopeInterface::SCOPE_WEBSITE);
 
         /**
          * Get only the active CheckoutCom methods
@@ -242,10 +242,10 @@ class Config
          * @var string $key
          * @var string[] $method
          */
-        foreach($paymentMethodsConfig as $key => $method) {
+        foreach ($paymentMethodsConfig as $key => $method) {
             if (false !== strpos($key, 'checkoutcom')
-               && isset($method['active'])
-               && (int)$method['active'] === 1
+                && isset($method['active'])
+                && (int)$method['active'] === 1
             ) {
                 if (array_key_exists('private_shared_key', $method)) {
                     unset($method['private_shared_key']);
@@ -299,16 +299,17 @@ class Config
     {
         // Get the account keys for a method
         if ($methodId) {
-            $publicKey        = $this->getValue('public_key', $methodId);
-            $secretKey        = $this->getValue('secret_key', $methodId);
+            $publicKey = $this->getValue('public_key', $methodId);
+            $secretKey = $this->getValue('secret_key', $methodId);
             $privateSharedKey = $this->getValue('private_shared_key', $methodId);
             if (!empty($publicKey) && !empty($secretKey) && !empty($privateSharedKey) && !$this->getValue(
                     'use_default_account',
                     $methodId
-                )) {
+                )
+            ) {
                 return [
-                    'public_key'       => $publicKey,
-                    'secretKey'        => $secretKey,
+                    'public_key' => $publicKey,
+                    'secretKey' => $secretKey,
                     'privateSharedKey' => $privateSharedKey,
                 ];
             }
@@ -316,8 +317,8 @@ class Config
 
         // Return the default account keys
         return [
-            'public_key'         => $this->getValue('public_key'),
-            'secret_key'         => $this->getValue('secret_key'),
+            'public_key' => $this->getValue('public_key'),
+            'secret_key' => $this->getValue('secret_key'),
             'private_shared_key' => $this->getValue('private_shared_key'),
         ];
     }
@@ -331,8 +332,8 @@ class Config
      */
     public function needs3ds(string $methodId): bool
     {
-        return (((bool) $this->getValue('three_ds', $methodId) === true)
-                || ((bool) $this->getValue('mada_enabled', $methodId) === true));
+        return (((bool)$this->getValue('three_ds', $methodId) === true)
+                || ((bool)$this->getValue('mada_enabled', $methodId) === true));
     }
 
     /**
@@ -347,7 +348,7 @@ class Config
         $captureTime *= 3600;
 
         // Force capture time to a minimum of 36 seconds
-        $min         = $this->getValue('min_capture_time');
+        $min = $this->getValue('min_capture_time', ScopeInterface::SCOPE_STORE);
         $captureTime = $captureTime >= $min ? $captureTime : $min;
 
         // Check the setting
@@ -437,7 +438,7 @@ class Config
      */
     public function isLive(): bool
     {
-        return $this->getValue('environment') == 1;
+        return $this->getValue('environment') === 1;
     }
 
     /**
@@ -462,7 +463,10 @@ class Config
     {
         return $this->getValue('dynamic_descriptor_enabled') && !empty(
             $this->getValue(
-                'descriptor_name'
+                'descriptor_name',
+                null,
+                null,
+                ScopeInterface::SCOPE_STORE
             )
             ) && !empty($this->getValue('descriptor_city'));
     }

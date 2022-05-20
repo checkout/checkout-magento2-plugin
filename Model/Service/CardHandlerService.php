@@ -157,7 +157,7 @@ class CardHandlerService
         }
 
         // Get the selected cards
-        $selectedCards = explode(',', $cardIcons);
+        $selectedCards = explode(',', $cardIcons ?? '');
 
         // Build the cards list
         foreach (self::CARD_MAPPER as $code => $value) {

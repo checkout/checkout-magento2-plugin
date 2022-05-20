@@ -16,6 +16,7 @@
  */
 
 use CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\AbstractCallbackUrl;
+use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
 
 /** @var AbstractCallbackUrl $block */
 ?>
@@ -27,12 +28,49 @@ require([
     'jquery',
     'prototype',
 ], function(jQuery) {
+    let privateKeyId = document.getElementsByName(
+    'groups[checkoutcom][groups][module][groups][account_settings][fields][private_shared_key][value]')[0].id;
+    let label = document.getElementById('row_' + privateKeyId).getElementsByClassName('label');
+    let service = document.getElementsByName(
+        'groups[checkoutcom][groups][module][groups][account_settings][fields][service][value]');
     let secretKey = document.getElementsByName(
         'groups[checkoutcom][groups][module][groups][account_settings][fields][secret_key][value]');
     let publicKey = document.getElementsByName(
         'groups[checkoutcom][groups][module][groups][account_settings][fields][public_key][value]');
     const LIVE_SECRET_KEY_REGEX = /^sk_?(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$/;
     const SANDBOX_SECRET_KEY_REGEX = /^sk_test_?(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$/;
+
+    function getService() {
+        return document.getElementsByName(
+            'groups[checkoutcom][groups][module][groups][account_settings][fields][service][value]')[0].value;
+    }
+
+    function processNAS() {
+        label[0].children[0].children[0].innerText = "<?= __('Authorization Header Key') ?>";
+        document.getElementById('webhook_auto_set').style.display = 'none';
+        document.getElementById('webhook-message').style.display = 'none';
+        document.getElementById('webhook_spinner').style.display = 'none';
+        document.getElementById('webhook_nas').style.display = 'block';
+    }
+
+    function processABC() {
+        label[0].children[0].children[0].innerText = "<?= __('Private Shared Key') ?>";
+        document.getElementById('webhook_nas').style.display = 'none';
+        if (checkFormFields()) {
+            document.getElementById('webhook_auto_set').style.display = 'block';
+        } else {
+            document.getElementById('webhook_auto_set').style.display = 'none';
+            document.getElementById('webhook-message').style.display = 'block';
+        }
+    }
+
+    function checkService() {
+        if (getService() === "<?= ConfigService::SERVICE_NAS ?>") {
+            processNAS();
+        } else if (getService() === "<?= ConfigService::SERVICE_ABC ?>") {
+            processABC();
+        }
+    }
 
     function checkFormFields() {
         let environment = document.getElementsByName(
@@ -49,12 +87,16 @@ require([
         return true;
     }
 
+    jQuery(function() {
+        checkService();
+    });
+
+    service[0].addEventListener('input', event => {
+        checkService();
+    });
+
     secretKey[0].addEventListener('input', event => {
-        if (checkFormFields()) {
-            document.getElementById('webhook_auto_set').style.display = 'block';
-        } else {
-            document.getElementById('webhook_auto_set').style.display = 'none';
-        }
+        checkService();
     });
 
     jQuery('#webhook_button').click(function() {
@@ -65,6 +107,7 @@ require([
             secret_key: secretKey[0].value,
             public_key: publicKey[0].value,
         };
+
         new Ajax.Request('<?php echo $block->getAjaxUrl() ?>', {
             parameters: params,
             loaderArea: false,
@@ -81,9 +124,9 @@ require([
                     document.getElementById('webhook-message').classList.toggle('webhook-set');
                     document.getElementById('webhook_auto_set').style.display = 'none';
                 } else {
-                    document.getElementById('webhook_spinner').style.display = 'none';
                     alert("<?= __('Error! Could not set webhooks. Please check your secret key.'); ?>");
                 }
+                document.getElementById('webhook_spinner').style.display = 'none';
             },
         });
     });
@@ -94,5 +137,20 @@ require([
     <span id="webhook_span">
             <img id="webhook_spinner" style="display: none" alt="Processing Spinner" style="margin:0 5px"
                  src="<?php echo $block->getViewFileUrl('images/process_spinner.gif') ?>"/>
+        </span>
+</div>
+
+<div id="webhook_nas" style="display: <?= ($block->getHidden() == true) ? 'none' : 'block' ?> ">
+    <span id="webhook_span_nas">
+        <br>
+        <p> <?= __('In order to set your webhook for the NAS mode, please follow these steps:') ?></p>
+        <br>
+        <p> <?= __('1- Create your Notification in Checkout Dashboard: ') ?> <a
+                href="https://www.checkout.com/docs/four/dashboard/notifications#Create_a_notification"><?= __('Notifications - Docs') ?></a></p>
+        <p><?= __('2- Select all the events in the Notification') ?></p>
+        <p><?= __('3- Fill the Notification URL from Magento "Webhook URL"') ?></p>
+        <p><?= __(
+                '4- Finally, copy the Authorization Header Key from your Notification into the "Authorization Header Key" field in Magento and save the configuration'
+            ) ?></p>
         </span>
 </div>

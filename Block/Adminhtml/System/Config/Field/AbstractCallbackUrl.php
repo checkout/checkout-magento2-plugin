@@ -69,10 +69,10 @@ abstract class AbstractCallbackUrl extends Field
     }
 
     /**
-     * @param ApiHandlerService    $apiHandler
+     * @param ApiHandlerService $apiHandler
      * @param ScopeConfigInterface $scopeConfig
-     * @param Context              $context
-     * @param array                $data
+     * @param Context $context
+     * @param array $data
      */
     public function __construct(
         ApiHandlerService $apiHandler,
@@ -185,7 +185,10 @@ abstract class AbstractCallbackUrl extends Field
                         'element_html'  => $element->getElementHtml(),
                         'message'       => __('Your webhook is all set!'),
                         'message_class' => 'webhook-set',
-                        'hidden'        => true
+                        'hidden'        => true,
+                        'scope'         => $scope,
+                        'scope_id'      => $storeCode,
+                        'webhook_url'   => $callbackUrl
                     ]);
 
                 return $this->_toHtml();

@@ -21,10 +21,8 @@ use Checkout\CheckoutApi;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\Payment;
 use CheckoutCom\Magento2\Helper\Logger;
-use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
-use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use Exception;
@@ -34,6 +32,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -131,7 +130,7 @@ class Verify extends Action
                 $storeCode = $this->storeManager->getStore()->getCode();
 
                 // Initialize the API handler
-                $api = $this->apiHandler->init($storeCode);
+                $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
                 // Get the payment details
                 $response = $api->getPaymentDetails($sessionId);

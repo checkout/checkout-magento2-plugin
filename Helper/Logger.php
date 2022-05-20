@@ -49,9 +49,9 @@ class Logger
     /**
      * Logger constructor
      *
-     * @param ManagerInterface     $messageManager
+     * @param ManagerInterface $messageManager
      * @param ScopeConfigInterface $scopeConfig
-     * @param LoggerInterface      $logger
+     * @param LoggerInterface $logger
      */
     public function __construct(
         ManagerInterface $messageManager,
@@ -59,8 +59,8 @@ class Logger
         LoggerInterface $logger
     ) {
         $this->messageManager = $messageManager;
-        $this->scopeConfig    = $scopeConfig;
-        $this->logger         = $logger;
+        $this->scopeConfig = $scopeConfig;
+        $this->logger = $logger;
     }
 
     /**
@@ -75,18 +75,19 @@ class Logger
         // Get the debug config value
         $debug = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/debug',
-            ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_WEBSITE
         );
 
         // Get the file logging config value
         $fileLogging = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/file_logging',
-            ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_WEBSITE
         );
 
         // Handle the file logging
         if ($debug && $fileLogging) {
-            $this->logger->debug('Checkout Logging: ', $msg);
+            $message = is_array($msg) ? $msg : [$msg];
+            $this->logger->debug('Checkout Logging: ' , $message);
         }
     }
 
@@ -102,13 +103,13 @@ class Logger
         // Get the debug config value
         $debug = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/debug',
-            ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_WEBSITE
         );
 
         // Get the gateway response config value
         $gatewayResponses = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/gateway_responses',
-            ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_WEBSITE
         );
 
         if ($debug && $gatewayResponses) {
@@ -128,15 +129,15 @@ class Logger
     {
         $enabledLogging = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/additional_logging_enabled',
-            ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_WEBSITE
         );
 
         $loggingOptions = explode(
             ',',
             $this->scopeConfig->getValue(
                 'settings/checkoutcom_configuration/additional_logging',
-                ScopeInterface::SCOPE_STORE
-            )
+                ScopeInterface::SCOPE_WEBSITE
+            ) ?? ''
         );
 
         if ($enabledLogging && in_array($type, $loggingOptions)) {

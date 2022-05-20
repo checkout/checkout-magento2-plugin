@@ -40,6 +40,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Model\Order;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class MotoPaymentRequest
@@ -168,7 +169,7 @@ class MotoPaymentRequest implements ObserverInterface
             $response = null;
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode);
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Set the source
             $source = $this->getSource($order, $params);

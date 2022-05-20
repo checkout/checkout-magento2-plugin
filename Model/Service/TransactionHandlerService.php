@@ -54,7 +54,7 @@ class TransactionHandlerService
         'payment_approved' => TransactionInterface::TYPE_AUTH,
         'payment_captured' => TransactionInterface::TYPE_CAPTURE,
         'payment_refunded' => TransactionInterface::TYPE_REFUND,
-        'payment_voided'   => TransactionInterface::TYPE_VOID,
+        'payment_voided' => TransactionInterface::TYPE_VOID,
     ];
     /**
      * $orderSender field
@@ -168,21 +168,21 @@ class TransactionHandlerService
     /**
      * TransactionHandlerService constructor
      *
-     * @param OrderSender                             $orderSender
-     * @param BuilderInterface                        $transactionBuilder
-     * @param Repository                              $transactionRepository
-     * @param CreditmemoFactory                       $creditMemoFactory
-     * @param CreditmemoService                       $creditMemoService
-     * @param FilterBuilder                           $filterBuilder
-     * @param SearchCriteriaBuilder                   $searchCriteriaBuilder
-     * @param Utilities                               $utilities
-     * @param InvoiceHandlerService                   $invoiceHandler
-     * @param Config                                  $config
-     * @param OrderManagementInterface                $orderManagement
-     * @param ConvertorFactory                        $convertOrderFactory
-     * @param OrderPaymentRepositoryInterface         $orderPaymentRepository
-     * @param OrderRepositoryInterface                $orderRepository
-     * @param OrderStatusHistoryRepositoryInterface   $orderStatusHistoryRepository
+     * @param OrderSender $orderSender
+     * @param BuilderInterface $transactionBuilder
+     * @param Repository $transactionRepository
+     * @param CreditmemoFactory $creditMemoFactory
+     * @param CreditmemoService $creditMemoService
+     * @param FilterBuilder $filterBuilder
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param Utilities $utilities
+     * @param InvoiceHandlerService $invoiceHandler
+     * @param Config $config
+     * @param OrderManagementInterface $orderManagement
+     * @param ConvertorFactory $convertOrderFactory
+     * @param OrderPaymentRepositoryInterface $orderPaymentRepository
+     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
     public function __construct(
         OrderSender $orderSender,
@@ -201,20 +201,20 @@ class TransactionHandlerService
         OrderRepositoryInterface $orderRepository,
         OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
-        $this->orderSender                  = $orderSender;
-        $this->transactionBuilder           = $transactionBuilder;
-        $this->transactionRepository        = $transactionRepository;
-        $this->creditMemoFactory            = $creditMemoFactory;
-        $this->creditMemoService            = $creditMemoService;
-        $this->filterBuilder                = $filterBuilder;
-        $this->searchCriteriaBuilder        = $searchCriteriaBuilder;
-        $this->utilities                    = $utilities;
-        $this->invoiceHandler               = $invoiceHandler;
-        $this->config                       = $config;
-        $this->orderManagement              = $orderManagement;
-        $this->convertorFactory             = $convertOrderFactory;
-        $this->orderPaymentRepository       = $orderPaymentRepository;
-        $this->orderRepository              = $orderRepository;
+        $this->orderSender = $orderSender;
+        $this->transactionBuilder = $transactionBuilder;
+        $this->transactionRepository = $transactionRepository;
+        $this->creditMemoFactory = $creditMemoFactory;
+        $this->creditMemoService = $creditMemoService;
+        $this->filterBuilder = $filterBuilder;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->utilities = $utilities;
+        $this->invoiceHandler = $invoiceHandler;
+        $this->config = $config;
+        $this->orderManagement = $orderManagement;
+        $this->convertorFactory = $convertOrderFactory;
+        $this->orderPaymentRepository = $orderPaymentRepository;
+        $this->orderRepository = $orderRepository;
         $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
@@ -222,7 +222,7 @@ class TransactionHandlerService
      * Handle a webhook transaction
      *
      * @param OrderInterface $order
-     * @param mixed[]        $webhook
+     * @param mixed[] $webhook
      *
      * @return void
      * @throws Exception
@@ -235,7 +235,7 @@ class TransactionHandlerService
             $webhook['action_id']
         );
 
-        $this->order   = $order;
+        $this->order = $order;
         $this->payment = $this->order->getPayment();
 
         // Load the webhook data
@@ -297,7 +297,7 @@ class TransactionHandlerService
     /**
      * Get the transactions for an order
      *
-     * @param mixed       $orderId
+     * @param mixed $orderId
      * @param string|null $transactionId
      *
      * @return TransactionInterface[]
@@ -329,7 +329,7 @@ class TransactionHandlerService
      * Get the transactions for an order
      *
      * @param OrderInterface $order
-     * @param string|null    $transactionId
+     * @param string|null $transactionId
      *
      * @return false|TransactionInterface
      */
@@ -347,7 +347,7 @@ class TransactionHandlerService
      * Create a transaction for an order
      *
      * @param mixed[] $webhook
-     * @param float   $amount
+     * @param float $amount
      *
      * @return void
      * @throws LocalizedException
@@ -388,7 +388,7 @@ class TransactionHandlerService
     public function setParentTransactionId()
     {
         // Handle the void parent auth logic
-        $isVoid     = $this->transaction->getTxnType() === TransactionInterface::TYPE_VOID;
+        $isVoid = $this->transaction->getTxnType() === TransactionInterface::TYPE_VOID;
         $parentAuth = $this->getTransactionByType(
             TransactionInterface::TYPE_AUTH
         );
@@ -397,7 +397,7 @@ class TransactionHandlerService
         }
 
         // Handle the capture parent auth logic
-        $isCapture  = $this->transaction->getTxnType() === TransactionInterface::TYPE_CAPTURE;
+        $isCapture = $this->transaction->getTxnType() === TransactionInterface::TYPE_CAPTURE;
         $parentAuth = $this->getTransactionByType(
             TransactionInterface::TYPE_AUTH
         );
@@ -406,7 +406,7 @@ class TransactionHandlerService
         }
 
         // Handle the refund parent capture logic
-        $isRefund      = $this->transaction->getTxnType() === TransactionInterface::TYPE_REFUND;
+        $isRefund = $this->transaction->getTxnType() === TransactionInterface::TYPE_REFUND;
         $parentCapture = $this->getTransactionByType(
             TransactionInterface::TYPE_CAPTURE
         );
@@ -434,7 +434,7 @@ class TransactionHandlerService
         }
 
         // Handle a void after authorization
-        $isVoid     = $this->transaction->getTxnType() === TransactionInterface::TYPE_VOID;
+        $isVoid = $this->transaction->getTxnType() === TransactionInterface::TYPE_VOID;
         $parentAuth = $this->getTransactionByType(
             TransactionInterface::TYPE_AUTH
         );
@@ -446,9 +446,9 @@ class TransactionHandlerService
         }
 
         // Handle a capture after authorization
-        $isCapture        = $this->transaction->getTxnType() === Transaction::TYPE_CAPTURE;
+        $isCapture = $this->transaction->getTxnType() === Transaction::TYPE_CAPTURE;
         $isPartialCapture = $this->isPartialCapture($amount, $isCapture);
-        $parentAuth       = $this->getTransactionByType(
+        $parentAuth = $this->getTransactionByType(
             TransactionInterface::TYPE_AUTH
         );
         if ($isPartialCapture && $parentAuth) {
@@ -464,9 +464,9 @@ class TransactionHandlerService
         }
 
         // Handle a refund after capture
-        $isRefund        = $this->transaction->getTxnType() === Transaction::TYPE_REFUND;
+        $isRefund = $this->transaction->getTxnType() === Transaction::TYPE_REFUND;
         $isPartialRefund = $this->isPartialRefund($amount, $isRefund);
-        $parentCapture   = $this->getTransactionByType(
+        $parentCapture = $this->getTransactionByType(
             Transaction::TYPE_CAPTURE
         );
         if ($isPartialRefund && $parentCapture) {
@@ -487,8 +487,8 @@ class TransactionHandlerService
     /**
      * Get transactions for an order
      *
-     * @param string               $transactionType
-     * @param OrderInterface|null  $order
+     * @param string $transactionType
+     * @param OrderInterface|null $order
      *
      * @return TransactionInterface[]|false
      */
@@ -508,8 +508,11 @@ class TransactionHandlerService
         $filter3 = $this->filterBuilder->setField('txn_type')->setValue($transactionType)->create();
 
         // Build the search criteria
-        $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter1])->addFilters([$filter2])->addFilters(
-            [$filter3])->setPageSize(1)->create();
+        $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter1])
+            ->addFilters([$filter2])
+            ->addFilters([$filter3])
+            ->setPageSize(1)
+            ->create();
 
         // Get the list of transactions
         $transactions = $this->transactionRepository->getList($searchCriteria)->getItems();
@@ -558,7 +561,7 @@ class TransactionHandlerService
     /**
      * Convert a gateway to decimal value for processing
      *
-     * @param float               $amount
+     * @param float $amount
      * @param OrderInterface|null $order
      *
      * @return float|int|mixed
@@ -571,13 +574,13 @@ class TransactionHandlerService
         // Get the x1 currency calculation mapping
         $currenciesX1 = explode(
             ',',
-            $this->config->getValue('currencies_x1')
+            $this->config->getValue('currencies_x1') ?? ''
         );
 
         // Get the x1000 currency calculation mapping
         $currenciesX1000 = explode(
             ',',
-            $this->config->getValue('currencies_x1000')
+            $this->config->getValue('currencies_x1000') ?? ''
         );
 
         // Prepare the amount
@@ -601,7 +604,7 @@ class TransactionHandlerService
     public function processCreditMemo(float $amount): void
     {
         // Process the credit memo
-        $isRefund      = $this->transaction->getTxnType() === TransactionInterface::TYPE_REFUND;
+        $isRefund = $this->transaction->getTxnType() === TransactionInterface::TYPE_REFUND;
         $hasCreditMemo = $this->orderHasCreditMemo();
         if ($isRefund && !$hasCreditMemo) {
             $currentTotal = $this->getCreditMemosTotal();
@@ -616,7 +619,7 @@ class TransactionHandlerService
             // Create a credit memo
             if ($isPartialRefund) {
                 /** @var OrderConvertor $convertor */
-                $convertor  = $this->convertorFactory->create();
+                $convertor = $this->convertorFactory->create();
                 $creditMemo = $convertor->toCreditmemo($this->order);
                 $creditMemo->setAdjustmentPositive($amount);
                 $creditMemo->setBaseShippingAmount(0);
@@ -626,12 +629,12 @@ class TransactionHandlerService
                     'adjustment_positive' => $amount,
                     'adjustment_negative' => $currentTotal + $amount,
                 ];
-                $creditMemo     = $this->creditMemoFactory->createByOrder($this->order, $creditMemoData);
+                $creditMemo = $this->creditMemoFactory->createByOrder($this->order, $creditMemoData);
             }
 
             // Update the order history comment status
             $orderComments = $this->order->getStatusHistories();
-            $orderComment  = array_pop($orderComments);
+            $orderComment = array_pop($orderComments);
 
             // Refund
             $this->creditMemoService->refund($creditMemo);
@@ -661,7 +664,7 @@ class TransactionHandlerService
      */
     public function getCreditMemosTotal()
     {
-        $total       = 0;
+        $total = 0;
         $creditMemos = $this->order->getCreditmemosCollection();
         if (!empty($creditMemos)) {
             foreach ($creditMemos as $creditMemo) {
@@ -680,7 +683,7 @@ class TransactionHandlerService
     public function orderHasCreditMemo(): bool
     {
         // Loop through the items
-        $result      = 0;
+        $result = 0;
         $creditMemos = $this->order->getCreditmemosCollection();
         if (!empty($creditMemos)) {
             foreach ($creditMemos as $creditMemo) {
@@ -725,15 +728,20 @@ class TransactionHandlerService
         $emailSent = $this->order->getEmailSent();
 
         // Prepare the authorization condition
-        $condition1 = $this->config->getValue('order_email') === 'authorize' && $this->transaction->getTxnType(
-            ) === TransactionInterface::TYPE_AUTH && $emailSent == 0;
+        $condition1 = $this->config->getValue('order_email') === 'authorize'
+                      && $this->transaction->getTxnType() === TransactionInterface::TYPE_AUTH
+                      && $emailSent == 0;
 
         // Prepare the capture condition
-        $condition2 = $this->config->getValue('order_email') === 'authorize_capture' && $this->transaction->getTxnType(
-            ) === TransactionInterface::TYPE_CAPTURE && $emailSent == 0;
+        $condition2 = $this->config->getValue('order_email') === 'authorize_capture'
+                      && $this->transaction->getTxnType() === TransactionInterface::TYPE_CAPTURE
+                      && $emailSent == 0;
 
-        $condition3 = $this->config->getValue('order_email') === 'authorize' && $this->transaction->getTxnType(
-            ) === TransactionInterface::TYPE_CAPTURE && $payload->data->metadata->methodId === 'checkoutcom_apm' && $emailSent == 0;
+        $methodId = $payload->data->metadata->methodId ?? $payload->data->metadata->method_id;
+        $condition3 = $this->config->getValue('order_email') === 'authorize'
+                      && $this->transaction->getTxnType() === TransactionInterface::TYPE_CAPTURE
+                      && $methodId === 'checkoutcom_apm'
+                      && $emailSent == 0;
 
         // Send the order email
         if ($condition1 || $condition2 || $condition3) {
@@ -794,10 +802,10 @@ class TransactionHandlerService
     /**
      * Check if a refund is partial
      *
-     * @param float               $amount
-     * @param bool                $isRefund
+     * @param float $amount
+     * @param bool $isRefund
      * @param OrderInterface|null $order
-     * @param bool                $processed
+     * @param bool $processed
      *
      * @return bool
      */
@@ -820,7 +828,7 @@ class TransactionHandlerService
      * Check if a capture is partial
      *
      * @param float $amount
-     * @param bool  $isCapture
+     * @param bool $isCapture
      *
      * @return bool
      */
@@ -857,16 +865,16 @@ class TransactionHandlerService
     public function getTransactionDetails(OrderInterface $order): array
     {
         $transactions = $this->getTransactions($order->getId());
-        $items        = [];
+        $items = [];
         foreach ($transactions as $transaction) {
             $items[] = [
-                'transaction_id'         => $transaction->getTxnId(),
-                'payment_id'             => $transaction->getPaymentId(),
-                'txn_type'               => $transaction->getTxnType(),
-                'order_id'               => $transaction->getOrderId(),
-                'is_closed'              => $transaction->getIsClosed(),
+                'transaction_id' => $transaction->getTxnId(),
+                'payment_id' => $transaction->getPaymentId(),
+                'txn_type' => $transaction->getTxnType(),
+                'order_id' => $transaction->getOrderId(),
+                'is_closed' => $transaction->getIsClosed(),
                 'additional_information' => $transaction->getAdditionalInformation(),
-                'created_at'             => $transaction->getCreatedAt(),
+                'created_at' => $transaction->getCreatedAt(),
             ];
         }
 

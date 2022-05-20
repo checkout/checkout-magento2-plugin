@@ -105,16 +105,16 @@ class DisplaySepa extends Action
     /**
      * DisplaySepa constructor
      *
-     * @param Context               $context
-     * @param PageFactory           $pageFactory
-     * @param JsonFactory           $jsonFactory
-     * @param Config                $config
-     * @param ApiHandlerService     $apiHandler
-     * @param QuoteHandlerService   $quoteHandler
-     * @param Information           $storeInformation
+     * @param Context $context
+     * @param PageFactory $pageFactory
+     * @param JsonFactory $jsonFactory
+     * @param Config $config
+     * @param ApiHandlerService $apiHandler
+     * @param QuoteHandlerService $quoteHandler
+     * @param Information $storeInformation
      * @param StoreManagerInterface $storeManager
-     * @param Logger                $logger
-     * @param Store                 $storeModel
+     * @param Logger $logger
+     * @param Store $storeModel
      */
     public function __construct(
         Context $context,
@@ -130,15 +130,15 @@ class DisplaySepa extends Action
     ) {
         parent::__construct($context);
 
-        $this->pageFactory      = $pageFactory;
-        $this->jsonFactory      = $jsonFactory;
-        $this->config           = $config;
-        $this->apiHandler       = $apiHandler;
-        $this->quoteHandler     = $quoteHandler;
+        $this->pageFactory = $pageFactory;
+        $this->jsonFactory = $jsonFactory;
+        $this->config = $config;
+        $this->apiHandler = $apiHandler;
+        $this->quoteHandler = $quoteHandler;
         $this->storeInformation = $storeInformation;
-        $this->storeManager     = $storeManager;
-        $this->logger           = $logger;
-        $this->storeModel       = $storeModel;
+        $this->storeManager = $storeManager;
+        $this->logger = $logger;
+        $this->storeModel = $storeModel;
     }
 
     /**
@@ -216,7 +216,7 @@ class DisplaySepa extends Action
         // Get the list of APM
         $apmEnabled = explode(
             ',',
-            $this->config->getValue('apm_enabled', 'checkoutcom_apm')
+            $this->config->getValue('apm_enabled', 'checkoutcom_apm') ?? ''
         );
 
         /** @var string $source */
@@ -325,7 +325,7 @@ class DisplaySepa extends Action
         try {
             // Build and add the source
             $source = new Sepa($address, $data, $customer);
-            $sepa   = $checkoutApi->sources()->add($source);
+            $sepa = $checkoutApi->sources()->add($source);
 
             return $sepa;
         } catch (CheckoutHttpException $e) {

@@ -24,7 +24,6 @@ use CheckoutCom\Magento2\Helper\Logger;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Customer\Api\Data\GroupInterface;
-use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
@@ -113,17 +112,17 @@ class QuoteHandlerService
     /**
      * QuoteHandlerService constructor
      *
-     * @param Session                         $checkoutSession
+     * @param Session $checkoutSession
      * @param \Magento\Customer\Model\Session $customerSession
-     * @param CookieManagerInterface          $cookieManager
-     * @param QuoteFactory                    $quoteFactory
-     * @param CartRepositoryInterface         $cartRepository
-     * @param StoreManagerInterface           $storeManager
-     * @param ProductRepositoryInterface      $productRepository
-     * @param Config                          $config
-     * @param ShopperHandlerService           $shopperHandler
-     * @param Logger                          $logger
-     * @param DataObjectFactory               $dataObjectFactory
+     * @param CookieManagerInterface $cookieManager
+     * @param QuoteFactory $quoteFactory
+     * @param CartRepositoryInterface $cartRepository
+     * @param StoreManagerInterface $storeManager
+     * @param ProductRepositoryInterface $productRepository
+     * @param Config $config
+     * @param ShopperHandlerService $shopperHandler
+     * @param Logger $logger
+     * @param DataObjectFactory $dataObjectFactory
      */
     public function __construct(
         Session $checkoutSession,
@@ -138,16 +137,16 @@ class QuoteHandlerService
         Logger $logger,
         DataObjectFactory $dataObjectFactory
     ) {
-        $this->checkoutSession   = $checkoutSession;
-        $this->customerSession   = $customerSession;
-        $this->cookieManager     = $cookieManager;
-        $this->quoteFactory      = $quoteFactory;
-        $this->cartRepository    = $cartRepository;
-        $this->storeManager      = $storeManager;
+        $this->checkoutSession = $checkoutSession;
+        $this->customerSession = $customerSession;
+        $this->cookieManager = $cookieManager;
+        $this->quoteFactory = $quoteFactory;
+        $this->cartRepository = $cartRepository;
+        $this->storeManager = $storeManager;
         $this->productRepository = $productRepository;
-        $this->config            = $config;
-        $this->shopperHandler    = $shopperHandler;
-        $this->logger            = $logger;
+        $this->config = $config;
+        $this->shopperHandler = $shopperHandler;
+        $this->logger = $logger;
         $this->dataObjectFactory = $dataObjectFactory;
     }
 
@@ -188,7 +187,7 @@ class QuoteHandlerService
      * Create a new quote
      *
      * @param string|null $currency
-     * @param mixed|null  $customer
+     * @param mixed|null $customer
      *
      * @return CartInterface
      * @throws NoSuchEntityException|LocalizedException
@@ -245,7 +244,7 @@ class QuoteHandlerService
     /**
      * Prepares a quote for order placement
      *
-     * @param string             $methodId
+     * @param string $methodId
      * @param CartInterface|null $quote
      *
      * @return Quote|null
@@ -282,7 +281,7 @@ class QuoteHandlerService
      * Sets the email for guest users
      *
      * @param CartInterface $quote
-     * @param string|null   $email
+     * @param string|null $email
      *
      * @return CartInterface
      * @throws InputException
@@ -344,7 +343,7 @@ class QuoteHandlerService
     public function getQuoteData(): array
     {
         $data = [
-            'value'    => $this->getQuoteValue(),
+            'value' => $this->getQuoteValue(),
             'currency' => $this->getQuoteCurrency(),
         ];
 
@@ -364,7 +363,7 @@ class QuoteHandlerService
      */
     public function getQuoteCurrency(CartInterface $quote = null): string
     {
-        $quote             = ($quote) ? $quote : $this->getQuote();
+        $quote = ($quote) ? $quote : $this->getQuote();
         $quoteCurrencyCode = $quote->getQuoteCurrencyCode();
         $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
 
@@ -374,7 +373,7 @@ class QuoteHandlerService
     /**
      * Convert a quote amount to integer value for the gateway request
      *
-     * @param float         $amount
+     * @param float $amount
      * @param CartInterface $quote
      *
      * @return float|int|mixed
@@ -389,13 +388,13 @@ class QuoteHandlerService
         // Get the x1 currency calculation mapping
         $currenciesX1 = explode(
             ',',
-            $this->config->getValue('currencies_x1')
+            $this->config->getValue('currencies_x1') ?? ''
         );
 
         // Get the x1000 currency calculation mapping
         $currenciesX1000 = explode(
             ',',
-            $this->config->getValue('currencies_x1000')
+            $this->config->getValue('currencies_x1000') ?? ''
         );
 
         // Prepare the amount
@@ -436,7 +435,7 @@ class QuoteHandlerService
      * Add product items to a quote
      *
      * @param CartInterface $quote
-     * @param mixed[]       $data
+     * @param mixed[] $data
      *
      * @return mixed
      * @throws NoSuchEntityException
@@ -479,7 +478,7 @@ class QuoteHandlerService
         // Prepare the base array
         $output = [
             'product_id' => $data['product'],
-            'qty'        => $data['qty'],
+            'qty' => $data['qty'],
         ];
 
         // Add product variations
@@ -512,8 +511,8 @@ class QuoteHandlerService
     public function getQuoteRequestData(CartInterface $quote): array
     {
         $data = [
-            'quote_id'       => $quote->getId(),
-            'store_id'       => $quote->getStoreId(),
+            'quote_id' => $quote->getId(),
+            'store_id' => $quote->getStoreId(),
             'customer_email' => $quote->getCustomerEmail(),
         ];
 
@@ -525,7 +524,7 @@ class QuoteHandlerService
     /**
      *  Prepares the quote filters
      *
-     * @param mixed  $paymentDetails
+     * @param mixed $paymentDetails
      * @param string $reservedIncrementId
      *
      * @return mixed[]

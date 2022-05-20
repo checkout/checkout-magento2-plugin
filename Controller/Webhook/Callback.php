@@ -22,7 +22,6 @@ namespace CheckoutCom\Magento2\Controller\Webhook;
 use Checkout\Models\Payments\Payment;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
-use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
@@ -180,7 +179,7 @@ class Callback extends Action implements CsrfAwareActionInterface
                         $storeCode = $this->storeManager->getStore()->getCode();
 
                         // Initialize the API handler
-                        $api = $this->apiHandler->init($storeCode);
+                        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
                         // Get the payment details
                         $response = $api->getPaymentDetails($payload->data->id);
@@ -202,12 +201,12 @@ class Callback extends Action implements CsrfAwareActionInterface
                                     // Clean the webhooks table
                                     $clean = $this->scopeConfig->getValue(
                                         'settings/checkoutcom_configuration/webhooks_table_clean',
-                                        ScopeInterface::SCOPE_STORE
+                                        ScopeInterface::SCOPE_WEBSITE
                                     );
 
                                     $cleanOn = $this->scopeConfig->getValue(
                                         'settings/checkoutcom_configuration/webhooks_clean_on',
-                                        ScopeInterface::SCOPE_STORE
+                                        ScopeInterface::SCOPE_WEBSITE
                                     );
 
                                     // Save the webhook
@@ -296,13 +295,21 @@ class Callback extends Action implements CsrfAwareActionInterface
      */
     protected function cardNeedsSaving($payload): bool
     {
-        return isset(
-            $payload->data->metadata->saveCard,
-            $payload->data->metadata->customerId,
-            $payload->data->source->id
-        )  && (int)$payload->data->metadata->saveCard === 1
-           && (int)$payload->data->metadata->customerId > 0
-           && !empty($payload->data->source->id);
+        $metadata = $payload->data->metadata;
+        $id = $payload->data->source->id ?? '';
+        $saveCard = 0;
+        if (isset($metadata->saveCard) || isset($metadata->save_card)) {
+            $saveCard = $metadata->saveCard ?? $metadata->save_card;
+        }
+        $customerId = 0;
+        if (isset($metadata->customerId) || isset($metadata->customer_id)) {
+            $customerId = $metadata->customerId ?? $metadata->customer_id;
+        }
+
+        return isset($saveCard, $customerId, $id) &&
+               (int)$saveCard === 1 &&
+               (int)$customerId > 0 &&
+               !empty($id);
     }
 
     /**
@@ -319,7 +326,8 @@ class Callback extends Action implements CsrfAwareActionInterface
     protected function saveCard(Payment $response, $payload): bool
     {
         // Get the customer
-        $customer = $this->shopperHandler->getCustomerData(['id' => $payload->data->metadata->customerId]);
+        $customerId = $payload->data->metadata->customerId ?? $payload->data->metadata->customer_id;
+        $customer   = $this->shopperHandler->getCustomerData(['id' => $customerId]);
 
         // Save the card
         return $this->vaultHandler->setCardToken($payload->data->source->id)->setCustomerId(

@@ -19,13 +19,12 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Observer\Api;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
-use Magento\Backend\Model\Auth\Session;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class OrderCreditMemoSaveAfter
@@ -48,15 +47,15 @@ class OrderCreditMemoSaveAfter implements ObserverInterface
     /**
      * OrderCreditMemoSaveAfter constructor
      *
-     * @param Config                   $config
+     * @param Config $config
      * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         Config $config,
         OrderRepositoryInterface $orderRepository
     ) {
-        $this->config             = $config;
-        $this->orderRepository    = $orderRepository;
+        $this->config = $config;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -71,20 +70,24 @@ class OrderCreditMemoSaveAfter implements ObserverInterface
     {
         /** @var Creditmemo $creditMemo */
         $creditMemo = $observer->getEvent()->getCreditmemo();
-        $order      = $creditMemo->getOrder();
-        $methodId   = $order->getPayment()->getMethodInstance()->getCode();
+        $order = $creditMemo->getOrder();
+        $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
         // Check if payment method is checkout.com
         if (in_array($methodId, $this->config->getMethodsList())) {
-            $status = ($order->getStatus() === 'closed' || $order->getStatus() === 'complete') ? $order->getStatus(
-            ) : $this->config->getValue('order_status_refunded');
+            $status = ($order->getStatus() === 'closed' || $order->getStatus() === 'complete') ? $order->getStatus() : $this->config->getValue(
+                'order_status_refunded',
+                null,
+                null,
+                ScopeInterface::SCOPE_WEBSITE
+            );
 
             // Update the order status
             $order->setStatus($status);
 
             // Get the latest order status comment
             $orderComments = $order->getStatusHistories();
-            $orderComment  = array_pop($orderComments);
+            $orderComment = array_pop($orderComments);
 
             // Update the order history comment status
             $this->orderRepository->save($order);

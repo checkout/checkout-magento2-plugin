@@ -35,6 +35,7 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -174,7 +175,7 @@ class V1 extends Action
                     $storeCode = $this->storeManager->getStore()->getCode();
 
                     // Process the response
-                    $api = $this->apiHandler->init($storeCode);
+                    $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
                     if ($api->isValidResponse($response)) {
                         // Get the payment details
                         $paymentDetails = $api->getPaymentDetails($response->id);
