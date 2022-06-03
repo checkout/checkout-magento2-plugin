@@ -262,9 +262,6 @@ class PlaceOrder extends Action
 
                             // Restore the quote
                             $this->session->restoreQuote();
-
-                            // Handle order on failed payment
-                            $this->orderStatusHandler->handleFailedPayment($order);
                         }
                     } else {
                         // Payment failed
