@@ -197,11 +197,12 @@ class PlaceOrder extends Action
             if (!$this->isEmptyCardToken($data)) {
                 // Process the request
                 if ($this->getRequest()->isAjax() && $quote) {
-                    // Create an order
-                    $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
+                    // Reserved an order
+                    /** @var string $reservedOrderId */
+                    $reservedOrderId = $this->quoteHandler->getReference($quote);
 
                     // Process the payment
-                    if ($this->orderHandler->isOrder($order)) {
+                    if ($this->quoteHandler->isQuote($quote) && $reservedOrderId !== null) {
                         $log = false;
                         // Get the debug config value
                         $debug = $this->scopeConfig->getValue(
@@ -216,7 +217,7 @@ class PlaceOrder extends Action
                         );
 
                         // Get response and success
-                        $response = $this->requestPayment($order, $data);
+                        $response = $this->requestPayment($quote, $data);
 
                         // Logging
                         $this->logger->display($response);
@@ -227,6 +228,9 @@ class PlaceOrder extends Action
                         // Process the response
                         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
                         if ($api->isValidResponse($response)) {
+                            // Create an order
+                            $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
+
                             // Add the payment info to the order
                             $order = $this->utilities->setPaymentData($order, $response, $data);
 
@@ -296,22 +300,22 @@ class PlaceOrder extends Action
     /**
      * Request payment to API handler
      *
-     * @param $order
+     * @param \Magento\Quote\Api\Data\CartInterface $quote
      * @param $data
      *
      * @return Payment|null
      */
-    protected function requestPayment($order, $data): ?Payment
+    protected function requestPayment(\Magento\Quote\Api\Data\CartInterface $quote, $data): ?Payment
     {
         // Get the method id
-        $methodId = $order->getPayment()->getMethodInstance()->getCode();
+        $methodId = $quote->getPayment()->getMethodInstance()->getCode();
 
         // Send the charge request
         return $this->methodHandler->get($methodId)->sendPaymentRequest(
             $data,
-            $order->getGrandTotal(),
-            $order->getOrderCurrencyCode(),
-            $order->getIncrementId()
+            $quote->getGrandTotal(),
+            $quote->getQuoteCurrencyCode(),
+            $quote->getReservedOrderId()
         );
     }
 
