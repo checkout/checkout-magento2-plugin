@@ -24,7 +24,7 @@
                 <attribute type="checkout_com_separator">0</attribute>
                 <fieldset_css>checkout-settings checkout-payment-section</fieldset_css>
                 <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
-
+                <attribute type="activity_path">settings/checkoutcom_configuration/active</attribute>
                 <group id="module" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Configuration</label>
                     <group id="global_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
