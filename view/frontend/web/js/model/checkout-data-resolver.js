@@ -9,7 +9,8 @@ define([
 
     return function (checkoutDataResolver) {
         var check = window.checkoutConfig.payment['checkoutcom_magento2'];
-        var ckoConfig = window.checkoutConfig.payment['checkoutcom_magento2'].checkoutcom_configuration
+        var ckoConfig = window.checkoutConfig.payment['checkoutcom_magento2'].checkoutcom_configuration;
+        var defaultSelectedPayment = window.checkoutConfig.payment['checkoutcom_magento2'].checkoutcom_configuration.default_selected_payment;
 
         /**
          * Auto select the last used payment method. If this is unavailable select the default.
@@ -20,7 +21,7 @@ define([
                 var availablePaymentMethods = paymentService.getAvailablePaymentMethods();
                 var method = this.getMethod(checkoutData.getSelectedPaymentMethod(), availablePaymentMethods);
 
-                if ((!checkoutData.getSelectedPaymentMethod() && _.size(availablePaymentMethods) > 1) || _.isUndefined(method)) {
+                if (((!checkoutData.getSelectedPaymentMethod() && _.size(availablePaymentMethods) > 1) || _.isUndefined(method)) && defaultSelectedPayment === 1) {
                     var method = this.getMethod(check['checkoutcom_data']['user']['previous_method'], availablePaymentMethods);
 
                     if (!_.isUndefined(method)) {
@@ -48,9 +49,9 @@ define([
             getMethod: function (method, availableMethods) {
                 var autoselectMethod = method
                 var matchedMethod;
-                if (!_.isUndefined(autoselectMethod)) {
+                if (!_.isUndefined(autoselectMethod) && defaultSelectedPayment === 1) {
                     var matchedIndex = availableMethods.map(function(e) { return e.method; }).indexOf(autoselectMethod)
-                    
+
                     if (matchedIndex !== -1) {
                         matchedMethod = availableMethods[matchedIndex]
                     }
