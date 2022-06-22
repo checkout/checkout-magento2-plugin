@@ -53,6 +53,12 @@
                             <comment>Specify which payment method should be enabled (opened) by default in the Checkout.com payment options list for customers. Works only if the selected payment method is enabled and if no payment method was selected by the customer himself.</comment>
                         </field>
 
+                        <field id="default_selected_payment" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Select Checkout.com payment methods by default</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>settings/checkoutcom_configuration/default_selected_payment</config_path>
+                        </field>
+
                         <field id="payment_action" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Payment Action</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
