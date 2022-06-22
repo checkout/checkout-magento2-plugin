@@ -21,12 +21,12 @@ define([
                 var method = this.getMethod(checkoutData.getSelectedPaymentMethod(), availablePaymentMethods);
 
                 if ((!checkoutData.getSelectedPaymentMethod() && _.size(availablePaymentMethods) > 1) || _.isUndefined(method)) {
-                    var method = this.getMethod(check['checkoutcom_data']['user']['previous_method'], availablePaymentMethods);
+                    var method = this.getMethod(ckoConfig.default_method, availablePaymentMethods);
 
                     if (!_.isUndefined(method)) {
                         selectPaymentMethodAction(method);
                     } else {
-                        var method = this.getMethod(ckoConfig.default_method, availablePaymentMethods);
+                        var method = this.getMethod(check['checkoutcom_data']['user']['previous_method'], availablePaymentMethods);
                         if (!_.isUndefined(method)) {
                             selectPaymentMethodAction(method);
                         }
@@ -50,7 +50,7 @@ define([
                 var matchedMethod;
                 if (!_.isUndefined(autoselectMethod)) {
                     var matchedIndex = availableMethods.map(function(e) { return e.method; }).indexOf(autoselectMethod)
-                    
+
                     if (matchedIndex !== -1) {
                         matchedMethod = availableMethods[matchedIndex]
                     }
