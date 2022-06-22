@@ -53,7 +53,6 @@
                 <currencies_x1000>BHD,LYD,JOD,KWD,OMR,TND</currencies_x1000>
                 <default_method>checkoutcom_card_payment</default_method>
                 <github_api_url>https://api.github.com/repos/checkout/checkout-magento2-plugin/releases</github_api_url>
-                <default_selected_payment>1</default_selected_payment>
             </checkoutcom_configuration>
         </settings>
         <payment>
