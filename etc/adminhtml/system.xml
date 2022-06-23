@@ -50,7 +50,7 @@
                             <label>Default Active Method</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigDefaultMethod</source_model>
                             <config_path>settings/checkoutcom_configuration/default_method</config_path>
-                            <comment>Specify which payment method should be enabled (opened) by default in the Checkout.com payment options list for customers. Works only if the selected payment method is enabled.</comment>
+                            <comment>Specify which payment method should be enabled (opened) by default in the Checkout.com payment options list for customers. Works only if the selected payment method is enabled and if no payment method was selected by the customer himself.</comment>
                         </field>
 
                         <field id="payment_action" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
