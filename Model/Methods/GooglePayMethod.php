@@ -346,7 +346,7 @@ class GooglePayMethod extends AbstractMethod
             }
 
             // Process the capture request
-            $response = $api->captureOrder($payment, (float) $amount);
+            $response = $api->captureOrder($payment, (float)$amount);
             if (!$api->isValidResponse($response)) {
                 throw new LocalizedException(
                     __('The capture request could not be processed.')
