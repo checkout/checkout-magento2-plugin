@@ -110,27 +110,25 @@
                 <payment_form_layout>single</payment_form_layout>
                 <payment_form_styles>
                     {
-                        "style": {
+                        "base": {
+                            "color": "#13395e",
+                            "fontSize": "14px"
+                        },
+                        "focus": {
+                            "color": "#13395e"
+                        },
+                        "valid": {
+                            "color": "#13395e"
+                        },
+                        "invalid": {
+                            "color": "#d96830"
+                        },
+                        "placeholder": {
                             "base": {
-                                "color": "black",
-                                "fontSize": "18px"
+                                "color": "#13395e"
                             },
                             "focus": {
-                                "color": "blue"
-                            },
-                            "valid": {
-                                "color": "green"
-                            },
-                            "invalid": {
-                                "color": "red"
-                            },
-                            "placeholder": {
-                                "base": {
-                                    "color": "gray"
-                                },
-                                "focus": {
-                                    "border": "solid 1px blue"
-                                }
+                                "border": "solid 1px #13395e"
                             }
                         }
                     }
