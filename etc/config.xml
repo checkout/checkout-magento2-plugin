@@ -109,29 +109,29 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <payment_form_layout>single</payment_form_layout>
                 <payment_form_styles>
-                "style": {
-                    "base": {
-                    "color": "black",
-                    "fontSize": "18px"
-                    },
-                    "focus": {
-                    "color": "blue"
-                    },
-                    "valid": {
-                    "color": "green"
-                    },
-                    "invalid": {
-                    "color": "red"
-                    },
-                    "placeholder": {
-                    "base": {
-                        "color": "gray"
-                    },
-                    "focus": {
-                        "border": "solid 1px blue"
+                    {
+                        "base": {
+                            "color": "#13395e",
+                            "fontSize": "14px"
+                        },
+                        "focus": {
+                            "color": "#13395e"
+                        },
+                        "valid": {
+                            "color": "#13395e"
+                        },
+                        "invalid": {
+                            "color": "#d96830"
+                        },
+                        "placeholder": {
+                            "base": {
+                                "color": "#13395e"
+                            },
+                            "focus": {
+                                "border": "solid 1px #13395e"
+                            }
+                        }
                     }
-                    }
-                }
                 </payment_form_styles>
             </checkoutcom_card_payment>
             <checkoutcom_apm>
