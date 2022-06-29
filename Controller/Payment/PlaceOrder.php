@@ -32,6 +32,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
@@ -297,12 +298,12 @@ class PlaceOrder extends Action
     /**
      * Request payment to API handler
      *
-     * @param \Magento\Quote\Api\Data\CartInterface $quote
+     * @param CartInterface $quote
      * @param $data
      *
      * @return Payment|null
      */
-    protected function requestPayment(\Magento\Quote\Api\Data\CartInterface $quote, $data): ?Payment
+    protected function requestPayment(CartInterface $quote, $data): ?Payment
     {
         // Get the method id
         $methodId = $quote->getPayment()->getMethodInstance()->getCode();
