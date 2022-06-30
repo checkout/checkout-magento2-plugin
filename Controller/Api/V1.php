@@ -163,13 +163,14 @@ class V1 extends Action
                 // Load the quote
                 $quote = $this->loadQuote();
 
-                // Create an order
-                $order = $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote);
+                // Reserved an order
+                /** @var string $reservedOrderId */
+                $reservedOrderId = $this->quoteHandler->getReference($quote);
 
                 // Process the payment
-                if ($this->orderHandler->isOrder($order)) {
+                if ($this->quoteHandler->isQuote($quote) && $reservedOrderId !== null) {
                     // Get response and success
-                    $response = $this->requestPayment($order);
+                    $response = $this->requestPayment($quote);
 
                     // Get the store code
                     $storeCode = $this->storeManager->getStore()->getCode();
@@ -177,6 +178,9 @@ class V1 extends Action
                     // Process the response
                     $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
                     if ($api->isValidResponse($response)) {
+                        // Create an order
+                        $order = $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote);
+
                         // Get the payment details
                         $paymentDetails = $api->getPaymentDetails($response->id);
 
@@ -213,11 +217,11 @@ class V1 extends Action
     /**
      * Request payment to API handler
      *
-     * @param OrderInterface $order
+     * @param CartInterface $quote
      *
      * @return mixed
      */
-    protected function requestPayment(OrderInterface $order)
+    protected function requestPayment(CartInterface $quote)
     {
         // Prepare the payment request payload
         $payload = [
@@ -231,9 +235,9 @@ class V1 extends Action
         // Send the charge request
         return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
             $payload,
-            $order->getGrandTotal(),
-            $order->getOrderCurrencyCode(),
-            $order->getIncrementId()
+            $quote->getGrandTotal(),
+            $quote->getQuoteCurrencyCode(),
+            $quote->getReservedOrderId()
         );
     }
 

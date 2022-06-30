@@ -271,13 +271,21 @@ class V2 extends Action
      */
     protected function processPayment(): array
     {
-        $order = $this->createOrder();
-        if ($this->orderHandler->isOrder($order)) {
-            $this->order = $order;
-            // Get the payment response
-            $response = $this->getPaymentResponse($order);
+        // Try to load a quote
+        $quote = $this->loadQuote();
 
-            if ($this->api->isValidResponse($response)) {
+        if ($quote !== null) {
+            // Reserved an order
+            /** @var string $reservedOrderId */
+            $reservedOrderId = $this->quoteHandler->getReference($quote);
+
+            // Get the payment response
+            $response = $this->getPaymentResponse($quote);
+
+            if ($this->api->isValidResponse($response) && $reservedOrderId !== null) {
+                // Create Order
+                $this->order = $order = $this->createOrder();
+
                 // Process the payment response
                 $is3ds = property_exists(
                              $response,
@@ -332,11 +340,11 @@ class V2 extends Action
     /**
      * Request payment to API handler
      *
-     * @param $order
+     * @param CartInterface $quote
      *
      * @return mixed
      */
-    protected function requestPayment($order)
+    protected function requestPayment(CartInterface $quote)
     {
         // Prepare the payment request payload
         $payload = [
@@ -361,9 +369,9 @@ class V2 extends Action
         // Send the charge request
         return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
             $payload,
-            $order->getGrandTotal(),
-            $order->getOrderCurrencyCode(),
-            $order->getIncrementId(),
+            $quote->getGrandTotal(),
+            $quote->getQuoteCurrencyCode(),
+            $quote->getReservedOrderId(),
             $this->quote,
             true
         );
@@ -372,15 +380,15 @@ class V2 extends Action
     /**
      * Get a payment response.
      *
-     * @return Object
+     * @param CartInterface $quote
+     *
+     * @return mixed
      */
-    public function getPaymentResponse($order)
+    public function getPaymentResponse(CartInterface $quote)
     {
         $sessionId = $this->getRequest()->getParam('cko-session-id');
 
-        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment(
-            $order
-        );
+        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment($quote);
     }
 
     /**
