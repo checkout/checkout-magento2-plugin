@@ -282,8 +282,6 @@ class DisplaySepa extends Action
      */
     protected function requestSepa(): ?Sepa
     {
-        /** @var string $bic */
-        $bic = $this->getRequest()->getParam('bic');
         /** @var string $accountIban */
         $accountIban = $this->getRequest()->getParam('account_iban');
         /** @var CartInterface $quote */
