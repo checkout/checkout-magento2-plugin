@@ -214,6 +214,9 @@ define(
                         {
                             publicKey: self.getValue('public_key'),
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
+                            schemeChoice: {
+                                frameSelector: ".scheme-choice-frame"
+                            },
                             localization: Utilities.getShopLanguage(),
                             style: (formStyles) ? formStyles : {}
                         }
