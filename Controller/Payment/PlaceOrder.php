@@ -231,9 +231,30 @@ class PlaceOrder extends Action
                         if ($api->isValidResponse($response)) {
                             // Create an order
                             $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
+                            // Get all response details
+                            $responseDetails = $api->getPaymentDetails($response->getId());
+                            // Filter response detail to get only card informations
+                            $cardInformations = $this->utilities->getCardInformations($responseDetails);
+
+                            // TODO : $cardInformation renvoi les info qui nous interesse, il faut l'intégrer dans l'object $response
+                            // Ici tentative de passer par un array (mieu de passer par un objet)
+
+                            // convert $reponse to array
+                            $responseArray = json_decode(json_encode($response), true);
+                            // add $cardInformations in array $res
+                            $response2 = array_merge($cardInformations, $responseArray);
+                            // convert $response2 to json
+                            $response2 = json_encode($response2);
+
+                            // TODO : Modifier le code pour merger $cardInformation dans $response, 
 
                             // Add the payment info to the order
-                            $order = $this->utilities->setPaymentData($order, $response, $data);
+                            $order = $this->utilities->setPaymentData($order, $response2, $data);
+
+                            // Add the payment info to the order
+                            //$order = $this->utilities->setPaymentData($order, $response, $data);
+
+
 
                             // check for redirection
                             if (isset($response->_links['redirect']['href'])) {

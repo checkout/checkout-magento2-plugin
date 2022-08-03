@@ -285,7 +285,7 @@ class Config
         $accountKeys = $this->getAccountKeys();
 
         // Return the check result
-        return $this->getValue('active') == 1 && !in_array('', array_map('trim', $accountKeys));
+        return $this->getValue('active') == 1 ;
     }
 
     /**
