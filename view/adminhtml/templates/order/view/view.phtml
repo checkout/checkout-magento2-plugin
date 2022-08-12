@@ -4,22 +4,17 @@
 */
 
 $order = $block->getOrder();
-$quote = $block->getQuote();
-$paymentId = $block->getPaymentId();
-
 ?>
 
 <div>
    <h2><?php echo $block->sectionName()?></h2>
-   <p>Card type :</p> <?php var_dump($block->getCardType($order))?>
-   <p>Card 4 last numbers : </p>
-   <p>Card expiry month : </p><?= $block->getCardExpiryMonth($order)?>
-   <p>Card expiry year : </p><?= $block->getCardExpiryYear($order)?>
+   <p>Card type : <?= $block->getCardType($order) ?> </p> 
+   <p>Card 4 last numbers : <?= $block->getFourDigits($order) ?></p>
+   <p>Card expiry month :<?= $block->getCardExpiryMonth($order)?> </p>
+   <p>Card expiry year : <?= $block->getCardExpiryYear($order)?></p>
    <p>Card Bank : </p><?= "Société générale" ?>
    <p>Card Country : </p><?= "FR" ?>
    <p>Mismatched Adress (fraud check) : </p><?= "No Fraud"?>
    <p> Payment Method refunded : </p><?= "MasterCard" ?>
-   <p>3DSecure sucess : </p><?= "ok" ?>
-
+   <p>3DSecure success : </p><?= "ok" ?>
 </div>
-<br>

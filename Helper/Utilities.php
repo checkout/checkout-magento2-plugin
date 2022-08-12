@@ -120,32 +120,4 @@ class Utilities
 
         return $order;
     }
-
-    public function getCardInformations($responseData)
-    {
-        $cardInformations = [];
-        $keys = ['expiry_month', 'expiry_year', 'type', 'last4', 'scheme','issuer_country'];
-
-        //transform $responseData to array
-        $responseData = $this->objectToArray($responseData);
-
-        //var_dump($responseData['source']['expiry_month']);
-        //var_dump($responseData['source']['expiry_year']);
-        //var_dump($responseData['source']['type']);
-        //var_dump($responseData['source']['last4']);
-        //var_dump($responseData['source']['scheme']);
-        //var_dump($responseData['source']['issuer_country']);
-        //exit();
-        
-
-        // check each key if it exists in $responseData
-        foreach ($keys as $key) {
-            if (isset($responseData['source'][$key])) {
-                $cardInformations[$key] = $responseData['source'][$key];
-            }
-        }
-
-        return $cardInformations;
-        
-    }
 }

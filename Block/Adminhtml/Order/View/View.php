@@ -152,46 +152,33 @@ class View extends \Magento\Backend\Block\Template
         return $order;
     }
 
-    public function getCardType(OrderInterface $order): ?array
-    {
-        // get card type from order
-        $paymentData = $order->getPayment()
-            ->getMethodInstance()
-            ->getInfoInstance()
-            ->getData();
-            //get source
-
-
-        $paymentData = $this->utilities->objectToArray($paymentData);
-        $paymentData = $paymentData['additional_information'];
-        var_dump($paymentData);
-        return $paymentData;
-    }
-
     public function getPaymentData(OrderInterface $order): ?array
     {
         return $this->utilities->getPaymentData($order);
     }
 
+    public function getCardType(OrderInterface $order): ?string
+    {
+        $paymentData = $this->getPaymentData($order)['source'];
+        return $paymentData['type'] ?? null;
+    }
 
+    public function getFourDigits(OrderInterface $order): ?string
+    {
+        $paymentData = $this->getPaymentData($order)['source'];
+        return $paymentData['last4'] ?? null;
+    }
 
     public function getCardExpiryMonth(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order);
-        if (isset($paymentData['cc_exp_month'])) {
-            return $paymentData['cc_exp_month'];
-        }
-        return null;
+        $paymentData = $this->getPaymentData($order)['source'];
+        return $paymentData['exp_month'] ?? null;
     }
 
     public function getCardExpiryYear(OrderInterface $order): ?string
     {
-
-        $paymentData = $this->getPaymentData($order);
-        $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();
-        var_dump($paymentInfo['id']);
-
-        return $paymentData['id'];
+        $paymentData = $this->getPaymentData($order)['source'];
+        return $paymentData['exp_year'] ?? null;
     }
 
 
