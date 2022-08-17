@@ -536,6 +536,10 @@
                 if (totalItem.code === "tax" && totalItem.value === 0) {
                     return
                 };
+                // fix null value of gift wrapping
+                if (totalItem.code === "giftwrapping" && totalItem.value === null) {
+                    return
+                };
                 breakdown.push({
                     type: "final",
                     label: totalItem.title,
