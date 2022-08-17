@@ -17,9 +17,9 @@
                     <item name="components" xsi:type="array">
                         <item name="minicart_content" xsi:type="array">
                             <item name="children" xsi:type="array">
-                                <item name="extra_info" xsi:type="array">
+                                <item name="promotion" xsi:type="array">
                                     <item name="children" xsi:type="array">
-                                        <item name="extra" xsi:type="array">
+                                        <item name="applepay" xsi:type="array">
                                             <item name="component" xsi:type="string">uiComponent</item>
                                             <item name="config" xsi:type="array">
                                                 <item name="template" xsi:type="string">CheckoutCom_Magento2/checkout/minicart/applepaybutton</item>

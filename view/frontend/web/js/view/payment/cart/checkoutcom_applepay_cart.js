@@ -13,7 +13,7 @@
  * @link      https://docs.checkout.com/
  */
 
-require([
+ define([
     "jquery",
     "Magento_Checkout/js/view/payment/default",
     "CheckoutCom_Magento2/js/view/payment/utilities",
@@ -40,9 +40,9 @@ require([
     Quote,
     __
 ) {
-    $(function () {
+    return function(config, button)
+    {
         let checkoutConfig = window.checkoutConfig.payment["checkoutcom_magento2"];
-        const buttonTarget = "#ckoApplePayButton";
         const methodId = "checkoutcom_apple_pay";
         let selectedShippingMethod = null;
         let shippingMethodsAvailable = null;
@@ -52,16 +52,16 @@ require([
         //  Check Apple Pay is enabled for the merchant
         if (typeof checkoutConfig["checkoutcom_apple_pay"] !== 'undefined') {
             // If Apple Pay is enabled on the cart inject the button
-            if (checkoutConfig["checkoutcom_apple_pay"]["enabled_on_cart"] == 1) {
-                Utilities.log("Apple Pay in Cart is enabled");
+            if (checkoutConfig["checkoutcom_apple_pay"][config.configName] == 1) {
+                Utilities.log(`Apple Pay in ${config.type} is enabled`);
 
                 // set the button theme and mode
-                let button = document.querySelector("#ckoApplePayButton");
                 button.style["-apple-pay-button-style"] = getButtonTheme();
 
                 launchApplePay();
             }
         }
+
         /**
          * Initialize Apple Pay and handle session events
          *
@@ -78,15 +78,15 @@ require([
                 // If Apple Pay is possible for the merchant id, display the button
                 if (canMakePayments) {
                     Utilities.log("Apple Pay can be used for the merchant ID provided");
-                    $(buttonTarget).css("display", "inline-block");
+                    $(button).css("display", "inline-block");
                 }
             } else {
                 Utilities.log("Apple Pay can not be used for the merchant ID provided");
-                $(buttonTarget).css("display", "none");
+                $(button).css("display", "none");
             }
 
             // Handle the Apple Pay button being pressed
-            $(buttonTarget).click(function (evt) {
+            $(button).click(function (evt) {
                 // Build the payment request
                 if (ApplePayUtilities.getIsVirtual()) {
                     // User must be signed in for virtual orders
@@ -619,5 +619,5 @@ require([
 
             return output.concat(capabilities);
         }
-    });
+    };
 });
