@@ -33,5 +33,10 @@
                 </argument>
             </arguments>
         </referenceBlock>
+        
+        <!-- Add checkoutConfig object for minicart Apple Pay -->
+        <referenceContainer name="before.body.end">
+            <block class="Magento\Checkout\Block\Onepage" name="minicart.checkout.config" template="CheckoutCom_Magento2::minicart-checkout-config.phtml" cacheable="false" />
+        </referenceContainer>
     </body>
 </page>
