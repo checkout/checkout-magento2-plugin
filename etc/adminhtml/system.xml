@@ -592,7 +592,7 @@
                     </field>
 
                     <field id="risk_rules_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Ignore Risk Rules For MOTO</label>
+                        <label>Use Risk Rules For MOTO</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_moto/risk_rules_enabled</config_path>
                     </field>
