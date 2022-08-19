@@ -212,7 +212,7 @@ class Config
     public function getModuleConfig(): array
     {
         /** @var mixed[] $moduleConfig */
-        $moduleConfig = $this->scopeConfig->getValue('settings/checkoutcom_configuration', ScopeInterface::SCOPE_WEBSITE);
+        $moduleConfig = $this->scopeConfig->getValue('settings/checkoutcom_configuration', ScopeInterface::SCOPE_WEBSITE) ?? [];
         if (array_key_exists('secret_key', $moduleConfig)) {
             unset($moduleConfig['secret_key']);
         }
