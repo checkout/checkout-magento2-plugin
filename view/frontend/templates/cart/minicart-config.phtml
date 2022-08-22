@@ -6,14 +6,11 @@
  * @link      https://www.dnd.fr/
  */
 
-/** @var $block \Magento\Checkout\Block\Onepage */
+/** @var \CheckoutCom\Magento2\Block\Cart\ApplePay $block */
 /** @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
-
-$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-$cart = $objectManager->get('\Magento\Checkout\Model\Cart');
 ?>
 
-<?php if (count($cart->getQuote()->getItemsCollection()) > 0): ?>
+<?php if ($block->getProductCount() > 0): ?>
     <?php $serializedCheckoutConfig = /* @noEscape */ $block->getSerializedCheckoutConfig();
     $scriptString = <<<script
         window.checkoutConfig = {$serializedCheckoutConfig};
