@@ -48,6 +48,7 @@
         let shippingMethodsAvailable = null;
         let shippingAddress = null;
         let totalsBreakdown = null;
+        const $applePayButton = $(button);
 
         //  Check Apple Pay is enabled for the merchant
         if (typeof checkoutConfig["checkoutcom_apple_pay"] !== 'undefined') {
@@ -78,15 +79,15 @@
                 // If Apple Pay is possible for the merchant id, display the button
                 if (canMakePayments) {
                     Utilities.log("Apple Pay can be used for the merchant ID provided");
-                    $(button).css("display", "inline-block");
+                    $applePayButton.css("display", "inline-block");
                 }
             } else {
                 Utilities.log("Apple Pay can not be used for the merchant ID provided");
-                $(button).css("display", "none");
+                $applePayButton.css("display", "none");
             }
 
             // Handle the Apple Pay button being pressed
-            $(button).click(function (evt) {
+            $applePayButton.click(function (evt) {
                 // Build the payment request
                 if (ApplePayUtilities.getIsVirtual()) {
                     // User must be signed in for virtual orders
