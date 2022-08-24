@@ -69,5 +69,7 @@
                 </argument>
             </arguments>
         </referenceBlock>
+
+        <referenceBlock name="minicart.checkout.config" remove="true"/>
     </body>
 </page>

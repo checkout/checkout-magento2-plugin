@@ -305,6 +305,12 @@ class PlaceOrder extends Action
      */
     protected function requestPayment(CartInterface $quote, $data): ?Payment
     {
+        if ($quote->getPayment()->getMethod() === null) {
+            $paymentMethod = $data['methodId'];
+            $quote->setPaymentMethod($paymentMethod); //payment method
+            $quote->getPayment()->importData(['method' => $paymentMethod]);
+        }
+
         // Get the method id
         $methodId = $quote->getPayment()->getMethodInstance()->getCode();
 
