@@ -104,8 +104,6 @@ class View extends \Magento\Backend\Block\Template
         $this->logger = $logger;
     }
 
-    // A modifier pour récupérer les info plus simplement. Les info sont désormais passés dans le Place order
-
     public function getPaymentId()
     {
         $paymentId = $this->getOrder()->getPayment()->getId();
@@ -117,27 +115,17 @@ class View extends \Magento\Backend\Block\Template
         $quoteId = $this->getOrder()->getQuoteId();
         $quote = $this->cart->load($quoteId);
         return $quote;
-
     }
 
     public function getCardInformation($paymentId)
     {
-
         // Get store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
         $rep = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
-        //$checkoutApi = $this->apiHandler->getCheckoutApi();
-
-        // Get the payment details
-        //$test = $this->apiHandler->getPaymentDetails($paymentId);
-
         $validResponse = $this->apiHandler->isValidResponse($test);
-
-
-
         return $response;
     }
 
@@ -157,30 +145,110 @@ class View extends \Magento\Backend\Block\Template
         return $this->utilities->getPaymentData($order);
     }
 
+    public function getThreeDs(OrderInterface $order): ?array
+    {
+        return $this->utilities->getThreeDs($order);
+    }
+
     public function getCardType(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order)['source'];
-        return $paymentData['type'] ?? null;
+        $paymentData = $this->getPaymentData($order)['source'] ?? null;
+        if ($paymentData ?? null){
+            return 'Card type : ' . $paymentData['card_type'];
+        }
+        else {
+            return null;
+        }
     }
 
     public function getFourDigits(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order)['source'];
-        return $paymentData['last4'] ?? null;
+        $paymentData = $this->getPaymentData($order)['source'] ?? null;
+        if ($paymentData ?? null){
+            return 'Card 4 last numbers : ' . $paymentData['last4'];
+        }
+        else {
+            return null;
+        }
     }
 
     public function getCardExpiryMonth(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order)['source'];
-        return $paymentData['exp_month'] ?? null;
+        $paymentData = $this->getPaymentData($order)['source'] ?? null;
+        if ($paymentData ?? null){
+            return 'Card expiry month : ' . $paymentData['expiry_month'];
+        }
+        else {
+            return null;
+        }
     }
 
     public function getCardExpiryYear(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order)['source'];
-        return $paymentData['exp_year'] ?? null;
+        $paymentData = $this->getPaymentData($order)['source'] ?? null;
+        if ($paymentData ?? null){
+            return 'Card expiry year : ' . $paymentData['expiry_year'];
+        }
+        else {
+            return null;
+        }
+    }
+
+    public function getIssuer(OrderInterface $order): ?string
+    {
+        $paymentData = $this->getPaymentData($order)['source'] ?? null;
+        if ($paymentData ?? null){
+            return 'Card Bank : ' . $paymentData['issuer'];
+        }
+        else {
+            return null;
+        }
+    }
+
+    public function getIssuerCountry(OrderInterface $order): ?string
+    {
+        $paymentData = $this->getPaymentData($order)['source'] ?? null;
+        if ($paymentData ?? null){
+            return 'Card Country : ' . $paymentData['issuer_country'];
+        }
+        else {
+            return null;
+        }
+    }
+
+    public function getAvsCheck(OrderInterface $order): ?string
+    {
+        $paymentData = $this->getPaymentData($order)['source'] ?? null;
+        if ($paymentData['avs_check'] ?? null){
+            return 'Mismatched Adress (fraud check) : ' . $paymentData['avs_check'];
+        }
+        else {
+            return null;
+        }
     }
 
 
+    public function getProductType(OrderInterface $order): ?string
+    {
+        $paymentData = $this->getPaymentData($order)['source'] ?? null;
+        if ($paymentData['product_type'] ?? null){
+            return 'Payment Method refunded : ' . $paymentData['product_type'];
+        }
+        else {
+            return null;
+        }
+       
+    }
+
+    public function getThreeDsAuth(OrderInterface $order): ?string
+    {
+        $paymentData = $this->getThreeDs($order)['threeDs'] ?? null;
+        if ($paymentData ?? null){
+            return '3DSecure success : ' . $paymentData['authentication_response'];
+        }
+        else {
+            return null;
+        }
+    }
 
 }

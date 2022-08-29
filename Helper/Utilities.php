@@ -82,6 +82,23 @@ class Utilities
     }
 
     /**
+     * Get the 3DS information from an order
+     *
+     * @param $order
+     *
+     * @return string[]|null
+     */
+    public function getThreeDs(OrderInterface $order): ?array
+    {
+        $paymentData = $order->getPayment()
+            ->getMethodInstance()
+            ->getInfoInstance()
+            ->getData();
+
+        return $paymentData['additional_information']['threeDs'] ?? null;
+    }
+
+    /**
      * Add the gateway payment information to an order
      *
      * @param OrderInterface $order

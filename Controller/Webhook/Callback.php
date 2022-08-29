@@ -103,7 +103,7 @@ class Callback extends Action implements CsrfAwareActionInterface
     private $config;
     /**
      * $orderRepository field
-     * 
+     *
      * @var OrderRepositoryInterface
      */
     private $orderRepository;
@@ -217,7 +217,13 @@ class Callback extends Action implements CsrfAwareActionInterface
                                     // Get Source and set it to the order
                                     $order->getPayment()->getMethodInstance()->getInfoInstance()->setAdditionalInformation(
                                         'transaction_info',
-                                        array_intersect_key((array)$response, array_flip(['source']))
+                                        array_intersect_key((array)$response, array_flip(['source'])),
+                                    );
+
+                                    // Get 3ds informations and set it to the order
+                                    $order->getPayment()->getMethodInstance()->getInfoInstance()->setAdditionalInformation(
+                                        'threeDs',
+                                        array_intersect_key((array)$response, array_flip(['threeDs'])),
                                     );
 
                                     // Save the order

@@ -7,14 +7,14 @@ $order = $block->getOrder();
 ?>
 
 <div>
-   <h2><?php echo $block->sectionName()?></h2>
-   <p>Card type : <?= $block->getCardType($order) ?> </p> 
-   <p>Card 4 last numbers : <?= $block->getFourDigits($order) ?></p>
-   <p>Card expiry month :<?= $block->getCardExpiryMonth($order)?> </p>
-   <p>Card expiry year : <?= $block->getCardExpiryYear($order)?></p>
-   <p>Card Bank : </p><?= "Société générale" ?>
-   <p>Card Country : </p><?= "FR" ?>
-   <p>Mismatched Adress (fraud check) : </p><?= "No Fraud"?>
-   <p> Payment Method refunded : </p><?= "MasterCard" ?>
-   <p>3DSecure success : </p><?= "ok" ?>
+   <h2><?= $block->sectionName()?></h2>
+       <p><?= $block->getCardType($order)?></p>
+       <p><?= $block->getFourDigits($order)?></p>
+       <p><?= $block->getCardExpiryMonth($order)?> </p>
+       <p><?= $block->getCardExpiryYear($order)?></p>
+       <p><?= $block->getIssuer($order)?></p>
+       <p><?= $block->getIssuerCountry($order)?></p>
+       <p><?= $block->getAvsCheck($order)?></p>
+       <p><?= $block->getProductType($order)?></p>
+       <p><?= $block->getThreeDsAuth($order)?></p>
 </div>
