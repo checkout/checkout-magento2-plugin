@@ -441,13 +441,13 @@
                     </field>
 
                     <field id="merchant_id_certificate" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Merchant Identity Certificate*</label>
+                        <label>Payment Processing Certificate*</label>
                         <config_path>payment/checkoutcom_apple_pay/merchant_id_certificate</config_path>
                         <comment><![CDATA[Absolute path to the <span style="font-weight:bold">.pem</span> file on your server. (See how to get <a href="https://docs.checkout.com/docs/apple-pay" target="_blank">here</a>)]]></comment>
                     </field>
 
                     <field id="processing_certificate" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Merchant Identity Certificate Key*</label>
+                        <label>Merchant Identity Certificate*</label>
                         <config_path>payment/checkoutcom_apple_pay/processing_certificate</config_path>
                         <comment><![CDATA[Absolute path to the <span style="font-weight:bold">.key</span> file on your server. (See how to get <a href="https://docs.checkout.com/docs/apple-pay" target="_blank">here</a>)]]></comment>
                     </field>
