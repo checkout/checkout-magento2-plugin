@@ -16,6 +16,7 @@
 define(
     [
         'jquery',
+        'ko',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
         'CheckoutCom_Magento2/js/frames/multi',
@@ -25,7 +26,7 @@ define(
         'Magento_Checkout/js/model/quote',
         'framesjs'
     ],
-    function ($, Component, Utilities, FramesMulti, FramesSingle, AdditionalValidators, Customer, Quote) {
+    function ($, ko, Component, Utilities, FramesMulti, FramesSingle, AdditionalValidators, Customer, Quote) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_card_payment';
@@ -43,7 +44,8 @@ define(
                     cardBin: null,
                     saveCard: false,
                     supportedCards: null,
-                    redirectAfterPlaceOrder: false
+                    redirectAfterPlaceOrder: false,
+                    allowPlaceOrder: ko.observable(false)
                 },
 
                 /**
@@ -124,7 +126,8 @@ define(
 
                     // Option click event
                     $('.payment-method input[type="radio"]').on('click', function () {
-                        Utilities.allowPlaceOrder(self.buttonId, false);
+                        self.allowPlaceOrder(false);
+
                         if ($(this).attr('id') == METHOD_ID) {
                             self.getCkoPaymentForm();
                         } else {
@@ -300,7 +303,8 @@ define(
                                 // Submit the payment form
                                 Frames.submitCard();
                             }
-                            Utilities.allowPlaceOrder(self.buttonId, false);
+
+                            self.allowPlaceOrder(false);
                         }
                     );
 
@@ -315,8 +319,8 @@ define(
                             // Enable the submit form
                             Frames.enableSubmitForm();
 
-                            // Enable place order button only when tokenized.
-                            Utilities.allowPlaceOrder(self.buttonId, true);
+                            // Set allowPlaceOrder to true only when tokenized.
+                            self.allowPlaceOrder(true);
                         }
                     );
                 },
