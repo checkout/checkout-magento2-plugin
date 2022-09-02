@@ -1,44 +1,35 @@
 <?php
 
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Block\Adminhtml\Order\View;
 
 use Checkout\CheckoutApi;
-use Checkout\Library\HttpHandler;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\OrderInterface;
+use CheckoutCom\Magento2\Helper\Logger;
 use Checkoutcom\Magento2\Helper\Utilities;
-use Magento\Framework\ObjectManagerInterface;
-use Checkout\Models\Payments\Payment;
 use CheckoutCom\Magento2\Model\Api\V3;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use Magento\Framework\App\Request\Http;
+use Magento\Framework\ObjectManagerInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\App\Request\Http;
-use Magento\Quote\Api\Data\CartInterface;
-use CheckoutCom\Magento2\Helper\Logger;
 
 class View extends \Magento\Backend\Block\Template
 {
-    /**
-     * @var Utilities
-     */
-    private $utilities;
-
-    /**
-     * @var ObjectManagerInterface
-     */
-    private $objectManager;
-
-    /**
-     * @var V3
-     */
-    private $api;
-
-    /**
-     * @var ApiHandlerService
-     */
-    private $apiHandler;
-
     /**
      * $checkoutApi field
      *
@@ -47,24 +38,53 @@ class View extends \Magento\Backend\Block\Template
     protected $checkoutApi;
 
     /**
-     * @var StoreManagerInterface
+     * $logger field
+     *
+     * @var Logger $logger
      */
-    private $storeManager;
+    private $logger;
 
     /**
-     * @var Http
+     * $utilities field
+     *
+     * @var Utilities $utilities
+     */
+    private $utilities;
+
+    /**
+     * $api field
+     *
+     * @var V3 $api
+     */
+    private $api;
+
+    /**
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
+     */
+    private $apiHandler;
+
+    /**
+     * $request field
+     *
+     * @var Http $request
      */
     private $request;
 
     /**
-     * @var CartInterface
+     * $objectManager field
+     *
+     * @var ObjectManagerInterface $objectManager
      */
-    private $cart;
+    private $objectManager;
 
     /**
-     * @var Logger
+     * $storeManager field
+     *
+     * @var StoreManagerInterface $storeManager
      */
-    private $logger;
+    private $storeManager;
 
     /**
      * @param \Magento\Backend\Block\Template\Context $context
@@ -75,7 +95,6 @@ class View extends \Magento\Backend\Block\Template
      * @param CheckoutApi $checkoutApi
      * @param StoreManagerInterface $storeManager
      * @param Http $request
-     * @param CartInterface $cart
      * @param Logger $logger
      * @param array $data
      */
@@ -88,7 +107,6 @@ class View extends \Magento\Backend\Block\Template
         CheckoutApi $checkoutApi,
         StoreManagerInterface $storeManager,
         Http $request,
-        CartInterface $cart,
         Logger $logger,
         array $data = []
     ) {
@@ -100,23 +118,28 @@ class View extends \Magento\Backend\Block\Template
         $this->checkoutApi = $checkoutApi;
         $this->storeManager = $storeManager;
         $this->request = $request;
-        $this->cart = $cart;
         $this->logger = $logger;
     }
 
+    /**
+     * Get order payment id
+     *
+     * @return string
+     */
     public function getPaymentId()
     {
         $paymentId = $this->getOrder()->getPayment()->getId();
+
         return $paymentId;
     }
 
-    public function getQuote()
-    {
-        $quoteId = $this->getOrder()->getQuoteId();
-        $quote = $this->cart->load($quoteId);
-        return $quote;
-    }
-
+    /**
+     * Get information about card used for payment
+     *
+     * @param string $paymentId
+     *
+     * @return string
+     */
     public function getCardInformation($paymentId)
     {
         // Get store code
@@ -126,127 +149,205 @@ class View extends \Magento\Backend\Block\Template
         $rep = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
         $validResponse = $this->apiHandler->isValidResponse($test);
+
         return $response;
     }
 
+    /**
+     * Get Section Name in BO
+     *
+     * @return string
+     */
     public function sectionName()
     {
         return "Payment Additional Information";
     }
 
+    /**
+     * Get order
+     *
+     * @return OrderInterface
+     */
     public function getOrder(): OrderInterface
     {
         $order = $this->_objectManager->create('Magento\Sales\Model\Order')->load($this->getRequest()->getParam('order_id'));
+
         return $order;
     }
 
+    /**
+     * Get payment card data
+     *
+     * @param OrderInterface $order
+     *
+     * @return array
+     */
     public function getPaymentData(OrderInterface $order): ?array
     {
         return $this->utilities->getPaymentData($order);
     }
 
+    /**
+     * Get card 3DS informations
+     *
+     * @param OrderInterface $order
+     *
+     * @return array
+     */
     public function getThreeDs(OrderInterface $order): ?array
     {
         return $this->utilities->getThreeDs($order);
     }
 
+    /**
+     * Get card type
+     *
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
     public function getCardType(OrderInterface $order): ?string
     {
         $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData ?? null){
+        if ($paymentData['card_type'] ?? null) {
             return 'Card type : ' . $paymentData['card_type'];
-        }
-        else {
+        } else {
             return null;
         }
     }
 
+    /**
+     * Get card last four digits
+     *
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
     public function getFourDigits(OrderInterface $order): ?string
     {
         $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData ?? null){
+        if ($paymentData['last4'] ?? null) {
             return 'Card 4 last numbers : ' . $paymentData['last4'];
-        }
-        else {
+        } else {
             return null;
         }
     }
 
+    /**
+     * Get card expiry month
+     *
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
     public function getCardExpiryMonth(OrderInterface $order): ?string
     {
         $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData ?? null){
+        if ($paymentData['expiry_month'] ?? null) {
             return 'Card expiry month : ' . $paymentData['expiry_month'];
-        }
-        else {
+        } else {
             return null;
         }
     }
 
+    /**
+     * Get card expiry year
+     *
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
     public function getCardExpiryYear(OrderInterface $order): ?string
     {
         $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData ?? null){
+        if ($paymentData['expiry_year'] ?? null) {
             return 'Card expiry year : ' . $paymentData['expiry_year'];
-        }
-        else {
+        } else {
             return null;
         }
     }
 
+    /**
+     * Get bank holder name
+     *
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
     public function getIssuer(OrderInterface $order): ?string
     {
         $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData ?? null){
+        if ($paymentData['issuer'] ?? null) {
             return 'Card Bank : ' . $paymentData['issuer'];
-        }
-        else {
+        } else {
             return null;
         }
     }
 
+    /**
+     * Get bank holder country
+     *
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
     public function getIssuerCountry(OrderInterface $order): ?string
     {
         $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData ?? null){
+        if ($paymentData['issuer_country'] ?? null) {
             return 'Card Country : ' . $paymentData['issuer_country'];
-        }
-        else {
+        } else {
             return null;
         }
     }
 
+    /**
+     * Get mismatched adress fraud check
+     *
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
     public function getAvsCheck(OrderInterface $order): ?string
     {
         $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData['avs_check'] ?? null){
+        if ($paymentData['avs_check'] ?? null) {
             return 'Mismatched Adress (fraud check) : ' . $paymentData['avs_check'];
-        }
-        else {
+        } else {
             return null;
         }
     }
 
-
+    /**
+     * Get product type
+     *
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
     public function getProductType(OrderInterface $order): ?string
     {
         $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData['product_type'] ?? null){
+        if ($paymentData['product_type'] ?? null) {
             return 'Payment Method refunded : ' . $paymentData['product_type'];
-        }
-        else {
+        } else {
             return null;
         }
-       
     }
 
+    /**
+     * Get 3DS autorization code
+     *
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
     public function getThreeDsAuth(OrderInterface $order): ?string
     {
         $paymentData = $this->getThreeDs($order)['threeDs'] ?? null;
-        if ($paymentData ?? null){
+        if ($paymentData ?? null) {
             return '3DSecure success : ' . $paymentData['authentication_response'];
-        }
-        else {
+        } else {
             return null;
         }
     }

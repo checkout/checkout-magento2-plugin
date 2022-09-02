@@ -215,13 +215,19 @@ class Callback extends Action implements CsrfAwareActionInterface
                                 if ($api->isValidResponse($response)) {
 
                                     // Get Source and set it to the order
-                                    $order->getPayment()->getMethodInstance()->getInfoInstance()->setAdditionalInformation(
+                                    $order->getPayment()
+                                        ->getMethodInstance()
+                                        ->getInfoInstance()
+                                        ->setAdditionalInformation(
                                         'transaction_info',
                                         array_intersect_key((array)$response, array_flip(['source'])),
                                     );
 
                                     // Get 3ds informations and set it to the order
-                                    $order->getPayment()->getMethodInstance()->getInfoInstance()->setAdditionalInformation(
+                                    $order->getPayment()
+                                        ->getMethodInstance()
+                                        ->getInfoInstance()
+                                        ->setAdditionalInformation(
                                         'threeDs',
                                         array_intersect_key((array)$response, array_flip(['threeDs'])),
                                     );

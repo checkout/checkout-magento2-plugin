@@ -67,7 +67,7 @@ class Utilities
     /**
      * Get the gateway payment information from an order
      *
-     * @param $order
+     * @param OrderInterface $order
      *
      * @return string[]|null
      */
@@ -84,7 +84,7 @@ class Utilities
     /**
      * Get the 3DS information from an order
      *
-     * @param $order
+     * @param OrderInterface $order
      *
      * @return string[]|null
      */
