@@ -204,16 +204,16 @@ class View extends \Magento\Backend\Block\Template
      *
      * @param OrderInterface $order
      *
-     * @return string
+     * @return string|null
      */
     public function getCardType(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData['card_type'] ?? null) {
+        $paymentData = $this->getPaymentData($order)['source'] ?? [];
+        if (!empty($paymentData['card_type'] ?? null)) {
             return 'Card type : ' . $paymentData['card_type'];
-        } else {
-            return null;
         }
+        
+        return null;
     }
 
     /**
@@ -221,16 +221,16 @@ class View extends \Magento\Backend\Block\Template
      *
      * @param OrderInterface $order
      *
-     * @return string
+     * @return string|null
      */
     public function getFourDigits(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData['last4'] ?? null) {
+        $paymentData = $this->getPaymentData($order)['source'] ?? [];
+        if (!empty($paymentData['last4'])) {
             return 'Card 4 last numbers : ' . $paymentData['last4'];
-        } else {
-            return null;
-        }
+        } 
+        
+        return null;
     }
 
     /**
@@ -238,16 +238,16 @@ class View extends \Magento\Backend\Block\Template
      *
      * @param OrderInterface $order
      *
-     * @return string
+     * @return string|null
      */
     public function getCardExpiryMonth(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData['expiry_month'] ?? null) {
+        $paymentData = $this->getPaymentData($order)['source'] ?? [];
+        if (!empty($paymentData['expiry_month'])) {
             return 'Card expiry month : ' . $paymentData['expiry_month'];
-        } else {
-            return null;
         }
+        
+        return null;
     }
 
     /**
@@ -255,16 +255,16 @@ class View extends \Magento\Backend\Block\Template
      *
      * @param OrderInterface $order
      *
-     * @return string
+     * @return string|null
      */
     public function getCardExpiryYear(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData['expiry_year'] ?? null) {
+        $paymentData = $this->getPaymentData($order)['source'] ?? [];
+        if (!empty($paymentData['expiry_year'])) {
             return 'Card expiry year : ' . $paymentData['expiry_year'];
-        } else {
-            return null;
         }
+        
+        return null;
     }
 
     /**
@@ -272,16 +272,16 @@ class View extends \Magento\Backend\Block\Template
      *
      * @param OrderInterface $order
      *
-     * @return string
+     * @return string|null
      */
     public function getIssuer(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData['issuer'] ?? null) {
+        $paymentData = $this->getPaymentData($order)['source'] ?? [];
+        if (!empty($paymentData['issuer'])) {
             return 'Card Bank : ' . $paymentData['issuer'];
-        } else {
-            return null;
         }
+        
+        return null;
     }
 
     /**
@@ -289,16 +289,16 @@ class View extends \Magento\Backend\Block\Template
      *
      * @param OrderInterface $order
      *
-     * @return string
+     * @return string|null
      */
     public function getIssuerCountry(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData['issuer_country'] ?? null) {
+        $paymentData = $this->getPaymentData($order)['source'] ?? [];
+        if (!empty($paymentData['issuer_country'])) {
             return 'Card Country : ' . $paymentData['issuer_country'];
-        } else {
-            return null;
-        }
+        } 
+        
+        return null;
     }
 
     /**
@@ -306,16 +306,16 @@ class View extends \Magento\Backend\Block\Template
      *
      * @param OrderInterface $order
      *
-     * @return string
+     * @return string|null
      */
     public function getAvsCheck(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData['avs_check'] ?? null) {
+        $paymentData = $this->getPaymentData($order)['source'] ?? [];
+        if (!empty($paymentData['avs_check'])) {
             return 'Mismatched Adress (fraud check) : ' . $paymentData['avs_check'];
-        } else {
-            return null;
-        }
+        } 
+        
+        return null;
     }
 
     /**
@@ -323,16 +323,16 @@ class View extends \Magento\Backend\Block\Template
      *
      * @param OrderInterface $order
      *
-     * @return string
+     * @return string|null
      */
     public function getProductType(OrderInterface $order): ?string
     {
-        $paymentData = $this->getPaymentData($order)['source'] ?? null;
-        if ($paymentData['product_type'] ?? null) {
+        $paymentData = $this->getPaymentData($order)['source'] ?? [];
+        if (!empty($paymentData['product_type'])) {
             return 'Payment Method refunded : ' . $paymentData['product_type'];
-        } else {
-            return null;
-        }
+        } 
+        
+        return null;
     }
 
     /**
@@ -340,16 +340,15 @@ class View extends \Magento\Backend\Block\Template
      *
      * @param OrderInterface $order
      *
-     * @return string
+     * @return string|null
      */
     public function getThreeDsAuth(OrderInterface $order): ?string
     {
-        $paymentData = $this->getThreeDs($order)['threeDs'] ?? null;
-        if ($paymentData ?? null) {
+        $paymentData = $this->getThreeDs($order)['threeDs'] ?? [];
+        if (!empty($paymentData['authentication_response'])) {
             return '3DSecure success : ' . $paymentData['authentication_response'];
-        } else {
-            return null;
-        }
-    }
+        } 
 
+        return null;
+    }
 }
