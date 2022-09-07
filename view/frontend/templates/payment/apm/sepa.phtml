@@ -25,14 +25,11 @@
     <form id="cko-apm-form-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
         <input type="hidden" name="source" value="<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" required>
         <input type="hidden" name="task" value="mandate">
-        <div class="input-group">
-            <label class="icon" for="bic">
-            <span class="ckojs ckojs-card"></label>
-            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtmlAttr(__('BIC')); ?>" class="input-control">
-        </div>
+
         <div class="input-group">
             <label class="icon" for="account_iban">
-            <span class="ckojs ckojs-card"></label>
+                <span class="ckojs ckojs-card"></span>
+            </label>
             <input type="text" id="account_iban" name="account_iban" placeholder="<?= $block->escapeHtmlAttr(__('Account IBAN')); ?>" class="input-control" required>
         </div>
         <br>

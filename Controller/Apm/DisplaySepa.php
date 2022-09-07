@@ -39,6 +39,7 @@ use Magento\Framework\View\Result\PageFactory;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\Information;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -157,6 +158,7 @@ class DisplaySepa extends Action
         if ($this->isValidRequest()) {
             $html = $this->runTask();
         }
+
 
         return $this->jsonFactory->create()->setData(['html' => $html]);
     }
@@ -278,10 +280,8 @@ class DisplaySepa extends Action
      * @return Sepa
      * @throws NoSuchEntityException|LocalizedException
      */
-    protected function requestSepa(): Sepa
+    protected function requestSepa(): ?Sepa
     {
-        /** @var string $bic */
-        $bic = $this->getRequest()->getParam('bic');
         /** @var string $accountIban */
         $accountIban = $this->getRequest()->getParam('account_iban');
         /** @var CartInterface $quote */
@@ -295,7 +295,7 @@ class DisplaySepa extends Action
 
         // Initialize the API handler
         $checkoutApi = $this->apiHandler
-            ->init($storeCode)
+            ->init($storeCode, ScopeInterface::SCOPE_STORE)
             ->getCheckoutApi();
 
         // Build the address
@@ -314,7 +314,7 @@ class DisplaySepa extends Action
             $billingAddress->getFirstname(),
             $billingAddress->getLastname(),
             $accountIban,
-            $bic,
+            '',
             $this->config->getStoreName(),
             'single'
         );
