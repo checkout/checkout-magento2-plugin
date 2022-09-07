@@ -19,6 +19,7 @@ namespace CheckoutCom\Magento2\Block\Adminhtml\Order\View;
 
 use Checkoutcom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -26,7 +27,7 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-class View extends \Magento\Backend\Block\Template
+class View extends Template
 {
     /**
      * $utilities field
