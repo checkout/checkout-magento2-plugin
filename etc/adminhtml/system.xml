@@ -24,7 +24,7 @@
                 <attribute type="checkout_com_separator">0</attribute>
                 <fieldset_css>checkout-settings checkout-payment-section</fieldset_css>
                 <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
-
+                <attribute type="activity_path">settings/checkoutcom_configuration/active</attribute>
                 <group id="module" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Configuration</label>
                     <group id="global_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -50,7 +50,7 @@
                             <label>Default Active Method</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigDefaultMethod</source_model>
                             <config_path>settings/checkoutcom_configuration/default_method</config_path>
-                            <comment>Specify which payment method should be enabled (opened) by default in the Checkout.com payment options list for customers. Works only if the selected payment method is enabled.</comment>
+                            <comment>Specify which payment method should be enabled (opened) by default in the Checkout.com payment options list for customers. Works only if the selected payment method is enabled and if no payment method was selected by the customer himself.</comment>
                         </field>
 
                         <field id="payment_action" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -414,6 +414,20 @@
                         </depends>
                     </field>
 
+                    <field id="enabled_on_minicart" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable Apple Pay on MiniCart</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_apple_pay/enabled_on_minicart</config_path>
+                        <requires>
+                            <field id="processing_certificate"/>
+                            <field id="merchant_id_certificate"/>
+                            <field id="merchant_id"/>
+                        </requires>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                    </field>
+
                     <field id="sort_order" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Sort Order</label>
                         <validate>validate-number</validate>
@@ -427,13 +441,13 @@
                     </field>
 
                     <field id="merchant_id_certificate" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Merchant Identity Certificate*</label>
+                        <label>Payment Processing Certificate*</label>
                         <config_path>payment/checkoutcom_apple_pay/merchant_id_certificate</config_path>
                         <comment><![CDATA[Absolute path to the <span style="font-weight:bold">.pem</span> file on your server. (See how to get <a href="https://docs.checkout.com/docs/apple-pay" target="_blank">here</a>)]]></comment>
                     </field>
 
                     <field id="processing_certificate" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Merchant Identity Certificate Key*</label>
+                        <label>Merchant Identity Certificate*</label>
                         <config_path>payment/checkoutcom_apple_pay/processing_certificate</config_path>
                         <comment><![CDATA[Absolute path to the <span style="font-weight:bold">.key</span> file on your server. (See how to get <a href="https://docs.checkout.com/docs/apple-pay" target="_blank">here</a>)]]></comment>
                     </field>
@@ -592,7 +606,7 @@
                     </field>
 
                     <field id="risk_rules_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Ignore Risk Rules For MOTO</label>
+                        <label>Use Risk Rules For MOTO</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_moto/risk_rules_enabled</config_path>
                     </field>

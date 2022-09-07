@@ -333,13 +333,21 @@ class V3 implements V3Interface
      */
     private function processPayment(): array
     {
-        $order = $this->createOrder($this->data->getPaymentMethod());
-        if ($this->orderHandler->isOrder($order)) {
-            $this->order = $order;
-            // Get the payment response
-            $response = $this->getPaymentResponse($order);
+        // Try to load a quote
+        $quote = $this->loadQuote();
 
-            if ($this->api->isValidResponse($response)) {
+        if ($quote !== null) {
+            // Reserved an order
+            /** @var string $reservedOrderId */
+            $reservedOrderId = $this->quoteHandler->getReference($quote);
+
+            // Get the payment response
+            $response = $this->getPaymentResponse($quote);
+
+            if ($this->api->isValidResponse($response) && $reservedOrderId !== null) {
+
+                $this->order = $order = $this->createOrder($this->data->getPaymentMethod());
+
                 // Process the payment response
                 $is3ds = property_exists($response, '_links')
                          && isset($response->_links['redirect'])
@@ -444,27 +452,25 @@ class V3 implements V3Interface
     /**
      * Get a payment response
      *
-     * @param OrderInterface $order
+     * @param CartInterface $quote
      *
      * @return mixed
      */
-    private function getPaymentResponse(OrderInterface $order)
+    private function getPaymentResponse(CartInterface $quote)
     {
         $sessionId = $this->request->getParam('cko-session-id');
 
-        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment(
-            $order
-        );
+        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment($quote);
     }
 
     /**
      * Request payment to API handler
      *
-     * @param OrderInterface $order
+     * @param CartInterface $quote
      *
      * @return mixed
      */
-    private function requestPayment(OrderInterface $order)
+    private function requestPayment(CartInterface $quote)
     {
         // Prepare the payment request payload
         $payload = [];
@@ -512,9 +518,9 @@ class V3 implements V3Interface
         // Send the charge request
         return $this->methodHandler->get($this->data->getPaymentMethod())->sendPaymentRequest(
             $payload,
-            $order->getGrandTotal(),
-            $order->getOrderCurrencyCode(),
-            $order->getIncrementId(),
+            $quote->getGrandTotal(),
+            $quote->getQuoteCurrencyCode(),
+            $quote->getReservedOrderId(),
             $this->quote,
             true,
             $this->customer ? $this->customer->getId() : null

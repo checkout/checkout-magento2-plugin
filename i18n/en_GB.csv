@@ -1,7 +1,7 @@
 "Please keep your website safe! Your checkout plugin (v' . . ') is not the latest version (v' . . ').
-         Update now to get the latest features and security updates. 
+         Update now to get the latest features and security updates.
          See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.","Please keep your website safe! Your checkout plugin (v' . . ') is not the latest version (v' . . ').
-         Update now to get the latest features and security updates. 
+         Update now to get the latest features and security updates.
          See https://github.com/checkout/checkout-magento2-plugin for detailed instructions."
 Configure,Configure
 Close,Close
@@ -138,3 +138,4 @@ Debitor,Debitor
 "Your webhook is all set!","Your webhook is all set!"
 "Error! Could not set webhooks. Please check your secret key.","Error! Could not set webhooks. Please check your secret key."
 "Attention, secret key incorrect!","Attention, secret key incorrect!"
+"Use Risk Rules For MOTO","Use Risk Rules For MOTO"

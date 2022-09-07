@@ -7,5 +7,7 @@
         <referenceContainer name="checkout.cart.methods">
             <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::cart/applepay.phtml" name="apple.pay.button" after="-"/>
         </referenceContainer>
+
+        <referenceBlock name="minicart.checkout.config" remove="true"/>
     </body>
 </page>

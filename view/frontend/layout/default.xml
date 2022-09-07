@@ -1,0 +1,41 @@
+<!--
+/**
+ * @author    Agence Dn'D <contact@dnd.fr>
+ * @copyright 2004-present Agence Dn'D
+ * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link      https://www.dnd.fr/
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="CheckoutCom_Magento2::css/apple-pay/apple-pay.css"/>
+    </head>
+    <body>
+        <referenceBlock name="minicart">
+            <arguments>
+                <argument name="jsLayout" xsi:type="array">
+                    <item name="components" xsi:type="array">
+                        <item name="minicart_content" xsi:type="array">
+                            <item name="children" xsi:type="array">
+                                <item name="promotion" xsi:type="array">
+                                    <item name="children" xsi:type="array">
+                                        <item name="applepay" xsi:type="array">
+                                            <item name="component" xsi:type="string">uiComponent</item>
+                                            <item name="config" xsi:type="array">
+                                                <item name="template" xsi:type="string">CheckoutCom_Magento2/checkout/minicart/applepaybutton</item>
+                                            </item>
+                                        </item>
+                                    </item>
+                                </item>
+                            </item>
+                        </item>
+                    </item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <!-- Add checkoutConfig object for minicart Apple Pay -->
+        <referenceContainer name="minicart.addons">
+            <block class="CheckoutCom\Magento2\Block\Cart\ApplePay" ifconfig="payment/checkoutcom_apple_pay/active" name="minicart.checkout.config" template="CheckoutCom_Magento2::cart/minicart-config.phtml" />
+        </referenceContainer>
+    </body>
+</page>
