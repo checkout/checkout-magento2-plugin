@@ -17,46 +17,22 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\Order\View;
 
-use Checkout\CheckoutApi;
-use CheckoutCom\Magento2\Helper\Logger;
 use Checkoutcom\Magento2\Helper\Utilities;
-use CheckoutCom\Magento2\Model\Api\V3;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use Magento\Framework\App\Request\Http;
-use Magento\Framework\ObjectManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 class View extends \Magento\Backend\Block\Template
 {
     /**
-     * $checkoutApi field
-     *
-     * @var CheckoutApi $checkoutApi
-     */
-    protected $checkoutApi;
-
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-
-    /**
      * $utilities field
      *
      * @var Utilities $utilities
      */
     private $utilities;
-
-    /**
-     * $api field
-     *
-     * @var V3 $api
-     */
-    private $api;
 
     /**
      * $apiHandler field
@@ -73,13 +49,6 @@ class View extends \Magento\Backend\Block\Template
     private $request;
 
     /**
-     * $objectManager field
-     *
-     * @var ObjectManagerInterface $objectManager
-     */
-    private $objectManager;
-
-    /**
      * $storeManager field
      *
      * @var StoreManagerInterface $storeManager
@@ -87,46 +56,45 @@ class View extends \Magento\Backend\Block\Template
     private $storeManager;
 
     /**
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface $orderRepository
+     */
+    private $orderRepository;
+
+    /**
      * @param \Magento\Backend\Block\Template\Context $context
      * @param Utilities $utilities
-     * @param ObjectManagerInterface $objectManager
-     * @param V3 $api
      * @param ApiHandlerService $apiHandler
-     * @param CheckoutApi $checkoutApi
      * @param StoreManagerInterface $storeManager
      * @param Http $request
-     * @param Logger $logger
+     * @param OrderRepositoryInterface $orderRepository
      * @param array $data
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         Utilities $utilities,
-        ObjectManagerInterface $objectManager,
-        V3 $api,
         ApiHandlerService $apiHandler,
-        CheckoutApi $checkoutApi,
         StoreManagerInterface $storeManager,
         Http $request,
-        Logger $logger,
+        OrderRepositoryInterface $orderRepository,
         array $data = []
     ) {
         parent::__construct($context, $data);
+
         $this->utilities = $utilities;
-        $this->_objectManager = $objectManager;
-        $this->api = $api;
         $this->apiHandler = $apiHandler;
-        $this->checkoutApi = $checkoutApi;
         $this->storeManager = $storeManager;
         $this->request = $request;
-        $this->logger = $logger;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
      * Get order payment id
      *
-     * @return string
+     * @return string $paymentId
      */
-    public function getPaymentId()
+    public function getPaymentId(): string
     {
         $paymentId = $this->getOrder()->getPayment()->getId();
 
@@ -138,9 +106,9 @@ class View extends \Magento\Backend\Block\Template
      *
      * @param string $paymentId
      *
-     * @return string
+     * @return string $response
      */
-    public function getCardInformation($paymentId)
+    public function getCardInformation($paymentId): string
     {
         // Get store code
         $storeCode = $this->storeManager->getStore()->getCode();
@@ -156,9 +124,9 @@ class View extends \Magento\Backend\Block\Template
     /**
      * Get Section Name in BO
      *
-     * @return string
+     * @return string $sectionName
      */
-    public function sectionName()
+    public function sectionName(): string
     {
         return "Payment Additional Information";
     }
@@ -166,13 +134,11 @@ class View extends \Magento\Backend\Block\Template
     /**
      * Get order
      *
-     * @return OrderInterface
+     * @return OrderInterface $order
      */
     public function getOrder(): OrderInterface
     {
-        $order = $this->_objectManager->create('Magento\Sales\Model\Order')->load($this->getRequest()->getParam('order_id'));
-
-        return $order;
+        return $this->orderRepository->get($this->request->getParam('order_id'));
     }
 
     /**
@@ -209,7 +175,7 @@ class View extends \Magento\Backend\Block\Template
     public function getCardType(OrderInterface $order): ?string
     {
         $paymentData = $this->getPaymentData($order)['source'] ?? [];
-        if (!empty($paymentData['card_type'] ?? null)) {
+        if (!empty($paymentData['card_type'])) {
             return 'Card type : ' . $paymentData['card_type'];
         }
         

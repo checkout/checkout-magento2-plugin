@@ -156,7 +156,6 @@ class Callback extends Action implements CsrfAwareActionInterface
         OrderRepositoryInterface $orderRepository,
         Logger $logger,
         Utilities $utilities
-
     ) {
         parent::__construct($context);
 
@@ -213,7 +212,6 @@ class Callback extends Action implements CsrfAwareActionInterface
                             // Process the order
                             if ($this->orderHandler->isOrder($order)) {
                                 if ($api->isValidResponse($response)) {
-
                                     // Get Source and set it to the order
                                     $order->getPayment()
                                         ->getMethodInstance()
