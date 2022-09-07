@@ -19,6 +19,7 @@ namespace CheckoutCom\Magento2\Block\Adminhtml\Order\View;
 
 use Checkoutcom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use Magento\Backend\Block\Template\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -63,7 +64,7 @@ class View extends \Magento\Backend\Block\Template
     private $orderRepository;
 
     /**
-     * @param \Magento\Backend\Block\Template\Context $context
+     * @param Context $context
      * @param Utilities $utilities
      * @param ApiHandlerService $apiHandler
      * @param StoreManagerInterface $storeManager
@@ -72,7 +73,7 @@ class View extends \Magento\Backend\Block\Template
      * @param array $data
      */
     public function __construct(
-        \Magento\Backend\Block\Template\Context $context,
+        Context $context,
         Utilities $utilities,
         ApiHandlerService $apiHandler,
         StoreManagerInterface $storeManager,
