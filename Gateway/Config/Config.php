@@ -317,9 +317,9 @@ class Config
 
         // Return the default account keys
         return [
-            'public_key' => $this->getValue('public_key'),
-            'secret_key' => $this->getValue('secret_key'),
-            'private_shared_key' => $this->getValue('private_shared_key'),
+            'public_key' => $this->getValue('public_key') ?? '',
+            'secret_key' => $this->getValue('secret_key') ?? '',
+            'private_shared_key' => $this->getValue('private_shared_key') ?? '',
         ];
     }
 
