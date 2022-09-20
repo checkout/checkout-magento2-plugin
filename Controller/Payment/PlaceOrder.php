@@ -231,14 +231,15 @@ class PlaceOrder extends Action
                         if ($api->isValidResponse($response)) {
                             // Create an order
                             $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
-
-                            // Save the order
-                            $this->orderRepository->save($order);
+                         
                             // check for redirection
                             if (isset($response->_links['redirect']['href'])) {
                                 // set order status to pending payment
                                 $order->setStatus(Order::STATE_PENDING_PAYMENT);
                             }
+
+                            // Save the order
+                            $this->orderRepository->save($order);
 
                             // Update the response parameters
                             $success = $response->isSuccessful();

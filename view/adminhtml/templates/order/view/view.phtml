@@ -7,14 +7,14 @@ $order = $block->getOrder();
 ?>
 
 <div>
-   <h2><?= $block->sectionName()?></h2>
-       <p><?= $block->getCardType($order)?></p>
-       <p><?= $block->getFourDigits($order)?></p>
-       <p><?= $block->getCardExpiryMonth($order)?> </p>
-       <p><?= $block->getCardExpiryYear($order)?></p>
-       <p><?= $block->getIssuer($order)?></p>
-       <p><?= $block->getIssuerCountry($order)?></p>
-       <p><?= $block->getAvsCheck($order)?></p>
-       <p><?= $block->getProductType($order)?></p>
-       <p><?= $block->getThreeDsAuth($order)?></p>
+    <h2><?= $block->sectionName() ?></h2>
+    <p><?= $block->getCardType($order) ?></p>
+    <p><?= $block->getFourDigits($order) ?></p>
+    <p><?= $block->getCardExpiryMonth($order) ?> </p>
+    <p><?= $block->getCardExpiryYear($order) ?></p>
+    <p><?= $block->getIssuer($order) ?></p>
+    <p><?= $block->getIssuerCountry($order) ?></p>
+    <p><?= $block->getAvsCheck($order) ?></p>
+    <p><?= $block->getProductType($order) ?></p>
+    <p><?= $block->getThreeDsAuth($order) ?></p>
 </div>

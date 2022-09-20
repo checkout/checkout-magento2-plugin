@@ -119,11 +119,6 @@ class Callback extends Action implements CsrfAwareActionInterface
      * @var Logger $logger
      */
     private $logger;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
 
     /**
      * Callback constructor
