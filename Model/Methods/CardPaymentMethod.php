@@ -328,7 +328,7 @@ class CardPaymentMethod extends AbstractMethod
         }
         // Preferred scheme
         if (isset($data['preferredScheme']) && $data['preferredScheme'] !== "") {
-            $request->processing = ["preferred_scheme" => "cartes_bancaires"];
+            $request->processing = ["preferred_scheme" => strtolower($data['preferredScheme'])];
         }
 
         // Save card check
