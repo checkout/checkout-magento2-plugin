@@ -327,8 +327,8 @@ class CardPaymentMethod extends AbstractMethod
             $request->shipping = $api->createShippingAddress($quote);
         }
         // Preferred scheme
-        if (isset($data['preferredScheme']) && $data['preferredScheme'] !== "") {
-            $request->processing = ["preferred_scheme" => strtolower($data['preferredScheme'])];
+        if (isset($data['preferredScheme']) && $data['preferredScheme'] !== '') {
+            $request->processing = ['preferred_scheme' => strtolower($data['preferredScheme'])];
         }
 
         // Save card check
