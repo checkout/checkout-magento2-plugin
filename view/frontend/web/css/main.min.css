@@ -13,4 +13,4 @@
  * @link      https://docs.checkout.com/
  */
 
-@import url(https://cdn.checkout.com/v2/css/cko-fonts-jsicons.css?v=1.1.9);.frames-container{margin-bottom:15px;max-width: 650px}.save-card-option{margin-bottom:10px}.clr{clear:both;visibility:hidden;height:0;width:0}.checkout-agreement label{background-image:url(../images/icon-link.png);background-repeat:no-repeat;background-position:top right;padding-right:20px;background-size:13px 13px}.message.notice{overflow-wrap:break-word}
+@import url(https://cdn.checkout.com/v2/css/cko-fonts-jsicons.css?v=1.1.9);.frames-container{margin-bottom:15px;max-width: 650px;position: relative;z-index: 1;}.save-card-option{margin-bottom:10px}.clr{clear:both;visibility:hidden;height:0;width:0}.checkout-agreement label{background-image:url(../images/icon-link.png);background-repeat:no-repeat;background-position:top right;padding-right:20px;background-size:13px 13px}.message.notice{overflow-wrap:break-word}
