@@ -281,7 +281,7 @@ class View extends Template
     {
         $paymentData = $this->getPaymentData($order)['source'] ?? [];
         if (!empty($paymentData['avs_check'])) {
-            return __('Mismatched Adress (fraud check)') . ' : ' . $paymentData['avs_check'];
+            return __('Mismatched Address (fraud check)') . ' : ' . $paymentData['avs_check'];
         }
 
         return null;

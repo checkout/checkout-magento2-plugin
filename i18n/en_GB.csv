@@ -1,7 +1,7 @@
 "Please keep your website safe! Your checkout plugin (v' . . ') is not the latest version (v' . . ').
-         Update now to get the latest features and security updates. 
+         Update now to get the latest features and security updates.
          See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.","Please keep your website safe! Your checkout plugin (v' . . ') is not the latest version (v' . . ').
-         Update now to get the latest features and security updates. 
+         Update now to get the latest features and security updates.
          See https://github.com/checkout/checkout-magento2-plugin for detailed instructions."
 Configure,Configure
 Close,Close
@@ -140,7 +140,7 @@ Debitor,Debitor
 "Attention, secret key incorrect!","Attention, secret key incorrect!"
 "3DS authorization code","3DS authorization code"
 "Payment Method refunded","Payment Method refunded"
-"Mismatched Adress (fraud check)","Mismatched Adress (fraud check)"
+"Mismatched Address (fraud check)","Mismatched Address (fraud check)"
 "Card Country","Card Country"
 "Card Bank","Card Bank"
 "Card expiry year","Card expiry year"
