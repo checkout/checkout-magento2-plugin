@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\Order\View;
 
-use Checkoutcom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
@@ -181,7 +181,7 @@ class View extends Template
         if (!empty($paymentData['card_type'])) {
             return __('Card type') . ' : ' . $paymentData['card_type'];
         }
-        
+
         return null;
     }
 
@@ -197,8 +197,8 @@ class View extends Template
         $paymentData = $this->getPaymentData($order)['source'] ?? [];
         if (!empty($paymentData['last4'])) {
             return __('Card 4 last numbers') . ' : ' . $paymentData['last4'];
-        } 
-        
+        }
+
         return null;
     }
 
@@ -215,7 +215,7 @@ class View extends Template
         if (!empty($paymentData['expiry_month'])) {
             return __('Card expiry month') . ' : ' . $paymentData['expiry_month'];
         }
-        
+
         return null;
     }
 
@@ -232,7 +232,7 @@ class View extends Template
         if (!empty($paymentData['expiry_year'])) {
             return __('Card expiry year') . ' : ' . $paymentData['expiry_year'];
         }
-        
+
         return null;
     }
 
@@ -249,7 +249,7 @@ class View extends Template
         if (!empty($paymentData['issuer'])) {
             return __('Card Bank') . ' : ' . $paymentData['issuer'];
         }
-        
+
         return null;
     }
 
@@ -265,8 +265,8 @@ class View extends Template
         $paymentData = $this->getPaymentData($order)['source'] ?? [];
         if (!empty($paymentData['issuer_country'])) {
             return __('Card Country') . ' : ' . $paymentData['issuer_country'];
-        } 
-        
+        }
+
         return null;
     }
 
@@ -282,8 +282,8 @@ class View extends Template
         $paymentData = $this->getPaymentData($order)['source'] ?? [];
         if (!empty($paymentData['avs_check'])) {
             return __('Mismatched Adress (fraud check)') . ' : ' . $paymentData['avs_check'];
-        } 
-        
+        }
+
         return null;
     }
 
@@ -299,8 +299,8 @@ class View extends Template
         $paymentData = $this->getPaymentData($order)['source'] ?? [];
         if (!empty($paymentData['product_type'])) {
             return __('Payment Method refunded') . ' : ' . $paymentData['product_type'];
-        } 
-        
+        }
+
         return null;
     }
 
@@ -316,7 +316,7 @@ class View extends Template
         $paymentData = $this->getThreeDs($order)['threeDs'] ?? [];
         if (!empty($paymentData['authentication_response'])) {
             return __('3DS authorization code') . ' : ' . $paymentData['authentication_response'];
-        } 
+        }
 
         return null;
     }
