@@ -57,7 +57,7 @@ class Utilities
      *
      * @param $object
      *
-     * @return mixed[]
+     * @return array
      */
     public function objectToArray($object): array
     {
@@ -68,34 +68,19 @@ class Utilities
      * Get the gateway payment information from an order
      *
      * @param OrderInterface $order
+     * @param string $data
      *
      * @return string[]|null
+     * @throws LocalizedException
      */
-    public function getPaymentData(OrderInterface $order): ?array
+    public function getPaymentData(OrderInterface $order, string $data = 'transaction_info'): ?array
     {
         $paymentData = $order->getPayment()
             ->getMethodInstance()
             ->getInfoInstance()
             ->getData();
 
-        return $paymentData['additional_information']['transaction_info'] ?? null;
-    }
-
-    /**
-     * Get the 3DS information from an order
-     *
-     * @param OrderInterface $order
-     *
-     * @return string[]|null
-     */
-    public function getThreeDs(OrderInterface $order): ?array
-    {
-        $paymentData = $order->getPayment()
-            ->getMethodInstance()
-            ->getInfoInstance()
-            ->getData();
-
-        return $paymentData['additional_information']['threeDs'] ?? null;
+        return $paymentData['additional_information'][$data] ?? null;
     }
 
     /**

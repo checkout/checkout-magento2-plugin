@@ -212,16 +212,16 @@ class Callback extends Action implements CsrfAwareActionInterface
                                         ->getMethodInstance()
                                         ->getInfoInstance()
                                         ->setAdditionalInformation(
-                                        'transaction_info',
+                                        'cko_payment_information',
                                         array_intersect_key((array)$response, array_flip(['source'])),
                                     );
 
-                                    // Get 3ds informations and set it to the order
+                                    // Get 3ds information and set it to the order
                                     $order->getPayment()
                                         ->getMethodInstance()
                                         ->getInfoInstance()
                                         ->setAdditionalInformation(
-                                        'threeDs',
+                                        'cko_threeDs',
                                         array_intersect_key((array)$response, array_flip(['threeDs'])),
                                     );
 

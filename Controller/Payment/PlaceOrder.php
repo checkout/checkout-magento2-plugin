@@ -231,7 +231,10 @@ class PlaceOrder extends Action
                         if ($api->isValidResponse($response)) {
                             // Create an order
                             $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
-                         
+
+                            // Add the payment info to the order
+                            $order = $this->utilities->setPaymentData($order, $response, $data);
+
                             // check for redirection
                             if (isset($response->_links['redirect']['href'])) {
                                 // set order status to pending payment
@@ -302,6 +305,12 @@ class PlaceOrder extends Action
      */
     protected function requestPayment(CartInterface $quote, $data): ?Payment
     {
+        if ($quote->getPayment()->getMethod() === null) {
+            $paymentMethod = $data['methodId'];
+            $quote->setPaymentMethod($paymentMethod); //payment method
+            $quote->getPayment()->importData(['method' => $paymentMethod]);
+        }
+
         // Get the method id
         $methodId = $quote->getPayment()->getMethodInstance()->getCode();
 

@@ -18,15 +18,12 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Block\Adminhtml\Order\View;
 
 use CheckoutCom\Magento2\Helper\Utilities;
-use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\App\Request\Http;
-use Magento\Framework\Phrase;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Store\Model\ScopeInterface;
-use Magento\Store\Model\StoreManagerInterface;
 
 class View extends Template
 {
@@ -36,28 +33,12 @@ class View extends Template
      * @var Utilities $utilities
      */
     private $utilities;
-
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-
     /**
      * $request field
      *
      * @var Http $request
      */
     private $request;
-
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-
     /**
      * $orderRepository field
      *
@@ -68,8 +49,6 @@ class View extends Template
     /**
      * @param Context $context
      * @param Utilities $utilities
-     * @param ApiHandlerService $apiHandler
-     * @param StoreManagerInterface $storeManager
      * @param Http $request
      * @param OrderRepositoryInterface $orderRepository
      * @param array $data
@@ -77,8 +56,6 @@ class View extends Template
     public function __construct(
         Context $context,
         Utilities $utilities,
-        ApiHandlerService $apiHandler,
-        StoreManagerInterface $storeManager,
         Http $request,
         OrderRepositoryInterface $orderRepository,
         array $data = []
@@ -86,52 +63,40 @@ class View extends Template
         parent::__construct($context, $data);
 
         $this->utilities = $utilities;
-        $this->apiHandler = $apiHandler;
-        $this->storeManager = $storeManager;
         $this->request = $request;
         $this->orderRepository = $orderRepository;
     }
 
     /**
-     * Get order payment id
+     * @param string $data
      *
-     * @return string $paymentId
+     * @return string|null
+     * @throws LocalizedException
      */
-    public function getPaymentId(): string
+    public function getCkoPaymentData(string $data): ?string
     {
-        $paymentId = $this->getOrder()->getPayment()->getId();
+        $paymentData = $this->utilities->getPaymentData($this->getOrder(), 'cko_payment_information')['source'] ?? [];
+        if (!empty($paymentData[$data])) {
+            return (string)$paymentData[$data];
+        }
 
-        return $paymentId;
+        return null;
     }
 
     /**
-     * Get information about card used for payment
+     * @param string $data
      *
-     * @param string $paymentId
-     *
-     * @return string $response
+     * @return string|null
+     * @throws LocalizedException
      */
-    public function getCardInformation($paymentId): string
+    public function getCko3dsPaymentData(string $data): ?string
     {
-        // Get store code
-        $storeCode = $this->storeManager->getStore()->getCode();
+        $paymentData = $this->utilities->getPaymentData($this->getOrder(), 'cko_threeDs')['threeDs'] ?? [];
+        if (!empty($paymentData[$data])) {
+            return $paymentData[$data];
+        }
 
-        // Initialize the API handler
-        $rep = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-
-        $validResponse = $this->apiHandler->isValidResponse($test);
-
-        return $response;
-    }
-
-    /**
-     * Get Section Name in BO
-     *
-     * @return Phrase $sectionName
-     */
-    public function sectionName(): Phrase
-    {
-        return __('Payment Additional Information');
+        return null;
     }
 
     /**
@@ -139,185 +104,116 @@ class View extends Template
      *
      * @return OrderInterface $order
      */
-    public function getOrder(): OrderInterface
+    private function getOrder(): OrderInterface
     {
         return $this->orderRepository->get($this->request->getParam('order_id'));
     }
 
     /**
-     * Get payment card data
+     * @param string $avsCheckCode
      *
-     * @param OrderInterface $order
-     *
-     * @return array
+     * @return string
      */
-    public function getPaymentData(OrderInterface $order): ?array
+    public function getAvsCheckDescription(string $avsCheckCode): string
     {
-        return $this->utilities->getPaymentData($order);
-    }
-
-    /**
-     * Get card 3DS informations
-     *
-     * @param OrderInterface $order
-     *
-     * @return array
-     */
-    public function getThreeDs(OrderInterface $order): ?array
-    {
-        return $this->utilities->getThreeDs($order);
-    }
-
-    /**
-     * Get card type
-     *
-     * @param OrderInterface $order
-     *
-     * @return string|null
-     */
-    public function getCardType(OrderInterface $order): ?string
-    {
-        $paymentData = $this->getPaymentData($order)['source'] ?? [];
-        if (!empty($paymentData['card_type'])) {
-            return __('Card type') . ' : ' . $paymentData['card_type'];
+        switch ($avsCheckCode) {
+            case 'A':
+                return __('Street Match')->render();
+            case 'B':
+                return __('Street Match Postal Not Verified')->render();
+            case 'I':
+            case 'C':
+                return __('Street and Postal Not Verified')->render();
+            case 'F':
+            case 'M':
+            case 'D':
+                return __('Street and Postal Match')->render();
+            case 'G':
+                return __('Not Verified or Not Supported')->render();
+            case 'N':
+                return __('No Address Match')->render();
+            case 'P':
+                return __('Street Not Verified Postal Match')->render();
+            case 'R':
+                return __('AVS Not Available')->render();
+            case 'S':
+                return __('Not supported')->render();
+            case 'U':
+                return __('Match Not Capable')->render();
+            case 'Y':
+                return __('Street and 5 Digit Postal Match')->render();
+            case 'Z':
+                return __('5 Digit Postal Match')->render();
+            case 'AE1':
+                return __('Cardholder Name Incorrect but Postal/ZIP Match')->render();
+            case 'AE2':
+                return __('Cardholder Name Incorrect, but Street and Postal/ZIP Match')->render();
+            case 'AE3':
+                return __('Cardholder Name Incorrect, but Street Match')->render();
+            case 'AE4':
+                return __('Cardholder Name Match')->render();
+            case 'AE5':
+                return __('Cardholder Name and Postal/ZIP Match')->render();
+            case 'AE6':
+                return __('Cardholder Name, Street and Postal/ZIP Match')->render();
+            case 'AE7':
+                return __('Cardholder Name and Street Match')->render();
+            default:
+                return '';
         }
-
-        return null;
     }
 
     /**
-     * Get card last four digits
+     * @param string $cvvCheckCode
      *
-     * @param OrderInterface $order
-     *
-     * @return string|null
+     * @return string
      */
-    public function getFourDigits(OrderInterface $order): ?string
+    public function getCvvCheckDescription(string $cvvCheckCode): string
     {
-        $paymentData = $this->getPaymentData($order)['source'] ?? [];
-        if (!empty($paymentData['last4'])) {
-            return __('Card 4 last numbers') . ' : ' . $paymentData['last4'];
+        switch ($cvvCheckCode) {
+            case 'X':
+                return __('No CVV2 information is available')->render();
+            case 'U':
+                return __('The issuer has not certified or has not provided the encryption keys to the interchange')->render();
+            case 'P':
+                return __('Card verification not performed, CVD was not on the card. Not all cards have a CVD value encoded')->render();
+            case 'Y':
+                return __('Card verification performed, and CVD was valid')->render();
+            case 'D':
+                return __('Card verification performed, and CVD was invalid')->render();
+            case 'N':
+                return __('Authorizing entity has not attempted card verification or could not verify the CVD due to a security device error')->render();
+            default:
+                return '';
         }
-
-        return null;
     }
 
     /**
-     * Get card expiry month
+     * @param string $threeDsCode
      *
-     * @param OrderInterface $order
-     *
-     * @return string|null
+     * @return string
      */
-    public function getCardExpiryMonth(OrderInterface $order): ?string
+    public function get3dsDescription(string $threeDsCode): string
     {
-        $paymentData = $this->getPaymentData($order)['source'] ?? [];
-        if (!empty($paymentData['expiry_month'])) {
-            return __('Card expiry month') . ' : ' . $paymentData['expiry_month'];
+        switch ($threeDsCode) {
+            case 'Y':
+                return __('Authentication verification successful.')->render();
+            case 'N':
+                return __('Not authenticated or account not verified. This means the transaction was denied.')->render();
+            case 'U':
+                return __('Authentication or account verification could not be performed. This is due to a technical problem, or another problem as indicated in ARes or RReq.')->render();
+            case 'A':
+                return __('Attempt at processing performed. Not authenticated or verified, but a proof of attempted authentication/verification is provided.')->render();
+            case 'C':
+                return __('Challenge required. Additional authentication is required using the CReq or CRes.')->render();
+            case 'D':
+                return __('Challenge required. Decoupled authentication confirmed.')->render();
+            case 'R':
+                return __('Authentication or account verification rejected. Issuer is rejecting and requests that authorization not be attempted.')->render();
+            case 'I':
+                return __('Informational only. 3DS requestor challenge preference acknowledged.')->render();
+            default:
+                return '';
         }
-
-        return null;
-    }
-
-    /**
-     * Get card expiry year
-     *
-     * @param OrderInterface $order
-     *
-     * @return string|null
-     */
-    public function getCardExpiryYear(OrderInterface $order): ?string
-    {
-        $paymentData = $this->getPaymentData($order)['source'] ?? [];
-        if (!empty($paymentData['expiry_year'])) {
-            return __('Card expiry year') . ' : ' . $paymentData['expiry_year'];
-        }
-
-        return null;
-    }
-
-    /**
-     * Get bank holder name
-     *
-     * @param OrderInterface $order
-     *
-     * @return string|null
-     */
-    public function getIssuer(OrderInterface $order): ?string
-    {
-        $paymentData = $this->getPaymentData($order)['source'] ?? [];
-        if (!empty($paymentData['issuer'])) {
-            return __('Card Bank') . ' : ' . $paymentData['issuer'];
-        }
-
-        return null;
-    }
-
-    /**
-     * Get bank holder country
-     *
-     * @param OrderInterface $order
-     *
-     * @return string|null
-     */
-    public function getIssuerCountry(OrderInterface $order): ?string
-    {
-        $paymentData = $this->getPaymentData($order)['source'] ?? [];
-        if (!empty($paymentData['issuer_country'])) {
-            return __('Card Country') . ' : ' . $paymentData['issuer_country'];
-        }
-
-        return null;
-    }
-
-    /**
-     * Get mismatched adress fraud check
-     *
-     * @param OrderInterface $order
-     *
-     * @return string|null
-     */
-    public function getAvsCheck(OrderInterface $order): ?string
-    {
-        $paymentData = $this->getPaymentData($order)['source'] ?? [];
-        if (!empty($paymentData['avs_check'])) {
-            return __('Mismatched Address (fraud check)') . ' : ' . $paymentData['avs_check'];
-        }
-
-        return null;
-    }
-
-    /**
-     * Get product type
-     *
-     * @param OrderInterface $order
-     *
-     * @return string|null
-     */
-    public function getProductType(OrderInterface $order): ?string
-    {
-        $paymentData = $this->getPaymentData($order)['source'] ?? [];
-        if (!empty($paymentData['product_type'])) {
-            return __('Payment Method refunded') . ' : ' . $paymentData['product_type'];
-        }
-
-        return null;
-    }
-
-    /**
-     * Get 3DS autorization code
-     *
-     * @param OrderInterface $order
-     *
-     * @return string|null
-     */
-    public function getThreeDsAuth(OrderInterface $order): ?string
-    {
-        $paymentData = $this->getThreeDs($order)['threeDs'] ?? [];
-        if (!empty($paymentData['authentication_response'])) {
-            return __('3DS authorization code') . ' : ' . $paymentData['authentication_response'];
-        }
-
-        return null;
     }
 }
