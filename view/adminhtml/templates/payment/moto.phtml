@@ -29,6 +29,9 @@ use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
             <!-- form will be added here -->
           </div>
         </div>
+        <div class="scheme-choice-frame">
+            <!-- form will be added here -->
+        </div>
         <form id="motoCardForm" method="POST">
             <!-- Saved cards -->
             <div id="vault-container">
@@ -81,6 +84,9 @@ use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
             {
                 publicKey: '<?= $block->escapeHtml($block->getConfig()->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
                 debug: Boolean(<?= $block->escapeHtml($block->getConfig()->getValue('debug')) ?>),
+                schemeChoice: {
+                    frameSelector: ".scheme-choice-frame"
+                },
                 cardValidationChanged: function(event) {
                     var cardholderName = $('#order-billing_address_firstname').val() + ' ' + $('#order-billing_address_lastname').val();
 

@@ -31,6 +31,9 @@ use CheckoutCom\Magento2\Block\Account\AddCard;
         <!-- form will be added here -->
       </div>
     </div>
+    <div class="scheme-choice-frame">
+        <!-- form will be added here -->
+    </div>
     <form class="widget-container" id="saveCardForm" method="POST">
         <?= $block->getBlockHtml('formkey') ?>
         <input type="hidden" id="ckoCardToken" name="ckoCardToken">
@@ -59,6 +62,9 @@ use CheckoutCom\Magento2\Block\Account\AddCard;
             {
                 publicKey: ckoPublicKey,
                 debug: Boolean(<?= $block->escapeHtml(($block->getConfig()->getValue('debug') && $block->getConfig()->getValue('console_logging'))); ?>),
+                schemeChoice: {
+                    frameSelector: ".scheme-choice-frame"
+                },
                 cardValidationChanged: function() {
                     if (Frames.isCardValid()) {
                         Frames.submitCard();

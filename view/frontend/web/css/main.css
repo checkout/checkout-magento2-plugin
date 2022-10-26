@@ -21,6 +21,8 @@
 .frames-container {
     margin-bottom: 15px;
     max-width: 650px;
+    position: relative;
+    z-index: 1;
 }
 
 .save-card-option {
