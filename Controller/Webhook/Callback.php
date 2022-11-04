@@ -22,6 +22,7 @@ namespace CheckoutCom\Magento2\Controller\Webhook;
 use Checkout\Models\Payments\Payment;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
@@ -43,6 +44,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -100,6 +102,12 @@ class Callback extends Action implements CsrfAwareActionInterface
      */
     private $config;
     /**
+     * $orderRepository field
+     *
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+    /**
      * $scopeConfig field
      *
      * @var ScopeConfigInterface $scopeConfig
@@ -125,7 +133,9 @@ class Callback extends Action implements CsrfAwareActionInterface
      * @param VaultHandlerService        $vaultHandler
      * @param PaymentErrorHandlerService $paymentErrorHandler
      * @param Config                     $config
+     * @param OrderRepositoryInterface   $orderRepository
      * @param Logger                     $logger
+     * @param Utilities                  $utilities
      */
     public function __construct(
         Context $context,
@@ -138,7 +148,9 @@ class Callback extends Action implements CsrfAwareActionInterface
         VaultHandlerService $vaultHandler,
         PaymentErrorHandlerService $paymentErrorHandler,
         Config $config,
-        Logger $logger
+        OrderRepositoryInterface $orderRepository,
+        Logger $logger,
+        Utilities $utilities
     ) {
         parent::__construct($context);
 
@@ -151,7 +163,9 @@ class Callback extends Action implements CsrfAwareActionInterface
         $this->vaultHandler        = $vaultHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
         $this->config              = $config;
+        $this->orderRepository     = $orderRepository;
         $this->logger              = $logger;
+        $this->utilities           = $utilities;
     }
 
     /**
@@ -193,6 +207,27 @@ class Callback extends Action implements CsrfAwareActionInterface
                             // Process the order
                             if ($this->orderHandler->isOrder($order)) {
                                 if ($api->isValidResponse($response)) {
+                                    // Get Source and set it to the order
+                                    $order->getPayment()
+                                        ->getMethodInstance()
+                                        ->getInfoInstance()
+                                        ->setAdditionalInformation(
+                                        'cko_payment_information',
+                                        array_intersect_key((array)$response, array_flip(['source'])),
+                                    );
+
+                                    // Get 3ds information and set it to the order
+                                    $order->getPayment()
+                                        ->getMethodInstance()
+                                        ->getInfoInstance()
+                                        ->setAdditionalInformation(
+                                        'cko_threeDs',
+                                        array_intersect_key((array)$response, array_flip(['threeDs'])),
+                                    );
+
+                                    // Save the order
+                                    $this->orderRepository->save($order);
+
                                     // Handle the save card request
                                     if ($this->cardNeedsSaving($payload)) {
                                         $this->saveCard($response, $payload);

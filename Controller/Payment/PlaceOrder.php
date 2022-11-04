@@ -125,20 +125,20 @@ class PlaceOrder extends Action
     /**
      * PlaceOrder constructor
      *
-     * @param Context                    $context
-     * @param StoreManagerInterface      $storeManager
-     * @param JsonFactory                $jsonFactory
-     * @param ScopeConfigInterface       $scopeConfig
-     * @param QuoteHandlerService        $quoteHandler
-     * @param OrderHandlerService        $orderHandler
-     * @param OrderStatusHandlerService  $orderStatusHandler
-     * @param MethodHandlerService       $methodHandler
-     * @param ApiHandlerService          $apiHandler
+     * @param Context $context
+     * @param StoreManagerInterface $storeManager
+     * @param JsonFactory $jsonFactory
+     * @param ScopeConfigInterface $scopeConfig
+     * @param QuoteHandlerService $quoteHandler
+     * @param OrderHandlerService $orderHandler
+     * @param OrderStatusHandlerService $orderStatusHandler
+     * @param MethodHandlerService $methodHandler
+     * @param ApiHandlerService $apiHandler
      * @param PaymentErrorHandlerService $paymentErrorHandler
-     * @param Utilities                  $utilities
-     * @param Logger                     $logger
-     * @param Session                    $session
-     * @param OrderRepositoryInterface   $orderRepository
+     * @param Utilities $utilities
+     * @param Logger $logger
+     * @param Session $session
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         Context $context,
@@ -158,19 +158,19 @@ class PlaceOrder extends Action
     ) {
         parent::__construct($context);
 
-        $this->storeManager        = $storeManager;
-        $this->jsonFactory         = $jsonFactory;
-        $this->scopeConfig         = $scopeConfig;
-        $this->quoteHandler        = $quoteHandler;
-        $this->orderHandler        = $orderHandler;
-        $this->orderStatusHandler  = $orderStatusHandler;
-        $this->methodHandler       = $methodHandler;
-        $this->apiHandler          = $apiHandler;
+        $this->storeManager = $storeManager;
+        $this->jsonFactory = $jsonFactory;
+        $this->scopeConfig = $scopeConfig;
+        $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
+        $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
-        $this->utilities           = $utilities;
-        $this->logger              = $logger;
-        $this->session             = $session;
-        $this->orderRepository     = $orderRepository;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
+        $this->session = $session;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -182,12 +182,12 @@ class PlaceOrder extends Action
     {
         try {
             // Prepare some parameters
-            $url          = '';
-            $message      = '';
+            $url = '';
+            $message = '';
             $debugMessage = '';
             $responseCode = '';
-            $success      = false;
-            $log          = true;
+            $success = false;
+            $log = true;
 
             // Try to load a quote
             $quote = $this->quoteHandler->getQuote();
@@ -246,7 +246,7 @@ class PlaceOrder extends Action
 
                             // Update the response parameters
                             $success = $response->isSuccessful();
-                            $url     = $response->getRedirection();
+                            $url = $response->getRedirection();
                         } else {
                             // Payment failed
                             if (isset($response->response_code)) {
@@ -286,11 +286,11 @@ class PlaceOrder extends Action
             }
 
             return $this->jsonFactory->create()->setData([
-                'success'      => $success,
-                'message'      => $message,
+                'success' => $success,
+                'message' => $message,
                 'responseCode' => $responseCode,
                 'debugMessage' => $debugMessage,
-                'url'          => $url,
+                'url' => $url,
             ]);
         }
     }
