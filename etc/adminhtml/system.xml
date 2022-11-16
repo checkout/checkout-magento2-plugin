@@ -196,6 +196,16 @@
                             <validate>required-entry</validate>
                         </field>
 
+                        <field id="channel_id" type="text" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Channel id</label>
+                            <config_path>settings/checkoutcom_configuration/channel_id</config_path>
+                            <depends>
+                                <field id="service">NAS</field>
+                            </depends>
+                            <validate>required-entry</validate>
+                            <comment>The channel id begin with pc_xxx</comment>
+                        </field>
+
                         <field id="webhook_url" sortOrder="50" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Webhook Url</label>
                             <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\WebhookUrl</frontend_model>

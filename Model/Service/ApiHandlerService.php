@@ -20,15 +20,18 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Model\Service;
 
 use Checkout\CheckoutApi;
-use Checkout\Library\Model;
-use Checkout\Models\Address;
-use Checkout\Models\Payments\Capture;
-use Checkout\Models\Payments\Customer;
-use Checkout\Models\Payments\Payment;
-use Checkout\Models\Payments\Refund;
-use Checkout\Models\Payments\Shipping;
-use Checkout\Models\Payments\Voids;
-use Checkout\Models\Product;
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutArgumentException;
+use Checkout\CheckoutSdk;
+use Checkout\CheckoutUtils;
+use Checkout\Common\Address;
+use Checkout\Common\CustomerRequest;
+use Checkout\HttpMetadata;
+use Checkout\Payments\CaptureRequest;
+use Checkout\Payments\Product;
+use Checkout\Payments\RefundRequest;
+use Checkout\Payments\ShippingDetails;
+use Checkout\Payments\VoidRequest;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -38,6 +41,7 @@ use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\CartItemInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -48,6 +52,24 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class ApiHandlerService
 {
+    /**
+     * Valid return code
+     */
+    public const VALID_RESPONSE_CODE = [200, 201, 202];
+    /**
+     * $checkoutApi field
+     *
+     * @var CheckoutApi $checkoutApi
+     */
+    protected $checkoutApi;
+    /**
+     * @var Json
+     */
+    protected $json;
+    /**
+     * @var ScopeConfigInterface
+     */
+    protected $scopeConfig;
     /**
      * $storeManager field
      *
@@ -66,12 +88,6 @@ class ApiHandlerService
      * @var Config $config
      */
     private $config;
-    /**
-     * $checkoutApi field
-     *
-     * @var CheckoutApi $checkoutApi
-     */
-    protected $checkoutApi;
     /**
      * $utilities field
      *
@@ -113,6 +129,7 @@ class ApiHandlerService
      * @param QuoteHandlerService $quoteHandler
      * @param VersionHandlerService $versionHandler
      * @param ScopeConfigInterface $scopeConfig
+     * @param Json $json
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -123,7 +140,8 @@ class ApiHandlerService
         OrderHandlerService $orderHandler,
         QuoteHandlerService $quoteHandler,
         VersionHandlerService $versionHandler,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        Json $json
     ) {
         $this->storeManager = $storeManager;
         $this->productMeta = $productMeta;
@@ -134,6 +152,7 @@ class ApiHandlerService
         $this->quoteHandler = $quoteHandler;
         $this->versionHandler = $versionHandler;
         $this->scopeConfig = $scopeConfig;
+        $this->json = $json;
     }
 
     /**
@@ -142,40 +161,100 @@ class ApiHandlerService
      * @param string|int|null $storeCode
      * @param string $scope
      * @param string|null $secretKey
+     * @param string|null $publicKey
      *
      * @return $this
+     * @throws CheckoutArgumentException
      */
     public function init(
         $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE,
-        string $secretKey = null
+        string $secretKey = null,
+        string $publicKey = null
     ): ApiHandlerService {
-        $secretKeyPassed = (bool)$secretKey;
-
-        if (!$secretKeyPassed) {
+        if (!$secretKey) {
             $secretKey = $this->config->getValue('secret_key', null, $storeCode, $scope);
         }
-        /** @var string $service */
+
+        if (!$publicKey) {
+            $publicKey = $this->config->getValue('public_key', null, $storeCode, $scope);
+        }
+
         $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, $scope, $storeCode);
-        /** @var string $publicKey */
-        $publicKey = $this->config->getValue('public_key', null, $storeCode, $scope);
+        $environment = $this->config->getEnvironment((int)$storeCode, $scope);
+        $api = CheckoutSdk::builder();
 
-        if ($service === ConfigService::SERVICE_NAS) {
-            $secretKey = ConfigService::BEARER_KEY . $secretKey;
-            $publicKey = ConfigService::BEARER_KEY . $publicKey;
+        if ($service === ConfigService::SERVICE_ABC) {
+            $api = $api->previous()->staticKeys();
+        } else {
+            $api = $api->staticKeys();
         }
 
-        if ($secretKeyPassed) {
-            $publicKey = null;
-        }
-
-        $this->checkoutApi = new CheckoutApi(
-            $secretKey,
-            $this->config->getValue('environment', null, $storeCode, $scope),
-            $publicKey
-        );
+        $this->checkoutApi = $api
+            ->publicKey($publicKey)
+            ->secretKey($secretKey)
+            ->environment($environment)
+            ->build();
 
         return $this;
+    }
+
+    /**
+     * Checks if a response is valid
+     *
+     * @param array $response
+     *
+     * @return bool
+     */
+    public function isValidResponse(array $response): bool
+    {
+        if (!isset($response['http_metadata'])) {
+            return false;
+        }
+
+        $response = $response['http_metadata'];
+
+        $this->logger->additional($this->utilities->objectToArray($response), 'api');
+
+        return $response instanceof HttpMetadata && in_array($response->getStatusCode(), self::VALID_RESPONSE_CODE);
+    }
+
+    /**
+     * Captures a transaction
+     *
+     * @param $payment
+     * @param float $amount
+     *
+     * @return array|void
+     * @throws CheckoutApiException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function captureOrder($payment, float $amount)
+    {
+        // Get the order
+        $order = $payment->getOrder();
+
+        // Get the payment info
+        $paymentInfo = $this->utilities->getPaymentData($order);
+
+        // Process the capture request
+        if (isset($paymentInfo['id'])) {
+            // Prepare the request
+            $request = new CaptureRequest();
+            $request->amount = $this->orderHandler->amountToGateway(
+                $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
+                $order
+            );
+
+            // Get the response
+            $response = $this->getCheckoutApi()->getPaymentsClient()->capturePayment($paymentInfo['id'], $request);
+
+            // Logging
+            $this->logger->display($response);
+
+            return $response;
+        }
     }
 
     /**
@@ -189,62 +268,13 @@ class ApiHandlerService
     }
 
     /**
-     * Checks if a response is valid
-     *
-     * @param mixed $response
-     *
-     * @return bool
-     */
-    public function isValidResponse($response): bool
-    {
-        $this->logger->additional($this->utilities->objectToArray($response), 'api');
-
-        return $response instanceof Model && $response->isSuccessful();
-    }
-
-    /**
-     * Captures a transaction
-     *
-     * @param mixed $payment
-     * @param float $amount
-     *
-     * @return mixed|void
-     * @throws NoSuchEntityException
-     * @throws LocalizedException
-     */
-    public function captureOrder($payment, float $amount)
-    {
-        // Get the order
-        $order = $payment->getOrder();
-
-        // Get the payment info
-        $paymentInfo = $this->utilities->getPaymentData($order);
-
-        // Process the capture request
-        if (isset($paymentInfo['id'])) {
-            // Prepare the request
-            $request = new Capture($paymentInfo['id']);
-            $request->amount = $this->orderHandler->amountToGateway(
-                $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
-                $order
-            );
-
-            // Get the response
-            $response = $this->getCheckoutApi()->payments()->capture($request);
-
-            // Logging
-            $this->logger->display($response);
-
-            return $response;
-        }
-    }
-
-    /**
      * Voids a transaction
      *
-     * @param mixed $payment
+     * @param $payment
      *
-     * @return mixed|void
+     * @return array|void
+     * @throws CheckoutApiException
+     * @throws LocalizedException
      */
     public function voidOrder($payment)
     {
@@ -256,8 +286,8 @@ class ApiHandlerService
 
         // Process the void request
         if (isset($paymentInfo['id'])) {
-            $request = new Voids($paymentInfo['id']);
-            $response = $this->getCheckoutApi()->payments()->void($request);
+            $request = new VoidRequest();
+            $response = $this->getCheckoutApi()->getPaymentsClient()->voidPayment($paymentInfo['id'], $request);
 
             // Logging
             $this->logger->display($response);
@@ -269,10 +299,11 @@ class ApiHandlerService
     /**
      * Refunds a transaction
      *
-     * @param mixed $payment
-     * @param float|string $amount
+     * @param $payment
+     * @param $amount
      *
-     * @return mixed|void
+     * @return array|void
+     * @throws CheckoutApiException
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
@@ -286,13 +317,14 @@ class ApiHandlerService
 
         // Process the refund request
         if (isset($paymentInfo['id'])) {
-            $request = new Refund($paymentInfo['id']);
+            $request = new RefundRequest();
             $request->amount = $this->orderHandler->amountToGateway(
                 $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
                 $order
             );
 
-            $response = $this->getCheckoutApi()->payments()->refund($request);
+            // Get the response
+            $response = $this->getCheckoutApi()->getPaymentsClient()->refundPayment($paymentInfo['id'], $request);
 
             // Logging
             $this->logger->display($response);
@@ -307,27 +339,28 @@ class ApiHandlerService
      *
      * @param string $paymentId
      *
-     * @return Payment
+     * @return array
+     * @throws CheckoutApiException
      */
-    public function getPaymentDetails(string $paymentId): Payment
+    public function getPaymentDetails(string $paymentId): array
     {
-        return $this->getCheckoutApi()->payments()->details($paymentId);
+        return $this->getCheckoutApi()->getPaymentsClient()->getPaymentDetails($paymentId);
     }
 
     /**
      * Creates a customer source
      *
-     * @param mixed $entity
+     * @param $entity
      *
-     * @return Customer
+     * @return CustomerRequest
      */
-    public function createCustomer($entity): Customer
+    public function createCustomer($entity): CustomerRequest
     {
         // Get the billing address
         $billingAddress = $entity->getBillingAddress();
 
         // Create the customer
-        $customer = new Customer();
+        $customer = new CustomerRequest();
         $customer->email = $billingAddress->getEmail();
         $customer->name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
 
@@ -335,15 +368,14 @@ class ApiHandlerService
     }
 
     /**
-     * Creates a billing address
-     *
-     * @param mixed $entity
+     * @param $entity
      *
      * @return Address
      */
     public function createBillingAddress($entity): Address
     {
         // Get the billing address
+        /** @var CartInterface $entity */
         $billingAddress = $entity->getBillingAddress();
 
         // Create the address
@@ -361,11 +393,11 @@ class ApiHandlerService
     /**
      * Creates a shipping address
      *
-     * @param mixed $entity
+     * @param $entity
      *
-     * @return Shipping
+     * @return ShippingDetails
      */
-    public function createShippingAddress($entity): Shipping
+    public function createShippingAddress($entity): ShippingDetails
     {
         // Get the billing address
         $shippingAddress = $entity->getShippingAddress();
@@ -379,7 +411,10 @@ class ApiHandlerService
         $address->country = $shippingAddress->getCountry();
         $address->state = $shippingAddress->getRegion();
 
-        return new Shipping($address);
+        $shippingDetails = new ShippingDetails();
+        $shippingDetails->address = $address;
+
+        return $shippingDetails;
     }
 
     /**
@@ -415,7 +450,7 @@ class ApiHandlerService
     /**
      * Get base metadata
      *
-     * @return mixed[]
+     * @return array
      * @throws NoSuchEntityException|FileSystemException
      */
     public function getBaseMetadata(): array
@@ -424,7 +459,7 @@ class ApiHandlerService
         $serverUrl = $this->storeManager->getStore()->getBaseUrl();
 
         // Get the SDK data
-        $sdkData = 'PHP v' . phpversion() . ', SDK v' . CheckoutAPI::VERSION;
+        $sdkData = 'PHP v' . phpversion() . ', SDK v' . CheckoutUtils::PROJECT_VERSION;
 
         // Get the integration data
         $integrationData = 'Checkout.com Magento 2 Module ';
@@ -434,7 +469,7 @@ class ApiHandlerService
         $platformData = 'Magento ' . $this->productMeta->getVersion();
 
         return [
-            'udf5' => json_encode([
+            'udf5' => $this->json->serialize([
                 'server_url' => $serverUrl,
                 'sdk_data' => $sdkData,
                 'integration_data' => $integrationData,

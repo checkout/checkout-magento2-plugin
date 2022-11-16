@@ -101,14 +101,14 @@ class PaymentErrorHandlerService
     /**
      * Log payment error for webhooks
      *
-     * @param mixed          $response
+     * @param array          $response
      * @param OrderInterface $order
      *
      * @return void
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function logError($response, OrderInterface $order): void
+    public function logError(array $response, OrderInterface $order): void
     {
         // Assign the payment instance
         $payment = $order->getPayment();
@@ -170,15 +170,15 @@ class PaymentErrorHandlerService
     /**
      * Log the error for 3ds declined payments
      *
-     * @param mixed          $response
+     * @param array $response
      * @param OrderInterface $order
-     * @param string         $status
+     * @param string $status
      *
      * @return void
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function logPaymentError($response, OrderInterface $order, string $status = ''): void
+    public function logPaymentError(array $response, OrderInterface $order, string $status = ''): void
     {
         // Assign the payment instance
         $payment = $order->getPayment();
@@ -186,7 +186,7 @@ class PaymentErrorHandlerService
         // Prepare the failed transaction info
         $suffix = __(
             ' for an amount of %1. Payment ID: %2',
-            $this->prepareAmount($response->amount, $order),
+            $this->prepareAmount($response['amount'], $order),
             $response->id
         );
 
