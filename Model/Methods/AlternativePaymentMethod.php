@@ -430,7 +430,6 @@ class AlternativePaymentMethod extends AbstractMethod
                 $this->_code,
                 $method
             );
-            error_log(print_r($payment, true), 3, '/var/www/project/magento/var/log/caro.log');
 
             $this->ckoLogger->additional($this->utilities->objectToArray($payment), 'payment');
 
