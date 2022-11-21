@@ -7,7 +7,7 @@ namespace CheckoutCom\Magento2\Controller\Apm;
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
-use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\ScopeInterface;
@@ -19,7 +19,7 @@ use Magento\Store\Model\StoreManagerInterface;
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      https://www.dnd.fr/
  */
-class DisplayBic implements HttpPostActionInterface
+class DisplayBic implements HttpGetActionInterface
 {
     /**
      * @var StoreManagerInterface
