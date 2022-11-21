@@ -308,16 +308,14 @@ class PlaceOrder extends Action
     }
 
     /**
-     * Description isEmptyCardToken function
-     *
-     * @param string[] $paymentData
+     * @param array $paymentData
      *
      * @return bool
      */
     public function isEmptyCardToken(array $paymentData): bool
     {
-        if ($paymentData['methodId'] === "checkoutcom_card_payment") {
-            if (empty($paymentData['cardToken']) || $paymentData['cardToken'] == "") {
+        if ($paymentData['methodId'] === 'checkoutcom_card_payment') {
+            if (empty($paymentData['cardToken'])) {
                 return true;
             }
         }
@@ -331,10 +329,10 @@ class PlaceOrder extends Action
      * @param CartInterface $quote
      * @param $data
      *
-     * @return mixed
+     * @return array|null
      * @throws LocalizedException
      */
-    protected function requestPayment(CartInterface $quote, $data)
+    protected function requestPayment(CartInterface $quote, $data): ?array
     {
         if ($quote->getPayment()->getMethod() === null) {
             $paymentMethod = $data['methodId'];

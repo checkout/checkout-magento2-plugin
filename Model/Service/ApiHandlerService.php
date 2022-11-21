@@ -57,9 +57,7 @@ class ApiHandlerService
      */
     public const VALID_RESPONSE_CODE = [200, 201, 202];
     /**
-     * $checkoutApi field
-     *
-     * @var CheckoutApi $checkoutApi
+     * @var mixed
      */
     protected $checkoutApi;
     /**
