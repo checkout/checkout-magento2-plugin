@@ -438,7 +438,6 @@ class AlternativePaymentMethod extends AbstractMethod
             );
 
             $this->ckoLogger->additional($this->utilities->objectToArray($payment), 'payment');
-            error_log(print_r($payment, true), 3, '/var/www/project/magento/var/log/caro.log');
 
             // Send the charge request
             return $api->getCheckoutApi()->getPaymentsClient()->requestPayment($payment);
