@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Webhook;
 
-use Checkout\Models\Payments\Payment;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -42,7 +41,9 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Framework\Webapi\Exception as WebException;
+use Magento\Framework\Webapi\Response;
 use Magento\Framework\Webapi\Rest\Response as WebResponse;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -53,6 +54,14 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Callback extends Action implements CsrfAwareActionInterface
 {
+    /**
+     * @var JsonSerializer
+     */
+    private $json;
+    /**
+     * @var Utilities
+     */
+    private $utilities;
     /**
      * $storeManager field
      *
@@ -123,19 +132,20 @@ class Callback extends Action implements CsrfAwareActionInterface
     /**
      * Callback constructor
      *
-     * @param Context                    $context
-     * @param StoreManagerInterface      $storeManager
-     * @param ScopeConfigInterface       $scopeConfig
-     * @param ApiHandlerService          $apiHandler
-     * @param OrderHandlerService        $orderHandler
-     * @param ShopperHandlerService      $shopperHandler
-     * @param WebhookHandlerService      $webhookHandler
-     * @param VaultHandlerService        $vaultHandler
+     * @param Context $context
+     * @param StoreManagerInterface $storeManager
+     * @param ScopeConfigInterface $scopeConfig
+     * @param ApiHandlerService $apiHandler
+     * @param OrderHandlerService $orderHandler
+     * @param ShopperHandlerService $shopperHandler
+     * @param WebhookHandlerService $webhookHandler
+     * @param VaultHandlerService $vaultHandler
      * @param PaymentErrorHandlerService $paymentErrorHandler
-     * @param Config                     $config
-     * @param OrderRepositoryInterface   $orderRepository
-     * @param Logger                     $logger
-     * @param Utilities                  $utilities
+     * @param Config $config
+     * @param OrderRepositoryInterface $orderRepository
+     * @param Logger $logger
+     * @param Utilities $utilities
+     * @param JsonSerializer $json
      */
     public function __construct(
         Context $context,
@@ -150,22 +160,24 @@ class Callback extends Action implements CsrfAwareActionInterface
         Config $config,
         OrderRepositoryInterface $orderRepository,
         Logger $logger,
-        Utilities $utilities
+        Utilities $utilities,
+        JsonSerializer $json
     ) {
         parent::__construct($context);
 
-        $this->storeManager        = $storeManager;
-        $this->scopeConfig         = $scopeConfig;
-        $this->apiHandler          = $apiHandler;
-        $this->orderHandler        = $orderHandler;
-        $this->shopperHandler      = $shopperHandler;
-        $this->webhookHandler      = $webhookHandler;
-        $this->vaultHandler        = $vaultHandler;
+        $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->apiHandler = $apiHandler;
+        $this->orderHandler = $orderHandler;
+        $this->shopperHandler = $shopperHandler;
+        $this->webhookHandler = $webhookHandler;
+        $this->vaultHandler = $vaultHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
-        $this->config              = $config;
-        $this->orderRepository     = $orderRepository;
-        $this->logger              = $logger;
-        $this->utilities           = $utilities;
+        $this->config = $config;
+        $this->orderRepository = $orderRepository;
+        $this->logger = $logger;
+        $this->utilities = $utilities;
+        $this->json = $json;
     }
 
     /**
@@ -180,15 +192,14 @@ class Callback extends Action implements CsrfAwareActionInterface
 
         try {
             // Set the payload data
-            /** @var mixed $payload */
             $payload = $this->getPayload();
 
             // Process the request
             if ($this->config->isValidAuth('psk')) {
                 // Filter out verification requests
-                if ($payload->type !== "card_verified") {
+                if ($payload['type'] !== "card_verified") {
                     // Process the request
-                    if (isset($payload->data->id)) {
+                    if (isset($payload['data']['id'])) {
                         // Get the store code
                         $storeCode = $this->storeManager->getStore()->getCode();
 
@@ -196,34 +207,35 @@ class Callback extends Action implements CsrfAwareActionInterface
                         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
                         // Get the payment details
-                        $response = $api->getPaymentDetails($payload->data->id);
+                        $response = $api->getPaymentDetails($payload['data']['id']);
 
-                        if (isset($response->reference)) {
+                        if (isset($response['reference'])) {
                             // Find the order from increment id
                             $order = $this->orderHandler->getOrder([
-                                'increment_id' => $response->reference,
+                                'increment_id' => $response['reference'],
                             ]);
 
                             // Process the order
                             if ($this->orderHandler->isOrder($order)) {
                                 if ($api->isValidResponse($response)) {
+
                                     // Get Source and set it to the order
                                     $order->getPayment()
                                         ->getMethodInstance()
                                         ->getInfoInstance()
                                         ->setAdditionalInformation(
-                                        'cko_payment_information',
-                                        array_intersect_key((array)$response, array_flip(['source'])),
-                                    );
+                                            'cko_payment_information',
+                                            array_intersect_key($response, array_flip(['source'])),
+                                        );
 
                                     // Get 3ds information and set it to the order
                                     $order->getPayment()
                                         ->getMethodInstance()
                                         ->getInfoInstance()
                                         ->setAdditionalInformation(
-                                        'cko_threeDs',
-                                        array_intersect_key((array)$response, array_flip(['threeDs'])),
-                                    );
+                                            'cko_threeDs',
+                                            array_intersect_key($response, array_flip(['threeDs'])),
+                                        );
 
                                     // Save the order
                                     $this->orderRepository->save($order);
@@ -261,7 +273,7 @@ class Callback extends Action implements CsrfAwareActionInterface
                                     );
                                 }
                                 // Set a valid response
-                                $resultFactory->setHttpResponseCode(WebResponse::HTTP_OK);
+                                $resultFactory->setHttpResponseCode(Response::HTTP_OK);
 
                                 // Return the 200 success response
                                 return $resultFactory->setData([
@@ -318,27 +330,27 @@ class Callback extends Action implements CsrfAwareActionInterface
     {
         $this->logger->additional($this->getRequest()->getContent(), 'webhook');
 
-        return json_decode($this->getRequest()->getContent());
+        return $this->json->unserialize($this->getRequest()->getContent());
     }
 
     /**
      * Check if the card needs saving
      *
-     * @param mixed $payload
+     * @param array $payload
      *
      * @return bool
      */
-    protected function cardNeedsSaving($payload): bool
+    protected function cardNeedsSaving(array $payload): bool
     {
-        $metadata = $payload->data->metadata;
-        $id = $payload->data->source->id ?? '';
+        $metadata = $payload['data']['metadata'];
+        $id = $payload['data']['source']['id'] ?? '';
         $saveCard = 0;
-        if (isset($metadata->saveCard) || isset($metadata->save_card)) {
-            $saveCard = $metadata->saveCard ?? $metadata->save_card;
+        if (isset($metadata['saveCard']) || isset($metadata['save_card'])) {
+            $saveCard = $metadata['saveCard'] ?? $metadata['save_card'];
         }
         $customerId = 0;
-        if (isset($metadata->customerId) || isset($metadata->customer_id)) {
-            $customerId = $metadata->customerId ?? $metadata->customer_id;
+        if (isset($metadata['customerId']) || isset($metadata['customer_id'])) {
+            $customerId = $metadata['customerId'] ?? $metadata['customer_id'];
         }
 
         return isset($saveCard, $customerId, $id) &&
@@ -350,22 +362,22 @@ class Callback extends Action implements CsrfAwareActionInterface
     /**
      * Save a card
      *
-     * @param Payment $response
-     * @param mixed   $payload
+     * @param array $response
+     * @param array $payload
      *
      * @return bool
      * @throws LocalizedException
      * @throws NoSuchEntityException
      * @throws Exception
      */
-    protected function saveCard(Payment $response, $payload): bool
+    protected function saveCard(array $response, array $payload): bool
     {
         // Get the customer
-        $customerId = $payload->data->metadata->customerId ?? $payload->data->metadata->customer_id;
-        $customer   = $this->shopperHandler->getCustomerData(['id' => $customerId]);
+        $customerId = $payload->data->metadata->customerId ?? $payload['data']['metadata']['customer_id'];
+        $customer = $this->shopperHandler->getCustomerData(['id' => $customerId]);
 
         // Save the card
-        return $this->vaultHandler->setCardToken($payload->data->source->id)->setCustomerId(
+        return $this->vaultHandler->setCardToken($payload['data']['source']['id'])->setCustomerId(
             $customer->getId()
         )->setCustomerEmail($customer->getEmail())->setResponse($response)->saveCard();
     }

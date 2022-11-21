@@ -20,9 +20,7 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Controller\Apm;
 
 use Checkout\CheckoutApi;
-use Checkout\Library\Exceptions\CheckoutHttpException;
-use Checkout\Models\Product;
-use Checkout\Models\Sources\Klarna;
+use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -163,8 +161,10 @@ class DisplayKlarna extends Action
      *
      * @param CartInterface $quote
      *
-     * @return string[][]
-     * @throws NoSuchEntityException|LocalizedException
+     * @return array|false[]
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws CheckoutArgumentException
      */
     protected function getKlarna(CartInterface $quote): array
     {

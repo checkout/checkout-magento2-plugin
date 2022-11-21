@@ -20,10 +20,6 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Controller\Apm;
 
 use Checkout\CheckoutApi;
-use Checkout\Library\Exceptions\CheckoutHttpException;
-use Checkout\Models\Sources\Sepa;
-use Checkout\Models\Sources\SepaAddress;
-use Checkout\Models\Sources\SepaData;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -146,8 +142,6 @@ class DisplaySepa extends Action
      * Handles the controller method
      *
      * @return Json
-     * @throws NoSuchEntityException
-     * @throws LocalizedException
      */
     public function execute(): Json
     {

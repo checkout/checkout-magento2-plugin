@@ -442,6 +442,22 @@ class ApiHandlerService
             $items[] = $product;
         }
 
+        // Shipping fee
+        $shipping = $entity->getShippingAddress();
+
+        if ($shipping->getShippingDescription()) {
+            $product = new Product();
+            $product->name = $shipping->getShippingDescription();
+            $product->quantity = 1;
+            $product->unit_price = $shipping->getShippingInclTax() * 100;
+            $product->tax_rate = $shipping->getTaxPercent() * 100;
+            $product->total_amount = $shipping->getShippingAmount() * 100;
+            $product->total_tax_amount = $shipping->getTaxAmount() * 100;
+            $product->type = 'shipping_fee';
+
+            $items[] = $product;
+        }
+
         return $items;
     }
 
@@ -476,3 +492,4 @@ class ApiHandlerService
         ];
     }
 }
+

@@ -21,10 +21,6 @@ namespace CheckoutCom\Magento2\Model\Methods;
 
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
-use Checkout\Library\Exceptions\CheckoutHttpException;
-use Checkout\Models\Payments\Payment;
-use Checkout\Models\Payments\ThreeDs;
-use Checkout\Models\Payments\TokenSource;
 use Checkout\Payments\BillingDescriptor;
 use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\Request\Source\RequestTokenSource;
@@ -414,8 +410,6 @@ class CardPaymentMethod extends AbstractMethod
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
-        error_log(print_r('capture', true), 3, '/var/www/project/magento/var/log/caro.log');
-
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
             $storeCode = $payment->getOrder()->getStore()->getCode();
@@ -457,7 +451,6 @@ class CardPaymentMethod extends AbstractMethod
      */
     public function void(InfoInterface $payment): AbstractMethod
     {
-        error_log(print_r('ici', true), 3, '/var/www/project/magento/var/log/caro.log');
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the store code
             $storeCode = $payment->getOrder()->getStore()->getCode();

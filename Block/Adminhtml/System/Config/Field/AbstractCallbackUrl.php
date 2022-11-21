@@ -19,6 +19,8 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutAuthorizationException;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use Exception;
 use Magento\Backend\Block\Template\Context;
@@ -108,7 +110,7 @@ abstract class AbstractCallbackUrl extends Field
             }
         }
 
-        $baseUrl     = $this->scopeConfig->getValue(
+        $baseUrl = $this->scopeConfig->getValue(
             'web/unsecure/base_url',
             $scope,
             $storeCode
@@ -132,8 +134,8 @@ abstract class AbstractCallbackUrl extends Field
             );
 
             // Retrieve all configured webhooks
-            $webhooks = $api->getCheckoutApi()->webhooks()->retrieve();
-            $webhook  = null;
+            $webhooks = $api->getCheckoutApi()->getWorkflowsClient()->getWorkflows();
+            $webhook = null;
             foreach ($webhooks->list as $list) {
                 if ($list->url == $callbackUrl) {
                     $webhook = $list;
@@ -142,7 +144,7 @@ abstract class AbstractCallbackUrl extends Field
             }
 
             // Get available webhook events
-            $events     = $api->getCheckoutApi()->events()->types(['version' => '2.0']);
+            $events = $api->getCheckoutApi()->events()->types(['version' => '2.0']);
             $eventTypes = $events->list[0]->event_types;
 
             if (!isset($webhook)
@@ -193,7 +195,7 @@ abstract class AbstractCallbackUrl extends Field
 
                 return $this->_toHtml();
             }
-        } catch (Exception $e) {
+        } catch (CheckoutApiException | CheckoutAuthorizationException | Exception $e) {
             // Invalid secret key
             $element->setData('value', $callbackUrl);
             $element->setReadonly('readonly');
