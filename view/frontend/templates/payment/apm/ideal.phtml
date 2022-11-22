@@ -39,3 +39,24 @@
         <br>
     </form>
 </div>
+
+<script>
+    require([
+        'jquery'
+    ], function ($) {
+        $.ajax({
+            url: '<?= $block->escapeUrl($block->getUrl("checkout_com/apm/displaybic")) ?>',
+            type:'GET',
+            success: function(response){
+                $.each( response[0], function(key, value) {
+                   let bicID = value.bic;
+                   let nameValue = value.name;
+                   $('#bic').append($('<option>').val(bicID).text(nameValue));
+                });
+            },
+            error: function(response){
+                console.log(response)
+            }
+        });
+    });
+</script>
