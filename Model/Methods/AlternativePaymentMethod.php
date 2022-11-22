@@ -22,10 +22,8 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Common\AccountHolder;
-use Checkout\Common\Address;
 use Checkout\Payments\Payer;
 use Checkout\Payments\Previous\Source\Apm\RequestBoletoSource;
-use Checkout\Payments\Product;
 use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\Request\Source\Apm\FawryProduct;
 use Checkout\Payments\Request\Source\Apm\RequestAlipayPlusSource;
@@ -43,6 +41,7 @@ use CheckoutCom\Magento2\Controller\Apm\Display;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
@@ -79,7 +78,6 @@ use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Exception;
 
 /**
  * Class AlternativePaymentMethod
@@ -92,6 +90,18 @@ class AlternativePaymentMethod extends AbstractMethod
      * @var string CODE
      */
     const CODE = 'checkoutcom_apm';
+    /**
+     * List of unavailable apm for NAS mode
+     */
+    const NAS_UNAVAILABLE_APM = [
+        'alipay',
+        'boleto',
+        'giropay',
+        'klarna',
+        'knet',
+        'poli',
+        'sepa',
+    ];
     /**
      * $_code field
      *
@@ -315,11 +325,12 @@ class AlternativePaymentMethod extends AbstractMethod
      * @param Display $display
      * @param StoreManagerInterface $storeManager
      * @param Curl $curl
+     * @param DirectoryHelper $directoryHelper
+     * @param DataObjectFactory $dataObjectFactory
+     * @param Json $json
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
-     * @param DirectoryHelper $directoryHelper
-     * @param DataObjectFactory $dataObjectFactory
      */
     public function __construct(
         Context $context,
@@ -1017,6 +1028,8 @@ class AlternativePaymentMethod extends AbstractMethod
     public function isAvailable(CartInterface $quote = null): bool
     {
         $enabled = false;
+        $websiteId = $this->storeManager->getWebsite()->getId();
+        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, ScopeInterface::SCOPE_WEBSITE, $websiteId);
 
         /** @var string|null $apmMethods */
         $apmMethods = $this->config->getValue('apm_enabled', 'checkoutcom_apm') ?: '';
@@ -1032,7 +1045,11 @@ class AlternativePaymentMethod extends AbstractMethod
         if (isset($billingAddress['country_id'])) {
             foreach ($apms as $apm) {
                 if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    $enabled = true;
+                    if (($service === ConfigService::SERVICE_NAS) && in_array($apm['value'], self::NAS_UNAVAILABLE_APM)) {
+                        $enabled = false;
+                    } else {
+                        $enabled = true;
+                    }
                 }
             }
         }
