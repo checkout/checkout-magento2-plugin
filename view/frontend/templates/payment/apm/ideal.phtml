@@ -48,7 +48,7 @@
             url: '<?= $block->escapeUrl($block->getUrl("checkout_com/apm/displaybic")) ?>',
             type:'GET',
             success: function(response){
-                $.each( response[0], function(key, value) {
+                $.each( response, function(key, value) {
                    let bicID = value.bic;
                    let nameValue = value.name;
                    $('#bic').append($('<option>').val(bicID).text(nameValue));

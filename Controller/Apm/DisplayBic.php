@@ -68,7 +68,9 @@ class DisplayBic implements HttpGetActionInterface
         $issuers = [];
 
         foreach ($response['countries'] as $country) {
-            $issuers[] = $country['issuers'];
+            foreach ($country['issuers'] as $value) {
+                $issuers[] = $value;
+            }
         }
 
         return $this->jsonFactory->create()->setData($issuers);
