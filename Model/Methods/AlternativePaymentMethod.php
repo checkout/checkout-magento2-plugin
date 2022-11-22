@@ -821,7 +821,7 @@ class AlternativePaymentMethod extends AbstractMethod
 
         $name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
         $country = $billingAddress->getCountry();
-        $desciptor = __(
+        $descriptor = __(
             'Payment request from %1',
             $this->config->getStoreName()
         )->render();
@@ -830,7 +830,7 @@ class AlternativePaymentMethod extends AbstractMethod
 
         $bancontactSource->payment_country = $country;
         $bancontactSource->account_holder_name = $name;
-        $bancontactSource->billing_descriptor = $desciptor;
+        $bancontactSource->billing_descriptor = $descriptor;
 
         return $bancontactSource;
     }
