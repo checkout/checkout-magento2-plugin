@@ -19,6 +19,8 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -30,6 +32,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
@@ -187,12 +190,12 @@ class MotoMethod extends AbstractMethod
     }
 
     /**
-     * Perform a void request
-     *
      * @param InfoInterface $payment
      *
-     * @return $this|MotoMethod
+     * @return AbstractMethod
      * @throws LocalizedException
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      */
     public function void(InfoInterface $payment): AbstractMethod
     {
@@ -219,18 +222,18 @@ class MotoMethod extends AbstractMethod
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
     }
 
     /**
-     * Perform a void request on order cancel
-     *
      * @param InfoInterface $payment
      *
-     * @return $this|MotoMethod
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      * @throws LocalizedException
      */
     public function cancel(InfoInterface $payment): AbstractMethod
@@ -264,20 +267,21 @@ class MotoMethod extends AbstractMethod
             );
             $payment->setMessage($comment);
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
     }
 
     /**
-     * Perform a capture request
-     *
      * @param InfoInterface $payment
-     * @param float $amount
+     * @param $amount
      *
-     * @return $this|MotoMethod
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
@@ -304,20 +308,21 @@ class MotoMethod extends AbstractMethod
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
     }
 
     /**
-     * Perform a refund request
-     *
      * @param InfoInterface $payment
-     * @param float $amount
+     * @param $amount
      *
-     * @return $this|MotoMethod
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
@@ -344,7 +349,7 @@ class MotoMethod extends AbstractMethod
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;

@@ -19,12 +19,14 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use Checkout\Library\Exceptions\CheckoutHttpException;
-use Checkout\Models\Payments\BillingDescriptor;
-use Checkout\Models\Payments\Payment;
-use Checkout\Models\Payments\ThreeDs;
-use Checkout\Models\Payments\TokenSource;
-use Checkout\Models\Tokens\GooglePay;
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutArgumentException;
+use Checkout\Payments\BillingDescriptor;
+use Checkout\Payments\Request\PaymentRequest;
+use Checkout\Payments\Request\Source\RequestTokenSource;
+use Checkout\Payments\ThreeDsRequest;
+use Checkout\Tokens\GooglePayTokenData;
+use Checkout\Tokens\GooglePayTokenRequest;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -43,6 +45,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
@@ -116,6 +119,10 @@ class GooglePayMethod extends AbstractMethod
      */
     protected $_canRefundInvoicePartial = true;
     /**
+     * @var Json
+     */
+    private $json;
+    /**
      * $config field
      *
      * @var Config $config
@@ -177,6 +184,7 @@ class GooglePayMethod extends AbstractMethod
      * @param Session $backendAuthSession
      * @param DirectoryHelper $directoryHelper
      * @param DataObjectFactory $dataObjectFactory
+     * @param Json $json
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -198,6 +206,7 @@ class GooglePayMethod extends AbstractMethod
         Session $backendAuthSession,
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
+        Json $json,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
@@ -225,58 +234,64 @@ class GooglePayMethod extends AbstractMethod
         $this->quoteHandler = $quoteHandler;
         $this->ckoLogger = $ckoLogger;
         $this->backendAuthSession = $backendAuthSession;
+        $this->json = $json;
     }
 
     /**
-     * Send a charge request
-     *
-     * @param string[] $data
+     * @param array $data
      * @param float $amount
      * @param string $currency
      * @param string $reference
      *
-     * @return mixed|void
+     * @return array
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      * @throws FileSystemException
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function sendPaymentRequest(array $data, float $amount, string $currency, string $reference = '')
+    public function sendPaymentRequest(array $data, float $amount, string $currency, string $reference = ''): array
     {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-        $checkoutApi = $api->getCheckoutApi();
 
         // Get the quote
         $quote = $this->quoteHandler->getQuote();
 
         // Create the Google Pay data
-        $googlePayData = new GooglePay(
-            $data['cardToken']['protocolVersion'], $data['cardToken']['signature'], $data['cardToken']['signedMessage']
-        );
+        $googlePayData = new GooglePayTokenData();
+        $googlePayData->signature = $data['cardToken']['signature'];
+        $googlePayData->protocolVersion = $data['cardToken']['protocolVersion'];
+        $googlePayData->signedMessage = $data['cardToken']['signedMessage'];
 
         // Get the token data
-        $tokenData = $checkoutApi->tokens()->request($googlePayData);
+        $tokenData = new GooglePayTokenRequest();
+        $tokenData->token_data = $googlePayData;
 
         // Create the Apple Pay token source
-        $tokenSource = new TokenSource($tokenData->getId());
+        $response = $api->getCheckoutApi()->getTokensClient()->requestWalletToken($tokenData);
+
+        $tokenSource = new RequestTokenSource();
+        $tokenSource->token = $response['token'];
+        $tokenSource->billing_address = $api->createBillingAddress($quote);
 
         // Set the payment
-        /** @var Payment $request */
-        $request = new Payment(
-            $tokenSource, $currency
-        );
+        $request = new PaymentRequest();
+        $request->source = $tokenSource;
+        $request->currency = $currency;
+        $request->processing_channel_id = $this->config->getValue('channel_id');
 
         // Prepare the metadata array
         $request->metadata['methodId'] = $this->_code;
 
         // Prepare the capture setting
-        $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
+        $needsAutoCapture = $this->config->needsAutoCapture();
         $request->capture = $needsAutoCapture;
         if ($needsAutoCapture) {
-            $request->capture_on = $this->config->getCaptureTime($this->_code);
+            $request->capture_on = $this->config->getCaptureTime();
         }
 
         // Set the request parameters
@@ -288,7 +303,11 @@ class GooglePayMethod extends AbstractMethod
         $request->reference = $reference;
         $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
         $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-        $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
+
+        $theeDsRequest = new ThreeDsRequest();
+        $theeDsRequest->enabled = $this->config->needs3ds($this->_code);
+        $request->three_ds = $theeDsRequest;
+
         $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
@@ -296,13 +315,14 @@ class GooglePayMethod extends AbstractMethod
 
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
-            $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE), $this->config->getValue('descriptor_city')
-            );
+            $billingDescriptor = new BillingDescriptor();
+            $billingDescriptor->city = $this->config->getValue('descriptor_city');
+            $billingDescriptor->name = $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE);
+            $request->billing_descriptor = $billingDescriptor;
         }
 
         // Add the quote metadata
-        $request->metadata['quoteData'] = json_encode($this->quoteHandler->getQuoteRequestData($quote));
+        $request->metadata['quoteData'] = $this->json->serialize($this->quoteHandler->getQuoteRequestData($quote));
 
         // Add the base metadata
         $request->metadata = array_merge(
@@ -313,21 +333,18 @@ class GooglePayMethod extends AbstractMethod
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
         // Send the charge request
-        try {
-            return $checkoutApi->payments()->request($request);
-        } catch (CheckoutHttpException $e) {
-            $this->ckoLogger->write($e->getBody());
-        }
+        return $api->getCheckoutApi()->getPaymentsClient()->requestPayment($request);;
     }
 
     /**
-     * Perform a capture request
-     *
      * @param InfoInterface $payment
-     * @param float $amount
+     * @param $amount
      *
-     * @return $this|GooglePayMethod
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
@@ -354,18 +371,18 @@ class GooglePayMethod extends AbstractMethod
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
     }
 
     /**
-     * Perform a void request
-     *
      * @param InfoInterface $payment
      *
-     * @return $this|GooglePayMethod
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      * @throws LocalizedException
      */
     public function void(InfoInterface $payment): AbstractMethod
@@ -393,18 +410,18 @@ class GooglePayMethod extends AbstractMethod
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
     }
 
     /**
-     * Perform a void request on order cancel
-     *
      * @param InfoInterface $payment
      *
-     * @return $this|GooglePayMethod
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      * @throws LocalizedException
      */
     public function cancel(InfoInterface $payment): AbstractMethod
@@ -438,20 +455,21 @@ class GooglePayMethod extends AbstractMethod
             );
             $payment->setMessage($comment);
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
     }
 
     /**
-     * Perform a refund request
-     *
      * @param InfoInterface $payment
-     * @param float $amount
+     * @param $amount
      *
-     * @return $this|GooglePayMethod
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
@@ -478,7 +496,7 @@ class GooglePayMethod extends AbstractMethod
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
