@@ -23,6 +23,9 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\SortOrder;
+use Magento\Framework\Api\SortOrderBuilder;
+use Magento\Framework\Api\SortOrderBuilderFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\AbstractExtensibleModel;
@@ -40,6 +43,10 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class OrderHandlerService
 {
+    /**
+     * @var SortOrderBuilderFactory
+     */
+    private $sortOrderBuilderFactory;
     /**
      * $checkoutSession field
      *
@@ -113,6 +120,7 @@ class OrderHandlerService
      * @param StoreManagerInterface $storeManager
      * @param Logger $logger
      * @param TransactionHandlerService $transactionHandler
+     * @param SortOrderBuilderFactory $sortOrderBuilderFactory
      */
     public function __construct(
         Session $checkoutSession,
@@ -123,7 +131,8 @@ class OrderHandlerService
         QuoteHandlerService $quoteHandler,
         StoreManagerInterface $storeManager,
         Logger $logger,
-        TransactionHandlerService $transactionHandler
+        TransactionHandlerService $transactionHandler,
+        SortOrderBuilderFactory $sortOrderBuilderFactory
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->quoteManagement = $quoteManagement;
@@ -134,6 +143,7 @@ class OrderHandlerService
         $this->storeManager = $storeManager;
         $this->logger = $logger;
         $this->transactionHandler = $transactionHandler;
+        $this->sortOrderBuilderFactory = $sortOrderBuilderFactory;
     }
 
     /**
@@ -290,9 +300,19 @@ class OrderHandlerService
         // Create the search instance
         $search = $this->searchBuilder->create();
 
+        /** @var SortOrderBuilder $sortOrderBuilder */
+        $sortOrderBuilder = $this->sortOrderBuilderFactory->create();
+
+        /** @var SortOrder $sortOrder */
+        $sortOrder = $sortOrderBuilder
+            ->setField('created_at')
+            ->setDirection(SortOrder::SORT_DESC)
+            ->create();
+        $search->setPageSize(1)->setSortOrders([$sortOrder]);
+
         // Get the resulting order
         /** @var OrderInterface $order */
-        $order = $this->orderRepository->getList($search)->setPageSize(1)->getLastItem();
+        $order = $this->orderRepository->getList($search)->getFirstItem();
 
         if ($order->getId()) {
             $this->logger->additional($this->getOrderDetails($order), 'order');
