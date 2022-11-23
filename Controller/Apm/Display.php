@@ -20,20 +20,33 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Controller\Apm;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
+use CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Display
  */
 class Display extends Action
 {
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+    /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
     /**
      * $pageFactory field
      *
@@ -67,13 +80,17 @@ class Display extends Action
      * @param JsonFactory $jsonFactory
      * @param Config $config
      * @param QuoteHandlerService $quoteHandler
+     * @param StoreManagerInterface $storeManager
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         Context $context,
         PageFactory $pageFactory,
         JsonFactory $jsonFactory,
         Config $config,
-        QuoteHandlerService $quoteHandler
+        QuoteHandlerService $quoteHandler,
+        StoreManagerInterface $storeManager,
+        ScopeConfigInterface $scopeConfig
     ) {
         parent::__construct($context);
 
@@ -81,6 +98,8 @@ class Display extends Action
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
         $this->quoteHandler = $quoteHandler;
+        $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -105,6 +124,8 @@ class Display extends Action
             );
 
             $apms = $this->config->getApms();
+            $websiteId = $this->storeManager->getWebsite()->getId();
+            $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, ScopeInterface::SCOPE_WEBSITE, $websiteId);
 
             // Load block data for each APM
             if ($this->getRequest()->getParam('country_id')) {
@@ -115,8 +136,10 @@ class Display extends Action
 
             foreach ($apms as $apm) {
                 if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    $html .= $this->loadBlock($apm['value'], $apm['label']);
-                    $available[] = $apm['value'];
+                    if (($service === ConfigService::SERVICE_ABC) || (($service === ConfigService::SERVICE_NAS) && !in_array($apm['value'], AlternativePaymentMethod::NAS_UNAVAILABLE_APM))) {
+                        $html .= $this->loadBlock($apm['value'], $apm['label']);
+                        $available[] = $apm['value'];
+                    }
                 }
             }
         }

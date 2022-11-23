@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Gateway\Config;
 
+use Checkout\Environment;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -137,23 +138,6 @@ class Config
     }
 
     /**
-     * Checks if a private shared key request is valid
-     *
-     * @param string|false $key
-     *
-     * @return bool
-     */
-    public function isValidPrivateSharedKey($key): bool
-    {
-        // Get the private shared key from config
-        $privateSharedKey = $this->getValue('private_shared_key');
-        $this->logger->additional('private shared key: ' . $privateSharedKey, 'auth');
-
-        // Return the validity check
-        return $key === $privateSharedKey && $this->request->isPost();
-    }
-
-    /**
      * Checks if a public key is valid
      *
      * @param string|false $key
@@ -190,28 +174,30 @@ class Config
     }
 
     /**
-     * Returns a Magento core value
+     * Checks if a private shared key request is valid
      *
-     * @param string $path
+     * @param string|false $key
      *
-     * @return mixed
+     * @return bool
      */
-    public function getCoreValue(string $path)
+    public function isValidPrivateSharedKey($key): bool
     {
-        return $this->scopeConfig->getValue(
-            $path,
-            ScopeInterface::SCOPE_STORE
-        );
+        // Get the private shared key from config
+        $privateSharedKey = $this->getValue('private_shared_key');
+        $this->logger->additional('private shared key: ' . $privateSharedKey, 'auth');
+
+        // Return the validity check
+        return $key === $privateSharedKey && $this->request->isPost();
     }
 
     /**
      * Returns the module global config.
      *
-     * @return mixed[]
+     * @return array
      */
     public function getModuleConfig(): array
     {
-        /** @var mixed[] $moduleConfig */
+        /** @var array $moduleConfig */
         $moduleConfig = $this->scopeConfig->getValue('settings/checkoutcom_configuration', ScopeInterface::SCOPE_WEBSITE) ?? [];
         if (array_key_exists('secret_key', $moduleConfig)) {
             unset($moduleConfig['secret_key']);
@@ -223,41 +209,6 @@ class Config
         return [
             Loader::KEY_CONFIG => $moduleConfig,
         ];
-    }
-
-    /**
-     * Returns the payment methods config.
-     *
-     * @return string[]
-     */
-    public function getMethodsConfig(): array
-    {
-        $output = [];
-        /** @var mixed[] $paymentMethodsConfig */
-        $paymentMethodsConfig = $this->scopeConfig->getValue(Loader::KEY_PAYMENT, ScopeInterface::SCOPE_WEBSITE);
-
-        /**
-         * Get only the active CheckoutCom methods
-         *
-         * @var string $key
-         * @var string[] $method
-         */
-        foreach ($paymentMethodsConfig as $key => $method) {
-            if (false !== strpos($key, 'checkoutcom')
-                && isset($method['active'])
-                && (int)$method['active'] === 1
-            ) {
-                if (array_key_exists('private_shared_key', $method)) {
-                    unset($method['private_shared_key']);
-                }
-                if (array_key_exists('secret_key', $method)) {
-                    unset($method['secret_key']);
-                }
-                $output[$key] = $method;
-            }
-        }
-
-        return $output;
     }
 
     /**
@@ -324,6 +275,41 @@ class Config
     }
 
     /**
+     * Returns the payment methods config.
+     *
+     * @return string[]
+     */
+    public function getMethodsConfig(): array
+    {
+        $output = [];
+        /** @var array $paymentMethodsConfig */
+        $paymentMethodsConfig = $this->scopeConfig->getValue(Loader::KEY_PAYMENT, ScopeInterface::SCOPE_WEBSITE);
+
+        /**
+         * Get only the active CheckoutCom methods
+         *
+         * @var string $key
+         * @var string[] $method
+         */
+        foreach ($paymentMethodsConfig as $key => $method) {
+            if (false !== strpos($key, 'checkoutcom')
+                && isset($method['active'])
+                && (int)$method['active'] === 1
+            ) {
+                if (array_key_exists('private_shared_key', $method)) {
+                    unset($method['private_shared_key']);
+                }
+                if (array_key_exists('secret_key', $method)) {
+                    unset($method['secret_key']);
+                }
+                $output[$key] = $method;
+            }
+        }
+
+        return $output;
+    }
+
+    /**
      * Determines if 3DS should be enabled for a payment request
      *
      * @param string $methodId
@@ -363,6 +349,19 @@ class Config
     }
 
     /**
+     * Determines if the payment method needs auto capture.
+     *
+     * @return bool
+     */
+    public function needsAutoCapture(): bool
+    {
+        return ($this->getValue('payment_action') === 'authorize_capture' || (bool)$this->getValue(
+                'mada_enabled',
+                'checkoutcom_card_payment'
+            ) === true);
+    }
+
+    /**
      * Returns the store name.
      *
      * @return string
@@ -373,6 +372,21 @@ class Config
         $storeName = $this->getCoreValue('general/store_information/name');
 
         return !empty($storeName) ? trim($storeName) : $this->storeManager->getStore()->getBaseUrl();
+    }
+
+    /**
+     * Returns a Magento core value
+     *
+     * @param string $path
+     *
+     * @return mixed
+     */
+    public function getCoreValue(string $path)
+    {
+        return $this->scopeConfig->getValue(
+            $path,
+            ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**
@@ -439,19 +453,6 @@ class Config
     public function isLive(): bool
     {
         return $this->getValue('environment') === 1;
-    }
-
-    /**
-     * Determines if the payment method needs auto capture.
-     *
-     * @return bool
-     */
-    public function needsAutoCapture(): bool
-    {
-        return ($this->getValue('payment_action') === 'authorize_capture' || (bool)$this->getValue(
-                'mada_enabled',
-                'checkoutcom_card_payment'
-            ) === true);
     }
 
     /**
@@ -524,4 +525,20 @@ class Config
     {
         return (!$this->getValue('risk_rules_enabled', $methodId) === true);
     }
+
+    /**
+     * @param int $storeCode
+     * @param string $scope
+     *
+     * @return Environment
+     */
+    public function getEnvironment(int $storeCode, string $scope): Environment
+    {
+        if ((int)$this->getValue('environment', null, $storeCode, $scope) === 1) {
+            return Environment::sandbox();
+        }
+
+        return Environment::production();
+    }
+
 }

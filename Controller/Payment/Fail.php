@@ -20,7 +20,6 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Checkout\CheckoutApi;
-use Checkout\Library\Exceptions\CheckoutHttpException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -28,11 +27,11 @@ use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
 use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
+use Exception;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
@@ -108,17 +107,17 @@ class Fail extends Action
     /**
      * Fail constructor
      *
-     * @param Context                    $context
-     * @param ManagerInterface           $messageManager
-     * @param TransactionHandlerService  $transactionHandler
-     * @param StoreManagerInterface      $storeManager
-     * @param ApiHandlerService          $apiHandler
-     * @param OrderHandlerService        $orderHandler
-     * @param OrderStatusHandlerService  $orderStatusHandler
-     * @param Logger                     $logger
+     * @param Context $context
+     * @param ManagerInterface $messageManager
+     * @param TransactionHandlerService $transactionHandler
+     * @param StoreManagerInterface $storeManager
+     * @param ApiHandlerService $apiHandler
+     * @param OrderHandlerService $orderHandler
+     * @param OrderStatusHandlerService $orderStatusHandler
+     * @param Logger $logger
      * @param PaymentErrorHandlerService $paymentErrorHandlerService
-     * @param Config                     $config
-     * @param Session                    $session
+     * @param Config $config
+     * @param Session $session
      */
     public function __construct(
         Context $context,
@@ -135,23 +134,22 @@ class Fail extends Action
     ) {
         parent::__construct($context);
 
-        $this->messageManager             = $messageManager;
-        $this->storeManager               = $storeManager;
-        $this->apiHandler                 = $apiHandler;
-        $this->orderHandler               = $orderHandler;
-        $this->orderStatusHandler         = $orderStatusHandler;
-        $this->logger                     = $logger;
+        $this->messageManager = $messageManager;
+        $this->storeManager = $storeManager;
+        $this->apiHandler = $apiHandler;
+        $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
+        $this->logger = $logger;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
-        $this->config                     = $config;
-        $this->session                    = $session;
-        $this->transactionHandler         = $transactionHandler;
+        $this->config = $config;
+        $this->session = $session;
+        $this->transactionHandler = $transactionHandler;
     }
 
     /**
      * Handles the controller method
      *
-     * @return ResultInterface|ResponseInterface
-     * @throws NoSuchEntityException|LocalizedException
+     * @return ResponseInterface
      */
     public function execute(): ResponseInterface
     {
@@ -172,15 +170,15 @@ class Fail extends Action
                 $this->logger->display($response);
 
                 // Don't restore quote if saved card request
-                if ($response->amount !== 0 && $response->amount !== 100) {
+                if ($response['amount'] !== 0 && $response['amount'] !== 100) {
                     // Find the order from increment id
                     $order = $this->orderHandler->getOrder([
-                        'increment_id' => $response->reference,
+                        'increment_id' => $response['reference'],
                     ]);
 
                     $storeCode = $this->storeManager->getStore()->getCode();
-                    $action    = $this->config->getValue('order_action_failed_payment', null, $storeCode);
-                    $status    = $action === 'cancel' ? 'canceled' : 'false';
+                    $action = $this->config->getValue('order_action_failed_payment', null, $storeCode);
+                    $status = $action === 'cancel' ? 'canceled' : 'false';
 
                     // Log the payment error
                     $this->paymentErrorHandlerService->logPaymentError(
@@ -196,15 +194,15 @@ class Fail extends Action
                     $this->orderStatusHandler->handleFailedPayment($order);
 
                     $errorMessage = null;
-                    if (isset($response->actions[0]['response_code'])) {
+                    if (isset($response['actions'][0]['response_code'])) {
                         $errorMessage = $this->paymentErrorHandlerService->getErrorMessage(
-                            $response->actions[0]['response_code']
+                            $response['actions'][0]['response_code']
                         );
                     }
 
-                    if ($response->source['type'] === 'knet') {
+                    if ($response['source']['type'] === 'knet') {
                         $amount = $this->transactionHandler->amountFromGateway(
-                            $response->amount ?? null,
+                            $response['amount'] ?? null,
                             $order
                         );
 
@@ -213,13 +211,13 @@ class Fail extends Action
                             __('The transaction could not be processed.')
                         );
                         $this->messageManager->addComplexNoticeMessage('knetInfoMessage', [
-                            'postDate'      => $response->source['post_date'] ?? null,
-                            'amount'        => $amount ?? null,
-                            'paymentId'     => $response->source['knet_payment_id'] ?? null,
-                            'transactionId' => $response->source['knet_transaction_id'] ?? null,
-                            'authCode'      => $response->source['auth_code'] ?? null,
-                            'reference'     => $response->source['bank_reference'] ?? null,
-                            'resultCode'    => $response->source['knet_result'] ?? null,
+                            'postDate' => $response['source']['post_date'] ?? null,
+                            'amount' => $amount ?? null,
+                            'paymentId' => $response['source']['knet_payment_id'] ?? null,
+                            'transactionId' => $response['source']['knet_transaction_id'] ?? null,
+                            'authCode' => $response['source']['auth_code'] ?? null,
+                            'reference' => $response['source']['bank_reference'] ?? null,
+                            'resultCode' => $response['source']['knet_result'] ?? null,
                         ]);
                     } else {
                         $this->messageManager->addErrorMessage(
@@ -228,8 +226,8 @@ class Fail extends Action
                     }
 
                     // Return to the cart
-                    if (isset($response->metadata['failureUrl'])) {
-                        return $this->_redirect($response->metadata['failureUrl']);
+                    if (isset($response['metadata']['failureUrl'])) {
+                        return $this->_redirect($response['metadata']['failureUrl']);
                     } else {
                         return $this->_redirect('checkout/cart', ['_secure' => true]);
                     }
@@ -242,7 +240,7 @@ class Fail extends Action
                     return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
                 }
             }
-        } catch (CheckoutHttpException $e) {
+        } catch (Exception $e) {
             // Restore the quote
             $this->session->restoreQuote();
 
@@ -252,5 +250,7 @@ class Fail extends Action
 
             return $this->_redirect('checkout/cart', ['_secure' => true]);
         }
+
+        return $this->_redirect('checkout/cart', ['_secure' => true]);
     }
 }
