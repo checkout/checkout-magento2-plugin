@@ -145,7 +145,6 @@ class Webhook extends Action
 
                     if (isset($webhookId)) {
                         $response = $checkoutApi->getWebhooksClient()->updateWebhook($webhookId, $webhookRequest);
-                        error_log(print_r($response, true), 3, '/var/www/project/magento/var/log/caro.log');
                     } else {
                         $webhookRequest->active = true;
                         $response = $checkoutApi->getWebhooksClient()->registerWebhook($webhookRequest);
