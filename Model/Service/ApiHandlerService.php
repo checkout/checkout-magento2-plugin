@@ -32,6 +32,7 @@ use Checkout\Payments\Product;
 use Checkout\Payments\RefundRequest;
 use Checkout\Payments\ShippingDetails;
 use Checkout\Payments\VoidRequest;
+use Checkout\Previous\CheckoutApi as PreviousCheckoutApi;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -258,9 +259,9 @@ class ApiHandlerService
     /**
      * Get CheckoutApi
      *
-     * @return CheckoutApi
+     * @return CheckoutApi|PreviousCheckoutApi
      */
-    public function getCheckoutApi(): CheckoutApi
+    public function getCheckoutApi()
     {
         return $this->checkoutApi;
     }
