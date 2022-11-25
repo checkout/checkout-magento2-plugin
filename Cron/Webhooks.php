@@ -15,6 +15,8 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Cron;
 
 use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
