@@ -333,7 +333,7 @@ class GooglePayMethod extends AbstractMethod
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
         // Send the charge request
-        return $api->getCheckoutApi()->getPaymentsClient()->requestPayment($request);;
+        return $api->getCheckoutApi()->getPaymentsClient()->requestPayment($request);
     }
 
     /**
