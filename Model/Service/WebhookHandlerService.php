@@ -132,11 +132,6 @@ class WebhookHandlerService
      */
     public function processSingleWebhook(OrderInterface $order, array $payload): void
     {
-        error_log(print_r('processSingleWebhook', true), 3, '/var/www/project/magento/var/log/response.log');
-        error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/response.log');
-        error_log(print_r('action_id : ' . $payload['data']['action_id'], true), 3, '/var/www/project/magento/var/log/response.log');
-        error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/response.log');
-
         if (isset($payload['data']['action_id'])) {
             if (!$this->config->getValue('webhooks_table_enabled')) {
                 $this->processWithoutSave($order, $payload);
@@ -188,17 +183,10 @@ class WebhookHandlerService
      */
     public function processWithSave(OrderInterface $order, array $payload): void
     {
-        error_log(print_r('processWithSave' , true), 3, '/var/www/project/magento/var/log/response.log');
-        error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/response.log');
-
         // Get all the webhooks to check for auth
         $webhooks = $this->loadWebhookEntities([
             'order_id' => $order->getId(),
         ]);
-        error_log(print_r('webhooks', true), 3, '/var/www/project/magento/var/log/caro.log');
-        error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/caro.log');
-        error_log(print_r($webhooks, true), 3, '/var/www/project/magento/var/log/caro.log');
-        error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/caro.log');
 
         if ($this->hasAuth($webhooks, $payload)) {
             // Save the payload
@@ -343,7 +331,6 @@ class WebhookHandlerService
     {
         // Save the webhook
         if ($this->orderHandler->isOrder($order)) {
-            error_log(print_r('isOrder', true), 3, '/var/www/project/magento/var/log/webhook.log');
 
             // Get a webhook entity instance
             $entity = $this->webhookEntityFactory->create();
@@ -360,7 +347,6 @@ class WebhookHandlerService
             $entity->setData('order_id', $order->getId());
             $entity->setReceivedTime();
             $entity->setData('processed', false);
-            error_log(print_r($entity->getData(), true), 3, '/var/www/project/magento/var/log/webhook.log');
 
             // Save the entity
             $this->webhookEntityRepository->save($entity);

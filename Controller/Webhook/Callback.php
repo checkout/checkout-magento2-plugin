@@ -240,15 +240,8 @@ class Callback extends Action implements CsrfAwareActionInterface
 
                                     // Handle the save card request
                                     if ($this->cardNeedsSaving($payload)) {
-                                        error_log(print_r('cardNeedsSaving', true), 3, '/var/www/project/magento/var/log/response.log');
-                                        error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/response.log');
-                                        $aieaie = $this->saveCard($response, $payload);
-                                        error_log(print_r($aieaie, true), 3, '/var/www/project/magento/var/log/response.log');
-                                        error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/response.log');
+                                        $this->saveCard($response, $payload);
                                     }
-
-                                    error_log(print_r('afterr cardNeedsSaving', true), 3, '/var/www/project/magento/var/log/response.log');
-                                    error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/response.log');
 
                                     // Clean the webhooks table
                                     $clean = $this->scopeConfig->getValue(
@@ -260,8 +253,6 @@ class Callback extends Action implements CsrfAwareActionInterface
                                         'settings/checkoutcom_configuration/webhooks_clean_on',
                                         ScopeInterface::SCOPE_WEBSITE
                                     );
-                                    error_log(print_r('processSingleWebhook', true), 3, '/var/www/project/magento/var/log/response.log');
-                                    error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/response.log');
 
                                     // Save the webhook
                                     $this->webhookHandler->processSingleWebhook(
