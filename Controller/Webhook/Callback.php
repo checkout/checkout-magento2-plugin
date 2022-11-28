@@ -44,7 +44,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Response;
-use Magento\Framework\Webapi\Rest\Response as WebResponse;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -218,7 +217,6 @@ class Callback extends Action implements CsrfAwareActionInterface
                             // Process the order
                             if ($this->orderHandler->isOrder($order)) {
                                 if ($api->isValidResponse($response)) {
-
                                     // Get Source and set it to the order
                                     $order->getPayment()
                                         ->getMethodInstance()
@@ -242,8 +240,15 @@ class Callback extends Action implements CsrfAwareActionInterface
 
                                     // Handle the save card request
                                     if ($this->cardNeedsSaving($payload)) {
-                                        $this->saveCard($response, $payload);
+                                        error_log(print_r('cardNeedsSaving', true), 3, '/var/www/project/magento/var/log/response.log');
+                                        error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/response.log');
+                                        $aieaie = $this->saveCard($response, $payload);
+                                        error_log(print_r($aieaie, true), 3, '/var/www/project/magento/var/log/response.log');
+                                        error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/response.log');
                                     }
+
+                                    error_log(print_r('afterr cardNeedsSaving', true), 3, '/var/www/project/magento/var/log/response.log');
+                                    error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/response.log');
 
                                     // Clean the webhooks table
                                     $clean = $this->scopeConfig->getValue(
@@ -255,6 +260,8 @@ class Callback extends Action implements CsrfAwareActionInterface
                                         'settings/checkoutcom_configuration/webhooks_clean_on',
                                         ScopeInterface::SCOPE_WEBSITE
                                     );
+                                    error_log(print_r('processSingleWebhook', true), 3, '/var/www/project/magento/var/log/response.log');
+                                    error_log(print_r(PHP_EOL, true), 3, '/var/www/project/magento/var/log/response.log');
 
                                     // Save the webhook
                                     $this->webhookHandler->processSingleWebhook(
@@ -373,7 +380,7 @@ class Callback extends Action implements CsrfAwareActionInterface
     protected function saveCard(array $response, array $payload): bool
     {
         // Get the customer
-        $customerId = $payload->data->metadata->customerId ?? $payload['data']['metadata']['customer_id'];
+        $customerId = $payload['data']['metadata']['customerId'] ?? $payload['data']['metadata']['customer_id'];
         $customer = $this->shopperHandler->getCustomerData(['id' => $customerId]);
 
         // Save the card
