@@ -18,13 +18,14 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Observer\Backend;
 
-use Checkout\Library\Exceptions\CheckoutHttpException;
-use Checkout\Models\Payments\BillingDescriptor;
-use Checkout\Models\Payments\IdSource;
-use Checkout\Models\Payments\Payment;
-use Checkout\Models\Payments\Risk;
-use Checkout\Models\Payments\ThreeDs;
-use Checkout\Models\Payments\TokenSource;
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutArgumentException;
+use Checkout\Payments\BillingDescriptor;
+use Checkout\Payments\Request\PaymentRequest;
+use Checkout\Payments\Request\Source\RequestTokenSource;
+use Checkout\Payments\RiskRequest;
+use Checkout\Payments\ThreeDsRequest;
+use Checkout\Tokens\CardTokenRequest;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -105,15 +106,15 @@ class MotoPaymentRequest implements ObserverInterface
     /**
      * MotoPaymentRequest constructor
      *
-     * @param Session             $backendAuthSession
-     * @param RequestInterface    $request
-     * @param ManagerInterface    $messageManager
-     * @param ApiHandlerService   $apiHandler
+     * @param Session $backendAuthSession
+     * @param RequestInterface $request
+     * @param ManagerInterface $messageManager
+     * @param ApiHandlerService $apiHandler
      * @param OrderHandlerService $orderHandler
      * @param VaultHandlerService $vaultHandler
-     * @param Config              $config
-     * @param Utilities           $utilities
-     * @param Logger              $logger
+     * @param Config $config
+     * @param Utilities $utilities
+     * @param Logger $logger
      */
     public function __construct(
         Session $backendAuthSession,
@@ -127,25 +128,25 @@ class MotoPaymentRequest implements ObserverInterface
         Logger $logger
     ) {
         $this->backendAuthSession = $backendAuthSession;
-        $this->request            = $request;
-        $this->messageManager     = $messageManager;
-        $this->apiHandler         = $apiHandler;
-        $this->orderHandler       = $orderHandler;
-        $this->vaultHandler       = $vaultHandler;
-        $this->config             = $config;
-        $this->utilities          = $utilities;
-        $this->logger             = $logger;
+        $this->request = $request;
+        $this->messageManager = $messageManager;
+        $this->apiHandler = $apiHandler;
+        $this->orderHandler = $orderHandler;
+        $this->vaultHandler = $vaultHandler;
+        $this->config = $config;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
     }
 
     /**
-     * Run the observer
-     *
      * @param Observer $observer
      *
-     * @return MotoPaymentRequest
+     * @return $this
+     * @throws CheckoutArgumentException
      * @throws FileSystemException
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     * @throws CheckoutApiException
      */
     public function execute(Observer $observer): MotoPaymentRequest
     {
@@ -175,9 +176,10 @@ class MotoPaymentRequest implements ObserverInterface
             $source = $this->getSource($order, $params);
 
             // Set the payment
-            $request = new Payment(
-                $source, $order->getOrderCurrencyCode()
-            );
+            $request = new PaymentRequest();
+            $request->source = $source;
+            $request->currency = $order->getOrderCurrencyCode();
+            $request->processing_channel_id = $this->config->getValue('channel_id');
 
             // Prepare the metadata array
             $request->metadata = array_merge(
@@ -186,43 +188,49 @@ class MotoPaymentRequest implements ObserverInterface
             );
 
             // Prepare the capture setting
-            $needsAutoCapture = $this->config->needsAutoCapture($methodId);
+            $needsAutoCapture = $this->config->needsAutoCapture();
             $request->capture = $needsAutoCapture;
             if ($needsAutoCapture) {
-                $request->capture_on = $this->config->getCaptureTime($methodId);
+                $request->capture_on = $this->config->getCaptureTime();
             }
 
             // Set the request parameters
-            $request->capture      = $this->config->needsAutoCapture($methodId);
-            $request->amount       = $this->prepareMotoAmount($order);
-            $request->reference    = $order->getIncrementId();
-            $request->customer     = $api->createCustomer($order);
+            $request->capture = $this->config->needsAutoCapture();
+            $request->amount = $this->prepareMotoAmount($order);
+            $request->reference = $order->getIncrementId();
+            $request->customer = $api->createCustomer($order);
             $request->payment_type = 'MOTO';
             if ($order->getIsNotVirtual()) {
                 $request->shipping = $api->createShippingAddress($order);
             }
-            $request->threeDs = new ThreeDs(false);
-            $request->risk    = new Risk($this->config->needsRiskRules($methodId));
-            $request->setIdempotencyKey(bin2hex(random_bytes(16)));
+            $theeDsRequest = new ThreeDsRequest();
+            $theeDsRequest->enabled = false;
+            $request->three_ds = $theeDsRequest;
+
+            $risk = new RiskRequest();
+            $risk->enabled = $this->config->needsRiskRules($methodId);
+            $request->risk = $risk;
 
             // Billing descriptor
             if ($this->config->needsDynamicDescriptor()) {
-                $request->billing_descriptor = new BillingDescriptor(
-                    $this->config->getValue('descriptor_name'), $this->config->getValue('descriptor_city')
-                );
+                $billingDescriptor = new BillingDescriptor();
+                $billingDescriptor->name = $this->config->getValue('descriptor_name');
+                $billingDescriptor->city = $this->config->getValue('descriptor_city');
+
+                $request->billing_descriptor = $billingDescriptor;
             }
 
             // Send the charge request
             try {
-                $response = $api->getCheckoutApi()->payments()->request($request);
-            } catch (CheckoutHttpException $e) {
-                $this->logger->write($e->getBody());
+                $response = $api->getCheckoutApi()->getPaymentsClient()->requestPayment($request);
+            } catch (CheckoutApiException $e) {
+                $this->logger->write($e->error_details);
             } finally {
                 // Logging
                 $this->logger->display($response);
 
                 // Add the response to the order
-                if ($api->isValidResponse($response)) {
+                if (is_array($response) && $api->isValidResponse($response)) {
                     $this->utilities->setPaymentData($order, $response);
                     $this->messageManager->addSuccessMessage(
                         __('The payment request was successfully processed.')
@@ -239,17 +247,80 @@ class MotoPaymentRequest implements ObserverInterface
     }
 
     /**
-     * Checks if the MOTO logic should be triggered
-     *
-     * @param string  $methodId
-     * @param mixed[] $params
+     * @param string $methodId
+     * @param array $params
      *
      * @return bool
      */
     protected function needsMotoProcessing(string $methodId, array $params): bool
     {
-        return $this->backendAuthSession->isLoggedIn(
-            ) && isset($params['ckoCardToken']) && $methodId === 'checkoutcom_moto';
+        return $this->backendAuthSession->isLoggedIn() && isset($params['ckoCardToken']) && $methodId === 'checkoutcom_moto';
+    }
+
+    /**
+     * Provide a source from request
+     *
+     * @param Order $order
+     * @param array $params
+     *
+     * @return RequestTokenSource|CardTokenRequest
+     * @throws CheckoutArgumentException
+     * @throws LocalizedException
+     */
+    protected function getSource(Order $order, array $params)
+    {
+        if ($this->isCardToken($params)) {
+            // Initialize the API handler
+            $api = $this->apiHandler->init();
+
+            // Create the token source
+            $tokenSource = new RequestTokenSource();
+            $tokenSource->token = $params['ckoCardToken'];
+            $tokenSource->billing_address = $api->createBillingAddress($order);
+
+            return $tokenSource;
+        } elseif ($this->isSavedCard($params)) {
+            $card = $this->vaultHandler->getCardFromHash(
+                $params['publicHash'],
+                $order->getCustomerId()
+            );
+            $idSource = new CardTokenRequest();
+            $idSource->number = $card->getGatewayToken();
+            $idSource->cvv = $params['cvv'];
+
+            return $idSource;
+        } else {
+            $this->messageManager->addErrorMessage(
+                __('Please provide the required card information for the MOTO payment.')
+            );
+            throw new LocalizedException(
+                __('Missing required card information for the MOTO payment.')
+            );
+        }
+    }
+
+    /**
+     * Checks if a card token is available
+     *
+     * @param array $params
+     *
+     * @return bool
+     */
+    protected function isCardToken(array $params): bool
+    {
+        return isset($params['ckoCardToken']) && !empty($params['ckoCardToken']);
+    }
+
+    /**
+     * Checks if a public hash is available
+     *
+     * @param array $params
+     *
+     * @return bool
+     */
+    protected function isSavedCard(array $params): bool
+    {
+        return isset($params['publicHash'], $params['cvv']) && !empty($params['publicHash']) && !empty($params['cvv']);
     }
 
     /**
@@ -257,7 +328,7 @@ class MotoPaymentRequest implements ObserverInterface
      *
      * @param Order $order
      *
-     * @return float|int|mixed
+     * @return float|int
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
@@ -271,70 +342,5 @@ class MotoPaymentRequest implements ObserverInterface
             $this->utilities->formatDecimals($amount),
             $order
         );
-    }
-
-    /**
-     * Provide a source from request
-     *
-     * @param Order $order
-     * @param mixed[] $params
-     *
-     * @return IdSource|TokenSource
-     * @throws LocalizedException
-     */
-    protected function getSource(Order $order, array $params)
-    {
-        if ($this->isCardToken($params)) {
-            // Initialize the API handler
-            $api = $this->apiHandler->init();
-
-            // Create the token source
-            $tokenSource                  = new TokenSource($params['ckoCardToken']);
-            $tokenSource->billing_address = $api->createBillingAddress($order);
-
-            return $tokenSource;
-        } elseif ($this->isSavedCard($params)) {
-            $card          = $this->vaultHandler->getCardFromHash(
-                $params['publicHash'],
-                $order->getCustomerId()
-            );
-            $idSource      = new IdSource($card->getGatewayToken());
-            $idSource->cvv = $params['cvv'];
-
-            return $idSource;
-        } else {
-            $this->messageManager->addErrorMessage(
-                __('Please provide the required card information for the MOTO payment.')
-            );
-            throw new LocalizedException(
-                __('Missing required card information for the MOTO payment.')
-            );
-        }
-
-        return null;
-    }
-
-    /**
-     * Checks if a card token is available
-     *
-     * @param mixed[] $params
-     *
-     * @return bool
-     */
-    protected function isCardToken(array $params): bool
-    {
-        return isset($params['ckoCardToken']) && !empty($params['ckoCardToken']);
-    }
-
-    /**
-     * Checks if a public hash is available
-     *
-     * @param mixed[] $params
-     *
-     * @return bool
-     */
-    protected function isSavedCard(array $params): bool
-    {
-        return isset($params['publicHash'], $params['cvv']) && !empty($params['publicHash']) && !empty($params['cvv']);
     }
 }

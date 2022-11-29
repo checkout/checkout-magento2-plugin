@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -14,9 +15,10 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use Checkout\Models\Payments\Payment;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -32,6 +34,8 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -43,6 +47,10 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class PlaceOrder extends Action
 {
+    /**
+     * @var JsonSerializer
+     */
+    protected $json;
     /**
      * $storeManager field
      *
@@ -139,6 +147,7 @@ class PlaceOrder extends Action
      * @param Logger $logger
      * @param Session $session
      * @param OrderRepositoryInterface $orderRepository
+     * @param JsonSerializer $json
      */
     public function __construct(
         Context $context,
@@ -154,7 +163,8 @@ class PlaceOrder extends Action
         Utilities $utilities,
         Logger $logger,
         Session $session,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        JsonSerializer $json
     ) {
         parent::__construct($context);
 
@@ -171,6 +181,7 @@ class PlaceOrder extends Action
         $this->logger = $logger;
         $this->session = $session;
         $this->orderRepository = $orderRepository;
+        $this->json = $json;
     }
 
     /**
@@ -228,7 +239,10 @@ class PlaceOrder extends Action
 
                         // Process the response
                         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-                        if ($api->isValidResponse($response)) {
+
+                        $isValidResponse = $api->isValidResponse($response);
+
+                        if ($isValidResponse) {
                             // Create an order
                             $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
 
@@ -236,28 +250,27 @@ class PlaceOrder extends Action
                             $order = $this->utilities->setPaymentData($order, $response, $data);
 
                             // check for redirection
-                            if (isset($response->_links['redirect']['href'])) {
+                            if (isset($response['_links']['redirect']['href'])) {
                                 // set order status to pending payment
                                 $order->setStatus(Order::STATE_PENDING_PAYMENT);
+                                $url = $response['_links']['redirect']['href'];
                             }
 
                             // Save the order
                             $this->orderRepository->save($order);
-
                             // Update the response parameters
-                            $success = $response->isSuccessful();
-                            $url = $response->getRedirection();
+                            $success = $isValidResponse;
                         } else {
                             // Payment failed
-                            if (isset($response->response_code)) {
-                                $message = $this->paymentErrorHandler->getErrorMessage($response->response_code);
+                            if (isset($response['response_code'])) {
+                                $message = $this->paymentErrorHandler->getErrorMessage($response['response_code']);
                                 if ($debug && $gatewayResponses) {
-                                    $responseCode = $response->response_code;
+                                    $responseCode = $response['response_code'];
                                 }
                             } else {
                                 $message = __('The transaction could not be processed.');
                                 if ($debug && $gatewayResponses) {
-                                    $debugMessage = json_encode($response);
+                                    $debugMessage = $this->json->serialize($response);
                                 }
                             }
 
@@ -279,7 +292,6 @@ class PlaceOrder extends Action
         } catch (Exception $e) {
             $success = false;
             $message = __($e->getMessage());
-            $this->logger->write($message);
         } finally {
             if ($log) {
                 $this->logger->write($message);
@@ -296,14 +308,31 @@ class PlaceOrder extends Action
     }
 
     /**
+     * @param array $paymentData
+     *
+     * @return bool
+     */
+    public function isEmptyCardToken(array $paymentData): bool
+    {
+        if ($paymentData['methodId'] === 'checkoutcom_card_payment') {
+            if (empty($paymentData['cardToken'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Request payment to API handler
      *
      * @param CartInterface $quote
      * @param $data
      *
-     * @return Payment|null
+     * @return array|null
+     * @throws LocalizedException
      */
-    protected function requestPayment(CartInterface $quote, $data): ?Payment
+    protected function requestPayment(CartInterface $quote, $data): ?array
     {
         if ($quote->getPayment()->getMethod() === null) {
             $paymentMethod = $data['methodId'];
@@ -321,23 +350,5 @@ class PlaceOrder extends Action
             $quote->getQuoteCurrencyCode(),
             $quote->getReservedOrderId()
         );
-    }
-
-    /**
-     * Description isEmptyCardToken function
-     *
-     * @param string[] $paymentData
-     *
-     * @return bool
-     */
-    public function isEmptyCardToken(array $paymentData): bool
-    {
-        if ($paymentData['methodId'] === "checkoutcom_card_payment") {
-            if (!isset($paymentData['cardToken']) || empty($paymentData['cardToken']) || $paymentData['cardToken'] == "") {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

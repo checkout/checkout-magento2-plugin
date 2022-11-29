@@ -27,7 +27,9 @@
         <div class="input-group">
             <label class="icon" for="bic">
             <span class="ckojs ckojs-card"></label>
-            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtmlAttr(__('BIC')); ?>" class="input-control" required>
+            <select name="bic" id="bic" required>
+                <option value=""><?= $block->escapeHtml(__('BIC')); ?></option>
+            </select>
         </div>
         <div class="input-group">
             <label class="icon" for="description">
@@ -37,3 +39,24 @@
         <br>
     </form>
 </div>
+
+<script>
+    require([
+        'jquery'
+    ], function ($) {
+        $.ajax({
+            url: '<?= $block->escapeUrl($block->getUrl("checkout_com/apm/displaybic")) ?>',
+            type:'GET',
+            success: function(response){
+                $.each( response, function(key, value) {
+                   let bicID = value.bic;
+                   let nameValue = value.name;
+                   $('#bic').append($('<option>').val(bicID).text(nameValue));
+                });
+            },
+            error: function(response){
+                console.log(response)
+            }
+        });
+    });
+</script>

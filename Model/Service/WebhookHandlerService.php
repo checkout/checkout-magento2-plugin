@@ -26,6 +26,7 @@ use CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory;
 use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity\Collection;
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
 
@@ -34,6 +35,10 @@ use Magento\Store\Model\ScopeInterface;
  */
 class WebhookHandlerService
 {
+    /**
+     * @var Json
+     */
+    private $json;
     /**
      * $orderHandler field
      *
@@ -93,6 +98,7 @@ class WebhookHandlerService
      * @param Config $config
      * @param Logger $logger
      * @param WebhookEntityRepositoryInterface $webhookEntityRepository
+     * @param Json $json
      */
     public function __construct(
         OrderHandlerService $orderHandler,
@@ -101,7 +107,8 @@ class WebhookHandlerService
         WebhookEntityFactory $webhookEntityFactory,
         Config $config,
         Logger $logger,
-        WebhookEntityRepositoryInterface $webhookEntityRepository
+        WebhookEntityRepositoryInterface $webhookEntityRepository,
+        Json $json
     ) {
         $this->orderHandler = $orderHandler;
         $this->orderStatusHandler = $orderStatusHandler;
@@ -110,20 +117,22 @@ class WebhookHandlerService
         $this->config = $config;
         $this->logger = $logger;
         $this->webhookEntityRepository = $webhookEntityRepository;
+        $this->json = $json;
     }
 
     /**
      * Process a single incoming webhook
      *
      * @param OrderInterface $order
-     * @param mixed $payload
+     * @param array $payload
      *
      * @return void
      * @throws LocalizedException
+     * @throws Exception
      */
-    public function processSingleWebhook(OrderInterface $order, $payload): void
+    public function processSingleWebhook(OrderInterface $order, array $payload): void
     {
-        if (isset($payload->data->action_id)) {
+        if (isset($payload['data']['action_id'])) {
             if (!$this->config->getValue('webhooks_table_enabled')) {
                 $this->processWithoutSave($order, $payload);
             } else {
@@ -133,7 +142,7 @@ class WebhookHandlerService
             // Handle missing action ID
             $msg = __(
                 'Missing action ID for webhook with payment ID %',
-                $payload->data->id
+                $payload['data']['id']
             );
             $this->logger->write($msg);
         }
@@ -166,12 +175,13 @@ class WebhookHandlerService
      * Description processWithSave function
      *
      * @param OrderInterface $order
-     * @param mixed $payload
+     * @param array $payload
      *
      * @return void
      * @throws LocalizedException
+     * @throws Exception
      */
-    public function processWithSave(OrderInterface $order, $payload): void
+    public function processWithSave(OrderInterface $order, array $payload): void
     {
         // Get all the webhooks to check for auth
         $webhooks = $this->loadWebhookEntities([
@@ -185,7 +195,7 @@ class WebhookHandlerService
             // Only return the single webhook that needs to be processed
             $webhook = $this->loadWebhookEntities([
                 'order_id' => $order->getId(),
-                'action_id' => $payload->data->action_id,
+                'action_id' => $payload['data']['action_id'],
             ]);
 
             // Handle the order status for the webhook
@@ -205,20 +215,20 @@ class WebhookHandlerService
      * Description processWithoutSave function
      *
      * @param OrderInterface $order
-     * @param mixed $payload
+     * @param array $payload
      *
      * @return void
      * @throws Exception
      */
-    public function processWithoutSave(OrderInterface $order, $payload): void
+    public function processWithoutSave(OrderInterface $order, array $payload): void
     {
         $webhooks = [];
         $webhook = [
-            'event_id' => $payload->id,
-            'event_type' => $payload->type,
-            'event_data' => json_encode($payload),
-            'action_id' => $payload->data->action_id,
-            'payment_id' => $payload->data->id,
+            'event_id' => $payload['id'],
+            'event_type' => $payload['type'],
+            'event_data' => $this->json->serialize($payload),
+            'action_id' => $payload['data']['action_id'],
+            'payment_id' => $payload['data']['id'],
             'order_id' => $order->getId(),
             'processed' => false,
         ];
@@ -235,7 +245,7 @@ class WebhookHandlerService
      * Generate transactions and set order status from webhooks
      *
      * @param OrderInterface $order
-     * @param mixed[][] $webhooks
+     * @param array[] $webhooks
      *
      * @return void
      * @throws Exception
@@ -264,9 +274,9 @@ class WebhookHandlerService
     /**
      * Load a webhook collection.
      *
-     * @param mixed[] $fields
+     * @param array $fields
      *
-     * @return mixed[]
+     * @return array
      */
     public function loadWebhookEntities(array $fields = []): array
     {
@@ -289,9 +299,9 @@ class WebhookHandlerService
     /**
      * Description sortWebhooks function
      *
-     * @param mixed[] $webhooks
+     * @param array $webhooks
      *
-     * @return mixed[]
+     * @return array
      */
     public function sortWebhooks(array $webhooks): array
     {
@@ -312,12 +322,12 @@ class WebhookHandlerService
     /**
      * Save the incoming webhook
      *
-     * @param mixed $payload
+     * @param array $payload
      * @param OrderInterface $order
      *
      * @return void
      */
-    public function saveWebhookEntity($payload, OrderInterface $order): void
+    public function saveWebhookEntity(array $payload, OrderInterface $order): void
     {
         // Save the webhook
         if ($this->orderHandler->isOrder($order)) {
@@ -325,14 +335,14 @@ class WebhookHandlerService
             $entity = $this->webhookEntityFactory->create();
 
             // Set the fields values
-            $entity->setData('event_id', $payload->id);
-            $entity->setData('event_type', $payload->type);
+            $entity->setData('event_id', $payload['id']);
+            $entity->setData('event_type', $payload['type']);
             $entity->setData(
                 'event_data',
-                json_encode($payload)
+                $this->json->serialize($payload)
             );
-            $entity->setData('action_id', $payload->data->action_id);
-            $entity->setData('payment_id', $payload->data->id);
+            $entity->setData('action_id', $payload['data']['action_id']);
+            $entity->setData('payment_id', $payload['data']['id']);
             $entity->setData('order_id', $order->getId());
             $entity->setReceivedTime();
             $entity->setData('processed', false);
@@ -345,7 +355,7 @@ class WebhookHandlerService
     /**
      * Description setProcessedTime function
      *
-     * @param mixed[][] $webhooks
+     * @param array[] $webhooks
      *
      * @return void
      */
@@ -367,14 +377,14 @@ class WebhookHandlerService
     /**
      * Description hasAuth function
      *
-     * @param mixed[] $webhooks
-     * @param mixed $payload
+     * @param array $webhooks
+     * @param array $payload
      *
      * @return bool
      */
-    public function hasAuth(array $webhooks, $payload): bool
+    public function hasAuth(array $webhooks, array $payload): bool
     {
-        if ($payload->type === 'payment_captured') {
+        if ($payload['type'] === 'payment_captured') {
             foreach ($webhooks as $webhook) {
                 if ($webhook['event_type'] === 'payment_approved' || $webhook['event_type'] === 'payment_capture_pending') {
                     if ($webhook['processed']) {
