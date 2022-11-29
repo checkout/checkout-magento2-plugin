@@ -17,7 +17,10 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\Order\View;
 
+use CheckoutCom\Magento2\Gateway\Config\Loader;
 use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigAlternativePayments;
+use CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\App\Request\Http;
@@ -27,37 +30,19 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 
 class View extends Template
 {
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $request field
-     *
-     * @var Http $request
-     */
-    private $request;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
+    private Utilities $utilities;
+    private Http $request;
+    private OrderRepositoryInterface $orderRepository;
+    private ConfigAlternativePayments $configAlternativePayments;
+    private Loader $configLoader;
 
-    /**
-     * @param Context $context
-     * @param Utilities $utilities
-     * @param Http $request
-     * @param OrderRepositoryInterface $orderRepository
-     * @param array $data
-     */
     public function __construct(
         Context $context,
         Utilities $utilities,
         Http $request,
         OrderRepositoryInterface $orderRepository,
+        ConfigAlternativePayments $configAlternativePayments,
+        Loader $configLoader,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -65,14 +50,10 @@ class View extends Template
         $this->utilities = $utilities;
         $this->request = $request;
         $this->orderRepository = $orderRepository;
+        $this->configAlternativePayments = $configAlternativePayments;
+        $this->configLoader = $configLoader;
     }
 
-    /**
-     * @param string $data
-     *
-     * @return string|null
-     * @throws LocalizedException
-     */
     public function getCkoPaymentData(string $data): ?string
     {
         $paymentData = $this->utilities->getPaymentData($this->getOrder(), 'cko_payment_information')['source'] ?? [];
@@ -83,12 +64,6 @@ class View extends Template
         return null;
     }
 
-    /**
-     * @param string $data
-     *
-     * @return string|null
-     * @throws LocalizedException
-     */
     public function getCko3dsPaymentData(string $data): ?string
     {
         $paymentData = $this->utilities->getPaymentData($this->getOrder(), 'cko_threeDs')['threeDs'] ?? [];
@@ -99,21 +74,11 @@ class View extends Template
         return null;
     }
 
-    /**
-     * Get order
-     *
-     * @return OrderInterface $order
-     */
     private function getOrder(): OrderInterface
     {
         return $this->orderRepository->get($this->request->getParam('order_id'));
     }
 
-    /**
-     * @param string $avsCheckCode
-     *
-     * @return string
-     */
     public function getAvsCheckDescription(string $avsCheckCode): string
     {
         switch ($avsCheckCode) {
@@ -163,11 +128,6 @@ class View extends Template
         }
     }
 
-    /**
-     * @param string $cvvCheckCode
-     *
-     * @return string
-     */
     public function getCvvCheckDescription(string $cvvCheckCode): string
     {
         switch ($cvvCheckCode) {
@@ -188,11 +148,6 @@ class View extends Template
         }
     }
 
-    /**
-     * @param string $threeDsCode
-     *
-     * @return string
-     */
     public function get3dsDescription(string $threeDsCode): string
     {
         switch ($threeDsCode) {
@@ -215,5 +170,16 @@ class View extends Template
             default:
                 return '';
         }
+    }
+
+    public function getAlternativePaymentMethodName(): string
+    {
+        $methodId = $this->getOrder()->getPayment()->getAdditionalInformation()['method_id'] ?? '';
+        return $methodId ?? $this->configLoader->getApmLabel($methodId)[$methodId];
+    }
+
+    public function getAlternativePaymentMethodTransactionInfo(): string
+    {
+        return $this->getOrder()->getPayment()->getAdditionalInformation()['transaction_info']['id'] ?? '';
     }
 }

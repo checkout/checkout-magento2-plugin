@@ -142,6 +142,8 @@ Debitor,Debitor
 "3DS authorization code","3DS authorization code"
 "Payment Method refunded","Payment Method refunded"
 "Mismatched Address (fraud check)","Mismatched Address (fraud check)"
+"Alternative payment method",""Alternative payment method"
+"Transaction Id",""Transaction Id"
 "Card Country","Card Country"
 "Card Bank","Card Bank"
 "Card expiry year","Card expiry year"
