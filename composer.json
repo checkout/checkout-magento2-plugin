@@ -15,5 +15,6 @@
         "psr-4": {
             "CheckoutCom\\Magento2\\": ""
         }
-    }
+    },
+    "minimum-stability":"dev"
 }
