@@ -675,8 +675,6 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function p24(): Przelewy24Source
     {
-        $source = new Przelewy24Source();
-
         $billingAddress = $this->quoteHandler->getBillingAddress();
         $payment_country = $billingAddress->getCountry();
         $account_holder_name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
@@ -685,13 +683,8 @@ class AlternativePaymentMethod extends AbstractMethod
             'Payment request from %1',
             $this->config->getStoreName()
         )->render();
-        
-        $source->payment_country = $payment_country;
-        $source->account_holder_name = $account_holder_name;
-        $source->account_holder_email = $account_holder_email;
-        $source->billing_descriptor = $billing_desciptor;
 
-        return $source;
+        return new Przelewy24Source($payment_country, $account_holder_name, $account_holder_email, $billing_desciptor);
     }
 
     /**
