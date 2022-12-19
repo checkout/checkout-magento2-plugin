@@ -55,6 +55,12 @@
         </mappings>
     </item>
     <item>
+        <id>p24</id>
+        <title>Przelewy24</title>
+        <currencies>EUR,PLN</currencies>
+        <countries>PL</countries>
+    </item>
+    <item>
         <id>sepa</id>
         <title>Sepa</title>
         <currencies>EUR</currencies>

@@ -1,0 +1,28 @@
+<?php
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+?>
+
+<div data-role="collapsible" id="<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" class="cko-apm <?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
+    <div data-role="trigger">
+        <span class="bg-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?> bg-apm"></span>
+        <span><?= $block->escapeHtml($block->getData('title'))?></span>
+    </div>
+</div>
+<div data-role="content" class="apm-content">
+    <form id="cko-apm-form-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
+        <input type="hidden" name="source" value="<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" required>
+    </form>
+</div>

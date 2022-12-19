@@ -36,6 +36,7 @@ use Checkout\Models\Payments\Payer;
 use Checkout\Models\Payments\Payment;
 use Checkout\Models\Payments\PaypalSource;
 use Checkout\Models\Payments\PoliSource;
+use Checkout\Models\Payments\Przelewy24Source;
 use Checkout\Models\Payments\SofortSource;
 use Checkout\Models\Payments\Source;
 use Checkout\Models\Product;
@@ -663,6 +664,34 @@ class AlternativePaymentMethod extends AbstractMethod
     public function poli(): PoliSource
     {
         return new PoliSource();
+    }
+
+    /**
+     * Create source
+     *
+     * @param mixed[] $data
+     *
+     * @return Przelewy24Source
+     */
+    public function p24(): Przelewy24Source
+    {
+        $source = new Przelewy24Source();
+
+        $billingAddress = $this->quoteHandler->getBillingAddress();
+        $payment_country = $billingAddress->getCountry();
+        $account_holder_name = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
+        $account_holder_email = $billingAddress->getEmail();
+        $billing_desciptor = __(
+            'Payment request from %1',
+            $this->config->getStoreName()
+        )->render();
+        
+        $source->payment_country = $payment_country;
+        $source->account_holder_name = $account_holder_name;
+        $source->account_holder_email = $account_holder_email;
+        $source->billing_descriptor = $billing_desciptor;
+
+        return $source;
     }
 
     /**
