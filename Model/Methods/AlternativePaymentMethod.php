@@ -1098,7 +1098,7 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function isAvailable(CartInterface $quote = null): bool
     {
-        $enabled = false;
+        $countEnabled = 0;
         $websiteId = $this->storeManager->getWebsite()->getId();
         $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, ScopeInterface::SCOPE_WEBSITE, $websiteId);
 
@@ -1116,21 +1116,19 @@ class AlternativePaymentMethod extends AbstractMethod
         if (isset($billingAddress['country_id'])) {
             foreach ($apms as $apm) {
                 if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    if (($service === ConfigService::SERVICE_NAS) && in_array($apm['value'], self::NAS_UNAVAILABLE_APM)) {
-                        $enabled = false;
-                    } elseif ($this->apiHandler->isPreviousMode() && in_array($apm['value'], self::ABC_UNAVAILABLE_APM)) {
-                        $enabled = true;
-                    } else {
-                        $enabled = true;
+                    if ((($service === ConfigService::SERVICE_NAS) && !in_array($apm['value'], self::NAS_UNAVAILABLE_APM))
+                        || ($this->apiHandler->isPreviousMode() && !in_array($apm['value'], self::ABC_UNAVAILABLE_APM))) {
+                        $countEnabled++;
                     }
                 }
             }
         }
+
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code)
                    && count($this->config->getApms()) > 0
                    && !$this->backendAuthSession->isLoggedIn()
-                   && $enabled;
+                   && $countEnabled > 0;
         }
 
         return false;
