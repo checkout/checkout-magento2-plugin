@@ -19,11 +19,13 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use Checkout\Library\Exceptions\CheckoutHttpException;
-use Checkout\Models\Payments\BillingDescriptor;
-use Checkout\Models\Payments\IdSource;
-use Checkout\Models\Payments\Payment;
-use Checkout\Models\Payments\ThreeDs;
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutArgumentException;
+use Checkout\Payments\BillingDescriptor;
+use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
+use Checkout\Payments\Request\PaymentRequest;
+use Checkout\Payments\ThreeDsRequest;
+use Checkout\Tokens\CardTokenRequest;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -262,6 +264,8 @@ class VaultMethod extends AbstractMethod
      * @throws LocalizedException
      * @throws NoSuchEntityException
      * @throws FileSystemException
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      */
     public function sendPaymentRequest(
         array $data,
@@ -290,7 +294,8 @@ class VaultMethod extends AbstractMethod
         }
 
         // Set the token source
-        $idSource = new IdSource($card->getGatewayToken());
+        $idSource = new CardTokenRequest();
+        $idSource->number = $card->getGatewayToken();
 
         // Check CVV config
         if ($this->config->getValue('require_cvv', $this->_code)) {
@@ -302,9 +307,15 @@ class VaultMethod extends AbstractMethod
         }
 
         // Set the payment
-        $request = new Payment(
-            $idSource, $currency
-        );
+        if ($this->apiHandler->isPreviousMode()) {
+            $request = new PreviousPaymentRequest();
+        } else {
+            $request = new PaymentRequest();
+        }
+
+        $request->currency = $currency;
+        $request->source = $idSource;
+        $request->processing_channel_id = $this->config->getValue('channel_id');
 
         // Prepare the metadata array
         $request->metadata['methodId'] = $this->_code;
@@ -335,19 +346,23 @@ class VaultMethod extends AbstractMethod
             $quote
         );
         $request->reference = $reference;
+        $theeDsRequest = new ThreeDsRequest();
+
         if ($isInstantPurchase) {
-            $request->threeDs = new ThreeDs(false);
+            $theeDsRequest->enabled = false;
         } else {
             $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
             $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-            $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
-            $request->threeDs->attempt_n3d = (bool)$this->config->getValue(
+            $theeDsRequest->enabled = $this->config->needs3ds($this->_code);
+            $theeDsRequest->attempt_n3d = (bool)$this->config->getValue(
                 'attempt_n3d',
                 $this->_code,
                 null,
                 ScopeInterface::SCOPE_WEBSITE
             );
         }
+
+        $request->three_ds = $theeDsRequest;
 
         $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->payment_type = 'Regular';
@@ -362,9 +377,10 @@ class VaultMethod extends AbstractMethod
 
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
-            $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE), $this->config->getValue('descriptor_city')
-            );
+            $billingDescriptor = new BillingDescriptor();
+            $billingDescriptor->city = $this->config->getValue('descriptor_city');
+            $billingDescriptor->name = $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE);
+            $request->billing_descriptor = $billingDescriptor;
         }
 
         // Add the quote metadata
@@ -379,13 +395,7 @@ class VaultMethod extends AbstractMethod
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
         // Send the charge request
-        try {
-            $response = $api->getCheckoutApi()->payments()->request($request);
-
-            return $response;
-        } catch (CheckoutHttpException $e) {
-            $this->ckoLogger->write($e->getBody());
-        }
+        return $api->getCheckoutApi()->getPaymentsClient()->requestPayment($request);
     }
 
     /**
@@ -396,6 +406,8 @@ class VaultMethod extends AbstractMethod
      *
      * @return $this|VaultMethod
      * @throws LocalizedException
+     * @throws CheckoutArgumentException
+     * @throws CheckoutApiException
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
@@ -422,7 +434,7 @@ class VaultMethod extends AbstractMethod
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
@@ -435,6 +447,8 @@ class VaultMethod extends AbstractMethod
      *
      * @return $this|VaultMethod
      * @throws LocalizedException
+     * @throws CheckoutArgumentException
+     * @throws CheckoutApiException
      */
     public function void(InfoInterface $payment): AbstractMethod
     {
@@ -461,7 +475,7 @@ class VaultMethod extends AbstractMethod
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
@@ -474,6 +488,8 @@ class VaultMethod extends AbstractMethod
      *
      * @return $this|VaultMethod
      * @throws LocalizedException
+     * @throws CheckoutArgumentException
+     * @throws CheckoutApiException
      */
     public function cancel(InfoInterface $payment): AbstractMethod
     {
@@ -506,7 +522,7 @@ class VaultMethod extends AbstractMethod
             );
             $payment->setMessage($comment);
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
@@ -520,6 +536,8 @@ class VaultMethod extends AbstractMethod
      *
      * @return $this|VaultMethod
      * @throws LocalizedException
+     * @throws CheckoutArgumentException
+     * @throws CheckoutApiException
      */
     public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
@@ -546,7 +564,7 @@ class VaultMethod extends AbstractMethod
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
@@ -562,10 +580,10 @@ class VaultMethod extends AbstractMethod
     public function isAvailable(CartInterface $quote = null): bool
     {
         return $this->isModuleActive() && $this->config->getValue(
-                'active',
-                $this->_code,
-                null,
-                ScopeInterface::SCOPE_WEBSITE
-            ) && $this->vaultHandler->userHasCards() && !$this->backendAuthSession->isLoggedIn();
+            'active',
+            $this->_code,
+            null,
+            ScopeInterface::SCOPE_WEBSITE
+        ) && $this->vaultHandler->userHasCards() && !$this->backendAuthSession->isLoggedIn();
     }
 }

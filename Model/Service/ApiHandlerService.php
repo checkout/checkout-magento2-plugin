@@ -28,6 +28,7 @@ use Checkout\Common\Address;
 use Checkout\Common\CustomerRequest;
 use Checkout\HttpMetadata;
 use Checkout\Payments\CaptureRequest;
+use Checkout\Payments\Previous\CaptureRequest as PreviousCaptureRequest;
 use Checkout\Payments\Product;
 use Checkout\Payments\RefundRequest;
 use Checkout\Payments\ShippingDetails;
@@ -240,7 +241,12 @@ class ApiHandlerService
         // Process the capture request
         if (isset($paymentInfo['id'])) {
             // Prepare the request
-            $request = new CaptureRequest();
+            if ($this->isPreviousMode()) {
+                $request = new PreviousCaptureRequest();
+            } else {
+                $request = new CaptureRequest();
+            }
+
             $request->amount = $this->orderHandler->amountToGateway(
                 $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
                 $order
@@ -492,5 +498,16 @@ class ApiHandlerService
             ]),
         ];
     }
-}
 
+    /**
+     * @return bool
+     * @throws NoSuchEntityException|LocalizedException
+     */
+    public function isPreviousMode(): bool
+    {
+        $storeCode = $this->storeManager->getStore()->getCode();
+        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, ScopeInterface::SCOPE_STORE, $storeCode);
+
+        return $service === ConfigService::SERVICE_ABC;
+    }
+}

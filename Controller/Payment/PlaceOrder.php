@@ -296,7 +296,6 @@ class PlaceOrder extends Action
             if ($log) {
                 $this->logger->write($message);
             }
-
             return $this->jsonFactory->create()->setData([
                 'success' => $success,
                 'message' => $message,

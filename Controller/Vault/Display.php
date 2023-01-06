@@ -26,7 +26,6 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\View\Result\PageFactory;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Vault\Model\PaymentToken;
 
 /**

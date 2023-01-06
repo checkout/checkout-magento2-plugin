@@ -21,6 +21,8 @@ namespace CheckoutCom\Magento2\Observer\Backend;
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
+use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
+use Checkout\Payments\Previous\Source\RequestTokenSource as PreviousRequestTokenSource;
 use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\Request\Source\RequestTokenSource;
 use Checkout\Payments\RiskRequest;
@@ -176,7 +178,11 @@ class MotoPaymentRequest implements ObserverInterface
             $source = $this->getSource($order, $params);
 
             // Set the payment
-            $request = new PaymentRequest();
+            if ($this->apiHandler->isPreviousMode()) {
+                $request = new PreviousPaymentRequest();
+            } else {
+                $request = new PaymentRequest();
+            }
             $request->source = $source;
             $request->currency = $order->getOrderCurrencyCode();
             $request->processing_channel_id = $this->config->getValue('channel_id');
@@ -274,7 +280,11 @@ class MotoPaymentRequest implements ObserverInterface
             $api = $this->apiHandler->init();
 
             // Create the token source
-            $tokenSource = new RequestTokenSource();
+            if ($this->apiHandler->isPreviousMode()) {
+                $tokenSource = new PreviousRequestTokenSource();
+            } else {
+                $tokenSource = new RequestTokenSource();
+            }
             $tokenSource->token = $params['ckoCardToken'];
             $tokenSource->billing_address = $api->createBillingAddress($order);
 

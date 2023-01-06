@@ -18,7 +18,6 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Block\Account;
 
-use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Payment\Model\CcConfigProvider;

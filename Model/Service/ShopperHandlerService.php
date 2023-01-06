@@ -91,7 +91,7 @@ class ShopperHandlerService
     /**
      * Description getCustomerData function
      *
-     * @param mixed[] $filters
+     * @param array $filters
      *
      * @return CustomerInterface
      * @throws LocalizedException
