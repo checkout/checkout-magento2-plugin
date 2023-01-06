@@ -22,6 +22,8 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
+use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
+use Checkout\Payments\Previous\Source\RequestTokenSource as PreviousRequestTokenSource;
 use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\Request\Source\RequestTokenSource;
 use Checkout\Tokens\ApplePayTokenData;
@@ -277,12 +279,22 @@ class ApplePayMethod extends AbstractMethod
 
         // Create the Apple Pay token source
         $response = $api->getCheckoutApi()->getTokensClient()->requestWalletToken($tokenData);
-        $tokenSource = new RequestTokenSource();
+
+        if ($this->apiHandler->isPreviousMode()) {
+            $tokenSource = new PreviousRequestTokenSource();
+        } else {
+            $tokenSource = new RequestTokenSource();
+        }
+
         $tokenSource->token = $response['token'];
         $tokenSource->billing_address = $api->createBillingAddress($quote);
 
         // Set the payment
-        $request = new PaymentRequest();
+        if ($this->apiHandler->isPreviousMode()) {
+            $request = new PreviousPaymentRequest();
+        } else {
+            $request = new PaymentRequest();
+        }
         $request->currency = $currency;
         $request->source = $tokenSource;
         $request->processing_channel_id = $this->config->getValue('channel_id');

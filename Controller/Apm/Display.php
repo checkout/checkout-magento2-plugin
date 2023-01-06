@@ -136,7 +136,7 @@ class Display extends Action
 
             foreach ($apms as $apm) {
                 if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    if (($service === ConfigService::SERVICE_ABC) || (($service === ConfigService::SERVICE_NAS) && !in_array($apm['value'], AlternativePaymentMethod::NAS_UNAVAILABLE_APM))) {
+                    if ((($service === ConfigService::SERVICE_ABC) && !in_array($apm['value'], AlternativePaymentMethod::ABC_UNAVAILABLE_APM)) || (($service === ConfigService::SERVICE_NAS) && !in_array($apm['value'], AlternativePaymentMethod::NAS_UNAVAILABLE_APM))) {
                         $html .= $this->loadBlock($apm['value'], $apm['label']);
                         $available[] = $apm['value'];
                     }

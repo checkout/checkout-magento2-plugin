@@ -26,7 +26,6 @@ use Magento\Backend\Model\Session\Quote;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Payment\Block\Form\Cc;
 use Magento\Payment\Model\Config as PaymentModelConfig;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 
 /**

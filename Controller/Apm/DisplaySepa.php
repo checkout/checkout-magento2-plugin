@@ -20,10 +20,14 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Controller\Apm;
 
 use Checkout\CheckoutApi;
+use Checkout\CheckoutArgumentException;
+use Checkout\Sources\Previous\SepaSourceRequest;
+use Checkout\Sources\Previous\SourceData;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
@@ -153,7 +157,6 @@ class DisplaySepa extends Action
             $html = $this->runTask();
         }
 
-
         return $this->jsonFactory->create()->setData(['html' => $html]);
     }
 
@@ -165,41 +168,6 @@ class DisplaySepa extends Action
     public function isValidRequest(): bool
     {
         return $this->getRequest()->isAjax() && $this->isValidApm() && $this->isValidTask();
-    }
-
-    /**
-     * Checks if the task is valid.
-     *
-     * @return boolean
-     */
-    public function isValidTask(): bool
-    {
-        return method_exists($this, $this->buildMethodName());
-    }
-
-    /**
-     * Runs the requested task.
-     *
-     * @return string
-     */
-    public function runTask(): string
-    {
-        $methodName = $this->buildMethodName();
-
-        return $this->$methodName();
-    }
-
-    /**
-     * Builds a method name from request.
-     *
-     * @return string
-     */
-    protected function buildMethodName(): string
-    {
-        /** @var string $task */
-        $task = $this->getRequest()->getParam('task');
-
-        return 'get' . ucfirst($task);
     }
 
     /**
@@ -220,6 +188,115 @@ class DisplaySepa extends Action
 
         // Load block data for each APM
         return in_array($source, $apmEnabled);
+    }
+
+    /**
+     * Checks if the task is valid.
+     *
+     * @return boolean
+     */
+    public function isValidTask(): bool
+    {
+        return method_exists($this, $this->buildMethodName());
+    }
+
+    /**
+     * Builds a method name from request.
+     *
+     * @return string
+     */
+    protected function buildMethodName(): string
+    {
+        /** @var string $task */
+        $task = $this->getRequest()->getParam('task');
+
+        return 'get' . ucfirst($task);
+    }
+
+    /**
+     * Runs the requested task.
+     *
+     * @return string
+     */
+    public function runTask(): string
+    {
+        $methodName = $this->buildMethodName();
+
+        return $this->$methodName();
+    }
+
+    /**
+     * Gets the mandate.
+     *
+     * @return string
+     * @throws NoSuchEntityException|LocalizedException
+     * @throws CheckoutArgumentException
+     */
+    public function getMandate(): string
+    {
+        $html = '';
+
+        $sepa = $this->requestSepa();
+        if ($sepa && $this->apiHandler->isValidResponse($sepa)) {
+            $html = $this->loadBlock($sepa['response_data']['mandate_reference'], $sepa['_links']['sepa:mandate-get']['href']);
+        }
+
+        return $html;
+    }
+
+    /**
+     * Request gateway to add new source.
+     *
+     * @return array|null
+     * @throws CheckoutArgumentException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    protected function requestSepa(): ?array
+    {
+        /** @var string $accountIban */
+        $accountIban = $this->getRequest()->getParam('account_iban');
+        /** @var CartInterface $quote */
+        $quote = $this->quoteHandler->getQuote();
+        /** @var AddressInterface $billingAddress */
+        $billingAddress = $this->quoteHandler->getBillingAddress();
+
+        // Get the store code
+        $storeCode = $this->storeManager->getStore()->getCode();
+
+        // Initialize the API handler
+        $checkoutApi = $this->apiHandler
+            ->init($storeCode, ScopeInterface::SCOPE_STORE)
+            ->getCheckoutApi();
+
+        // Build the address
+        $address = $this->apiHandler->createBillingAddress($quote);
+
+        // Build the SEPA data
+        $data = new SourceData();
+        $data->first_name = $billingAddress->getFirstname();
+        $data->last_name = $billingAddress->getLastname();
+        $data->bic = '';
+        $data->account_iban = $accountIban;
+        $data->billing_descriptor = $this->config->getStoreName();
+        $data->mandate_type = 'single';
+
+        // Build the customer
+        $customer = $this->apiHandler->createCustomer($quote);
+
+        try {
+            // Build and add the source
+            $source = new SepaSourceRequest();
+            $source->billing_address = $address;
+            $source->source_data = $data;
+            $source->customer = $customer;
+
+            return $checkoutApi->getSourcesClient()->createSepaSource($source);
+        } catch (Exception $e) {
+            $this->logger->write($e->getBody());
+
+            return null;
+        }
     }
 
     /**
@@ -248,82 +325,5 @@ class DisplaySepa extends Action
             ->setData('reference', $reference)
             ->setData('url', $url)
             ->toHtml();
-    }
-
-    /**
-     * Gets the mandate.
-     *
-     * @return string
-     * @throws NoSuchEntityException|LocalizedException
-     */
-    public function getMandate(): string
-    {
-        $html = '';
-
-        $sepa = $this->requestSepa();
-        if ($sepa && $sepa->isSuccessful()) {
-            $html = $this->loadBlock($sepa->response_data['mandate_reference'], $sepa->getSepaMandateGet());
-        }
-
-        return $html;
-    }
-
-    /**
-     * Request gateway to add new source.
-     *
-     * @return Sepa
-     * @throws NoSuchEntityException|LocalizedException
-     */
-    protected function requestSepa(): ?Sepa
-    {
-        /** @var string $accountIban */
-        $accountIban = $this->getRequest()->getParam('account_iban');
-        /** @var CartInterface $quote */
-        $quote = $this->quoteHandler->getQuote();
-        /** @var AddressInterface $billingAddress */
-        $billingAddress = $this->quoteHandler->getBillingAddress();
-        $sepa = null;
-
-        // Get the store code
-        $storeCode = $this->storeManager->getStore()->getCode();
-
-        // Initialize the API handler
-        $checkoutApi = $this->apiHandler
-            ->init($storeCode, ScopeInterface::SCOPE_STORE)
-            ->getCheckoutApi();
-
-        // Build the address
-        $address = new SepaAddress(
-            $billingAddress->getStreetLine(1),
-            $billingAddress->getCity(),
-            $billingAddress->getPostcode(),
-            $billingAddress->getCountryId()
-        );
-
-        // Address line 2
-        $address->address_line2 = $billingAddress->getStreetLine(2);
-
-        // Build the SEPA data
-        $data = new SepaData(
-            $billingAddress->getFirstname(),
-            $billingAddress->getLastname(),
-            $accountIban,
-            '',
-            $this->config->getStoreName(),
-            'single'
-        );
-
-        // Build the customer
-        $customer = $this->apiHandler->createCustomer($quote);
-
-        try {
-            // Build and add the source
-            $source = new Sepa($address, $data, $customer);
-            $sepa = $checkoutApi->sources()->add($source);
-
-            return $sepa;
-        } catch (CheckoutHttpException $e) {
-            $this->logger->write($e->getBody());
-        }
     }
 }

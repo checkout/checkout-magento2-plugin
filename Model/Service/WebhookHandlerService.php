@@ -331,6 +331,7 @@ class WebhookHandlerService
     {
         // Save the webhook
         if ($this->orderHandler->isOrder($order)) {
+
             // Get a webhook entity instance
             $entity = $this->webhookEntityFactory->create();
 
