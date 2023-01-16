@@ -23,7 +23,8 @@ use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
-use Checkout\Payments\Previous\Source\RequestIdSource;
+use Checkout\Payments\Request\Source\RequestIdSource;
+use Checkout\Payments\Previous\Source\RequestIdSource as PreviousRequestIdSource;
 use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\ThreeDsRequest;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -294,7 +295,11 @@ class VaultMethod extends AbstractMethod
         }
 
         // Set the token source
-        $idSource = new RequestIdSource();
+        if ($this->apiHandler->isPreviousMode()) {
+            $idSource = new PreviousRequestIdSource();
+        } else {
+            $idSource = new RequestIdSource();
+        }
         $idSource->id = $card->getGatewayToken();
 
         // Check CVV config
