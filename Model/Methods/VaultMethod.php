@@ -398,7 +398,7 @@ class VaultMethod extends AbstractMethod
         );
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
-        error_log(print_r($request, true), 3, '/var/www/project/magento/var/log/request.log');
+
         // Send the charge request
         return $api->getCheckoutApi()->getPaymentsClient()->requestPayment($request);
     }
