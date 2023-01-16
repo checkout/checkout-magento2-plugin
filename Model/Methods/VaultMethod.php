@@ -23,9 +23,9 @@ use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
+use Checkout\Payments\Previous\Source\RequestIdSource;
 use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\ThreeDsRequest;
-use Checkout\Tokens\CardTokenRequest;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -294,8 +294,8 @@ class VaultMethod extends AbstractMethod
         }
 
         // Set the token source
-        $idSource = new CardTokenRequest();
-        $idSource->number = $card->getGatewayToken();
+        $idSource = new RequestIdSource();
+        $idSource->id = $card->getGatewayToken();
 
         // Check CVV config
         if ($this->config->getValue('require_cvv', $this->_code)) {
@@ -393,7 +393,7 @@ class VaultMethod extends AbstractMethod
         );
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
-
+        error_log(print_r($request, true), 3, '/var/www/project/magento/var/log/request.log');
         // Send the charge request
         return $api->getCheckoutApi()->getPaymentsClient()->requestPayment($request);
     }
