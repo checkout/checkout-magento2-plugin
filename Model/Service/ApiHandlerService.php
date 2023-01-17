@@ -292,6 +292,7 @@ class ApiHandlerService
         // Process the void request
         if (isset($paymentInfo['id'])) {
             $request = new VoidRequest();
+            $request->reference = $paymentInfo['id'];
             $response = $this->getCheckoutApi()->getPaymentsClient()->voidPayment($paymentInfo['id'], $request);
 
             // Logging
