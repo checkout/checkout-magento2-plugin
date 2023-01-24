@@ -334,7 +334,7 @@ class Config
         $captureTime *= 3600;
 
         // Force capture time to a minimum of 36 seconds
-        $min = $this->getValue('min_capture_time', ScopeInterface::SCOPE_STORE);
+        $min = $this->getValue('min_capture_time', null, ScopeInterface::SCOPE_STORE);
         $captureTime = $captureTime >= $min ? $captureTime : $min;
 
         // Check the setting
