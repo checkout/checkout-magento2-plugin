@@ -699,7 +699,8 @@ class AlternativePaymentMethod extends AbstractMethod
         $source->purpose = $purpose;
         $source->bic = $this->getValue('bic', $data);
         $source->info_fields = [
-            'bic' => $this->getValue('bic', $data),
+            'label' => 'bic',
+            'text' => $this->getValue('bic', $data),
         ];
 
         return $source;

@@ -161,7 +161,7 @@ define(
                                 data: paymentData,
                                 success: function (data, textStatus, xhr) {
                                     if (data.success === true) {
-                                        resolve(data.success);
+                                        resolve(data);
                                     } else {
                                         reject;
                                     }
@@ -285,7 +285,7 @@ define(
 
                                 // Start the payment session
                                 Utilities.log(paymentRequest);
-                                var session = new ApplePaySession(5, paymentRequest);
+                                var session = new ApplePaySession(14, paymentRequest);
 
                                 // Merchant Validation
                                 session.onvalidatemerchant = function (event) {
@@ -359,9 +359,9 @@ define(
                                     // Send the request
                                     var promise = self.sendPaymentRequest(payload);
                                     promise.then(
-                                        function (success) {
+                                        function (data) {
                                             var status;
-                                            if (success) {
+                                            if (data.success) {
                                                 status = ApplePaySession.STATUS_SUCCESS;
                                             } else {
                                                 status = ApplePaySession.STATUS_FAILURE;
@@ -369,10 +369,10 @@ define(
 
                                             session.completePayment(status);
 
-                                            if (success) {
+                                            if (data.success) {
                                                 // Redirect to success page
                                                 FullScreenLoader.startLoader();
-                                                RedirectOnSuccessAction.execute();
+                                                window.location.replace(data.url);
                                             }
                                         }
                                     ).catch(
