@@ -293,7 +293,7 @@ class DisplaySepa extends Action
 
             return $checkoutApi->getSourcesClient()->createSepaSource($source);
         } catch (Exception $e) {
-            $this->logger->write($e->getBody());
+            $this->logger->write($e->getMessage());
 
             return null;
         }
