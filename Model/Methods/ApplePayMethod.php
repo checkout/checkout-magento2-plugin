@@ -247,8 +247,15 @@ class ApplePayMethod extends AbstractMethod
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function sendPaymentRequest(array $data, float $amount, string $currency, string $reference = ''): array
-    {
+    public function sendPaymentRequest(
+        array $data,
+        float $amount,
+        string $currency,
+        string $reference = '',
+        CartInterface $quote = null,
+        bool $isApiOrder = null,
+        $customerId = null
+    ): array {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
@@ -321,6 +328,8 @@ class ApplePayMethod extends AbstractMethod
             $quote
         );
         $request->reference = $reference;
+        $request->success_url = $this->getSuccessUrl($data, $isApiOrder);
+        $request->failure_url = $this->getFailureUrl($data, $isApiOrder);
         $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
