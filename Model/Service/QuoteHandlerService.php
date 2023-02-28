@@ -391,6 +391,12 @@ class QuoteHandlerService
             $this->config->getValue('currencies_x1') ?? ''
         );
 
+        // Get the x10 currency calculation mapping
+        $currencies_nominors = explode(
+            ',',
+            $this->config->getValue('currencies_nominors') ?? ''
+        );
+
         // Get the x1000 currency calculation mapping
         $currenciesX1000 = explode(
             ',',
@@ -402,6 +408,9 @@ class QuoteHandlerService
             return $amount;
         } elseif (in_array($currency, $currenciesX1000)) {
             return $amount * 1000;
+        } else if(in_array($currency, $currencies_nominors)) {
+            return ceil($amount);
+
         } else {
             return $amount * 100;
         }

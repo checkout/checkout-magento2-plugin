@@ -50,6 +50,7 @@
                 <webhooks_table_clean>0</webhooks_table_clean>
                 <webhooks_clean_on>webhook</webhooks_clean_on>
                 <currencies_x1>BIF,DJF,GNF,ISK,KMF,XAF,CLF,XPF,JPY,PYG,RWF,KRW,VUV,VND,XOF</currencies_x1>
+                <currencies_nominors>IDR,JPY,KMF,KRW,PYG,RWF,UGX,VND,VUV,XAF,XOF,XPF,GNF,DJF,CVE</currencies_nominors>
                 <currencies_x1000>BHD,LYD,JOD,KWD,OMR,TND</currencies_x1000>
                 <default_method>checkoutcom_card_payment</default_method>
                 <github_api_url>https://api.github.com/repos/checkout/checkout-magento2-plugin/releases</github_api_url>
