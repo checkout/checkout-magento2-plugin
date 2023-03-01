@@ -404,13 +404,12 @@ class QuoteHandlerService
         );
 
         // Prepare the amount
-        if (in_array($currency, $currenciesX1)) {
+        if(in_array($currency,$currencies_nominors)){
+            return ceil($amount);
+        } elseif (in_array($currency, $currenciesX1)) {
             return $amount;
         } elseif (in_array($currency, $currenciesX1000)) {
             return $amount * 1000;
-        } else if(in_array($currency, $currencies_nominors)) {
-            return ceil($amount);
-
         } else {
             return $amount * 100;
         }
