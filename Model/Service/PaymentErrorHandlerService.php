@@ -187,7 +187,7 @@ class PaymentErrorHandlerService
         $suffix = __(
             ' for an amount of %1. Payment ID: %2',
             $this->prepareAmount($response['amount'], $order),
-            $response->id
+            $response['id']
         );
 
         // Add the order comment
