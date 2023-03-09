@@ -206,7 +206,7 @@ class PlaceOrder extends Action
             // Set some required properties
             $data = $this->getRequest()->getParams();
 
-            if (!$this->isEmptyCardToken($data)) {
+            if (isset($data['methodId']) && !$this->isEmptyCardToken($data)) {
                 // Process the request
                 if ($this->getRequest()->isAjax() && $quote) {
                     // Reserved an order
@@ -298,7 +298,7 @@ class PlaceOrder extends Action
             }
             return $this->jsonFactory->create()->setData([
                 'success' => $success,
-                'message' => $message,
+                'message' => $message ?: __('An error has occurred, please select another payment method'),
                 'responseCode' => $responseCode,
                 'debugMessage' => $debugMessage,
                 'url' => $url,
