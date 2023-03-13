@@ -238,9 +238,24 @@ class MotoPaymentRequest implements ObserverInterface
                 // Add the response to the order
                 if (is_array($response) && $api->isValidResponse($response)) {
                     $this->utilities->setPaymentData($order, $response);
-                    $this->messageManager->addSuccessMessage(
-                        __('The payment request was successfully processed.')
-                    );
+                    if (isset($response['status'])) {
+                        if ($response['status'] === 'Authorized') {
+                            $this->messageManager->addSuccessMessage(
+                                __('The payment request was successfully processed.')
+                            );
+                        } else {
+                            $this->messageManager->addWarningMessage(__('Status: %1', $response['status']));
+                        }
+                    }
+                    if (isset($response['_links']['redirect']['href'])) {
+                        $this->messageManager->addComplexWarningMessage(
+                            'ckoMessages',
+                            [
+                                'output' => (string)__('An additional action is required'),
+                                'link'   => $response['_links']['redirect']['href'],
+                            ]
+                        );
+                    }
                 } else {
                     $this->messageManager->addErrorMessage(
                         __('The transaction could not be processed. Please check the payment details.')
