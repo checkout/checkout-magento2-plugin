@@ -44,6 +44,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Backend\Model\Url as BackendUrl;
 
 /**
  * Class MotoPaymentRequest
@@ -104,6 +105,10 @@ class MotoPaymentRequest implements ObserverInterface
      * @var Logger $logger
      */
     private $logger;
+    /**
+     * @var BackendUrl $backendUrl
+     */
+    private $backendUrl;
 
     /**
      * MotoPaymentRequest constructor
@@ -117,6 +122,7 @@ class MotoPaymentRequest implements ObserverInterface
      * @param Config $config
      * @param Utilities $utilities
      * @param Logger $logger
+     * @param BackendUrl $backendUrl
      */
     public function __construct(
         Session $backendAuthSession,
@@ -127,7 +133,8 @@ class MotoPaymentRequest implements ObserverInterface
         VaultHandlerService $vaultHandler,
         Config $config,
         Utilities $utilities,
-        Logger $logger
+        Logger $logger,
+        BackendUrl $backendUrl
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->request = $request;
@@ -138,6 +145,7 @@ class MotoPaymentRequest implements ObserverInterface
         $this->config = $config;
         $this->utilities = $utilities;
         $this->logger = $logger;
+        $this->backendUrl = $backendUrl;
     }
 
     /**
@@ -225,6 +233,9 @@ class MotoPaymentRequest implements ObserverInterface
 
                 $request->billing_descriptor = $billingDescriptor;
             }
+
+            $request->success_url = $this->backendUrl->getUrl('sales/order');
+            $request->failure_url = $this->backendUrl->getUrl('sales/order');
 
             // Send the charge request
             try {
