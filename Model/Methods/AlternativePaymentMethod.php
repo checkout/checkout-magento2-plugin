@@ -690,7 +690,7 @@ class AlternativePaymentMethod extends AbstractMethod
     {
         /** @var string $purpose */
         $purpose = substr(
-            __('Pay. req. from %1', $this->config->getStoreName())->render(),
+            (string)__('Pay. req. from %1', $this->config->getStoreName()),
             0,
             27
         );
@@ -699,8 +699,10 @@ class AlternativePaymentMethod extends AbstractMethod
         $source->purpose = $purpose;
         $source->bic = $this->getValue('bic', $data);
         $source->info_fields = [
-            'label' => 'bic',
-            'text' => $this->getValue('bic', $data),
+            [
+                'label' => 'bic',
+                'text' => $this->getValue('bic', $data),
+            ]
         ];
 
         return $source;
