@@ -233,11 +233,9 @@
 
                 // When the payment method is populated/selected
                 session.onpaymentmethodselected = function (event) {
-                    if (ApplePayUtilities.getIsVirtual()) {
-                        // Update the totals, so they reflect the all total items (shipping, tax...etc)
-                        let totals = getVirtualCartTotals();
-                        totalsBreakdown = totals;
-                    }
+                    // Update the totals, so they reflect the all total items (shipping, tax...etc)
+                    let totals = getVirtualCartTotals();
+                    totalsBreakdown = totals;
 
                     session.completePaymentMethodSelection(
                         totalsBreakdown.total,
