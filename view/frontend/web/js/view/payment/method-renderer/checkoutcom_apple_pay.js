@@ -285,7 +285,7 @@ define(
 
                                 // Start the payment session
                                 Utilities.log(paymentRequest);
-                                var session = new ApplePaySession(14, paymentRequest);
+                                var session = new ApplePaySession(12, paymentRequest);
 
                                 // Merchant Validation
                                 session.onvalidatemerchant = function (event) {
