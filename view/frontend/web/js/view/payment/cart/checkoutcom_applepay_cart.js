@@ -592,7 +592,6 @@
                     shipping_method_code: selectedShippingMethod.method_code,
                 },
             };
-            console.log(requestBody);
             ApplePayUtilities.getRestData(requestBody, "shipping-information");
         }
 
