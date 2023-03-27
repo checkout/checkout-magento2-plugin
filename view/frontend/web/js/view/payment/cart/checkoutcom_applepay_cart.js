@@ -578,6 +578,8 @@
                     },
                     billing_address: {
                         country_id: billingDetails.countryCode.toUpperCase(),
+                        region_code: ApplePayUtilities.getAreaCode(billingDetails.postalCode, billingDetails.countryCode),
+                        region_id: 0,
                         street: billingDetails.addressLines,
                         postcode: billingDetails.postalCode,
                         city: billingDetails.locality,
@@ -590,6 +592,7 @@
                     shipping_method_code: selectedShippingMethod.method_code,
                 },
             };
+            console.log(requestBody);
             ApplePayUtilities.getRestData(requestBody, "shipping-information");
         }
 
