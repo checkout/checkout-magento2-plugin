@@ -578,6 +578,8 @@
                     },
                     billing_address: {
                         country_id: billingDetails.countryCode.toUpperCase(),
+                        region_code: ApplePayUtilities.getAreaCode(billingDetails.postalCode, billingDetails.countryCode),
+                        region_id: 0,
                         street: billingDetails.addressLines,
                         postcode: billingDetails.postalCode,
                         city: billingDetails.locality,
