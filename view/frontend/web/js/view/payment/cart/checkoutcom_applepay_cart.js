@@ -123,7 +123,7 @@
 
                     // Start the payment session
                     Utilities.log(paymentRequest);
-                    var session = new ApplePaySession(5, paymentRequest);
+                    var session = new ApplePaySession(14, paymentRequest);
                 } else {
                     var paymentRequest = {
                         currencyCode: Utilities.getQuoteCurrency(),
@@ -151,7 +151,7 @@
 
                     // Start the payment session
                     Utilities.log(paymentRequest);
-                    var session = new ApplePaySession(6, paymentRequest);
+                    var session = new ApplePaySession(14, paymentRequest);
                 }
 
                 // Merchant Validation
@@ -514,6 +514,7 @@
                         country_id: countryId.toUpperCase(),
                         postcode: postCode,
                         region_code: ApplePayUtilities.getAreaCode(postCode, countryId),
+                        region_id: 0
                     },
                     shipping_carrier_code: selectedShippingMethod ? selectedShippingMethod.carrier_code : "",
                     shipping_method_code: selectedShippingMethod ? selectedShippingMethod.method_code : "",
