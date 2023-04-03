@@ -123,7 +123,7 @@
 
                     // Start the payment session
                     Utilities.log(paymentRequest);
-                    var session = new ApplePaySession(5, paymentRequest);
+                    var session = new ApplePaySession(12, paymentRequest);
                 } else {
                     var paymentRequest = {
                         currencyCode: Utilities.getQuoteCurrency(),
@@ -151,7 +151,7 @@
 
                     // Start the payment session
                     Utilities.log(paymentRequest);
-                    var session = new ApplePaySession(6, paymentRequest);
+                    var session = new ApplePaySession(12, paymentRequest);
                 }
 
                 // Merchant Validation
@@ -267,9 +267,9 @@
                     // Send the request
                     var promise = sendPaymentRequest(payload);
                     promise
-                        .then(function (success) {
+                        .then(function (data) {
                             var status;
-                            if (success) {
+                            if (data.success) {
                                 status = ApplePaySession.STATUS_SUCCESS;
                             } else {
                                 status = ApplePaySession.STATUS_FAILURE;
@@ -277,10 +277,10 @@
 
                             session.completePayment(status);
 
-                            if (success) {
+                            if (data.success) {
                                 // Redirect to success page
                                 FullScreenLoader.startLoader();
-                                RedirectOnSuccessAction.execute();
+                                window.location.replace(data.url);
                             }
                         })
                         .catch(function (error) {
@@ -327,7 +327,7 @@
                     data: paymentData,
                     success: function (data, textStatus, xhr) {
                         if (data.success === true) {
-                            resolve(data.success);
+                            resolve(data);
                         } else {
                             reject();
                         }
@@ -514,6 +514,7 @@
                         country_id: countryId.toUpperCase(),
                         postcode: postCode,
                         region_code: ApplePayUtilities.getAreaCode(postCode, countryId),
+                        region_id: 0
                     },
                     shipping_carrier_code: selectedShippingMethod ? selectedShippingMethod.carrier_code : "",
                     shipping_method_code: selectedShippingMethod ? selectedShippingMethod.method_code : "",
