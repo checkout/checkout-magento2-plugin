@@ -277,10 +277,14 @@
 
                             session.completePayment(status);
 
-                            if (data.success) {
+                            if (data.success && data.url) {
                                 // Redirect to success page
                                 FullScreenLoader.startLoader();
-                                window.location.replace(data.url);
+                                // Handle 3DS redirection
+                                window.location.href = data.url;
+                            } else {
+                                // Normal redirection
+                                RedirectOnSuccessAction.execute();
                             }
                         })
                         .catch(function (error) {

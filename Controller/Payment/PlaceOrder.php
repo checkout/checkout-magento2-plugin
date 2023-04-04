@@ -249,10 +249,11 @@ class PlaceOrder extends Action
                             // Add the payment info to the order
                             $order = $this->utilities->setPaymentData($order, $response, $data);
 
+                            // set order status to pending payment
+                            $order->setStatus(Order::STATE_PENDING_PAYMENT);
+
                             // check for redirection
                             if (isset($response['_links']['redirect']['href'])) {
-                                // set order status to pending payment
-                                $order->setStatus(Order::STATE_PENDING_PAYMENT);
                                 $url = $response['_links']['redirect']['href'];
                             }
 
