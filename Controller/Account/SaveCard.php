@@ -108,10 +108,11 @@ class SaveCard extends Action
 
             // Test the 3DS redirection case
             $response = $result->getResponse();
-            if (isset($response->_links['redirect']['href'])) {
+
+            if (isset($response['_links']['redirect']['href'])) {
                 return $this->jsonFactory->create()->setData([
                     'success' => true,
-                    'url' => $response->_links['redirect']['href'],
+                    'url' => $response['_links']['redirect']['href'],
                 ]);
             }
 

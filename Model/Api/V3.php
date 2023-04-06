@@ -345,7 +345,6 @@ class V3 implements V3Interface
             $response = $this->getPaymentResponse($quote);
 
             if ($this->api->isValidResponse($response) && $reservedOrderId !== null) {
-
                 $this->order = $order = $this->createOrder($this->data->getPaymentMethod());
 
                 // Process the payment response
@@ -631,9 +630,9 @@ class V3 implements V3Interface
                     $this->result['error_message'][] = __('Public hash provided is empty string');
                     $isValid = false;
                 } elseif ($this->vaultHandler->getCardFromHash(
-                        $this->data->getPublicHash(),
-                        $this->customer->getId()
-                    ) == null
+                    $this->data->getPublicHash(),
+                    $this->customer->getId()
+                ) == null
                 ) {
                     $this->result['error_message'][] = __('Public hash provided is not valid');
                     $isValid = false;

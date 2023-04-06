@@ -365,7 +365,7 @@ define(
             showDebugMessage: function (type, message, methodId) {
                 var messageContainer = this.getMethodContainer(methodId).find('.debug-message');
                 messageContainer.addClass('message-' + type + ' ' + type);
-                messageContainer.append('<div><pre style="white-space:pre-wrap;word-break: break-word;">' + __(message) + '</pre></div>');
+                messageContainer.append('<div><pre style="white-space:pre-wrap;word-break: break-word;">' + message + '</pre></div>');
                 messageContainer.show();
             },
 

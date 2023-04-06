@@ -93,6 +93,7 @@ require([
 
     service[0].addEventListener('input', event => {
         checkService();
+        jQuery('#save').click();
     });
 
     secretKey[0].addEventListener('input', event => {
@@ -132,7 +133,7 @@ require([
     });
 });
 </script>
-<div id="webhook_auto_set" style="display: <?= ($block->getHidden() == true) ? 'none' : 'block' ?> ">
+<div id="webhook_auto_set" style="display: <?= ($block->getHidden() === true) ? 'none' : 'block' ?> ">
     <?php echo $block->getButtonHtml() ?>
     <span id="webhook_span">
             <img id="webhook_spinner" style="display: none" alt="Processing Spinner" style="margin:0 5px"
@@ -140,13 +141,13 @@ require([
         </span>
 </div>
 
-<div id="webhook_nas" style="display: <?= ($block->getHidden() == true) ? 'none' : 'block' ?> ">
+<div id="webhook_nas" style="display: <?= ($block->getHidden() === true) ? 'none' : 'block' ?> ">
     <span id="webhook_span_nas">
         <br>
         <p> <?= __('In order to set your webhook for the NAS mode, please follow these steps:') ?></p>
         <br>
         <p> <?= __('1- Create your Notification in Checkout Dashboard: ') ?> <a
-                href="https://www.checkout.com/docs/four/dashboard/notifications#Create_a_notification"><?= __('Notifications - Docs') ?></a></p>
+                href="https://www.checkout.com/docs/four/dashboard/notifications#Create_a_notification" target="_blank"><?= __('Notifications - Docs') ?></a></p>
         <p><?= __('2- Select all the events in the Notification') ?></p>
         <p><?= __('3- Fill the Notification URL from Magento "Webhook URL"') ?></p>
         <p><?= __(

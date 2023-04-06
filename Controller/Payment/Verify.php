@@ -15,11 +15,11 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Checkout\CheckoutApi;
-use Checkout\Library\Exceptions\CheckoutHttpException;
-use Checkout\Models\Payments\Payment;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
@@ -30,7 +30,6 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -46,6 +45,14 @@ class Verify extends Action
      * @var ManagerInterface $messageManager
      */
     protected $messageManager;
+    /**
+     * @var Logger
+     */
+    protected $logger;
+    /**
+     * @var Session
+     */
+    protected $session;
     /**
      * $transactionHandler field
      *
@@ -80,15 +87,15 @@ class Verify extends Action
     /**
      * Verify constructor
      *
-     * @param Context                   $context
-     * @param ManagerInterface          $messageManager
+     * @param Context $context
+     * @param ManagerInterface $messageManager
      * @param TransactionHandlerService $transactionHandler
-     * @param StoreManagerInterface     $storeManager
-     * @param ApiHandlerService         $apiHandler
-     * @param OrderHandlerService       $orderHandler
-     * @param VaultHandlerService       $vaultHandler
-     * @param Logger                    $logger
-     * @param Session                   $session
+     * @param StoreManagerInterface $storeManager
+     * @param ApiHandlerService $apiHandler
+     * @param OrderHandlerService $orderHandler
+     * @param VaultHandlerService $vaultHandler
+     * @param Logger $logger
+     * @param Session $session
      */
     public function __construct(
         Context $context,
@@ -103,13 +110,13 @@ class Verify extends Action
     ) {
         parent::__construct($context);
 
-        $this->messageManager     = $messageManager;
-        $this->storeManager       = $storeManager;
-        $this->apiHandler         = $apiHandler;
-        $this->orderHandler       = $orderHandler;
-        $this->vaultHandler       = $vaultHandler;
-        $this->logger             = $logger;
-        $this->session            = $session;
+        $this->messageManager = $messageManager;
+        $this->storeManager = $storeManager;
+        $this->apiHandler = $apiHandler;
+        $this->orderHandler = $orderHandler;
+        $this->vaultHandler = $vaultHandler;
+        $this->logger = $logger;
+        $this->session = $session;
         $this->transactionHandler = $transactionHandler;
     }
 
@@ -117,7 +124,6 @@ class Verify extends Action
      * Handles the controller method
      *
      * @return ResponseInterface
-     * @throws NoSuchEntityException
      */
     public function execute(): ResponseInterface
     {
@@ -125,6 +131,7 @@ class Verify extends Action
         try {
             // Get the session id
             $sessionId = $this->getRequest()->getParam('cko-session-id', null);
+
             if ($sessionId) {
                 // Get the store code
                 $storeCode = $this->storeManager->getStore()->getCode();
@@ -136,10 +143,10 @@ class Verify extends Action
                 $response = $api->getPaymentDetails($sessionId);
 
                 // Check for zero dollar auth
-                if ($response->status !== "Card Verified") {
+                if ($response['status'] !== "Card Verified") {
                     // Find the order from increment id
                     $order = $this->orderHandler->getOrder([
-                        'increment_id' => $response->reference,
+                        'increment_id' => $response['reference'],
                     ]);
 
                     // Process the order
@@ -149,29 +156,30 @@ class Verify extends Action
 
                         // Process the response
                         if ($api->isValidResponse($response)) {
-                            if ($response->source['type'] === 'knet') {
+                            if ($response['source']['type'] === 'knet') {
                                 $amount = $this->transactionHandler->amountFromGateway(
-                                    $response->amount ?? null,
+                                    $response['amount'] ?? null,
                                     $order
                                 );
 
                                 $this->messageManager->addComplexNoticeMessage('knetInfoMessage', [
-                                    'postDate'      => $response->source['post_date'] ?? null,
-                                    'amount'        => $amount ?? null,
-                                    'paymentId'     => $response->source['knet_payment_id'] ?? null,
-                                    'transactionId' => $response->source['knet_transaction_id'] ?? null,
-                                    'authCode'      => $response->source['auth_code'] ?? null,
-                                    'reference'     => $response->source['bank_reference'] ?? null,
-                                    'resultCode'    => $response->source['knet_result'] ?? null,
+                                    'postDate' => $response['source']['post_date'] ?? null,
+                                    'amount' => $amount ?? null,
+                                    'paymentId' => $response['source']['knet_payment_id'] ?? null,
+                                    'transactionId' => $response['source']['knet_transaction_id'] ?? null,
+                                    'authCode' => $response['source']['auth_code'] ?? null,
+                                    'reference' => $response['source']['bank_reference'] ?? null,
+                                    'resultCode' => $response['source']['knet_result'] ?? null,
                                 ]);
                             }
 
-                            if (isset($response->metadata['successUrl']) &&
+                            if (isset($response['metadata']['successUrl']) &&
                                 false === strpos(
                                     $response->metadata['successUrl'],
                                     'checkout_com/payment/verify'
-                                )) {
-                                return $this->_redirect($response->metadata['successUrl']);
+                                )
+                            ) {
+                                return $this->_redirect($response['metadata']['successUrl']);
                             } else {
                                 return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                             }
@@ -203,9 +211,9 @@ class Verify extends Action
                     __('Invalid request. No session ID found.')
                 );
             }
-        } catch (CheckoutHttpException $e) {
+        } catch (Exception $e) {
             $this->messageManager->addErrorMessage(
-                __($e->getBody())
+                __($e->getMessage())
             );
 
             return $this->_redirect('checkout/cart', ['_secure' => true]);
@@ -215,17 +223,17 @@ class Verify extends Action
     }
 
     /**
-     * Description saveCard function
+     * Save card
      *
-     * @param Payment $response
+     * @param array $response
      *
      * @return void
      * @throws Exception
      */
-    public function saveCard(Payment $response): void
+    public function saveCard(array $response): void
     {
         // Save the card
-        $success = $this->vaultHandler->setCardToken($response->source['id'])
+        $success = $this->vaultHandler->setCardToken($response['source']['id'])
             ->setCustomerId()
             ->setCustomerEmail()
             ->setResponse($response)
