@@ -459,6 +459,13 @@ define(
                         FullScreenLoader.stopLoader();
                     }
                 });
+            },
+
+            /**
+             * Clean Checkout data
+             */
+            cleanCustomerShippingAddress: function() {
+                CheckoutData.setNewCustomerShippingAddress(null);
             }
         };
     }

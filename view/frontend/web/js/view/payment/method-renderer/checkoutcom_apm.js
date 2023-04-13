@@ -210,6 +210,7 @@ define(
                                     Utilities.log(__('Fail'));
                                 }
                             );
+                            Utilities.cleanCustomerShippingAddress();
                         }
 
                         FullScreenLoader.stopLoader();

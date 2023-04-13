@@ -259,6 +259,7 @@ define(
                                                     // Redirect to success page
                                                     RedirectOnSuccessAction.execute();
                                                 }
+                                                Utilities.cleanCustomerShippingAddress();
                                             } else {
                                                 FullScreenLoader.stopLoader();
                                                 alert(
