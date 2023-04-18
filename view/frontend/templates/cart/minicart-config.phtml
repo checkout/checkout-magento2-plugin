@@ -10,14 +10,13 @@
 /** @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
 ?>
 
-<?php if ($block->getProductCount() > 0): ?>
-    <?php $serializedCheckoutConfig = /* @noEscape */ $block->getSerializedCheckoutConfig();
-    $scriptString = <<<script
+<?php $serializedCheckoutConfig = /* @noEscape */ $block->getSerializedCheckoutConfig();
+$scriptString = <<<script
         window.checkoutConfig = {$serializedCheckoutConfig};
         // Create aliases for customer.js model from customer module
         window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
         window.customerData = window.checkoutConfig.customerData;
     script;
-    ?>
-    <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
-<?php endif; ?>
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
+
