@@ -19,23 +19,34 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Block\Cart;
 
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use Magento\Checkout\Block\Onepage;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Framework\Serialize\Serializer\JsonHexTag;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\View\Element\Template\Context;
 
 class ApplePay extends Onepage
 {
     protected Cart $cart;
+    protected Config $checkoutComConfig;
+    protected ConfigProvider $checkoutComConfigProvider;
+    private mixed $serializer;
 
     /**
      * @param Cart $cart
      * @param Context $context
      * @param FormKey $formKey
      * @param CompositeConfigProvider $configProvider
+     * @param Config $checkoutComConfig
+     * @param ConfigProvider $checkoutComConfigProvider
      * @param array $layoutProcessors
      * @param array $data
      * @param Json|null $serializer
@@ -46,6 +57,8 @@ class ApplePay extends Onepage
         Context $context,
         FormKey $formKey,
         CompositeConfigProvider $configProvider,
+        Config $checkoutComConfig,
+        ConfigProvider $checkoutComConfigProvider,
         array $layoutProcessors = [],
         array $data = [],
         Json $serializer = null,
@@ -61,6 +74,10 @@ class ApplePay extends Onepage
             $serializerInterface
         );
         $this->cart = $cart;
+        $this->checkoutComConfig = $checkoutComConfig;
+        $this->checkoutComConfigProvider = $checkoutComConfigProvider;
+        $this->serializer = $serializerInterface ?: ObjectManager::getInstance()
+            ->get(JsonHexTag::class);
     }
 
     /**
@@ -75,5 +92,16 @@ class ApplePay extends Onepage
         }
 
         return $productCount;
+    }
+
+    /**
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
+     */
+    public function getSerializedCheckoutComConfig(): string
+    {
+        $config = $this->checkoutComConfigProvider->getConfig();
+
+        return $this->serializer->serialize($config);
     }
 }

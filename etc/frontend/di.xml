@@ -63,4 +63,9 @@
             </argument>
         </arguments>
     </type>
+
+    <!-- Add Config Data To Cart Section -->
+    <type name="Magento\Checkout\CustomerData\Cart">
+        <plugin name="cko_enabled" type="CheckoutCom\Magento2\Plugin\AddConfigDataToCart"/>
+    </type>
 </config>

@@ -9,8 +9,7 @@
 /** @var \CheckoutCom\Magento2\Block\Cart\ApplePay $block */
 /** @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
 ?>
-
-<?php $serializedCheckoutConfig = /* @noEscape */ $block->getSerializedCheckoutConfig();
+<?php $serializedCheckoutConfig = $block->getProductCount() > 0 ? $block->getSerializedCheckoutConfig() : $block->getSerializedCheckoutComConfig();
 $scriptString = <<<script
         window.checkoutConfig = {$serializedCheckoutConfig};
         // Create aliases for customer.js model from customer module
@@ -19,4 +18,3 @@ $scriptString = <<<script
     script;
 ?>
 <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
-

@@ -19,10 +19,16 @@ define([
             this._super();
             let cartData = customerData.get('cart');
 
-            this.isVisible(cartData()['summary_count'] > 0);
+            this.isVisible(cartData()['summary_count'] > 0
+                && cartData()['checkoutcom_apple_pay']
+                && cartData()['checkoutcom_apple_pay']['active'] === '1'
+            );
 
             cartData.subscribe((updatedCart) => {
-                this.isVisible(updatedCart['summary_count'] > 0);
+                window.checkoutConfig = updatedCart['checkoutConfigProvider'];
+                this.isVisible(updatedCart['summary_count'] > 0
+                    && updatedCart['checkoutcom_apple_pay']
+                    && updatedCart['checkoutcom_apple_pay']['active'] === '1');
             })
         },
     });
