@@ -8,28 +8,31 @@
 define([
     'ko',
     'uiComponent',
-    'Magento_Customer/js/customer-data'
-], function (ko, Component, customerData) {
+    'Magento_Customer/js/customer-data',
+], function(ko, Component, customerData) {
     'use strict';
 
     return Component.extend({
         isVisible: ko.observable(false),
 
-        initialize: function () {
+        initialize: function() {
             this._super();
             let cartData = customerData.get('cart');
-
             this.isVisible(cartData()['summary_count'] > 0
                 && cartData()['checkoutcom_apple_pay']
-                && cartData()['checkoutcom_apple_pay']['active'] === '1'
+                && cartData()['checkoutcom_apple_pay']['active'] === '1',
             );
 
             cartData.subscribe((updatedCart) => {
-                window.checkoutConfig = updatedCart['checkoutConfigProvider'];
+                if (typeof window.checkoutConfig !== 'undefined'
+                    && typeof window.checkoutConfig.quoteId === 'undefined') {
+                    window.checkoutConfig = {...updatedCart['checkoutConfigProvider']};
+                }
+
                 this.isVisible(updatedCart['summary_count'] > 0
                     && updatedCart['checkoutcom_apple_pay']
                     && updatedCart['checkoutcom_apple_pay']['active'] === '1');
-            })
+            });
         },
     });
 });

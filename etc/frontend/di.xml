@@ -66,6 +66,6 @@
 
     <!-- Add Config Data To Cart Section -->
     <type name="Magento\Checkout\CustomerData\Cart">
-        <plugin name="cko_enabled" type="CheckoutCom\Magento2\Plugin\AddConfigDataToCart"/>
+        <plugin name="checkoutcom_magento2_add_config_data_to_cart" type="CheckoutCom\Magento2\Plugin\AddConfigDataToCart"/>
     </type>
 </config>

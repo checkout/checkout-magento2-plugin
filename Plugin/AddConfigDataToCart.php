@@ -21,13 +21,6 @@ class AddConfigDataToCart
         $this->compositeConfigProvider = $compositeConfigProvider;
     }
 
-    /**
-     * @param Cart $subject
-     * @param array $result
-     *
-     * @return array
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
     public function afterGetSectionData(Cart $subject, array $result): array
     {
         $configProvider = ['checkoutConfigProvider' => $this->compositeConfigProvider->getConfig()];
