@@ -8,16 +8,10 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use Magento\Checkout\CustomerData\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
 
-/**
- * @author    Agence Dn'D <contact@dnd.fr>
- * @copyright 2004-present Agence Dn'D
- * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link      https://www.dnd.fr/
- */
 class AddConfigDataToCart
 {
-    protected Config $config;
-    protected CompositeConfigProvider $compositeConfigProvider;
+    private Config $config;
+    private CompositeConfigProvider $compositeConfigProvider;
 
     public function __construct(
         Config $config,

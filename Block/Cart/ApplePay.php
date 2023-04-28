@@ -35,23 +35,10 @@ use Magento\Framework\View\Element\Template\Context;
 
 class ApplePay extends Onepage
 {
-    protected Cart $cart;
-    protected Config $checkoutComConfig;
-    protected ConfigProvider $checkoutComConfigProvider;
-    private mixed $serializer;
+    private Cart $cart;
+    private ConfigProvider $checkoutComConfigProvider;
+    private SerializerInterface $serializer;
 
-    /**
-     * @param Cart $cart
-     * @param Context $context
-     * @param FormKey $formKey
-     * @param CompositeConfigProvider $configProvider
-     * @param Config $checkoutComConfig
-     * @param ConfigProvider $checkoutComConfigProvider
-     * @param array $layoutProcessors
-     * @param array $data
-     * @param Json|null $serializer
-     * @param SerializerInterface|null $serializerInterface
-     */
     public function __construct(
         Cart $cart,
         Context $context,
@@ -74,16 +61,11 @@ class ApplePay extends Onepage
             $serializerInterface
         );
         $this->cart = $cart;
-        $this->checkoutComConfig = $checkoutComConfig;
         $this->checkoutComConfigProvider = $checkoutComConfigProvider;
         $this->serializer = $serializerInterface ?: ObjectManager::getInstance()
             ->get(JsonHexTag::class);
     }
 
-    /**
-     *
-     * @return int
-     */
     public function getProductCount(): int
     {
         $productCount = 0;
