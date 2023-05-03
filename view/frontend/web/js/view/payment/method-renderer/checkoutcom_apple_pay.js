@@ -378,6 +378,7 @@ define(
                                                 // Normal redirection
                                                 RedirectOnSuccessAction.execute();
                                             }
+                                            Utilities.cleanCustomerShippingAddress();
                                         }
                                     ).catch(
                                         function (error) {
