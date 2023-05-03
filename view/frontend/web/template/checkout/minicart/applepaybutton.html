@@ -7,12 +7,14 @@
  */
 -->
 
+<!-- ko if: isVisible -->
 <div class="actions">
     <div class="primary">
-        <button id="minicartApplePayButton" type="button" style="display: none;" class="apple-pay-button action primary checkout ap-cart"
-            data-mage-init='{"CheckoutCom_Magento2/js/view/payment/cart/checkoutcom_applepay_cart":{
-                "type": "Minicart",
-                "configName": "enabled_on_minicart"
-            }}'></button>
+        <button id="minicartApplePayButton" type="button" class="apple-pay-button action primary checkout ap-cart"
+                data-mage-init='{"CheckoutCom_Magento2/js/view/payment/cart/checkoutcom_applepay_cart":{
+                    "type": "Minicart",
+                    "configName": "enabled_on_minicart"
+                }}'></button>
     </div>
 </div>
+<!-- /ko -->
