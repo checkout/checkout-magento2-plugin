@@ -145,6 +145,21 @@ class Loader
         return $output;
     }
 
+    public function getApmLabel(string $value = ''): array
+    {
+        /** @var array $apmXmlData */
+        $apmXmlData = $this->loadApmXmlData();
+
+        foreach ($apmXmlData as $row) {
+            if ($value === $row['id']) {
+                return [$row['id'] => $row['title']];
+            }
+            $output[$row['id']] =  $row['title'];
+        }
+
+        return $output;
+    }
+
     /**
      * Finds a file path from file name.
      *

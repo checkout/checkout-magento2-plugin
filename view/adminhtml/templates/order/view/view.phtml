@@ -4,18 +4,35 @@
  * @var $block \CheckoutCom\Magento2\Block\Adminhtml\Order\View\View
  */
 
+$alternativePaymentMethodName = $block->getAlternativePaymentMethodName();
+$alternativePaymentMethodTransactionInfo = $block->getAlternativePaymentMethodTransactionInfo();
 $avsCheck = $block->getCkoPaymentData('avs_check');
 $cvvCheck = $block->getCkoPaymentData('cvv_check');
 $threeDsCode = $block->getCko3dsPaymentData('authentication_response');
 $issuer = $block->getCkoPaymentData('issuer');
 $threeDsVersion = $block->getCko3dsPaymentData('version');
 ?>
+
+<?php if ($alternativePaymentMethodName || ($block->getCkoPaymentData('product_type') && $block->getCkoPaymentData('last4'))) : ?>
 <div class="order-account-information">
     <div class="field-email">
         <div class="admin__page-section-title">
             <h2 class="title"><?= $block->escapeHtml(__('Payment Additional Information')) ?></h2>
         </div>
         <table class="admin__table-secondary order-information-table">
+            <?php if ($alternativePaymentMethodName !== '') : ?>
+                <tr>
+                    <th><?= $block->escapeHtml(__('Alternative payment method')) ?></th>
+                    <td><?= $alternativePaymentMethodName ?></td>
+                </tr>
+                <?php if ($alternativePaymentMethodTransactionInfo !== '') : ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Transaction Id')) ?></th>
+                        <td><?= $alternativePaymentMethodTransactionInfo ?></td>
+                    </tr>
+                <?php endif ?>
+            <?php endif ?>
+            <?php if ($block->getCkoPaymentData('product_type') && $block->getCkoPaymentData('last4')) : ?>
             <tr>
                 <th><?= $block->escapeHtml(__('Card type')) ?></th>
                 <td><?= $block->getCkoPaymentData('scheme') ?> (<?= $block->getCkoPaymentData('product_type') ?>)</td>
@@ -32,36 +49,38 @@ $threeDsVersion = $block->getCko3dsPaymentData('version');
                 <th><?= $block->escapeHtml(__('Card Country')) ?></th>
                 <td><?= $block->getCkoPaymentData('issuer_country') ?></td>
             </tr>
+            <?php endif ?>
             <?php if ($issuer): ?>
             <tr>
                 <th><?= $block->escapeHtml(__('Issuing Bank')) ?></th>
                 <td><?= $issuer ?></td>
             </tr>
-            <?php endif; ?>
+            <?php endif ?>
             <?php if ($avsCheck): ?>
             <tr>
                 <th><?= $block->escapeHtml(__('AVS Check')) ?></th>
                 <td><?= $avsCheck ?> (<?= $block->getAvsCheckDescription($avsCheck) ?>)</td>
             </tr>
-            <?php endif; ?>
+            <?php endif ?>
             <?php if ($cvvCheck): ?>
             <tr>
                 <th><?= $block->escapeHtml(__('CVV Check')) ?></th>
                 <td><?= $cvvCheck ?> (<?= $block->getCvvCheckDescription($cvvCheck) ?>)</td>
             </tr>
-            <?php endif; ?>
+            <?php endif ?>
             <?php if ($threeDsCode): ?>
             <tr>
                 <th><?= $block->escapeHtml(__('3DS authorization code')) ?></th>
                 <td><?= $threeDsCode ?> (<?= $block->get3dsDescription($threeDsCode) ?>)</td>
             </tr>
-            <?php endif; ?>
+            <?php endif ?>
             <?php if ($threeDsVersion): ?>
             <tr>
                 <th><?= $block->escapeHtml(__('3DS version')) ?></th>
                 <td><?= $threeDsVersion ?></td>
             </tr>
-            <?php endif; ?>
+            <?php endif ?>
         </table>
     </div>
 </div>
+<?php endif ?>
