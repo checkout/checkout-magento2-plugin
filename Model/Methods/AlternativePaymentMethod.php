@@ -696,14 +696,7 @@ class AlternativePaymentMethod extends AbstractMethod
         );
 
         $source = new RequestGiropaySource();
-        $source->purpose = $purpose;
         $source->bic = $this->getValue('bic', $data);
-        $source->info_fields = [
-            [
-                'label' => 'bic',
-                'text' => $this->getValue('bic', $data),
-            ]
-        ];
 
         return $source;
     }
