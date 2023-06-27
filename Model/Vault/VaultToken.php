@@ -25,9 +25,9 @@ use DateTime;
 use DateTimeZone;
 use Exception;
 use Magento\Framework\Encryption\EncryptorInterface;
+use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Vault\Api\Data\PaymentTokenFactoryInterface;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
-use Zend_Json;
 
 /**
  * Class VaultToken
@@ -52,22 +52,31 @@ class VaultToken
      * @var CardHandlerService $cardHandler
      */
     private $cardHandler;
+    /**
+     * $json field
+     *
+     * @var JsonSerializer
+     */
+    private $json;
 
     /**
      * VaultToken constructor
      *
      * @param PaymentTokenFactoryInterface $paymentTokenFactory
-     * @param EncryptorInterface           $encryptor
-     * @param CardHandlerService           $cardHandler
+     * @param EncryptorInterface $encryptor
+     * @param CardHandlerService $cardHandler
+     * @param JsonSerializer $json
      */
     public function __construct(
         PaymentTokenFactoryInterface $paymentTokenFactory,
         EncryptorInterface $encryptor,
-        CardHandlerService $cardHandler
+        CardHandlerService $cardHandler,
+        JsonSerializer $json
     ) {
         $this->paymentTokenFactory = $paymentTokenFactory;
-        $this->encryptor           = $encryptor;
-        $this->cardHandler         = $cardHandler;
+        $this->encryptor = $encryptor;
+        $this->cardHandler = $cardHandler;
+        $this->json = $json;
     }
 
     /**
@@ -165,7 +174,7 @@ class VaultToken
      */
     private function convertDetailsToJSON(array $details): string
     {
-        $json = Zend_Json::encode($details);
+        $json = $this->json->serialize($details);
 
         return $json ?: '{}';
     }
