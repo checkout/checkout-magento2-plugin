@@ -276,6 +276,7 @@ define(
 
                             // Place the order
                             Utilities.placeOrder(payload, METHOD_ID);
+                            Utilities.cleanCustomerShippingAddress();
                         }
                     }
                 }
