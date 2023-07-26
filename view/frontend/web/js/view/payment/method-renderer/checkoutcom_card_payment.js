@@ -46,7 +46,9 @@ define(
                     preferredScheme: false,
                     supportedCards: null,
                     redirectAfterPlaceOrder: false,
-                    allowPlaceOrder: ko.observable(false)
+                    allowPlaceOrder: ko.observable(false),
+                    isCoBadged: ko.observable(false),
+                    tooltipVisible: ko.observable(false)
                 },
 
                 /**
@@ -218,9 +220,8 @@ define(
                         {
                             publicKey: self.getValue('public_key'),
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
-                            schemeChoice: {
-                                frameSelector: ".scheme-choice-frame"
-                            },
+                            schemeChoice: true,
+                            modes: [ Frames.modes.FEATURE_FLAG_SCHEME_CHOICE],
                             localization: Utilities.getShopLanguage(),
                             style: (formStyles) ? formStyles : {}
                         }
@@ -334,6 +335,7 @@ define(
                         Frames.Events.CARD_BIN_CHANGED,
                         function (event) {
                             self.preferredScheme = event.scheme;
+                            self.isCoBadged(event.isCoBadged);
                         }
                     );
                 },
@@ -360,6 +362,13 @@ define(
                             Utilities.cleanCustomerShippingAddress();
                         }
                     }
+                },
+
+                /**
+                 * @return {void}
+                 */
+                toggleTooltip: function () {
+                    this.tooltipVisible(!this.tooltipVisible());
                 }
             }
         );
