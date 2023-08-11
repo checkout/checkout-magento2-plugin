@@ -343,20 +343,36 @@ class V2 extends Action
      */
     protected function processPayment(): array
     {
-        // Try to load a quote
-        $quote = $this->loadQuote();
+        $order = null;
+        $reservedOrderId = null;
+        $quote = null;
 
-        if ($quote !== null) {
+        if ($this->config->isPaymentWithPaymentFirst()) {
+            // Try to load a quote
+            $quote = $this->loadQuote();
             // Reserved an order
             /** @var string $reservedOrderId */
             $reservedOrderId = $this->quoteHandler->getReference($quote);
+        }
+
+        if ($this->config->isPaymentWithOrderFirst()) {
+            // Create Order
+            $this->order = $order = $this->createOrder();
+        }
+
+        // Process the payment
+        if (($this->config->isPaymentWithPaymentFirst() && $this->quoteHandler->isQuote($quote) && $reservedOrderId !== null)
+            || ($this->config->isPaymentWithOrderFirst() && $this->orderHandler->isOrder($order))
+        ) {
 
             // Get the payment response
-            $response = $this->getPaymentResponse($quote);
+            $response = $this->config->isPaymentWithPaymentFirst() ? $this->getPaymentResponseByCart($quote) : $this->getPaymentResponseByOrder($order);
 
-            if ($this->api->isValidResponse($response) && $reservedOrderId !== null) {
-                // Create Order
-                $this->order = $order = $this->createOrder();
+            if ($this->api->isValidResponse($response)) {
+                if ($this->config->isPaymentWithPaymentFirst()) {
+                    // Create Order
+                    $this->order = $order = $this->createOrder();
+                }
 
                 // Process the payment response
                 $is3ds = property_exists(
@@ -446,27 +462,41 @@ class V2 extends Action
     }
 
     /**
-     * Get a payment response.
+     * Get a payment response for cart.
      *
      * @param CartInterface $quote
      *
      * @return mixed
      */
-    public function getPaymentResponse(CartInterface $quote)
+    public function getPaymentResponseByCart(CartInterface $quote)
     {
         $sessionId = $this->getRequest()->getParam('cko-session-id');
 
-        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment($quote);
+        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPaymentByCart($quote);
     }
 
     /**
-     * Request payment to API handler
+     * Get a payment response for order.
      *
      * @param CartInterface $quote
      *
      * @return mixed
      */
-    protected function requestPayment(CartInterface $quote)
+    public function getPaymentResponseByOrder(OrderInterface $order)
+    {
+        $sessionId = $this->getRequest()->getParam('cko-session-id');
+
+        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPaymentByOrder($order);
+    }
+
+    /**
+     * Request payment to API handler by cart
+     *
+     * @param CartInterface $quote
+     *
+     * @return mixed
+     */
+    protected function requestPaymentByCart(CartInterface $quote)
     {
         // Prepare the payment request payload
         $payload = [
@@ -494,6 +524,46 @@ class V2 extends Action
             $quote->getGrandTotal(),
             $quote->getQuoteCurrencyCode(),
             $quote->getReservedOrderId(),
+            $this->quote,
+            true
+        );
+    }
+
+    /**
+     * Request payment to API handler by order
+     *
+     * @param CartInterface $quote
+     *
+     * @return mixed
+     */
+    protected function requestPaymentByOrder(OrderInterface $order)
+    {
+        // Prepare the payment request payload
+        $payload = [
+            'cardToken' => $this->data->payment_token,
+        ];
+
+        // Set the card bin
+        if (isset($this->data->card_bin) && !empty($this->data->card_bin)) {
+            $payload['cardBin'] = $this->data->card_bin;
+        }
+
+        // Set the success URL
+        if (isset($this->data->success_url) && !empty($this->data->success_url)) {
+            $payload['successUrl'] = $this->data->success_url;
+        }
+
+        // Set the failure URL
+        if (isset($this->data->failure_url) && !empty($this->data->failure_url)) {
+            $payload['failureUrl'] = $this->data->failure_url;
+        }
+
+        // Send the charge request
+        return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
+            $payload,
+            $order->getGrandTotal(),
+            $order->getQuoteCurrencyCode(),
+            $order->getIncrementId(),
             $this->quote,
             true
         );

@@ -22,6 +22,7 @@ namespace CheckoutCom\Magento2\Gateway\Config;
 use Checkout\Environment;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentProcesing;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -223,6 +224,36 @@ class Config
         }
 
         return [];
+    }
+
+    /**
+     * Returns payment processing value (Payment first or Order first)
+     *
+     * @return string
+     */
+    public function getPaymentProcessing(): string
+    {
+        return $this->getValue('payment_processing');
+    }
+
+    /**
+     * Check if payment processing is with order creation first.
+     *
+     * @return bool
+     */
+    public function isPaymentWithOrderFirst(): bool
+    {
+        return $this->getPaymentProcessing() === ConfigPaymentProcesing::ORDER_FIRST;
+    }
+
+    /**
+     * Check if payment processing is with payment creation first.
+     *
+     * @return bool
+     */
+    public function isPaymentWithPaymentFirst(): bool
+    {
+        return $this->getPaymentProcessing() === ConfigPaymentProcesing::PAYMENT_FIRST;
     }
 
     /**
