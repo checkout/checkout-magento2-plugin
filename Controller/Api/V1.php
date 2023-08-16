@@ -175,13 +175,19 @@ class V1 extends Action
                     $reservedOrderId = $this->quoteHandler->getReference($quote);
                 }
 
+
+
                 // Process the payment
                 if (($this->config->isPaymentWithPaymentFirst() && $this->quoteHandler->isQuote($quote) && $reservedOrderId !== null)
                     || ($this->config->isPaymentWithOrderFirst() && $this->orderHandler->isOrder($order))
                 ) {
+                    //Init values to request payment
+                    $amount = $this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $order->getGrandTotal();
+                    $currency = $this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $order->getOrderCurrencyCode();
+                    $reference = $this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $order->getIncrementId();
 
                     // Get response and success
-                    $response = $this->config->isPaymentWithPaymentFirst() ? $this->requestPaymentByCart($quote) : $this->requestPaymentByOrder($order);
+                    $response = $this->requestPayment($amount, $currency, $reference);
 
                     // Get the store code
                     $storeCode = $this->storeManager->getStore()->getCode();
@@ -291,11 +297,13 @@ class V1 extends Action
     /**
      * Request payment to API handler
      *
-     * @param CartInterface $quote
+     * @param float $amount
+     * @param string $currencyCode
+     * @param string $reference
      *
      * @return mixed
      */
-    protected function requestPaymentByCart(CartInterface $quote)
+    protected function requestPayment(float $amount, string $currencyCode, string $reference)
     {
         // Prepare the payment request payload
         $payload = [
@@ -309,36 +317,9 @@ class V1 extends Action
         // Send the charge request
         return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
             $payload,
-            $quote->getGrandTotal(),
-            $quote->getQuoteCurrencyCode(),
-            $quote->getReservedOrderId()
-        );
-    }
-
-    /**
-     * Request payment to API handler
-     *
-     * @param OrderInterface $quote
-     *
-     * @return mixed
-     */
-    protected function requestPaymentByOrder(OrderInterface $order)
-    {
-        // Prepare the payment request payload
-        $payload = [
-            'cardToken' => $this->data->payment_token,
-        ];
-
-        if (isset($this->data->card_bin)) {
-            $payload['cardBin'] = $this->data->card_bin;
-        }
-
-        // Send the charge request
-        return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
-            $payload,
-            $order->getGrandTotal(),
-            $order->getOrderCurrencyCode(),
-            $order->getIncrementId()
+            $amount,
+            $currencyCode,
+            $reference
         );
     }
 }

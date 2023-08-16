@@ -334,18 +334,23 @@ class V3 implements V3Interface
     private function processPayment(): array
     {
         // Try to load a quote
-        $quote = $this->loadQuote();
+        $quote = $this->config->isPaymentWithPaymentFirst() ? $this->loadQuote() : null;
+        $reservedOrderId = $this->config->isPaymentWithPaymentFirst() ? $this->quoteHandler->getReference($quote) : null;
 
-        if ($quote !== null) {
-            // Reserved an order
-            /** @var string $reservedOrderId */
-            $reservedOrderId = $this->quoteHandler->getReference($quote);
+        // Create order if needed before payment
+        $orderBeforePayment = $this->config->isPaymentWithOrderFirst() ? $this->createOrder($this->data->getPaymentMethod()) : null;
 
-            // Get the payment response
-            $response = $this->getPaymentResponse($quote);
+        if (($quote !== null && $reservedOrderId !== null) || $this->orderHandler->isOrder($orderBeforePayment)) {
+            //Init values to request payment
+            $amount = $this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $orderBeforePayment->getGrandTotal();
+            $currency = $this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $orderBeforePayment->getOrderCurrencyCode();
+            $reference = $this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $orderBeforePayment->getIncrementId();
 
-            if ($this->api->isValidResponse($response) && $reservedOrderId !== null) {
-                $this->order = $order = $this->createOrder($this->data->getPaymentMethod());
+            // Get the payment
+            $response = $this->getPaymentResponse($amount, $currency, $reference);
+
+            if ($this->api->isValidResponse($response)) {
+                $this->order = $order = ($orderBeforePayment === null) ? $this->createOrder($this->data->getPaymentMethod()) : $orderBeforePayment;
 
                 // Process the payment response
                 $is3ds = property_exists($response, '_links')
@@ -455,21 +460,23 @@ class V3 implements V3Interface
      *
      * @return mixed
      */
-    private function getPaymentResponse(CartInterface $quote)
+    private function getPaymentResponse(float $amount, string $currencyCode, string $reference)
     {
         $sessionId = $this->request->getParam('cko-session-id');
 
-        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment($quote);
+        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment($amount, $currencyCode, $reference);
     }
 
     /**
      * Request payment to API handler
      *
-     * @param CartInterface $quote
+     * @param float $amount
+     * @param string $currencyCode
+     * @param string $reference
      *
      * @return mixed
      */
-    private function requestPayment(CartInterface $quote)
+    private function requestPayment(float $amount, string $currencyCode, string $reference)
     {
         // Prepare the payment request payload
         $payload = [];
@@ -517,9 +524,9 @@ class V3 implements V3Interface
         // Send the charge request
         return $this->methodHandler->get($this->data->getPaymentMethod())->sendPaymentRequest(
             $payload,
-            $quote->getGrandTotal(),
-            $quote->getQuoteCurrencyCode(),
-            $quote->getReservedOrderId(),
+            $amount,
+            $currencyCode,
+            $reference,
             $this->quote,
             true,
             $this->customer ? $this->customer->getId() : null

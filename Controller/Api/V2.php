@@ -343,42 +343,34 @@ class V2 extends Action
      */
     protected function processPayment(): array
     {
-        $order = null;
-        $reservedOrderId = null;
-        $quote = null;
-
-        if ($this->config->isPaymentWithPaymentFirst()) {
-            // Try to load a quote
-            $quote = $this->loadQuote();
-            // Reserved an order
-            /** @var string $reservedOrderId */
-            $reservedOrderId = $this->quoteHandler->getReference($quote);
-        }
-
-        if ($this->config->isPaymentWithOrderFirst()) {
-            // Create Order
-            $this->order = $order = $this->createOrder();
-        }
+        // Try to load a quote
+        $quote = $this->config->isPaymentWithPaymentFirst() ? $this->loadQuote() : null;
+        // Reserved an order
+        $reservedOrderId = $this->config->isPaymentWithPaymentFirst() ? $this->quoteHandler->getReference($quote) : null;
+        // Create Order if needed before paymen
+        $orderBeforePayment = $this->config->isPaymentWithOrderFirst() ? $this->createOrder() : null;
 
         // Process the payment
         if (($this->config->isPaymentWithPaymentFirst() && $this->quoteHandler->isQuote($quote) && $reservedOrderId !== null)
-            || ($this->config->isPaymentWithOrderFirst() && $this->orderHandler->isOrder($order))
+            || ($this->config->isPaymentWithOrderFirst() && $this->orderHandler->isOrder($orderBeforePayment))
         ) {
+            //Init values to request payment
+            $amount = $this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $orderBeforePayment->getGrandTotal();
+            $currency = $this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $orderBeforePayment->getOrderCurrencyCode();
+            $reference = $this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $orderBeforePayment->getIncrementId();
 
             // Get the payment response
-            $response = $this->config->isPaymentWithPaymentFirst() ? $this->getPaymentResponseByCart($quote) : $this->getPaymentResponseByOrder($order);
+            $response = $this->getPaymentResponse($amount, $currency, $reference);
 
             if ($this->api->isValidResponse($response)) {
-                if ($this->config->isPaymentWithPaymentFirst()) {
-                    // Create Order
-                    $this->order = $order = $this->createOrder();
-                }
+                // Create Order
+                $this->order = $order = ($orderBeforePayment === null) ? $this->createOrder() : $orderBeforePayment;
 
                 // Process the payment response
                 $is3ds = property_exists(
-                    $response,
-                    '_links'
-                ) && isset($response->_links['redirect']) && isset($response->_links['redirect']['href']);
+                             $response,
+                             '_links'
+                         ) && isset($response->_links['redirect']) && isset($response->_links['redirect']['href']);
 
                 if ($is3ds) {
                     $this->result['redirect_url'] = $response->_links['redirect']['href'];
@@ -464,39 +456,29 @@ class V2 extends Action
     /**
      * Get a payment response for cart.
      *
-     * @param CartInterface $quote
+     * @param float $amount
+     * @param string $currencyCode
+     * @param string $reference
      *
      * @return mixed
      */
-    public function getPaymentResponseByCart(CartInterface $quote)
+    public function getPaymentResponse(float $amount, string $currencyCode, string $reference)
     {
         $sessionId = $this->getRequest()->getParam('cko-session-id');
 
-        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPaymentByCart($quote);
-    }
-
-    /**
-     * Get a payment response for order.
-     *
-     * @param CartInterface $quote
-     *
-     * @return mixed
-     */
-    public function getPaymentResponseByOrder(OrderInterface $order)
-    {
-        $sessionId = $this->getRequest()->getParam('cko-session-id');
-
-        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPaymentByOrder($order);
+        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment($amount, $currencyCode, $reference);
     }
 
     /**
      * Request payment to API handler by cart
      *
-     * @param CartInterface $quote
+     * @param float $amount
+     * @param string $currencyCode
+     * @param string $reference
      *
      * @return mixed
      */
-    protected function requestPaymentByCart(CartInterface $quote)
+    protected function requestPayment(float $amount, string $currencyCode, string $reference)
     {
         // Prepare the payment request payload
         $payload = [
@@ -521,49 +503,9 @@ class V2 extends Action
         // Send the charge request
         return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
             $payload,
-            $quote->getGrandTotal(),
-            $quote->getQuoteCurrencyCode(),
-            $quote->getReservedOrderId(),
-            $this->quote,
-            true
-        );
-    }
-
-    /**
-     * Request payment to API handler by order
-     *
-     * @param CartInterface $quote
-     *
-     * @return mixed
-     */
-    protected function requestPaymentByOrder(OrderInterface $order)
-    {
-        // Prepare the payment request payload
-        $payload = [
-            'cardToken' => $this->data->payment_token,
-        ];
-
-        // Set the card bin
-        if (isset($this->data->card_bin) && !empty($this->data->card_bin)) {
-            $payload['cardBin'] = $this->data->card_bin;
-        }
-
-        // Set the success URL
-        if (isset($this->data->success_url) && !empty($this->data->success_url)) {
-            $payload['successUrl'] = $this->data->success_url;
-        }
-
-        // Set the failure URL
-        if (isset($this->data->failure_url) && !empty($this->data->failure_url)) {
-            $payload['failureUrl'] = $this->data->failure_url;
-        }
-
-        // Send the charge request
-        return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
-            $payload,
-            $order->getGrandTotal(),
-            $order->getQuoteCurrencyCode(),
-            $order->getIncrementId(),
+            $amount,
+            $currencyCode,
+            $reference,
             $this->quote,
             true
         );
