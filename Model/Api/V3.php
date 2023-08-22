@@ -342,9 +342,9 @@ class V3 implements V3Interface
 
         if (($quote !== null && $reservedOrderId !== null) || $this->orderHandler->isOrder($orderBeforePayment)) {
             //Init values to request payment
-            $amount = $this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $orderBeforePayment->getGrandTotal();
-            $currency = $this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $orderBeforePayment->getOrderCurrencyCode();
-            $reference = $this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $orderBeforePayment->getIncrementId();
+            $amount = (float)$this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $orderBeforePayment->getGrandTotal();
+            $currency = (string)$this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $orderBeforePayment->getOrderCurrencyCode();
+            $reference = (string)$this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $orderBeforePayment->getIncrementId();
 
             // Get the payment
             $response = $this->getPaymentResponse($amount, $currency, $reference);
@@ -637,9 +637,9 @@ class V3 implements V3Interface
                     $this->result['error_message'][] = __('Public hash provided is empty string');
                     $isValid = false;
                 } elseif ($this->vaultHandler->getCardFromHash(
-                    $this->data->getPublicHash(),
-                    $this->customer->getId()
-                ) == null
+                        $this->data->getPublicHash(),
+                        $this->customer->getId()
+                    ) == null
                 ) {
                     $this->result['error_message'][] = __('Public hash provided is not valid');
                     $isValid = false;
