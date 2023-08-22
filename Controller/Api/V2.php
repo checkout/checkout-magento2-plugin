@@ -356,7 +356,7 @@ class V2 extends Action
         ) {
             //Init values to request payment
             $amount = (float)$this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $orderBeforePayment->getGrandTotal();
-            $currency = (string)($this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $orderBeforePayment->getOrderCurrencyCode();
+            $currency = (string)$this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $orderBeforePayment->getOrderCurrencyCode();
             $reference = (string)$this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $orderBeforePayment->getIncrementId();
 
             // Get the payment response
