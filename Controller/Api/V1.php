@@ -161,15 +161,33 @@ class V1 extends Action
             if ($this->isValidRequest()) {
                 // Load the quote
                 $quote = $this->loadQuote();
+                $order = null;
+                $reservedOrderId = null;
 
-                // Reserved an order
-                /** @var string $reservedOrderId */
-                $reservedOrderId = $this->quoteHandler->getReference($quote);
+                if ($this->config->isPaymentWithOrderFirst()) {
+                    // Create an order
+                    $order = $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote);
+                }
+
+                if ($this->config->isPaymentWithPaymentFirst()) {
+                    // Reserved an order
+                    /** @var string $reservedOrderId */
+                    $reservedOrderId = $this->quoteHandler->getReference($quote);
+                }
+
+
 
                 // Process the payment
-                if ($this->quoteHandler->isQuote($quote) && $reservedOrderId !== null) {
+                if (($this->config->isPaymentWithPaymentFirst() && $this->quoteHandler->isQuote($quote) && $reservedOrderId !== null)
+                    || ($this->config->isPaymentWithOrderFirst() && $this->orderHandler->isOrder($order))
+                ) {
+                    //Init values to request payment
+                    $amount = (float)$this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $order->getGrandTotal();
+                    $currency = (string)$this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $order->getOrderCurrencyCode();
+                    $reference = (string)$this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $order->getIncrementId();
+
                     // Get response and success
-                    $response = $this->requestPayment($quote);
+                    $response = $this->requestPayment($amount, $currency, $reference);
 
                     // Get the store code
                     $storeCode = $this->storeManager->getStore()->getCode();
@@ -177,8 +195,8 @@ class V1 extends Action
                     // Process the response
                     $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
                     if ($api->isValidResponse($response)) {
-                        // Create an order
-                        $order = $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote);
+                        // Create an order if processing is with payment first
+                        $order = $order === null ? $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote) : $order;
 
                         // Get the payment details
                         $paymentDetails = $api->getPaymentDetails($response->id);
@@ -279,11 +297,13 @@ class V1 extends Action
     /**
      * Request payment to API handler
      *
-     * @param CartInterface $quote
+     * @param float $amount
+     * @param string $currencyCode
+     * @param string $reference
      *
      * @return mixed
      */
-    protected function requestPayment(CartInterface $quote)
+    protected function requestPayment(float $amount, string $currencyCode, string $reference)
     {
         // Prepare the payment request payload
         $payload = [
@@ -297,9 +317,9 @@ class V1 extends Action
         // Send the charge request
         return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
             $payload,
-            $quote->getGrandTotal(),
-            $quote->getQuoteCurrencyCode(),
-            $quote->getReservedOrderId()
+            $amount,
+            $currencyCode,
+            $reference
         );
     }
 }
