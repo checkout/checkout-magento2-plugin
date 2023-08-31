@@ -344,25 +344,33 @@ class V2 extends Action
     protected function processPayment(): array
     {
         // Try to load a quote
-        $quote = $this->loadQuote();
+        $quote = $this->config->isPaymentWithPaymentFirst() ? $this->loadQuote() : null;
+        // Reserved an order
+        $reservedOrderId = $this->config->isPaymentWithPaymentFirst() ? $this->quoteHandler->getReference($quote) : null;
+        // Create Order if needed before paymen
+        $orderBeforePayment = $this->config->isPaymentWithOrderFirst() ? $this->createOrder() : null;
 
-        if ($quote !== null) {
-            // Reserved an order
-            /** @var string $reservedOrderId */
-            $reservedOrderId = $this->quoteHandler->getReference($quote);
+        // Process the payment
+        if (($this->config->isPaymentWithPaymentFirst() && $this->quoteHandler->isQuote($quote) && $reservedOrderId !== null)
+            || ($this->config->isPaymentWithOrderFirst() && $this->orderHandler->isOrder($orderBeforePayment))
+        ) {
+            //Init values to request payment
+            $amount = (float)$this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $orderBeforePayment->getGrandTotal();
+            $currency = (string)$this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $orderBeforePayment->getOrderCurrencyCode();
+            $reference = (string)$this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $orderBeforePayment->getIncrementId();
 
             // Get the payment response
-            $response = $this->getPaymentResponse($quote);
+            $response = $this->getPaymentResponse($amount, $currency, $reference);
 
-            if ($this->api->isValidResponse($response) && $reservedOrderId !== null) {
+            if ($this->api->isValidResponse($response)) {
                 // Create Order
-                $this->order = $order = $this->createOrder();
+                $this->order = $order = ($orderBeforePayment === null) ? $this->createOrder() : $orderBeforePayment;
 
                 // Process the payment response
                 $is3ds = property_exists(
-                    $response,
-                    '_links'
-                ) && isset($response->_links['redirect']) && isset($response->_links['redirect']['href']);
+                             $response,
+                             '_links'
+                         ) && isset($response->_links['redirect']) && isset($response->_links['redirect']['href']);
 
                 if ($is3ds) {
                     $this->result['redirect_url'] = $response->_links['redirect']['href'];
@@ -446,27 +454,31 @@ class V2 extends Action
     }
 
     /**
-     * Get a payment response.
+     * Get a payment response for cart.
      *
-     * @param CartInterface $quote
+     * @param float $amount
+     * @param string $currencyCode
+     * @param string $reference
      *
      * @return mixed
      */
-    public function getPaymentResponse(CartInterface $quote)
+    public function getPaymentResponse(float $amount, string $currencyCode, string $reference)
     {
         $sessionId = $this->getRequest()->getParam('cko-session-id');
 
-        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment($quote);
+        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment($amount, $currencyCode, $reference);
     }
 
     /**
-     * Request payment to API handler
+     * Request payment to API handler by cart
      *
-     * @param CartInterface $quote
+     * @param float $amount
+     * @param string $currencyCode
+     * @param string $reference
      *
      * @return mixed
      */
-    protected function requestPayment(CartInterface $quote)
+    protected function requestPayment(float $amount, string $currencyCode, string $reference)
     {
         // Prepare the payment request payload
         $payload = [
@@ -491,9 +503,9 @@ class V2 extends Action
         // Send the charge request
         return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
             $payload,
-            $quote->getGrandTotal(),
-            $quote->getQuoteCurrencyCode(),
-            $quote->getReservedOrderId(),
+            $amount,
+            $currencyCode,
+            $reference,
             $this->quote,
             true
         );

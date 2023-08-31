@@ -53,6 +53,13 @@
                             <comment>Specify which payment method should be enabled (opened) by default in the Checkout.com payment options list for customers. Works only if the selected payment method is enabled and if no payment method was selected by the customer himself.</comment>
                         </field>
 
+                        <field id="payment_processing" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Payment Processing</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentProcesing</source_model>
+                            <config_path>settings/checkoutcom_configuration/payment_processing</config_path>
+                            <comment>Specify if payment should be processed before order creation (default) or after order creation (respectful of native Magento and Adobe Commerce processing).</comment>
+                        </field>
+
                         <field id="payment_action" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Payment Action</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
