@@ -17,6 +17,7 @@
 
 namespace CheckoutCom\Magento2\Helper;
 
+use CheckoutCom\Magento2\Logger\ResponseHandler;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -45,6 +46,10 @@ class Logger
      * @var LoggerInterface $logger
      */
     private $logger;
+    /**
+     * @var ResponseHandler $responseLogger
+     */
+    private $responseLogger;
 
     /**
      * Logger constructor
@@ -56,11 +61,13 @@ class Logger
     public function __construct(
         ManagerInterface $messageManager,
         ScopeConfigInterface $scopeConfig,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ResponseHandler $responseLogger
     ) {
         $this->messageManager = $messageManager;
         $this->scopeConfig = $scopeConfig;
         $this->logger = $logger;
+        $this->responseLogger = $responseLogger;
     }
 
     /**
@@ -114,7 +121,7 @@ class Logger
 
         if ($debug && $gatewayResponses) {
             $output = json_encode($response);
-            $this->messageManager->addComplexSuccessMessage('ckoMessages', ['output' => $output]);
+            $this->responseLogger->log($output);
         }
     }
 
