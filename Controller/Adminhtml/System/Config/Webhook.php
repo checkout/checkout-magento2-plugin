@@ -176,8 +176,7 @@ class Webhook extends Action
             }
         } catch (CheckoutApiException | CheckoutAuthorizationException $e) {
             $success = false;
-            $message = __($e->getMessage());
-            $this->logger->write($message);
+            $this->logger->write($e->getMessage());
         } finally {
             return $this->resultJsonFactory->create()->setData([
                 'success' => $success,

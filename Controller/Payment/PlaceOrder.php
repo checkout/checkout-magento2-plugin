@@ -318,10 +318,15 @@ class PlaceOrder extends Action
             }
         } catch (Exception $e) {
             $success = false;
+            $error = true;
             $message = __($e->getMessage());
         } finally {
             if ($log) {
                 $this->logger->write($message);
+            }
+
+            if ($error) {
+                $message = null;
             }
 
             return $this->jsonFactory->create()->setData([
