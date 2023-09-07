@@ -7,6 +7,7 @@ namespace CheckoutCom\Magento2\Logger;
 use CheckoutCom\Magento2\Logger\Handler\InfoHandler;
 use CheckoutCom\Magento2\Logger\Handler\InfoHandlerFactory;
 use CheckoutCom\Magento2\Logger\Handler\LoggerFactory;
+use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 /**
@@ -17,7 +18,7 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
  */
 class ResponseHandler
 {
-    private const FILE_PATH = DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'log';
+    private const FILE_PATH = DIRECTORY_SEPARATOR . DirectoryList::VAR_DIR . DIRECTORY_SEPARATOR . DirectoryList::LOG;
     private const FILE_EXTENSION = '.log';
     private const FILE_NAME = 'checkoutcom_magento2_gateway_{{date}}';
     private const DATE_FORMAT = 'Ymd-H:i:s';

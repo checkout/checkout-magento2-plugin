@@ -176,7 +176,8 @@ class Webhook extends Action
             }
         } catch (CheckoutApiException | CheckoutAuthorizationException $e) {
             $success = false;
-            $this->logger->write($e->getMessage());
+            $message = __($e->getMessage());
+            $this->logger->write($message);
             $message = __('Could not set webhooks, please check your account settings');
         } finally {
             return $this->resultJsonFactory->create()->setData([
