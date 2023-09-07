@@ -318,15 +318,14 @@ class PlaceOrder extends Action
             }
         } catch (Exception $e) {
             $success = false;
-            $error = true;
             $message = __($e->getMessage());
         } finally {
             if ($log) {
                 $this->logger->write($message);
             }
 
-            if ($error) {
-                $message = null;
+            if (!$success) {
+                $message = __('An error has occurred, please select another payment method');
             }
 
             return $this->jsonFactory->create()->setData([
