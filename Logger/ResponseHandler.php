@@ -18,7 +18,6 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
  */
 class ResponseHandler
 {
-    private const FILE_PATH = DIRECTORY_SEPARATOR . DirectoryList::VAR_DIR . DIRECTORY_SEPARATOR . DirectoryList::LOG;
     private const FILE_EXTENSION = '.log';
     private const FILE_NAME = 'checkoutcom_magento2_gateway_{{date}}';
     private const DATE_FORMAT = 'Ymd-H:i:s';
@@ -35,15 +34,21 @@ class ResponseHandler
      * @var LoggerFactory $loggerFactory
      */
     private $loggerFactory;
+    /**
+     * @var DirectoryList $directoryList
+     */
+    private $directoryList;
 
     public function __construct(
         TimezoneInterface $timezone,
         InfoHandlerFactory $infoHandlerFactory,
-        LoggerFactory $loggerFactory
+        LoggerFactory $loggerFactory,
+        DirectoryList $directoryList
     ) {
         $this->timezone = $timezone;
         $this->infoHandlerFactory = $infoHandlerFactory;
         $this->loggerFactory = $loggerFactory;
+        $this->directoryList = $directoryList;
     }
 
     public function log(string $message): void
@@ -69,7 +74,7 @@ class ResponseHandler
 
     private function getFilePath(): string
     {
-        return self::FILE_PATH . DIRECTORY_SEPARATOR . $this->getFilename() . self::FILE_EXTENSION;
+        return DIRECTORY_SEPARATOR . $this->directoryList->getDefaultConfig()[DirectoryList::LOG]['path'] . DIRECTORY_SEPARATOR . $this->getFilename() . self::FILE_EXTENSION;
     }
 
     private function getFilename(): string
