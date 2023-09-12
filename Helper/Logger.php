@@ -99,7 +99,7 @@ class Logger
     }
 
     /**
-     * Display the debug information on the front end.
+     * Write gateway responses in dynamic log files if configuration is enabled.
      *
      * @param mixed $response The response
      *

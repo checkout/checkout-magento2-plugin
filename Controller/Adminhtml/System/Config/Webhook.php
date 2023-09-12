@@ -178,7 +178,6 @@ class Webhook extends Action
             $success = false;
             $message = __($e->getMessage());
             $this->logger->write($message);
-            $message = __('Could not set webhooks, please check your account settings');
         } finally {
             return $this->resultJsonFactory->create()->setData([
                 'success' => $success,
