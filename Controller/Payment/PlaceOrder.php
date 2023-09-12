@@ -318,7 +318,7 @@ class PlaceOrder extends Action
             }
         } catch (Exception $e) {
             $success = false;
-            $message = __($e->getMessage());
+            $this->logger->write($e->getMessage());
         } finally {
             if ($log) {
                 $this->logger->write($message);
