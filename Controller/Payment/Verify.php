@@ -213,8 +213,10 @@ class Verify extends Action
             }
         } catch (Exception $e) {
             $this->messageManager->addErrorMessage(
-                __($e->getMessage())
+                __('An error has occurred, please select another payment method or retry in a few minutes')
             );
+            
+            $this->logger->write($e->getMessage());
 
             return $this->_redirect('checkout/cart', ['_secure' => true]);
         }
