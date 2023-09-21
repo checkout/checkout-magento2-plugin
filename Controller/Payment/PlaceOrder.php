@@ -265,7 +265,7 @@ class PlaceOrder extends Action
 
                         if ($isValidResponse) {
                             // Create an order if processing is payment first
-                            $order = $order === null ? $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote) : $order;
+                            $order = $order === null ? $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote) : $order;
 
                             // Add the payment info to the order
                             $order = $this->utilities->setPaymentData($order, $response, $data);
@@ -318,7 +318,7 @@ class PlaceOrder extends Action
             }
         } catch (Exception $e) {
             $success = false;
-            $message = __($e->getMessage());
+            $this->logger->write($e->getMessage());
         } finally {
             if ($log) {
                 $this->logger->write($message);

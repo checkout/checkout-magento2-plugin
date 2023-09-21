@@ -268,6 +268,7 @@
 
                         <field id="gateway_responses" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Gateway Responses Enabled</label>
+                            <comment>Responses will be written in log file : /var/log/checkoutcom_magento2_gateway_YYYYMMDD-H:i:s.log</comment>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                             <depends>
                                 <field id="debug">1</field>
