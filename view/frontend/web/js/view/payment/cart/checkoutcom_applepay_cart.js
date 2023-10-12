@@ -385,7 +385,7 @@
          * @return {array}
          */
         function processSupportedNetworks (networksEnabled) {
-            if (networksEnabled.includes("mada") && !(Utilities.getStoreCountry === "SA")) {
+            if (networksEnabled.includes("mada") && !(Utilities.getStoreCountry() === "SA")) {
                 networksEnabled.splice(networksEnabled.indexOf("mada"), 1);
             }
 
@@ -399,7 +399,7 @@
          */
         function getCountryCode()
         {
-            return Utilities.getStoreCountry == "SA" ? "SA" : window.checkoutConfig.defaultCountryId;
+            return Utilities.getStoreCountry() === "SA" ? "SA" : window.checkoutConfig.defaultCountryId;
         }
 
         /**
