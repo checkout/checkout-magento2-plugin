@@ -105,7 +105,6 @@ class AlternativePaymentMethod extends AbstractMethod
         'boleto',
         'giropay',
         'klarna',
-        'knet',
         'poli',
         'sepa',
     ];
