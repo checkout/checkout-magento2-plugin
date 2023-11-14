@@ -159,6 +159,9 @@ class OrderStatusHandlerService
             case 'payment_expired':
                 $this->paymentExpired();
                 break;
+            case 'payment_declined':
+                $this->declined();
+                break;
             case 'payment_authentication_failed':
                 $this->paymentAuthenticationFailed();
             break;
@@ -329,6 +332,20 @@ class OrderStatusHandlerService
         $this->state = Order::STATE_CANCELED;
         $this->status = $this->order->getConfig()->getStateDefaultStatus($this->state);
         $this->order->addStatusHistoryComment(__('3DS authentication failed/expired.'));
+        $this->handleFailedPayment($this->order);
+    }
+
+    /**
+     * Set the order status for a payment authorization failed webhook.
+     *
+     * @return void
+     * @throws NoSuchEntityException
+     */
+    protected function declined(): void
+    {
+        $this->state = Order::STATE_CANCELED;
+        $this->status = $this->order->getConfig()->getStateDefaultStatus($this->state);
+        $this->order->addStatusHistoryComment(__('Failed payment authorization'));
         $this->handleFailedPayment($this->order);
     }
 }
