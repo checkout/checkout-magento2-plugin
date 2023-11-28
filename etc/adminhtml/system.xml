@@ -275,20 +275,17 @@
                             <label>Secret Key</label>
                             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/abc_refund_secret_key</config_path>
-                            <validate>required-entry</validate>
                         </field>
 
                         <field id="public_key" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Public Key</label>
                             <config_path>settings/checkoutcom_configuration/abc_refund_public_key</config_path>
-                            <validate>required-entry</validate>
                         </field>
 
                         <field id="private_shared_key" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Private Shared Key</label>
                             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/abc_refund_private_shared_key</config_path>
-                            <validate>required-entry</validate>
                         </field>
                     </group>
                 </group>
