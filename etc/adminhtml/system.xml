@@ -258,6 +258,39 @@
                             <config_path>settings/checkoutcom_configuration/gateway_responses</config_path>
                         </field>
                     </group>
+                    <group id="abc_online_refund" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>ABC online refund after NAS migration</label>
+                        <field id="enable" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Enable Module</label>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                            <config_path>settings/checkoutcom_configuration/abc_refund_enable</config_path>
+                            <requires>
+                                <field id="secret_key"/>
+                                <field id="public_key"/>
+                                <field id="private_shared_key"/>
+                            </requires>
+                        </field>
+
+                        <field id="secret_key" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Secret Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                            <config_path>settings/checkoutcom_configuration/abc_refund_secret_key</config_path>
+                            <validate>required-entry</validate>
+                        </field>
+
+                        <field id="public_key" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Public Key</label>
+                            <config_path>settings/checkoutcom_configuration/abc_refund_public_key</config_path>
+                            <validate>required-entry</validate>
+                        </field>
+
+                        <field id="private_shared_key" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Private Shared Key</label>
+                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                            <config_path>settings/checkoutcom_configuration/abc_refund_private_shared_key</config_path>
+                            <validate>required-entry</validate>
+                        </field>
+                    </group>
                 </group>
 
                 <group id="checkoutcom_card_payment" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
