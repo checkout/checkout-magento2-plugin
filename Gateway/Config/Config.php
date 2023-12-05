@@ -558,6 +558,18 @@ class Config
     }
 
     /**
+     * Check ABC refund after NAS migration
+     *
+     * @return bool
+     */
+    public function isAbcRefundAfterNasMigrationActive(): bool
+    {
+        return (bool) $this->getValue('abc_refund_enable')
+            && $this->getValue('abc_refund_secret_key')
+            && $this->getValue('abc_refund_public_key');
+    }
+
+    /**
      * @param int $storeCode
      * @param string $scope
      *
@@ -571,5 +583,4 @@ class Config
 
         return Environment::production();
     }
-
 }

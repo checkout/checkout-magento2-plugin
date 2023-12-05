@@ -54,6 +54,7 @@
                 <currencies_x1000>BHD,LYD,JOD,KWD,OMR,TND</currencies_x1000>
                 <default_method>checkoutcom_card_payment</default_method>
                 <github_api_url>https://api.github.com/repos/checkout/checkout-magento2-plugin/releases</github_api_url>
+                <abc_refund_enable>0</abc_refund_enable>
             </checkoutcom_configuration>
         </settings>
         <payment>

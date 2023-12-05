@@ -140,6 +140,18 @@ class RefundInvoice
                 );
             }
 
+            // Try to process the refund with ABC API
+            if (!$api->isValidResponse($response) && $this->config->isAbcRefundAfterNasMigrationActive()) {
+                // Initialize ABC API handler
+                $apiABC = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+                $response = $apiABC->refundOrder($payment, $amount);
+                if (!$apiABC->isValidResponse($response)) {
+                    throw new LocalizedException(
+                        __('The refund request could not be processed.')
+                    );
+                }
+            }
+
             if ($this->statusNeedsCorrection($order)) {
                 $order->setStatus($this->config->getValue('order_status_refunded'));
             }
