@@ -53,6 +53,13 @@
                             <comment>Specify which payment method should be enabled (opened) by default in the Checkout.com payment options list for customers. Works only if the selected payment method is enabled and if no payment method was selected by the customer himself.</comment>
                         </field>
 
+                        <field id="payment_processing" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Payment Processing</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentProcesing</source_model>
+                            <config_path>settings/checkoutcom_configuration/payment_processing</config_path>
+                            <comment>Specify if payment should be processed before order creation (default) or after order creation (respectful of native Magento and Adobe Commerce processing).</comment>
+                        </field>
+
                         <field id="payment_action" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Payment Action</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction</source_model>
@@ -196,6 +203,16 @@
                             <validate>required-entry</validate>
                         </field>
 
+                        <field id="channel_id" type="text" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Channel id</label>
+                            <config_path>settings/checkoutcom_configuration/channel_id</config_path>
+                            <depends>
+                                <field id="service">NAS</field>
+                            </depends>
+                            <validate>required-entry</validate>
+                            <comment>The channel id begin with pc_xxx</comment>
+                        </field>
+
                         <field id="webhook_url" sortOrder="50" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Webhook Url</label>
                             <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\WebhookUrl</frontend_model>
@@ -251,6 +268,7 @@
 
                         <field id="gateway_responses" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Gateway Responses Enabled</label>
+                            <comment>Responses will be written in log file : /var/log/checkoutcom_magento2_gateway_YYYYMMDD-H:i:s.log</comment>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                             <depends>
                                 <field id="debug">1</field>

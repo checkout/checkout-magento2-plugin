@@ -26,10 +26,19 @@ use CheckoutCom\Magento2\Block\Account\AddCard;
 
 <div id="cko-form-holder" style="display: none;">
     <br>
+    <div class="frames-field" id="cc-tooltip" style="display: none;">
+        <span><?= $block->escapeHtml(__('Select your preferred brand')) ?></span>
+        <span class="tooltip">
+            <button type="button" id="tooltip-trigger"><?= $block->escapeHtml(__('?')); ?></button>
+            <span class="tooltip-content" id="cc-tooltip-content" style="display: none;">
+                <?= $block->escapeHtml(__('Your card has two brands, and you can choose your preferred one for this payment. If you do not, then the merchant’s preferred brand will be selected.')); ?>
+            </span>
+        </span>
+    </div>
     <div class="one-liner">
-      <div class="card-frame">
-        <!-- form will be added here -->
-      </div>
+        <div class="card-frame">
+            <!-- form will be added here -->
+        </div>
     </div>
     <div class="scheme-choice-frame">
         <!-- form will be added here -->
@@ -56,20 +65,26 @@ use CheckoutCom\Magento2\Block\Account\AddCard;
         var cardFormContainerId = '#cko-form-holder';
         var ckoPublicKey = '<?= $block->escapeHtml($block->getConfig()->getValue('public_key')); ?>';
         var paymentForm = document.getElementById('saveCardForm');
+        const ccTooltip = document.getElementById('cc-tooltip');
+        const tooltipBtn = document.getElementById('tooltip-trigger');
+        const tooltipContent = document.getElementById('cc-tooltip-content');
 
         // Initialize the embedded form
         Frames.init(
             {
                 publicKey: ckoPublicKey,
                 debug: Boolean(<?= $block->escapeHtml(($block->getConfig()->getValue('debug') && $block->getConfig()->getValue('console_logging'))); ?>),
-                schemeChoice: {
-                    frameSelector: ".scheme-choice-frame"
-                },
+                schemeChoice: true,
+                modes: [ Frames.modes.FEATURE_FLAG_SCHEME_CHOICE],
                 cardValidationChanged: function() {
                     if (Frames.isCardValid()) {
                         Frames.submitCard();
                     }
-                    saveCardButton.attr("disabled", !Frames.isCardValid());
+                    if (!Frames.isCardValid()) {
+                        saveCardButton.attr("disabled", true);
+                    } else if(cardTokenField.val() !== '') {
+                        saveCardButton.attr("disabled", false);
+                    }
                 },
                 frameActivated: function () {
                     saveCardButton.attr("disabled", true);
@@ -82,6 +97,21 @@ use CheckoutCom\Magento2\Block\Account\AddCard;
                     cardTokenField.val(event.token);
 
                     Frames.enableSubmitForm();
+
+                    if (Frames.isCardValid()) {
+                        saveCardButton.attr("disabled", false);
+                    }
+                }
+            }
+        );
+
+        Frames.addEventHandler(
+            Frames.Events.CARD_BIN_CHANGED,
+            function (event) {
+                if (event.isCoBadged) {
+                    ccTooltip.style.display = 'block';
+                } else {
+                    ccTooltip.style.display = 'none';
                 }
             }
         );
@@ -112,7 +142,17 @@ use CheckoutCom\Magento2\Block\Account\AddCard;
                     window.location.href = data.url;
                 },
                 error: function (request, status, error) {
-                   $('body').trigger('processStop');
+                    $('body').trigger('processStop');
+                }
+            });
+        });
+
+        ['mouseenter','mouseleave'].forEach((eventName) => {
+            tooltipBtn.addEventListener(eventName, (event) => {
+                if (tooltipContent.style.display === 'none') {
+                    tooltipContent.style.display= 'block';
+                } else {
+                    tooltipContent.style.display= 'none';
                 }
             });
         });

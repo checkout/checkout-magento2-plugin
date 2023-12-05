@@ -19,18 +19,20 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-use Checkout\Library\Exceptions\CheckoutHttpException;
-use Checkout\Models\Payments\BillingDescriptor;
-use Checkout\Models\Payments\Payment;
-use Checkout\Models\Payments\ThreeDs;
-use Checkout\Models\Payments\TokenSource;
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutArgumentException;
+use Checkout\Payments\BillingDescriptor;
+use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
+use Checkout\Payments\Previous\Source\RequestTokenSource as PreviousRequestTokenSource;
+use Checkout\Payments\Request\PaymentRequest;
+use Checkout\Payments\Request\Source\RequestTokenSource;
+use Checkout\Payments\ThreeDsRequest;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
-use Exception;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Customer\Model\Session as CustomerModelSession;
 use Magento\Directory\Helper\Data as DirectoryHelper;
@@ -45,6 +47,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
@@ -117,6 +120,10 @@ class CardPaymentMethod extends AbstractMethod
      * @var bool $_canRefundInvoicePartial
      */
     protected $_canRefundInvoicePartial = true;
+    /**
+     * @var Json
+     */
+    protected $json;
     /**
      * $quoteHandler field
      *
@@ -193,6 +200,7 @@ class CardPaymentMethod extends AbstractMethod
      * @param LoggerHelper $ckoLogger
      * @param DirectoryHelper $directoryHelper
      * @param DataObjectFactory $dataObjectFactory
+     * @param Json $json
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -216,6 +224,7 @@ class CardPaymentMethod extends AbstractMethod
         LoggerHelper $ckoLogger,
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
+        Json $json,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
@@ -245,23 +254,25 @@ class CardPaymentMethod extends AbstractMethod
         $this->quoteHandler = $quoteHandler;
         $this->cardHandler = $cardHandler;
         $this->ckoLogger = $ckoLogger;
+        $this->json = $json;
     }
 
     /**
      * Send a charge request
      *
-     * @param string[] $data
+     * @param array $data
      * @param float $amount
      * @param string $currency
      * @param string $reference
      * @param CartInterface|null $quote
      * @param bool|null $isApiOrder
-     * @param mixed|null $customerId
+     * @param $customerId
      *
-     * @return CheckoutHttpException|Exception|mixed|void
+     * @return array
+     * @throws CheckoutApiException
      * @throws FileSystemException
      * @throws LocalizedException
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|CheckoutArgumentException
      */
     public function sendPaymentRequest(
         array $data,
@@ -271,7 +282,7 @@ class CardPaymentMethod extends AbstractMethod
         CartInterface $quote = null,
         bool $isApiOrder = null,
         $customerId = null
-    ) {
+    ): array {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
 
@@ -284,26 +295,39 @@ class CardPaymentMethod extends AbstractMethod
         }
 
         // Set the token source
-        $tokenSource = new TokenSource($data['cardToken']);
+        if ($this->apiHandler->isPreviousMode()) {
+            $tokenSource = new PreviousRequestTokenSource();
+        } else {
+            $tokenSource = new RequestTokenSource();
+        }
+
+        $tokenSource->token = $data['cardToken'];
         $tokenSource->billing_address = $api->createBillingAddress($quote);
 
         // Set the payment
-        $request = new Payment(
-            $tokenSource, $currency
-        );
+        if ($this->apiHandler->isPreviousMode()) {
+            $request = new PreviousPaymentRequest();
+        } else {
+            $request = new PaymentRequest();
+        }
+
+        $request->currency = $currency;
+        $request->source = $tokenSource;
+        $request->processing_channel_id = $this->config->getValue('channel_id');
 
         // Prepare the metadata array
         $request->metadata['methodId'] = $this->_code;
 
         // Prepare the capture setting
         $madaEnabled = $this->config->getValue('mada_enabled', $this->_code);
+
         if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
             $request->metadata['udf1'] = 'MADA';
         } else {
-            $needsAutoCapture = $this->config->needsAutoCapture($this->_code);
+            $needsAutoCapture = $this->config->needsAutoCapture();
             $request->capture = $needsAutoCapture;
             if ($needsAutoCapture) {
-                $request->capture_on = $this->config->getCaptureTime($this->_code);
+                $request->capture_on = $this->config->getCaptureTime();
             }
         }
 
@@ -318,13 +342,23 @@ class CardPaymentMethod extends AbstractMethod
         $request->reference = $reference;
         $request->success_url = $this->getSuccessUrl($data, $isApiOrder);
         $request->failure_url = $this->getFailureUrl($data, $isApiOrder);
-        $request->threeDs = new ThreeDs($this->config->needs3ds($this->_code));
-        $request->threeDs->attempt_n3d = (bool)$this->config->getValue('attempt_n3d', $this->_code);
+
+        $theeDsRequest = new ThreeDsRequest();
+        $theeDsRequest->enabled = $this->config->needs3ds($this->_code);
+        $theeDsRequest->attempt_n3d = (bool)$this->config->getValue('attempt_n3d', $this->_code);
+
+        $request->three_ds = $theeDsRequest;
         $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = 'Regular';
+
         if (!$quote->getIsVirtual()) {
             $request->shipping = $api->createShippingAddress($quote);
+        }
+
+        // Preferred scheme
+        if (isset($data['preferredScheme']) && $data['preferredScheme'] !== '') {
+            $request->processing = ['preferred_scheme' => strtolower($data['preferredScheme'])];
         }
 
         // Save card check
@@ -342,10 +376,7 @@ class CardPaymentMethod extends AbstractMethod
                 $request->metadata['customerId'] = $customerId;
             }
         } else {
-            if (isset($data['saveCard']) && json_decode(
-                                                $data['saveCard']
-                                            ) === true && $saveCardEnabled && $this->customerSession->isLoggedIn()
-            ) {
+            if (isset($data['saveCard']) && $this->json->unserialize($data['saveCard']) === true && $saveCardEnabled && $this->customerSession->isLoggedIn()) {
                 $request->metadata['saveCard'] = 1;
                 $request->metadata['customerId'] = $this->customerSession->getCustomer()->getId();
             }
@@ -353,13 +384,15 @@ class CardPaymentMethod extends AbstractMethod
 
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
-            $request->billing_descriptor = new BillingDescriptor(
-                $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE), $this->config->getValue('descriptor_city')
-            );
+            $billingDescriptor = new BillingDescriptor();
+            $billingDescriptor->city = $this->config->getValue('descriptor_city');
+            $billingDescriptor->name = $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE);
+
+            $request->billing_descriptor = $billingDescriptor;
         }
 
         // Add the quote metadata
-        $request->metadata['quoteData'] = json_encode(
+        $request->metadata['quoteData'] = $this->json->serialize(
             $this->quoteHandler->getQuoteRequestData($quote)
         );
 
@@ -372,24 +405,20 @@ class CardPaymentMethod extends AbstractMethod
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
         // Send the charge request
-        try {
-            return $api->getCheckoutApi()->payments()->request($request);
-        } catch (CheckoutHttpException $e) {
-            $this->ckoLogger->write($e->getBody());
-            if ($isApiOrder) {
-                return $e;
-            }
-        }
+        return $api->getCheckoutApi()->getPaymentsClient()->requestPayment($request);
     }
 
     /**
      * Perform a capture request
      *
      * @param InfoInterface $payment
-     * @param float $amount
+     * @param $amount
      *
-     * @return $this|CardPaymentMethod
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
@@ -416,7 +445,7 @@ class CardPaymentMethod extends AbstractMethod
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
@@ -427,7 +456,9 @@ class CardPaymentMethod extends AbstractMethod
      *
      * @param InfoInterface $payment
      *
-     * @return $this|CardPaymentMethod
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      * @throws LocalizedException
      */
     public function void(InfoInterface $payment): AbstractMethod
@@ -455,7 +486,7 @@ class CardPaymentMethod extends AbstractMethod
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
@@ -466,7 +497,9 @@ class CardPaymentMethod extends AbstractMethod
      *
      * @param InfoInterface $payment
      *
-     * @return $this|CardPaymentMethod
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      * @throws LocalizedException
      */
     public function cancel(InfoInterface $payment): AbstractMethod
@@ -500,7 +533,7 @@ class CardPaymentMethod extends AbstractMethod
             );
             $payment->setMessage($comment);
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;
@@ -510,10 +543,13 @@ class CardPaymentMethod extends AbstractMethod
      * Perform a refund request
      *
      * @param InfoInterface $payment
-     * @param float $amount
+     * @param $amount
      *
-     * @return $this|CardPaymentMethod
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
      * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
@@ -541,7 +577,7 @@ class CardPaymentMethod extends AbstractMethod
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
         }
 
         return $this;

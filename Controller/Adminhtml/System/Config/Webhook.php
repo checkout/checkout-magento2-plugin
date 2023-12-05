@@ -17,9 +17,11 @@
 
 declare(strict_types=1);
 
-namespace Checkoutcom\Magento2\Controller\Adminhtml\System\Config;
+namespace CheckoutCom\Magento2\Controller\Adminhtml\System\Config;
 
-use Checkout\Models\Webhooks\Webhook as WebhookModel;
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutAuthorizationException;
+use Checkout\Webhooks\Previous\WebhookRequest;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use Exception;
@@ -40,7 +42,10 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Webhook extends Action
 {
-    protected $resultJsonFactory;
+    /**
+     * @var JsonFactory
+     */
+    private $resultJsonFactory;
     /**
      * $apiHandler field
      *
@@ -69,13 +74,14 @@ class Webhook extends Action
     /**
      * Webhook constructor
      *
-     * @param Context              $context
-     * @param JsonFactory          $resultJsonFactory
-     * @param ApiHandlerService    $apiHandler
-     * @param Config               $resourceConfig
-     * @param TypeListInterface    $cacheTypeList
-     * @param Logger               $logger
+     * @param Context $context
+     * @param JsonFactory $resultJsonFactory
+     * @param ApiHandlerService $apiHandler
+     * @param Config $resourceConfig
+     * @param TypeListInterface $cacheTypeList
+     * @param Logger $logger
      * @param ScopeConfigInterface $scopeConfig
+     * @param EncryptorInterface $encryptor
      */
     public function __construct(
         Context $context,
@@ -88,12 +94,12 @@ class Webhook extends Action
         EncryptorInterface $encryptor
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
-        $this->apiHandler        = $apiHandler;
-        $this->resourceConfig    = $resourceConfig;
-        $this->cacheTypeList     = $cacheTypeList;
-        $this->logger            = $logger;
-        $this->scopeConfig       = $scopeConfig;
-        $this->encryptor         = $encryptor;
+        $this->apiHandler = $apiHandler;
+        $this->resourceConfig = $resourceConfig;
+        $this->cacheTypeList = $cacheTypeList;
+        $this->logger = $logger;
+        $this->scopeConfig = $scopeConfig;
+        $this->encryptor = $encryptor;
 
         parent::__construct($context);
     }
@@ -109,68 +115,74 @@ class Webhook extends Action
             // Prepare some parameters
             $message = '';
             // Get the store code
-            $scope      = $this->getRequest()->getParam('scope', 0);
-            $storeCode  = $this->getRequest()->getParam('scope_id', 0);
-            $publicKey  = $this->getRequest()->getParam('public_key', 0);
+            $scope = $this->getRequest()->getParam('scope', 0);
+            $storeCode = $this->getRequest()->getParam('scope_id', 0);
+            $publicKey = $this->getRequest()->getParam('public_key', 0);
             $webhookUrl = $this->getRequest()->getParam('webhook_url', 0);
             $secretKey = $this->getRequest()->getParam('secret_key', 0)
-            ?: $this->scopeConfig->getValue('settings/checkoutcom_configuration/secret_key', ScopeInterface::SCOPE_WEBSITE);
-
+                ?: $this->scopeConfig->getValue('settings/checkoutcom_configuration/secret_key', ScopeInterface::SCOPE_WEBSITE);
 
             // Initialize the API handler
             $checkoutApi = $this->apiHandler
-                ->init($storeCode, $scope, $secretKey)
+                ->init($storeCode, $scope, $secretKey, $publicKey)
                 ->getCheckoutApi();
 
-            $events     = $checkoutApi->events()->types(['version' => '2.0']);
-            $eventTypes = $events->list[0]->event_types;
-            $webhooks   = $checkoutApi->webhooks()->retrieve();
-            $webhookId  = null;
-            foreach ($webhooks->list as $list) {
-                if ($list->url == $webhookUrl) {
-                    $webhookId = $list->id;
+            $events = $checkoutApi->getWebhooksClient()->retrieveWebhooks();
+            if ($this->apiHandler->isValidResponse($events)) {
+                $eventTypes = $events['items'][0]['event_types'];
+                $webhooks = $checkoutApi->getWebhooksClient()->retrieveWebhooks();
+                if ($this->apiHandler->isValidResponse($webhooks)) {
+                    $webhookId = null;
+                    foreach ($webhooks['items'] as $list) {
+                        if ($list['url'] === $webhookUrl) {
+                            $webhookId = $list['id'];
+                        }
+                    }
+
+                    $webhookRequest = new WebhookRequest();
+                    $webhookRequest->event_types = $eventTypes;
+                    $webhookRequest->url = $webhookUrl;
+
+                    if (isset($webhookId)) {
+                        $response = $checkoutApi->getWebhooksClient()->updateWebhook($webhookId, $webhookRequest);
+                    } else {
+                        $webhookRequest->active = true;
+                        $response = $checkoutApi->getWebhooksClient()->registerWebhook($webhookRequest);
+                    }
+
+                    $success = $this->apiHandler->isValidResponse($response);
+
+                    if ($success) {
+                        $privateSharedKey = $response['headers']['authorization'];
+                        $encryptedPrivateSharedKey = $this->encryptor->encrypt($privateSharedKey);
+
+                        $this->resourceConfig->saveConfig(
+                            'settings/checkoutcom_configuration/private_shared_key',
+                            $encryptedPrivateSharedKey,
+                            $scope,
+                            $storeCode
+                        );
+                        $this->resourceConfig->saveConfig(
+                            'settings/checkoutcom_configuration/public_key',
+                            $publicKey,
+                            $scope,
+                            $storeCode
+                        );
+
+                        $this->cacheTypeList->cleanType(CacheTypeConfig::TYPE_IDENTIFIER);
+                        $this->cacheTypeList->cleanType(Type::TYPE_IDENTIFIER);
+                    }
                 }
             }
-
-            if (isset($webhookId)) {
-                $webhook              = new WebhookModel($webhookUrl, $webhookId);
-                $webhook->event_types = $eventTypes;
-                $response             = $checkoutApi->webhooks()->update($webhook, true);
-            } else {
-                $webhook  = new WebhookModel($webhookUrl);
-                $response = $checkoutApi->webhooks()->register($webhook, $eventTypes);
-            }
-
-            $privateSharedKey = $response->headers->authorization;
-            /** @var string $encryptedPrivateSharedKey */
-            $encryptedPrivateSharedKey = $this->encryptor->encrypt($privateSharedKey);
-
-            $this->resourceConfig->saveConfig(
-                'settings/checkoutcom_configuration/private_shared_key',
-                $encryptedPrivateSharedKey,
-                $scope,
-                $storeCode
-            );
-            $this->resourceConfig->saveConfig(
-                'settings/checkoutcom_configuration/public_key',
-                $publicKey,
-                $scope,
-                $storeCode
-            );
-
-            $success = $response->isSuccessful();
-
-            $this->cacheTypeList->cleanType(CacheTypeConfig::TYPE_IDENTIFIER);
-            $this->cacheTypeList->cleanType(Type::TYPE_IDENTIFIER);
-        } catch (Exception $e) {
+        } catch (CheckoutApiException | CheckoutAuthorizationException $e) {
             $success = false;
             $message = __($e->getMessage());
             $this->logger->write($message);
         } finally {
             return $this->resultJsonFactory->create()->setData([
-                'success'          => $success,
+                'success' => $success,
                 'privateSharedKey' => $privateSharedKey ?? '',
-                'message'          => 'Could not set webhooks, please check your account settings',
+                'message' => 'Could not set webhooks, please check your account settings',
             ]);
         }
     }

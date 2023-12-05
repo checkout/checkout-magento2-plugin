@@ -19,8 +19,8 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Helper;
 
-use Checkout\Models\Payments\Payment;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Sales\Api\Data\OrderInterface;
 
 /**
@@ -29,11 +29,22 @@ use Magento\Sales\Api\Data\OrderInterface;
 class Utilities
 {
     /**
+     * @var Json
+     */
+    protected $json;
+
+    public function __construct(
+        Json $json
+    ) {
+        $this->json = $json;
+    }
+
+    /**
      * Convert a date string to ISO8601 format
      *
-     * @param int|float $timestamp
+     * @param $timestamp
      *
-     * @return false|string
+     * @return string
      */
     public function formatDate($timestamp): string
     {
@@ -57,41 +68,43 @@ class Utilities
      *
      * @param $object
      *
-     * @return mixed[]
+     * @return array
      */
     public function objectToArray($object): array
     {
-        return json_decode(json_encode($object), true);
+        return $this->json->unserialize($this->json->serialize($object));
     }
 
     /**
      * Get the gateway payment information from an order
      *
-     * @param $order
+     * @param OrderInterface $order
+     * @param string $data
      *
      * @return string[]|null
+     * @throws LocalizedException
      */
-    public function getPaymentData($order): ?array
+    public function getPaymentData(OrderInterface $order, string $data = 'transaction_info'): ?array
     {
         $paymentData = $order->getPayment()
             ->getMethodInstance()
             ->getInfoInstance()
             ->getData();
 
-        return $paymentData['additional_information']['transaction_info'] ?? null;
+        return $paymentData['additional_information'][$data] ?? null;
     }
 
     /**
      * Add the gateway payment information to an order
      *
      * @param OrderInterface $order
-     * @param Payment        $data
-     * @param array|null     $source
+     * @param array $data
+     * @param array|null $source
      *
      * @return OrderInterface
      * @throws LocalizedException
      */
-    public function setPaymentData(OrderInterface $order, Payment $data, array $source = null): OrderInterface
+    public function setPaymentData(OrderInterface $order, array $data, array $source = null): OrderInterface
     {
         // Get the payment info instance
         $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();
@@ -99,7 +112,7 @@ class Utilities
         // Add the transaction info for order save after
         $paymentInfo->setAdditionalInformation(
             'transaction_info',
-            array_intersect_key((array)$data, array_flip(['id']))
+            array_intersect_key($data, array_flip(['id']))
         );
 
         if (isset($source)) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -14,9 +15,11 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use Checkout\Models\Payments\Payment;
+use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -32,6 +35,8 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -43,6 +48,10 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class PlaceOrder extends Action
 {
+    /**
+     * @var JsonSerializer
+     */
+    protected $json;
     /**
      * $storeManager field
      *
@@ -121,24 +130,32 @@ class PlaceOrder extends Action
      * @var OrderRepositoryInterface $orderRepository
      */
     private $orderRepository;
+    /**
+     * $config field
+     *
+     * @var Config $config
+     */
+    private $config;
 
     /**
      * PlaceOrder constructor
      *
-     * @param Context                    $context
-     * @param StoreManagerInterface      $storeManager
-     * @param JsonFactory                $jsonFactory
-     * @param ScopeConfigInterface       $scopeConfig
-     * @param QuoteHandlerService        $quoteHandler
-     * @param OrderHandlerService        $orderHandler
-     * @param OrderStatusHandlerService  $orderStatusHandler
-     * @param MethodHandlerService       $methodHandler
-     * @param ApiHandlerService          $apiHandler
+     * @param Context $context
+     * @param StoreManagerInterface $storeManager
+     * @param JsonFactory $jsonFactory
+     * @param ScopeConfigInterface $scopeConfig
+     * @param QuoteHandlerService $quoteHandler
+     * @param OrderHandlerService $orderHandler
+     * @param OrderStatusHandlerService $orderStatusHandler
+     * @param MethodHandlerService $methodHandler
+     * @param ApiHandlerService $apiHandler
      * @param PaymentErrorHandlerService $paymentErrorHandler
-     * @param Utilities                  $utilities
-     * @param Logger                     $logger
-     * @param Session                    $session
-     * @param OrderRepositoryInterface   $orderRepository
+     * @param Utilities $utilities
+     * @param Logger $logger
+     * @param Session $session
+     * @param OrderRepositoryInterface $orderRepository
+     * @param JsonSerializer $json
+     * @param Config $config
      */
     public function __construct(
         Context $context,
@@ -154,23 +171,27 @@ class PlaceOrder extends Action
         Utilities $utilities,
         Logger $logger,
         Session $session,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        JsonSerializer $json,
+        Config $config
     ) {
         parent::__construct($context);
 
-        $this->storeManager        = $storeManager;
-        $this->jsonFactory         = $jsonFactory;
-        $this->scopeConfig         = $scopeConfig;
-        $this->quoteHandler        = $quoteHandler;
-        $this->orderHandler        = $orderHandler;
-        $this->orderStatusHandler  = $orderStatusHandler;
-        $this->methodHandler       = $methodHandler;
-        $this->apiHandler          = $apiHandler;
+        $this->storeManager = $storeManager;
+        $this->jsonFactory = $jsonFactory;
+        $this->scopeConfig = $scopeConfig;
+        $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
+        $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
         $this->paymentErrorHandler = $paymentErrorHandler;
-        $this->utilities           = $utilities;
-        $this->logger              = $logger;
-        $this->session             = $session;
-        $this->orderRepository     = $orderRepository;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
+        $this->session = $session;
+        $this->orderRepository = $orderRepository;
+        $this->json = $json;
+        $this->config = $config;
     }
 
     /**
@@ -182,12 +203,12 @@ class PlaceOrder extends Action
     {
         try {
             // Prepare some parameters
-            $url          = '';
-            $message      = '';
+            $url = '';
+            $message = '';
             $debugMessage = '';
             $responseCode = '';
-            $success      = false;
-            $log          = true;
+            $success = false;
+            $log = true;
 
             // Try to load a quote
             $quote = $this->quoteHandler->getQuote();
@@ -195,15 +216,21 @@ class PlaceOrder extends Action
             // Set some required properties
             $data = $this->getRequest()->getParams();
 
-            if (!$this->isEmptyCardToken($data)) {
+            if (isset($data['methodId']) && !$this->isEmptyCardToken($data)) {
                 // Process the request
                 if ($this->getRequest()->isAjax() && $quote) {
                     // Reserved an order
                     /** @var string $reservedOrderId */
-                    $reservedOrderId = $this->quoteHandler->getReference($quote);
+                    $reservedOrderId = $this->config->isPaymentWithPaymentFirst() ? $this->quoteHandler->getReference($quote) : null;
+
+                    //Create order if it is needed before payment
+                    $order = $this->config->isPaymentWithOrderFirst() ? $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote) : null;
 
                     // Process the payment
-                    if ($this->quoteHandler->isQuote($quote) && $reservedOrderId !== null) {
+                    if (($this->config->isPaymentWithPaymentFirst() && $this->quoteHandler->isQuote($quote) && $reservedOrderId !== null)
+                        || ($this->config->isPaymentWithOrderFirst() && $this->orderHandler->isOrder($order)
+                        )
+                    ) {
                         $log = false;
                         // Get the debug config value
                         $debug = $this->scopeConfig->getValue(
@@ -217,8 +244,13 @@ class PlaceOrder extends Action
                             ScopeInterface::SCOPE_STORE
                         );
 
+                        //Init values to request payment
+                        $amount = (float)$this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $order->getGrandTotal();
+                        $currency = (string)$this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $order->getOrderCurrencyCode();
+                        $reference = (string)$this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $order->getIncrementId();
+
                         // Get response and success
-                        $response = $this->requestPayment($quote, $data);
+                        $response = $this->requestPayment($quote, $data, $amount, $currency, $reference);
 
                         // Logging
                         $this->logger->display($response);
@@ -228,41 +260,49 @@ class PlaceOrder extends Action
 
                         // Process the response
                         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-                        if ($api->isValidResponse($response)) {
-                            // Create an order
-                            $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
+
+                        $isValidResponse = $api->isValidResponse($response);
+
+                        if ($isValidResponse) {
+                            // Create an order if processing is payment first
+                            $order = $order === null ? $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote) : $order;
 
                             // Add the payment info to the order
                             $order = $this->utilities->setPaymentData($order, $response, $data);
 
+                            // set order status to pending payment
+                            $order->setStatus(Order::STATE_PENDING_PAYMENT);
+
                             // check for redirection
-                            if (isset($response->_links['redirect']['href'])) {
-                                // set order status to pending payment
-                                $order->setStatus(Order::STATE_PENDING_PAYMENT);
+                            if (isset($response['_links']['redirect']['href'])) {
+                                $url = $response['_links']['redirect']['href'];
                             }
 
                             // Save the order
                             $this->orderRepository->save($order);
-
                             // Update the response parameters
-                            $success = $response->isSuccessful();
-                            $url     = $response->getRedirection();
+                            $success = $isValidResponse;
                         } else {
                             // Payment failed
-                            if (isset($response->response_code)) {
-                                $message = $this->paymentErrorHandler->getErrorMessage($response->response_code);
+                            if (isset($response['response_code'])) {
+                                $message = $this->paymentErrorHandler->getErrorMessage($response['response_code']);
                                 if ($debug && $gatewayResponses) {
-                                    $responseCode = $response->response_code;
+                                    $responseCode = $response['response_code'];
                                 }
                             } else {
                                 $message = __('The transaction could not be processed.');
                                 if ($debug && $gatewayResponses) {
-                                    $debugMessage = json_encode($response);
+                                    $debugMessage = $this->json->serialize($response);
                                 }
                             }
 
                             // Restore the quote
                             $this->session->restoreQuote();
+
+                            // Handle order on failed payment
+                            if ($this->config->isPaymentWithOrderFirst()) {
+                                $this->orderStatusHandler->handleFailedPayment($order);
+                            }
                         }
                     } else {
                         // Payment failed
@@ -278,32 +318,50 @@ class PlaceOrder extends Action
             }
         } catch (Exception $e) {
             $success = false;
-            $message = __($e->getMessage());
-            $this->logger->write($message);
+            $this->logger->write($e->getMessage());
         } finally {
             if ($log) {
                 $this->logger->write($message);
             }
 
             return $this->jsonFactory->create()->setData([
-                'success'      => $success,
-                'message'      => $message,
+                'success' => $success,
+                'message' => $message ?: __('An error has occurred, please select another payment method'),
                 'responseCode' => $responseCode,
                 'debugMessage' => $debugMessage,
-                'url'          => $url,
+                'url' => $url,
             ]);
         }
+    }
+
+    /**
+     * @param array $paymentData
+     *
+     * @return bool
+     */
+    public function isEmptyCardToken(array $paymentData): bool
+    {
+        if ($paymentData['methodId'] === 'checkoutcom_card_payment') {
+            if (empty($paymentData['cardToken'])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * Request payment to API handler
      *
      * @param CartInterface $quote
-     * @param $data
+     * @param array $data
+     * @param float $amount
+     * @param string $currencyCode
+     * @param string $reference
      *
-     * @return Payment|null
+     * @return array|null
      */
-    protected function requestPayment(CartInterface $quote, $data): ?Payment
+    protected function requestPayment(CartInterface $quote, array $data, float $amount, string $currencyCode, string $reference): ?array
     {
         if ($quote->getPayment()->getMethod() === null) {
             $paymentMethod = $data['methodId'];
@@ -317,27 +375,9 @@ class PlaceOrder extends Action
         // Send the charge request
         return $this->methodHandler->get($methodId)->sendPaymentRequest(
             $data,
-            $quote->getGrandTotal(),
-            $quote->getQuoteCurrencyCode(),
-            $quote->getReservedOrderId()
+            $amount,
+            $currencyCode,
+            $reference
         );
-    }
-
-    /**
-     * Description isEmptyCardToken function
-     *
-     * @param string[] $paymentData
-     *
-     * @return bool
-     */
-    public function isEmptyCardToken(array $paymentData): bool
-    {
-        if ($paymentData['methodId'] === "checkoutcom_card_payment") {
-            if (!isset($paymentData['cardToken']) || empty($paymentData['cardToken']) || $paymentData['cardToken'] == "") {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

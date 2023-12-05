@@ -123,7 +123,7 @@
 
                     // Start the payment session
                     Utilities.log(paymentRequest);
-                    var session = new ApplePaySession(5, paymentRequest);
+                    var session = new ApplePaySession(12, paymentRequest);
                 } else {
                     var paymentRequest = {
                         currencyCode: Utilities.getQuoteCurrency(),
@@ -151,7 +151,7 @@
 
                     // Start the payment session
                     Utilities.log(paymentRequest);
-                    var session = new ApplePaySession(6, paymentRequest);
+                    var session = new ApplePaySession(12, paymentRequest);
                 }
 
                 // Merchant Validation
@@ -233,11 +233,9 @@
 
                 // When the payment method is populated/selected
                 session.onpaymentmethodselected = function (event) {
-                    if (ApplePayUtilities.getIsVirtual()) {
-                        // Update the totals, so they reflect the all total items (shipping, tax...etc)
-                        let totals = getVirtualCartTotals();
-                        totalsBreakdown = totals;
-                    }
+                    // Update the totals, so they reflect the all total items (shipping, tax...etc)
+                    let totals = getVirtualCartTotals();
+                    totalsBreakdown = totals;
 
                     session.completePaymentMethodSelection(
                         totalsBreakdown.total,
@@ -269,9 +267,9 @@
                     // Send the request
                     var promise = sendPaymentRequest(payload);
                     promise
-                        .then(function (success) {
+                        .then(function (data) {
                             var status;
-                            if (success) {
+                            if (data.success) {
                                 status = ApplePaySession.STATUS_SUCCESS;
                             } else {
                                 status = ApplePaySession.STATUS_FAILURE;
@@ -279,9 +277,13 @@
 
                             session.completePayment(status);
 
-                            if (success) {
+                            if (data.success && data.url) {
                                 // Redirect to success page
                                 FullScreenLoader.startLoader();
+                                // Handle 3DS redirection
+                                window.location.href = data.url;
+                            } else {
+                                // Normal redirection
                                 RedirectOnSuccessAction.execute();
                             }
                         })
@@ -329,7 +331,7 @@
                     data: paymentData,
                     success: function (data, textStatus, xhr) {
                         if (data.success === true) {
-                            resolve(data.success);
+                            resolve(data);
                         } else {
                             reject();
                         }
@@ -383,7 +385,7 @@
          * @return {array}
          */
         function processSupportedNetworks (networksEnabled) {
-            if (networksEnabled.includes("mada") && !(Utilities.getStoreCountry === "SA")) {
+            if (networksEnabled.includes("mada") && !(Utilities.getStoreCountry() === "SA")) {
                 networksEnabled.splice(networksEnabled.indexOf("mada"), 1);
             }
 
@@ -397,7 +399,7 @@
          */
         function getCountryCode()
         {
-            return Utilities.getStoreCountry == "SA" ? "SA" : window.checkoutConfig.defaultCountryId;
+            return Utilities.getStoreCountry() === "SA" ? "SA" : window.checkoutConfig.defaultCountryId;
         }
 
         /**
@@ -516,6 +518,7 @@
                         country_id: countryId.toUpperCase(),
                         postcode: postCode,
                         region_code: ApplePayUtilities.getAreaCode(postCode, countryId),
+                        region_id: 0
                     },
                     shipping_carrier_code: selectedShippingMethod ? selectedShippingMethod.carrier_code : "",
                     shipping_method_code: selectedShippingMethod ? selectedShippingMethod.method_code : "",
@@ -580,6 +583,8 @@
                     },
                     billing_address: {
                         country_id: billingDetails.countryCode.toUpperCase(),
+                        region_code: ApplePayUtilities.getAreaCode(billingDetails.postalCode, billingDetails.countryCode),
+                        region_id: 0,
                         street: billingDetails.addressLines,
                         postcode: billingDetails.postalCode,
                         city: billingDetails.locality,

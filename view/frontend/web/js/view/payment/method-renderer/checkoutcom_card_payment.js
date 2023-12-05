@@ -43,9 +43,12 @@ define(
                     cardToken: null,
                     cardBin: null,
                     saveCard: false,
+                    preferredScheme: false,
                     supportedCards: null,
                     redirectAfterPlaceOrder: false,
-                    allowPlaceOrder: ko.observable(false)
+                    allowPlaceOrder: ko.observable(false),
+                    isCoBadged: ko.observable(false),
+                    tooltipVisible: ko.observable(false)
                 },
 
                 /**
@@ -134,13 +137,6 @@ define(
                             self.removeCkoPaymentForm();
                         }
                     });
-
-                    // Clear frames after update billing event
-                     $(document).on('click', '.action-update', function () {
-                        if ($('#checkoutcom_card_payment').is(':checked')) {
-                             Frames.init()
-                        }
-                     })
                 },
 
                 /**
@@ -217,9 +213,8 @@ define(
                         {
                             publicKey: self.getValue('public_key'),
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
-                            schemeChoice: {
-                                frameSelector: ".scheme-choice-frame"
-                            },
+                            schemeChoice: true,
+                            modes: [ Frames.modes.FEATURE_FLAG_SCHEME_CHOICE],
                             localization: Utilities.getShopLanguage(),
                             style: (formStyles) ? formStyles : {}
                         }
@@ -279,7 +274,7 @@ define(
                         function() {
                             var valid = Utilities.getBillingAddress() != null;
 
-                             if(valid) {
+                            if(valid) {
                                 cardholderName = Utilities.getCustomerName();
                             }
                         }
@@ -318,12 +313,22 @@ define(
                             // Store the card token and the card bin
                             self.cardToken = event.token;
                             self.cardBin =  event.bin;
+                            self.preferredScheme = event.preferred_scheme;
 
                             // Enable the submit form
                             Frames.enableSubmitForm();
 
                             // Set allowPlaceOrder to true only when tokenized.
                             self.allowPlaceOrder(true);
+                        }
+                    );
+
+                    // Card bin event
+                    Frames.addEventHandler(
+                        Frames.Events.CARD_BIN_CHANGED,
+                        function (event) {
+                            self.preferredScheme = event.scheme;
+                            self.isCoBadged(event.isCoBadged);
                         }
                     );
                 },
@@ -341,13 +346,22 @@ define(
                                 cardToken: this.cardToken,
                                 cardBin: this.cardBin,
                                 saveCard: this.saveCard,
+                                preferredScheme: this.preferredScheme,
                                 source: METHOD_ID
                             };
 
                             // Place the order
                             Utilities.placeOrder(payload, METHOD_ID);
+                            Utilities.cleanCustomerShippingAddress();
                         }
                     }
+                },
+
+                /**
+                 * @return {void}
+                 */
+                toggleTooltip: function () {
+                    this.tooltipVisible(!this.tooltipVisible());
                 }
             }
         );

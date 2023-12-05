@@ -33,7 +33,6 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -107,15 +106,15 @@ class V1 extends Action
     /**
      * Callback constructor
      *
-     * @param Context                  $context
-     * @param JsonFactory              $jsonFactory
-     * @param Config                   $config
-     * @param StoreManagerInterface    $storeManager
-     * @param QuoteHandlerService      $quoteHandler
-     * @param OrderHandlerService      $orderHandler
-     * @param MethodHandlerService     $methodHandler
-     * @param ApiHandlerService        $apiHandler
-     * @param Utilities                $utilities
+     * @param Context $context
+     * @param JsonFactory $jsonFactory
+     * @param Config $config
+     * @param StoreManagerInterface $storeManager
+     * @param QuoteHandlerService $quoteHandler
+     * @param OrderHandlerService $orderHandler
+     * @param MethodHandlerService $methodHandler
+     * @param ApiHandlerService $apiHandler
+     * @param Utilities $utilities
      * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
@@ -131,14 +130,14 @@ class V1 extends Action
         OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
-        $this->jsonFactory     = $jsonFactory;
-        $this->config          = $config;
-        $this->storeManager    = $storeManager;
-        $this->quoteHandler    = $quoteHandler;
-        $this->orderHandler    = $orderHandler;
-        $this->methodHandler   = $methodHandler;
-        $this->apiHandler      = $apiHandler;
-        $this->utilities       = $utilities;
+        $this->jsonFactory = $jsonFactory;
+        $this->config = $config;
+        $this->storeManager = $storeManager;
+        $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
+        $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
         $this->orderRepository = $orderRepository;
     }
 
@@ -151,8 +150,8 @@ class V1 extends Action
     {
         try {
             // Set the response parameters
-            $success      = false;
-            $orderId      = 0;
+            $success = false;
+            $orderId = 0;
             $errorMessage = '';
 
             // Get the request parameters
@@ -162,15 +161,33 @@ class V1 extends Action
             if ($this->isValidRequest()) {
                 // Load the quote
                 $quote = $this->loadQuote();
+                $order = null;
+                $reservedOrderId = null;
 
-                // Reserved an order
-                /** @var string $reservedOrderId */
-                $reservedOrderId = $this->quoteHandler->getReference($quote);
+                if ($this->config->isPaymentWithOrderFirst()) {
+                    // Create an order
+                    $order = $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote);
+                }
+
+                if ($this->config->isPaymentWithPaymentFirst()) {
+                    // Reserved an order
+                    /** @var string $reservedOrderId */
+                    $reservedOrderId = $this->quoteHandler->getReference($quote);
+                }
+
+
 
                 // Process the payment
-                if ($this->quoteHandler->isQuote($quote) && $reservedOrderId !== null) {
+                if (($this->config->isPaymentWithPaymentFirst() && $this->quoteHandler->isQuote($quote) && $reservedOrderId !== null)
+                    || ($this->config->isPaymentWithOrderFirst() && $this->orderHandler->isOrder($order))
+                ) {
+                    //Init values to request payment
+                    $amount = (float)$this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $order->getGrandTotal();
+                    $currency = (string)$this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $order->getOrderCurrencyCode();
+                    $reference = (string)$this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $order->getIncrementId();
+
                     // Get response and success
-                    $response = $this->requestPayment($quote);
+                    $response = $this->requestPayment($amount, $currency, $reference);
 
                     // Get the store code
                     $storeCode = $this->storeManager->getStore()->getCode();
@@ -178,8 +195,8 @@ class V1 extends Action
                     // Process the response
                     $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
                     if ($api->isValidResponse($response)) {
-                        // Create an order
-                        $order = $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote);
+                        // Create an order if processing is with payment first
+                        $order = $order === null ? $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote) : $order;
 
                         // Get the payment details
                         $paymentDetails = $api->getPaymentDetails($response->id);
@@ -207,65 +224,11 @@ class V1 extends Action
         } finally {
             // Return the json response
             return $this->jsonFactory->create()->setData([
-                'success'       => $success,
-                'order_id'      => $orderId,
+                'success' => $success,
+                'order_id' => $orderId,
                 'error_message' => $errorMessage,
             ]);
         }
-    }
-
-    /**
-     * Request payment to API handler
-     *
-     * @param CartInterface $quote
-     *
-     * @return mixed
-     */
-    protected function requestPayment(CartInterface $quote)
-    {
-        // Prepare the payment request payload
-        $payload = [
-            'cardToken' => $this->data->payment_token,
-        ];
-
-        if (isset($this->data->card_bin)) {
-            $payload['cardBin'] = $this->data->card_bin;
-        }
-
-        // Send the charge request
-        return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
-            $payload,
-            $quote->getGrandTotal(),
-            $quote->getQuoteCurrencyCode(),
-            $quote->getReservedOrderId()
-        );
-    }
-
-    /**
-     * Load the quote
-     *
-     * @return DataObject|CartInterface|Quote
-     * @throws LocalizedException
-     */
-    protected function loadQuote()
-    {
-        if (!isset($this->data->quote_id)) {
-            $this->data->quote_id = $this->data['quote_id'];
-        }
-
-        // Load the quote
-        $quote = $this->quoteHandler->getQuote([
-            'entity_id' => $this->data->quote_id,
-        ]);
-
-        // Handle a quote not found
-        if (!$this->quoteHandler->isQuote($quote)) {
-            throw new LocalizedException(
-                __('No quote was found with the provided ID.')
-            );
-        }
-
-        return $quote;
     }
 
     /**
@@ -302,5 +265,61 @@ class V1 extends Action
         }
 
         return true;
+    }
+
+    /**
+     * Load the quote
+     *
+     * @return DataObject|CartInterface|Quote
+     * @throws LocalizedException
+     */
+    protected function loadQuote()
+    {
+        if (!isset($this->data->quote_id)) {
+            $this->data->quote_id = $this->data['quote_id'];
+        }
+
+        // Load the quote
+        $quote = $this->quoteHandler->getQuote([
+            'entity_id' => $this->data->quote_id,
+        ]);
+
+        // Handle a quote not found
+        if (!$this->quoteHandler->isQuote($quote)) {
+            throw new LocalizedException(
+                __('No quote was found with the provided ID.')
+            );
+        }
+
+        return $quote;
+    }
+
+    /**
+     * Request payment to API handler
+     *
+     * @param float $amount
+     * @param string $currencyCode
+     * @param string $reference
+     *
+     * @return mixed
+     */
+    protected function requestPayment(float $amount, string $currencyCode, string $reference)
+    {
+        // Prepare the payment request payload
+        $payload = [
+            'cardToken' => $this->data->payment_token,
+        ];
+
+        if (isset($this->data->card_bin)) {
+            $payload['cardBin'] = $this->data->card_bin;
+        }
+
+        // Send the charge request
+        return $this->methodHandler->get('checkoutcom_card_payment')->sendPaymentRequest(
+            $payload,
+            $amount,
+            $currencyCode,
+            $reference
+        );
     }
 }

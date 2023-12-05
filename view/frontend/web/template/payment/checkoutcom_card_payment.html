@@ -43,6 +43,15 @@
         <!-- Card form -->
         <div class="frames-container">
             <form method="POST" data-bind="attr: {'id': formId}">
+                <!-- ko if: isCoBadged() -->
+                <div class="frames-field">
+                    <span data-bind="i18n: 'Select your preferred brand'"></span>
+                    <span class="tooltip">
+                            <button type="button" data-bind="event: {mouseenter: toggleTooltip, mouseleave: toggleTooltip}, text: '?'"></button>
+                            <span class="tooltip-content" data-bind="visible: tooltipVisible(), i18n: 'Your card has two brands, and you can choose your preferred one for this payment. If you do not, then the merchant’s preferred brand will be selected.'"></span>
+                        </span>
+                </div>
+                <!-- /ko -->
                 <!-- ko if: (getFormLayout() == 'single') -->
                     <div class="one-liner">
                         <div class="card-frame" data-bind="afterRender: handleFormState()">
@@ -107,6 +116,9 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="scheme-choice-frame">
+                        <!-- form will be added here -->
                     </div>
                     <div>
                         <span class="error-message error-message__card-number"></span>

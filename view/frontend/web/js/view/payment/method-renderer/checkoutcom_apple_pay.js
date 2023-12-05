@@ -100,7 +100,7 @@ define(
                  * @return {array}
                  */
                 processSupportedNetworks: function(networksEnabled) {
-                    if (networksEnabled.includes("mada") && !(Utilities.getStoreCountry === "SA")) {
+                    if (networksEnabled.includes("mada") && !(Utilities.getStoreCountry() === "SA")) {
                         networksEnabled.splice(networksEnabled.indexOf("mada"), 1);
                     }
 
@@ -113,7 +113,7 @@ define(
                  * @return {string}
                  */
                 getCountryCode: function() {
-                    return  Utilities.getStoreCountry == "SA" ? "SA" : window.checkoutConfig.defaultCountryId;
+                    return  Utilities.getStoreCountry() === "SA" ? "SA" : window.checkoutConfig.defaultCountryId;
                 },
 
                 /**
@@ -161,7 +161,7 @@ define(
                                 data: paymentData,
                                 success: function (data, textStatus, xhr) {
                                     if (data.success === true) {
-                                        resolve(data.success);
+                                        resolve(data);
                                     } else {
                                         reject;
                                     }
@@ -285,7 +285,7 @@ define(
 
                                 // Start the payment session
                                 Utilities.log(paymentRequest);
-                                var session = new ApplePaySession(5, paymentRequest);
+                                var session = new ApplePaySession(14, paymentRequest);
 
                                 // Merchant Validation
                                 session.onvalidatemerchant = function (event) {
@@ -359,9 +359,9 @@ define(
                                     // Send the request
                                     var promise = self.sendPaymentRequest(payload);
                                     promise.then(
-                                        function (success) {
+                                        function (data) {
                                             var status;
-                                            if (success) {
+                                            if (data.success) {
                                                 status = ApplePaySession.STATUS_SUCCESS;
                                             } else {
                                                 status = ApplePaySession.STATUS_FAILURE;
@@ -369,11 +369,16 @@ define(
 
                                             session.completePayment(status);
 
-                                            if (success) {
+                                            if (data.success && data.url) {
                                                 // Redirect to success page
                                                 FullScreenLoader.startLoader();
+                                                // Handle 3DS redirection
+                                                window.location.href = data.url;
+                                            } else {
+                                                // Normal redirection
                                                 RedirectOnSuccessAction.execute();
                                             }
+                                            Utilities.cleanCustomerShippingAddress();
                                         }
                                     ).catch(
                                         function (error) {
