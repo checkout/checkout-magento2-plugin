@@ -178,6 +178,23 @@ class ApiHandlerService
         return $this;
     }
 
+    public function initABCForRefund(
+        $storeCode = null,
+        string $scope = ScopeInterface::SCOPE_WEBSITE
+    ): ApiHandlerService
+    {
+        $secretKey = $this->config->getValue('abc_refund_secret_key', null, $storeCode, $scope);
+        $publicKey = $this->config->getValue('abc_refund_public_key', null, $storeCode, $scope);
+
+        $this->checkoutApi = new CheckoutApi(
+            $secretKey,
+            $this->config->getValue('environment', null, $storeCode, $scope),
+            $publicKey
+        );
+
+        return $this;
+    }
+
     /**
      * Get CheckoutApi
      *

@@ -530,22 +530,10 @@ class Config
      *
      * @return bool
      */
-    public function isAbcRefundToNasActive(): bool
+    public function isAbcRefundAfterNasMigrationActive(): bool
     {
-        return $this->getValue('abc_refund_enable');
-    }
-
-    /**
-     * Get Abc refund keys
-     *
-     * @return array
-     */
-    public function getAbcRefundKeys(): array
-    {
-        return [
-            'public_key' => $this->getValue('abc_refund_secret_key'),
-            'secretKey' => $this->getValue('abc_refund_public_key'),
-            'privateSharedKey' => $this->getValue('abc_refund_private_shared_key'),
-        ];
+        return (bool) $this->getValue('abc_refund_enable')
+            && $this->getValue('abc_refund_secret_key')
+            && $this->getValue('abc_refund_public_key');
     }
 }
