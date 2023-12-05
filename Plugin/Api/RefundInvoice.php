@@ -143,7 +143,7 @@ class RefundInvoice
             // Try to process the refund with ABC API
             if (!$api->isValidResponse($response) && $this->config->isAbcRefundAfterNasMigrationActive()) {
                 // Initialize ABC API handler
-                $apiABC = $this->apiHandler->initABCForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+                $apiABC = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
                 $response = $apiABC->refundOrder($payment, $amount);
                 if (!$apiABC->isValidResponse($response)) {
                     throw new LocalizedException(

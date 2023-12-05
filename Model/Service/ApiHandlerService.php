@@ -199,7 +199,7 @@ class ApiHandlerService
         return $this;
     }
 
-    public function initABCForRefund(
+    public function initAbcForRefund(
         $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
     ): ApiHandlerService
