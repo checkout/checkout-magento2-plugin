@@ -67,19 +67,8 @@ define(
                 return errors;
             },
 
-            getErrorMessage: function (event) {
-                if (event.isValid || event.isEmpty) {
-                    return '';
-                }
-
-                return this.getErrors()[event.element];
-            },
-
             onValidationChanged: function (event) {
                 var e = event.element;
-                var pm = event.paymentMethod;
-                var targetSelector = '#' + this.formId + ' .icon-container.payment-method';
-                let container = document.querySelector(targetSelector);
 
                 if (event.isValid || event.isEmpty) {
                     this.clearErrorMessage(e);
