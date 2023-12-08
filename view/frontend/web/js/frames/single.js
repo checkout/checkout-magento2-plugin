@@ -36,6 +36,27 @@ define(
                 return this.F;
             },
 
+            getLogos: function () {
+                var logos = {};
+
+                logos['card-number'] = {
+                    src: 'card',
+                    alt: __('Card number logo')
+                };
+
+                logos['expiry-date'] = {
+                    src: 'exp-date',
+                    alt: __('Expiry date logo')
+                };
+
+                logos['cvv'] = {
+                    src: 'cvv',
+                    alt: __('CVV logo')
+                };
+
+                return logos;
+            },
+
             getErrors: function () {
                 var errors = {
                     'card-number': __('Please enter a valid card number'),
@@ -55,10 +76,29 @@ define(
             },
 
             onValidationChanged: function (event) {
-                var targetSelector = '.error-message';
-                var errorMessage = document.querySelector(targetSelector);
-                errorMessage.textContent = this.getErrorMessage(event);
-            }
+                var e = event.element;
+                var pm = event.paymentMethod;
+                var targetSelector = '#' + this.formId + ' .icon-container.payment-method';
+                let container = document.querySelector(targetSelector);
+
+                if (event.isValid || event.isEmpty) {
+                    this.clearErrorMessage(e);
+                } else {
+                    this.setErrorMessage(e);
+                }
+            },
+
+            clearErrorMessage: function (el) {
+                var targetSelector = '#' + this.formId + ' .error-message__' + el;
+                var message = document.querySelector(targetSelector);
+                message.textContent = '';
+            },
+
+            setErrorMessage: function (el) {
+                var targetSelector = '#' + this.formId + ' .error-message__' + el;
+                var message = document.querySelector(targetSelector);
+                message.textContent = this.getErrors()[el];
+            },
         };
     }
 );
