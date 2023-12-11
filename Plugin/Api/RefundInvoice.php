@@ -117,7 +117,7 @@ class RefundInvoice
         try {
             $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
         } catch (CheckoutArgumentException $e) {
-            if (!$this->config->isAbcRefundAfterNasMigrationActive()) {
+            if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
                 throw new LocalizedException(__($e->getMessage()));
             }
             $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
