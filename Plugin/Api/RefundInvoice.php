@@ -18,9 +18,11 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Plugin\Api;
 
+use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
+use GraphQL\Exception\InvalidArgument;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
@@ -113,7 +115,14 @@ class RefundInvoice
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+        try {
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+        } catch (CheckoutArgumentException $e) {
+            if (!$this->config->isAbcRefundAfterNasMigrationActive()) {
+                throw new LocalizedException(__($e->getMessage()));
+            }
+            $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+        }
 
         // Get the method and method id
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
@@ -138,18 +147,6 @@ class RefundInvoice
                 throw new LocalizedException(
                     __('The refund request could not be processed.')
                 );
-            }
-
-            // Try to process the refund with ABC API
-            if (!$api->isValidResponse($response) && $this->config->isAbcRefundAfterNasMigrationActive()) {
-                // Initialize ABC API handler
-                $apiABC = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
-                $response = $apiABC->refundOrder($payment, $amount);
-                if (!$apiABC->isValidResponse($response)) {
-                    throw new LocalizedException(
-                        __('The refund request could not be processed.')
-                    );
-                }
             }
 
             if ($this->statusNeedsCorrection($order)) {
