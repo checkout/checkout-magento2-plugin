@@ -564,9 +564,7 @@ class Config
      */
     public function isAbcRefundAfterNasMigrationActive($storeCode = null): bool
     {
-        return (bool) $this->getValue('abc_refund_enable', null, $storeCode)
-            && $this->getValue('abc_refund_secret_key', null, $storeCode)
-            && $this->getValue('abc_refund_public_key', null, $storeCode);
+        return (bool) $this->getValue('abc_refund_enable', null, $storeCode);
     }
 
     /**
