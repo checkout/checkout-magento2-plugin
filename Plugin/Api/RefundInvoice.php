@@ -22,7 +22,6 @@ use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
-use GraphQL\Exception\InvalidArgument;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
