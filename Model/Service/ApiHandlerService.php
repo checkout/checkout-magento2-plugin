@@ -207,11 +207,15 @@ class ApiHandlerService
         $secretKey = $this->config->getValue('abc_refund_secret_key', null, $storeCode, $scope);
         $publicKey = $this->config->getValue('abc_refund_public_key', null, $storeCode, $scope);
 
-        $this->checkoutApi = new CheckoutApi(
-            $secretKey,
-            $this->config->getValue('environment', null, $storeCode, $scope),
-            $publicKey
-        );
+        $api = CheckoutSdk::builder();
+        $environment = $this->config->getEnvironment((int)$storeCode, $scope);
+
+        $this->checkoutApi = $api
+            ->previous()->staticKeys()
+            ->publicKey($publicKey)
+            ->secretKey($secretKey)
+            ->environment($environment)
+            ->build();
 
         return $this;
     }
