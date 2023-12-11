@@ -111,7 +111,7 @@ class RefundInvoice
         bool $isOnline = false
     ): array {
         // Get the store code
-        $storeCode = $this->storeManager->getStore()->getCode();
+        $storeCode = $this->storeManager->getStore($order->getStoreId())->getCode();
 
         // Initialize the API handler
         try {
