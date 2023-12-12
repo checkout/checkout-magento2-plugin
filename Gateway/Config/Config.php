@@ -564,7 +564,7 @@ class Config
      */
     public function isAbcRefundAfterNasMigrationActive($storeCode = null): bool
     {
-        return (bool) $this->getValue('abc_refund_enable', null, $storeCode);
+        return (bool) $this->getValue('abc_refund_enable', null, $storeCode, ScopeInterface::SCOPE_STORE);
     }
 
     /**
