@@ -112,13 +112,17 @@ class RefundInvoice
     ): array {
         // Get the store code
         $storeCode = $this->storeManager->getStore($order->getStoreId())->getCode();
+        error_log("enable. ".$this->config->isAbcRefundAfterNasMigrationActive($storeCode) . PHP_EOL, 3, "/bitnami/magento/var/log/behou.log");
+        error_log("public key. ".$this->config->getValue('abc_refund_public_key', null, $storeCode) . PHP_EOL, 3, "/bitnami/magento/var/log/behou.log");
+        error_log("secret key ".$this->config->getValue('abc_refund_secret_key', null, $storeCode) . PHP_EOL, 3, "/bitnami/magento/var/log/behou.log");
+
 
         // Initialize the API handler
         try {
             $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
         } catch (CheckoutArgumentException $e) {
             if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                throw new LocalizedException(__($e->getMessage()));
+                throw new LocalizedException(__('Localized '.$e->getMessage()));
             }
             $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
         }
