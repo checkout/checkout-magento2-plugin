@@ -348,7 +348,16 @@ class MotoMethod extends AbstractMethod
             }
 
             // Process the refund request
-            $response = $api->refundOrder($payment, $amount);
+            try {
+                $response = $api->refundOrder($payment, $amount);
+            } catch (CheckoutApiException $e) {
+                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
+                    throw new LocalizedException(__($e->getMessage()));
+                }
+                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+                $response = $api->refundOrder($payment, $amount);
+            }
+            
             if (!$api->isValidResponse($response)) {
                 throw new LocalizedException(
                     __('The refund request could not be processed.')
