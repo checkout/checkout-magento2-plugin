@@ -384,6 +384,21 @@
                             Add add CSS styles in JSON format for the payment form (See Frames.js docs for more information). Ex: {"base":{"color":"blue","fontSize":"18px"}}
                         </comment>
                     </field>
+
+                    <field id="card_number_label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Card number label</label>
+                        <config_path>payment/checkoutcom_card_payment/card_number_label</config_path>
+                    </field>
+
+                    <field id="expiration_date_label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Expiration date label</label>
+                        <config_path>payment/checkoutcom_card_payment/expiration_date_label</config_path>
+                    </field>
+
+                    <field id="cvv_label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>CVV label</label>
+                        <config_path>payment/checkoutcom_card_payment/cvv_label</config_path>
+                    </field>
                 </group>
 
                 <group id="checkoutcom_apm" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
