@@ -208,49 +208,37 @@ define(
             },
 
             /**
-             * Gets the card form language fallback.
+             * Get card form labels
              *
              * @return {string}
              */
-            getLangageFallback: function () {
-                return Config[KEY_DATA].user.language_fallback;
+            getCardLabels: function (KEY) {
+                return {
+                    cardNumberLabel: Config[KEY].card_number_label ?
+                        Config[KEY].card_number_label : __('Card number'),
+                    expiryDateLabel: Config[KEY].expiration_date_label ?
+                        Config[KEY].expiration_date_label : __('Expiration Date'),
+                    cvvLabel: Config[KEY].cvv_label ?
+                        Config[KEY].cvv_label : __('Card Verification Number')
+                }
             },
 
             /**
-             * Get the card form shop language
+             * Get card form placeholders
              *
              * @return {string}
              */
-            getShopLanguage: function () {
-                let mageShopLanguage = Config[KEY_DATA].store.language;
-                let framesLanguage;
-                switch (mageShopLanguage) {
-                    case 'nl_NL':
-                        framesLanguage = 'NL-NL';
-                        break;
-                    case 'en_GB':
-                        framesLanguage = 'EN-GB';
-                        break;
-                    case 'fr_FR':
-                        framesLanguage = 'FR-FR';
-                        break;
-                    case 'de_DE':
-                        framesLanguage = 'DE-DE';
-                        break;
-                    case 'it_IT':
-                        framesLanguage = 'IT-IT';
-                        break;
-                    case 'ko_KR':
-                        framesLanguage = 'KR-KR';
-                        break;
-                    case 'es_ES':
-                        framesLanguage = 'ES-ES';
-                        break;
-                    default:
-                        framesLanguage = this.getLangageFallback().toUpperCase().split("_").join('-');
+            getCardPlaceholders: function (KEY) {
+                return {
+                    cardNumberPlaceholder: Config[KEY].card_number_placeholder ?
+                        Config[KEY].card_number_placeholder : __('Card number'),
+                    expiryMonthPlaceholder: Config[KEY].expiration_date_month_placeholder ?
+                        Config[KEY].expiration_date_month_placeholder : __('MM'),
+                    expiryYearPlaceholder: Config[KEY].expiration_date_year_placeholder ?
+                        Config[KEY].expiration_date_year_placeholder : __('YY'),
+                    cvvPlaceholder: Config[KEY].cvv_placeholder ?
+                        Config[KEY].cvv_placeholder : __('CVV')
                 }
-
-                return framesLanguage;
             },
 
             /**
