@@ -48,7 +48,8 @@ define(
                     redirectAfterPlaceOrder: false,
                     allowPlaceOrder: ko.observable(false),
                     isCoBadged: ko.observable(false),
-                    tooltipVisible: ko.observable(false)
+                    tooltipVisible: ko.observable(false),
+                    cardLabels: Utilities.getCardLabels(METHOD_ID)
                 },
 
                 /**
@@ -215,7 +216,7 @@ define(
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
                             schemeChoice: true,
                             modes: [ Frames.modes.FEATURE_FLAG_SCHEME_CHOICE],
-                            localization: Utilities.getShopLanguage(),
+                            localization: Utilities.getCardPlaceholders(METHOD_ID),
                             style: (formStyles) ? formStyles : {}
                         }
                     );

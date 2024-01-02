@@ -67,7 +67,7 @@
                     <div data-bind="afterRender: handleFormState()">
                         <!-- Card number field-->
                         <label for="card-number">
-                            <!-- ko i18n: 'Card number'--><!-- /ko -->
+                            <!-- ko text: cardLabels.cardNumberLabel --><!-- /ko -->
                         </label>
                         <div class="input-container card-number">
                             <div class="icon-container">
@@ -87,7 +87,7 @@
                             <!-- Date field -->
                             <div>
                                 <label for="expiry-date">
-                                    <span translate="'Expiration Date'"></span>
+                                    <span text="cardLabels.expiryDateLabel"></span>
                                 </label>
                                 <div class="input-container expiry-date">
                                     <div class="icon-container">
@@ -103,7 +103,7 @@
                             <!-- Code field -->
                             <div>
                                 <label for="cvv">
-                                    <span translate="'Card Verification Number'"></span>
+                                    <span text="cardLabels.cvvLabel"></span>
                                 </label>
                                 <div class="input-container cvv">
                                     <div class="icon-container">
