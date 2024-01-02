@@ -61,7 +61,11 @@
                     <div class="scheme-choice-frame">
                         <!-- form will be added here -->
                     </div>
-                    <p class="error-message"></p>
+                    <div>
+                        <span class="error-message error-message__card-number"></span>
+                        <span class="error-message error-message__expiry-date"></span>
+                        <span class="error-message error-message__cvv"></span>
+                    </div>
                 <!-- /ko -->
                 <!-- ko if: (getFormLayout() == 'multi') -->
                     <div data-bind="afterRender: handleFormState()">
