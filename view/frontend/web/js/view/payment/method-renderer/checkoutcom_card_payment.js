@@ -301,9 +301,9 @@ define(
 
                                 // Submit the payment form
                                 Frames.submitCard();
+                            } else {
+                                self.allowPlaceOrder(false);
                             }
-
-                            self.allowPlaceOrder(false);
                         }
                     );
 
