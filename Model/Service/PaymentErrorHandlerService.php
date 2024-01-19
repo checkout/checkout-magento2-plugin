@@ -44,6 +44,13 @@ class PaymentErrorHandlerService
         'payment_refund_declined'  => 'Failed payment refund',
         'payment_pending'          => 'Failed payment request',
     ];
+
+    /**
+     * TRANSACTION_SUCCESS_DIGITS const
+     *
+     * @var string TRANSACTION_SUCCESS_DIGITS
+     */
+    const TRANSACTION_SUCCESS_DIGITS = '10';
     /**
      * $transactionHandler field
      *

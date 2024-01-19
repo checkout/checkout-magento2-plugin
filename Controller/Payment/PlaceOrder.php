@@ -206,7 +206,6 @@ class PlaceOrder extends Action
             $url = '';
             $message = '';
             $debugMessage = '';
-            $responseCode = '';
             $success = false;
             $log = true;
 
@@ -262,8 +261,9 @@ class PlaceOrder extends Action
                         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
                         $isValidResponse = $api->isValidResponse($response);
+                        $responseCode = isset($response['response_code']) ? $response['response_code'] : '';
 
-                        if ($isValidResponse) {
+                        if ($isValidResponse && $this->isAuthorized($responseCode)) {
                             // Create an order if processing is payment first
                             $order = $order === null ? $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote) : $order;
 
@@ -379,5 +379,17 @@ class PlaceOrder extends Action
             $currencyCode,
             $reference
         );
+    }
+
+    /**
+     * Check if response code is successful
+     *
+     * @param string $responseCode
+     *
+     * @return bool
+     */
+    protected function isAuthorized(string $responseCode): bool
+    {
+        return empty($responseCode) || mb_substr($responseCode, 0, 2) === PaymentErrorHandlerService::TRANSACTION_SUCCESS_DIGITS;
     }
 }
