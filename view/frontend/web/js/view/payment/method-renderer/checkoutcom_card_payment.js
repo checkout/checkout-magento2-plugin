@@ -299,8 +299,13 @@ define(
                                     };
                                 }
 
+                                // @DND debug : Timer for submit card promise execution time
+                                console.time('Submit Card');
                                 // Submit the payment form
-                                Frames.submitCard();
+                                Frames.submitCard().then(() => {
+                                    console.timeEnd('Submit Card');
+                                });
+                                // / @DND debug : Timer for submit card promise execution time
                             } else {
                                 self.allowPlaceOrder(false);
                             }
