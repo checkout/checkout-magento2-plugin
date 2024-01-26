@@ -24,6 +24,9 @@ define(
         'use strict';
 
         return {
+            applePayDefaultVersion: 5,
+            applePayVersion: 14,
+
             /**
              * Is Virtual.
              *
@@ -200,6 +203,21 @@ define(
                 } else {
                     return "";
                 }
+            },
+
+            /**
+             * Check if applepay version is supported
+             */
+            initializeApplePaySession (paymentRequest) {
+                if (!ApplePaySession.supportsVersion(this.applePayVersion) && !ApplePaySession.supportsVersion(this.applePayDefaultVersion)) {
+                    return false;
+                }
+
+                const versionToUse = ApplePaySession.supportsVersion(this.applePayVersion)
+                    ? this.applePayVersion
+                    : this.applePayDefaultVersion;
+
+                return new ApplePaySession(versionToUse, paymentRequest);
             }
         };
     }

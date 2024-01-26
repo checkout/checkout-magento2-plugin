@@ -15,6 +15,7 @@
 
  define([
     "jquery",
+    "Magento_Customer/js/customer-data",
     "Magento_Checkout/js/view/payment/default",
     "CheckoutCom_Magento2/js/view/payment/utilities",
     "CheckoutCom_Magento2/js/view/payment/applepay-utilities",
@@ -28,6 +29,7 @@
     "mage/translate",
 ], function (
     $,
+    customerData,
     Component,
     Utilities,
     ApplePayUtilities,
@@ -120,10 +122,6 @@
                             "email"
                         ],
                     };
-
-                    // Start the payment session
-                    Utilities.log(paymentRequest);
-                    var session = new ApplePaySession(12, paymentRequest);
                 } else {
                     var paymentRequest = {
                         currencyCode: Utilities.getQuoteCurrency(),
@@ -148,10 +146,22 @@
                         ],
                         shippingMethods: [],
                     };
+                }
 
-                    // Start the payment session
-                    Utilities.log(paymentRequest);
-                    var session = new ApplePaySession(12, paymentRequest);
+                // Start the payment session
+                Utilities.log(paymentRequest);
+                var session = ApplePayUtilities.initializeApplePaySession(paymentRequest);
+
+                if (!session) {
+                    Utilities.log('Your browser is not compatible with the Apple Pay version. Please use the most updated OS system and browsers.');
+                    customerData.set('messages', {
+                        messages: [{
+                            type: 'error',
+                            text: __('Your browser is not compatible with the Apple Pay version. Please use the most updated OS system and browsers.')
+                        }]
+                    });
+
+                    return false;
                 }
 
                 // Merchant Validation

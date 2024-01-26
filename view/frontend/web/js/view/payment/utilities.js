@@ -362,6 +362,7 @@ define(
              */
             clearMessages: function (methodId) {
                 var messageContainer = this.getMethodContainer(methodId).find('.message');
+                messageContainer.removeClass('message-warning warning message-error error');
                 messageContainer.hide();
                 messageContainer.empty();
             },
