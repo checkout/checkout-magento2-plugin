@@ -206,6 +206,7 @@ class PlaceOrder extends Action
             $url = '';
             $message = '';
             $debugMessage = '';
+            $responseCode = '';
             $success = false;
             $log = true;
 
