@@ -14,10 +14,10 @@
 -->
 
 <div class="payment-method"
-    data-bind="css: {'_active': (getCode() == isChecked())}, attr: {'id': getCode() + '_container'}">
+     data-bind="css: {'_active': (getCode() == isChecked())}, attr: {'id': getCode() + '_container'}">
     <div class="payment-method-title field choice">
         <input type="radio" name="payment[method]" class="radio"
-            data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
         <label class="label" data-bind="attr: {'for': getCode()}">
             <span data-bind="i18n: getTitle()"></span>
         </label>
@@ -34,20 +34,21 @@
         <div class="message message-response-code" data-bind="attr: {'id': (getCode()+'_message')}"></div>
         <div class="message debug-message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
 
-            <div class="checkout-agreements-block">
-                <!-- ko foreach: $parent.getRegion('before-place-order') -->
-                <!-- ko template: getTemplate() -->
-                <!-- /ko -->
-                <!--/ko-->
-            </div>
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() -->
+            <!-- /ko -->
+            <!--/ko-->
+        </div>
 
-            <div class="actions-toolbar">
-                <div class="primary">
-                    <button id="ckoApplePayButton" type="button"
+        <!-- ko if: canPayWithApplePay -->
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button id="ckoApplePayButton" type="button"
+                        data-bind="click: placeOrder, class: buttonClass"
                         class="apple-pay-button action primary checkout ap-checkout"></button>
-                    <div data-bind="visible: launchApplePay()"></div>
-                </div>
             </div>
         </div>
+        <!--/ko-->
     </div>
 </div>
