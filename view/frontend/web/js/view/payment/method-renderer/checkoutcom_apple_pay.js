@@ -16,6 +16,7 @@
 define(
     [
         'jquery',
+        'Magento_Customer/js/customer-data',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
         "CheckoutCom_Magento2/js/view/payment/applepay-utilities",
@@ -26,6 +27,7 @@ define(
     ],
     function (
         $,
+        customerData,
         Component,
         Utilities,
         ApplePayUtilities,
@@ -285,7 +287,19 @@ define(
 
                                 // Start the payment session
                                 Utilities.log(paymentRequest);
-                                var session = new ApplePaySession(14, paymentRequest);
+                                var session = ApplePayUtilities.initializeApplePaySession(paymentRequest);
+
+                                if (!session) {
+                                    Utilities.log('Your browser is not compatible with the Apple Pay version');
+
+                                    Utilities.showMessage(
+                                        'error',
+                                        __('Your browser is not compatible with the Apple Pay version. Please use the most updated OS system and browsers.'),
+                                        METHOD_ID
+                                    );
+
+                                    return false;
+                                }
 
                                 // Merchant Validation
                                 session.onvalidatemerchant = function (event) {

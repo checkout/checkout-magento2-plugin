@@ -358,20 +358,11 @@ define(
             },
 
             /**
-             * Show response code.
-             */
-            showResponseCode: function (type, message, methodId) {
-                var messageContainer = this.getMethodContainer(methodId).find('.message-response-code');
-                messageContainer.addClass('message-' + type + ' ' + type);
-                messageContainer.append('<div>Response Code: ' + __(message) + '</div>');
-                messageContainer.show();
-            },
-
-            /**
              * Clear all messages.
              */
             clearMessages: function (methodId) {
                 var messageContainer = this.getMethodContainer(methodId).find('.message');
+                messageContainer.removeClass('message-warning warning message-error error');
                 messageContainer.hide();
                 messageContainer.empty();
             },
@@ -429,9 +420,6 @@ define(
                             self.showMessage('error', data.message, methodId);
                             if (data.debugMessage) {
                                 self.showDebugMessage('error', data.debugMessage, methodId);
-                            }
-                            if (data.responseCode) {
-                                self.showResponseCode('error', data.responseCode, methodId);
                             }
                             self.allowPlaceOrder(methodId + '_btn', false)
                         } else if (data.success && data.url) {
