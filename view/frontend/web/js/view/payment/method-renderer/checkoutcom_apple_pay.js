@@ -203,9 +203,6 @@ define(
                  * @return {bool}
                  */
                 launchApplePay: function () {
-                    // Prepare the parameters
-                    var self = this;
-
                     this.buttonClass = `${this.buttonClass}${this.getValue('button_style')}`;
 
                     // Check if the session is available
