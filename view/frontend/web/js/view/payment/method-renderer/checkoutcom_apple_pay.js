@@ -203,14 +203,11 @@ define(
                  * @return {bool}
                  */
                 launchApplePay: function () {
-                    // Prepare the parameters
-                    var self = this;
-
                     this.buttonClass = `${this.buttonClass}${this.getValue('button_style')}`;
 
                     // Check if the session is available
                     if (window.ApplePaySession) {
-                        const merchantIdentifier = self.getValue('merchant_id');
+                        const merchantIdentifier = this.getValue('merchant_id');
                         const canMakePayments = ApplePaySession.canMakePayments(merchantIdentifier);
 
                         this.canPayWithApplePay(canMakePayments);
@@ -232,6 +229,8 @@ define(
                 },
 
                 placeOrder: function () {
+                    let self = this;
+
                     if (Utilities.methodIsSelected(METHOD_ID)) {
                         // Validate T&C submission
                         if (!AdditionalValidators.validate()) {
@@ -282,7 +281,7 @@ define(
 
                         // Merchant Validation
                         session.onvalidatemerchant = function (event) {
-                            var promise = this.performValidation(event.validationURL);
+                            var promise = self.performValidation(event.validationURL);
                             promise.then(
                                 function (merchantSession) {
                                     session.completeMerchantValidation(merchantSession);
@@ -307,7 +306,7 @@ define(
                                 amount: runningTotal
                             };
 
-                            session.completeShippingContactSelection(status, shippingOptions, newTotal, this.getLineItems());
+                            session.completeShippingContactSelection(status, shippingOptions, newTotal, self.getLineItems());
                         }
 
                         // Shipping method selection
@@ -319,7 +318,7 @@ define(
                                 amount: runningTotal
                             };
 
-                            session.completeShippingMethodSelection(status, newTotal, this.getLineItems());
+                            session.completeShippingMethodSelection(status, newTotal, self.getLineItems());
                         }
 
                         // Payment method selection
@@ -330,7 +329,7 @@ define(
                                 amount: runningTotal
                             };
 
-                            session.completePaymentMethodSelection(newTotal, this.getLineItems());
+                            session.completePaymentMethodSelection(newTotal, self.getLineItems());
                         }
 
                         // Payment method authorization
@@ -343,14 +342,14 @@ define(
                             };
 
                             if (ApplePayUtilities.getIsVirtual()) {
-                                this.setBilling(
+                                self.setBilling(
                                     event.payment.shippingContact,
                                     event.payment.billingContact
                                 );
                             }
 
                             // Send the request
-                            var promise = this.sendPaymentRequest(payload);
+                            var promise = self.sendPaymentRequest(payload);
                             promise.then(
                                 function (data) {
                                     var status;
