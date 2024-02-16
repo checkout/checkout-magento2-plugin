@@ -16,7 +16,6 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="payment">
-
             <group id="checkoutcom" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>
                     <![CDATA[<div class="checkout-payment-logo"></div><div class="checkout-payment-byline">Checkout.com delivers increased payment processing speed, greater reliability, and adaptability to the needs of your business with a unified payment solution.</div>]]>
@@ -381,8 +380,61 @@
                         <label>Payment form styles</label>
                         <config_path>payment/checkoutcom_card_payment/payment_form_styles</config_path>
                         <comment>
-                            Add add CSS styles in JSON format for the payment form (See Frames.js docs for more information). Ex: {"base":{"color":"blue","fontSize":"18px"}}
+                            <![CDATA[Add CSS styles in JSON format for the payment form (See <a href="https://www.checkout.com/docs/payments/accept-payments/accept-a-payment-on-your-website/get-started#Customize_Frames" target="_blank">Frames.js</a> docs in the "style" node of javascript example for more information). Ex: {"base":{"color":"blue","fontSize":"18px"}}]]>
                         </comment>
+                    </field>
+
+                    <field id="card_number_label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Card number label</label>
+                        <config_path>payment/checkoutcom_card_payment/card_number_label</config_path>
+                        <depends>
+                            <field id="payment_form_layout">multi</field>
+                        </depends>
+                        <comment>
+                            On multi form layout only
+                        </comment>
+                    </field>
+
+                    <field id="card_number_placeholder" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Card number placeholder</label>
+                        <config_path>payment/checkoutcom_card_payment/card_number_placeholder</config_path>
+                    </field>
+
+                    <field id="expiration_date_label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Expiration date label</label>
+                        <config_path>payment/checkoutcom_card_payment/expiration_date_label</config_path>
+                        <depends>
+                            <field id="payment_form_layout">multi</field>
+                        </depends>
+                        <comment>
+                            On multi form layout only
+                        </comment>
+                    </field>
+
+                    <field id="expiration_date_month_placeholder" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Expiration month placeholder</label>
+                        <config_path>payment/checkoutcom_card_payment/expiration_date_month_placeholder</config_path>
+                    </field>
+
+                    <field id="expiration_date_year_placeholder" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Expiration year placeholder</label>
+                        <config_path>payment/checkoutcom_card_payment/expiration_date_year_placeholder</config_path>
+                    </field>
+
+                    <field id="cvv_label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>CVV label</label>
+                        <config_path>payment/checkoutcom_card_payment/cvv_label</config_path>
+                        <depends>
+                            <field id="payment_form_layout">multi</field>
+                        </depends>
+                        <comment>
+                            On multi form layout only
+                        </comment>
+                    </field>
+
+                    <field id="cvv_placeholder" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>CVV placeholder</label>
+                        <config_path>payment/checkoutcom_card_payment/cvv_placeholder</config_path>
                     </field>
                 </group>
 
