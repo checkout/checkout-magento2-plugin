@@ -16,6 +16,7 @@
 define(
     [
         'jquery',
+        'ko',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
         "CheckoutCom_Magento2/js/view/payment/applepay-utilities",
@@ -26,6 +27,7 @@ define(
     ],
     function (
         $,
+        ko,
         Component,
         Utilities,
         ApplePayUtilities,
@@ -42,8 +44,9 @@ define(
             {
                 defaults: {
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
-                    button_target: '#ckoApplePayButton',
-                    redirectAfterPlaceOrder: false
+                    buttonClass: 'apple-pay-button-',
+                    redirectAfterPlaceOrder: false,
+                    canPayWithApplePay: ko.observable(false)
                 },
 
                 /**
@@ -53,6 +56,7 @@ define(
                     this._super();
                     Utilities.setEmail();
                     Utilities.loadCss('apple-pay', 'apple-pay');
+                    this.launchApplePay();
 
                     return this;
                 },
@@ -99,7 +103,7 @@ define(
                  *
                  * @return {array}
                  */
-                processSupportedNetworks: function(networksEnabled) {
+                processSupportedNetworks: function (networksEnabled) {
                     if (networksEnabled.includes("mada") && !(Utilities.getStoreCountry() === "SA")) {
                         networksEnabled.splice(networksEnabled.indexOf("mada"), 1);
                     }
@@ -112,8 +116,8 @@ define(
                  *
                  * @return {string}
                  */
-                getCountryCode: function() {
-                    return  Utilities.getStoreCountry() === "SA" ? "SA" : window.checkoutConfig.defaultCountryId;
+                getCountryCode: function () {
+                    return Utilities.getStoreCountry() === "SA" ? "SA" : window.checkoutConfig.defaultCountryId;
                 },
 
                 /**
@@ -175,7 +179,7 @@ define(
                     );
                 },
 
-                setBilling: function(shippingDetails, billingDetails) {
+                setBilling: function (shippingDetails, billingDetails) {
                     let requestBody = {
                         address: {
                             country_id: billingDetails.countryCode.toUpperCase(),
@@ -199,204 +203,190 @@ define(
                  * @return {bool}
                  */
                 launchApplePay: function () {
-                    // Prepare the parameters
-                    var self = this;
-
-                    // Apply the button style
-                    $(self.button_target)
-                    .addClass('apple-pay-button-' + self.getValue('button_style'));
+                    this.buttonClass = `${this.buttonClass}${this.getValue('button_style')}`;
 
                     // Check if the session is available
                     if (window.ApplePaySession) {
-                        var merchantIdentifier = self.getValue('merchant_id');
-                        var promise = ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
-                        promise.then(
-                            function (canMakePayments) {
-                                if (canMakePayments) {
-                                    $(self.button_target).css('display', 'block');
-                                } else {
-                                    Utilities.showMessage(
-                                        'warning',
-                                        __('Apple Pay is available but not currently active.'),
-                                        METHOD_ID
-                                    );
-                                }
-                            }
-                        ).catch(
-                            function (error) {
-                                Utilities.log(error);
-                            }
-                        );
+                        const merchantIdentifier = this.getValue('merchant_id');
+                        const canMakePayments = ApplePaySession.canMakePayments(merchantIdentifier);
+
+                        this.canPayWithApplePay(canMakePayments);
+                        if (!canMakePayments) {
+                            Utilities.showMessage(
+                                'warning',
+                                __('Apple Pay is available but not currently active.'),
+                                METHOD_ID
+                            );
+                        }
                     } else {
-                        $(self.button_target).css('display', 'none');
+                        this.canPayWithApplePay(false);
                         Utilities.showMessage(
                             'warning',
                             __('Apple Pay is not available for this browser.'),
                             METHOD_ID
                         );
                     }
+                },
 
-                    // Handle the events
-                    $(self.button_target).click(
-                        function (evt) {
-                            if (Utilities.methodIsSelected(METHOD_ID)) {
-                                // Validate T&C submission
-                                if (!AdditionalValidators.validate()) {
-                                    return;
+                placeOrder: function () {
+                    let self = this;
+
+                    if (Utilities.methodIsSelected(METHOD_ID)) {
+                        // Validate T&C submission
+                        if (!AdditionalValidators.validate()) {
+                            return;
+                        }
+
+                        // Prepare the parameters
+                        var runningTotal = Utilities.getQuoteValue();
+
+                        // Build the payment request
+                        if (ApplePayUtilities.getIsVirtual()) {
+                            var paymentRequest = {
+                                currencyCode: Utilities.getQuoteCurrency(),
+                                countryCode: this.getCountryCode(),
+                                total: {
+                                    label: Utilities.getStoreName(),
+                                    amount: runningTotal
+                                },
+                                supportedNetworks: this.getSupportedNetworks(),
+                                merchantCapabilities: this.getMerchantCapabilities(),
+                                requiredBillingContactFields: [
+                                    "postalAddress",
+                                    "name",
+                                    "phone",
+                                    "email"
+                                ],
+                                requiredShippingContactFields: [
+                                    "phone",
+                                    "email"
+                                ],
+                            };
+                        } else {
+                            var paymentRequest = {
+                                currencyCode: Utilities.getQuoteCurrency(),
+                                countryCode: this.getCountryCode(),
+                                total: {
+                                    label: Utilities.getStoreName(),
+                                    amount: runningTotal
+                                },
+                                supportedNetworks: this.getSupportedNetworks(),
+                                merchantCapabilities: this.getMerchantCapabilities()
+                            };
+                        }
+
+                        // Start the payment session
+                        Utilities.log(paymentRequest);
+                        var session = new ApplePaySession(14, paymentRequest);
+
+                        // Merchant Validation
+                        session.onvalidatemerchant = function (event) {
+                            var promise = self.performValidation(event.validationURL);
+                            promise.then(
+                                function (merchantSession) {
+                                    session.completeMerchantValidation(merchantSession);
                                 }
-
-                                // Prepare the parameters
-                                var runningTotal         = Utilities.getQuoteValue();
-
-                                // Build the payment request
-                                if (ApplePayUtilities.getIsVirtual()) {
-                                    var paymentRequest = {
-                                        currencyCode: Utilities.getQuoteCurrency(),
-                                        countryCode: self.getCountryCode(),
-                                        total: {
-                                            label: Utilities.getStoreName(),
-                                            amount: runningTotal
-                                        },
-                                        supportedNetworks: self.getSupportedNetworks(),
-                                        merchantCapabilities: self.getMerchantCapabilities(),
-                                        requiredBillingContactFields: [
-                                            "postalAddress",
-                                            "name",
-                                            "phone",
-                                            "email"
-                                        ],
-                                        requiredShippingContactFields: [
-                                            "phone",
-                                            "email"
-                                        ],
-                                    };
-                                } else {
-                                    var paymentRequest = {
-                                        currencyCode: Utilities.getQuoteCurrency(),
-                                        countryCode: self.getCountryCode(),
-                                        total: {
-                                            label: Utilities.getStoreName(),
-                                            amount: runningTotal
-                                        },
-                                        supportedNetworks: self.getSupportedNetworks(),
-                                        merchantCapabilities: self.getMerchantCapabilities()
-                                    };
+                            ).catch(
+                                function (error) {
+                                    Utilities.log(error);
                                 }
+                            );
+                        }
 
-                                // Start the payment session
-                                Utilities.log(paymentRequest);
-                                var session = new ApplePaySession(14, paymentRequest);
+                        // Shipping contact
+                        session.onshippingcontactselected = function (event) {
+                            var status = ApplePaySession.STATUS_SUCCESS;
 
-                                // Merchant Validation
-                                session.onvalidatemerchant = function (event) {
-                                    var promise = self.performValidation(event.validationURL);
-                                    promise.then(
-                                        function (merchantSession) {
-                                            session.completeMerchantValidation(merchantSession);
-                                        }
-                                    ).catch(
-                                        function (error) {
-                                            Utilities.log(error);
-                                        }
-                                    );
-                                }
+                            // Shipping info
+                            var shippingOptions = [];
 
-                                // Shipping contact
-                                session.onshippingcontactselected = function (event) {
-                                    var status = ApplePaySession.STATUS_SUCCESS;
+                            var newTotal = {
+                                type: 'final',
+                                label: ap['storeName'],
+                                amount: runningTotal
+                            };
 
-                                    // Shipping info
-                                    var shippingOptions = [];
+                            session.completeShippingContactSelection(status, shippingOptions, newTotal, self.getLineItems());
+                        }
 
-                                    var newTotal = {
-                                        type: 'final',
-                                        label: ap['storeName'],
-                                        amount: runningTotal
-                                    };
+                        // Shipping method selection
+                        session.onshippingmethodselected = function (event) {
+                            var status = ApplePaySession.STATUS_SUCCESS;
+                            var newTotal = {
+                                type: 'final',
+                                label: ap['storeName'],
+                                amount: runningTotal
+                            };
 
-                                    session.completeShippingContactSelection(status, shippingOptions, newTotal, self.getLineItems());
-                                }
+                            session.completeShippingMethodSelection(status, newTotal, self.getLineItems());
+                        }
 
-                                // Shipping method selection
-                                session.onshippingmethodselected = function (event) {
-                                    var status = ApplePaySession.STATUS_SUCCESS;
-                                    var newTotal = {
-                                        type: 'final',
-                                        label: ap['storeName'],
-                                        amount: runningTotal
-                                    };
+                        // Payment method selection
+                        session.onpaymentmethodselected = function (event) {
+                            var newTotal = {
+                                type: 'final',
+                                label: Utilities.getStoreName(),
+                                amount: runningTotal
+                            };
 
-                                    session.completeShippingMethodSelection(status, newTotal, self.getLineItems());
-                                }
+                            session.completePaymentMethodSelection(newTotal, self.getLineItems());
+                        }
 
-                                // Payment method selection
-                                session.onpaymentmethodselected = function (event) {
-                                    var newTotal = {
-                                        type: 'final',
-                                        label: Utilities.getStoreName(),
-                                        amount: runningTotal
-                                    };
+                        // Payment method authorization
+                        session.onpaymentauthorized = function (event) {
+                            // Prepare the payload
+                            var payload = {
+                                methodId: METHOD_ID,
+                                cardToken: event.payment.token,
+                                source: METHOD_ID
+                            };
 
-                                    session.completePaymentMethodSelection(newTotal, self.getLineItems());
-                                }
+                            if (ApplePayUtilities.getIsVirtual()) {
+                                self.setBilling(
+                                    event.payment.shippingContact,
+                                    event.payment.billingContact
+                                );
+                            }
 
-                                // Payment method authorization
-                                session.onpaymentauthorized = function (event) {
-                                    // Prepare the payload
-                                    var payload = {
-                                        methodId: METHOD_ID,
-                                        cardToken: event.payment.token,
-                                        source: METHOD_ID
-                                    };
-
-                                    if (ApplePayUtilities.getIsVirtual()) {
-                                        self.setBilling(
-                                            event.payment.shippingContact,
-                                            event.payment.billingContact
-                                        );
+                            // Send the request
+                            var promise = self.sendPaymentRequest(payload);
+                            promise.then(
+                                function (data) {
+                                    var status;
+                                    if (data.success) {
+                                        status = ApplePaySession.STATUS_SUCCESS;
+                                    } else {
+                                        status = ApplePaySession.STATUS_FAILURE;
                                     }
 
-                                    // Send the request
-                                    var promise = self.sendPaymentRequest(payload);
-                                    promise.then(
-                                        function (data) {
-                                            var status;
-                                            if (data.success) {
-                                                status = ApplePaySession.STATUS_SUCCESS;
-                                            } else {
-                                                status = ApplePaySession.STATUS_FAILURE;
-                                            }
+                                    session.completePayment(status);
 
-                                            session.completePayment(status);
-
-                                            if (data.success && data.url) {
-                                                // Redirect to success page
-                                                FullScreenLoader.startLoader();
-                                                // Handle 3DS redirection
-                                                window.location.href = data.url;
-                                            } else {
-                                                // Normal redirection
-                                                RedirectOnSuccessAction.execute();
-                                            }
-                                            Utilities.cleanCustomerShippingAddress();
-                                        }
-                                    ).catch(
-                                        function (error) {
-                                            Utilities.log(error);
-                                        }
-                                    );
+                                    if (data.success && data.url) {
+                                        // Redirect to success page
+                                        FullScreenLoader.startLoader();
+                                        // Handle 3DS redirection
+                                        window.location.href = data.url;
+                                    } else {
+                                        // Normal redirection
+                                        RedirectOnSuccessAction.execute();
+                                    }
+                                    Utilities.cleanCustomerShippingAddress();
                                 }
-
-                                // Session cancellation
-                                session.oncancel = function (event) {
-                                    Utilities.log(event);
+                            ).catch(
+                                function (error) {
+                                    Utilities.log(error);
                                 }
-
-                                // Begin session
-                                session.begin();
-                            }
+                            );
                         }
-                    );
+
+                        // Session cancellation
+                        session.oncancel = function (event) {
+                            Utilities.log(event);
+                        }
+
+                        // Begin session
+                        session.begin();
+                    }
                 }
             }
         );

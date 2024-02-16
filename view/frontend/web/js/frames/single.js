@@ -36,6 +36,27 @@ define(
                 return this.F;
             },
 
+            getLogos: function () {
+                var logos = {};
+
+                logos['card-number'] = {
+                    src: 'card',
+                    alt: __('Card number logo')
+                };
+
+                logos['expiry-date'] = {
+                    src: 'exp-date',
+                    alt: __('Expiry date logo')
+                };
+
+                logos['cvv'] = {
+                    src: 'cvv',
+                    alt: __('CVV logo')
+                };
+
+                return logos;
+            },
+
             getErrors: function () {
                 var errors = {
                     'card-number': __('Please enter a valid card number'),
@@ -46,19 +67,27 @@ define(
                 return errors;
             },
 
-            getErrorMessage: function (event) {
-                if (event.isValid || event.isEmpty) {
-                    return '';
-                }
+            onValidationChanged: function (event) {
+                var e = event.element;
 
-                return this.getErrors()[event.element];
+                if (event.isValid || event.isEmpty) {
+                    this.clearErrorMessage(e);
+                } else {
+                    this.setErrorMessage(e);
+                }
             },
 
-            onValidationChanged: function (event) {
-                var targetSelector = '.error-message';
-                var errorMessage = document.querySelector(targetSelector);
-                errorMessage.textContent = this.getErrorMessage(event);
-            }
+            clearErrorMessage: function (el) {
+                var targetSelector = '#' + this.formId + ' .error-message__' + el;
+                var message = document.querySelector(targetSelector);
+                message.textContent = '';
+            },
+
+            setErrorMessage: function (el) {
+                var targetSelector = '#' + this.formId + ' .error-message__' + el;
+                var message = document.querySelector(targetSelector);
+                message.textContent = this.getErrors()[el];
+            },
         };
     }
 );

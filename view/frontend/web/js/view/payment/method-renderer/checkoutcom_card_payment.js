@@ -24,9 +24,10 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/model/quote',
+        'Magento_Checkout/js/model/full-screen-loader',
         'framesjs'
     ],
-    function ($, ko, Component, Utilities, FramesMulti, FramesSingle, AdditionalValidators, Customer, Quote) {
+    function ($, ko, Component, Utilities, FramesMulti, FramesSingle, AdditionalValidators, Customer, Quote, FullScreenLoader) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_card_payment';
@@ -48,7 +49,8 @@ define(
                     redirectAfterPlaceOrder: false,
                     allowPlaceOrder: ko.observable(false),
                     isCoBadged: ko.observable(false),
-                    tooltipVisible: ko.observable(false)
+                    tooltipVisible: ko.observable(false),
+                    cardLabels: Utilities.getCardLabels(METHOD_ID)
                 },
 
                 /**
@@ -215,7 +217,7 @@ define(
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
                             schemeChoice: true,
                             modes: [ Frames.modes.FEATURE_FLAG_SCHEME_CHOICE],
-                            localization: Utilities.getShopLanguage(),
+                            localization: Utilities.getCardPlaceholders(METHOD_ID),
                             style: (formStyles) ? formStyles : {}
                         }
                     );
@@ -283,8 +285,8 @@ define(
                     // Card validation changed event
                     Frames.addEventHandler(
                         Frames.Events.CARD_VALIDATION_CHANGED,
-                        function (event) {
-                            var valid = Frames.isCardValid()
+                        function () {
+                            const valid = Frames.isCardValid()
                             if (valid) {
                                 if(cardholderName.length === 0) {
                                     if(Utilities.getBillingAddress()) {
@@ -297,12 +299,9 @@ define(
                                         name: cardholderName
                                     };
                                 }
-
-                                // Submit the payment form
-                                Frames.submitCard();
                             }
 
-                            self.allowPlaceOrder(false);
+                            self.allowPlaceOrder(valid);
                         }
                     );
 
@@ -317,9 +316,6 @@ define(
 
                             // Enable the submit form
                             Frames.enableSubmitForm();
-
-                            // Set allowPlaceOrder to true only when tokenized.
-                            self.allowPlaceOrder(true);
                         }
                     );
 
@@ -340,19 +336,26 @@ define(
                     if (Utilities.methodIsSelected(METHOD_ID)) {
                         // Validate the order placement
                         if (AdditionalValidators.validate() && Frames.isCardValid()) {
-                            // Prepare the payload
-                            var payload = {
-                                methodId: METHOD_ID,
-                                cardToken: this.cardToken,
-                                cardBin: this.cardBin,
-                                saveCard: this.saveCard,
-                                preferredScheme: this.preferredScheme,
-                                source: METHOD_ID
-                            };
+                            // Start the loader
+                            FullScreenLoader.startLoader();
+                            // Submit the payment form
+                            Frames.submitCard().then((response) => {
+                                // Prepare the payload
+                                const payload = {
+                                    methodId: METHOD_ID,
+                                    cardToken: response.token,
+                                    cardBin: response.bin,
+                                    saveCard: this.saveCard,
+                                    preferredScheme: response.preferred_scheme,
+                                    source: METHOD_ID
+                                };
 
-                            // Place the order
-                            Utilities.placeOrder(payload, METHOD_ID);
-                            Utilities.cleanCustomerShippingAddress();
+                                // Place the order
+                                Utilities.placeOrder(payload, METHOD_ID);
+                                Utilities.cleanCustomerShippingAddress();
+                            }).catch(function () {
+                                FullScreenLoader.stopLoader();
+                            });
                         }
                     }
                 },

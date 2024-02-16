@@ -1059,7 +1059,14 @@ class AlternativePaymentMethod extends AbstractMethod
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
             // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+            try {
+                $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+            } catch (CheckoutArgumentException $e) {
+                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
+                    throw new LocalizedException(__($e->getMessage()));
+                }
+                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+            }
 
             // Check the status
             if (!$this->canRefund()) {
@@ -1069,7 +1076,15 @@ class AlternativePaymentMethod extends AbstractMethod
             }
 
             // Process the refund request
-            $response = $api->refundOrder($payment, $amount);
+            try {
+                $response = $api->refundOrder($payment, $amount);
+            } catch (CheckoutApiException $e) {
+                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
+                    throw new LocalizedException(__($e->getMessage()));
+                }
+                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+                $response = $api->refundOrder($payment, $amount);
+            }
 
             if (!$api->isValidResponse($response)) {
                 throw new LocalizedException(

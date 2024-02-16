@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Plugin\Api;
 
+use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
@@ -113,7 +114,14 @@ class RefundInvoice
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Initialize the API handler
-        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+        try {
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+        } catch (CheckoutArgumentException $e) {
+            if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
+                throw new LocalizedException(__($e->getMessage()));
+            }
+            $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+        }
 
         // Get the method and method id
         $methodId = $order->getPayment()->getMethodInstance()->getCode();

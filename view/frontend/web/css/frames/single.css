@@ -61,6 +61,7 @@
 }
 
 #checkoutcom_card_payment_frm .error-message {
+    display: block;
     color: #C9501C;
     font-size: 1.2rem;
     margin: 8px 0 0 1px;
