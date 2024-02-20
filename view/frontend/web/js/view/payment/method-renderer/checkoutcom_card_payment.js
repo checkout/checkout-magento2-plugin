@@ -312,7 +312,7 @@ define(
                             // Store the card token and the card bin
                             self.cardToken = event.token;
                             self.cardBin =  event.bin;
-                            self.preferredScheme = event.preferred_scheme;
+                            self.preferredScheme = event.scheme;
 
                             // Enable the submit form
                             Frames.enableSubmitForm();
@@ -346,12 +346,12 @@ define(
                                     cardToken: response.token,
                                     cardBin: response.bin,
                                     saveCard: this.saveCard,
-                                    preferredScheme: response.preferred_scheme,
+                                    preferredScheme: response.scheme,
                                     source: METHOD_ID
                                 };
 
                                 // Place the order
-                                Utilities.placeOrder(payload, METHOD_ID);
+                                Utilities.placeOrder(payload, METHOD_ID, false);
                                 Utilities.cleanCustomerShippingAddress();
                             }).catch(function () {
                                 FullScreenLoader.stopLoader();
