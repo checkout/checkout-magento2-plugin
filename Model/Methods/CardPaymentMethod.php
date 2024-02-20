@@ -360,7 +360,7 @@ class CardPaymentMethod extends AbstractMethod
         }
 
         // Preferred scheme
-        if (isset($data['preferredScheme']) && in_array((string) $data['preferredScheme'], self::PREFERRED_SCHEMES) {
+        if (isset($data['preferredScheme']) && in_array((string) $data['preferredScheme'], self::PREFERRED_SCHEMES)) {
             $request->processing = ['preferred_scheme' => strtolower($data['preferredScheme'])];
         }
 
