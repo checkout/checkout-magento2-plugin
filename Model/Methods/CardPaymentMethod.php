@@ -66,6 +66,9 @@ class CardPaymentMethod extends AbstractMethod
      * @var string CODE
      */
     const CODE = 'checkoutcom_card_payment';
+
+    const PREFERRED_SCHEMES = ['VISA','MASTERCARD','CARTES_BANCAIRES'];
+
     /**
      * $_code field
      *
@@ -357,7 +360,7 @@ class CardPaymentMethod extends AbstractMethod
         }
 
         // Preferred scheme
-        if (isset($data['preferredScheme']) && $data['preferredScheme'] !== '') {
+        if (isset($data['preferredScheme']) && in_array((string) $data['preferredScheme'], self::PREFERRED_SCHEMES)) {
             $request->processing = ['preferred_scheme' => strtolower($data['preferredScheme'])];
         }
 

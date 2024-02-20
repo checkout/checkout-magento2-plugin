@@ -403,11 +403,13 @@ define(
              *
              * @return {void}
              */
-            placeOrder: function (payload, methodId) {
+            placeOrder: function (payload, methodId, startLoader = true) {
                 var self = this;
 
-                // Start the loader
-                FullScreenLoader.startLoader();
+                if (startLoader) {
+                    // Start the loader
+                    FullScreenLoader.startLoader();
+                }
 
                 // Send the request
                 $.ajax({
@@ -421,7 +423,6 @@ define(
                             if (data.debugMessage) {
                                 self.showDebugMessage('error', data.debugMessage, methodId);
                             }
-                            self.allowPlaceOrder(methodId + '_btn', false)
                         } else if (data.success && data.url) {
                             // Handle 3DS redirection
                             window.location.href = data.url;
