@@ -351,7 +351,7 @@ define(
                                 };
 
                                 // Place the order
-                                Utilities.placeOrder(payload, METHOD_ID);
+                                Utilities.placeOrder(payload, METHOD_ID, false);
                                 Utilities.cleanCustomerShippingAddress();
                             }).catch(function () {
                                 FullScreenLoader.stopLoader();
