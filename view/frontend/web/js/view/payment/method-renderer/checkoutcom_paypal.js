@@ -121,31 +121,9 @@ define(
                 /**
                  * @return {void}
                  */
-                initWidget: function() {
-                    // Start the loader
-                    FullScreenLoader.startLoader();
-
-                    let self = this;
-                },
-
-                /**
-                 * @return {void}
-                 */
-                initEvents: function() {
-                    if (loadEvents) {
-                        let self = this;
-                        let prevAddress;
-
-                        loadEvents = false;
-                    }
-                },
-
-                /**
-                 * @return {void}
-                 */
                 placeOrder: function() {
                     FullScreenLoader.startLoader();
-                    
+
                     if (Utilities.methodIsSelected(METHOD_ID) && this.chkPayPalContextId) {
                         let data = {
                             methodId: METHOD_ID,

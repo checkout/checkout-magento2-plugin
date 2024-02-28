@@ -22,12 +22,10 @@ namespace CheckoutCom\Magento2\Controller\Paypal;
 use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Controller\ResultInterface;
 
-class Context implements HttpGetActionInterface,HttpPostActionInterface
+class Context implements HttpPostActionInterface
 {
     protected JsonFactory $resultJsonFactory;
     protected PaymentContextRequestService $paymentContextRequestService;
@@ -40,7 +38,10 @@ class Context implements HttpGetActionInterface,HttpPostActionInterface
         $this->paymentContextRequestService = $paymentContextRequestService;
     }
 
-    public function execute()
+    /**
+     * @inheritDoc
+     */
+    public function execute(): Json
     {
         $resultJson = $this->resultJsonFactory->create();
         $resultJson->setData(
