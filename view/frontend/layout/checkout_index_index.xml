@@ -19,12 +19,18 @@
         <css src="CheckoutCom_Magento2::css/sepa/sepa.css"/>
     </head>
     <body>
-        <!-- Add Paypal payment script -->
+        <!-- Add Paypal payment script and remove express one-->
+        <referenceBlock name="checkout.paypal.express.minicart.script" remove="true" />
         <referenceBlock name="content">
             <block class="CheckoutCom\Magento2\Block\Paypal\Script"
                    ifconfig="payment/checkoutcom_paypal/active"
-                   name="checkout.paypal.script"
-                   template="CheckoutCom_Magento2::script/paypal-script.phtml" />
+                   name="checkout.paypal.checkout.script"
+                   template="CheckoutCom_Magento2::script/paypal-script.phtml" >
+                <arguments>
+                    <argument name="mode" xsi:type="string">checkout</argument>
+                    <argument name="script_type" xsi:type="string">checkout</argument>
+                </arguments>
+            </block>
         </referenceBlock>
         <referenceBlock name="checkout.root">
             <arguments>

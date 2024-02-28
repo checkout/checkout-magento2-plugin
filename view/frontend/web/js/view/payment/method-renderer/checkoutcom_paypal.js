@@ -42,7 +42,7 @@ define(
                     buttonId: METHOD_ID + '_btn',
                     redirectAfterPlaceOrder: false,
                     chkPayPalOrderid: null,
-                    chkPayPalContextId: null
+                    chkPayPalContextId: null,
                 },
 
                 /**
@@ -55,46 +55,50 @@ define(
 
                     //Todo: proper way to init, the paypal button must be loaded when
                     // #paypal-button-container is on the dom
-                    setTimeout(function(){
+                    setTimeout(function() {
                         self.initPaypalButton();
-                    },1000);
+                    }, 1000);
                 },
 
                 initPaypalButton: function() {
 
                     let self = this;
 
+                    let containerSelector = '#paypal-button-container';
+                    let datas = {};
+
                     // Prepare Context
-                    $.ajax(
-                        {
-                            type: 'POST',
-                            url: Utilities.getUrl('paypal/context'),
-                            showLoader: true,
-                            data: {},
-                            success: function(data) {
-                                if (typeof data.content !== 'undefined') {
-                                    self.chkPayPalOrderid = data.content.partner_metadata.order_id;
-                                    self.chkPayPalContextId = data.content.id;
+                    if ($(containerSelector).length > 0) {
+                        $.ajax(
+                            {
+                                type: 'POST',
+                                url: Utilities.getUrl('paypal/context'),
+                                showLoader: true,
+                                data: datas,
+                                success: function(data) {
+                                    if (typeof data.content !== 'undefined') {
+                                        self.chkPayPalOrderid = data.content.partner_metadata.order_id;
+                                        self.chkPayPalContextId = data.content.id;
 
-                                    // Init paypal button after getting context order id
-                                    paypal.Buttons({
-                                        createOrder() {
-                                            return self.chkPayPalOrderid;
-                                        },
-                                        onApprove: async function(data) {
-                                            self.placeOrder();
-                                        },
-                                    }).render('#paypal-button-container');
+                                        // Init paypal button after getting context order id
+                                        paypal.Buttons({
+                                            createOrder() {
+                                                return self.chkPayPalOrderid;
+                                            },
+                                            onApprove: async function(data) {
+                                                self.placeOrder();
+                                            },
+                                        }).render(containerSelector);
 
-                                }
-                                // Todo else message manager error
+                                    }
+                                    // Todo else message manager error
+                                },
+                                error: function(request, status, error) {
+                                    // Todo message manager error
+                                },
                             },
-                            error: function(request, status, error) {
-                                // Todo message manager error
-                            },
-                        },
-                    );
-
+                        );
+                    }
                 },
 
                 /**
@@ -124,7 +128,8 @@ define(
                 placeOrder: function() {
                     FullScreenLoader.startLoader();
 
-                    if (Utilities.methodIsSelected(METHOD_ID) && this.chkPayPalContextId) {
+                    if (Utilities.methodIsSelected(METHOD_ID) &&
+                        this.chkPayPalContextId) {
                         let data = {
                             methodId: METHOD_ID,
                             contextPaymentId: this.chkPayPalContextId,

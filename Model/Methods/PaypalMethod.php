@@ -264,6 +264,9 @@ class PaypalMethod extends AbstractMethod
             $request = new PaymentRequest();
         }
 
+        // Set parameters
+        $payment->capture = $this->config->needsAutoCapture();
+        $payment->amount = $this->utilities->formatDecimals($amount * 100);
         $request->payment_context_id = $data['contextPaymentId'];
         $request->processing_channel_id = $this->config->getValue('channel_id');
 

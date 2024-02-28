@@ -20,8 +20,8 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Controller\Paypal;
 
 use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
-use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 
@@ -29,13 +29,16 @@ class Context implements HttpPostActionInterface
 {
     protected JsonFactory $resultJsonFactory;
     protected PaymentContextRequestService $paymentContextRequestService;
+    protected RequestInterface $request;
 
     public function __construct(
         JsonFactory $resultJsonFactory,
-        PaymentContextRequestService $paymentContextRequestService
+        PaymentContextRequestService $paymentContextRequestService,
+        RequestInterface $request
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->paymentContextRequestService = $paymentContextRequestService;
+        $this->request = $request;
     }
 
     /**
@@ -46,7 +49,10 @@ class Context implements HttpPostActionInterface
         $resultJson = $this->resultJsonFactory->create();
         $resultJson->setData(
             [
-                'content' => $this->paymentContextRequestService->makePaymentContextRequests('paypal')
+                'content' => $this->paymentContextRequestService->makePaymentContextRequests(
+                    'paypal',
+                    (bool)$this->request->getParam('forceAuthorizeMode')
+                )
             ]
         );
 

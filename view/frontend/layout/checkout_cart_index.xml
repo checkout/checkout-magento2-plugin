@@ -6,6 +6,17 @@
     <body>
         <referenceContainer name="checkout.cart.methods">
             <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::cart/applepay.phtml" name="apple.pay.button" after="-"/>
+            <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::cart/paypal.phtml" name="paypal.button" after="apple.pay.button"/>
+            <referenceBlock name="checkout.paypal.express.minicart.script" remove="true" />
+            <block class="CheckoutCom\Magento2\Block\Paypal\Script"
+                   ifconfig="payment/checkoutcom_paypal/active"
+                   name="checkout.paypal.express.cart.script"
+                   template="CheckoutCom_Magento2::script/paypal-script.phtml" >
+                <arguments>
+                    <argument name="mode" xsi:type="string">express</argument>
+                    <argument name="script_type" xsi:type="string">cart</argument>
+                </arguments>
+            </block>
         </referenceContainer>
 
         <referenceBlock name="minicart.checkout.config" remove="true"/>

@@ -63,14 +63,18 @@ class PaymentContextRequestService
         $this->utilities = $utilities;
     }
 
-    public function makePaymentContextRequests(string $sourceType, ?string $paymentType = null, ?string $authorizationType = null): array
-    {
+    public function makePaymentContextRequests(
+        string $sourceType,
+        ?bool $forceAuthorize = false,
+        ?string $paymentType = null,
+        ?string $authorizationType = null
+    ): array {
         $quote = $this->getQuote();
         if (!$quote->getId()) {
             return [];
         }
 
-        $request = $this->getContextRequest($quote, $sourceType, $paymentType, $authorizationType);
+        $request = $this->getContextRequest($quote, $sourceType, $forceAuthorize, $paymentType, $authorizationType);
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
@@ -85,6 +89,7 @@ class PaymentContextRequestService
     private function getContextRequest(
         Quote | CartInterface $quote,
         string $sourceType,
+        ?bool $forceAuthorize = false,
         ?string $paymentType = null,
         ?string $authorizationType = null
     ): PaymentContextsRequest {
@@ -95,13 +100,14 @@ class PaymentContextRequestService
         if (!$authorizationType) {
             $authorizationType = AuthorizationType::$final;
         }
+        $capture = $forceAuthorize ? false : $this->checkoutConfigProvider->needsAutoCapture();
 
         // Global informations
         $request = new PaymentContextsRequest();
         $request->amount = $this->utilities->formatDecimals($quote->getGrandTotal() * 100);
         $request->payment_type = $paymentType;
         $request->currency = $quote->getCurrency()->getQuoteCurrencyCode();
-        $request->capture = $this->checkoutConfigProvider->needsAutoCapture();
+        $request->capture = $capture;
         $request->processing_channel_id = $this->checkoutConfigProvider->getValue('channel_id');
 
         // Source Type

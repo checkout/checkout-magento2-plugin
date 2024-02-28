@@ -25,6 +25,12 @@
                                                 <item name="template" xsi:type="string">CheckoutCom_Magento2/checkout/minicart/applepaybutton</item>
                                             </item>
                                         </item>
+                                        <item name="paypal" xsi:type="array">
+                                            <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/minicart/paypalbutton</item>
+                                            <item name="config" xsi:type="array">
+                                                <item name="template" xsi:type="string">CheckoutCom_Magento2/checkout/minicart/paypalbutton</item>
+                                            </item>
+                                        </item>
                                     </item>
                                 </item>
                             </item>
@@ -37,5 +43,18 @@
         <referenceContainer name="minicart.addons">
             <block class="CheckoutCom\Magento2\Block\Cart\ApplePay" ifconfig="payment/checkoutcom_apple_pay/active" name="minicart.checkout.config" template="CheckoutCom_Magento2::cart/minicart-config.phtml" />
         </referenceContainer>
+
+        <!-- Add Paypal Script for express button -->
+        <referenceBlock name="content">
+            <block class="CheckoutCom\Magento2\Block\Paypal\Script"
+                   ifconfig="payment/checkoutcom_paypal/active"
+                   name="checkout.paypal.express.minicart.script"
+                   template="CheckoutCom_Magento2::script/paypal-script.phtml">
+                <arguments>
+                    <argument name="mode" xsi:type="string">express</argument>
+                    <argument name="script_type" xsi:type="string">mini-cart</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
     </body>
 </page>

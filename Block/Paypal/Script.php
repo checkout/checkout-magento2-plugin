@@ -56,6 +56,25 @@ class Script extends Template
 
     public function getIntent(): string
     {
+        if ($this->isExpressButton()) {
+            return 'authorize';
+        }
+
         return $this->checkoutConfig->needsAutoCapture() ? 'capture' : 'authorize';
+    }
+
+    public function getCommit(): string
+    {
+        return $this->isExpressButton() ? 'false' : 'true';
+    }
+
+    public function getPageType(): string
+    {
+        return $this->getScriptType() ?? 'checkout';
+    }
+
+    private function isExpressButton(): bool
+    {
+        return $this->getMode() === 'express';
     }
 }
