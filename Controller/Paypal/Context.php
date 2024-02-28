@@ -27,20 +27,20 @@ use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Controller\ResultInterface;
 
-class Context extends Action
+class Context implements HttpGetActionInterface,HttpPostActionInterface
 {
-    protected JsonFactory $jsonFactory;
+    protected JsonFactory $resultJsonFactory;
     protected PaymentContextRequestService $paymentContextRequestService;
 
     public function __construct(
-        JsonFactory $jsonFactory,
+        JsonFactory $resultJsonFactory,
         PaymentContextRequestService $paymentContextRequestService
     ) {
-        $this->jsonFactory = $jsonFactory;
+        $this->resultJsonFactory = $resultJsonFactory;
         $this->paymentContextRequestService = $paymentContextRequestService;
     }
 
-    public function execute(): ResponseInterface | ResultInterface
+    public function execute()
     {
         $resultJson = $this->resultJsonFactory->create();
         $resultJson->setData(

@@ -23,6 +23,7 @@ use Checkout\Payments\AuthorizationType;
 use Checkout\Payments\Contexts\PaymentContextsItems;
 use Checkout\Payments\Contexts\PaymentContextsRequest;
 use Checkout\Payments\PaymentType;
+use Checkout\Payments\Request\Source\AbstractRequestSource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as MagentoLoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -30,6 +31,7 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 class PaymentContextRequestService
@@ -72,7 +74,12 @@ class PaymentContextRequestService
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
-        return $this->apiHandlerService->getCheckoutApi()->getPaymentContextsClient()->createPaymentContexts($request);
+        $storeCode = $this->storeManager->getStore($quote->getStoreId())->getCode();
+        $api = $this->apiHandlerService->init($storeCode, ScopeInterface::SCOPE_STORE);
+
+        return $api->getCheckoutApi()
+            ->getPaymentContextsClient()
+            ->createPaymentContexts($request);
     }
 
     private function getContextRequest(
@@ -91,7 +98,7 @@ class PaymentContextRequestService
 
         // Global informations
         $request = new PaymentContextsRequest();
-        $request->amount = $quote->getGrandTotal();
+        $request->amount = $this->utilities->formatDecimals($quote->getGrandTotal() * 100);
         $request->payment_type = $paymentType;
         $request->currency = $quote->getCurrency()->getQuoteCurrencyCode();
         $request->capture = $this->checkoutConfigProvider->needsAutoCapture();
@@ -108,8 +115,21 @@ class PaymentContextRequestService
             $contextItem->reference = $item->getSku();
             $contextItem->quantity = $item->getQty();
             $contextItem->name = $item->getName();
-            $contextItem->unit_price = $item->getPrice();
+            $contextItem->unit_price = $this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty()) * 100;
+
             $items[] = $contextItem;
+        }
+
+        // Shipping fee
+        $shipping = $quote->getShippingAddress();
+
+        if ($shipping->getShippingDescription()) {
+            $product = new PaymentContextsItems();
+            $product->name = $shipping->getShippingDescription();
+            $product->quantity = 1;
+            $product->unit_price = $shipping->getShippingInclTax() * 100;
+
+            $items[] = $product;
         }
         $request->items = $items;
 

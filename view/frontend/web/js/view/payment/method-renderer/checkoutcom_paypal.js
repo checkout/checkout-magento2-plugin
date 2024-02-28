@@ -41,7 +41,8 @@ define(
                         '.html',
                     buttonId: METHOD_ID + '_btn',
                     redirectAfterPlaceOrder: false,
-                    orderId: null
+                    chkPayPalOrderid: null,
+                    chkPayPalContextId: null
                 },
 
                 /**
@@ -50,39 +51,50 @@ define(
                 initialize: function() {
                     this._super();
                     Utilities.loadCss('paypal', 'paypal');
+                    let self = this;
+
+                    //Todo: proper way to init, the paypal button must be loaded when
+                    // #paypal-button-container is on the dom
+                    setTimeout(function(){
+                        self.initPaypalButton();
+                    },1000);
                 },
 
                 initPaypalButton: function() {
 
                     let self = this;
 
-                    // Obtain Checkout context OrderId
+                    // Prepare Context
                     $.ajax(
                         {
-                            type: "POST",
+                            type: 'POST',
                             url: Utilities.getUrl('paypal/context'),
-                            data: {
+                            showLoader: true,
+                            data: {},
+                            success: function(data) {
+                                if (typeof data.content !== 'undefined') {
+                                    self.chkPayPalOrderid = data.content.partner_metadata.order_id;
+                                    self.chkPayPalContextId = data.content.id;
+
+                                    // Init paypal button after getting context order id
+                                    paypal.Buttons({
+                                        createOrder() {
+                                            return self.chkPayPalOrderid;
+                                        },
+                                        onApprove: async function(data) {
+                                            self.placeOrder();
+                                        },
+                                    }).render('#paypal-button-container');
+
+                                }
+                                // Todo else message manager error
                             },
-                            success: function (data) {
-                                alert('success');
+                            error: function(request, status, error) {
+                                // Todo message manager error
                             },
-                            error: function (request, status, error) {
-                                alert('passuccess');
-                            }
-                        }
+                        },
                     );
 
-
-                    paypal.Buttons({
-                        createOrder() {
-
-                            return self.defaults.orderId;
-                        },
-                        onApprove: async function(data) {
-                            alert(
-                                'Transaction approved, PLEASE MAKE something');
-                        },
-                    }).render('#paypal-button-container');
                 },
 
                 /**
@@ -114,49 +126,15 @@ define(
                     FullScreenLoader.startLoader();
 
                     let self = this;
-                    alert('inipaypal');
-                    // Send the AJAX request
-                    /*$.ajax(
-                        {
-                            type: "POST",
-                            url: Utilities.getUrl('apm/display'),
-                            data: {
-                                country_id: Utilities.getBillingAddress() ? Utilities.getBillingAddress().country_id : null
-                            },
-                            success: function (data) {
-                                self.animateRender(data);
-                                self.initEvents();
-                                self.checkLastPaymentMethod();
-                            },
-                            error: function (request, status, error) {
-                                Utilities.log(error);
-
-                                // Stop the loader
-                                FullScreenLoader.stopLoader();
-                            }
-                        }
-                    );*/
                 },
 
                 /**
                  * @return {void}
                  */
                 initEvents: function() {
-                    alert('ça init les events');
                     if (loadEvents) {
                         let self = this;
                         let prevAddress;
-
-                        /*Quote.billingAddress.subscribe(
-                            function (newAddress) {
-                                if (!newAddress || !prevAddress || newAddress.getKey() !== prevAddress.getKey()) {
-                                    prevAddress = newAddress;
-                                    if (newAddress) {
-                                        self.reloadApms(Quote.billingAddress().countryId);
-                                    }
-                                }
-                            }
-                        );*/
 
                         loadEvents = false;
                     }
@@ -166,28 +144,16 @@ define(
                  * @return {void}
                  */
                 placeOrder: function() {
-                    alert('place paypal order');
-
-                    let id = $('#apm-container div[aria-selected=true]').
-                        attr('id');
-
-                    if (Utilities.methodIsSelected(METHOD_ID) && id) {
-                        let form = $('#cko-apm-form-' + id),
-                            data = {methodId: METHOD_ID};
-
-                        // Start the loader
-                        FullScreenLoader.startLoader();
-
-                        // Serialize data
-                        form.serializeArray().forEach(
-                            function(e) {
-                                data[e.name] = e.value;
-                            },
-                        );
+                    FullScreenLoader.startLoader();
+                    
+                    if (Utilities.methodIsSelected(METHOD_ID) && this.chkPayPalContextId) {
+                        let data = {
+                            methodId: METHOD_ID,
+                            contextPaymentId: this.chkPayPalContextId,
+                        };
 
                         // Place the order
-                        if (AdditionalValidators.validate() && form.valid() &&
-                            this.custom(data)) {
+                        if (AdditionalValidators.validate()) {
                             Utilities.placeOrder(
                                 data,
                                 METHOD_ID,
@@ -203,25 +169,6 @@ define(
 
                         FullScreenLoader.stopLoader();
                     }
-                },
-
-                /**
-                 * Custom "before place order" flows.
-                 */
-
-                /**
-                 * Dynamic function handler.
-                 *
-                 * @param  {String}   id      The identifier
-                 * @return {boolean}
-                 */
-                custom: function(data) {
-                    var result = true;
-                    if (typeof this[data.source] == 'function') {
-                        result = this[data.source](data);
-                    }
-
-                    return result;
                 },
             },
         );

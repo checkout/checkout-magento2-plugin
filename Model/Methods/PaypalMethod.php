@@ -21,14 +21,8 @@ namespace CheckoutCom\Magento2\Model\Methods;
 
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
-use Checkout\Payments\BillingDescriptor;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
-use Checkout\Payments\Previous\Source\RequestTokenSource as PreviousRequestTokenSource;
 use Checkout\Payments\Request\PaymentRequest;
-use Checkout\Payments\Request\Source\RequestTokenSource;
-use Checkout\Payments\ThreeDsRequest;
-use Checkout\Tokens\GooglePayTokenData;
-use Checkout\Tokens\GooglePayTokenRequest;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -263,28 +257,6 @@ class PaypalMethod extends AbstractMethod
         // Get the quote
         $quote = $this->quoteHandler->getQuote();
 
-        // Create the Google Pay data
-        $googlePayData = new GooglePayTokenData();
-        $googlePayData->signature = $data['cardToken']['signature'];
-        $googlePayData->protocolVersion = $data['cardToken']['protocolVersion'];
-        $googlePayData->signedMessage = $data['cardToken']['signedMessage'];
-
-        // Get the token data
-        $tokenData = new GooglePayTokenRequest();
-        $tokenData->token_data = $googlePayData;
-
-        // Create the Apple Pay token source
-        $response = $api->getCheckoutApi()->getTokensClient()->requestWalletToken($tokenData);
-
-        if ($this->apiHandler->isPreviousMode()) {
-            $tokenSource = new PreviousRequestTokenSource();
-        } else {
-            $tokenSource = new RequestTokenSource();
-        }
-
-        $tokenSource->token = $response['token'];
-        $tokenSource->billing_address = $api->createBillingAddress($quote);
-
         // Set the payment
         if ($this->apiHandler->isPreviousMode()) {
             $request = new PreviousPaymentRequest();
@@ -292,55 +264,8 @@ class PaypalMethod extends AbstractMethod
             $request = new PaymentRequest();
         }
 
-        $request->source = $tokenSource;
-        $request->currency = $currency;
+        $request->payment_context_id = $data['contextPaymentId'];
         $request->processing_channel_id = $this->config->getValue('channel_id');
-
-        // Prepare the metadata array
-        $request->metadata['methodId'] = $this->_code;
-
-        // Prepare the capture setting
-        $needsAutoCapture = $this->config->needsAutoCapture();
-        $request->capture = $needsAutoCapture;
-        if ($needsAutoCapture) {
-            $request->capture_on = $this->config->getCaptureTime();
-        }
-
-        // Set the request parameters
-        $request->amount = $this->quoteHandler->amountToGateway(
-            $this->utilities->formatDecimals($amount),
-            $quote
-        );
-
-        $request->reference = $reference;
-        $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
-        $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-
-        $theeDsRequest = new ThreeDsRequest();
-        $theeDsRequest->enabled = $this->config->needs3ds($this->_code);
-        $request->three_ds = $theeDsRequest;
-
-        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
-        $request->customer = $api->createCustomer($quote);
-        $request->payment_type = 'Regular';
-        $request->shipping = $api->createShippingAddress($quote);
-
-        // Billing descriptor
-        if ($this->config->needsDynamicDescriptor()) {
-            $billingDescriptor = new BillingDescriptor();
-            $billingDescriptor->city = $this->config->getValue('descriptor_city');
-            $billingDescriptor->name = $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE);
-            $request->billing_descriptor = $billingDescriptor;
-        }
-
-        // Add the quote metadata
-        $request->metadata['quoteData'] = $this->json->serialize($this->quoteHandler->getQuoteRequestData($quote));
-
-        // Add the base metadata
-        $request->metadata = array_merge(
-            $request->metadata,
-            $this->apiHandler->getBaseMetadata()
-        );
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
