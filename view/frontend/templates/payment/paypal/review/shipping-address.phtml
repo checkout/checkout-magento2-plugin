@@ -1,0 +1,24 @@
+<?php
+/**
+ * @var ShippinAddress $block
+ * @var Escaper $escaper
+ */
+
+use Magento\Framework\Escaper;
+use \CheckoutCom\Magento2\Block\Paypal\Review\ShippinAddress;
+
+?>
+
+<div class="box box-order-shipping-address">
+    <strong class="box-title">
+        <span><?= $escaper->escapeHtml(__('Shipping Address')) ?></span>
+    </strong>
+    <div class="box-content">
+        <address>
+            <?= $escaper->escapeHtml(
+                $block->renderAddress(),
+                ['br']
+            ); ?>
+        </address>
+    </div>
+</div>

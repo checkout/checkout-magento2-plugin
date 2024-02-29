@@ -27,9 +27,14 @@ use Checkout\Payments\Request\Source\AbstractRequestSource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as MagentoLoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
+use Exception;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\UrlInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\AddressInterfaceFactory;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -43,6 +48,8 @@ class PaymentContextRequestService
     protected UrlInterface $urlBuilder;
     protected MagentoLoggerHelper $ckoLogger;
     protected Utilities $utilities;
+    protected AddressInterfaceFactory $addressInterfaceFactory;
+    protected CartRepositoryInterface $cartRepository;
 
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -52,7 +59,9 @@ class PaymentContextRequestService
         UrlInterface $urlBuilder,
         ApiHandlerService $apiHandlerService,
         MagentoLoggerHelper $ckoLogger,
-        Utilities $utilities
+        Utilities $utilities,
+        AddressInterfaceFactory $addressInterfaceFactory,
+        CartRepositoryInterface $cartRepository
     ) {
         $this->storeManager = $storeManager;
         $this->apiHandlerService = $apiHandler;
@@ -61,6 +70,8 @@ class PaymentContextRequestService
         $this->urlBuilder = $urlBuilder;
         $this->ckoLogger = $ckoLogger;
         $this->utilities = $utilities;
+        $this->addressInterfaceFactory = $addressInterfaceFactory;
+        $this->cartRepository = $cartRepository;
     }
 
     public function makePaymentContextRequests(
@@ -84,6 +95,69 @@ class PaymentContextRequestService
         return $api->getCheckoutApi()
             ->getPaymentContextsClient()
             ->createPaymentContexts($request);
+    }
+
+    public function getPaymentContextById(string $paymentContextId, int $storeId, ?bool $refreshQuote = false, ?PaymentInterface $paymentMethod = null): array
+    {
+        $storeCode = $this->storeManager->getStore($storeId)->getCode();
+        $api = $this->apiHandlerService->init($storeCode, ScopeInterface::SCOPE_STORE);
+        try {
+            $contextDatas = $api->getCheckoutApi()->getPaymentContextsClient()->getPaymentContextDetails($paymentContextId);
+            if ($refreshQuote) {
+                $this->refreshQuoteWithPaymentContext($contextDatas, $paymentMethod);
+            }
+
+            return $contextDatas;
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    public function refreshQuoteWithPaymentContext(array $contextDatas, ?PaymentInterface $paymentMethod = null): void
+    {
+        if (empty($contextDatas)) {
+            return;
+        }
+
+        $quote = $this->getQuote();
+
+        $paymentRequestsDatas = $contextDatas['payment_request'];
+        $splittedName = explode(' ', $paymentRequestsDatas['customer']['name'], 2);
+        $lastNameIndex = count($splittedName) === 2 ? 1 : 0;
+        $quote->setCustomerFirstname($splittedName[0]);
+        $quote->setCustomerLastname($splittedName[1]);
+        $quote->setCustomerEmail($paymentRequestsDatas['customer']['email']);
+
+        /** @var AddressInterface $quoteAddress */
+        $quoteAddress = $this->addressInterfaceFactory->create();
+        $shippingAddressRequesDatas = $paymentRequestsDatas['shipping']['address'];
+        $splittedName = explode(' ', $paymentRequestsDatas['shipping']['first_name'], 2);
+        $lastNameIndex = count($splittedName) === 2 ? 1 : 0;
+        $quoteAddress->setFirstname($splittedName[0]);
+        $quoteAddress->setLastname($splittedName[1]);
+
+        $quoteAddress->setCity($shippingAddressRequesDatas['city']);
+        $quoteAddress->setCountryId($shippingAddressRequesDatas['country']);
+        $quoteAddress->setPostcode($shippingAddressRequesDatas['zip']);
+        $quoteAddress->setTelephone('0000000000');
+        $streets = [];
+        $i = 1;
+        while ($i < 4) {
+            if (!empty($shippingAddressRequesDatas['address_line' . $i])) {
+                $streets[] = $shippingAddressRequesDatas['address_line' . $i];
+            }
+            $i++;
+        }
+        $quoteAddress->setStreet($streets);
+
+        // Set Payment method if given
+        if ($paymentMethod) {
+            $quote->setPayment($paymentMethod);
+        }
+
+        //Assign addresse and save quote
+        $quote->setBillingAddress($quoteAddress)->setShippingAddress($quoteAddress);
+        $this->cartRepository->save($quote);
     }
 
     private function getContextRequest(
@@ -114,6 +188,17 @@ class PaymentContextRequestService
         $request->source = new AbstractRequestSource($sourceType);
 
         // Items
+        $request->items = $this->getRequestItems($quote);
+
+        // Urls
+        $request->success_url = $this->urlBuilder->getUrl('checkout/onepage/success');
+        $request->failure_url = $this->urlBuilder->getUrl('checkout/onepage/failure');
+
+        return $request;
+    }
+
+    public function getRequestItems(Quote | CartInterface $quote): array
+    {
         $items = [];
         /** @var Quote\Item $item */
         foreach ($quote->getAllItems() as $item) {
@@ -137,13 +222,8 @@ class PaymentContextRequestService
 
             $items[] = $product;
         }
-        $request->items = $items;
 
-        // Urls
-        $request->success_url = $this->urlBuilder->getUrl('checkout/onepage/success');
-        $request->failure_url = $this->urlBuilder->getUrl('checkout/onepage/failure');
-
-        return $request;
+        return $items;
     }
 
     private function getQuote(): Quote | CartInterface

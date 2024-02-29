@@ -41,7 +41,7 @@
         </referenceBlock>
         <!-- Add checkoutConfig object for minicart Apple Pay -->
         <referenceContainer name="minicart.addons">
-            <block class="CheckoutCom\Magento2\Block\Cart\ApplePay" ifconfig="payment/checkoutcom_apple_pay/active" name="minicart.checkout.config" template="CheckoutCom_Magento2::cart/minicart-config.phtml" />
+            <block class="CheckoutCom\Magento2\Block\Cart\CheckoutConfig" ifconfig="payment/checkoutcom_apple_pay/active" name="minicart.checkout.config" template="CheckoutCom_Magento2::cart/minicart-config.phtml" />
         </referenceContainer>
 
         <!-- Add Paypal Script for express button -->

@@ -12,7 +12,8 @@ define([
     'Magento_Customer/js/customer-data',
     'Magento_Customer/js/model/customer',
     'mage/url',
-], function($, ko, Component, customerData, customer, Url) {
+    'Magento_Checkout/js/model/full-screen-loader',
+], function($, ko, Component, customerData, customer, Url, FullScreenLoader) {
     'use strict';
 
     return Component.extend({
@@ -78,7 +79,7 @@ define([
             let containerSelector = '#minicart-paypal-button-container';
             let datas = {forceAuthorizeMode: true};
 
-            if($(containerSelector).length > 0) {
+            if ($(containerSelector).length > 0) {
                 $.ajax(
                     {
                         type: 'POST',
@@ -96,7 +97,11 @@ define([
                                         return self.chkPayPalOrderid;
                                     },
                                     onApprove: async function(data) {
-                                        alert('APPROVED MOZERFUCKER');
+                                        // Redirect on paypal reviex page (express checkout)
+                                        FullScreenLoader.startLoader();
+                                        window.location.href = Url.build(
+                                            'checkout_com/paypal/review/contextId/' +
+                                            self.chkPayPalContextId);
                                     },
                                 }).render(containerSelector);
 

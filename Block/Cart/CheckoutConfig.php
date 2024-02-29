@@ -33,7 +33,7 @@ use Magento\Framework\Serialize\Serializer\JsonHexTag;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\View\Element\Template\Context;
 
-class ApplePay extends Onepage
+class CheckoutConfig extends Onepage
 {
     private Cart $cart;
     private ConfigProvider $checkoutComConfigProvider;

@@ -27,6 +27,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Directory\Helper\Data as DirectoryHelper;
@@ -161,6 +162,8 @@ class PaypalMethod extends AbstractMethod
      */
     private $backendAuthSession;
 
+    private PaymentContextRequestService $contextService;
+
     /**
      * GooglePayMethod constructor
      *
@@ -203,6 +206,7 @@ class PaypalMethod extends AbstractMethod
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
         Json $json,
+        PaymentContextRequestService $contextService,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
@@ -231,6 +235,7 @@ class PaypalMethod extends AbstractMethod
         $this->ckoLogger = $ckoLogger;
         $this->backendAuthSession = $backendAuthSession;
         $this->json = $json;
+        $this->contextService = $contextService;
     }
 
     /**
@@ -265,8 +270,9 @@ class PaypalMethod extends AbstractMethod
         }
 
         // Set parameters
-        $payment->capture = $this->config->needsAutoCapture();
-        $payment->amount = $this->utilities->formatDecimals($amount * 100);
+        $request->capture = $this->config->needsAutoCapture();
+        $request->amount = $this->utilities->formatDecimals($amount * 100);
+        $request->items = $this->contextService->getRequestItems($quote);
         $request->payment_context_id = $data['contextPaymentId'];
         $request->processing_channel_id = $this->config->getValue('channel_id');
 

@@ -1,0 +1,17 @@
+<?php
+/**
+ * @var PaymentMethod $block
+ * @var Escaper $escaper
+ */
+
+use Magento\Framework\Escaper;
+use \CheckoutCom\Magento2\Block\Paypal\Review\PaymentMethod;
+
+?>
+<div class="box box-order-billing-address">
+    <strong class="box-title"><span><?= $escaper->escapeHtml(__('Payment Method')) ?></span></strong>
+    <div class="box-content">
+        <?= $escaper->escapeHtml($block->getPaymentMethod()); ?><br>
+        <?= $escaper->escapeHtml($block->getEmail()); ?>
+    </div>
+</div>
