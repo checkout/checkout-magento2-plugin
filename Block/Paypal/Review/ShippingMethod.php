@@ -60,7 +60,7 @@ class ShippingMethod extends Template
 
     public function getShippingMethodUpdateUrl(QuoteRate $carrierRate): string
     {
-        return $this->url->getUrl('checkoutcom/paypal/saveExpressShipping', [
+        return $this->url->getUrl('checkoutcom/paypal/saveExpressShippingMethod', [
             Review::PAYMENT_CONTEXT_ID_PARAMETER => $this->request->getParam(Review::PAYMENT_CONTEXT_ID_PARAMETER),
             Review::SHIPPING_METHOD_PARAMETER => $carrierRate->getCode()
         ]);

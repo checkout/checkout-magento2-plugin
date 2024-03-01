@@ -29,6 +29,7 @@ use CheckoutCom\Magento2\Helper\Logger as MagentoLoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use Exception;
 use Magento\Checkout\Model\Session;
+use Magento\Directory\Model\ResourceModel\Region\CollectionFactory as RegionCollectionFactory;
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\AddressInterface;
@@ -50,6 +51,7 @@ class PaymentContextRequestService
     protected Utilities $utilities;
     protected AddressInterfaceFactory $addressInterfaceFactory;
     protected CartRepositoryInterface $cartRepository;
+    protected RegionCollectionFactory $regionCollectionFactory;
 
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -61,6 +63,7 @@ class PaymentContextRequestService
         MagentoLoggerHelper $ckoLogger,
         Utilities $utilities,
         AddressInterfaceFactory $addressInterfaceFactory,
+        RegionCollectionFactory $regionCollectionFactory,
         CartRepositoryInterface $cartRepository
     ) {
         $this->storeManager = $storeManager;
@@ -72,6 +75,7 @@ class PaymentContextRequestService
         $this->utilities = $utilities;
         $this->addressInterfaceFactory = $addressInterfaceFactory;
         $this->cartRepository = $cartRepository;
+        $this->regionCollectionFactory = $regionCollectionFactory;
     }
 
     public function makePaymentContextRequests(
@@ -81,7 +85,7 @@ class PaymentContextRequestService
         ?string $authorizationType = null
     ): array {
         $quote = $this->getQuote();
-        if (!$quote->getId()) {
+        if (!$quote->getId() || ($quote->getId() && !$quote->getItemsQty())) {
             return [];
         }
 
@@ -139,7 +143,7 @@ class PaymentContextRequestService
         $quoteAddress->setCity($shippingAddressRequesDatas['city']);
         $quoteAddress->setCountryId($shippingAddressRequesDatas['country']);
         $quoteAddress->setPostcode($shippingAddressRequesDatas['zip']);
-        $quoteAddress->setTelephone('0000000000');
+
         $streets = [];
         $i = 1;
         while ($i < 4) {
@@ -149,6 +153,17 @@ class PaymentContextRequestService
             $i++;
         }
         $quoteAddress->setStreet($streets);
+
+        // Manage region
+        $stateName = $shippingAddressRequesDatas['state'];
+        if ($stateName) {
+            $regionCollection = $this->regionCollectionFactory->create();
+            $region = $regionCollection->addFieldToFilter('default_name', ['eq' => $stateName])->getFirstItem();
+            if ($region->getId()) {
+                $quoteAddress->setRegionCode($region->getCode());
+                $quoteAddress->setRegionId($region->getRegionId());
+            }
+        }
 
         // Set Payment method if given
         if ($paymentMethod) {

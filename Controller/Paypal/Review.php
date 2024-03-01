@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Paypal;
 
+use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\HttpGetActionInterface;
@@ -27,9 +28,8 @@ use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\UrlInterface;
-use \Magento\Quote\Api\Data\PaymentInterface;
-use \Magento\Quote\Api\Data\PaymentInterfaceFactory;
-use \CheckoutCom\Magento2\Model\Methods\PaypalMethod;
+use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Quote\Api\Data\PaymentInterfaceFactory;
 
 class Review implements HttpGetActionInterface
 {
@@ -98,7 +98,7 @@ class Review implements HttpGetActionInterface
             $paymentMethod = $this->paymentInterfaceFactory->create();
             $paymentMethod->setMethod($this->paypalMethod->getCode());
 
-            $contextDatas = $this->paymentContextRequestService->getPaymentContextById($paymentContextId, (int)$quote->getStoreId(), true,$paymentMethod);
+            $contextDatas = $this->paymentContextRequestService->getPaymentContextById($paymentContextId, (int)$quote->getStoreId(), true, $paymentMethod);
 
             if (empty($contextDatas)) {
                 $this->messageManager->addErrorMessage(__('We cannot find your payment informations, please try again'));

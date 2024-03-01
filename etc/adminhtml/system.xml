@@ -681,6 +681,12 @@
                         <config_path>payment/checkoutcom_paypal/express_minicart</config_path>
                     </field>
 
+                    <field id="express_auto_method" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Auto set First available Shipping Method on express checkout</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_paypal/express_auto_method</config_path>
+                    </field>
+
                     <field id="sort_order" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Sort Order</label>
                         <validate>validate-number</validate>

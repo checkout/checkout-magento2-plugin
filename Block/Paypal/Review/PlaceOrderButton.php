@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Block\Paypal\Review;
 
 use CheckoutCom\Magento2\Controller\Paypal\Review;
+use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\View\Element\Template;
@@ -28,16 +29,19 @@ class PlaceOrderButton extends Template
 {
     protected Session $checkoutSession;
     protected RequestInterface $request;
+    protected PaypalMethod $paypalMethod;
 
     public function __construct(
         Template\Context $context,
         Session $checkoutSession,
         RequestInterface $request,
+        PaypalMethod $paypalMethod,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->checkoutSession = $checkoutSession;
         $this->request = $request;
+        $this->paypalMethod = $paypalMethod;
     }
 
     public function getEmail(): string
@@ -52,7 +56,7 @@ class PlaceOrderButton extends Template
 
     public function getPaymentMethod(): string
     {
-        return (string)$this->checkoutSession->getQuote()->getPayment()->getMethodInstance()->getCode();
+        return (string)$this->paypalMethod->getCode();
     }
 
     public function getContextId(): string

@@ -21,15 +21,18 @@ namespace CheckoutCom\Magento2\Controller\Paypal;
 
 use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
 use Magento\Checkout\Model\Session;
-use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\Data\AddressInterfaceFactory;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
+use \CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 
-class SaveExpressShipping implements HttpGetActionInterface
+class SaveData
 {
     protected ResultFactory $resultFactory;
     protected ManagerInterface $messageManager;
@@ -39,6 +42,8 @@ class SaveExpressShipping implements HttpGetActionInterface
     protected RedirectFactory $redirectFactory;
     protected UrlInterface $urlInterface;
     protected CartRepositoryInterface $cartRepository;
+    protected AddressInterfaceFactory $addressInterfaceFactory;
+    protected PaypalMethod $paypalMethod;
 
     public function __construct(
         ResultFactory $resultFactory,
@@ -48,7 +53,9 @@ class SaveExpressShipping implements HttpGetActionInterface
         PaymentContextRequestService $paymentContextRequestService,
         RedirectFactory $redirectFactory,
         UrlInterface $urlInterface,
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        AddressInterfaceFactory $addressInterfaceFactory,
+        PaypalMethod $paypalMethod
     ) {
         $this->resultFactory = $resultFactory;
         $this->request = $request;
@@ -58,25 +65,18 @@ class SaveExpressShipping implements HttpGetActionInterface
         $this->redirectFactory = $redirectFactory;
         $this->urlInterface = $urlInterface;
         $this->cartRepository = $cartRepository;
+        $this->addressInterfaceFactory = $addressInterfaceFactory;
+        $this->paypalMethod = $paypalMethod;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function execute()
+    protected function shouldRedirectToCart(): bool
     {
         $quote = $this->checkoutSession->getQuote();
         $redirectToCart = false;
+
         $paymentContextId = $this->request->getParam(Review::PAYMENT_CONTEXT_ID_PARAMETER);
-        $methodCode = $this->request->getParam(Review::SHIPPING_METHOD_PARAMETER);
 
         // Check quote
-        if (!$quote || ($quote && !$quote->getId())) {
-            $this->messageManager->addErrorMessage(__('Your Cart is empty'));
-            $redirectToCart = true;
-        }
-
-        // Check if method is given
         if (!$quote || ($quote && !$quote->getId())) {
             $this->messageManager->addErrorMessage(__('Your Cart is empty'));
             $redirectToCart = true;
@@ -98,11 +98,12 @@ class SaveExpressShipping implements HttpGetActionInterface
             }
         }
 
-        if ($redirectToCart) {
-            return $this->redirectFactory->create()->setUrl($this->urlInterface->getUrl('checkout/cart'));
-        }
+        return $redirectToCart;
+    }
 
-        // Save Shipping address
+    protected function setShippingMethod(string $methodCode, CartInterface | Quote $quote): bool
+    {
+        // Save Shipping method
         try {
             $shippingAddress = $quote->getShippingAddress();
             $shippingAddress->setShippingMethod($methodCode)->setCollectShippingRates(true);
@@ -115,10 +116,12 @@ class SaveExpressShipping implements HttpGetActionInterface
             $quote->collectTotals();
 
             $this->cartRepository->save($quote);
+
+            return true;
         } catch (Exception $e) {
             $this->messageManager->addErrorMessage(__($e->getMessage()));
-        }
 
-        return $this->redirectFactory->create()->setRefererUrl();
+            return false;
+        }
     }
 }

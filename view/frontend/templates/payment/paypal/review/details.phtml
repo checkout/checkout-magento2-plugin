@@ -1,0 +1,29 @@
+<?php
+
+use CheckoutCom\Magento2\Block\Paypal\Review\PaymentMethod;
+use Magento\Framework\Escaper;
+
+/**
+ * @var PaymentMethod $block
+ * @var Escaper $escaper
+ */
+?>
+<div id="details-reload" class="table-wrapper order-items cart">
+    <table id="details-table" class="cart items data table table-paypal-review-items">
+        <caption class="table-caption"><?= $escaper->escapeHtml(__('Items in Your Shopping Cart')) ?></caption>
+        <thead>
+        <tr>
+            <th class="col name" scope="col"><?= $escaper->escapeHtml(__('Item')) ?></th>
+            <th class="col price" scope="col"><?= $escaper->escapeHtml(__('Price')) ?></th>
+            <th class="col qty" scope="col"><?= $escaper->escapeHtml(__('Qty')) ?></th>
+            <th class="col subtotal" scope="col"><?= $escaper->escapeHtml(__('Subtotal')) ?></th>
+        </tr>
+        </thead>
+        <?php foreach ($block->getItems() as $item) : ?>
+            <?= /* @noEscape */ $block->getItemHtml($item) ?>
+        <?php endforeach ?>
+        <tfoot class="opc-block-summary">
+        <?= /* @noEscape */ $block->getChildHtml('totals') ?>
+        </tfoot>
+    </table>
+</div>

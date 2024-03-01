@@ -19,20 +19,24 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Block\Paypal\Review;
 
+use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\View\Element\Template;
 
 class PaymentMethod extends Template
 {
     protected Session $checkoutSession;
+    protected PaypalMethod $paypalMethod;
 
     public function __construct(
         Template\Context $context,
         Session $checkoutSession,
+        PaypalMethod $paypalMethod,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->checkoutSession = $checkoutSession;
+        $this->paypalMethod = $paypalMethod;
     }
 
     public function getEmail(): string
@@ -42,6 +46,6 @@ class PaymentMethod extends Template
 
     public function getPaymentMethod(): string
     {
-        return (string)$this->checkoutSession->getQuote()->getPayment()->getMethodInstance()->getTitle();
+        return (string)$this->paypalMethod->getTitle();
     }
 }
