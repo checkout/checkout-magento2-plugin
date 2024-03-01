@@ -217,11 +217,13 @@ class PaymentContextRequestService
         $items = [];
         /** @var Quote\Item $item */
         foreach ($quote->getAllItems() as $item) {
+            $discount = $this->utilities->formatDecimals($item->getDiscountAmount()) * 100;
             $contextItem = new PaymentContextsItems();
             $contextItem->reference = $item->getSku();
             $contextItem->quantity = $item->getQty();
             $contextItem->name = $item->getName();
-            $contextItem->unit_price = $this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty()) * 100;
+            $contextItem->discount_amount = $discount;
+            $contextItem->unit_price = ($this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty()) * 100) - $discount;
 
             $items[] = $contextItem;
         }
@@ -245,5 +247,4 @@ class PaymentContextRequestService
     {
         return $this->checkoutSession->getQuote();
     }
-
 }
