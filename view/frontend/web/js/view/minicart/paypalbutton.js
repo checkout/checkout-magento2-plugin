@@ -77,7 +77,7 @@ define([
 
             // Prepare Context
             let containerSelector = '#minicart-paypal-button-container';
-            let datas = {forceAuthorizeMode: true};
+            let datas = {forceAuthorizeMode: 0};
 
             if ($(containerSelector).length > 0) {
                 $.ajax(

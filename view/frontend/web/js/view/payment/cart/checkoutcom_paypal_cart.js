@@ -13,7 +13,7 @@ define([
     'Magento_Customer/js/model/customer',
     'mage/url',
     'Magento_Checkout/js/model/full-screen-loader',
-], function($, ko, Component, customerData, customer, Url,FullScreenLoader) {
+], function($, ko, Component, customerData, customer, Url, FullScreenLoader) {
     'use strict';
 
     return Component.extend({
@@ -77,8 +77,8 @@ define([
 
             // Prepare Context
             let containerSelector = '#cart-paypal-button-container';
-            let datas = {forceAuthorizeMode: true};
-            if($(containerSelector).length > 0) {
+            let datas = {forceAuthorizeMode: 0};
+            if ($(containerSelector).length > 0) {
                 $.ajax(
                     {
                         type: 'POST',
