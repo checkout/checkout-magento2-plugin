@@ -74,7 +74,6 @@ class Review implements HttpGetActionInterface
     public function execute()
     {
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
-        //$reviewBlock = $resultPage->getLayout()->getBlock('braintree.paypal.review');
 
         $quote = $this->checkoutSession->getQuote();
         $redirectToCart = false;
@@ -92,7 +91,6 @@ class Review implements HttpGetActionInterface
             $redirectToCart = true;
         }
 
-        // Check if context exists
         if (!$redirectToCart) {
             /** @var PaymentInterface $paymentMethod */
             $paymentMethod = $this->paymentInterfaceFactory->create();
@@ -109,9 +107,6 @@ class Review implements HttpGetActionInterface
         if ($redirectToCart) {
             return $this->redirectFactory->create()->setUrl($this->urlInterface->getUrl('checkout/cart'));
         }
-
-        /*$reviewBlock->setQuote($quote);
-        $reviewBlock->getChildBlock('shipping_method')->setData('quote', $quote);*/
 
         return $resultPage;
     }

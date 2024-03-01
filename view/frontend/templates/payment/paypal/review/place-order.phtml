@@ -1,5 +1,20 @@
 <?php
 /**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+/**
  * @var PlaceOrderButton $block
  * @var Escaper $escaper
  */
@@ -10,7 +25,7 @@ use Magento\Framework\Escaper;
 ?>
 <?php // Do not change this id ?>
 <div id="checkoutcom_paypal_container"
-      class="form order-review-form">
+     class="form order-review-form">
     <div class="message message-cko"></div>
     <div class="message message-response-code"></div>
     <div class="message debug-message"></div>
@@ -41,6 +56,7 @@ use Magento\Framework\Escaper;
             }
         }
     }
+
 
 
 </script>

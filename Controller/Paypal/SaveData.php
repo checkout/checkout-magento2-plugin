@@ -19,18 +19,20 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Paypal;
 
+use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\AddressInterfaceFactory;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
-use \CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 
 class SaveData
 {
@@ -69,6 +71,12 @@ class SaveData
         $this->paypalMethod = $paypalMethod;
     }
 
+    /**
+     * Control about current request
+     *
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
     protected function shouldRedirectToCart(): bool
     {
         $quote = $this->checkoutSession->getQuote();
@@ -101,9 +109,11 @@ class SaveData
         return $redirectToCart;
     }
 
+    /**
+     * Assign a shipping method to quote
+     */
     protected function setShippingMethod(string $methodCode, CartInterface | Quote $quote): bool
     {
-        // Save Shipping method
         try {
             $shippingAddress = $quote->getShippingAddress();
             $shippingAddress->setShippingMethod($methodCode)->setCollectShippingRates(true);

@@ -44,7 +44,7 @@ class SaveExpressShippingAddress extends SaveData implements HttpPostActionInter
             $quote->setBillingAddress($quoteAddress)->setShippingAddress($quoteAddress);
             $this->cartRepository->save($quote);
 
-            // Auto assign method
+            // Auto assign shipping method
             $shippingAddress = $quote->getShippingAddress();
             if ($this->paypalMethod->getConfigData('express_auto_method') && !$shippingAddress->getShippingMethod()) {
                 $shippingAddress->collectShippingRates();
