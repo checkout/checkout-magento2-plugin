@@ -223,7 +223,9 @@ class PaymentContextRequestService
             $contextItem->quantity = $item->getQty();
             $contextItem->name = $item->getName();
             $contextItem->discount_amount = $discount;
-            $contextItem->unit_price = ($this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty()) * 100) - $discount;
+            $contextItem->unit_price =
+                ($this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty()) * 100) -
+                ($this->utilities->formatDecimals($discount / $item->getQty()));
 
             $items[] = $contextItem;
         }
