@@ -218,14 +218,19 @@ class PaymentContextRequestService
         /** @var Quote\Item $item */
         foreach ($quote->getAllVisibleItems() as $item) {
             $discount = $this->utilities->formatDecimals($item->getDiscountAmount()) * 100;
+            $unitPrice = ($this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty()) * 100) -
+                         ($this->utilities->formatDecimals($discount / $item->getQty()));
+            // Api does not accept 0 prices
+            if (!$unitPrice) {
+                continue;
+            }
+
             $contextItem = new PaymentContextsItems();
             $contextItem->reference = $item->getSku();
             $contextItem->quantity = $item->getQty();
             $contextItem->name = $item->getName();
             $contextItem->discount_amount = $discount;
-            $contextItem->unit_price =
-                ($this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty()) * 100) -
-                ($this->utilities->formatDecimals($discount / $item->getQty()));
+            $contextItem->unit_price = $unitPrice;
 
             $items[] = $contextItem;
         }
