@@ -216,7 +216,7 @@ class PaymentContextRequestService
     {
         $items = [];
         /** @var Quote\Item $item */
-        foreach ($quote->getAllItems() as $item) {
+        foreach ($quote->getAllVisibleItems() as $item) {
             $discount = $this->utilities->formatDecimals($item->getDiscountAmount()) * 100;
             $contextItem = new PaymentContextsItems();
             $contextItem->reference = $item->getSku();
