@@ -153,12 +153,6 @@ class V3 implements V3Interface
      */
     private $api;
     /**
-     * $order field
-     *
-     * @var Object $order
-     */
-    private $order;
-    /**
      * $quote field
      *
      * @var Object $quote
@@ -295,10 +289,8 @@ class V3 implements V3Interface
         if ($this->isValidPublicKey()) {
             if ($this->hasValidFields()) {
                 $this->result = $this->processPayment();
-                if (!$this->result['success']) {
+                if (!$this->result['success'] &&  !$this->result['error_message']) {
                     $this->result['error_message'][] = __('The order could not be created.');
-                    // Handle order on failed payment
-                    $this->orderStatusHandler->handleFailedPayment($this->order);
                 }
             }
         } else {
@@ -333,25 +325,19 @@ class V3 implements V3Interface
      */
     private function processPayment(): array
     {
-        // Try to load a quote
-        $quote = $this->config->isPaymentWithPaymentFirst() ? $this->loadQuote() : null;
-        $reservedOrderId = $this->config->isPaymentWithPaymentFirst() ? $this->quoteHandler->getReference($quote) : null;
-
         // Create order if needed before payment
-        $orderBeforePayment = $this->config->isPaymentWithOrderFirst() ? $this->createOrder($this->data->getPaymentMethod()) : null;
+        $order = $this->createOrder($this->data->getPaymentMethod());
 
-        if (($quote !== null && $reservedOrderId !== null) || $this->orderHandler->isOrder($orderBeforePayment)) {
+        if ($this->orderHandler->isOrder($order)) {
             //Init values to request payment
-            $amount = (float)$this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $orderBeforePayment->getGrandTotal();
-            $currency = (string)$this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $orderBeforePayment->getOrderCurrencyCode();
-            $reference = (string)$this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $orderBeforePayment->getIncrementId();
+            $amount = $order->getGrandTotal();
+            $currency = $order->getOrderCurrencyCode();
+            $reference = $order->getIncrementId();
 
             // Get the payment
             $response = $this->getPaymentResponse($amount, $currency, $reference);
 
             if ($this->api->isValidResponse($response)) {
-                $this->order = $order = ($orderBeforePayment === null) ? $this->createOrder($this->data->getPaymentMethod()) : $orderBeforePayment;
-
                 // Process the payment response
                 $is3ds = property_exists($response, '_links')
                          && isset($response->_links['redirect'])
@@ -380,6 +366,11 @@ class V3 implements V3Interface
                     );
                 }
 
+                // Handle order on failed payment if payment is order first.
+                if ($this->config->isPaymentWithOrderFirst()) {
+                    $this->orderStatusHandler->handleFailedPayment($order);
+                }
+
                 //  Token invalid/expired
                 if (method_exists($response, 'getErrors')) {
                     $this->result['error_message'] = array_merge(
@@ -391,6 +382,9 @@ class V3 implements V3Interface
                 if ($this->data->getFailureUrl()) {
                     $this->result['redirect_url'] = $this->data->getFailureUrl();
                 }
+
+                // Delete the order if payment is first
+                $this->orderHandler->deleteOrder($order);
             }
 
             // Update the order id

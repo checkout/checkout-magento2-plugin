@@ -343,29 +343,20 @@ class V2 extends Action
      */
     protected function processPayment(): array
     {
-        // Try to load a quote
-        $quote = $this->config->isPaymentWithPaymentFirst() ? $this->loadQuote() : null;
-        // Reserved an order
-        $reservedOrderId = $this->config->isPaymentWithPaymentFirst() ? $this->quoteHandler->getReference($quote) : null;
-        // Create Order if needed before paymen
-        $orderBeforePayment = $this->config->isPaymentWithOrderFirst() ? $this->createOrder() : null;
+        // Create Order if needed before payment
+        $order = $this->createOrder();
 
         // Process the payment
-        if (($this->config->isPaymentWithPaymentFirst() && $this->quoteHandler->isQuote($quote) && $reservedOrderId !== null)
-            || ($this->config->isPaymentWithOrderFirst() && $this->orderHandler->isOrder($orderBeforePayment))
-        ) {
+        if ($this->orderHandler->isOrder($order)) {
             //Init values to request payment
-            $amount = (float)$this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $orderBeforePayment->getGrandTotal();
-            $currency = (string)$this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $orderBeforePayment->getOrderCurrencyCode();
-            $reference = (string)$this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $orderBeforePayment->getIncrementId();
+            $amount = $order->getGrandTotal();
+            $currency = $order->getOrderCurrencyCode();
+            $reference = $order->getIncrementId();
 
             // Get the payment response
             $response = $this->getPaymentResponse($amount, $currency, $reference);
 
             if ($this->api->isValidResponse($response)) {
-                // Create Order
-                $this->order = $order = ($orderBeforePayment === null) ? $this->createOrder() : $orderBeforePayment;
-
                 // Process the payment response
                 $is3ds = property_exists(
                              $response,
@@ -408,6 +399,9 @@ class V2 extends Action
                 if (isset($this->data->failure_url)) {
                     $this->result['redirect_url'] = $this->data->failure_url;
                 }
+
+                // Delete the order if payment is first
+                $this->orderHandler->deleteOrder($order);
             }
 
             // Update the order id
