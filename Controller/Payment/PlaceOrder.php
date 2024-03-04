@@ -219,18 +219,12 @@ class PlaceOrder extends Action
             if (isset($data['methodId']) && !$this->isEmptyCardToken($data)) {
                 // Process the request
                 if ($this->getRequest()->isAjax() && $quote) {
-                    // Reserved an order
-                    /** @var string $reservedOrderId */
-                    $reservedOrderId = $this->config->isPaymentWithPaymentFirst() ? $this->quoteHandler->getReference($quote) : null;
 
-                    //Create order if it is needed before payment
-                    $order = $this->config->isPaymentWithOrderFirst() ? $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote) : null;
+                    //Create order before payment
+                    $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
 
                     // Process the payment
-                    if (($this->config->isPaymentWithPaymentFirst() && $this->quoteHandler->isQuote($quote) && $reservedOrderId !== null)
-                        || ($this->config->isPaymentWithOrderFirst() && $this->orderHandler->isOrder($order)
-                        )
-                    ) {
+                    if ($this->orderHandler->isOrder($order)) {
                         $log = false;
                         // Get the debug config value
                         $debug = $this->scopeConfig->getValue(
@@ -245,9 +239,9 @@ class PlaceOrder extends Action
                         );
 
                         //Init values to request payment
-                        $amount = (float)$this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $order->getGrandTotal();
-                        $currency = (string)$this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $order->getOrderCurrencyCode();
-                        $reference = (string)$this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $order->getIncrementId();
+                        $amount = (float) $order->getGrandTotal();
+                        $currency = (string) $order->getOrderCurrencyCode();
+                        $reference = (string) $order->getIncrementId();
 
                         // Get response and success
                         $response = $this->requestPayment($quote, $data, $amount, $currency, $reference);
@@ -265,9 +259,6 @@ class PlaceOrder extends Action
                         $responseCode = isset($response['response_code']) ? $response['response_code'] : '';
 
                         if ($isValidResponse && $this->isAuthorized($responseCode)) {
-                            // Create an order if processing is payment first
-                            $order = $order === null ? $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote) : $order;
-
                             // Add the payment info to the order
                             $order = $this->utilities->setPaymentData($order, $response, $data);
 
@@ -304,6 +295,9 @@ class PlaceOrder extends Action
                             if ($this->config->isPaymentWithOrderFirst()) {
                                 $this->orderStatusHandler->handleFailedPayment($order);
                             }
+
+                            // Delete the order if payment is first
+                            $this->orderHandler->deleteOrder($order);
                         }
                     } else {
                         // Payment failed

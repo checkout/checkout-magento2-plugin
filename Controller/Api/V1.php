@@ -161,30 +161,14 @@ class V1 extends Action
             if ($this->isValidRequest()) {
                 // Load the quote
                 $quote = $this->loadQuote();
-                $order = null;
-                $reservedOrderId = null;
-
-                if ($this->config->isPaymentWithOrderFirst()) {
-                    // Create an order
-                    $order = $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote);
-                }
-
-                if ($this->config->isPaymentWithPaymentFirst()) {
-                    // Reserved an order
-                    /** @var string $reservedOrderId */
-                    $reservedOrderId = $this->quoteHandler->getReference($quote);
-                }
-
-
+                $order = $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote);
 
                 // Process the payment
-                if (($this->config->isPaymentWithPaymentFirst() && $this->quoteHandler->isQuote($quote) && $reservedOrderId !== null)
-                    || ($this->config->isPaymentWithOrderFirst() && $this->orderHandler->isOrder($order))
-                ) {
+                if ($this->orderHandler->isOrder($order)) {
                     //Init values to request payment
-                    $amount = (float)$this->config->isPaymentWithPaymentFirst() ? $quote->getGrandTotal() : $order->getGrandTotal();
-                    $currency = (string)$this->config->isPaymentWithPaymentFirst() ? $quote->getQuoteCurrencyCode() : $order->getOrderCurrencyCode();
-                    $reference = (string)$this->config->isPaymentWithPaymentFirst() ? $reservedOrderId : $order->getIncrementId();
+                    $amount = $order->getGrandTotal();
+                    $currency = $order->getOrderCurrencyCode();
+                    $reference = $order->getIncrementId();
 
                     // Get response and success
                     $response = $this->requestPayment($amount, $currency, $reference);
@@ -195,9 +179,6 @@ class V1 extends Action
                     // Process the response
                     $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
                     if ($api->isValidResponse($response)) {
-                        // Create an order if processing is with payment first
-                        $order = $order === null ? $this->orderHandler->setMethodId('checkoutcom_card_payment')->handleOrder($quote) : $order;
-
                         // Get the payment details
                         $paymentDetails = $api->getPaymentDetails($response->id);
 
@@ -211,6 +192,9 @@ class V1 extends Action
                         $success = $response->isSuccessful();
                         $orderId = $order->getId();
                     } else {
+                        // Delete the order if payment is first
+                        $this->orderHandler->deleteOrder($order);
+
                         $errorMessage = __('The payment request was declined by the gateway.');
                     }
                 } else {
