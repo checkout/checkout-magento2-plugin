@@ -191,6 +191,9 @@ class Fail extends Action
                     // Handle the failed order
                     $this->orderStatusHandler->handleFailedPayment($order);
 
+                    //Delete order if payment first
+                    $this->orderHandler->deleteOrder($order);
+
                     $errorMessage = null;
                     if (isset($response['actions'][0]['response_code'])) {
                         $errorMessage = $this->paymentErrorHandlerService->getErrorMessage(
