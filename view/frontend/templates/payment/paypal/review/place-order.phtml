@@ -21,11 +21,9 @@
 
 use CheckoutCom\Magento2\Block\Paypal\Review\PlaceOrderButton;
 use Magento\Framework\Escaper;
-
 ?>
-<?php // Do not change this id ?>
-<div id="checkoutcom_paypal_container"
-     class="form order-review-form">
+
+<div class="form order-review-form" id="checkoutcom_paypal_container">
     <div class="message message-cko"></div>
     <div class="message message-response-code"></div>
     <div class="message debug-message"></div>
@@ -40,23 +38,21 @@ use Magento\Framework\Escaper;
         </div>
         <span class="please-wait load indicator" id="review-please-wait"
               data-text="<?= $escaper->escapeHtml(__('Submitting order information...')) ?>">
-                   <span><?= $escaper->escapeHtml(__('Submitting order information...')) ?></span>
-                </span>
+           <span><?= $escaper->escapeHtml(__('Submitting order information...')) ?></span>
+        </span>
         <?= /* @noEscape */
         $secureRenderer->renderStyleAsTag("display: none;", 'span#review-please-wait') ?>
     </div>
 </div>
 <script type="text/x-magento-init">
     {
-        "#checkoutcom_paypal_container": {
+        "#checkoutcom-paypal-container": {
             "CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_paypal_review": {
                 "chkPayPalContextId": "<?= $escaper->escapeJs($block->getContextId()); ?>",
+                "addressForm": ".form-address-edit",
                 "methodId": "<?= $escaper->escapeJs($block->getPaymentMethod()); ?>",
                 "buttonSelector": "#review-button"
             }
         }
     }
-
-
-
 </script>

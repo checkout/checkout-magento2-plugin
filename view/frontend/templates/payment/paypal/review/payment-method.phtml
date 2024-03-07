@@ -23,7 +23,7 @@ use CheckoutCom\Magento2\Block\Paypal\Review\PaymentMethod;
 use Magento\Framework\Escaper;
 
 ?>
-<div class="box box-order-billing-address">
+<div class="box box-order-shipping-method">
     <strong class="box-title"><span><?= $escaper->escapeHtml(__('Payment Method')) ?></span></strong>
     <div class="box-content">
         <?= $escaper->escapeHtml($block->getPaymentMethod()); ?><br>

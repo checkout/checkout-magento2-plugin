@@ -25,14 +25,22 @@ define([
          * @return {void}
          */
         _create: function () {
-            this._eventListeners()
+            this.editAddressForm = this.element.find('.form-address-edit');
+            this.submitButton = this.element.find(this.options.buttonSelector);
+
+            Utilities.loadCss('paypal', 'paypal');
+            this._eventListeners();
+
+            if (!this.editAddressForm.validation('isValid')) {
+                this.submitButton.attr('disabled', 'true');
+            }
         },
 
         /**
          * @return {void}
          */
         _eventListeners () {
-            $(this.options.buttonSelector).on('click', (event) => {
+            this.submitButton.on('click', (event) => {
                 this.placeOrder(event);
             });
         },
@@ -51,19 +59,19 @@ define([
                     contextPaymentId: this.options.chkPayPalContextId,
                 };
 
-                submitButton.attr('disabled', 'disabled');
-
                 // Place the order
                 Utilities.placeOrder(
                     data,
                     this.options.methodId,
-                    true
+                    false
                 )
-                .catch((data) => {
+                .then(() => {
                     $('body').trigger('processStop');
                 });
 
                 Utilities.cleanCustomerShippingAddress();
+            } else {
+                $('body').trigger('processStop');
             }
         },
     });

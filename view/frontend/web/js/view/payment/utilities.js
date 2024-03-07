@@ -70,8 +70,12 @@ define(
                 var cssPath = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.css_path;
                 cssPath += folderPath + '/' + fileName + ext;
 
-                // Append the CSS file
-                $('head').append('<link rel="stylesheet" href="' + cssPath + '" type="text/css"/>');
+                const css = document.createElement('link');
+                css.rel = 'stylesheet';
+                css.media = 'all';
+                css.href = cssPath;
+
+                document.head.appendChild(css);
             },
 
             /**

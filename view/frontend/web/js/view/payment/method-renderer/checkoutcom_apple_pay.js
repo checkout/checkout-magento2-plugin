@@ -30,6 +30,7 @@ define(
         ko,
         Component,
         Utilities,
+        Utilities,
         ApplePayUtilities,
         FullScreenLoader,
         AdditionalValidators,
