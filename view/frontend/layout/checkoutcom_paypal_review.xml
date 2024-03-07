@@ -26,7 +26,7 @@
             <!-- Add checkoutConfig object -->
             <block class="CheckoutCom\Magento2\Block\Cart\CheckoutConfig" name="checkoutcom_paypal_express_review.checkout.config" template="CheckoutCom_Magento2::cart/minicart-config.phtml"/>
 
-            <container htmlClass="block block-order-details-view" htmlTag="div">
+            <container name="checkoutcom_paypal_order_review" htmlClass="block block-order-details-view" htmlTag="div">
                 <block class="CheckoutCom\Magento2\Block\Paypal\Review\ShippingAddress"
                        name="checkoutcom_paypal_review_shipping_address"
                        template="Magento_Customer::address/edit.phtml"
