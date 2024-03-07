@@ -6,18 +6,50 @@
     <body>
         <referenceContainer name="checkout.cart.methods">
             <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::cart/applepay.phtml" name="apple.pay.button" after="-"/>
-            <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::cart/paypal.phtml" name="paypal.button" after="apple.pay.button"/>
-            <referenceBlock name="checkout.paypal.express.minicart.script" remove="true" />
-            <block class="CheckoutCom\Magento2\Block\Paypal\Script"
-                   ifconfig="payment/checkoutcom_paypal/active"
-                   name="checkout.paypal.express.cart.script"
-                   template="CheckoutCom_Magento2::script/paypal-script.phtml" >
+            <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::cart/paypal.phtml" name="paypal.button" after="apple.pay.button">
                 <arguments>
-                    <argument name="mode" xsi:type="string">express</argument>
-                    <argument name="script_type" xsi:type="string">cart</argument>
+                    <argument name="jsLayout" xsi:type="array">
+                        <item name="components" xsi:type="array">
+                            <item name="paypal_express_button" xsi:type="array">
+                                <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_paypal_express</item>
+                                <item name="config" xsi:type="array">
+                                    <item name="template" xsi:type="string">CheckoutCom_Magento2/payment/checkoutcom_paypal_express</item>
+                                    <item name="context" xsi:type="string">express_cart</item>
+                                </item>
+                            </item>
+                        </item>
+                    </argument>
                 </arguments>
             </block>
         </referenceContainer>
+
+        <referenceBlock name="minicart">
+            <arguments>
+                <argument name="jsLayout" xsi:type="array">
+                    <item name="components" xsi:type="array">
+                        <item name="minicart_content" xsi:type="array">
+                            <item name="children" xsi:type="array">
+                                <item name="promotion" xsi:type="array">
+                                    <item name="children" xsi:type="array">
+                                        <item name="paypal" xsi:type="array">
+                                            <item name="config" xsi:type="array">
+                                                <item name="componentDisabled" xsi:type="boolean">true</item>
+                                            </item>
+                                        </item>
+                                    </item>
+                                </item>
+                            </item>
+                        </item>
+                    </item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+
+        <referenceBlock name="checkout.paypal.express.script">
+            <arguments>
+                <argument name="script_type" xsi:type="string">cart</argument>
+            </arguments>
+        </referenceBlock>
 
         <referenceBlock name="minicart.checkout.config" remove="true"/>
     </body>

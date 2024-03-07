@@ -1,4 +1,4 @@
-<?php
+<!--
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -13,15 +13,12 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
-?>
-<script type="text/x-magento-init">
-    {
-        "#paypal-express-button-container": {
-            "Magento_Ui/js/core/app": <?= /* @noEscape */ $block->getJsLayout() ?>
-        }
-    }
-</script>
-<div id="paypal-express-button-container"
-     data-bind="scope: 'paypal_express_button'">
-    <!-- ko template: getTemplate() --><!-- /ko -->
+-->
+
+<!-- ko if: isVisible -->
+<div class="actions">
+    <div class="primary">
+        <div id="minicart-paypal-button-container" afterRender="renderPaypalButton"></div>
+    </div>
 </div>
+<!-- /ko -->

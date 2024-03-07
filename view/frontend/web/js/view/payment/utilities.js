@@ -401,7 +401,7 @@ define(
             /**
              * Place a new order.
              *
-             * @return {void}
+             * @return {JQuery.ajax}
              */
             placeOrder: function (payload, methodId, startLoader = true) {
                 var self = this;
@@ -412,7 +412,7 @@ define(
                 }
 
                 // Send the request
-                $.ajax({
+                return $.ajax({
                     type: 'POST',
                     url: self.getUrl('payment/placeorder'),
                     data: payload,
