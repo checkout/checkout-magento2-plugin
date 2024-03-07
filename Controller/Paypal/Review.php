@@ -23,8 +23,10 @@ use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
@@ -70,7 +72,7 @@ class Review implements HttpGetActionInterface
     /**
      * @inheritDoc
      */
-    public function execute()
+    public function execute(): Redirect | ResultInterface
     {
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
 
