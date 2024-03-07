@@ -239,12 +239,6 @@ class PaypalMethod extends AbstractMethod
     }
 
     /**
-     * @param array $data
-     * @param float $amount
-     * @param string $currency
-     * @param string $reference
-     *
-     * @return array
      * @throws CheckoutApiException
      * @throws CheckoutArgumentException
      * @throws FileSystemException
@@ -283,10 +277,6 @@ class PaypalMethod extends AbstractMethod
     }
 
     /**
-     * @param InfoInterface $payment
-     * @param $amount
-     *
-     * @return AbstractMethod
      * @throws CheckoutApiException
      * @throws CheckoutArgumentException
      * @throws LocalizedException
@@ -324,9 +314,6 @@ class PaypalMethod extends AbstractMethod
     }
 
     /**
-     * @param InfoInterface $payment
-     *
-     * @return AbstractMethod
      * @throws CheckoutApiException
      * @throws CheckoutArgumentException
      * @throws LocalizedException
@@ -363,9 +350,6 @@ class PaypalMethod extends AbstractMethod
     }
 
     /**
-     * @param InfoInterface $payment
-     *
-     * @return AbstractMethod
      * @throws CheckoutApiException
      * @throws CheckoutArgumentException
      * @throws LocalizedException
@@ -408,10 +392,6 @@ class PaypalMethod extends AbstractMethod
     }
 
     /**
-     * @param InfoInterface $payment
-     * @param $amount
-     *
-     * @return AbstractMethod
      * @throws CheckoutApiException
      * @throws CheckoutArgumentException
      * @throws LocalizedException
@@ -468,8 +448,6 @@ class PaypalMethod extends AbstractMethod
      * Check whether method is available
      *
      * @param CartInterface|null $quote
-     *
-     * @return bool
      * @throws LocalizedException
      */
     public function isAvailable(CartInterface $quote = null): bool

@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -14,13 +15,11 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
-
-declare(strict_types=1);
-
 namespace CheckoutCom\Magento2\Controller\Paypal;
 
 use Magento\Customer\Api\Data\AddressInterface as CustomerAddressInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Quote\Api\Data\AddressInterface;
 
 class SaveExpressShippingAddress extends SaveData implements HttpPostActionInterface
@@ -28,7 +27,7 @@ class SaveExpressShippingAddress extends SaveData implements HttpPostActionInter
     /**
      * @inheritDoc
      */
-    public function execute()
+    public function execute(): Redirect
     {
         $quote = $this->checkoutSession->getQuote();
 

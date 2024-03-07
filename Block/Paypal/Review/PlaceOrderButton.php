@@ -16,7 +16,6 @@ declare(strict_types=1);
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
-
 namespace CheckoutCom\Magento2\Block\Paypal\Review;
 
 use CheckoutCom\Magento2\Controller\Paypal\Review;
@@ -24,6 +23,7 @@ use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\View\Element\Template;
+use \Magento\Framework\View\Element\Template\Context as TemplateContext;
 
 class PlaceOrderButton extends Template
 {
@@ -32,7 +32,7 @@ class PlaceOrderButton extends Template
     protected PaypalMethod $paypalMethod;
 
     public function __construct(
-        Template\Context $context,
+        TemplateContext $context,
         Session $checkoutSession,
         RequestInterface $request,
         PaypalMethod $paypalMethod,
