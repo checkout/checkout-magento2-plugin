@@ -25,6 +25,7 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context as TemplateContext;
 use Magento\Quote\Model\Quote\Address as QuoteAddresss;
 use Magento\Quote\Model\Quote\Address\Rate as QuoteRate;
 
@@ -36,7 +37,7 @@ class ShippingMethod extends Template
     protected PriceCurrencyInterface $priceCurrency;
 
     public function __construct(
-        Template\Context $context,
+        TemplateContext $context,
         Session $checkoutSession,
         RequestInterface $request,
         UrlInterface $url,
@@ -50,7 +51,7 @@ class ShippingMethod extends Template
         $this->priceCurrency = $priceCurrency;
     }
 
-    public function getRates()
+    public function getRates(): array
     {
         $shippingAddress = $this->getShippingAddress();
         $shippingAddress->collectShippingRates();
@@ -71,7 +72,7 @@ class ShippingMethod extends Template
         return $carrierRate->getCode() === $this->getShippingAddress()->getShippingMethod();
     }
 
-    public function getFormatedPrice($price)
+    public function getFormatedPrice($price): string
     {
         return $this->priceCurrency->convertAndFormat(
             $price,

@@ -16,12 +16,12 @@ declare(strict_types=1);
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
-
 namespace CheckoutCom\Magento2\Block\Paypal;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context as TemplateContext;
 
 class Script extends Template
 {
@@ -29,7 +29,7 @@ class Script extends Template
     private Config $checkoutConfig;
 
     public function __construct(
-        Template\Context $context,
+        TemplateContext $context,
         PaypalMethod $paypalMethod,
         Config $checkoutConfig,
         array $data = []
@@ -56,7 +56,7 @@ class Script extends Template
 
     public function getIntent(): string
     {
-       return $this->checkoutConfig->needsAutoCapture() ? 'capture' : 'authorize';
+        return $this->checkoutConfig->needsAutoCapture() ? 'capture' : 'authorize';
     }
 
     public function getCommit(): string

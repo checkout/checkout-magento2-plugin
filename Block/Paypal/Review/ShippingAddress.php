@@ -24,6 +24,7 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\AddressMetadataInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterfaceFactory;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Api\Data\CustomerInterfaceFactory;
 use Magento\Customer\Block\Address\Edit as CustomerAddressEdit;
 use Magento\Customer\Helper\Address;
@@ -36,10 +37,13 @@ use Magento\Directory\Model\ResourceModel\Region\CollectionFactory;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\Cache\Type\Config;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Json\EncoderInterface;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Quote\Model\Quote\Address as QuoteAddress;
 
 class ShippingAddress extends CustomerAddressEdit
 {
@@ -96,42 +100,46 @@ class ShippingAddress extends CustomerAddressEdit
         $this->_address = $this->checkoutSession->getQuote()->getShippingAddress();
     }
 
-    public function getAddress()
+    /**
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function getAddress(): ?QuoteAddress
     {
         return $this->checkoutSession->getQuote()->getShippingAddress();
     }
 
-    public function getCustomer()
+    public function getCustomer(): CustomerInterface
     {
         return $this->customerInterfaceFactory->create();
     }
 
-    public function isDefaultBilling()
+    public function isDefaultBilling(): bool
     {
         return false;
     }
 
-    public function isDefaultShipping()
+    public function isDefaultShipping(): bool
     {
         return false;
     }
 
-    public function canSetAsDefaultBilling()
+    public function canSetAsDefaultBilling(): bool
     {
         return false;
     }
 
-    public function canSetAsDefaultShipping()
+    public function canSetAsDefaultShipping(): bool
     {
         return false;
     }
 
-    public function getCustomerAddressCount()
+    public function getCustomerAddressCount(): int
     {
         return 1;
     }
 
-    public function getRegion()
+    public function getRegion(): string
     {
         return (string)$this->getAddress()->getRegion();
     }
@@ -146,7 +154,7 @@ class ShippingAddress extends CustomerAddressEdit
         return __('Review Order');
     }
 
-    public function getSaveUrl()
+    public function getSaveUrl(): string
     {
         return $this->url->getUrl('checkoutcom/paypal/saveExpressShippingAddress', [
             Review::PAYMENT_CONTEXT_ID_PARAMETER => $this->request->getParam(Review::PAYMENT_CONTEXT_ID_PARAMETER)
