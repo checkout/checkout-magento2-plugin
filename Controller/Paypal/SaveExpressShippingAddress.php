@@ -58,7 +58,8 @@ class SaveExpressShippingAddress extends SaveData implements HttpPostActionInter
                 }
             }
         } catch (Exception $e) {
-            $this->messageManager->addErrorMessage(__('Unable to save Address: ' . $e->getMessage()));
+            $this->logger->write(__('Error occured while saving paypal express shipping address: %1', $e->getMessage()));
+            $this->messageManager->addErrorMessage(__('Unable to save Addres'));
         }
 
         return $this->redirectFactory->create()->setRefererUrl();

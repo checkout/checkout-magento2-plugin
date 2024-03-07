@@ -17,6 +17,7 @@ declare(strict_types=1);
  */
 namespace CheckoutCom\Magento2\Controller\Paypal;
 
+use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
 use Magento\Checkout\Model\Session;
@@ -44,8 +45,10 @@ class SaveData
     protected CartRepositoryInterface $cartRepository;
     protected AddressInterfaceFactory $addressInterfaceFactory;
     protected PaypalMethod $paypalMethod;
+    protected LoggerHelper $logger;
 
     public function __construct(
+        LoggerHelper $loggerHelper,
         ResultFactory $resultFactory,
         ManagerInterface $messageManager,
         RequestInterface $request,
@@ -67,6 +70,7 @@ class SaveData
         $this->cartRepository = $cartRepository;
         $this->addressInterfaceFactory = $addressInterfaceFactory;
         $this->paypalMethod = $paypalMethod;
+        $this->logger = $loggerHelper;
     }
 
     /**

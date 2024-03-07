@@ -55,7 +55,8 @@ class SaveExpressShippingMethod extends SaveData implements HttpGetActionInterfa
 
             $this->cartRepository->save($quote);
         } catch (Exception $e) {
-            $this->messageManager->addErrorMessage(__($e->getMessage()));
+            $this->logger->write(__('Error occured while saving paypal express shipping method: %1', $e->getMessage()));
+            $this->messageManager->addErrorMessage(__('An error occurred while saving shipping method'));
         }
 
         return $this->redirectFactory->create()->setRefererUrl();
