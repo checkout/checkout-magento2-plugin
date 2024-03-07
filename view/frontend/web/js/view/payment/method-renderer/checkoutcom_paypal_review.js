@@ -13,54 +13,60 @@
  * @link      https://docs.checkout.com/
  */
 
-define(
-    [
-        'jquery',
-        'CheckoutCom_Magento2/js/view/payment/utilities',
-        'Magento_Checkout/js/model/full-screen-loader',
-    ],
-    function($, Utilities, FullScreenLoader) {
-        'use strict';
+define([
+    'jquery',
+    'CheckoutCom_Magento2/js/view/payment/utilities',
+], function ($, Utilities) {
+    'use strict';
 
-        $.widget('checkoutcom.paypalreviewplaceorder', {
+    $.widget('checkoutCom.paypalReviewPlaceorder', {
 
-            _create: function(config, element) {
-                let self = this;
+        /**
+         * @return {void}
+         */
+        _create: function () {
+            this._eventListeners()
+        },
 
-                $(this.options.buttonSelector).click(function() {
-                    self.placeOrder();
+        /**
+         * @return {void}
+         */
+        _eventListeners () {
+            $(this.options.buttonSelector).on('click', (event) => {
+                this.placeOrder(event);
+            });
+        },
+
+        /**
+         * @param {jQuery.Event} event
+         * @return {void}
+         */
+        placeOrder: function (event) {
+            $('body').trigger('processStart');
+
+            if (this.options.chkPayPalContextId) {
+                const submitButton = $(event.currentTarget);
+                const data = {
+                    methodId: this.options.methodId,
+                    contextPaymentId: this.options.chkPayPalContextId,
+                };
+
+                submitButton.attr('disabled', 'disabled');
+
+                // Place the order
+                Utilities.placeOrder(
+                    data,
+                    this.options.methodId,
+                    true
+                )
+                .catch((data) => {
+                    $('body').trigger('processStop');
                 });
-            },
 
-            /**
-             * @return {void}
-             */
-            placeOrder: function() {
-                FullScreenLoader.startLoader();
-                let self = this;
-
-                if (this.options.chkPayPalContextId) {
-                    $(this.options.buttonSelector).attr('disabled', 'disabled');
-                    setTimeout(function(){
-                        $(self.options.buttonSelector).removeAttr('disabled');
-                    },1500);
-
-                    let data = {
-                        methodId: this.options.methodId,
-                        contextPaymentId: this.options.chkPayPalContextId,
-                    };
-
-                    // Place the order
-                    Utilities.placeOrder(
-                        data,
-                        this.options.methodId,
-                        true
-                    );
-                    Utilities.cleanCustomerShippingAddress();
-
-                    FullScreenLoader.stopLoader();
-                }
-            },
-        });
-        return $.checkoutcom.paypalreviewplaceorder;
+                Utilities.cleanCustomerShippingAddress();
+            }
+        },
     });
+
+    return $.checkoutCom.paypalReviewPlaceorder;
+});

@@ -13,147 +13,146 @@
  * @link      https://docs.checkout.com/
  */
 
-define(
-    [
-        'jquery',
-        'Magento_Checkout/js/view/payment/default',
-        'CheckoutCom_Magento2/js/view/payment/utilities',
-        'Magento_Checkout/js/model/full-screen-loader',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Magento_Checkout/js/model/quote',
-        'mage/translate',
-        'jquery/ui',
-    ],
-    function(
-        $, Component, Utilities, FullScreenLoader, AdditionalValidators, Quote,
-        __) {
+define([
+    'jquery',
+    'knockout',
+    'Magento_Checkout/js/view/payment/default',
+    'CheckoutCom_Magento2/js/view/payment/utilities',
+    'CheckoutCom_Magento2/js/view/payment/paypal-utilities',
+    'Magento_Checkout/js/model/full-screen-loader',
+    'Magento_Checkout/js/model/payment/additional-validators',
+    'Magento_Checkout/js/model/quote',
+    'mage/translate',
+    'mage/url',
+], function ($, ko, Component, Utilities, PaypalUtilities, FullScreenLoader, AdditionalValidators, Quote, __, Url) {
+    'use strict';
 
-        'use strict';
-        window.checkoutConfig.reloadOnBillingAddress = true;
-        const METHOD_ID = 'checkoutcom_paypal';
-        let loadEvents = true;
-        let loaded = false;
+    window.checkoutConfig.reloadOnBillingAddress = true;
+    const METHOD_ID = 'checkoutcom_paypal';
+    let loadEvents = true;
+    let loaded = false;
 
-        return Component.extend(
-            {
-                defaults: {
-                    template: 'CheckoutCom_Magento2/payment/' + METHOD_ID +
-                        '.html',
-                    buttonId: METHOD_ID + '_btn',
-                    redirectAfterPlaceOrder: false,
-                    chkPayPalOrderid: null,
-                    chkPayPalContextId: null,
+    return Component.extend({
+        defaults: {
+            template: 'CheckoutCom_Magento2/payment/' + METHOD_ID +
+                '.html',
+        },
+        paypalScriptUrl: 'https://www.paypal.com/sdk/js',
+        placeOrderEnable: ko.observable(false),
+        buttonId: METHOD_ID + '_btn',
+        chkPayPalOrderid: null,
+        chkPayPalContextId: null,
+
+        /**
+         * @return {void}
+         */
+        initialize: function () {
+            this._super();
+
+            this.paypalCheckoutConfig = {
+                paypalScriptUrl: this.paypalScriptUrl,
+                clientId: this.getValue('checkout_client_id'),
+                merchantId: this.getValue('merchant_id'),
+                partnerAttributionId: this.getValue('checkout_partner_attribution_id'),
+                ...window.paypalCheckoutConfig
+            }
+
+            const scriptPromise = PaypalUtilities.paypalScriptLoader(this.paypalCheckoutConfig);
+
+            scriptPromise.then(() => {
+                this.placeOrderEnable(true);
+            }).catch((error) => {
+                Utilities.log(error);
+            });
+        },
+
+        /**
+         * @param {HTMLDivElement} element
+         * @return {void}
+         */
+        renderPaypalButton: function (element) {
+            paypal.Buttons({
+                createOrder: async () => {
+                    return await this._getPaypalOrderId();
                 },
-
-                /**
-                 * @return {exports}
-                 */
-                initialize: function() {
-                    this._super();
-                    Utilities.loadCss('paypal', 'paypal');
-                    let self = this;
-
-                    //Todo: proper way to init, the paypal button must be loaded when
-                    // #paypal-button-container is on the dom
-                    setTimeout(function() {
-                        self.initPaypalButton();
-                    }, 1000);
+                onApprove: async (data) => {
+                    this.placeOrder();
                 },
+            }).render(element);
+        },
 
-                initPaypalButton: function() {
+        /**
+         * @return {string}
+         */
+        getCode: function () {
+            return METHOD_ID;
+        },
 
-                    let self = this;
+        /**
+         * @param {string} field
+         * @return {string}
+         */
+        getValue: function (field) {
+            return Utilities.getValue(METHOD_ID, field);
+        },
 
-                    let containerSelector = '#paypal-button-container';
-                    let datas = {};
+        /**
+         * @return {void}
+         */
+        checkLastPaymentMethod: function () {
+            return Utilities.checkLastPaymentMethod();
+        },
 
-                    // Prepare Context
-                    if ($(containerSelector).length > 0) {
-                        $.ajax(
-                            {
-                                type: 'POST',
-                                url: Utilities.getUrl('paypal/context'),
-                                showLoader: true,
-                                data: datas,
-                                success: function(data) {
-                                    if (typeof data.content !== 'undefined') {
-                                        self.chkPayPalOrderid = data.content.partner_metadata.order_id;
-                                        self.chkPayPalContextId = data.content.id;
-
-                                        // Init paypal button after getting context order id
-                                        paypal.Buttons({
-                                            createOrder() {
-                                                return self.chkPayPalOrderid;
-                                            },
-                                            onApprove: async function(data) {
-                                                self.placeOrder();
-                                            },
-                                        }).render(containerSelector);
-
-                                    }
-                                    // Todo else message manager error
-                                },
-                                error: function(request, status, error) {
-                                    // Todo message manager error
-                                },
-                            },
-                        );
-                    }
+        /**
+         * @return {Promise}
+         */
+        _getPaypalOrderId: function () {
+            return fetch(Url.build('checkout_com/paypal/context'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
+            })
+            .then(response => response.json())
+            .then(response => {
+                this.chkPayPalContextId = response.content.id;
+                this.chkPayPalOrderid = response.content.partner_metadata.order_id;
 
-                /**
-                 * @return {string}
-                 */
-                getCode: function() {
-                    return METHOD_ID;
-                },
+                return this.chkPayPalOrderid;
+            });
+        },
 
-                /**
-                 * @return {string}
-                 */
-                getValue: function(field) {
-                    return Utilities.getValue(METHOD_ID, field);
-                },
+        /**
+         * @return {void}
+         */
+        placeOrder: function () {
+            FullScreenLoader.startLoader();
 
-                /**
-                 * @return {void}
-                 */
-                checkLastPaymentMethod: function() {
-                    return Utilities.checkLastPaymentMethod();
-                },
+            if (Utilities.methodIsSelected(METHOD_ID) &&
+                this.chkPayPalContextId) {
+                let data = {
+                    methodId: METHOD_ID,
+                    contextPaymentId: this.chkPayPalContextId,
+                };
 
-                /**
-                 * @return {void}
-                 */
-                placeOrder: function() {
-                    FullScreenLoader.startLoader();
+                // Place the order
+                if (AdditionalValidators.validate()) {
+                    Utilities.placeOrder(
+                        data,
+                        METHOD_ID,
+                        function () {
+                            Utilities.log(__('Success'));
+                        },
+                        function () {
+                            Utilities.log(__('Fail'));
+                        },
+                    );
+                    Utilities.cleanCustomerShippingAddress();
+                }
 
-                    if (Utilities.methodIsSelected(METHOD_ID) &&
-                        this.chkPayPalContextId) {
-                        let data = {
-                            methodId: METHOD_ID,
-                            contextPaymentId: this.chkPayPalContextId,
-                        };
-
-                        // Place the order
-                        if (AdditionalValidators.validate()) {
-                            Utilities.placeOrder(
-                                data,
-                                METHOD_ID,
-                                function() {
-                                    Utilities.log(__('Success'));
-                                },
-                                function() {
-                                    Utilities.log(__('Fail'));
-                                },
-                            );
-                            Utilities.cleanCustomerShippingAddress();
-                        }
-
-                        FullScreenLoader.stopLoader();
-                    }
-                },
-            },
-        );
-    },
-);
+                FullScreenLoader.stopLoader();
+            }
+        },
+    });
+});
