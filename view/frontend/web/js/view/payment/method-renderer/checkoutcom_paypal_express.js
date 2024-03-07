@@ -17,11 +17,10 @@ define([
     'jquery',
     'ko',
     'uiComponent',
-    'CheckoutCom_Magento2/js/view/payment/utilities',
     'CheckoutCom_Magento2/js/view/payment/paypal-utilities',
     'Magento_Customer/js/customer-data',
     'mage/url',
-], function ($, ko, Component, Utilities, PaypalUtilities, CustomerData, Url) {
+], function ($, ko, Component, PaypalUtilities, CustomerData, Url) {
     'use strict';
 
     return Component.extend({
@@ -67,7 +66,7 @@ define([
                 scriptPromise.then(() => {
                     this._initializePaypalExpressButton();
                 }).catch((error) => {
-                    Utilities.log(error);
+
                 });
             }
         },
