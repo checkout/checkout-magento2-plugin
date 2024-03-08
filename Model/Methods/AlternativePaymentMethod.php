@@ -27,7 +27,8 @@ use Checkout\Payments\Previous\Source\Apm\RequestAlipaySource;
 use Checkout\Payments\Previous\Source\Apm\RequestBoletoSource;
 use Checkout\Payments\Previous\Source\Apm\RequestEpsSource as PreviousRequestEpsSource;
 use Checkout\Payments\Previous\Source\Apm\RequestFawrySource as PreviousRequestFawrySource;
-use Checkout\Payments\Previous\Source\Apm\RequestGiropaySource;
+use Checkout\Payments\Previous\Source\Apm\RequestGiropaySource as PreviousRequestGiropaySource;
+use Checkout\Payments\Request\Source\Apm\RequestGiropaySource;
 use Checkout\Payments\Previous\Source\Apm\RequestIdealSource as PreviousRequestIdealSource;
 use Checkout\Payments\Previous\Source\Apm\RequestKlarnaSource;
 use Checkout\Payments\Previous\Source\Apm\RequestKnetSource;
@@ -103,7 +104,6 @@ class AlternativePaymentMethod extends AbstractMethod
     const NAS_UNAVAILABLE_APM = [
         'alipay',
         'boleto',
-        'giropay',
         'klarna',
         'poli',
         'sepa',
@@ -682,22 +682,19 @@ class AlternativePaymentMethod extends AbstractMethod
      *
      * @param array $data
      *
-     * @return RequestGiropaySource
+     * @return RequestGiropaySource|PreviousRequestGiropaySource
      * @throws NoSuchEntityException
      */
-    public function giropay(array $data): RequestGiropaySource
+    public function giropay(array $data)
     {
-        /** @var string $purpose */
-        $purpose = substr(
-            (string)__('Pay. req. from %1', $this->config->getStoreName()),
-            0,
-            27
-        );
-
-        $source = new RequestGiropaySource();
-        $source->purpose = null;
-        $source->bic = $this->getValue('bic', $data);
-        $source->info_fields = null;
+        if ($this->apiHandler->isPreviousMode()) {
+            $source = new PreviousRequestGiropaySource();
+            $source->purpose = null;
+            $source->bic = $this->getValue('bic', $data);
+            $source->info_fields = null;
+        } else {
+            $source = new RequestGiropaySource();
+        }
 
         return $source;
     }
