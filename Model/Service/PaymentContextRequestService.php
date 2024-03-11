@@ -238,7 +238,7 @@ class PaymentContextRequestService
         // Shipping fee
         $shipping = $quote->getShippingAddress();
 
-        if ($shipping->getShippingDescription()) {
+        if ($shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
             $product = new PaymentContextsItems();
             $product->name = $shipping->getShippingDescription();
             $product->quantity = 1;
