@@ -82,13 +82,6 @@ define([
         },
 
         /**
-         * @return {string}
-         */
-        getCode: function () {
-            return METHOD_ID;
-        },
-
-        /**
          * @param {string} field
          * @return {string}
          */
@@ -120,6 +113,10 @@ define([
                 this.chkPayPalOrderid = response.content.partner_metadata.order_id;
 
                 return this.chkPayPalOrderid;
+            })
+            .catch((response) => {
+                Utilities.log(response);
+                Utilities.showMessage('error', __('Something went wrong with paypal method. Please choose another method.'), METHOD_ID);
             });
         },
 

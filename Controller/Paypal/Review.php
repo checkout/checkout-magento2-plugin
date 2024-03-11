@@ -70,9 +70,9 @@ class Review implements HttpGetActionInterface
     }
 
     /**
-     * @inheritDoc
+     * @return Page|Redirect
      */
-    public function execute(): Redirect | ResultInterface
+    public function execute()
     {
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
 
