@@ -20,7 +20,7 @@
                 <fields_encrypted></fields_encrypted>
                 <fields_hidden>secret_key,private_shared_key</fields_hidden>
                 <active>1</active>
-                <payment_processing>payment_first</payment_processing>
+                <payment_processing>order_first</payment_processing>
                 <debug>0</debug>
                 <file_logging>0</file_logging>
                 <console_logging>0</console_logging>

@@ -56,7 +56,7 @@
                             <label>Payment Processing</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentProcesing</source_model>
                             <config_path>settings/checkoutcom_configuration/payment_processing</config_path>
-                            <comment>Specify if payment should be processed before order creation (default) or after order creation (respectful of native Magento and Adobe Commerce processing).</comment>
+                            <comment><![CDATA[- Order first (recommended) : keep order even is payment is failed. <br/>- Payment first: order will not appear in orders list if payment is failed]]></comment>
                         </field>
 
                         <field id="payment_action" type="select" showInDefault="1" showInWebsite="1" showInStore="0">

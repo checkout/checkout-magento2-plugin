@@ -29,10 +29,12 @@ use Magento\Framework\Api\SortOrderBuilderFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\AbstractExtensibleModel;
+use Magento\Framework\Registry;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Status\History as OrderStatusHistory;
@@ -109,6 +111,20 @@ class OrderHandlerService
     private $transactionHandler;
 
     /**
+     * $orderManagement field
+     *
+     * @var OrderManagementInterface $orderManagement
+     */
+    private $orderManagement;
+
+    /**
+     * $registry field
+     *
+     * @var Registry $registry
+     */
+    private $registry;
+
+    /**
      * OrderHandlerService constructor
      *
      * @param Session $checkoutSession
@@ -121,6 +137,7 @@ class OrderHandlerService
      * @param Logger $logger
      * @param TransactionHandlerService $transactionHandler
      * @param SortOrderBuilderFactory $sortOrderBuilderFactory
+     * @param OrderManagementInterface $orderManagement
      */
     public function __construct(
         Session $checkoutSession,
@@ -132,7 +149,9 @@ class OrderHandlerService
         StoreManagerInterface $storeManager,
         Logger $logger,
         TransactionHandlerService $transactionHandler,
-        SortOrderBuilderFactory $sortOrderBuilderFactory
+        SortOrderBuilderFactory $sortOrderBuilderFactory,
+        OrderManagementInterface $orderManagement,
+        Registry $registry
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->quoteManagement = $quoteManagement;
@@ -144,6 +163,8 @@ class OrderHandlerService
         $this->logger = $logger;
         $this->transactionHandler = $transactionHandler;
         $this->sortOrderBuilderFactory = $sortOrderBuilderFactory;
+        $this->orderManagement = $orderManagement;
+        $this->registry = $registry;
     }
 
     /**
@@ -385,5 +406,19 @@ class OrderHandlerService
             ],
             'transactions' => $this->transactionHandler->getTransactionDetails($order),
         ];
+    }
+
+    /**
+     * Delete order if order processing is Payment first.
+     * Temporary function before removing completely the feature.
+     */
+    public function deleteOrder(OrderInterface $order): void
+    {
+        if ($this->config->isPaymentWithPaymentFirst()) {
+            $this->orderManagement->cancel($order->getEntityId());
+            $this->registry->register('isSecureArea', true);
+            $this->orderRepository->delete($order);
+            $this->registry->unregister('isSecureArea');
+        }
     }
 }
