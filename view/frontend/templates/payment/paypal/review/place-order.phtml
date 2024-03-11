@@ -37,7 +37,7 @@ use Magento\Framework\Escaper;
             </button>
         </div>
         <span class="please-wait load indicator" id="review-please-wait"
-              data-text="<?= $escaper->escapeHtml(__('Submitting order information...')) ?>">
+              data-text="<?= $escaper->escapeHtmlAttr(__('Submitting order information...')) ?>">
            <span><?= $escaper->escapeHtml(__('Submitting order information...')) ?></span>
         </span>
         <?= /* @noEscape */

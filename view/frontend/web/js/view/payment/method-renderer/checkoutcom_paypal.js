@@ -82,6 +82,13 @@ define([
         },
 
         /**
+         * @return {string}
+         */
+        getCode: function () {
+            return METHOD_ID;
+        },
+
+        /**
          * @param {string} field
          * @return {string}
          */
