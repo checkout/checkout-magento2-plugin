@@ -23,7 +23,6 @@ use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
@@ -70,7 +69,7 @@ class Review implements HttpGetActionInterface
     }
 
     /**
-     * @return Page|Redirect
+     * @return ResultInterface
      */
     public function execute()
     {

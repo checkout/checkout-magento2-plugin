@@ -18,12 +18,9 @@
 use CheckoutCom\Magento2\Block\Cart\CheckoutConfig;
 use Magento\Framework\View\Helper\SecureHtmlRenderer;
 
-/** TODO: set this variable to true if paypal express or apple pay is enable on minicart */
-$expressMethodEnabled = true;
-
 /** @var CheckoutConfig $block */
 /** @var SecureHtmlRenderer $secureRenderer */
-if ($expressMethodEnabled):
+if ($block->isPaypalOrApplePayEnabled()):
 ?>
 <?php $serializedCheckoutConfig = $block->getProductCount() > 0 ? $block->getSerializedCheckoutConfig() : $block->getSerializedCheckoutComConfig();
 $scriptString = <<<script
