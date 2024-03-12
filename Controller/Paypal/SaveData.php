@@ -114,7 +114,7 @@ class SaveData
     /**
      * Assign a shipping method to quote
      */
-    protected function setShippingMethod(string $methodCode, CartInterface | Quote $quote): bool
+    protected function setShippingMethod(string $methodCode, CartInterface $quote): bool
     {
         try {
             $shippingAddress = $quote->getShippingAddress();

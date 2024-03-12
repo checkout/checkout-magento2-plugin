@@ -212,7 +212,7 @@ class PaymentContextRequestService
         return $request;
     }
 
-    public function getRequestItems(Quote | CartInterface $quote): array
+    public function getRequestItems(CartInterface $quote): array
     {
         $items = [];
         /** @var Quote\Item $item */
