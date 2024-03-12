@@ -269,6 +269,7 @@ class PaypalMethod extends AbstractMethod
         $request->items = $this->contextService->getRequestItems($quote);
         $request->payment_context_id = $data['contextPaymentId'];
         $request->processing_channel_id = $this->config->getValue('channel_id');
+        $request->reference = $reference;
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
