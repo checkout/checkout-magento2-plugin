@@ -628,6 +628,72 @@
                     </field>
                 </group>
 
+                <group id="checkoutcom_paypal" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Paypal Payments (NAS)</label>
+                    <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkoutcom_paypal/title</config_path>
+                    </field>
+
+                    <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable Paypal</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_paypal/active</config_path>
+                        <requires>
+                            <field id="client_id"/>
+                            <field id="merchant_id"/>
+                        </requires>
+                    </field>
+
+                    <field id="client_id" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Client ID</label>
+                        <config_path>payment/checkoutcom_paypal/client_id</config_path>
+                        <comment>Provide your Client ID</comment>
+                    </field>
+
+                    <field id="merchant_id" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Merchant ID</label>
+                        <config_path>payment/checkoutcom_paypal/merchant_id</config_path>
+                        <comment>Provide your Merchant ID</comment>
+                    </field>
+
+                    <field id="checkout_client_id" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Checkout client ID</label>
+                        <config_path>payment/checkoutcom_paypal/checkout_client_id</config_path>
+                        <comment><![CDATA[As given in <a href="https://www.checkout.com/docs/payments/add-payment-methods/paypal#Environment_parameters" target="_blank">sdk documentation</a>]]></comment>
+                    </field>
+
+                    <field id="checkout_partner_attribution_id" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Checkout Partner Attribution ID</label>
+                        <config_path>payment/checkoutcom_paypal/checkout_partner_attribution_id</config_path>
+                        <comment><![CDATA[As given in <a href="https://www.checkout.com/docs/payments/add-payment-methods/paypal#Environment_parameters" target="_blank">sdk documentation</a>]]></comment>
+                    </field>
+
+                    <field id="express_cart" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Display Paypal express button in cart</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_paypal/express_cart</config_path>
+                    </field>
+
+                    <field id="express_minicart" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Display Paypal express button in mini-cart</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_paypal/express_minicart</config_path>
+                    </field>
+
+                    <field id="express_auto_method" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Auto set First available Shipping Method on express checkout</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_paypal/express_auto_method</config_path>
+                    </field>
+
+                    <field id="sort_order" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkoutcom_paypal/sort_order</config_path>
+                    </field>
+                </group>
+
                 <group id="checkoutcom_vault" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Saved Card Payments</label>
                     <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="0">

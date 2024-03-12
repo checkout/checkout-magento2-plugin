@@ -25,6 +25,13 @@
                                                 <item name="template" xsi:type="string">CheckoutCom_Magento2/checkout/minicart/applepaybutton</item>
                                             </item>
                                         </item>
+                                        <item name="paypal" xsi:type="array">
+                                            <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_paypal_express</item>
+                                            <item name="config" xsi:type="array">
+                                                <item name="template" xsi:type="string">CheckoutCom_Magento2/payment/checkoutcom_paypal_express</item>
+                                                <item name="context" xsi:type="string">express_minicart</item>
+                                            </item>
+                                        </item>
                                     </item>
                                 </item>
                             </item>
@@ -33,9 +40,22 @@
                 </argument>
             </arguments>
         </referenceBlock>
-        <!-- Add checkoutConfig object for minicart Apple Pay -->
+        <!-- Add checkoutConfig object for minicart Apple Pay or Paypal Express -->
         <referenceContainer name="minicart.addons">
-            <block class="CheckoutCom\Magento2\Block\Cart\ApplePay" ifconfig="payment/checkoutcom_apple_pay/active" name="minicart.checkout.config" template="CheckoutCom_Magento2::cart/minicart-config.phtml" />
+            <block class="CheckoutCom\Magento2\Block\Cart\CheckoutConfig" name="minicart.checkout.config" template="CheckoutCom_Magento2::cart/minicart-config.phtml" />
         </referenceContainer>
+
+        <!-- Add Paypal Script for express button -->
+        <referenceBlock name="content">
+            <block class="CheckoutCom\Magento2\Block\Paypal\Script"
+                   ifconfig="payment/checkoutcom_paypal/active"
+                   name="checkout.paypal.express.script"
+                   template="CheckoutCom_Magento2::script/paypal-script.phtml">
+                <arguments>
+                    <argument name="mode" xsi:type="string">express</argument>
+                    <argument name="script_type" xsi:type="string">mini-cart</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
     </body>
 </page>
