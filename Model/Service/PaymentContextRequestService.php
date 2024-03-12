@@ -176,7 +176,7 @@ class PaymentContextRequestService
     }
 
     private function getContextRequest(
-        Quote | CartInterface $quote,
+        CartInterface $quote,
         string $sourceType,
         ?bool $forceAuthorize = false,
         ?string $paymentType = null,
@@ -250,7 +250,7 @@ class PaymentContextRequestService
         return $items;
     }
 
-    private function getQuote(): Quote | CartInterface
+    private function getQuote(): CartInterface
     {
         return $this->checkoutSession->getQuote();
     }
