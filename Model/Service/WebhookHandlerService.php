@@ -140,9 +140,10 @@ class WebhookHandlerService
             }
         } else {
             // Handle missing action ID
-            $msg = __(
-                'Missing action ID for webhook with payment ID %',
-                $payload['data']['id']
+            $msg = sprintf(
+                'Missing action ID for webhook with payment ID %s. Payload was: %s',
+                $payload['data']['id'],
+                $this->json->serialize($payload)
             );
             $this->logger->write($msg);
         }
