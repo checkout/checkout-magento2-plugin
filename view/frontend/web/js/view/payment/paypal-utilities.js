@@ -27,7 +27,15 @@ define([
          */
         paypalScriptLoader: function (config) {
             return new Promise((resolve, reject) => {
+                const paypalScript = document.querySelector(`script[src*="${config.paypalScriptUrl}"]`);
+
+                if (paypalScript) {
+                    resolve();
+                    return;
+                }
+
                 const script = document.createElement('script');
+
                 script.addEventListener('load', () => {
                     resolve();
                 });

@@ -343,7 +343,6 @@ class Callback extends Action implements CsrfAwareActionInterface
         if (!isset($payload['data']['metadata'])) {
             return false;
         }
-
         $metadata = $payload['data']['metadata'];
         $id = $payload['data']['source']['id'] ?? '';
         $saveCard = 0;

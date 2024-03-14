@@ -30,6 +30,7 @@ define([
         chkPayPalContextId: null,
         paypalScriptUrl: 'https://www.paypal.com/sdk/js',
         paypalExpressInitialized: false,
+        allowedCurrencies: window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.paypal_allowed_currencies,
 
         /**
          * @return {void}
@@ -119,11 +120,15 @@ define([
             const checkoutPaypalConfig = this.cartData().hasOwnProperty('checkoutcom_paypal') ?
                 this.cartData().checkoutcom_paypal :
                 null;
+            const currentQuoteCurrencyCode = window.checkoutConfig.hasOwnProperty('quoteData') ?
+                window.checkoutConfig.quoteData.quote_currency_code :
+                null;
 
             return checkoutPaypalConfig
                 && (this.cartData().isGuestCheckoutAllowed || this.customer.fullname)
                 && checkoutPaypalConfig['active'] === '1'
-                && checkoutPaypalConfig[this.context] === '1';
+                && checkoutPaypalConfig[this.context] === '1'
+                && this.allowedCurrencies.includes(currentQuoteCurrencyCode);
         },
 
         /**
