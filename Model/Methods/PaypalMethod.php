@@ -21,8 +21,11 @@ namespace CheckoutCom\Magento2\Model\Methods;
 
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
+use Checkout\Payments\BillingDescriptor;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
+use Checkout\Payments\Previous\Source\RequestTokenSource as PreviousRequestTokenSource;
 use Checkout\Payments\Request\PaymentRequest;
+use Checkout\Payments\Request\Source\RequestTokenSource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -270,6 +273,34 @@ class PaypalMethod extends AbstractMethod
         $request->payment_context_id = $data['contextPaymentId'];
         $request->processing_channel_id = $this->config->getValue('channel_id');
         $request->reference = $reference;
+        $request->metadata['methodId'] = $this->_code;
+        $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
+        $request->customer = $api->createCustomer($quote);
+        $request->payment_type = 'Regular';
+        $request->shipping = $api->createShippingAddress($quote);
+        $request->metadata['quoteData'] = $this->json->serialize($this->quoteHandler->getQuoteRequestData($quote));
+        $request->metadata = array_merge(
+            $request->metadata,
+            $this->apiHandler->getBaseMetadata()
+        );
+        // Billing descriptor
+        if ($this->config->needsDynamicDescriptor()) {
+            $billingDescriptor = new BillingDescriptor();
+            $billingDescriptor->city = $this->config->getValue('descriptor_city');
+            $billingDescriptor->name = $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE);
+            $request->billing_descriptor = $billingDescriptor;
+        }
+        // Set the token source
+        if ($this->apiHandler->isPreviousMode()) {
+            $tokenSource = new PreviousRequestTokenSource();
+        } else {
+            $tokenSource = new RequestTokenSource();
+        }
+
+        $tokenSource->token = $data['contextPaymentId'];
+        $tokenSource->billing_address = $api->createBillingAddress($quote);
+        $request->source = $tokenSource;
+        $request->currency = $currency;
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
@@ -449,6 +480,7 @@ class PaypalMethod extends AbstractMethod
      * Check whether method is available
      *
      * @param CartInterface|null $quote
+     *
      * @throws LocalizedException
      */
     public function isAvailable(CartInterface $quote = null): bool
