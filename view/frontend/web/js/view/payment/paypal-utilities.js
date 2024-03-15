@@ -14,8 +14,9 @@
  */
 
 define([
-    'jquery'
-], function ($) {
+    'jquery',
+    "CheckoutCom_Magento2/js/view/payment/utilities"
+], function($, Utilities) {
     'use strict';
 
     return {
@@ -59,6 +60,7 @@ define([
             scriptUrl.searchParams.append('merchant-id', config.merchantId);
             scriptUrl.searchParams.append('intent', config.intent);
             scriptUrl.searchParams.append('commit', config.commit);
+            scriptUrl.searchParams.append('currency', Utilities.getQuoteCurrency());
             scriptUrl.searchParams.append('disable-funding', 'credit,card,sepa');
 
             script.type = 'text/javascript';
