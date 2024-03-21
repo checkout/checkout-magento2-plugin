@@ -200,14 +200,6 @@ class PaymentContextRequestService
         $request->capture = $capture;
         $request->processing_channel_id = $this->checkoutConfigProvider->getValue('channel_id');
 
-        // Shipping fee
-        $shipping = $quote->getShippingAddress();
-        if ($shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
-            $processing = new ProcessingSettings();
-            $processing->shipping_amount = $this->utilities->formatDecimals($shipping->getShippingInclTax() * 100);
-            $request->processing = $processing;
-        }
-
         // Source Type
         $request->source = new AbstractRequestSource($sourceType);
 

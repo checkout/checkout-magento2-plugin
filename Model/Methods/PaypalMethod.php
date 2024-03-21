@@ -24,6 +24,7 @@ use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
 use Checkout\Payments\Previous\Source\RequestTokenSource as PreviousRequestTokenSource;
+use Checkout\Payments\ProcessingSettings;
 use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\Request\Source\RequestTokenSource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -269,7 +270,6 @@ class PaypalMethod extends AbstractMethod
         // Set parameters
         $request->capture = $this->config->needsAutoCapture();
         $request->amount = $this->utilities->formatDecimals($amount * 100);
-        $request->items = $this->contextService->getRequestItems($quote);
         $request->payment_context_id = $data['contextPaymentId'];
         $request->processing_channel_id = $this->config->getValue('channel_id');
         $request->reference = $reference;
@@ -295,6 +295,14 @@ class PaypalMethod extends AbstractMethod
             $tokenSource = new PreviousRequestTokenSource();
         } else {
             $tokenSource = new RequestTokenSource();
+        }
+
+        // Shipping fee
+        $shipping = $quote->getShippingAddress();
+        if ($shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
+            $processing = new ProcessingSettings();
+            $processing->shipping_amount = $this->utilities->formatDecimals($shipping->getShippingInclTax() * 100);
+            $request->processing = $processing;
         }
 
         $tokenSource->token = $data['contextPaymentId'];
