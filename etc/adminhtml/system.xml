@@ -646,25 +646,25 @@
                     </field>
 
                     <field id="client_id" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Client ID</label>
+                        <label>Client ID*</label>
                         <config_path>payment/checkoutcom_paypal/client_id</config_path>
                         <comment>Provide your Client ID</comment>
                     </field>
 
                     <field id="merchant_id" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Merchant ID</label>
+                        <label>Merchant ID*</label>
                         <config_path>payment/checkoutcom_paypal/merchant_id</config_path>
                         <comment>Provide your Merchant ID</comment>
                     </field>
 
                     <field id="checkout_client_id" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Checkout client ID</label>
+                        <label>Checkout client ID*</label>
                         <config_path>payment/checkoutcom_paypal/checkout_client_id</config_path>
                         <comment><![CDATA[As given in <a href="https://www.checkout.com/docs/payments/add-payment-methods/paypal#Environment_parameters" target="_blank">sdk documentation</a>]]></comment>
                     </field>
 
                     <field id="checkout_partner_attribution_id" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Checkout Partner Attribution ID</label>
+                        <label>Checkout Partner Attribution ID*</label>
                         <config_path>payment/checkoutcom_paypal/checkout_partner_attribution_id</config_path>
                         <comment><![CDATA[As given in <a href="https://www.checkout.com/docs/payments/add-payment-methods/paypal#Environment_parameters" target="_blank">sdk documentation</a>]]></comment>
                     </field>
