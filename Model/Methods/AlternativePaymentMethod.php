@@ -1123,7 +1123,12 @@ class AlternativePaymentMethod extends AbstractMethod
         );
 
         $apms = $this->config->getApms();
-        $billingAddress = $this->quoteHandler->getBillingAddress()->getData();
+
+        if (!$quote) {
+            $quote = $this->quoteHandler->getQuote();
+        }
+
+        $billingAddress = $quote->getBillingAddress()->getData();
 
         if (isset($billingAddress['country_id'])) {
             foreach ($apms as $apm) {
