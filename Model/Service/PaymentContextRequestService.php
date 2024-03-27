@@ -23,6 +23,7 @@ use Checkout\Payments\AuthorizationType;
 use Checkout\Payments\Contexts\PaymentContextsItems;
 use Checkout\Payments\Contexts\PaymentContextsRequest;
 use Checkout\Payments\PaymentType;
+use Checkout\Payments\ProcessingSettings;
 use Checkout\Payments\Request\Source\AbstractRequestSource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as MagentoLoggerHelper;
@@ -194,6 +195,13 @@ class PaymentContextRequestService
         $request->currency = $quote->getCurrency()->getQuoteCurrencyCode();
         $request->capture = $capture;
         $request->processing_channel_id = $this->checkoutConfigProvider->getValue('channel_id');
+
+        $shipping = $quote->getShippingAddress();
+        if ($shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
+            $processing = new ProcessingSettings();
+            $processing->shipping_amount = $this->utilities->formatDecimals($shipping->getShippingInclTax() * 100);
+            $request->processing = $processing;
+        }
 
         // Source Type
         $request->source = new AbstractRequestSource($sourceType);
