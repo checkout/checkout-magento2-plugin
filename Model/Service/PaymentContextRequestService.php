@@ -23,7 +23,6 @@ use Checkout\Payments\AuthorizationType;
 use Checkout\Payments\Contexts\PaymentContextsItems;
 use Checkout\Payments\Contexts\PaymentContextsRequest;
 use Checkout\Payments\PaymentType;
-use Checkout\Payments\ProcessingSettings;
 use Checkout\Payments\Request\Source\AbstractRequestSource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as MagentoLoggerHelper;
@@ -125,25 +124,21 @@ class PaymentContextRequestService
         }
 
         $quote = $this->getQuote();
-
         $paymentRequestsDatas = $contextDatas['payment_request'];
-        $splittedName = explode(' ', $paymentRequestsDatas['customer']['name'], 2);
-        $lastNameIndex = count($splittedName) === 2 ? 1 : 0;
-        $quote->setCustomerFirstname($splittedName[0]);
-        $quote->setCustomerLastname($splittedName[1]);
-        $quote->setCustomerEmail($paymentRequestsDatas['customer']['email']);
+        $name = $paymentRequestsDatas['customer']['name'] ? explode(' ', $paymentRequestsDatas['customer']['name'], 2) : [];
+        $quote->setCustomerFirstname($name[0] ?? $quote->getCustomerFirstname());
+        $quote->setCustomerLastname($name[1] ?? $quote->getCustomerLastname());
+        $quote->setCustomerEmail($paymentRequestsDatas['customer']['email'] ?? $quote->getCustomerEmail());
 
         /** @var AddressInterface $quoteAddress */
         $quoteAddress = $this->addressInterfaceFactory->create();
         $shippingAddressRequesDatas = $paymentRequestsDatas['shipping']['address'];
-        $splittedName = explode(' ', $paymentRequestsDatas['shipping']['first_name'], 2);
-        $lastNameIndex = count($splittedName) === 2 ? 1 : 0;
-        $quoteAddress->setFirstname($splittedName[0]);
-        $quoteAddress->setLastname($splittedName[1]);
-
-        $quoteAddress->setCity($shippingAddressRequesDatas['city']);
-        $quoteAddress->setCountryId($shippingAddressRequesDatas['country']);
-        $quoteAddress->setPostcode($shippingAddressRequesDatas['zip']);
+        $shippingName = $paymentRequestsDatas['shipping']['first_name'] ? explode(' ', $paymentRequestsDatas['shipping']['first_name'], 2) : [];
+        $quoteAddress->setFirstname($shippingName[0] ?? $quoteAddress->getFirstname());
+        $quoteAddress->setLastname($shippingName[1] ?? $quoteAddress->getLastname());
+        $quoteAddress->setCity($shippingAddressRequesDatas['city'] ?? $quoteAddress->getCity());
+        $quoteAddress->setCountryId($shippingAddressRequesDatas['country'] ?? $quoteAddress->getCountry());
+        $quoteAddress->setPostcode($shippingAddressRequesDatas['zip'] ?? $quoteAddress->getPostcode());
 
         $streets = [];
         $i = 1;
@@ -156,7 +151,7 @@ class PaymentContextRequestService
         $quoteAddress->setStreet($streets);
 
         // Manage region
-        $stateName = $shippingAddressRequesDatas['state'];
+        $stateName = $shippingAddressRequesDatas['state'] ?? null;
         if ($stateName) {
             $regionCollection = $this->regionCollectionFactory->create();
             $region = $regionCollection->addFieldToFilter('default_name', ['eq' => $stateName])->getFirstItem();
@@ -220,7 +215,7 @@ class PaymentContextRequestService
         foreach ($quote->getAllVisibleItems() as $item) {
             $discount = $this->utilities->formatDecimals($item->getDiscountAmount()) * 100;
             $unitPrice = ($this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty()) * 100) -
-                         ($this->utilities->formatDecimals($discount / $item->getQty()));
+                ($this->utilities->formatDecimals($discount / $item->getQty()));
             // Api does not accept 0 prices
             if (!$unitPrice) {
                 continue;

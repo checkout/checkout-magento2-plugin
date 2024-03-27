@@ -107,6 +107,7 @@ class AlternativePaymentMethod extends AbstractMethod
         'klarna',
         'poli',
         'sepa',
+        'paypal'
     ];
     /**
      * List of unavailable apm for ABC mode
