@@ -1,163 +1,37 @@
-"Please keep your website safe! Your checkout plugin (v' . . ') is not the latest version (v' . . ').
-         Update now to get the latest features and security updates.
-         See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.","Please keep your website safe! Your checkout plugin (v' . . ') is not the latest version (v' . . ').
-         Update now to get the latest features and security updates.
-         See https://github.com/checkout/checkout-magento2-plugin for detailed instructions."
-Configure,Configure
-Close,Close
-"Learn More","Learn More"
-"View Demo","View Demo"
-"The payment card has been stored successfully.","The payment card has been stored successfully."
-"The card could not be saved.","The card could not be saved."
-"The payment request was declined by the gateway.","The payment request was declined by the gateway."
-"The order could not be created.","The order could not be created."
-"The request is invalid.","The request is invalid."
-"No quote was found with the provided ID.","No quote was found with the provided ID."
-"The quote ID is missing or invalid.","The quote ID is missing or invalid."
-"The payment token is missing or invalid.","The payment token is missing or invalid."
-"The public key is invalid.","The public key is invalid."
-"No quote found with the provided ID","No quote found with the provided ID"
-"Payment token provided is not a string","Payment token provided is not a string"
-"Payment token provided is empty string","Payment token provided is empty string"
-"Payment token is missing from request body","Payment token is missing from request body"
-"Quote ID provided must be a positive integer","Quote ID provided must be a positive integer"
-"Quote ID is missing from request body","Quote ID is missing from request body"
-"Card BIN is empty string","Card BIN is empty string"
-"Success URL provided is not a string","Success URL provided is not a string"
-"Success URL is empty string","Success URL is empty string"
-"Failure URL provided is not a string","Failure URL provided is not a string"
-"Failure URL is empty string","Failure URL is empty string"
-"An error occurred and the order could not be created.","An error occurred and the order could not be created."
-"Your order number %1 has been created successfully.","Your order number %1 has been created successfully."
-"The transaction could not be processed.","The transaction could not be processed."
-"The order could not be processed.","The order could not be processed."
-"The request is invalid or there was no quote found.","The request is invalid or there was no quote found."
-"Please enter valid card details.","Please enter valid card details."
-"The transaction could not be processed or has been cancelled.","The transaction could not be processed or has been cancelled."
-"Invalid request. No order found.","Invalid request. No order found."
-"Invalid request. No session ID found.","Invalid request. No session ID found."
-"Webhook and order successfully processed.","Webhook and order successfully processed."
-"The order creation failed. Please check the error logs.","The order creation failed. Please check the error logs."
-"The webhook response is invalid.","The webhook response is invalid."
-"The webhook payment response is invalid.","The webhook payment response is invalid."
-"Unauthorized request. No matching private shared key.","Unauthorized request. No matching private shared key."
-Black,Black
-White,White
-"White with line","White with line"
-"Credit cards","Credit cards"
-"Debit cards","Debit cards"
-Visa,Visa
-Mastercard,Mastercard
-"American Express","American Express"
-None,None
-title,title
-Test,Test
-Production,Production
-Standard,Standard
-Simple,Simple
-JCB,JCB
-Discover,Discover
-English,English
-Spanish,Spanish
-German,German
-Korean,Korean
-French,French
-Italian,Italian
-Dutch,Dutch
-"Cancel the order","Cancel the order"
-"Delete the order","Delete the order"
-"Do nothing","Do nothing"
-Processing,Processing
-Pending,Pending
-Authorize,Authorize
-"Authorize and Capture","Authorize and Capture"
-"Single iframe","Single iframe"
-"Multiple iframes","Multiple iframes"
-Webhook,Webhook
-"Cron Job","Cron Job"
-"Payment request from %1","Payment request from %1"
-"The capture action is not available.","The capture action is not available."
-"The capture request could not be processed.","The capture request could not be processed."
-"The void action is not available.","The void action is not available."
-"The void request could not be processed.","The void request could not be processed."
-"The refund action is not available.","The refund action is not available."
-"The refund request could not be processed.","The refund request could not be processed."
-"The CVV value is required.","The CVV value is required."
-"There is no quote available to place an order.","There is no quote available to place an order."
-"A payment method ID is required to place an order.","A payment method ID is required to place an order."
 " for an amount of %1. Action ID: %2. Event ID: %3. Payment ID: %4. Error: %5 %6"," for an amount of %1. Action ID: %2. Event ID: %3. Payment ID: %4. Error: %5 %6"
-"The payment was declined, please try again. If the problem persists, try another card or payment method.","The payment was declined, please try again. If the problem persists, try another card or payment method."
-"You have reached the limit allowed for this card/account, please try again with another card or payment method.","You have reached the limit allowed for this card/account, please try again with another card or payment method."
-"Something went wrong, please try again later","Something went wrong, please try again later"
-"It looks like your card is invalid or blocked, please try with another card","It looks like your card is invalid or blocked, please try with another card"
-"It looks like this transaction has been blocked due to account holder action, please contact your bank or use another card or payment method","It looks like this transaction has been blocked due to account holder action, please contact your bank or use another card or payment method"
-"3DS has expired or authentication failed, please try again","3DS has expired or authentication failed, please try again"
-"The transaction could not be processed","The transaction could not be processed"
-"Payment capture initiated, awaiting capture confirmation.","Payment capture initiated, awaiting capture confirmation."
-"3DS payment expired.","3DS payment expired."
-"This card is already saved.","This card is already saved."
-ending,ending
-expires,expires
-"Missing action ID for webhook with payment ID %","Missing action ID for webhook with payment ID %"
-"The payment request was successfully processed.","The payment request was successfully processed."
-"The transaction could not be processed. Please check the payment details.","The transaction could not be processed. Please check the payment details."
-"Please provide the required card information for the MOTO payment.","Please provide the required card information for the MOTO payment."
-"Missing required card information for the MOTO payment.","Missing required card information for the MOTO payment."
-CVV,CVV
-"Get your credentials <a href=""https://www.checkout.com/"">here</a>.","Get your credentials <a href=""https://www.checkout.com/"">here</a>."
-"Add a card","Add a card"
-"Save the card","Save the card"
-"Card Number","Card Number"
-"Expiration Date","Expiration Date"
-Type,Type
-Actions,Actions
-Delete,Delete
-"The card ending with %1 will be deleted.","The card ending with %1 will be deleted."
-"Delete a card","Delete a card"
-Name,Name
-"Cadastro de Pessoas Físicas or Cadastro Nacional da Pessoa Jurídica","Cadastro de Pessoas Físicas or Cadastro Nacional da Pessoa Jurídica"
-"Birth date (YYYY-MM-DD)","Birth date (YYYY-MM-DD)"
-BIC,BIC
-Description,Description
-"Could not load the Klarna script.","Could not load the Klarna script."
-"Account IBAN","Account IBAN"
-Continue,Continue
-"SEPA Direct Debit Mandate for single payment","SEPA Direct Debit Mandate for single payment"
-Creditor,Creditor
-"Creditor ID","Creditor ID"
-Debitor,Debitor
-"By accepting this mandate form, you authorise (A) b4payment GmbH to send instructions to your bank to debit your account (B) your bank to debit your account in accordance with the instructions from b4payment GmbH.","By accepting this mandate form, you authorise (A) b4payment GmbH to send instructions to your bank to debit your account (B) your bank to debit your account in accordance with the instructions from b4payment GmbH."
-"As part of your rights, you are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.","As part of your rights, you are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited."
-"I accept the mandate for a single payment","I accept the mandate for a single payment"
-"Your rights regarding the above mandate are explained in a statement that you can obtain from your bank.","Your rights regarding the above mandate are explained in a statement that you can obtain from your bank."
-"Place Order","Place Order"
-"Card number","Card number"
-"Save this card for later use.","Save this card for later use."
-"Set Webhooks","Set Webhooks"
-"Attention, webhook not properly configured!","Attention, webhook not properly configured!"
-"Your webhook is all set!","Your webhook is all set!"
-"Error! Could not set webhooks. Please check your secret key.","Error! Could not set webhooks. Please check your secret key."
-"Attention, secret key incorrect!","Attention, secret key incorrect!"
-"Use Risk Rules For MOTO","Use Risk Rules For MOTO"
 "3DS authorization code","3DS authorization code"
-"Payment Method refunded","Payment Method refunded"
-"Mismatched Address (fraud check)","Mismatched Address (fraud check)"
-"Alternative payment method","Alternative payment method"
-"Transaction Id","Transaction Id"
-"Card Country","Card Country"
-"Card Bank","Card Bank"
-"Card expiry year","Card expiry year"
-"Card expiry month","Card expiry month"
-"Card 4 last numbers","Card 4 last numbers"
-"Card type","Card type"
-"Payment Additional Information","Payment Additional Information"
+"3DS has expired or authentication failed, please try again","3DS has expired or authentication failed, please try again"
+"3DS payment expired.","3DS payment expired."
 "5 Digit Postal Match","5 Digit Postal Match"
+"A payment method ID is required to place an order.","A payment method ID is required to place an order."
 "AVS Not Available","AVS Not Available"
+"Account IBAN","Account IBAN"
+"Add a card","Add a card"
+"Alternative payment method","Alternative payment method"
+"American Express","American Express"
+"An error occurred and the order could not be created.","An error occurred and the order could not be created."
+"As part of your rights, you are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.","As part of your rights, you are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited."
 "Attempt at processing performed. Not authenticated or verified, but a proof of attempted authentication/verification is provided.","Attempt at processing performed. Not authenticated or verified, but a proof of attempted authentication/verification is provided."
+"Attention, secret key incorrect!","Attention, secret key incorrect!"
+"Attention, webhook not properly configured!","Attention, webhook not properly configured!"
 "Authentication or account verification could not be performed. This is due to a technical problem, or another problem as indicated in ARes or RReq.","Authentication or account verification could not be performed. This is due to a technical problem, or another problem as indicated in ARes or RReq."
 "Authentication or account verification rejected. Issuer is rejecting and requests that authorization not be attempted.","Authentication or account verification rejected. Issuer is rejecting and requests that authorization not be attempted."
 "Authentication verification successful.","Authentication verification successful."
+"Authorize and Capture","Authorize and Capture"
 "Authorizing entity has not attempted card verification or could not verify the CVD due to a security device error","Authorizing entity has not attempted card verification or could not verify the CVD due to a security device error"
+"Birth date (YYYY-MM-DD)","Birth date (YYYY-MM-DD)"
+"By accepting this mandate form, you authorise (A) b4payment GmbH to send instructions to your bank to debit your account (B) your bank to debit your account in accordance with the instructions from b4payment GmbH.","By accepting this mandate form, you authorise (A) b4payment GmbH to send instructions to your bank to debit your account (B) your bank to debit your account in accordance with the instructions from b4payment GmbH."
+"Cadastro de Pessoas Físicas or Cadastro Nacional da Pessoa Jurídica","Cadastro de Pessoas Físicas or Cadastro Nacional da Pessoa Jurídica"
+"Cancel the order","Cancel the order"
+"Card 4 last numbers","Card 4 last numbers"
+"Card BIN is empty string","Card BIN is empty string"
+"Card Bank","Card Bank"
+"Card Country","Card Country"
+"Card Number","Card Number"
+"Card expiry month","Card expiry month"
+"Card expiry year","Card expiry year"
+"Card number","Card number"
+"Card type","Card type"
 "Card verification not performed, CVD was not on the card. Not all cards have a CVD value encoded","Card verification not performed, CVD was not on the card. Not all cards have a CVD value encoded"
 "Card verification performed, and CVD was invalid","Card verification performed, and CVD was invalid"
 "Card verification performed, and CVD was valid","Card verification performed, and CVD was valid"
@@ -170,18 +44,141 @@ Debitor,Debitor
 "Cardholder Name, Street and Postal/ZIP Match","Cardholder Name, Street and Postal/ZIP Match"
 "Challenge required. Additional authentication is required using the CReq or CRes.","Challenge required. Additional authentication is required using the CReq or CRes."
 "Challenge required. Decoupled authentication confirmed.","Challenge required. Decoupled authentication confirmed."
+"Could not load the Klarna script.","Could not load the Klarna script."
+"Credit cards","Credit cards"
+"Creditor ID","Creditor ID"
+"Cron Job","Cron Job"
+"Debit cards","Debit cards"
+"Delete a card","Delete a card"
+"Delete the order","Delete the order"
+"Do nothing","Do nothing"
+"Error! Could not set webhooks. Please check your secret key.","Error! Could not set webhooks. Please check your secret key."
+"Expiration Date","Expiration Date"
+"Failure URL is empty string","Failure URL is empty string"
+"Failure URL provided is not a string","Failure URL provided is not a string"
+"Get your credentials <a href=""https://www.checkout.com/"">here</a>.","Get your credentials <a href=""https://www.checkout.com/"">here</a>."
+"I accept the mandate for a single payment","I accept the mandate for a single payment"
 "Informational only. 3DS requestor challenge preference acknowledged.","Informational only. 3DS requestor challenge preference acknowledged."
+"Invalid request. No order found.","Invalid request. No order found."
+"Invalid request. No session ID found.","Invalid request. No session ID found."
+"It looks like this transaction has been blocked due to account holder action, please contact your bank or use another card or payment method","It looks like this transaction has been blocked due to account holder action, please contact your bank or use another card or payment method"
+"It looks like your card is invalid or blocked, please try with another card","It looks like your card is invalid or blocked, please try with another card"
+"Learn More","Learn More"
 "Match Not Capable","Match Not Capable"
+"Mismatched Address (fraud check)","Mismatched Address (fraud check)"
+"Missing action ID for webhook with payment ID %","Missing action ID for webhook with payment ID %"
+"Missing required card information for the MOTO payment.","Missing required card information for the MOTO payment."
+"Multiple iframes","Multiple iframes"
 "No Address Match","No Address Match"
 "No CVV2 information is available",,"No CVV2 information is available"
+"No quote found with the provided ID","No quote found with the provided ID"
+"No quote was found with the provided ID.","No quote was found with the provided ID."
 "Not Verified or Not Supported","Not Verified or Not Supported"
 "Not authenticated or account not verified. This means the transaction was denied.","Not authenticated or account not verified. This means the transaction was denied."
 "Not supported","Not supported"
+"Payment Additional Information","Payment Additional Information"
+"Payment Method refunded","Payment Method refunded"
+"Payment capture initiated, awaiting capture confirmation.","Payment capture initiated, awaiting capture confirmation."
+"Payment request from %1","Payment request from %1"
+"Payment token is missing from request body","Payment token is missing from request body"
+"Payment token provided is empty string","Payment token provided is empty string"
+"Payment token provided is not a string","Payment token provided is not a string"
+"Place Order","Place Order"
+"Please enter valid card details.","Please enter valid card details."
+"Please keep your website safe! Your checkout plugin (v' . . ') is not the latest version (v' . . '). Update now to get the latest features and security updates. See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.","Please keep your website safe! Your checkout plugin (v' . . ') is not the latest version (v' . . '). Update now to get the latest features and security updates. See https://github.com/checkout/checkout-magento2-plugin for detailed instructions."
+"Please provide the required card information for the MOTO payment.","Please provide the required card information for the MOTO payment."
+"Quote ID is missing from request body","Quote ID is missing from request body"
+"Quote ID provided must be a positive integer","Quote ID provided must be a positive integer"
+"SEPA Direct Debit Mandate for single payment","SEPA Direct Debit Mandate for single payment"
+"Save the card","Save the card"
+"Save this card for later use.","Save this card for later use."
+"Set Webhooks","Set Webhooks"
+"Single iframe","Single iframe"
+"Something went wrong with paypal method. Please choose another method.","Something went wrong with paypal method. Please choose another method."
+"Something went wrong, please try again later","Something went wrong, please try again later"
 "Street Match Postal Not Verified","Street Match Postal Not Verified"
 "Street Match","Street Match"
 "Street Not Verified Postal Match","Street Not Verified Postal Match"
 "Street and 5 Digit Postal Match","Street and 5 Digit Postal Match"
 "Street and Postal Match","Street and Postal Match"
 "Street and Postal Not Verified","Street and Postal Not Verified"
+"Success URL is empty string","Success URL is empty string"
+"Success URL provided is not a string","Success URL provided is not a string"
+"The CVV value is required.","The CVV value is required."
+"The capture action is not available.","The capture action is not available."
+"The capture request could not be processed.","The capture request could not be processed."
+"The card could not be saved.","The card could not be saved."
+"The card ending with %1 will be deleted.","The card ending with %1 will be deleted."
 "The issuer has not certified or has not provided the encryption keys to the interchange","The issuer has not certified or has not provided the encryption keys to the interchange"
+"The order could not be created.","The order could not be created."
+"The order could not be processed.","The order could not be processed."
+"The order creation failed. Please check the error logs.","The order creation failed. Please check the error logs."
+"The payment card has been stored successfully.","The payment card has been stored successfully."
+"The payment request was declined by the gateway.","The payment request was declined by the gateway."
+"The payment request was successfully processed.","The payment request was successfully processed."
+"The payment token is missing or invalid.","The payment token is missing or invalid."
+"The payment was declined, please try again. If the problem persists, try another card or payment method.","The payment was declined, please try again. If the problem persists, try another card or payment method."
+"The public key is invalid.","The public key is invalid."
+"The quote ID is missing or invalid.","The quote ID is missing or invalid."
+"The refund action is not available.","The refund action is not available."
+"The refund request could not be processed.","The refund request could not be processed."
+"The request is invalid or there was no quote found.","The request is invalid or there was no quote found."
+"The request is invalid.","The request is invalid."
+"The transaction could not be processed or has been cancelled.","The transaction could not be processed or has been cancelled."
+"The transaction could not be processed","The transaction could not be processed"
+"The transaction could not be processed. Please check the payment details.","The transaction could not be processed. Please check the payment details."
+"The transaction could not be processed.","The transaction could not be processed."
+"The void action is not available.","The void action is not available."
+"The void request could not be processed.","The void request could not be processed."
+"The webhook payment response is invalid.","The webhook payment response is invalid."
+"The webhook response is invalid.","The webhook response is invalid."
+"There is no quote available to place an order.","There is no quote available to place an order."
+"This card is already saved.","This card is already saved."
+"Transaction Id","Transaction Id"
+"Unauthorized request. No matching private shared key.","Unauthorized request. No matching private shared key."
+"Use Risk Rules For MOTO","Use Risk Rules For MOTO"
+"View Demo","View Demo"
+"Webhook and order successfully processed.","Webhook and order successfully processed."
+"White with line","White with line"
+"You have reached the limit allowed for this card/account, please try again with another card or payment method.","You have reached the limit allowed for this card/account, please try again with another card or payment method."
 "Your browser is not compatible with the Apple Pay version. Please use the most updated OS system and browsers.","Your browser is not compatible with the Apple Pay version. Please use the most updated OS system and browsers."
+"Your order number %1 has been created successfully.","Your order number %1 has been created successfully."
+"Your rights regarding the above mandate are explained in a statement that you can obtain from your bank.","Your rights regarding the above mandate are explained in a statement that you can obtain from your bank."
+"Your webhook is all set!","Your webhook is all set!"
+Actions,Actions
+Authorize,Authorize
+BIC,BIC
+Black,Black
+CVV,CVV
+Close,Close
+Configure,Configure
+Continue,Continue
+Creditor,Creditor
+Debitor,Debitor
+Delete,Delete
+Description,Description
+Discover,Discover
+Dutch,Dutch
+English,English
+French,French
+German,German
+Italian,Italian
+JCB,JCB
+Korean,Korean
+Mastercard,Mastercard
+Name,Name
+None,None
+Pending,Pending
+Processing,Processing
+Production,Production
+Simple,Simple
+Spanish,Spanish
+Standard,Standard
+Test,Test
+Type,Type
+Visa,Visa
+Webhook,Webhook
+White,White
+ending,ending
+expires,expires
+title,title

@@ -26,6 +26,9 @@
         <method name="checkoutcom_apple_pay">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
+        <method name="checkoutcom_paypal">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
         <method name="checkoutcom_google_pay">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
