@@ -737,7 +737,11 @@ class TransactionHandlerService
                       && $this->transaction->getTxnType() === TransactionInterface::TYPE_CAPTURE
                       && $emailSent == 0;
 
-        $methodId = $payload->data->metadata->methodId ?? $payload->data->metadata->method_id;
+        $methodId = '';
+        if (isset($payload->data->metadata)) {
+            $methodId = $payload->data->metadata->methodId ?? $payload->data->metadata->method_id;
+        }
+
         $condition3 = $this->config->getValue('order_email') === 'authorize'
                       && $this->transaction->getTxnType() === TransactionInterface::TYPE_CAPTURE
                       && $methodId === 'checkoutcom_apm'

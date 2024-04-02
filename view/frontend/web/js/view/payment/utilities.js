@@ -70,8 +70,12 @@ define(
                 var cssPath = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.css_path;
                 cssPath += folderPath + '/' + fileName + ext;
 
-                // Append the CSS file
-                $('head').append('<link rel="stylesheet" href="' + cssPath + '" type="text/css"/>');
+                const css = document.createElement('link');
+                css.rel = 'stylesheet';
+                css.media = 'all';
+                css.href = cssPath;
+
+                document.head.appendChild(css);
             },
 
             /**
@@ -401,7 +405,7 @@ define(
             /**
              * Place a new order.
              *
-             * @return {void}
+             * @return {JQuery.ajax}
              */
             placeOrder: function (payload, methodId, startLoader = true) {
                 var self = this;
@@ -412,7 +416,7 @@ define(
                 }
 
                 // Send the request
-                $.ajax({
+                return $.ajax({
                     type: 'POST',
                     url: self.getUrl('payment/placeorder'),
                     data: payload,

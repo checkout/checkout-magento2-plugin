@@ -26,7 +26,6 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -164,7 +163,7 @@ class OrderStatusHandlerService
                 break;
             case 'payment_authentication_failed':
                 $this->paymentAuthenticationFailed();
-            break;
+                break;
         }
 
         if ($this->state) {
@@ -300,6 +299,9 @@ class OrderStatusHandlerService
     protected function capturePending(array $webhook): void
     {
         $payload = json_decode($webhook['event_data']);
+        if (!isset($payload->data->metadata)) {
+            return;
+        }
         $methodId = $payload->data->metadata->methodId ?? $payload->data->metadata->method_id;
         if ($methodId === 'checkoutcom_apm') {
             $this->state = Order::STATE_PENDING_PAYMENT;
@@ -319,7 +321,6 @@ class OrderStatusHandlerService
         $this->order->addStatusHistoryComment(__('3DS payment expired.'));
         $this->handleFailedPayment($this->order);
     }
-
 
     /**
      * Set the order status for a payment authentication failed webhook.

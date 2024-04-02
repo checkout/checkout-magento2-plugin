@@ -20,6 +20,7 @@ namespace CheckoutCom\Magento2\Model\Ui;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Gateway\Config\Loader;
+use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
 use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
@@ -70,16 +71,22 @@ class ConfigProvider implements ConfigProviderInterface
      * @var VaultHandlerService $vaultHandler
      */
     private $vaultHandler;
+    /**
+     * $paypalMethod
+     *
+     * @var PaypalMethod $paypalMethod
+     */
+    private $paypalMethod;
 
     /**
      * ConfigProvider constructor
      *
-     * @param Config                $config
+     * @param Config $config
      * @param ShopperHandlerService $shopperHandler
-     * @param QuoteHandlerService   $quoteHandler
-     * @param VaultHandlerService   $vaultHandler
-     * @param CardHandlerService    $cardHandler
-     * @param MethodHandlerService  $methodHandler
+     * @param QuoteHandlerService $quoteHandler
+     * @param VaultHandlerService $vaultHandler
+     * @param CardHandlerService $cardHandler
+     * @param MethodHandlerService $methodHandler
      */
     public function __construct(
         Config $config,
@@ -87,14 +94,16 @@ class ConfigProvider implements ConfigProviderInterface
         QuoteHandlerService $quoteHandler,
         VaultHandlerService $vaultHandler,
         CardHandlerService $cardHandler,
-        MethodHandlerService $methodHandler
+        MethodHandlerService $methodHandler,
+        PaypalMethod $paypalMethod
     ) {
-        $this->config         = $config;
+        $this->config = $config;
         $this->shopperHandler = $shopperHandler;
-        $this->quoteHandler   = $quoteHandler;
-        $this->vaultHandler   = $vaultHandler;
-        $this->cardHandler    = $cardHandler;
-        $this->methodHandler  = $methodHandler;
+        $this->quoteHandler = $quoteHandler;
+        $this->vaultHandler = $vaultHandler;
+        $this->cardHandler = $cardHandler;
+        $this->methodHandler = $methodHandler;
+        $this->paypalMethod = $paypalMethod;
     }
 
     /**
@@ -123,25 +132,26 @@ class ConfigProvider implements ConfigProviderInterface
     public function getConfigArray(): array
     {
         return array_merge($this->config->getModuleConfig(), $this->config->getMethodsConfig(), [
-                'checkoutcom_data' => [
-                    'quote'            => $this->quoteHandler->getQuoteData(),
-                    'store'            => [
-                        'name'     => $this->config->getStoreName(),
-                        'language' => $this->config->getStoreLanguage(),
-                        'code'     => $this->config->getStoreCode(),
-                        'country'  => $this->config->getStoreCountry()
-                    ],
-                    'user'             => [
-                        'has_cards'         => $this->vaultHandler->userHasCards(),
-                        'language_fallback' => $this->shopperHandler->getLanguageFallback(),
-                        'previous_method'   => $this->methodHandler->getPreviousMethod(),
-                        'previous_source'   => $this->methodHandler->getPreviousSource()
-                    ],
-                    'cards'            => $this->cardHandler->getCardIcons(),
-                    'images_path'      => $this->config->getImagesPath(),
-                    'css_path'         => $this->config->getCssPath(),
-                    'use_minified_css' => $this->config->getCoreValue('dev/css/minify_files')
+            'checkoutcom_data' => [
+                'quote' => $this->quoteHandler->getQuoteData(),
+                'store' => [
+                    'name' => $this->config->getStoreName(),
+                    'language' => $this->config->getStoreLanguage(),
+                    'code' => $this->config->getStoreCode(),
+                    'country' => $this->config->getStoreCountry()
                 ],
-            ]);
+                'user' => [
+                    'has_cards' => $this->vaultHandler->userHasCards(),
+                    'language_fallback' => $this->shopperHandler->getLanguageFallback(),
+                    'previous_method' => $this->methodHandler->getPreviousMethod(),
+                    'previous_source' => $this->methodHandler->getPreviousSource()
+                ],
+                'cards' => $this->cardHandler->getCardIcons(),
+                'images_path' => $this->config->getImagesPath(),
+                'css_path' => $this->config->getCssPath(),
+                'use_minified_css' => $this->config->getCoreValue('dev/css/minify_files'),
+                'paypal_allowed_currencies' => array_filter(explode(',', $this->paypalMethod->getConfigData('specificcurrencies') ?? ''))
+            ],
+        ]);
     }
 }
