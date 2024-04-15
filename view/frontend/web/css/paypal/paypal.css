@@ -16,6 +16,10 @@
     display: block;
 }
 
+#minicart-paypal-button-container {
+    margin-top: 10px;
+}
+
 @media screen and (min-width: 769px) {
     .checkoutcom-paypal-review .boxes {
         display: grid;
