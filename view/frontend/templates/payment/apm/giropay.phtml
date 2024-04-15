@@ -24,11 +24,13 @@
 <div data-role="content" class="apm-content">
     <form id="cko-apm-form-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
         <input type="hidden" name="source" value="<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" required>
-        <div class="input-group">
-            <label class="icon" for="bic">
-            <span class="ckojs ckojs-card"></label>
-            <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtmlAttr(__('BIC')); ?>" class="input-control" required>
-        </div>
+        <?php if ($block->getData('service_previous_mode')): ?>
+            <div class="input-group">
+                <label class="icon" for="bic">
+                <span class="ckojs ckojs-card"></label>
+                <input type="text" id="bic" name="bic" placeholder="<?= $block->escapeHtmlAttr(__('BIC')); ?>" class="input-control" required>
+            </div>
+        <?php endif; ?>
         <br>
     </form>
 </div>
