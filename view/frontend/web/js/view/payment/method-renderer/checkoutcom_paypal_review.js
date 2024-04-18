@@ -28,7 +28,7 @@ define([
             this.editAddressForm = this.element.find('.form-address-edit');
             this.submitButton = this.element.find(this.options.buttonSelector);
 
-            Utilities.loadCss('paypal', 'paypal');
+            Utilities.loadCss('paypal-review', 'paypal');
             this._eventListeners();
 
             if (!this.editAddressForm.validation('isValid')) {
