@@ -290,12 +290,6 @@ class PaypalMethod extends AbstractMethod
             $billingDescriptor->name = $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE);
             $request->billing_descriptor = $billingDescriptor;
         }
-        // Set the token source
-        if ($this->apiHandler->isPreviousMode()) {
-            $tokenSource = new PreviousRequestTokenSource();
-        } else {
-            $tokenSource = new RequestTokenSource();
-        }
 
         // Shipping fee
         $shipping = $quote->getShippingAddress();
@@ -305,9 +299,6 @@ class PaypalMethod extends AbstractMethod
             $request->processing = $processing;
         }
 
-        $tokenSource->token = $data['contextPaymentId'];
-        $tokenSource->billing_address = $api->createBillingAddress($quote);
-        $request->source = $tokenSource;
         $request->currency = $currency;
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
