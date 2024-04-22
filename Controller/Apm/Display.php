@@ -22,6 +22,7 @@ namespace CheckoutCom\Magento2\Controller\Apm;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
 use CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -71,6 +72,12 @@ class Display extends Action
      * @var QuoteHandlerService $quoteHandler
      */
     private $quoteHandler;
+    /**
+     * $apiHandler field
+     *
+     * @var ApiHandlerService $apiHandler
+     */
+    private $apiHandler;
 
     /**
      * Display constructor
@@ -82,6 +89,7 @@ class Display extends Action
      * @param QuoteHandlerService $quoteHandler
      * @param StoreManagerInterface $storeManager
      * @param ScopeConfigInterface $scopeConfig
+     * @param ApiHandlerService $apiHandler
      */
     public function __construct(
         Context $context,
@@ -90,7 +98,8 @@ class Display extends Action
         Config $config,
         QuoteHandlerService $quoteHandler,
         StoreManagerInterface $storeManager,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        ApiHandlerService $apiHandler
     ) {
         parent::__construct($context);
 
@@ -100,6 +109,7 @@ class Display extends Action
         $this->quoteHandler = $quoteHandler;
         $this->storeManager = $storeManager;
         $this->scopeConfig = $scopeConfig;
+        $this->apiHandler = $apiHandler;
     }
 
     /**
@@ -213,6 +223,7 @@ class Display extends Action
             ->setTemplate('CheckoutCom_Magento2::payment/apm/' . $apmId . '.phtml')
             ->setData('apm_id', $apmId)
             ->setData('title', $title)
+            ->setData('service_previous_mode', $this->apiHandler->isPreviousMode())
             ->toHtml();
     }
 }
