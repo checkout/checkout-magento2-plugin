@@ -274,11 +274,12 @@ define(
                     Frames.addEventHandler(
                         Frames.Events.READY,
                         function() {
-                            var valid = Utilities.getBillingAddress() != null;
+                            const billingAddress = Utilities.getBillingAddress();
+                            self.checkBillingAdressCustomerName(billingAddress);
 
-                            if(valid) {
-                                cardholderName = Utilities.getCustomerName();
-                            }
+                            Quote.billingAddress.subscribe(function (newBillingAddress){
+                                self.checkBillingAdressCustomerName(newBillingAddress);
+                            });
                         }
                     )
 
@@ -289,8 +290,9 @@ define(
                             const valid = Frames.isCardValid()
                             if (valid) {
                                 if(cardholderName.length === 0) {
-                                    if(Utilities.getBillingAddress()) {
-                                        cardholderName = Utilities.getCustomerName();
+                                    const billingAddress = Utilities.getBillingAddress();
+                                    if (billingAddress) {
+                                        cardholderName = Utilities.getCustomerNameByBillingAddress(billingAddress);
                                     }
                                 }
 
@@ -365,6 +367,29 @@ define(
                  */
                 toggleTooltip: function () {
                     this.tooltipVisible(!this.tooltipVisible());
+                },
+
+                /**
+                 * @param {object} billingAddress
+                 * @return {void}
+                 */
+                checkBillingAdressCustomerName: function (billingAddress) {
+                    const valid = billingAddress != null;
+
+                    if (valid) {
+                        cardholderName = Utilities.getCustomerNameByBillingAddress(billingAddress);
+                        this.setCardHolderName(cardholderName);
+                    }
+                },
+
+                /**
+                 * @param {string} cardholderName
+                 * @return {void}
+                 */
+                setCardHolderName: function (cardholderName) {
+                    Frames.cardholder = {
+                        name: cardholderName
+                    };
                 }
             }
         );

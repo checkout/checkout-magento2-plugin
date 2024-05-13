@@ -267,11 +267,10 @@ define(
             /**
              * Customer name.
              *
-             * @param  {bool} return in object format.
-             * @return {mixed}  The billing address.
+             * @param {object} billingAddress
+             * @return {string}
              */
-            getCustomerName: function () {
-                var billingAddress = this.getBillingAddress();
+            getCustomerNameByBillingAddress: function (billingAddress) {
                 var customerName = '';
                 if (billingAddress && billingAddress.firstname && billingAddress.lastname) {
                         customerName += billingAddress.firstname;
