@@ -113,9 +113,6 @@ define(
                     return Customer.isLoggedIn();
                 },
 
-                /**
-                 * @return {void}
-                 */
                 initEvents: function () {
                     var self = this;
 
@@ -141,9 +138,6 @@ define(
                     });
                 },
 
-                /**
-                 * @return {void}
-                 */
                 handleFormState: function () {
                     if (Utilities.methodIsSelected(METHOD_ID)) {
                         this.getCkoPaymentForm();
@@ -152,8 +146,6 @@ define(
 
                 /**
                  * Gets the payment form styles
-                 *
-                 * @return {void}
                  */
                 getFormStyles: function () {
                     var formStyles = this.getValue('payment_form_styles');
@@ -175,8 +167,6 @@ define(
 
                 /**
                  * Gets the payment form layout
-                 *
-                 * @return {void}
                  */
                 getFormLayout: function () {
                     return this.getValue('payment_form_layout');
@@ -184,8 +174,6 @@ define(
 
                 /**
                  * Gets the module images path
-                 *
-                 * @return {void}
                  */
                 getImagesPath: function () {
                     return window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.images_path;
@@ -193,8 +181,6 @@ define(
 
                 /**
                  * Gets the payment form
-                 *
-                 * @return {void}
                  */
                 getCkoPaymentForm: function () {
                     // Prepare the needed variables
@@ -231,7 +217,6 @@ define(
 
                 /**
                  * Loads a Frames component.
-                 * @return {void}
                  */
                 addFramesComponent: function (framesInstance) {
                     if (this.getFormLayout() == 'multi') {
@@ -245,8 +230,6 @@ define(
 
                 /**
                  * Removes the payment form
-                 *
-                 * @return {void}
                  */
                 removeCkoPaymentForm: function () {
                     // Remove the events
@@ -265,7 +248,6 @@ define(
 
                 /**
                  * Add events to Frames.
-                 * @return {void}
                  */
                 addFramesEvents: function () {
                     var self = this;
@@ -274,11 +256,12 @@ define(
                     Frames.addEventHandler(
                         Frames.Events.READY,
                         function() {
-                            var valid = Utilities.getBillingAddress() != null;
+                            const billingAddress = Utilities.getBillingAddress();
+                            self.checkBillingAdressCustomerName(billingAddress);
 
-                            if(valid) {
-                                cardholderName = Utilities.getCustomerName();
-                            }
+                            Quote.billingAddress.subscribe(function (newBillingAddress){
+                                self.checkBillingAdressCustomerName(newBillingAddress);
+                            });
                         }
                     )
 
@@ -289,8 +272,9 @@ define(
                             const valid = Frames.isCardValid()
                             if (valid) {
                                 if(cardholderName.length === 0) {
-                                    if(Utilities.getBillingAddress()) {
-                                        cardholderName = Utilities.getCustomerName();
+                                    const billingAddress = Utilities.getBillingAddress();
+                                    if (billingAddress) {
+                                        cardholderName = Utilities.getCustomerNameByBillingAddress(billingAddress);
                                     }
                                 }
 
@@ -329,9 +313,6 @@ define(
                     );
                 },
 
-                /**
-                 * @return {void}
-                 */
                 placeOrder: function () {
                     if (Utilities.methodIsSelected(METHOD_ID)) {
                         // Validate the order placement
@@ -360,11 +341,29 @@ define(
                     }
                 },
 
-                /**
-                 * @return {void}
-                 */
                 toggleTooltip: function () {
                     this.tooltipVisible(!this.tooltipVisible());
+                },
+
+                /**
+                 * @param {object} billingAddress
+                 */
+                checkBillingAdressCustomerName: function (billingAddress) {
+                    const valid = billingAddress !== null;
+
+                    if (valid) {
+                        cardholderName = Utilities.getCustomerNameByBillingAddress(billingAddress);
+                        this.setCardHolderName(cardholderName);
+                    }
+                },
+
+                /**
+                 * @param {string} cardholderName
+                 */
+                setCardHolderName: function (cardholderName) {
+                    Frames.cardholder = {
+                        name: cardholderName
+                    };
                 }
             }
         );
