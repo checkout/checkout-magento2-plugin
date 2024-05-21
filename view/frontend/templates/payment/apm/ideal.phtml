@@ -24,13 +24,15 @@
 <div data-role="content" class="apm-content">
     <form id="cko-apm-form-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
         <input type="hidden" name="source" value="<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" required>
-        <div class="input-group">
-            <label class="icon" for="bic">
-            <span class="ckojs ckojs-card"></label>
-            <select name="bic" id="bic" required>
-                <option value=""><?= $block->escapeHtml(__('BIC')); ?></option>
-            </select>
-        </div>
+        <?php if ($block->getData('service_previous_mode')): ?>
+            <div class="input-group">
+                <label class="icon" for="bic">
+                <span class="ckojs ckojs-card"></label>
+                <select name="bic" id="bic" required>
+                    <option value=""><?= $block->escapeHtml(__('BIC')); ?></option>
+                </select>
+            </div>
+        <?php endif; ?>
         <div class="input-group">
             <label class="icon" for="description">
             <span class="ckojs ckojs-card"></label>
@@ -38,24 +40,26 @@
         </div>
         <br>
     </form>
-    <script>
-        require([
-            'jquery'
-        ], function ($) {
-            $.ajax({
-                url: '<?= $block->escapeUrl($block->getUrl("checkout_com/apm/displaybic")) ?>',
-                type:'GET',
-                success: function(response){
-                    $.each( response, function(key, value) {
-                        let bicID = value.bic;
-                        let nameValue = value.name;
-                        $('#bic').append($('<option>').val(bicID).text(nameValue));
-                    });
-                },
-                error: function(response){
-                    console.log(response)
-                }
+    <?php if ($block->getData('service_previous_mode')): ?>
+        <script>
+            require([
+                'jquery'
+            ], function ($) {
+                $.ajax({
+                    url: '<?= $block->escapeUrl($block->getUrl("checkout_com/apm/displaybic")) ?>',
+                    type:'GET',
+                    success: function(response){
+                        $.each( response, function(key, value) {
+                            let bicID = value.bic;
+                            let nameValue = value.name;
+                            $('#bic').append($('<option>').val(bicID).text(nameValue));
+                        });
+                    },
+                    error: function(response){
+                        console.log(response)
+                    }
+                });
             });
-        });
-    </script>
+        </script>
+    <?php endif; ?>
 </div>
