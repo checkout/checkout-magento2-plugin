@@ -315,6 +315,8 @@ define(
 
                 placeOrder: function () {
                     if (Utilities.methodIsSelected(METHOD_ID)) {
+                        Utilities.setEmail();
+
                         // Validate the order placement
                         if (AdditionalValidators.validate() && Frames.isCardValid()) {
                             // Start the loader
