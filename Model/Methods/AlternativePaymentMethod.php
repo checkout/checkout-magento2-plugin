@@ -711,10 +711,10 @@ class AlternativePaymentMethod extends AbstractMethod
     {
         if ($this->apiHandler->isPreviousMode()) {
             $source = new PreviousRequestIdealSource();
+            $source->bic = $data['bic'];
         } else {
             $source = new RequestIdealSource();
         }
-        $source->bic = $data['bic'];
         $source->description = $data['description'];
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl_NL') ?? '');
         $source->language = $locale[0];
