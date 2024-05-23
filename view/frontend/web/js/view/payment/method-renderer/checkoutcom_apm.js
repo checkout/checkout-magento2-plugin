@@ -45,6 +45,7 @@ define(
                 initialize: function () {
                     this._super();
                     Utilities.loadCss('apm', 'apm');
+                    Utilities.initSubscribers(this);
                 },
 
                 /**

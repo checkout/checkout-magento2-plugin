@@ -60,6 +60,7 @@ define(
                     this._super();
                     Utilities.loadCss(this.getFormLayout(), 'frames');
                     Utilities.setEmail();
+                    Utilities.initSubscribers(this);
 
                     return this;
                 },

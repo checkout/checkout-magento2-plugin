@@ -64,6 +64,8 @@ define([
             }).catch((error) => {
                 Utilities.log(error);
             });
+
+            Utilities.initSubscribers(this);
         },
 
         /**

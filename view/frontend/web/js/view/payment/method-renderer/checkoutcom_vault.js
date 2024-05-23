@@ -44,6 +44,7 @@ define(
                 initialize: function () {
                     this._super();
                     Utilities.setEmail();
+                    Utilities.initSubscribers(this);
                     Utilities.loadCss('vault', 'vault');
 
                     return this;
