@@ -95,6 +95,8 @@ define(
                     $(self.button_target).click(
                         function(evt) {
                             if (Utilities.methodIsSelected(METHOD_ID)) {
+                                Utilities.setEmail();
+
                                 // Validate T&C submission
                                 if (!AdditionalValidators.validate()) {
                                     return;

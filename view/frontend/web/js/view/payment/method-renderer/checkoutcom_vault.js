@@ -251,6 +251,8 @@ define(
                  */
                 placeOrder: function () {
                     if (Utilities.methodIsSelected(METHOD_ID)) {
+                        Utilities.setEmail();
+
                         if (AdditionalValidators.validate()) {
                             // Prepare the payload
                             var payload = {

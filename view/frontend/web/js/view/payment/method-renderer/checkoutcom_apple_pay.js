@@ -232,6 +232,8 @@ define(
                     let self = this;
 
                     if (Utilities.methodIsSelected(METHOD_ID)) {
+                        Utilities.setEmail();
+
                         // Validate T&C submission
                         if (!AdditionalValidators.validate()) {
                             return;
