@@ -46,6 +46,7 @@ define(
                 initialize: function() {
                     this._super();
                     Utilities.setEmail();
+                    Utilities.initSubscribers(this);
                     Utilities.loadCss('google-pay', 'google-pay');
 
                     return this;
