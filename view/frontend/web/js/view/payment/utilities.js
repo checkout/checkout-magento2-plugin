@@ -24,16 +24,13 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Customer/js/model/customer',
         'mage/translate',
-        'Magento_Checkout/js/model/step-navigator',
-        'Magento_Checkout/js/action/set-payment-information',
         'mage/cookies'
     ],
-    function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction, FullScreenLoader, Customer, __, StepNavigator, setPaymentInformationAction) {
+    function ($, Config, Quote, CheckoutData, Url, RedirectOnSuccessAction, FullScreenLoader, Customer, __) {
         'use strict';
 
         const KEY_CONFIG = 'checkoutcom_configuration';
         const KEY_DATA = 'checkoutcom_data';
-        const PAYMENT_STEP_CODE = 'payment';
 
         return {
 
@@ -402,7 +399,7 @@ define(
             methodIsSelected: function (idSelector) {
                 var id = idSelector.replace('#', '');
                 var selected = CheckoutData.getSelectedPaymentMethod();
-                return id == selected || selected == null;
+                return id === selected;
             },
 
             /**
@@ -451,37 +448,6 @@ define(
             cleanCustomerShippingAddress: function() {
                 CheckoutData.setNewCustomerShippingAddress(null);
             },
-
-            /**
-             * Workaround to refresh payment method information when guest customer
-             * go back to shipping step & change his email address
-             *
-             * @param {UiClass} Component
-             * @public
-             */
-            initSubscribers: function (Component) {
-                const code = Component.getCode();
-
-                StepNavigator.steps.subscribe((steps) => {
-                    if (this.getCurrentCheckoutStep(steps) === PAYMENT_STEP_CODE &&
-                        this.methodIsSelected(code)) {
-                        setPaymentInformationAction(Component.messageContainer, {
-                            method: code
-                        });
-                    }
-                });
-            },
-
-            /**
-             * Return current checkout step code
-             *
-             * @param {Array} steps
-             * @return string
-             * @public
-             */
-            getCurrentCheckoutStep: function (steps) {
-                return steps[StepNavigator.getActiveItemIndex()]['code'];
-            }
         };
     }
 );

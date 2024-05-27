@@ -18,13 +18,14 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
+        'CheckoutCom_Magento2/js/model/checkout-utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/quote',
         'mage/translate',
         'jquery/ui'
     ],
-    function ($, Component, Utilities, FullScreenLoader, AdditionalValidators, Quote, __) {
+    function ($, Component, Utilities, CheckoutUtilities, FullScreenLoader, AdditionalValidators, Quote, __) {
 
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
@@ -45,7 +46,7 @@ define(
                 initialize: function () {
                     this._super();
                     Utilities.loadCss('apm', 'apm');
-                    Utilities.initSubscribers(this);
+                    CheckoutUtilities.initSubscribers(this);
                 },
 
                 /**
