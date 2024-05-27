@@ -19,6 +19,7 @@ define(
         'ko',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
+        'CheckoutCom_Magento2/js/model/checkout-utilities',
         'CheckoutCom_Magento2/js/frames/multi',
         'CheckoutCom_Magento2/js/frames/single',
         'Magento_Checkout/js/model/payment/additional-validators',
@@ -27,7 +28,7 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'framesjs'
     ],
-    function ($, ko, Component, Utilities, FramesMulti, FramesSingle, AdditionalValidators, Customer, Quote, FullScreenLoader) {
+    function ($, ko, Component, Utilities, CheckoutUtilities, FramesMulti, FramesSingle, AdditionalValidators, Customer, Quote, FullScreenLoader) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_card_payment';
@@ -60,7 +61,7 @@ define(
                     this._super();
                     Utilities.loadCss(this.getFormLayout(), 'frames');
                     Utilities.setEmail();
-                    Utilities.initSubscribers(this);
+                    CheckoutUtilities.initSubscribers(this);
 
                     return this;
                 },

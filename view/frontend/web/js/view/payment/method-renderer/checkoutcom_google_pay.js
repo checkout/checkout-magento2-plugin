@@ -18,6 +18,7 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
+        'CheckoutCom_Magento2/js/model/checkout-utilities',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/action/redirect-on-success',
@@ -25,7 +26,7 @@ define(
         'googlepayjs',
     ],
     function(
-        $, Component, Utilities, FullScreenLoader, AdditionalValidators,
+        $, Component, Utilities, ChekcoutUtilities, FullScreenLoader, AdditionalValidators,
         RedirectOnSuccessAction, __) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
@@ -46,7 +47,7 @@ define(
                 initialize: function() {
                     this._super();
                     Utilities.setEmail();
-                    Utilities.initSubscribers(this);
+                    ChekcoutUtilities.initSubscribers(this);
                     Utilities.loadCss('google-pay', 'google-pay');
 
                     return this;

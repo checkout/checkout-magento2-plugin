@@ -13,16 +13,15 @@
  * @link      https://docs.checkout.com/
  */
 
-define(
-    [
+define([
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
+        'CheckoutCom_Magento2/js/model/checkout-utilities',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/full-screen-loader',
         'mage/translate'
-    ],
-    function ($, Component, Utilities, AdditionalValidators, FullScreenLoader, __) {
+    ], function ($, Component, Utilities, CheckoutUtilities, AdditionalValidators, FullScreenLoader, __) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_vault';
@@ -44,7 +43,7 @@ define(
                 initialize: function () {
                     this._super();
                     Utilities.setEmail();
-                    Utilities.initSubscribers(this);
+                    CheckoutUtilities.initSubscribers(this);
                     Utilities.loadCss('vault', 'vault');
 
                     return this;
