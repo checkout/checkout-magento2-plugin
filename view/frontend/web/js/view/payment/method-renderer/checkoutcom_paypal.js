@@ -18,14 +18,21 @@ define([
     'knockout',
     'Magento_Checkout/js/view/payment/default',
     'CheckoutCom_Magento2/js/view/payment/utilities',
+<<<<<<< release/v6.2.0
     'CheckoutCom_Magento2/js/model/checkout-utilities',
+=======
+>>>>>>> master
     'CheckoutCom_Magento2/js/view/payment/paypal-utilities',
     'Magento_Checkout/js/model/full-screen-loader',
     'Magento_Checkout/js/model/payment/additional-validators',
     'Magento_Checkout/js/model/quote',
     'mage/translate',
     'mage/url',
+<<<<<<< release/v6.2.0
 ], function ($, ko, Component, Utilities, CheckoutUtilities, PaypalUtilities, FullScreenLoader, AdditionalValidators, Quote, __, Url) {
+=======
+], function ($, ko, Component, Utilities, PaypalUtilities, FullScreenLoader, AdditionalValidators, Quote, __, Url) {
+>>>>>>> master
     'use strict';
 
     window.checkoutConfig.reloadOnBillingAddress = true;
@@ -65,8 +72,11 @@ define([
             }).catch((error) => {
                 Utilities.log(error);
             });
+<<<<<<< release/v6.2.0
 
             CheckoutUtilities.initSubscribers(this);
+=======
+>>>>>>> master
         },
 
         /**

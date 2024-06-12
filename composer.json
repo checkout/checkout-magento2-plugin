@@ -2,12 +2,20 @@
     "name": "checkoutcom/magento2",
     "description": "Checkout.com Payment Gateway for Magento 2",
     "require": {
+<<<<<<< release/v6.2.0
         "checkout/checkout-sdk-php": "3.2.0",
+=======
+        "checkout/checkout-sdk-php": "3.0.21",
+>>>>>>> master
         "php": "~7.4.0||~8.1.0||~8.2.0",
         "magento/framework": ">=100.0.1"
     },
     "type": "magento2-module",
+<<<<<<< release/v6.2.0
     "version": "6.2.0",
+=======
+    "version": "6.1.1",
+>>>>>>> master
     "autoload": {
         "files": [
             "registration.php"
