@@ -33,6 +33,7 @@ define(
         const KEY_DATA = 'checkoutcom_data';
 
         return {
+
             /**
              * Gets a field value.
              *
@@ -398,7 +399,7 @@ define(
             methodIsSelected: function (idSelector) {
                 var id = idSelector.replace('#', '');
                 var selected = CheckoutData.getSelectedPaymentMethod();
-                return id == selected || selected == null;
+                return id === selected;
             },
 
             /**
@@ -446,7 +447,7 @@ define(
              */
             cleanCustomerShippingAddress: function() {
                 CheckoutData.setNewCustomerShippingAddress(null);
-            }
+            },
         };
     }
 );
