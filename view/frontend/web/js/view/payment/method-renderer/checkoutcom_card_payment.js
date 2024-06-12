@@ -28,11 +28,7 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'framesjs'
     ],
-<<<<<<< release/v6.2.0
     function ($, ko, Component, Utilities, CheckoutUtilities, FramesMulti, FramesSingle, AdditionalValidators, Customer, Quote, FullScreenLoader) {
-=======
-    function ($, ko, Component, Utilities, FramesMulti, FramesSingle, AdditionalValidators, Customer, Quote, FullScreenLoader) {
->>>>>>> master
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_card_payment';
