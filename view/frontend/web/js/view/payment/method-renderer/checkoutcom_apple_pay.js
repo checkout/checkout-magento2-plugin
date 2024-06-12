@@ -19,6 +19,7 @@ define(
         'ko',
         'Magento_Checkout/js/view/payment/default',
         'CheckoutCom_Magento2/js/view/payment/utilities',
+        'CheckoutCom_Magento2/js/model/checkout-utilities',
         "CheckoutCom_Magento2/js/view/payment/applepay-utilities",
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
@@ -30,6 +31,7 @@ define(
         ko,
         Component,
         Utilities,
+        CheckoutUtilities,
         ApplePayUtilities,
         FullScreenLoader,
         AdditionalValidators,
@@ -55,6 +57,7 @@ define(
                 initialize: function () {
                     this._super();
                     Utilities.setEmail();
+                    CheckoutUtilities.initSubscribers(this);
                     Utilities.loadCss('apple-pay', 'apple-pay');
                     this.launchApplePay();
 
@@ -232,6 +235,8 @@ define(
                     let self = this;
 
                     if (Utilities.methodIsSelected(METHOD_ID)) {
+                        Utilities.setEmail();
+
                         // Validate T&C submission
                         if (!AdditionalValidators.validate()) {
                             return;
