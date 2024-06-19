@@ -53,6 +53,7 @@ class PaymentContextRequestService
     protected AddressInterfaceFactory $addressInterfaceFactory;
     protected CartRepositoryInterface $cartRepository;
     protected RegionCollectionFactory $regionCollectionFactory;
+    protected ShopperHandlerService $shopperHandlerService;
 
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -65,7 +66,8 @@ class PaymentContextRequestService
         Utilities $utilities,
         AddressInterfaceFactory $addressInterfaceFactory,
         RegionCollectionFactory $regionCollectionFactory,
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        ShopperHandlerService $shopperHandlerService
     ) {
         $this->storeManager = $storeManager;
         $this->apiHandlerService = $apiHandler;
@@ -77,10 +79,11 @@ class PaymentContextRequestService
         $this->addressInterfaceFactory = $addressInterfaceFactory;
         $this->cartRepository = $cartRepository;
         $this->regionCollectionFactory = $regionCollectionFactory;
+        $this->shopperHandlerService = $shopperHandlerService;
     }
 
     public function makePaymentContextRequests(
-        string $sourceType,
+        AbstractRequestSource $source,
         ?bool $forceAuthorize = false,
         ?string $paymentType = null,
         ?string $authorizationType = null
@@ -90,7 +93,7 @@ class PaymentContextRequestService
             return [];
         }
 
-        $request = $this->getContextRequest($quote, $sourceType, $forceAuthorize, $paymentType, $authorizationType);
+        $request = $this->getContextRequest($quote, $source, $forceAuthorize, $paymentType, $authorizationType);
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
@@ -174,7 +177,7 @@ class PaymentContextRequestService
 
     private function getContextRequest(
         CartInterface $quote,
-        string $sourceType,
+        AbstractRequestSource $source,
         ?bool $forceAuthorize = false,
         ?string $paymentType = null,
         ?string $authorizationType = null
@@ -200,11 +203,12 @@ class PaymentContextRequestService
         if ($shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
             $processing = new ProcessingSettings();
             $processing->shipping_amount = $this->utilities->formatDecimals($shipping->getShippingInclTax() * 100);
+            $processing->locale = str_replace('_', '-', $this->shopperHandlerService->getCustomerLocale());
             $request->processing = $processing;
         }
 
-        // Source Type
-        $request->source = new AbstractRequestSource($sourceType);
+        // Source
+        $request->source = $source;
 
         // Items
         $request->items = $this->getRequestItems($quote);
@@ -222,8 +226,10 @@ class PaymentContextRequestService
         /** @var Quote\Item $item */
         foreach ($quote->getAllVisibleItems() as $item) {
             $discount = $this->utilities->formatDecimals($item->getDiscountAmount()) * 100;
+            $rowAmount = ($this->utilities->formatDecimals($item->getRowTotalInclTax()) * 100) -
+                         ($this->utilities->formatDecimals($discount));
             $unitPrice = ($this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty()) * 100) -
-                ($this->utilities->formatDecimals($discount / $item->getQty()));
+                         ($this->utilities->formatDecimals($discount / $item->getQty()));
             // Api does not accept 0 prices
             if (!$unitPrice) {
                 continue;
@@ -235,6 +241,7 @@ class PaymentContextRequestService
             $contextItem->name = $item->getName();
             $contextItem->discount_amount = $discount;
             $contextItem->unit_price = $unitPrice;
+            $contextItem->total_amount = $rowAmount;
 
             $items[] = $contextItem;
         }

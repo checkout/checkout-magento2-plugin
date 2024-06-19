@@ -17,14 +17,15 @@
     <head>
         <css src="CheckoutCom_Magento2::css/main.css" />
         <css src="CheckoutCom_Magento2::css/sepa/sepa.css"/>
+    </head>
+    <body>
+        <!-- Add Klarna payment script-->
         <referenceBlock name="head.additional">
             <block class="Magento\Framework\View\Element\Template"
                    ifconfig="payment/checkoutcom_klarna/active"
                    name="checkoutcom-klarna-script"
                    template="CheckoutCom_Magento2::script/klarna-script.phtml" />
         </referenceBlock>
-    </head>
-    <body>
         <!-- Add Paypal payment script and remove express one-->
         <referenceBlock name="checkout.paypal.express.minicart.script" remove="true" />
         <referenceBlock name="content">

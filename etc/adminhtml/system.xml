@@ -636,7 +636,7 @@
                     <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enable Klarna</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkoutcom_klarnal/active</config_path>
+                        <config_path>payment/checkoutcom_klarna/active</config_path>
                         <requires>
                             <field id="merchant_id"/>
                             <field id="merchant_username"/>
@@ -645,23 +645,23 @@
                     </field>
                     <field id="merchant_id" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Merchant ID*</label>
-                        <config_path>payment/checkoutcom_klarnal/merchant_id</config_path>
+                        <config_path>payment/checkoutcom_klarna/merchant_id</config_path>
                         <comment>Provided by Checkout.com during integration.</comment>
                     </field>
                     <field id="merchant_username" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Merchant Username*</label>
-                        <config_path>payment/checkoutcom_klarnal/merchant_username</config_path>
+                        <config_path>payment/checkoutcom_klarna/merchant_username</config_path>
                         <comment>Provided by Checkout.com during integration.</comment>
                     </field>
                     <field id="merchant_password" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Merchant Password*</label>
-                        <config_path>payment/checkoutcom_klarnal/merchant_password</config_path>
+                        <config_path>payment/checkoutcom_klarna/merchant_password</config_path>
                         <comment>Provided by Checkout.com during integration.</comment>
                     </field>
                     <field id="sort_order" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Sort Order</label>
                         <validate>validate-number</validate>
-                        <config_path>payment/checkoutcom_klarnal/sort_order</config_path>
+                        <config_path>payment/checkoutcom_klarna/sort_order</config_path>
                     </field>
                     <depends>
                         <field id="settings/checkoutcom_configuration/service">NAS</field>

@@ -16,11 +16,14 @@ declare(strict_types=1);
  * @link      https://docs.checkout.com/
  */
 
-namespace CheckoutCom\Magento2\Controller\Paypal;
+namespace CheckoutCom\Magento2\Controller\Klarna;
 
+use Checkout\Common\AccountHolder;
+use Checkout\Common\Address;
 use Checkout\Payments\Request\Source\AbstractRequestSource;
-use Checkout\Payments\Request\Source\Contexts\PaymentContextsPayPalSource;
+use Checkout\Payments\Request\Source\Contexts\PaymentContextsKlarnaSource;
 use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
@@ -31,15 +34,18 @@ class Context implements HttpPostActionInterface
     protected JsonFactory $resultJsonFactory;
     protected PaymentContextRequestService $paymentContextRequestService;
     protected RequestInterface $request;
+    protected QuoteHandlerService $quoteHandlerService;
 
     public function __construct(
         JsonFactory $resultJsonFactory,
         PaymentContextRequestService $paymentContextRequestService,
-        RequestInterface $request
+        RequestInterface $request,
+        QuoteHandlerService $quoteHandlerService
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->paymentContextRequestService = $paymentContextRequestService;
         $this->request = $request;
+        $this->quoteHandlerService = $quoteHandlerService;
     }
 
     /**
@@ -51,7 +57,7 @@ class Context implements HttpPostActionInterface
         $resultJson->setData(
             [
                 'content' => $this->paymentContextRequestService->makePaymentContextRequests(
-                    $this->getPaypalContext(),
+                    $this->getKlarnaContextSource(),
                     (bool)$this->request->getParam('forceAuthorizeMode')
                 ),
             ]
@@ -60,8 +66,16 @@ class Context implements HttpPostActionInterface
         return $resultJson;
     }
 
-    private function getPaypalContext(): AbstractRequestSource
+    private function getKlarnaContextSource(): AbstractRequestSource
     {
-        return new PaymentContextsPayPalSource();
+        $klarnaRequestSource = new PaymentContextsKlarnaSource();
+        $accountHolder = new AccountHolder();
+        $billingAddress = new Address();
+        $billingAddress->country =
+            $this->quoteHandlerService->getBillingAddress()->getCountry() ?: $this->quoteHandlerService->getQuote()->getShippingAddress()->getCountry();
+        $accountHolder->billing_address = $billingAddress;
+        $klarnaRequestSource->account_holder = $accountHolder;
+
+        return $klarnaRequestSource;
     }
 }
