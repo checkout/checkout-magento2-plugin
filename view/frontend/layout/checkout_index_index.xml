@@ -17,6 +17,12 @@
     <head>
         <css src="CheckoutCom_Magento2::css/main.css" />
         <css src="CheckoutCom_Magento2::css/sepa/sepa.css"/>
+        <referenceBlock name="head.additional">
+            <block class="Magento\Framework\View\Element\Template"
+                   ifconfig="payment/checkoutcom_klarna/active"
+                   name="checkoutcom-klarna-script"
+                   template="CheckoutCom_Magento2::script/klarna-script.phtml" />
+        </referenceBlock>
     </head>
     <body>
         <!-- Add Paypal payment script and remove express one-->
@@ -52,6 +58,9 @@
                                                                     <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/method-renderer</item>
                                                                     <item name="methods" xsi:type="array">
                                                                         <item name="checkoutcom_paypal" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>
+                                                                        <item name="checkoutcom_klarna" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="checkoutcom_card_payment" xsi:type="array">
