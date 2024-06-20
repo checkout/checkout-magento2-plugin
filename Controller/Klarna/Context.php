@@ -58,7 +58,10 @@ class Context implements HttpPostActionInterface
             [
                 'content' => $this->paymentContextRequestService->makePaymentContextRequests(
                     $this->getKlarnaContextSource(),
-                    (bool)$this->request->getParam('forceAuthorizeMode')
+                    (bool)$this->request->getParam('forceAuthorizeMode'),
+                    null,
+                    null,
+                    true
                 ),
             ]
         );

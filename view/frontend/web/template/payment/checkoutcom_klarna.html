@@ -23,7 +23,7 @@
         </label>
     </div>
 
-    <div class="payment-method-content">
+    <div class="payment-method-content" afterRender="getKlarnaContextDatas">
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() -->
         <!-- /ko -->
@@ -50,9 +50,20 @@
 
         <!-- ko if: placeOrderEnable -->
         <div class="actions-toolbar">
-             <a href="#" class="primary">OKOKOKOKO</a>
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                            click: authorizePayment,
+                            css: {disabled: !isPlaceOrderActionAllowed()},
+                            attr: {title: $t('Place Order'), 'id': buttonId}
+                            ">
+                    <span data-bind="i18n: 'Place Order'"></span>
+                </button>
+            </div>
         </div>
-        <div class="primary" id="klarna-payments-container"></div>
         <!--/ko-->
+
+        <div id="klarna-payments-container"></div>
     </div>
 </div>

@@ -50,7 +50,6 @@ define([
         initialize: function() {
             this._super();
             CheckoutUtilities.initSubscribers(this);
-            this.getKlarnaContextDatas();
         },
 
         /**
@@ -79,8 +78,7 @@ define([
          * @return {Promise}
          */
         getKlarnaContextDatas: function() {
-
-
+            let self = this;
             fetch(Url.build('checkout_com/klarna/context'), {
                 method: 'POST',
                 headers: {
@@ -88,32 +86,61 @@ define([
                     'X-Requested-With': 'XMLHttpRequest',
                 },
             }).then(response => response.json()).then(response => {
+                // Store given token
                 this.chkKlarnaClientToken = response.content.partner_metadata.client_token;
                 this.chkKlarnaSessionId = response.content.partner_metadata.session_id;
                 this.chkKlarnaContextId = response.content.id;
-                window.klarnaAsyncCallback = function() {
-                    Klarna.Payments.init({
-                        client_token: this.chkKlarnaClientToken,
-                    });
-                };
+
+                // Init klarna api
+                Klarna.Payments.init({
+                    client_token: this.chkKlarnaClientToken,
+                });
+
+                // Load the klarna methods
                 Klarna.Payments.load(
                     {
                         container: '#klarna-payments-container',
                     },
                     {},
                     function(res) {
-                        alert('lalala2');
-                        alert(res);
-                        console.log('ICICICICICI');
-                        console.log(res);
+                        if (res.show_form === true) {
+                            self.placeOrderEnable(true);
+                        } else {
+                            Utilities.showMessage('error',
+                                __('Something went wrong with klarna method. Please choose another method.'),
+                                METHOD_ID);
+                        }
                     },
                 );
             }).catch((response) => {
+                // Here we know that klarna is disallowed for this context
                 Utilities.log(response);
                 Utilities.showMessage('error',
                     __('Something went wrong with klarna method. Please choose another method.'),
                     METHOD_ID);
             });
+        },
+
+        authorizePayment: function() {
+            let self = this;
+
+            let billingDatas = window.checkoutConfig.billingAddressFromData;
+
+            // Open the klarna popin with customer datas
+            Klarna.Payments.authorize(
+                {},
+                {},
+                function(res) {
+                    console.log('Authorize outcome:', res);
+                    if (res.approved === true) {
+                        self.placeOrder();
+                    } else {
+                        Utilities.showMessage('error',
+                            __('Your payment has failed. Please try again.'),
+                            METHOD_ID);
+                    }
+                },
+            );
         },
 
         /**

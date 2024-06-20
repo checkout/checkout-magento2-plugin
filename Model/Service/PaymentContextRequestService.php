@@ -86,14 +86,15 @@ class PaymentContextRequestService
         AbstractRequestSource $source,
         ?bool $forceAuthorize = false,
         ?string $paymentType = null,
-        ?string $authorizationType = null
+        ?string $authorizationType = null,
+        ?bool $setShippingFeesAsItem = false
     ): array {
         $quote = $this->getQuote();
         if (!$quote->getId() || ($quote->getId() && !$quote->getItemsQty())) {
             return [];
         }
 
-        $request = $this->getContextRequest($quote, $source, $forceAuthorize, $paymentType, $authorizationType);
+        $request = $this->getContextRequest($quote, $source, $forceAuthorize, $paymentType, $authorizationType, setShippingFeesAsItem);
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
@@ -180,7 +181,8 @@ class PaymentContextRequestService
         AbstractRequestSource $source,
         ?bool $forceAuthorize = false,
         ?string $paymentType = null,
-        ?string $authorizationType = null
+        ?string $authorizationType = null,
+        ?bool $setShippingFeesAsItem = false
     ): PaymentContextsRequest {
         // Set Default values
         if (!$paymentType) {
@@ -202,7 +204,9 @@ class PaymentContextRequestService
         $shipping = $quote->getShippingAddress();
         if ($shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
             $processing = new ProcessingSettings();
-            $processing->shipping_amount = $this->utilities->formatDecimals($shipping->getShippingInclTax() * 100);
+            if (!$setShippingFeesAsItem) {
+                $processing->shipping_amount = $this->utilities->formatDecimals($shipping->getShippingInclTax() * 100);
+            }
             $processing->locale = str_replace('_', '-', $this->shopperHandlerService->getCustomerLocale());
             $request->processing = $processing;
         }
@@ -211,7 +215,7 @@ class PaymentContextRequestService
         $request->source = $source;
 
         // Items
-        $request->items = $this->getRequestItems($quote);
+        $request->items = $this->getRequestItems($quote, $setShippingFeesAsItem);
 
         // Urls
         $request->success_url = $this->urlBuilder->getUrl('checkout/onepage/success');
@@ -220,7 +224,7 @@ class PaymentContextRequestService
         return $request;
     }
 
-    public function getRequestItems(CartInterface $quote): array
+    public function getRequestItems(CartInterface $quote, ?bool $setShippingFeesAsItem = false): array
     {
         $items = [];
         /** @var Quote\Item $item */
@@ -244,6 +248,19 @@ class PaymentContextRequestService
             $contextItem->total_amount = $rowAmount;
 
             $items[] = $contextItem;
+        }
+
+        // Shipping fee
+        $shipping = $quote->getShippingAddress();
+
+        if ($setShippingFeesAsItem && $shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
+            $product = new PaymentContextsItems();
+            $product->name = $shipping->getShippingDescription();
+            $product->quantity = 1;
+            $product->unit_price = $shipping->getShippingInclTax() * 100;
+            $product->total_amount = $shipping->getShippingInclTax() * 100;
+
+            $items[] = $product;
         }
 
         return $items;

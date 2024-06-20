@@ -298,16 +298,16 @@ class KlarnaMethod extends AbstractMethod
         }
 
         // Shipping fee
-        $shipping = $quote->getShippingAddress();
+        /*$shipping = $quote->getShippingAddress();
         if ($shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
             $processing = new ProcessingSettings();
             $processing->shipping_amount = $this->utilities->formatDecimals($shipping->getShippingInclTax() * 100);
             $request->processing = $processing;
-        }
+        }*/
 
-        $tokenSource->token = $data['contextPaymentId'];
+        /*$tokenSource->token = $data['contextPaymentId'];
         $tokenSource->billing_address = $api->createBillingAddress($quote);
-        $request->source = $tokenSource;
+        $request->source = $tokenSource;*/
         $request->currency = $currency;
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
