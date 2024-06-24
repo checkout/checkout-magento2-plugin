@@ -56,13 +56,13 @@ class Context implements HttpPostActionInterface
         $resultJson = $this->resultJsonFactory->create();
         $resultJson->setData(
             [
-                'content' => $this->paymentContextRequestService->makePaymentContextRequests(
-                    $this->getKlarnaContextSource(),
-                    (bool)$this->request->getParam('forceAuthorizeMode'),
-                    null,
-                    null,
-                    true
-                ),
+                'content' => $this->paymentContextRequestService
+                    ->setShippingFeesAsItem(true)
+                    ->collectDiscountAmountOnItemUnitPrice(false)
+                    ->setForceAuthorizeMode((bool)$this->request->getParam('forceAuthorizeMode'))
+                    ->makePaymentContextRequests(
+                        $this->getKlarnaContextSource()
+                    ),
             ]
         );
 

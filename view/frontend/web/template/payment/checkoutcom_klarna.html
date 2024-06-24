@@ -14,7 +14,7 @@
 -->
 
 <div class="payment-method"
-     data-bind="css: {'_active': (getCode() == isChecked())}, attr: {'id': getCode() + '_container'}">
+     data-bind="visible: placeOrderEnable,css: {'_active': (getCode() == isChecked())}, attr: {'id': getCode() + '_container'}">
     <div class="payment-method-title field choice">
         <input type="radio" name="payment[method]" class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
@@ -23,7 +23,7 @@
         </label>
     </div>
 
-    <div class="payment-method-content" afterRender="getKlarnaContextDatas">
+    <div class="payment-method-content">
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() -->
         <!-- /ko -->
@@ -48,7 +48,6 @@
             <!--/ko-->
         </div>
 
-        <!-- ko if: placeOrderEnable -->
         <div class="actions-toolbar">
             <div class="primary">
                 <button class="action primary checkout"
@@ -62,8 +61,6 @@
                 </button>
             </div>
         </div>
-        <!--/ko-->
-
-        <div id="klarna-payments-container"></div>
     </div>
 </div>
+<div id="klarna-payments-container"></div>

@@ -40,7 +40,6 @@ define([
         },
         placeOrderEnable: ko.observable(false),
         buttonId: METHOD_ID + '_btn',
-        chkKlarnaSessionId: null,
         chkKlarnaClientToken: null,
         chkKlarnaContextId: null,
 
@@ -50,6 +49,7 @@ define([
         initialize: function() {
             this._super();
             CheckoutUtilities.initSubscribers(this);
+            this.getKlarnaContextDatas();
         },
 
         /**
@@ -88,7 +88,6 @@ define([
             }).then(response => response.json()).then(response => {
                 // Store given token
                 this.chkKlarnaClientToken = response.content.partner_metadata.client_token;
-                this.chkKlarnaSessionId = response.content.partner_metadata.session_id;
                 this.chkKlarnaContextId = response.content.id;
 
                 // Init klarna api
@@ -126,21 +125,47 @@ define([
 
             let billingDatas = window.checkoutConfig.billingAddressFromData;
 
-            // Open the klarna popin with customer datas
-            Klarna.Payments.authorize(
-                {},
-                {},
-                function(res) {
-                    console.log('Authorize outcome:', res);
-                    if (res.approved === true) {
-                        self.placeOrder();
-                    } else {
-                        Utilities.showMessage('error',
-                            __('Your payment has failed. Please try again.'),
-                            METHOD_ID);
-                    }
+
+
+            $.ajax({
+                type: 'POST',
+                url: Url.build('checkout_com/klarna/getCustomerDatas'),
+                data: {
+                    quote_id: window.checkoutConfig.quoteItemData[0].quote_id,
+                    form_key: window.checkoutConfig.formKey,
+                    store_id: window.checkoutConfig.quoteData.store_id,
                 },
-            );
+                success: function(data) {
+                    Klarna.Payments.authorize(
+                        {},
+                        {
+                            billing_address:    {
+                                given_name:     data.billing.firstname,
+                                family_name:    data.billing.lastname,
+                                email:          data.billing.email || Utilities.getEmail(),
+                                //title:          data.billing.email,
+                                street_address: data.billing.street,
+                                //street_address2:          data.billing.email,
+                                postal_code:    data.billing.postcode,
+                                city:           data.billing.city,
+                                region:         data.billing.region,
+                                phone:          data.billing.phone,
+                                country:        data.billing.country_id.toLowerCase()
+                            },
+                        },
+                        function(res) {
+                            if (res.approved === true) {
+                                self.placeOrder();
+                            } else {
+                                Utilities.showMessage('error',
+                                    __('Your payment has failed. Please try again.'),
+                                    METHOD_ID);
+                            }
+                        },
+                    );
+                },
+                error: self.placeOrderEnable(false),
+            });
         },
 
         /**

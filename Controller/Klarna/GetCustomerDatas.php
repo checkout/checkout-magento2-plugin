@@ -16,30 +16,28 @@ declare(strict_types=1);
  * @link      https://docs.checkout.com/
  */
 
-namespace CheckoutCom\Magento2\Controller\Paypal;
+namespace CheckoutCom\Magento2\Controller\Klarna;
 
-use Checkout\Payments\Request\Source\AbstractRequestSource;
-use Checkout\Payments\Request\Source\Contexts\PaymentContextsPayPalSource;
-use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 
-class Context implements HttpPostActionInterface
+class GetCustomerDatas implements HttpPostActionInterface
 {
     protected JsonFactory $resultJsonFactory;
-    protected PaymentContextRequestService $paymentContextRequestService;
     protected RequestInterface $request;
+    protected QuoteHandlerService $quoteHandlerService;
 
     public function __construct(
         JsonFactory $resultJsonFactory,
-        PaymentContextRequestService $paymentContextRequestService,
-        RequestInterface $request
+        RequestInterface $request,
+        QuoteHandlerService $quoteHandlerService
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
-        $this->paymentContextRequestService = $paymentContextRequestService;
         $this->request = $request;
+        $this->quoteHandlerService = $quoteHandlerService;
     }
 
     /**
@@ -47,24 +45,23 @@ class Context implements HttpPostActionInterface
      */
     public function execute(): Json
     {
+        // Get the request data
+        $quoteId = $this->request->getParam('quote_id');
+        $storeId = $this->request->getParam('store_id');
+
+        // Try to load a quote
+        $quote = $this->quoteHandlerService->getQuote([
+            'entity_id' => $quoteId,
+            'store_id' => $storeId,
+        ]);
+
         $resultJson = $this->resultJsonFactory->create();
         $resultJson->setData(
             [
-                'content' => $this->paymentContextRequestService
-                    ->setShippingFeesAsItem(false)
-                    ->collectDiscountAmountOnItemUnitPrice(true)
-                    ->setForceAuthorizeMode((bool)$this->request->getParam('forceAuthorizeMode'))
-                    ->makePaymentContextRequests(
-                        $this->getPaypalContext()
-                    ),
+                'billing' => $this->quoteHandlerService->getBillingAddress()->toArray(),
             ]
         );
 
         return $resultJson;
-    }
-
-    private function getPaypalContext(): AbstractRequestSource
-    {
-        return new PaymentContextsPayPalSource();
     }
 }
