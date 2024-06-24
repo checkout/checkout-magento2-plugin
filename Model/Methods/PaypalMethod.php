@@ -22,11 +22,10 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
+use Checkout\Payments\PaymentType;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
-use Checkout\Payments\Previous\Source\RequestTokenSource as PreviousRequestTokenSource;
 use Checkout\Payments\ProcessingSettings;
 use Checkout\Payments\Request\PaymentRequest;
-use Checkout\Payments\Request\Source\RequestTokenSource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -276,7 +275,7 @@ class PaypalMethod extends AbstractMethod
         $request->metadata['methodId'] = $this->_code;
         $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->customer = $api->createCustomer($quote);
-        $request->payment_type = 'Regular';
+        $request->payment_type = PaymentType::$regular;
         $request->shipping = $api->createShippingAddress($quote);
         $request->metadata['quoteData'] = $this->json->serialize($this->quoteHandler->getQuoteRequestData($quote));
         $request->metadata = array_merge(

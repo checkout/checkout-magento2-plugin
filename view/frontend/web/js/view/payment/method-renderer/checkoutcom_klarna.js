@@ -95,7 +95,7 @@ define([
                     client_token: this.chkKlarnaClientToken,
                 });
 
-                // Load the klarna methods
+                // Load the klarna, check if context (res_form) allow purchase
                 Klarna.Payments.load(
                     {
                         container: '#klarna-payments-container',
@@ -103,6 +103,7 @@ define([
                     {},
                     function(res) {
                         if (res.show_form === true) {
+                            // Display method
                             self.placeOrderEnable(true);
                         } else {
                             Utilities.showMessage('error',
@@ -120,13 +121,13 @@ define([
             });
         },
 
+        /**
+         * Display the Klarna popin
+         */
         authorizePayment: function() {
             let self = this;
 
-            let billingDatas = window.checkoutConfig.billingAddressFromData;
-
-
-
+            // Retrieve current quote datas in order to give billing informations to Klarna
             $.ajax({
                 type: 'POST',
                 url: Url.build('checkout_com/klarna/getCustomerDatas'),
@@ -136,6 +137,8 @@ define([
                     store_id: window.checkoutConfig.quoteData.store_id,
                 },
                 success: function(data) {
+
+                    // Launch klarna popin with retrieved customer datas
                     Klarna.Payments.authorize(
                         {},
                         {

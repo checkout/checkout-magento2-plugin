@@ -22,6 +22,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
+use Checkout\Payments\PaymentType;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
 use Checkout\Payments\Previous\Source\RequestTokenSource as PreviousRequestTokenSource;
 use Checkout\Payments\Request\PaymentRequest;
@@ -272,11 +273,11 @@ class KlarnaMethod extends AbstractMethod
         $request->payment_context_id = $data['contextPaymentId'];
         $request->processing_channel_id = $this->config->getValue('channel_id');
         $request->reference = $reference;
-        $request->metadata['methodId'] = $this->_code;
         $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->customer = $api->createCustomer($quote);
-        $request->payment_type = 'Regular';
+        $request->payment_type = PaymentType::$regular;
         $request->shipping = $api->createShippingAddress($quote);
+        $request->metadata['methodId'] = $this->_code;
         $request->metadata['quoteData'] = $this->json->serialize($this->quoteHandler->getQuoteRequestData($quote));
         $request->metadata = array_merge(
             $request->metadata,
