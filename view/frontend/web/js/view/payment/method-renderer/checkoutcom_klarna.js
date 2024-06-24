@@ -142,18 +142,17 @@ define([
                     Klarna.Payments.authorize(
                         {},
                         {
-                            billing_address:    {
-                                given_name:     data.billing.firstname,
-                                family_name:    data.billing.lastname,
-                                email:          data.billing.email || Utilities.getEmail(),
-                                //title:          data.billing.email,
+                            billing_address: {
+                                given_name: data.billing.firstname,
+                                family_name: data.billing.lastname,
+                                email: data.billing.email ||
+                                    Utilities.getEmail(),
                                 street_address: data.billing.street,
-                                //street_address2:          data.billing.email,
-                                postal_code:    data.billing.postcode,
-                                city:           data.billing.city,
-                                region:         data.billing.region,
-                                phone:          data.billing.phone,
-                                country:        data.billing.country_id.toLowerCase()
+                                postal_code: data.billing.postcode,
+                                city: data.billing.city,
+                                region: data.billing.region,
+                                phone: data.billing.phone,
+                                country: data.billing.country_id.toLowerCase(),
                             },
                         },
                         function(res) {
