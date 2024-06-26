@@ -145,8 +145,7 @@ define([
                             billing_address: {
                                 given_name: data.billing.firstname,
                                 family_name: data.billing.lastname,
-                                email: data.billing.email ||
-                                    Utilities.getEmail(),
+                                email: data.billing.email || Utilities.getEmail(),
                                 street_address: data.billing.street,
                                 postal_code: data.billing.postcode,
                                 city: data.billing.city,
