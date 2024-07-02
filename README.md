@@ -14,7 +14,7 @@ The Frames.js payment form is cross-browser and cross-device compatible, and can
 
 * Alternative Payments<br>
 Users can place orders with the following alternative and local payment options used around the world:
-Alipay, Bancontact, Boleto, EPS, Fawry, Giropay, Ideal, Klarna, KNet, Poli, Sepa, Sofort.
+Alipay, Bancontact, Boleto, EPS, Fawry, Ideal, Klarna, KNet, Poli, Sepa, Sofort.
 
 * Apple Pay Payments<br>
 Users can place orders with an Apple Pay wallet.
