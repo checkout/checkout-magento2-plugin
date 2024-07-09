@@ -27,12 +27,6 @@
         <countries>BR</countries>
     </item>
     <item>
-        <id>giropay</id>
-        <title>Giropay</title>
-        <currencies>EUR</currencies>
-        <countries>DE</countries>
-    </item>
-    <item>
         <id>ideal</id>
         <title>iDEAL</title>
         <currencies>EUR</currencies>

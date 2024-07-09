@@ -117,17 +117,18 @@ define([
                     'X-Requested-With': 'XMLHttpRequest'
                 },
             })
-                .then(response => response.json())
-                .then(response => {
-                    this.chkPayPalContextId = response.content.id;
-                    this.chkPayPalOrderid = response.content.partner_metadata.order_id;
 
-                    return this.chkPayPalOrderid;
-                })
-                .catch((response) => {
-                    Utilities.log(response);
-                    Utilities.showMessage('error', __('Something went wrong with paypal method. Please choose another method.'), METHOD_ID);
-                });
+            .then(response => response.json())
+            .then(response => {
+                this.chkPayPalContextId = response.content.id;
+                this.chkPayPalOrderid = response.content.partner_metadata.order_id;
+
+                return this.chkPayPalOrderid;
+            })
+            .catch((response) => {
+                Utilities.log(response);
+                Utilities.showMessage('error', __('Something went wrong with paypal method. Please choose another method.'), METHOD_ID);
+            });
         },
 
         /**
