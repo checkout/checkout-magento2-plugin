@@ -47,7 +47,6 @@ define([
          * @return {void}
          */
         initialize: function () {
-            console.log('init klara')
             this._super();
             CheckoutUtilities.initSubscribers(this);
             this.getKlarnaContextDatas();
