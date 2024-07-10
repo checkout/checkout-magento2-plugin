@@ -24,8 +24,8 @@ define([
     'Magento_Checkout/js/model/quote',
     'mage/translate',
     'mage/url',
-], function($, ko, Component, Utilities, CheckoutUtilities, FullScreenLoader,
-            AdditionalValidators, Quote, __, Url) {
+], function ($, ko, Component, Utilities, CheckoutUtilities, FullScreenLoader,
+             AdditionalValidators, Quote, __, Url) {
     'use strict';
 
     window.checkoutConfig.reloadOnBillingAddress = true;
@@ -46,7 +46,8 @@ define([
         /**
          * @return {void}
          */
-        initialize: function() {
+        initialize: function () {
+            console.log('init klara')
             this._super();
             CheckoutUtilities.initSubscribers(this);
             this.getKlarnaContextDatas();
@@ -55,7 +56,7 @@ define([
         /**
          * @return {string}
          */
-        getCode: function() {
+        getCode: function () {
             return METHOD_ID;
         },
 
@@ -63,29 +64,32 @@ define([
          * @param {string} field
          * @return {string}
          */
-        getValue: function(field) {
+        getValue: function (field) {
             return Utilities.getValue(METHOD_ID, field);
         },
 
         /**
          * @return {void}
          */
-        checkLastPaymentMethod: function() {
+        checkLastPaymentMethod: function () {
             return Utilities.checkLastPaymentMethod();
         },
 
         /**
          * @return {Promise}
          */
-        getKlarnaContextDatas: function() {
-            let self = this;
+        getKlarnaContextDatas: function () {
+            const self = this;
+
             fetch(Url.build('checkout_com/klarna/context'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
                 },
-            }).then(response => response.json()).then(response => {
+            })
+            .then(response => response.json())
+            .then(response => {
                 // Store given token
                 this.chkKlarnaClientToken = response.content.partner_metadata.client_token;
                 this.chkKlarnaContextId = response.content.id;
@@ -101,14 +105,13 @@ define([
                         container: '#klarna-payments-container',
                     },
                     {},
-                    function(res) {
+                    function (res) {
                         if (res.show_form === true) {
                             // Display method
                             self.placeOrderEnable(true);
                         } else {
                             Utilities.showMessage('error',
-                                __('Something went wrong with klarna method. Please choose another method.'),
-                                METHOD_ID);
+                                __('Something went wrong with klarna method. Please choose another method.'), METHOD_ID);
                         }
                     },
                 );
@@ -116,16 +119,15 @@ define([
                 // Here we know that klarna is disallowed for this context
                 Utilities.log(response);
                 Utilities.showMessage('error',
-                    __('Something went wrong with klarna method. Please choose another method.'),
-                    METHOD_ID);
+                    __('Something went wrong with klarna method. Please choose another method.'), METHOD_ID);
             });
         },
 
         /**
          * Display the Klarna popin
          */
-        authorizePayment: function() {
-            let self = this;
+        authorizePayment: function () {
+            const self = this;
 
             // Retrieve current quote datas in order to give billing informations to Klarna
             $.ajax({
@@ -136,7 +138,7 @@ define([
                     form_key: window.checkoutConfig.formKey,
                     store_id: window.checkoutConfig.quoteData.store_id,
                 },
-                success: function(data) {
+                success: function (data) {
 
                     // Launch klarna popin with retrieved customer datas
                     Klarna.Payments.authorize(
@@ -154,7 +156,7 @@ define([
                                 country: data.billing.country_id.toLowerCase(),
                             },
                         },
-                        function(res) {
+                        function (res) {
                             if (res.approved === true) {
                                 self.placeOrder();
                             } else {
@@ -172,12 +174,11 @@ define([
         /**
          * @return {void}
          */
-        placeOrder: function() {
+        placeOrder: function () {
             FullScreenLoader.startLoader();
 
-            if (Utilities.methodIsSelected(METHOD_ID) &&
-                this.chkKlarnaContextId) {
-                let data = {
+            if (Utilities.methodIsSelected(METHOD_ID) && this.chkKlarnaContextId) {
+                const data = {
                     methodId: METHOD_ID,
                     contextPaymentId: this.chkKlarnaContextId,
                 };
@@ -187,10 +188,10 @@ define([
                     Utilities.placeOrder(
                         data,
                         METHOD_ID,
-                        function() {
+                        function () {
                             Utilities.log(__('Success'));
                         },
-                        function() {
+                        function () {
                             Utilities.log(__('Fail'));
                         },
                     );
