@@ -42,14 +42,63 @@ define([
         buttonId: METHOD_ID + '_btn',
         chkKlarnaClientToken: null,
         chkKlarnaContextId: null,
+        chkKlarnaApiUrl: 'https://x.klarnacdn.net/kp/lib/v1/api.js',
 
         /**
          * @return {void}
          */
         initialize: function () {
             this._super();
-            CheckoutUtilities.initSubscribers(this);
-            this.getKlarnaContextDatas();
+
+            const scriptPromise = this.klarnaScriptLoader();
+
+            scriptPromise.then(() => {
+                CheckoutUtilities.initSubscribers(this);
+                this.getKlarnaContextDatas();
+            }).catch((error) => {
+                Utilities.log(error);
+            });
+        },
+
+        /**
+         * Load klarna script witch promise
+         * @returns {Promise<unknown>}
+         * @constructor
+         */
+        klarnaScriptLoader: function () {
+            return new Promise((resolve, reject) => {
+                const klarnaScript = document.querySelector(`script[src*="${this.chkKlarnaApiUrl}"]`);
+
+                if (klarnaScript) {
+                    resolve();
+                    return;
+                }
+
+                const script = document.createElement('script');
+
+                script.addEventListener('load', () => {
+                    resolve();
+                });
+
+                script.addEventListener('error', () => {
+                    reject('Something wrong happened with Klarna script load');
+                });
+
+                this.buildScript(script);
+            });
+        },
+
+        /**
+         * Build Klarna script
+         * @param script
+         */
+        buildScript: function (script) {
+            const scriptUrl = new URL(this.chkKlarnaApiUrl);
+            
+            script.type = 'text/javascript';
+            script.src = scriptUrl;
+
+            document.head.appendChild(script);
         },
 
         /**
