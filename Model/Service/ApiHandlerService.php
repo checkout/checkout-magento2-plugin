@@ -479,10 +479,7 @@ class ApiHandlerService
             $product->name = $shipping->getShippingDescription();
             $product->quantity = 1;
             $product->unit_price = $shipping->getShippingInclTax() * 100;
-            $product->tax_rate = $shipping->getTaxPercent() * 100;
             $product->total_amount = $shipping->getShippingAmount() * 100;
-            $product->total_tax_amount = $shipping->getTaxAmount() * 100;
-            $product->type = 'shipping_fee';
 
             $items[] = $product;
         }
