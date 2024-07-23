@@ -53,6 +53,31 @@ class PaymentContextRequestService
     protected AddressInterfaceFactory $addressInterfaceFactory;
     protected CartRepositoryInterface $cartRepository;
     protected RegionCollectionFactory $regionCollectionFactory;
+    protected ShopperHandlerService $shopperHandlerService;
+    /**
+     * Should we set the shipping fils as an item line (if no it's used on "processing" request part)
+     */
+    protected bool $setShippingFeesAsItem = false;
+    /**
+     * Should we substract the dicount amount from the unit price of each item ?
+     */
+    protected bool $collectDiscountAmountOnItemUnitPrice = true;
+    /**
+     * Should we force authorise mode instead of capture for this context
+     */
+    protected bool $forceAuthorize = false;
+    /**
+     * The payment type for this context (default Regular)
+     *
+     * @see PaymentType
+     */
+    protected ?string $paymentType = null;
+    /**
+     * The Authorize type type for this context (Default Final)
+     *
+     * @see AuthorizationType
+     */
+    protected ?string $authorizeType = null;
 
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -65,7 +90,8 @@ class PaymentContextRequestService
         Utilities $utilities,
         AddressInterfaceFactory $addressInterfaceFactory,
         RegionCollectionFactory $regionCollectionFactory,
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        ShopperHandlerService $shopperHandlerService
     ) {
         $this->storeManager = $storeManager;
         $this->apiHandlerService = $apiHandler;
@@ -77,20 +103,18 @@ class PaymentContextRequestService
         $this->addressInterfaceFactory = $addressInterfaceFactory;
         $this->cartRepository = $cartRepository;
         $this->regionCollectionFactory = $regionCollectionFactory;
+        $this->shopperHandlerService = $shopperHandlerService;
     }
 
     public function makePaymentContextRequests(
-        string $sourceType,
-        ?bool $forceAuthorize = false,
-        ?string $paymentType = null,
-        ?string $authorizationType = null
+        AbstractRequestSource $source
     ): array {
         $quote = $this->getQuote();
         if (!$quote->getId() || ($quote->getId() && !$quote->getItemsQty())) {
             return [];
         }
 
-        $request = $this->getContextRequest($quote, $sourceType, $forceAuthorize, $paymentType, $authorizationType);
+        $request = $this->getContextRequest($quote, $source);
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
@@ -174,37 +198,32 @@ class PaymentContextRequestService
 
     private function getContextRequest(
         CartInterface $quote,
-        string $sourceType,
-        ?bool $forceAuthorize = false,
-        ?string $paymentType = null,
-        ?string $authorizationType = null
+        AbstractRequestSource $source
     ): PaymentContextsRequest {
-        // Set Default values
-        if (!$paymentType) {
-            $paymentType = PaymentType::$regular;
-        }
-        if (!$authorizationType) {
-            $authorizationType = AuthorizationType::$final;
-        }
-        $capture = $forceAuthorize ? false : $this->checkoutConfigProvider->needsAutoCapture();
+        $capture = $this->forceAuthorize ? false : $this->checkoutConfigProvider->needsAutoCapture();
 
         // Global informations
         $request = new PaymentContextsRequest();
         $request->amount = $this->utilities->formatDecimals($quote->getGrandTotal() * 100);
-        $request->payment_type = $paymentType;
+        $request->payment_type = $this->getPaymentType();
         $request->currency = $quote->getCurrency()->getQuoteCurrencyCode();
         $request->capture = $capture;
         $request->processing_channel_id = $this->checkoutConfigProvider->getValue('channel_id');
+        $request->authorizationType = $this->getAuthorizeType();
+
+        $processing = new ProcessingSettings();
+        $processing->locale = str_replace('_', '-', $this->shopperHandlerService->getCustomerLocale());
 
         $shipping = $quote->getShippingAddress();
         if ($shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
-            $processing = new ProcessingSettings();
-            $processing->shipping_amount = $this->utilities->formatDecimals($shipping->getShippingInclTax() * 100);
-            $request->processing = $processing;
+            if (!$this->setShippingFeesAsItem) {
+                $processing->shipping_amount = $this->utilities->formatDecimals($shipping->getShippingInclTax() * 100);
+            }
         }
+        $request->processing = $processing;
 
-        // Source Type
-        $request->source = new AbstractRequestSource($sourceType);
+        // Source
+        $request->source = $source;
 
         // Items
         $request->items = $this->getRequestItems($quote);
@@ -221,9 +240,14 @@ class PaymentContextRequestService
         $items = [];
         /** @var Quote\Item $item */
         foreach ($quote->getAllVisibleItems() as $item) {
-            $discount = $this->utilities->formatDecimals($item->getDiscountAmount()) * 100;
+            $discount = $discountOnUnitPrice = $this->utilities->formatDecimals($item->getDiscountAmount()) * 100;
+            if (!$this->collectDiscountAmountOnItemUnitPrice) {
+                $discountOnUnitPrice = 0;
+            }
+            $rowAmount = ($this->utilities->formatDecimals($item->getRowTotalInclTax()) * 100) -
+                         ($this->utilities->formatDecimals($discount));
             $unitPrice = ($this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty()) * 100) -
-                ($this->utilities->formatDecimals($discount / $item->getQty()));
+                         ($this->utilities->formatDecimals($discountOnUnitPrice / $item->getQty()));
             // Api does not accept 0 prices
             if (!$unitPrice) {
                 continue;
@@ -235,8 +259,22 @@ class PaymentContextRequestService
             $contextItem->name = $item->getName();
             $contextItem->discount_amount = $discount;
             $contextItem->unit_price = $unitPrice;
+            $contextItem->total_amount = $rowAmount;
 
             $items[] = $contextItem;
+        }
+
+        // Shipping fee
+        $shipping = $quote->getShippingAddress();
+
+        if ($this->setShippingFeesAsItem && $shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
+            $product = new PaymentContextsItems();
+            $product->name = $shipping->getShippingDescription();
+            $product->quantity = 1;
+            $product->unit_price = $shipping->getShippingInclTax() * 100;
+            $product->total_amount = $shipping->getShippingInclTax() * 100;
+
+            $items[] = $product;
         }
 
         return $items;
@@ -245,5 +283,51 @@ class PaymentContextRequestService
     private function getQuote(): CartInterface
     {
         return $this->checkoutSession->getQuote();
+    }
+
+    public function setShippingFeesAsItem(bool $value): self
+    {
+        $this->setShippingFeesAsItem = $value;
+
+        return $this;
+    }
+
+    public function setForceAuthorizeMode(bool $value): self
+    {
+        $this->forceAuthorize = $value;
+
+        return $this;
+    }
+
+    public function collectDiscountAmountOnItemUnitPrice(bool $value): self
+    {
+        $this->collectDiscountAmountOnItemUnitPrice = $value;
+
+        return $this;
+    }
+
+    public function setPaymentType(string $paymentType): self
+    {
+        $this->paymentType = $paymentType;
+
+        return $this;
+    }
+
+    private function getPaymentType(): string
+    {
+        if (!$this->paymentType) {
+            return PaymentType::$regular;
+        }
+
+        return $this->paymentType;
+    }
+
+    private function getAuthorizeType(): string
+    {
+        if (!$this->authorizeType) {
+            return AuthorizationType::$final;
+        }
+
+        return $this->authorizeType;
     }
 }

@@ -627,7 +627,26 @@
                         <comment>Select the Google Pay supported cards</comment>
                     </field>
                 </group>
-
+                <group id="checkoutcom_klarna" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Klarna (NAS)</label>
+                    <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkoutcom_klarna/title</config_path>
+                    </field>
+                    <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable Klarna</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_klarna/active</config_path>
+                    </field>
+                    <field id="sort_order" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkoutcom_klarna/sort_order</config_path>
+                    </field>
+                    <depends>
+                        <field id="settings/checkoutcom_configuration/service">NAS</field>
+                    </depends>
+                </group>
                 <group id="checkoutcom_paypal" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Paypal Payments (NAS)</label>
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">

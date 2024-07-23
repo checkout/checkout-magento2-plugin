@@ -24,8 +24,9 @@ use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
 use Checkout\Payments\PaymentType;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
-use Checkout\Payments\ProcessingSettings;
+use Checkout\Payments\Previous\Source\RequestTokenSource as PreviousRequestTokenSource;
 use Checkout\Payments\Request\PaymentRequest;
+use Checkout\Payments\Request\Source\RequestTokenSource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -56,14 +57,14 @@ use Magento\Store\Model\StoreManagerInterface;
 /**
  * Class GooglePayMethod
  */
-class PaypalMethod extends AbstractMethod
+class KlarnaMethod extends AbstractMethod
 {
     /**
      * CODE constant
      *
      * @var string CODE
      */
-    const CODE = 'checkoutcom_paypal';
+    const CODE = 'checkoutcom_klarna';
     /**
      * $_code field
      *
@@ -272,11 +273,11 @@ class PaypalMethod extends AbstractMethod
         $request->payment_context_id = $data['contextPaymentId'];
         $request->processing_channel_id = $this->config->getValue('channel_id');
         $request->reference = $reference;
-        $request->metadata['methodId'] = $this->_code;
         $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = PaymentType::$regular;
         $request->shipping = $api->createShippingAddress($quote);
+        $request->metadata['methodId'] = $this->_code;
         $request->metadata['quoteData'] = $this->json->serialize($this->quoteHandler->getQuoteRequestData($quote));
         $request->metadata = array_merge(
             $request->metadata,
@@ -289,15 +290,13 @@ class PaypalMethod extends AbstractMethod
             $billingDescriptor->name = $this->config->getValue('descriptor_name', null, null, ScopeInterface::SCOPE_STORE);
             $request->billing_descriptor = $billingDescriptor;
         }
-
-        // Shipping fee
-        $shipping = $quote->getShippingAddress();
-        if ($shipping->getShippingDescription() && $shipping->getShippingInclTax() > 0) {
-            $processing = new ProcessingSettings();
-            $processing->shipping_amount = $this->utilities->formatDecimals($shipping->getShippingInclTax() * 100);
-            $request->processing = $processing;
+        // Set the token source
+        if ($this->apiHandler->isPreviousMode()) {
+            $tokenSource = new PreviousRequestTokenSource();
+        } else {
+            $tokenSource = new RequestTokenSource();
         }
-
+        
         $request->currency = $currency;
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
@@ -488,18 +487,5 @@ class PaypalMethod extends AbstractMethod
         }
 
         return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function canUseForCurrency($currencyCode): bool
-    {
-        $availableCurrencies = array_filter(explode(',', $this->getConfigData('specificcurrencies') ?? ''));
-        if (!empty($availableCountries) && !in_array($currencyCode, $availableCurrencies)) {
-            return false;
-        }
-
-        return true;
     }
 }
