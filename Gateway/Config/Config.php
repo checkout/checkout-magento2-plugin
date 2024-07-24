@@ -314,7 +314,7 @@ class Config
     {
         $output = [];
         /** @var array $paymentMethodsConfig */
-        $paymentMethodsConfig = $this->scopeConfig->getValue(Loader::KEY_PAYMENT, ScopeInterface::SCOPE_WEBSITE);
+        $paymentMethodsConfig = $this->scopeConfig->getValue(Loader::KEY_PAYMENT, ScopeInterface::SCOPE_STORE);
 
         /**
          * Get only the active CheckoutCom methods
