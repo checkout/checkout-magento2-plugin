@@ -483,7 +483,6 @@ class Config
      */
     public function isLive(): bool
     {
-        $live = $this->getValue('environment');
         return $this->getValue('environment') === 1;
     }
 
