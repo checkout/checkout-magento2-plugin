@@ -22,8 +22,10 @@ use Checkout\Common\AccountHolder;
 use Checkout\Common\Address;
 use Checkout\Payments\Request\Source\AbstractRequestSource;
 use Checkout\Payments\Request\Source\Contexts\PaymentContextsKlarnaSource;
+use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Exception;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
@@ -35,17 +37,20 @@ class Context implements HttpPostActionInterface
     protected PaymentContextRequestService $paymentContextRequestService;
     protected RequestInterface $request;
     protected QuoteHandlerService $quoteHandlerService;
+    protected Logger $logger;
 
     public function __construct(
         JsonFactory $resultJsonFactory,
         PaymentContextRequestService $paymentContextRequestService,
         RequestInterface $request,
-        QuoteHandlerService $quoteHandlerService
+        QuoteHandlerService $quoteHandlerService,
+        Logger $logger
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->paymentContextRequestService = $paymentContextRequestService;
         $this->request = $request;
         $this->quoteHandlerService = $quoteHandlerService;
+        $this->logger = $logger;
     }
 
     /**
@@ -54,17 +59,29 @@ class Context implements HttpPostActionInterface
     public function execute(): Json
     {
         $resultJson = $this->resultJsonFactory->create();
-        $resultJson->setData(
-            [
-                'content' => $this->paymentContextRequestService
-                    ->setShippingFeesAsItem(true)
-                    ->collectDiscountAmountOnItemUnitPrice(false)
-                    ->setForceAuthorizeMode((bool)$this->request->getParam('forceAuthorizeMode'))
-                    ->makePaymentContextRequests(
-                        $this->getKlarnaContextSource()
-                    ),
-            ]
-        );
+
+        try {
+            $resultJson->setData(
+                [
+                    'content' => $this->paymentContextRequestService
+                        ->setShippingFeesAsItem(true)
+                        ->collectDiscountAmountOnItemUnitPrice(false)
+                        ->setForceAuthorizeMode((bool)$this->request->getParam('forceAuthorizeMode'))
+                        ->makePaymentContextRequests(
+                            $this->getKlarnaContextSource()
+                        ),
+                ]
+            );
+        } catch (Exception $e) {
+            $this->logger->write(sprintf('Error happen while requesting klarna context: %s', $e->getMessage()));
+            $resultJson->setData(
+                [
+                    'content' => [
+                        'error' => __('Error happen while requesting context, please see logs'),
+                    ],
+                ]
+            );
+        }
 
         return $resultJson;
     }

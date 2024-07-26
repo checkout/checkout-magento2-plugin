@@ -190,6 +190,16 @@
                 <can_use_checkout>0</can_use_checkout>
                 <can_capture_partial>1</can_capture_partial>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <allowspecific>1</allowspecific>
+                <specificcountry>AT,DK,ES,FI,DE,NL,NO,SE,GB</specificcountry>
+                <specificcurrencies>EUR,DKK,GBP,NOK,SEK</specificcurrencies>
+                <currency_mapping>
+                    <EUR>AT,ES,FI,DE,NL,DK,NO,SE</EUR>
+                    <DKK>DK</DKK>
+                    <GBP>GB</GBP>
+                    <NOK>NO</NOK>
+                    <SEK>SE</SEK>
+                </currency_mapping>
             </checkoutcom_klarna>
             <checkoutcom_paypal>
                 <model>CheckoutCom\Magento2\Model\Methods\PaypalMethod</model>

@@ -496,7 +496,7 @@ class PaypalMethod extends AbstractMethod
     public function canUseForCurrency($currencyCode): bool
     {
         $availableCurrencies = array_filter(explode(',', $this->getConfigData('specificcurrencies') ?? ''));
-        if (!empty($availableCountries) && !in_array($currencyCode, $availableCurrencies)) {
+        if (!empty($availableCurrencies) && !in_array($currencyCode, $availableCurrencies)) {
             return false;
         }
 
