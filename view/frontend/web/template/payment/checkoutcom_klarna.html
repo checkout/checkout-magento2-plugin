@@ -14,7 +14,7 @@
 -->
 
 <div class="payment-method"
-     data-bind="visible: placeOrderEnable,css: {'_active': (getCode() == isChecked())}, attr: {'id': getCode() + '_container'}">
+     data-bind="css: {'_active': (getCode() == isChecked())}, attr: {'id': getCode() + '_container'}">
     <div class="payment-method-title field choice">
         <input type="radio" name="payment[method]" class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
@@ -54,7 +54,7 @@
                         type="submit"
                         data-bind="
                             click: authorizePayment,
-                            css: {disabled: !isPlaceOrderActionAllowed()},
+                            css: {disabled: !placeOrderEnable()},
                             attr: {title: $t('Place Order'), 'id': buttonId}
                             ">
                     <span data-bind="i18n: 'Place Order'"></span>

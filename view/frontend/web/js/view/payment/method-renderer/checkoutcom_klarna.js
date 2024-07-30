@@ -144,7 +144,7 @@ define([
          */
         getKlarnaContextDatas: function(countryId = '') {
             const self = this;
-
+            Utilities.clearMessages(METHOD_ID);
             fetch(Url.build('checkout_com/klarna/context'), {
                 method: 'POST',
                 headers: {
@@ -158,6 +158,7 @@ define([
                 // Error on context request
                 if (response.content.error) {
                     self.placeOrderEnable(false);
+                    Utilities.showMessage('error', response.content.error, METHOD_ID);
                     return;
                 }
 

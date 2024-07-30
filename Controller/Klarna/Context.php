@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Klarna;
 
+use Checkout\CheckoutApiException;
 use Checkout\Common\AccountHolder;
 use Checkout\Common\Address;
 use Checkout\Payments\Request\Source\AbstractRequestSource;
@@ -25,11 +26,11 @@ use Checkout\Payments\Request\Source\Contexts\PaymentContextsKlarnaSource;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
-use Exception;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Phrase;
 use Magento\Framework\Serialize\SerializerInterface;
 
 class Context implements HttpPostActionInterface
@@ -76,18 +77,31 @@ class Context implements HttpPostActionInterface
                         ),
                 ]
             );
-        } catch (Exception $e) {
-            $this->logger->write(sprintf('Error happen while requesting klarna context: %s', $e->getMessage()));
+        } catch (CheckoutApiException $apiException) {
+            $this->logger->write(sprintf('Error happen while requesting klarna context: %s', $apiException->getMessage()));
             $resultJson->setData(
                 [
                     'content' => [
-                        'error' => __('Error happen while requesting context, please see logs'),
+                        'error' => $this->resolveExceptionErrorMessage($apiException),
                     ],
                 ]
             );
         }
 
         return $resultJson;
+    }
+
+    private function resolveExceptionErrorMessage(CheckoutApiException $apiException): Phrase
+    {
+        $errorDetails = !$apiException->error_details ? [] : $apiException->error_details;
+        $errorCodes = $errorDetails['error_codes'] ?? [];
+
+        return in_array('billing_country_invalid', $errorCodes) ?
+            __('This payment method is not available in your country') :
+            (
+                in_array('currency_not_supported', $errorCodes) ?
+                    __('Currency is not supported for your country') : __('This payment method is not available')
+            );
     }
 
     private function getKlarnaContextSource(): AbstractRequestSource
