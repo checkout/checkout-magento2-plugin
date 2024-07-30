@@ -30,6 +30,7 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Serialize\SerializerInterface;
 
 class Context implements HttpPostActionInterface
 {
@@ -38,12 +39,14 @@ class Context implements HttpPostActionInterface
     protected RequestInterface $request;
     protected QuoteHandlerService $quoteHandlerService;
     protected Logger $logger;
+    protected SerializerInterface $serializer;
 
     public function __construct(
         JsonFactory $resultJsonFactory,
         PaymentContextRequestService $paymentContextRequestService,
         RequestInterface $request,
         QuoteHandlerService $quoteHandlerService,
+        SerializerInterface $serializer,
         Logger $logger
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
@@ -51,6 +54,7 @@ class Context implements HttpPostActionInterface
         $this->request = $request;
         $this->quoteHandlerService = $quoteHandlerService;
         $this->logger = $logger;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -91,11 +95,18 @@ class Context implements HttpPostActionInterface
         $klarnaRequestSource = new PaymentContextsKlarnaSource();
         $accountHolder = new AccountHolder();
         $billingAddress = new Address();
-        $billingAddress->country =
-            $this->quoteHandlerService->getBillingAddress()->getCountry() ?: $this->quoteHandlerService->getQuote()->getShippingAddress()->getCountry();
+        $billingAddress->country = $this->getCountryId();
         $accountHolder->billing_address = $billingAddress;
         $klarnaRequestSource->account_holder = $accountHolder;
 
         return $klarnaRequestSource;
+    }
+
+    /**
+     *  If a country id is given on request parameters give it first, if no use the quote one
+     */
+    private function getCountryId(): string
+    {
+        return (string)$this->serializer->unserialize((string)$this->request->getContent())['country'] ?: $this->quoteHandlerService->getBillingAddress()->getCountry();
     }
 }

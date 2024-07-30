@@ -75,25 +75,6 @@ define([
             });
         },
 
-        canCurrencyForCountry: function(countryId = '') {
-            let klarnaCurrencyMapping = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_klarna.currency_mapping;
-            let currencyCode = window.checkoutConfig.quoteData.base_currency_code;
-            let countryCode = countryId;
-            if (!countryId && window.checkoutConfig.billingAddressFromData) {
-                countryCode = window.checkoutConfig.billingAddressFromData.country_id;
-            }
-            
-            if (countryCode && currencyCode) {
-                if (typeof klarnaCurrencyMapping[currencyCode] !== 'undefined') {
-                    return klarnaCurrencyMapping[currencyCode].indexOf(countryCode) !== -1;
-                } else {
-                    this.placeOrderEnable(false);
-                    return false;
-                }
-            }
-            return true;
-        },
-
         /**
          * Load klarna script witch promise
          * @returns {Promise<unknown>}
@@ -164,19 +145,15 @@ define([
         getKlarnaContextDatas: function(countryId = '') {
             const self = this;
 
-            // Check currency mapping
-            if (!this.canCurrencyForCountry(countryId)) {
-                alert('on ne peut pas');
-                self.placeOrderEnable(false);
-                return;
-            }
-
             fetch(Url.build('checkout_com/klarna/context'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
                 },
+                body: JSON.stringify({
+                    country: countryId
+                }),
             }).then(response => response.json()).then(response => {
                 // Error on context request
                 if (response.content.error) {
@@ -204,6 +181,7 @@ define([
                             // Display method
                             self.placeOrderEnable(true);
                         } else {
+                            self.placeOrderEnable(false);
                             Utilities.showMessage('error',
                                 __('Something went wrong with klarna method. Please choose another method.'),
                                 METHOD_ID);
