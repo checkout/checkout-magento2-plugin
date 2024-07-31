@@ -488,4 +488,14 @@ class KlarnaMethod extends AbstractMethod
 
         return false;
     }
+
+    public function canUseForCurrency($currencyCode): bool
+    {
+        $availableCurrencies = array_filter(explode(',', $this->getConfigData('specificcurrencies') ?? ''));
+        if (!empty($availableCurrencies) && !in_array($currencyCode, $availableCurrencies)) {
+            return false;
+        }
+
+        return true;
+    }
 }

@@ -190,6 +190,7 @@
                 <can_use_checkout>0</can_use_checkout>
                 <can_capture_partial>1</can_capture_partial>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <allowspecific>0</allowspecific>
             </checkoutcom_klarna>
             <checkoutcom_paypal>
                 <model>CheckoutCom\Magento2\Model\Methods\PaypalMethod</model>
