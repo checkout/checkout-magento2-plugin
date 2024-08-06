@@ -117,7 +117,6 @@ define([
                     'X-Requested-With': 'XMLHttpRequest'
                 },
             })
-
             .then(response => response.json())
             .then(response => {
                 this.chkPayPalContextId = response.content.id;
