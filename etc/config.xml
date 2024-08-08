@@ -173,6 +173,25 @@
                 <environment>TEST</environment>
                 <button_style>white</button_style>
             </checkoutcom_google_pay>
+            <checkoutcom_klarna>
+                <model>CheckoutCom\Magento2\Model\Methods\KlarnaMethod</model>
+                <title>Klarna with Checkout.com</title>
+                <active>0</active>
+                <sort_order>0</sort_order>
+                <is_gateway>1</is_gateway>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
+                <can_use_internal>1</can_use_internal>
+                <can_charge_details>1</can_charge_details>
+                <can_use_checkout>0</can_use_checkout>
+                <can_capture_partial>1</can_capture_partial>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <allowspecific>0</allowspecific>
+            </checkoutcom_klarna>
             <checkoutcom_paypal>
                 <model>CheckoutCom\Magento2\Model\Methods\PaypalMethod</model>
                 <title>Paypal with Checkout.com</title>
