@@ -568,12 +568,12 @@ class Config
     }
 
     /**
-     * @param int $storeCode
+     * @param string $storeCode
      * @param string $scope
      *
      * @return Environment
      */
-    public function getEnvironment(int $storeCode, string $scope): Environment
+    public function getEnvironment(string $storeCode, string $scope): Environment
     {
         if ((int)$this->getValue('environment', null, $storeCode, $scope) === 1) {
             return Environment::sandbox();

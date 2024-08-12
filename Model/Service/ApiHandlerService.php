@@ -181,7 +181,7 @@ class ApiHandlerService
         }
 
         $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, $scope, $storeCode);
-        $environment = $this->config->getEnvironment((int)$storeCode, $scope);
+        $environment = $this->config->getEnvironment($storeCode, $scope);
         $api = CheckoutSdk::builder();
 
         if ($service === ConfigService::SERVICE_ABC) {
@@ -208,7 +208,7 @@ class ApiHandlerService
         $publicKey = $this->config->getValue('abc_refund_public_key', null, $storeCode, $scope);
 
         $api = CheckoutSdk::builder();
-        $environment = $this->config->getEnvironment((int)$storeCode, $scope);
+        $environment = $this->config->getEnvironment($storeCode, $scope);
 
         $this->checkoutApi = $api
             ->previous()->staticKeys()
