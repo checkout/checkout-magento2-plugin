@@ -161,16 +161,6 @@ class Verify extends Action
                                     $response['amount'] ?? null,
                                     $order
                                 );
-
-                                $this->messageManager->addComplexNoticeMessage('knetInfoMessage', [
-                                    'postDate' => $response['source']['post_date'] ?? null,
-                                    'amount' => $amount ?? null,
-                                    'paymentId' => $response['source']['knet_payment_id'] ?? null,
-                                    'transactionId' => $response['source']['knet_transaction_id'] ?? null,
-                                    'authCode' => $response['source']['auth_code'] ?? null,
-                                    'reference' => $response['source']['bank_reference'] ?? null,
-                                    'resultCode' => $response['source']['knet_result'] ?? null,
-                                ]);
                             }
 
                             if (isset($response['metadata']['successUrl']) &&
@@ -215,7 +205,7 @@ class Verify extends Action
             $this->messageManager->addErrorMessage(
                 __('An error has occurred, please select another payment method or retry in a few minutes')
             );
-            
+
             $this->logger->write($e->getMessage());
 
             return $this->_redirect('checkout/cart', ['_secure' => true]);
