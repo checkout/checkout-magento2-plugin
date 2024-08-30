@@ -27,7 +27,7 @@
         </policy>
         <policy id="script-src">
             <values>
-                <value id="cko-cdn" type="host">https://cdn.checkout.com</value>
+                <value id="cko-cdn" type="host">https://*.checkout.com</value>
                 <value id="klarna-cdn" type="host">*.klarnacdn.net</value>
             </values>
         </policy>
