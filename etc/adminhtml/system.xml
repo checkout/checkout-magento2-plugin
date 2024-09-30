@@ -176,6 +176,12 @@
                     </group>
                     <group id="account_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Account Settings</label>
+                        <field id="region" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Region</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigRegion</source_model>
+                            <config_path>settings/checkoutcom_configuration/region</config_path>
+                            <validate>required-entry</validate>
+                        </field>
                         <field id="service" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Service</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService</source_model>
