@@ -207,19 +207,10 @@ class Fail extends Action
                             $order
                         );
 
-                        // Display error message and knet mandate info
+                        // Display error message
                         $this->messageManager->addErrorMessage(
                             __('The transaction could not be processed.')
                         );
-                        $this->messageManager->addComplexNoticeMessage('knetInfoMessage', [
-                            'postDate' => $response['source']['post_date'] ?? null,
-                            'amount' => $amount ?? null,
-                            'paymentId' => $response['source']['knet_payment_id'] ?? null,
-                            'transactionId' => $response['source']['knet_transaction_id'] ?? null,
-                            'authCode' => $response['source']['auth_code'] ?? null,
-                            'reference' => $response['source']['bank_reference'] ?? null,
-                            'resultCode' => $response['source']['knet_result'] ?? null,
-                        ]);
                     } else {
                         $this->messageManager->addErrorMessage(
                             $errorMessage ? $errorMessage->getText() : __('The transaction could not be processed.')

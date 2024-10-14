@@ -399,7 +399,7 @@ define(
             methodIsSelected: function (idSelector) {
                 var id = idSelector.replace('#', '');
                 var selected = CheckoutData.getSelectedPaymentMethod();
-                return id === selected;
+                return id === selected || selected === null;
             },
 
             /**
