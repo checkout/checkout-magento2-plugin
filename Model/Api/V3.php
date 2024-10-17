@@ -336,8 +336,9 @@ class V3 implements V3Interface
 
             // Get the payment
             $response = $this->getPaymentResponse($amount, $currency, $reference);
+            $isValidResponse = $this->api->isValidResponse($response);
 
-            if ($this->api->isValidResponse($response)) {
+            if ($isValidResponse) {
                 // Process the payment response
                 $is3ds = property_exists($response, '_links')
                          && isset($response->_links['redirect'])
@@ -357,7 +358,7 @@ class V3 implements V3Interface
                 }
 
                 // Update the result
-                $this->result['success'] = $response->isSuccessful();
+                $this->result['success'] = $isValidResponse;
             } else {
                 // Payment failed
                 if (isset($response->response_code)) {

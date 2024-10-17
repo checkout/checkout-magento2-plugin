@@ -126,8 +126,6 @@ define(
                         }
                     );
 
-                    self.getCkoPaymentForm();
-
                     // Option click event
                     $('.payment-method input[type="radio"]').on('click', function () {
                         self.allowPlaceOrder(false);
