@@ -37,6 +37,7 @@ use Checkout\Previous\CheckoutApi as PreviousCheckoutApi;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigRegion;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
@@ -172,6 +173,8 @@ class ApiHandlerService
         string $secretKey = null,
         string $publicKey = null
     ): ApiHandlerService {
+        $region = $this->config->getValue('region', null, $storeCode, $scope);
+
         if (!$secretKey) {
             $secretKey = $this->config->getValue('secret_key', null, $storeCode, $scope);
         }
@@ -190,11 +193,16 @@ class ApiHandlerService
             $api = $api->staticKeys();
         }
 
-        $this->checkoutApi = $api
+        $sdkBuilder = $api
             ->publicKey($publicKey)
             ->secretKey($secretKey)
-            ->environment($environment)
-            ->build();
+            ->environment($environment);
+        
+        if ($region != ConfigRegion::REGION_GLOBAL) { // do not set subdomain when global region is used
+            $sdkBuilder->environmentSubdomain($region);
+        }
+
+        $this->checkoutApi = $sdkBuilder->build();
 
         return $this;
     }
