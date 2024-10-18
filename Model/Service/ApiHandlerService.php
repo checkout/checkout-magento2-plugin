@@ -184,7 +184,7 @@ class ApiHandlerService
         }
 
         $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, $scope, $storeCode);
-        $environment = $this->config->getEnvironment($storeCode, $scope);
+        $environment = $this->config->getEnvironment((string)$storeCode, $scope);
         $api = CheckoutSdk::builder();
 
         if ($service === ConfigService::SERVICE_ABC) {
@@ -197,8 +197,8 @@ class ApiHandlerService
             ->publicKey($publicKey)
             ->secretKey($secretKey)
             ->environment($environment);
-        
-        if ($region != ConfigRegion::REGION_GLOBAL) { // do not set subdomain when global region is used
+
+        if ($region !== ConfigRegion::REGION_GLOBAL) { // do not set subdomain when global region is used
             $sdkBuilder->environmentSubdomain($region);
         }
 
@@ -216,7 +216,7 @@ class ApiHandlerService
         $publicKey = $this->config->getValue('abc_refund_public_key', null, $storeCode, $scope);
 
         $api = CheckoutSdk::builder();
-        $environment = $this->config->getEnvironment($storeCode, $scope);
+        $environment = $this->config->getEnvironment((string)$storeCode, $scope);
 
         $this->checkoutApi = $api
             ->previous()->staticKeys()
