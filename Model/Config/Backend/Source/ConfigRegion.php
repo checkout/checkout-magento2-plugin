@@ -23,7 +23,7 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class ConfigRegion implements OptionSourceInterface
 {
-    public const REGION_GLOBAL = '';
+    public const REGION_GLOBAL = 'global';
     public const REGION_KSA = 'ksa';
 
     /**
@@ -35,7 +35,7 @@ class ConfigRegion implements OptionSourceInterface
     {
         return [
             [
-                'value' => '',
+                'value' => self::REGION_GLOBAL,
                 'label' => __('--')
             ],
             [
