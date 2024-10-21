@@ -198,7 +198,8 @@ class ApiHandlerService
             ->secretKey($secretKey)
             ->environment($environment);
 
-        if ($region !== ConfigRegion::REGION_GLOBAL) { // do not set subdomain when global region is used
+        // Do not set subdomain when global region is used
+        if ($region !== ConfigRegion::REGION_GLOBAL) { 
             $sdkBuilder->environmentSubdomain($region);
         }
 
