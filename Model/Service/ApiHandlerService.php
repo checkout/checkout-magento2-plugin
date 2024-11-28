@@ -37,6 +37,7 @@ use Checkout\Previous\CheckoutApi as PreviousCheckoutApi;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigRegion;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
@@ -172,6 +173,8 @@ class ApiHandlerService
         string $secretKey = null,
         string $publicKey = null
     ): ApiHandlerService {
+        $region = $this->config->getValue('region', null, $storeCode, $scope);
+
         if (!$secretKey) {
             $secretKey = $this->config->getValue('secret_key', null, $storeCode, $scope);
         }
@@ -181,7 +184,7 @@ class ApiHandlerService
         }
 
         $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, $scope, $storeCode);
-        $environment = $this->config->getEnvironment($storeCode, $scope);
+        $environment = $this->config->getEnvironment((string)$storeCode, $scope);
         $api = CheckoutSdk::builder();
 
         if ($service === ConfigService::SERVICE_ABC) {
@@ -190,11 +193,17 @@ class ApiHandlerService
             $api = $api->staticKeys();
         }
 
-        $this->checkoutApi = $api
+        $sdkBuilder = $api
             ->publicKey($publicKey)
             ->secretKey($secretKey)
-            ->environment($environment)
-            ->build();
+            ->environment($environment);
+
+        // Do not set subdomain when global region is used
+        if ($region !== ConfigRegion::REGION_GLOBAL) { 
+            $sdkBuilder->environmentSubdomain($region);
+        }
+
+        $this->checkoutApi = $sdkBuilder->build();
 
         return $this;
     }
@@ -208,7 +217,7 @@ class ApiHandlerService
         $publicKey = $this->config->getValue('abc_refund_public_key', null, $storeCode, $scope);
 
         $api = CheckoutSdk::builder();
-        $environment = $this->config->getEnvironment($storeCode, $scope);
+        $environment = $this->config->getEnvironment((string)$storeCode, $scope);
 
         $this->checkoutApi = $api
             ->previous()->staticKeys()

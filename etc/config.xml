@@ -27,6 +27,7 @@
                 <gateway_responses>0</gateway_responses>
                 <additional_logging></additional_logging>
                 <environment>1</environment>
+                <region>global</region>
                 <service>ABC</service>
                 <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <public_key/>
