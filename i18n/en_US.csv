@@ -1,3 +1,4 @@
+"--","Others"
 " for an amount of %1. Action ID: %2. Event ID: %3. Payment ID: %4. Error: %5 %6"," for an amount of %1. Action ID: %2. Event ID: %3. Payment ID: %4. Error: %5 %6"
 "3DS authorization code","3DS authorization code"
 "3DS has expired or authentication failed, please try again","3DS has expired or authentication failed, please try again"
@@ -63,6 +64,7 @@
 "Invalid request. No session ID found.","Invalid request. No session ID found."
 "It looks like this transaction has been blocked due to account holder action, please contact your bank or use another card or payment method","It looks like this transaction has been blocked due to account holder action, please contact your bank or use another card or payment method"
 "It looks like your card is invalid or blocked, please try with another card","It looks like your card is invalid or blocked, please try with another card"
+"KSA","KSA"
 "Learn More","Learn More"
 "Match Not Capable","Match Not Capable"
 "Mismatched Address (fraud check)","Mismatched Address (fraud check)"
