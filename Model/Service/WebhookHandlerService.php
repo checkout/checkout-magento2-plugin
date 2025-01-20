@@ -22,13 +22,13 @@ namespace CheckoutCom\Magento2\Model\Service;
 use CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Model\Entity\WebhookEntity;
 use CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory;
 use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity\Collection;
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class WebhookHandlerService
@@ -133,11 +133,19 @@ class WebhookHandlerService
     public function processSingleWebhook(OrderInterface $order, array $payload): void
     {
         if (isset($payload['data']['action_id'])) {
-            if (!$this->config->getValue('webhooks_table_enabled')) {
-                $this->processWithoutSave($order, $payload);
-            } else {
-                $this->processWithSave($order, $payload);
+            if ($this->config->getValue('webhooks_table_enabled')) {
+                $webhooks = $this->loadWebhookEntities([
+                    'order_id' => $order->getId(),
+                ]);
+
+                if (!$this->hasAuth($webhooks, $payload)) {
+                    throw new LocalizedException(__('payment_captured webhook refused for order %1', $order->getEntityId()));
+                }
             }
+
+            //Even if the webhooks_table_enabled is disabled, the events are saved temporary in the database to avoid multiple process of same event
+            $this->processWithSave($order, $payload);
+
         } else {
             // Handle missing action ID
             $msg = sprintf(
@@ -184,12 +192,6 @@ class WebhookHandlerService
      */
     public function processWithSave(OrderInterface $order, array $payload): void
     {
-        // Get all the webhooks to check for auth
-        $webhooks = $this->loadWebhookEntities([
-            'order_id' => $order->getId(),
-        ]);
-
-        if ($this->hasAuth($webhooks, $payload)) {
             // Save the payload
             $this->saveWebhookEntity($payload, $order);
 
@@ -206,40 +208,6 @@ class WebhookHandlerService
             );
 
             $this->setProcessedTime($webhook);
-        } else {
-            // throw 400 as payment_approved has not been received or is still being processed
-            throw new LocalizedException(__('payment_captured webhook refused'));
-        }
-    }
-
-    /**
-     * Description processWithoutSave function
-     *
-     * @param OrderInterface $order
-     * @param array $payload
-     *
-     * @return void
-     * @throws Exception
-     */
-    public function processWithoutSave(OrderInterface $order, array $payload): void
-    {
-        $webhooks = [];
-        $webhook = [
-            'event_id' => $payload['id'],
-            'event_type' => $payload['type'],
-            'event_data' => $this->json->serialize($payload),
-            'action_id' => $payload['data']['action_id'],
-            'payment_id' => $payload['data']['id'],
-            'order_id' => $order->getId(),
-            'processed' => false,
-        ];
-        $webhooks[] = $webhook;
-
-        // Handle the order status for the webhook
-        $this->webhooksToProcess(
-            $order,
-            $webhooks
-        );
     }
 
     /**
@@ -279,7 +247,7 @@ class WebhookHandlerService
      *
      * @return array
      */
-    public function loadWebhookEntities(array $fields = []): array
+    public function loadWebhookEntities(array $fields = [], bool $getItems = false): array
     {
         // Create the collection
         $entities = $this->webhookEntityFactory->create();
@@ -290,6 +258,10 @@ class WebhookHandlerService
             foreach ($fields as $key => $value) {
                 $this->collection->addFieldToFilter($key, $value);
             }
+        }
+
+        if ($getItems) {
+            return $this->collection->getItems();
         }
 
         $webhookEntitiesArr = $this->collection->getData();
@@ -406,18 +378,20 @@ class WebhookHandlerService
      *
      * @return void
      */
-    public function clean(): void
+    public function clean(string $modifier = '-1 day'): void
     {
-        $webhooks = $this->loadWebhookEntities();
+        try {
+            $limitDate = (new \DateTime())->modify($modifier)->format('Y-m-d H:i:s');
+        } catch (Exception $exception) {
+            $this->logger->write($exception->getMessage());
 
+            return;
+        }
+        $webhooks = $this->loadWebhookEntities(['received_at' => ['lteq' => $limitDate], 'processed' => ['eq' => 1]], true);
+
+        /** @var WebhookEntity $webhook */
         foreach ($webhooks as $webhook) {
-            $webhookDate = strtotime($webhook['received_at']);
-            $date = strtotime('-1 day');
-            if ($webhookDate > $date && $webhook['processed']) {
-                continue;
-            }
-
-            $this->webhookEntityRepository->deleteById((int)$webhook['id']);
+            $this->webhookEntityRepository->delete($webhook);
         }
     }
 }

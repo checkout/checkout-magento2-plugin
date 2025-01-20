@@ -19,7 +19,7 @@ namespace CheckoutCom\Magento2\Model\Api;
 
 use CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 use CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface;
-use CheckoutCom\Magento2\Model\Entity\WebhookEntity;
+use CheckoutCom\Magento2\Exception\WebhookEventAlreadyExistsException;
 use CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory;
 use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity as WebhookResource;
 use Exception;
@@ -62,11 +62,16 @@ class WebhookEntityRepository implements WebhookEntityRepositoryInterface
      * @param WebhookEntityInterface $webhookEntity
      *
      * @return WebhookEntityRepositoryInterface
-     * @throws AlreadyExistsException
+     * @throws Exception
      */
     public function save(WebhookEntityInterface $webhookEntity): WebhookEntityRepositoryInterface
     {
-        $this->resource->save($webhookEntity);
+        try {
+            $this->resource->save($webhookEntity);
+        } catch (AlreadyExistsException $exception) {
+            //Throw custom exception to catch it in Callback class
+            throw new WebhookEventAlreadyExistsException(__($exception->getMessage()), $exception);
+        }
 
         return $this;
     }
@@ -106,5 +111,17 @@ class WebhookEntityRepository implements WebhookEntityRepositoryInterface
         $this->resource->delete($webhookEntity);
 
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
+    public function delete(WebhookEntityInterface $webhookEntity): self
+    {
+        $this->resource->delete($webhookEntity);
+
+        return $this;
     }
 }
