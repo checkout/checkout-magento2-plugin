@@ -26,6 +26,8 @@ use Magento\Framework\Model\ResourceModel\Db\Context;
  */
 class WebhookEntity extends AbstractDb
 {
+    /** @var array */
+    protected $_uniqueFields = [['field' => 'event_id', 'title' => 'event_id should be unique']];
     /**
      * WebhookEntity constructor
      *
