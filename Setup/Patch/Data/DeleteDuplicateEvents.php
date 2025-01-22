@@ -41,7 +41,7 @@ class DeleteDuplicateEvents implements DataPatchInterface
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
         WebhookEntityCollectionFactory $collectionFactory,
-        WebhookEntityResourceModel $webhookEntityResourceModel,
+        WebhookEntityResourceModel $webhookEntityResourceModel
     ) {
         $this->moduleDataSetup = $moduleDataSetup;
         $this->collectionFactory = $collectionFactory;
