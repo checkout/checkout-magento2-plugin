@@ -28,7 +28,8 @@ use Magento\Framework\Setup\SchemaSetupInterface;
 
 class AddUniqueConstraintOnEventId implements SchemaPatchInterface
 {
-    private SchemaSetupInterface $setup;
+    /** @var SchemaSetupInterface $setup */
+    private $setup;
 
     public function __construct(
         SchemaSetupInterface $setup
