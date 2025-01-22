@@ -29,11 +29,14 @@ use Magento\Framework\Setup\Patch\DataPatchInterface;
 
 class DeleteDuplicateEvents implements DataPatchInterface
 {
-    private ModuleDataSetupInterface $moduleDataSetup;
+    /** @var ModuleDataSetupInterface $moduleDataSetup */
+    private $moduleDataSetup;
 
-    private WebhookEntityCollectionFactory $collectionFactory;
+    /** @var WebhookEntityCollectionFactory $collectionFactory */
+    private $collectionFactory;
 
-    private WebhookEntityResourceModel $webhookEntityResourceModel;
+    /** @var WebhookEntityResourceModel $webhookEntityResourceModel */
+    private $webhookEntityResourceModel;
 
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
