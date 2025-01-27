@@ -66,21 +66,25 @@ class DeleteDuplicateEvents implements DataPatchInterface
         /** @var AdapterInterface $setup */
         $setup = $this->moduleDataSetup->getConnection()->startSetup();
 
-        $duplicateEvents = $this->getDuplicateEvents($setup);
-        $webhookEntities = $this->getWebhookEntitiesToDelete($duplicateEvents);
+        $webhookTable = $setup->getTableName('checkoutcom_webhooks');
 
-        foreach ($webhookEntities as $webhookEntity) {
-            $this->webhookEntityResourceModel->delete($webhookEntity);
-        }
+        $duplicateEvents = $this->getDuplicateEvents($setup, $webhookTable);
 
-        $setup->endSetup();
+        $duplicateEventIds = array_column($duplicateEvents, 'event_id');
+        $webhookIdsToKeep = array_column($duplicateEvents, 'id');
+
+
+        $where = [
+            'event_id IN (?)' => $duplicateEventIds,
+            'id NOT IN (?)' => $webhookIdsToKeep
+        ];
+        $setup->delete($webhookTable, $where);
 
         return $this;
     }
 
-    private function getDuplicateEvents(AdapterInterface $setup): array
+    private function getDuplicateEvents(AdapterInterface $setup, string $webhookTable): array
     {
-        $webhookTable = $setup->getTableName('checkoutcom_webhooks');
         $select = $setup->select();
 
         $query = $select->from($webhookTable, ['id', 'event_id', 'COUNT(*)'])
@@ -88,21 +92,5 @@ class DeleteDuplicateEvents implements DataPatchInterface
             ->having('COUNT(*) > 1');
 
         return $setup->fetchAll($query);
-    }
-
-    private function getWebhookEntitiesToDelete(array $duplicateEvents): array
-    {
-        $duplicateEventIds = array_column($duplicateEvents, 'event_id');
-        $webhookIdsToKeep = array_column($duplicateEvents, 'id');
-
-        /** @var WebhookEntityCollection $webhookEntityCollection */
-        $webhookEntityCollection = $this->collectionFactory->create();
-        $webhookEntityCollection
-            ->addFieldToSelect(['id', 'event_id'])
-            ->addFieldToFilter('event_id', ['in' => $duplicateEventIds])
-            ->addFieldToFilter('id', ['nin' => $webhookIdsToKeep])
-            ->addOrder('event_id', Collection::SORT_ORDER_ASC);
-
-        return $webhookEntityCollection->getItems();
     }
 }
