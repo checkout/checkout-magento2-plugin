@@ -241,11 +241,6 @@ class Callback extends Action implements CsrfAwareActionInterface
                                         $this->saveCard($response, $payload);
                                     }
 
-                                    $webhooksTableEnabled = $this->scopeConfig->getValue(
-                                        'settings/checkoutcom_configuration/webhooks_table_enabled',
-                                        ScopeInterface::SCOPE_WEBSITE
-                                    );
-
                                     // Clean the webhooks table
                                     $clean = $this->scopeConfig->getValue(
                                         'settings/checkoutcom_configuration/webhooks_table_clean',
@@ -263,16 +258,8 @@ class Callback extends Action implements CsrfAwareActionInterface
                                         $payload
                                     );
 
-                                    /*
-                                     * To avoid event process duplication, the events are always saved in database.
-                                     * In case of $webhooksTableEnabled to false, the events are delete after 1 hour
-                                     */
-                                    if (!$webhooksTableEnabled) {
-                                        $this->webhookHandler->clean('-1 hour');
-                                    }
-
                                     if ($clean && $cleanOn === 'webhook') {
-                                        $this->webhookHandler->clean();
+                                        $this->webhookHandler->clean(true);
                                     }
                                 } else {
                                     // Log the payment error
@@ -325,8 +312,7 @@ class Callback extends Action implements CsrfAwareActionInterface
             return $resultFactory->setData([
                 'result' => __('Webhook was already processed.'),
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             // Throw 400 error for gateway retry mechanism
             $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
             $this->logger->write($e->getMessage());
