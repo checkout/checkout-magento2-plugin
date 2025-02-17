@@ -118,7 +118,7 @@ class WebhookHandlerService
         Logger $logger,
         WebhookEntityRepositoryInterface $webhookEntityRepository,
         Json $json,
-        ResourceConnection $resourceConnection,
+        ResourceConnection $resourceConnection
     ) {
         $this->orderHandler = $orderHandler;
         $this->orderStatusHandler = $orderStatusHandler;
