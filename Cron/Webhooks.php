@@ -74,17 +74,25 @@ class Webhooks
     {
         $clean = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/webhooks_table_clean',
-            ScopeInterface::SCOPE_WEBSITE
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT
         );
 
         $cleanOn = $this->scopeConfig->getValue(
             'settings/checkoutcom_configuration/webhooks_clean_on',
-            ScopeInterface::SCOPE_WEBSITE
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT
         );
 
-        if ($clean && $cleanOn === 'cron') {
-            $this->webhookHandler->clean();
-            $this->logger->info('Webhook table has been cleaned.');
+        $webhooksTableEnabled = $this->scopeConfig->getValue(
+            'settings/checkoutcom_configuration/webhooks_table_enabled',
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT
+        );
+
+        if ($webhooksTableEnabled && (!$clean || $cleanOn !== 'cron')) {
+            return;
         }
+
+
+        $this->webhookHandler->clean((bool)$webhooksTableEnabled);
+        $this->logger->info('Webhook table has been cleaned.');
     }
 }
