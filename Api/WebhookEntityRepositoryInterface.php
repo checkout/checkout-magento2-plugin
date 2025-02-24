@@ -50,4 +50,13 @@ interface WebhookEntityRepositoryInterface
      * @return bool
      */
     public function deleteById(int $entityId): bool;
+
+    /**
+     * Delete Webhook entity
+     *
+     * @param \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface $webhookEntity
+     *
+     * @return \CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface
+     */
+    public function delete(\CheckoutCom\Magento2\Api\Data\WebhookEntityInterface $webhookEntity): \CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface;
 }

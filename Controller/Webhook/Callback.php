@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Webhook;
 
+use CheckoutCom\Magento2\Exception\WebhookEventAlreadyExistsException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -48,9 +49,6 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class Callback
- */
 class Callback extends Action implements CsrfAwareActionInterface
 {
     /**
@@ -261,7 +259,7 @@ class Callback extends Action implements CsrfAwareActionInterface
                                     );
 
                                     if ($clean && $cleanOn === 'webhook') {
-                                        $this->webhookHandler->clean();
+                                        $this->webhookHandler->clean(true);
                                     }
                                 } else {
                                     // Log the payment error
@@ -306,6 +304,14 @@ class Callback extends Action implements CsrfAwareActionInterface
                     'error_message' => __('Unauthorized request. No matching private shared key.'),
                 ]);
             }
+        } catch (WebhookEventAlreadyExistsException $e) {
+            // Set a valid response to avoid gateway retry mechanism
+            $resultFactory->setHttpResponseCode(Response::HTTP_OK);
+
+            // Return the 200 success response
+            return $resultFactory->setData([
+                'result' => __('Webhook was already processed.'),
+            ]);
         } catch (Exception $e) {
             // Throw 400 error for gateway retry mechanism
             $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
