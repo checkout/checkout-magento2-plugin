@@ -100,7 +100,10 @@
                             <label>Enable Webhook Table</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                             <config_path>settings/checkoutcom_configuration/webhooks_table_enabled</config_path>
-                            <comment>This enables webhooks to be logged to a dedicated table to improve traceability for when webhook events are received.</comment>
+                            <comment>
+                                This enables webhooks to be logged to a dedicated table to improve traceability for when webhook events are received.
+                                Even if this setting is false, events are temporarily stored in the table to ensure that they are processed in the desired order.
+                            </comment>
                         </field>
 
                         <field id="webhooks_table_clean_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="0">

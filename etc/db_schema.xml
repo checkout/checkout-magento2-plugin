@@ -31,5 +31,11 @@
     <index referenceId="CHECKOUTCOM_WEBHOOKS_INDEX_ID" indexType="btree">
       <column name="id"/>
     </index>
+    <index referenceId="CHECKOUTCOM_WEBHOOKS_INDEX_EVENT_ID" indexType="btree">
+      <column name="event_id"/>
+    </index>
+    <index referenceId="CHECKOUTCOM_WEBHOOKS_INDEX_ORDER_ID" indexType="btree">
+      <column name="order_id"/>
+    </index>
   </table>
 </schema>
