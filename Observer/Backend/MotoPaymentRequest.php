@@ -183,7 +183,7 @@ class MotoPaymentRequest implements ObserverInterface
             $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Set the source
-            $source = $this->getSource($order, $params);
+            $source = $this->getSource($order, $storeCode, $params);
 
             // Set the payment
             if ($this->apiHandler->isPreviousMode()) {
@@ -239,13 +239,12 @@ class MotoPaymentRequest implements ObserverInterface
 
             // Send the charge request
             try {
+                $this->logger->display($request);
                 $response = $api->getCheckoutApi()->getPaymentsClient()->requestPayment($request);
-            } catch (CheckoutApiException $e) {
-                $this->logger->write($e->error_details);
-            } finally {
-                // Logging
                 $this->logger->display($response);
-
+            } catch (CheckoutApiException $e) {
+                $this->logger->write($e->getMessage());
+            } finally {
                 // Add the response to the order
                 if (is_array($response) && $api->isValidResponse($response)) {
                     $this->utilities->setPaymentData($order, $response);
@@ -299,11 +298,11 @@ class MotoPaymentRequest implements ObserverInterface
      * @throws CheckoutArgumentException
      * @throws LocalizedException
      */
-    protected function getSource(Order $order, array $params)
+    protected function getSource(Order $order, string $storeCode, array $params)
     {
         if ($this->isCardToken($params)) {
             // Initialize the API handler
-            $api = $this->apiHandler->init();
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Create the token source
             if ($this->apiHandler->isPreviousMode()) {
