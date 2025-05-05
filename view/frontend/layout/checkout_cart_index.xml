@@ -5,7 +5,11 @@
     </head>
     <body>
         <referenceContainer name="checkout.cart.methods">
-            <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::cart/applepay.phtml" name="apple.pay.button" after="-"/>
+            <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::cart/applepay.phtml" name="apple.pay.button" after="-">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">CheckoutCom\Magento2\ViewModel\Cart\ApplePayButton</argument>
+                </arguments>
+            </block>
             <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::cart/paypal.phtml" name="paypal.button" after="apple.pay.button">
                 <arguments>
                     <argument name="jsLayout" xsi:type="array">

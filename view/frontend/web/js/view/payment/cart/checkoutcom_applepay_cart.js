@@ -54,10 +54,20 @@
             if (checkoutConfig["checkoutcom_apple_pay"][config.configName] == 1) {
                 Utilities.log(`Apple Pay in ${config.type} is enabled`);
 
-                // set the button theme and mode
-                button.style["-apple-pay-button-style"] = getButtonTheme();
+                if(checkoutConfig["checkoutcom_apple_pay"]["enabled_on_all_browsers"] === "1" && config.allBrowsersSupported
+                    || checkoutConfig["checkoutcom_apple_pay"]["enabled_on_all_browsers"] === "0" && !config.allBrowsersSupported
+                ) {
+                    Utilities.log(`Apple Pay is supported`);
+                    // set the button theme and mode
+                    button.style["-apple-pay-button-style"] = getButtonTheme();
+                    button.setAttribute("buttonstyle", getButtonTheme());
+                    button.setAttribute("locale", window.LOCALE);
 
-                launchApplePay();
+                    launchApplePay();
+                }
+                else {
+                    $applePayButton.css("display", "none");
+                }
             }
         }
 
