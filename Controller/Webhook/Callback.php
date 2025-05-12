@@ -195,6 +195,12 @@ class Callback extends Action implements CsrfAwareActionInterface
             if ($this->config->isValidAuth('psk')) {
                 // Filter out verification requests
                 if ($payload['type'] !== "card_verified") {
+                    // Handle authentication_expired webhook
+                    if ($payload['data']['type'] === "authentication_expired" && isset($payload['data']['payment_id'])) {
+                        $payload['data']['id'] = $payload['data']['payment_id'];
+                        $payload['data']['type'] = "payment_expired";
+                    }
+
                     // Process the request
                     if (isset($payload['data']['id'])) {
                         // Get the store code
