@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Webhook;
 
+use CheckoutCom\Magento2\Api\WebhookInterface;
 use CheckoutCom\Magento2\Exception\WebhookEventAlreadyExistsException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
@@ -195,6 +196,12 @@ class Callback extends Action implements CsrfAwareActionInterface
             if ($this->config->isValidAuth('psk')) {
                 // Filter out verification requests
                 if ($payload['type'] !== "card_verified") {
+                    // Handle authentication_expired webhook
+                    if ($payload['data']['type'] === WebhookInterface::AUTHENTICATION_EXPIRED && isset($payload['data']['payment_id'])) {
+                        $payload['data']['id'] = $payload['data']['payment_id'];
+                        $payload['data']['type'] = WebhookInterface::PAYMENT_EXPIRED;
+                    }
+
                     // Process the request
                     if (isset($payload['data']['id'])) {
                         // Get the store code
