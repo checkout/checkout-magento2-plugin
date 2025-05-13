@@ -48,14 +48,21 @@ define(
                     template: 'CheckoutCom_Magento2/payment/' + METHOD_ID + '.html',
                     buttonClass: 'apple-pay-button-',
                     redirectAfterPlaceOrder: false,
-                    canPayWithApplePay: ko.observable(false)
+                    canPayWithApplePay: ko.observable(false),
+                    enabledOnAllBrowsers: false,
+                    disabledOnAllBrowsers: true,
+                    buttonStyle: ko.observable('black')
                 },
 
                 /**
                  * @return {exports}
                  */
                 initialize: function () {
+                    let checkoutConfig = window.checkoutConfig.payment["checkoutcom_magento2"];
+                    let isEnabledOnAllBrowsers = checkoutConfig['checkoutcom_apple_pay']['enabled_on_all_browsers'] === "1";
                     this._super();
+                    this.enabledOnAllBrowsers = isEnabledOnAllBrowsers;
+                    this.disabledOnAllBrowsers = !isEnabledOnAllBrowsers;
                     Utilities.setEmail();
                     CheckoutUtilities.initSubscribers(this);
                     Utilities.loadCss('apple-pay', 'apple-pay');
@@ -207,7 +214,8 @@ define(
                  */
                 launchApplePay: function () {
                     this.buttonClass = `${this.buttonClass}${this.getValue('button_style')}`;
-
+                    this.buttonStyle = this.getValue('button_style') === 'white-with-line' ? 'white-outline' : this.getValue('button_style');
+                    this.locale = window.LOCALE
                     // Check if the session is available
                     if (window.ApplePaySession) {
                         const merchantIdentifier = this.getValue('merchant_id');

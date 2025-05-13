@@ -29,6 +29,7 @@
             <values>
                 <value id="cko-cdn" type="host">https://*.checkout.com</value>
                 <value id="klarna-cdn" type="host">*.klarnacdn.net</value>
+                <value id="apple-cdn" type="host">*.cdn-apple.com</value>
             </values>
         </policy>
         <policy id="connect-src">
