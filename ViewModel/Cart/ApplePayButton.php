@@ -34,7 +34,7 @@ class ApplePayButton implements ArgumentInterface
     public function __construct(
         Config $checkoutComConfig,
         Logger $logger,
-        StoreManagerInterface $storeManager,
+        StoreManagerInterface $storeManager
     ) {
         $this->checkoutComConfig = $checkoutComConfig;
         $this->logger = $logger;
