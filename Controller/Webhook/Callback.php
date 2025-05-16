@@ -197,9 +197,9 @@ class Callback extends Action implements CsrfAwareActionInterface
                 // Filter out verification requests
                 if ($payload['type'] !== "card_verified") {
                     // Handle authentication_expired webhook
-                    if ($payload['data']['type'] === WebhookInterface::AUTHENTICATION_EXPIRED && isset($payload['data']['payment_id'])) {
+                    if (isset($payload['type'], $payload['data']['payment_id']) && $payload['type'] === WebhookInterface::AUTHENTICATION_EXPIRED) {
                         $payload['data']['id'] = $payload['data']['payment_id'];
-                        $payload['data']['type'] = WebhookInterface::PAYMENT_EXPIRED;
+                        $payload['type'] = WebhookInterface::PAYMENT_EXPIRED;
                     }
 
                     // Process the request
