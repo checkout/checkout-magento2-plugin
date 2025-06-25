@@ -381,7 +381,16 @@
                         <config_path>payment/checkoutcom_card_payment/payment_form_layout</config_path>
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentFormLayout</source_model>
                         <comment>
-                            Select a layout for the payment forn dipslay.
+                            Select a layout for the payment form display.
+                        </comment>
+                    </field>
+
+                    <field id="enable_right_to_left" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable right to left writting</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_card_payment/enable_right_to_left</config_path>
+                        <comment>
+                            Initialize Frame.js with RIGHT_TO_LEFT constant.
                         </comment>
                     </field>
 
