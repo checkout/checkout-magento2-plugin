@@ -271,7 +271,7 @@ class Loader
      */
     public function getValue(
         string $key,
-        string $methodId = null,
+        ?string $methodId = null,
         $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
     ) {

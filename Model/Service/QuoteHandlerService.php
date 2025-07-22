@@ -192,7 +192,7 @@ class QuoteHandlerService
      * @return CartInterface
      * @throws NoSuchEntityException|LocalizedException
      */
-    public function createQuote(string $currency = null, $customer = null): CartInterface
+    public function createQuote(?string $currency = null, $customer = null): CartInterface
     {
         // Create the quote instance
         $quote = $this->quoteFactory->create();
@@ -251,7 +251,7 @@ class QuoteHandlerService
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function prepareQuote(string $methodId, CartInterface $quote = null): ?Quote
+    public function prepareQuote(string $methodId, ?CartInterface $quote = null): ?Quote
     {
         // Find quote and perform tasks
         $quote = $quote ?: $this->getQuote();
@@ -287,7 +287,7 @@ class QuoteHandlerService
      * @throws InputException
      * @throws FailureToSendException
      */
-    public function prepareGuestQuote(CartInterface $quote, string $email = null): CartInterface
+    public function prepareGuestQuote(CartInterface $quote, ?string $email = null): CartInterface
     {
         // Retrieve the user email
         $guestEmail = ($email) ? $email : $this->findEmail($quote);
@@ -361,7 +361,7 @@ class QuoteHandlerService
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function getQuoteCurrency(CartInterface $quote = null): string
+    public function getQuoteCurrency(?CartInterface $quote = null): string
     {
         $quote = ($quote) ? $quote : $this->getQuote();
         $quoteCurrencyCode = $quote->getQuoteCurrencyCode();

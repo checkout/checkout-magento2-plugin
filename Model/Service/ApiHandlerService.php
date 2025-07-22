@@ -170,8 +170,8 @@ class ApiHandlerService
     public function init(
         $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE,
-        string $secretKey = null,
-        string $publicKey = null
+        ?string $secretKey = null,
+        ?string $publicKey = null
     ): ApiHandlerService {
         $region = $this->config->getValue('region', null, $storeCode, $scope);
 
@@ -199,7 +199,7 @@ class ApiHandlerService
             ->environment($environment);
 
         // Do not set subdomain when global region is used
-        if ($region !== ConfigRegion::REGION_GLOBAL) { 
+        if ($region !== ConfigRegion::REGION_GLOBAL) {
             $sdkBuilder->environmentSubdomain($region);
         }
 

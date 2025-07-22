@@ -209,8 +209,8 @@ class GooglePayMethod extends AbstractMethod
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
         Json $json,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -516,7 +516,7 @@ class GooglePayMethod extends AbstractMethod
                 $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
                 $response = $api->refundOrder($payment, $amount);
             }
-            
+
             if (!$api->isValidResponse($response)) {
                 throw new LocalizedException(
                     __('The refund request could not be processed.')
@@ -538,7 +538,7 @@ class GooglePayMethod extends AbstractMethod
      * @return bool
      * @throws LocalizedException
      */
-    public function isAvailable(CartInterface $quote = null): bool
+    public function isAvailable(?CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code) && !$this->backendAuthSession->isLoggedIn();

@@ -104,7 +104,7 @@ class Utilities
      * @return OrderInterface
      * @throws LocalizedException
      */
-    public function setPaymentData(OrderInterface $order, array $data, array $source = null): OrderInterface
+    public function setPaymentData(OrderInterface $order, array $data, ?array $source = null): OrderInterface
     {
         // Get the payment info instance
         $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();

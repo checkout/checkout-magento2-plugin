@@ -210,8 +210,8 @@ class PaypalMethod extends AbstractMethod
         DataObjectFactory $dataObjectFactory,
         Json $json,
         PaymentContextRequestService $contextService,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -481,7 +481,7 @@ class PaypalMethod extends AbstractMethod
      *
      * @throws LocalizedException
      */
-    public function isAvailable(CartInterface $quote = null): bool
+    public function isAvailable(?CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code) && !$this->backendAuthSession->isLoggedIn();

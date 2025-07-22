@@ -115,7 +115,7 @@ class Config
      *
      * @return bool
      */
-    public function isValidAuth(string $type, string $header = null): bool
+    public function isValidAuth(string $type, ?string $header = null): bool
     {
         // Get the authorization header
         if ($header) {
@@ -167,7 +167,7 @@ class Config
      */
     public function getValue(
         string $field,
-        string $methodId = null,
+        ?string $methodId = null,
         $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
     ) {
@@ -277,7 +277,7 @@ class Config
      *
      * @return string[]
      */
-    public function getAccountKeys(string $methodId = null): array
+    public function getAccountKeys(?string $methodId = null): array
     {
         // Get the account keys for a method
         if ($methodId) {

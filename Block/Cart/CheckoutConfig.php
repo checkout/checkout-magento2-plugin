@@ -49,8 +49,8 @@ class CheckoutConfig extends Onepage
         ConfigProvider $checkoutComConfigProvider,
         array $layoutProcessors = [],
         array $data = [],
-        Json $serializer = null,
-        SerializerInterface $serializerInterface = null
+        ?Json $serializer = null,
+        ?SerializerInterface $serializerInterface = null
     ) {
         parent::__construct(
             $context,

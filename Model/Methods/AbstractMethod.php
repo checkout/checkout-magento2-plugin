@@ -282,8 +282,8 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         Logger $logger,
         DirectoryHelper $directory,
         DataObjectFactory $dataObjectFactory,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -875,7 +875,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @return bool
      * @throws LocalizedException
      */
-    public function isAvailable(CartInterface $quote = null): bool
+    public function isAvailable(?CartInterface $quote = null): bool
     {
         if (!$this->isActive($quote ? $quote->getStoreId() : null)) {
             return false;
@@ -997,7 +997,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @return string
      * @throws NoSuchEntityException
      */
-    public function getSuccessUrl(array $data, bool $isApiOrder = null): string
+    public function getSuccessUrl(array $data, ?bool $isApiOrder = null): string
     {
         if (isset($data['successUrl']) && !$isApiOrder) {
             return $data['successUrl'];
@@ -1014,7 +1014,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      *
      * @return string
      */
-    public function getFailureUrl(array $data, bool $isApiOrder = null): string
+    public function getFailureUrl(array $data, ?bool $isApiOrder = null): string
     {
         if (isset($data['failureUrl']) && !$isApiOrder) {
             return $data['failureUrl'];

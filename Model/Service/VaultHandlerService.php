@@ -169,7 +169,7 @@ class VaultHandlerService
      *
      * @return VaultHandlerService
      */
-    public function setCustomerEmail(string $email = null): VaultHandlerService
+    public function setCustomerEmail(?string $email = null): VaultHandlerService
     {
         $this->customerEmail = ($email) ?: $this->customerSession->getCustomer()->getEmail();
 

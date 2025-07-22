@@ -375,8 +375,8 @@ class AlternativePaymentMethod extends AbstractMethod
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
         Json $json,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -1082,7 +1082,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function isAvailable(CartInterface $quote = null): bool
+    public function isAvailable(?CartInterface $quote = null): bool
     {
         $countEnabled = 0;
         $websiteId = $this->storeManager->getWebsite()->getId();

@@ -218,8 +218,8 @@ class VaultMethod extends AbstractMethod
         LoggerHelper $ckoLogger,
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -273,10 +273,10 @@ class VaultMethod extends AbstractMethod
         float $amount,
         string $currency,
         string $reference = '',
-        CartInterface $quote = null,
-        bool $isApiOrder = null,
+        ?CartInterface $quote = null,
+        ?bool $isApiOrder = null,
         $customerId = null,
-        bool $isInstantPurchase = null
+        ?bool $isInstantPurchase = null
     ) {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();
@@ -577,7 +577,7 @@ class VaultMethod extends AbstractMethod
                 $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
                 $response = $api->refundOrder($payment, $amount);
             }
-            
+
             if (!$api->isValidResponse($response)) {
                 throw new LocalizedException(
                     __('The refund request could not be processed.')
@@ -598,7 +598,7 @@ class VaultMethod extends AbstractMethod
      *
      * @return bool
      */
-    public function isAvailable(CartInterface $quote = null): bool
+    public function isAvailable(?CartInterface $quote = null): bool
     {
         return $this->isModuleActive() && $this->config->getValue(
             'active',

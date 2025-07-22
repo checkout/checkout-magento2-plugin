@@ -302,7 +302,7 @@ class TransactionHandlerService
      *
      * @return TransactionInterface[]
      */
-    public function getTransactions($orderId, string $transactionId = null): array
+    public function getTransactions($orderId, ?string $transactionId = null): array
     {
         $searchCriteria = $this->searchCriteriaBuilder->addFilter('order_id', $orderId)->create();
 
@@ -333,7 +333,7 @@ class TransactionHandlerService
      *
      * @return false|TransactionInterface
      */
-    public function hasTransaction(OrderInterface $order, string $transactionId = null)
+    public function hasTransaction(OrderInterface $order, ?string $transactionId = null)
     {
         $transaction = $this->getTransactions(
             $order->getId(),
@@ -492,7 +492,7 @@ class TransactionHandlerService
      *
      * @return TransactionInterface[]|false
      */
-    public function getTransactionByType(string $transactionType, OrderInterface $order = null)
+    public function getTransactionByType(string $transactionType, ?OrderInterface $order = null)
     {
         if ($order) {
             $this->order = $order;
@@ -566,7 +566,7 @@ class TransactionHandlerService
      *
      * @return float|int|mixed
      */
-    public function amountFromGateway(float $amount, OrderInterface $order = null)
+    public function amountFromGateway(float $amount, ?OrderInterface $order = null)
     {
         // Get the quote currency
         $currency = $order ? $order->getOrderCurrencyCode() : $this->order->getOrderCurrencyCode();
@@ -813,7 +813,7 @@ class TransactionHandlerService
      *
      * @return bool
      */
-    public function isPartialRefund(float $amount, bool $isRefund, OrderInterface $order = null, bool $processed = false): bool
+    public function isPartialRefund(float $amount, bool $isRefund, ?OrderInterface $order = null, bool $processed = false): bool
     {
         if ($order) {
             $this->order = $order;

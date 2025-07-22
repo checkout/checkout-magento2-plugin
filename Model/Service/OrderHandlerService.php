@@ -190,7 +190,7 @@ class OrderHandlerService
      * @return AbstractExtensibleModel|OrderInterface|mixed|object|null
      * @throws LocalizedException
      */
-    public function handleOrder(Quote $quote = null, bool $external = false): Order
+    public function handleOrder(?Quote $quote = null, bool $external = false): Order
     {
         if ($this->methodId) {
             // Prepare the quote

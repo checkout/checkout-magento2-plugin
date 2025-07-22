@@ -71,8 +71,8 @@ class ShippingAddress extends CustomerAddressEdit
         UrlInterface $url,
         RequestInterface $request,
         array $data = [],
-        AddressMetadataInterface $addressMetadata = null,
-        Address $addressHelper = null
+        ?AddressMetadataInterface $addressMetadata = null,
+        ?Address $addressHelper = null
     ) {
         parent::__construct(
             $context,

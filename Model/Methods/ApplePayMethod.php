@@ -204,8 +204,8 @@ class ApplePayMethod extends AbstractMethod
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
         Json $json,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -252,8 +252,8 @@ class ApplePayMethod extends AbstractMethod
         float $amount,
         string $currency,
         string $reference = '',
-        CartInterface $quote = null,
-        bool $isApiOrder = null,
+        ?CartInterface $quote = null,
+        ?bool $isApiOrder = null,
         $customerId = null
     ): array {
         // Get the store code
@@ -520,7 +520,7 @@ class ApplePayMethod extends AbstractMethod
                 $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
                 $response = $api->refundOrder($payment, $amount);
             }
-            
+
             if (!$api->isValidResponse($response)) {
                 throw new LocalizedException(
                     __('The refund request could not be processed.')
@@ -542,7 +542,7 @@ class ApplePayMethod extends AbstractMethod
      * @return bool
      * @throws LocalizedException
      */
-    public function isAvailable(CartInterface $quote = null): bool
+    public function isAvailable(?CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->_code) && $this->config->getValue(
