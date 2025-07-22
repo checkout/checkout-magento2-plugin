@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Logger;
 
-use CheckoutCom\Magento2\Logger\Handler\InfoHandler;
 use CheckoutCom\Magento2\Logger\Handler\InfoHandlerFactory;
 use CheckoutCom\Magento2\Logger\Handler\LoggerFactory;
 use Magento\Framework\App\Filesystem\DirectoryList;
@@ -22,33 +21,12 @@ class ResponseHandler
     private const FILE_NAME = 'checkoutcom_magento2_gateway_{{date}}';
     private const DATE_FORMAT = 'Ymd-H:i:s';
 
-    /**
-     * @var TimezoneInterface $timezone
-     */
-    private $timezone;
-    /**
-     * @var InfoHandlerFactory $infoHandlerFactory
-     */
-    private $infoHandlerFactory;
-    /**
-     * @var LoggerFactory $loggerFactory
-     */
-    private $loggerFactory;
-    /**
-     * @var DirectoryList $directoryList
-     */
-    private $directoryList;
-
     public function __construct(
-        TimezoneInterface $timezone,
-        InfoHandlerFactory $infoHandlerFactory,
-        LoggerFactory $loggerFactory,
-        DirectoryList $directoryList
+        private TimezoneInterface $timezone,
+        private InfoHandlerFactory $infoHandlerFactory,
+        private LoggerFactory $loggerFactory,
+        private DirectoryList $directoryList
     ) {
-        $this->timezone = $timezone;
-        $this->infoHandlerFactory = $infoHandlerFactory;
-        $this->loggerFactory = $loggerFactory;
-        $this->directoryList = $directoryList;
     }
 
     public function log(string $message): void
@@ -74,7 +52,8 @@ class ResponseHandler
 
     private function getFilePath(): string
     {
-        return DIRECTORY_SEPARATOR . $this->directoryList->getDefaultConfig()[DirectoryList::LOG]['path'] . DIRECTORY_SEPARATOR . $this->getFilename() . self::FILE_EXTENSION;
+        return DIRECTORY_SEPARATOR . $this->directoryList->getDefaultConfig()[DirectoryList::LOG]['path'] . DIRECTORY_SEPARATOR . $this->getFilename(
+            ) . self::FILE_EXTENSION;
     }
 
     private function getFilename(): string

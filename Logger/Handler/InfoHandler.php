@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Logger\Handler;
 
 use Magento\Framework\Logger\Handler\Base as BaseHandler;
-use Monolog\Logger as MonologLogger;
+use Monolog\Level as MonologLevel;
 
 /**
  * @author    Agence Dn'D <contact@dnd.fr>
@@ -15,6 +15,12 @@ use Monolog\Logger as MonologLogger;
  */
 class InfoHandler extends BaseHandler
 {
+    /**
+     * @var string
+     */
     protected $fileName = '/var/log/checkoutcom_magento2_gateway.log';
-    protected $loggerType = MonologLogger::INFO;
+    /**
+     * @var int
+     */
+    protected $loggerType = MonologLevel::Info;
 }
