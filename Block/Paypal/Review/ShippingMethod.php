@@ -28,26 +28,20 @@ use Magento\Framework\View\Element\Template\Context as TemplateContext;
 use Magento\Quote\Model\Quote\Address as QuoteAddresss;
 use Magento\Quote\Model\Quote\Address\Rate as QuoteRate;
 
+/**
+ * Class ShippingMethod
+ */
 class ShippingMethod extends Template
 {
-    protected Session $checkoutSession;
-    protected UrlInterface $url;
-    protected RequestInterface $request;
-    protected PriceCurrencyInterface $priceCurrency;
-
     public function __construct(
+        protected Session $checkoutSession,
+        protected RequestInterface $request,
+        protected UrlInterface $url,
+        protected PriceCurrencyInterface $priceCurrency,
         TemplateContext $context,
-        Session $checkoutSession,
-        RequestInterface $request,
-        UrlInterface $url,
-        PriceCurrencyInterface $priceCurrency,
         array $data = []
     ) {
         parent::__construct($context, $data);
-        $this->checkoutSession = $checkoutSession;
-        $this->url = $url;
-        $this->request = $request;
-        $this->priceCurrency = $priceCurrency;
     }
 
     public function getRates(): array

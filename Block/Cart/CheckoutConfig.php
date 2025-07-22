@@ -33,20 +33,18 @@ use Magento\Framework\Serialize\Serializer\JsonHexTag;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\View\Element\Template\Context;
 
+/**
+ * Class CheckoutConfig
+ */
 class CheckoutConfig extends Onepage
 {
-    private Cart $cart;
-    private ConfigProvider $checkoutComConfigProvider;
-    private SerializerInterface $serializer;
-    private Config $checkoutComConfig;
-
     public function __construct(
-        Cart $cart,
+        private Cart $cart,
+        private Config $checkoutComConfig,
+        private ConfigProvider $checkoutComConfigProvider,
         Context $context,
         FormKey $formKey,
         CompositeConfigProvider $configProvider,
-        Config $checkoutComConfig,
-        ConfigProvider $checkoutComConfigProvider,
         array $layoutProcessors = [],
         array $data = [],
         ?Json $serializer = null,
@@ -61,9 +59,6 @@ class CheckoutConfig extends Onepage
             $serializer,
             $serializerInterface
         );
-        $this->cart = $cart;
-        $this->checkoutComConfigProvider = $checkoutComConfigProvider;
-        $this->checkoutComConfig = $checkoutComConfig;
         $this->serializer = $serializerInterface ?: ObjectManager::getInstance()
             ->get(JsonHexTag::class);
     }
@@ -92,6 +87,6 @@ class CheckoutConfig extends Onepage
     public function isPaypalOrApplePayEnabled(): bool
     {
         return $this->checkoutComConfig->getValue('active', 'checkoutcom_apple_pay')
-            || $this->checkoutComConfig->getValue('active', 'checkoutcom_paypal');
+               || $this->checkoutComConfig->getValue('active', 'checkoutcom_paypal');
     }
 }

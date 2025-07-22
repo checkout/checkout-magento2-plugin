@@ -45,15 +45,17 @@ use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Quote\Model\Quote\Address as QuoteAddress;
 
+/**
+ * Class ShippingAddress
+ */
 class ShippingAddress extends CustomerAddressEdit
 {
-    protected CheckoutSession $checkoutSession;
-    protected AddressConfig $addressConfig;
-    protected CustomerInterfaceFactory $customerInterfaceFactory;
-    protected UrlInterface $url;
-    protected RequestInterface $request;
-
     public function __construct(
+        protected CheckoutSession $checkoutSession,
+        protected AddressConfig $addressConfig,
+        protected CustomerInterfaceFactory $customerInterfaceFactory,
+        protected UrlInterface $url,
+        protected RequestInterface $request,
         Context $context,
         Data $directoryHelper,
         EncoderInterface $jsonEncoder,
@@ -65,11 +67,6 @@ class ShippingAddress extends CustomerAddressEdit
         AddressInterfaceFactory $addressDataFactory,
         CurrentCustomer $currentCustomer,
         DataObjectHelper $dataObjectHelper,
-        CheckoutSession $checkoutSession,
-        AddressConfig $addressConfig,
-        CustomerInterfaceFactory $customerInterfaceFactory,
-        UrlInterface $url,
-        RequestInterface $request,
         array $data = [],
         ?AddressMetadataInterface $addressMetadata = null,
         ?Address $addressHelper = null
@@ -90,23 +87,7 @@ class ShippingAddress extends CustomerAddressEdit
             $addressMetadata,
             $addressHelper
         );
-
-        $this->addressConfig = $addressConfig;
-        $this->checkoutSession = $checkoutSession;
-        $this->customerInterfaceFactory = $customerInterfaceFactory;
-        $this->url = $url;
-        $this->request = $request;
-
         $this->_address = $this->checkoutSession->getQuote()->getShippingAddress();
-    }
-
-    /**
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    public function getAddress(): ?QuoteAddress
-    {
-        return $this->checkoutSession->getQuote()->getShippingAddress();
     }
 
     public function getCustomer(): CustomerInterface
@@ -144,7 +125,21 @@ class ShippingAddress extends CustomerAddressEdit
         return (string)$this->getAddress()->getRegion();
     }
 
-    public function getRegionId()
+    /**
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function getAddress(): ?QuoteAddress
+    {
+        return $this->checkoutSession->getQuote()->getShippingAddress();
+    }
+
+    /**
+     * Return the id of the region being edited.
+     *
+     * @return int region id
+     */
+    public function getRegionId(): int
     {
         return $this->getAddress()->getRegionId() ?? 0;
     }
@@ -157,7 +152,7 @@ class ShippingAddress extends CustomerAddressEdit
     public function getSaveUrl(): string
     {
         return $this->url->getUrl('checkoutcom/paypal/saveExpressShippingAddress', [
-            Review::PAYMENT_CONTEXT_ID_PARAMETER => $this->request->getParam(Review::PAYMENT_CONTEXT_ID_PARAMETER)
+            Review::PAYMENT_CONTEXT_ID_PARAMETER => $this->request->getParam(Review::PAYMENT_CONTEXT_ID_PARAMETER),
         ]);
     }
 }

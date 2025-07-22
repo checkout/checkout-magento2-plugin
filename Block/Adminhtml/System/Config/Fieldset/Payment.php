@@ -30,39 +30,14 @@ use Magento\Framework\View\Helper\Js;
  */
 class Payment extends Fieldset
 {
-    /**
-     * $_backendConfig field
-     *
-     * @var Config $_backendConfig
-     */
-    private $_backendConfig;
-    /**
-     * $versionHandler field
-     *
-     * @var VersionHandlerService $versionHandler
-     */
-    private $versionHandler;
-
-    /**
-     * Payment constructor
-     *
-     * @param Context               $context
-     * @param Session               $authSession
-     * @param Js                    $jsHelper
-     * @param Config                $backendConfig
-     * @param VersionHandlerService $versionHandler
-     * @param array                 $data
-     */
     public function __construct(
+        private Config $backendConfig,
+        private VersionHandlerService $versionHandler,
         Context $context,
         Session $authSession,
         Js $jsHelper,
-        Config $backendConfig,
-        VersionHandlerService $versionHandler,
         array $data = []
     ) {
-        $this->_backendConfig = $backendConfig;
-        $this->versionHandler = $versionHandler;
         parent::__construct($context, $authSession, $jsHelper, $data);
     }
 
@@ -90,7 +65,7 @@ class Payment extends Fieldset
     public function _isPaymentEnabled(AbstractElement $element): bool
     {
         $groupConfig   = $element->getGroup();
-        $activityPaths = isset($groupConfig['activity_path']) ? $groupConfig['activity_path'] : [];
+        $activityPaths = $groupConfig['activity_path'] ?? [];
 
         if (!is_array($activityPaths)) {
             $activityPaths = [$activityPaths];
@@ -98,7 +73,7 @@ class Payment extends Fieldset
 
         $isPaymentEnabled = false;
         foreach ($activityPaths as $activityPath) {
-            $isPaymentEnabled = $isPaymentEnabled || (bool)(string)$this->_backendConfig->getConfigDataValue(
+            $isPaymentEnabled = $isPaymentEnabled || (bool)(string)$this->backendConfig->getConfigDataValue(
                     $activityPath
                 );
         }

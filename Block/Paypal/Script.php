@@ -23,20 +23,18 @@ use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context as TemplateContext;
 
+/**
+ * Class Script
+ */
 class Script extends Template
 {
-    private PaypalMethod $paypalMethod;
-    private Config $checkoutConfig;
-
     public function __construct(
+        private PaypalMethod $paypalMethod,
+        private Config $checkoutConfig,
         TemplateContext $context,
-        PaypalMethod $paypalMethod,
-        Config $checkoutConfig,
         array $data = []
     ) {
         parent::__construct($context, $data);
-        $this->paypalMethod = $paypalMethod;
-        $this->checkoutConfig = $checkoutConfig;
     }
 
     public function getPaypalMerchantId(): string

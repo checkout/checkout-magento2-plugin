@@ -28,45 +28,13 @@ use Magento\Framework\View\Element\Template\Context;
  */
 class Form extends Template
 {
-    /**
-     * $cardHandler field
-     *
-     * @var CardHandlerService $cardHandler
-     */
-    public $cardHandler;
-    /**
-     * $vaultHandler field
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    public $vaultHandler;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    public $config;
-
-    /**
-     * Form constructor
-     *
-     * @param Context             $context
-     * @param CardHandlerService  $cardHandler
-     * @param VaultHandlerService $vaultHandler
-     * @param Config              $config
-     * @param array               $data
-     */
     public function __construct(
+        public CardHandlerService $cardHandler,
+        public VaultHandlerService $vaultHandler,
+        public Config $config,
         Context $context,
-        CardHandlerService $cardHandler,
-        VaultHandlerService $vaultHandler,
-        Config $config,
         array $data = []
     ) {
         parent::__construct($context, $data);
-
-        $this->cardHandler  = $cardHandler;
-        $this->vaultHandler = $vaultHandler;
-        $this->config       = $config;
     }
 }

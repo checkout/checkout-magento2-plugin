@@ -27,26 +27,11 @@ use Magento\Framework\View\Element\Template\Context;
  */
 class AddCard extends Template
 {
-    /**
-     * Config field
-     *
-     * @var Config $config
-     */
-    private $config;
-
-    /**
-     * AddCard constructor
-     *
-     * @param Context $context
-     * @param Config  $config
-     * @param array   $data
-     */
     public function __construct(
+        private Config $config,
         Context $context,
-        Config $config,
         array $data = []
     ) {
-        $this->config = $config;
         parent::__construct($context, $data);
     }
 

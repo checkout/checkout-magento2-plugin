@@ -39,39 +39,16 @@ abstract class AbstractCallbackUrl extends Field
 {
     /**
      * TEMPLATE constant
-     *
-     * @var string TEMPLATE
      */
-    const TEMPLATE = 'system/config/webhook_admin.phtml';
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $scopeConfig field
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    private $scopeConfig;
+    const string TEMPLATE = 'system/config/webhook_admin.phtml';
 
-    /**
-     * @param ApiHandlerService $apiHandler
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Context $context
-     * @param array $data
-     */
     public function __construct(
-        ApiHandlerService $apiHandler,
-        ScopeConfigInterface $scopeConfig,
+        private ApiHandlerService $apiHandler,
+        private ScopeConfigInterface $scopeConfig,
         Context $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
-
-        $this->apiHandler = $apiHandler;
-        $this->scopeConfig = $scopeConfig;
     }
 
     /**

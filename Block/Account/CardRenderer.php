@@ -29,30 +29,13 @@ use Magento\Vault\Block\AbstractCardRenderer;
  */
 class CardRenderer extends AbstractCardRenderer
 {
-    /**
-     * $cardHandler field
-     *
-     * @var CardHandlerService $cardHandler
-     */
-    protected $cardHandler;
-
-    /**
-     * CardRenderer constructor
-     *
-     * @param Context            $context
-     * @param CcConfigProvider   $iconsProvider
-     * @param CardHandlerService $cardHandler
-     * @param array              $data
-     */
     public function __construct(
+        protected CardHandlerService $cardHandler,
         Context $context,
         CcConfigProvider $iconsProvider,
-        CardHandlerService $cardHandler,
         array $data
     ) {
         parent::__construct($context, $iconsProvider, $data);
-
-        $this->cardHandler = $cardHandler;
     }
 
     /**
@@ -98,16 +81,6 @@ class CardRenderer extends AbstractCardRenderer
     }
 
     /**
-     * Returns the credit card type.
-     *
-     * @return string
-     */
-    public function getCardType(): string
-    {
-        return $this->getTokenDetails()['type'];
-    }
-
-    /**
      * Returns the url to the CC icon.
      *
      * @return string
@@ -115,6 +88,16 @@ class CardRenderer extends AbstractCardRenderer
     public function getIconUrl(): string
     {
         return $this->getIconForType($this->getCardType())['url'];
+    }
+
+    /**
+     * Returns the credit card type.
+     *
+     * @return string
+     */
+    public function getCardType(): string
+    {
+        return $this->getTokenDetails()['type'];
     }
 
     /**
