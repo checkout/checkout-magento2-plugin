@@ -28,15 +28,9 @@ use Magento\Sales\Api\Data\OrderInterface;
  */
 class Utilities
 {
-    /**
-     * @var Json
-     */
-    protected $json;
-
     public function __construct(
-        Json $json
+        protected Json $json
     ) {
-        $this->json = $json;
     }
 
     /**
@@ -58,7 +52,7 @@ class Utilities
      *
      * @return float
      */
-    public function formatDecimals($amount): float
+    public function formatDecimals(float | int $amount): float
     {
         return round($amount * 100) / 100;
     }

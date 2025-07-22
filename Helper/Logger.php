@@ -28,46 +28,12 @@ use Psr\Log\LoggerInterface;
  */
 class Logger
 {
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
-    private $messageManager;
-    /**
-     * $scopeConfig field
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    private $scopeConfig;
-    /**
-     * $logger field
-     *
-     * @var LoggerInterface $logger
-     */
-    private $logger;
-    /**
-     * @var ResponseHandler $responseLogger
-     */
-    private $responseLogger;
-
-    /**
-     * Logger constructor
-     *
-     * @param ManagerInterface $messageManager
-     * @param ScopeConfigInterface $scopeConfig
-     * @param LoggerInterface $logger
-     */
     public function __construct(
-        ManagerInterface $messageManager,
-        ScopeConfigInterface $scopeConfig,
-        LoggerInterface $logger,
-        ResponseHandler $responseLogger
+        private ManagerInterface $messageManager,
+        private ScopeConfigInterface $scopeConfig,
+        private LoggerInterface $logger,
+        private ResponseHandler $responseLogger
     ) {
-        $this->messageManager = $messageManager;
-        $this->scopeConfig = $scopeConfig;
-        $this->logger = $logger;
-        $this->responseLogger = $responseLogger;
     }
 
     /**
@@ -77,7 +43,7 @@ class Logger
      *
      * @return void
      */
-    public function write($msg): void
+    public function write(mixed $msg): void
     {
         // Get the debug config value
         $debug = $this->scopeConfig->getValue(
@@ -105,7 +71,7 @@ class Logger
      *
      * @return void
      */
-    public function display($response): void
+    public function display(mixed $response): void
     {
         // Get the debug config value
         $debug = $this->scopeConfig->getValue(
@@ -129,6 +95,7 @@ class Logger
      * Write additional debug logging
      *
      * @param mixed $msg The message
+     * @param $type
      *
      * @return void
      */
