@@ -26,25 +26,19 @@ interface PaymentResponseInterface
     /**
      * Constants for keys of data array.
      */
-    const SUCCESS = 'success';
+    public const string SUCCESS = 'success';
     /**
      * ORDER_ID constant
-     *
-     * @var string ORDER_ID
      */
-    const ORDER_ID = 'order_id';
+    public const string ORDER_ID = 'order_id';
     /**
      * REDIRECT_URL constant
-     *
-     * @var string REDIRECT_URL
      */
-    const REDIRECT_URL = 'redirect_url';
+    public const string REDIRECT_URL = 'redirect_url';
     /**
      * ERROR_MESSAGE constant
-     *
-     * @var string ERROR_MESSAGE
      */
-    const ERROR_MESSAGE = 'error_message';
+    public const string ERROR_MESSAGE = 'error_message';
 
     /**
      * Get the success status
@@ -72,41 +66,41 @@ interface PaymentResponseInterface
      *
      * @return string|array
      */
-    public function getErrorMessage();
+    public function getErrorMessage(): array | string;
 
     /**
      * Set the success status
      *
      * @param bool $success
      *
-     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
+     * @return PaymentResponseInterface
      */
-    public function setSuccess(bool $success): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
+    public function setSuccess(bool $success): PaymentResponseInterface;
 
     /**
      * Set the order id
      *
      * @param int $orderId
      *
-     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
+     * @return PaymentResponseInterface
      */
-    public function setOrderId(int $orderId): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
+    public function setOrderId(int $orderId): PaymentResponseInterface;
 
     /**
      * Set the redirect url
      *
      * @param string $redirectUrl
      *
-     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
+     * @return PaymentResponseInterface
      */
-    public function setRedirectUrl(string $redirectUrl): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
+    public function setRedirectUrl(string $redirectUrl): PaymentResponseInterface;
 
     /**
      * Set the error message
      *
-     * @param string|array $errorMessage
+     * @param array|string $errorMessage
      *
-     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
+     * @return PaymentResponseInterface
      */
-    public function setErrorMessage($errorMessage): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
+    public function setErrorMessage(array | string $errorMessage): PaymentResponseInterface;
 }

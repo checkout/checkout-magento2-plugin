@@ -28,52 +28,36 @@ interface WebhookEntityInterface
      */
     /**
      * ID constant
-     *
-     * @var string ID
      */
-    const ID = 'id';
+    public const string ID = 'id';
     /**
      * EVENT_ID constant
-     *
-     * @var string EVENT_ID
      */
-    const EVENT_ID = 'event_id';
+    public const string EVENT_ID = 'event_id';
     /**
      * EVENT_TYPE constant
-     *
-     * @var string EVENT_TYPE
      */
-    const EVENT_TYPE = 'event_type';
+    public const string EVENT_TYPE = 'event_type';
     /**
      * EVENT_DATA constant
-     *
-     * @var string EVENT_DATA
      */
-    const EVENT_DATA = 'event_data';
+    public const string EVENT_DATA = 'event_data';
     /**
      * ORDER_ID constant
-     *
-     * @var string ORDER_ID
      */
-    const ORDER_ID = 'order_id';
+    public const string ORDER_ID = 'order_id';
     /**
      * RECEIVED_AT constant
-     *
-     * @var string RECEIVED_AT
      */
-    const RECEIVED_AT = 'received_at';
+    public const string RECEIVED_AT = 'received_at';
     /**
      * PROCESSED_AT constant
-     *
-     * @var string PROCESSED_AT
      */
-    const PROCESSED_AT = 'processed_at';
+    public const string PROCESSED_AT = 'processed_at';
     /**
      * PROCESSED constant
-     *
-     * @var string PROCESSED
      */
-    const PROCESSED = 'processed';
+    public const string PROCESSED = 'processed';
 
     /**
      * Get the row id
@@ -115,66 +99,66 @@ interface WebhookEntityInterface
      *
      * @param $rowId
      *
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     * @return WebhookEntityInterface
      */
-    public function setId($rowId): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
+    public function setId($rowId): WebhookEntityInterface;
 
     /**
      * Set the event id
      *
      * @param string $eventId
      *
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     * @return WebhookEntityInterface
      */
-    public function setEventId(string $eventId): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
+    public function setEventId(string $eventId): WebhookEntityInterface;
 
     /**
      * Set the event type
      *
      * @param string $eventType
      *
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     * @return WebhookEntityInterface
      */
-    public function setEventType(string $eventType): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
+    public function setEventType(string $eventType): WebhookEntityInterface;
 
     /**
      * Set the event data
      *
      * @param string $eventData
      *
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     * @return WebhookEntityInterface
      */
-    public function setEventData(string $eventData): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
+    public function setEventData(string $eventData): WebhookEntityInterface;
 
     /**
      * Set the order id
      *
      * @param int $orderId
      *
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     * @return WebhookEntityInterface
      */
-    public function setOrderId(int $orderId): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
+    public function setOrderId(int $orderId): WebhookEntityInterface;
 
     /**
      * Set datetime webhook is received
      *
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     * @return WebhookEntityInterface
      */
-    public function setReceivedTime(): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
+    public function setReceivedTime(): WebhookEntityInterface;
 
     /**
      * Set datetime webhook is processed
      *
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     * @return WebhookEntityInterface
      */
-    public function setProcessedTime(): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
+    public function setProcessedTime(): WebhookEntityInterface;
 
     /**
      * Set if a webhook has been processed
      *
      * @param bool $processed
      *
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     * @return WebhookEntityInterface
      */
-    public function setProcessed(bool $processed): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
+    public function setProcessed(bool $processed): WebhookEntityInterface;
 }

@@ -18,6 +18,10 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Api;
 
+use CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
+use CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+
 /**
  * Interface for API v3
  */
@@ -26,22 +30,22 @@ interface V3Interface
     /**
      * Set payment information and place order for a specified cart.
      *
-     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
-     * @param \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
-     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
+     * @param CustomerInterface $customer
+     * @param PaymentRequestInterface $paymentRequest
+     * @return PaymentResponseInterface
      */
     public function executeApiV3(
-        \Magento\Customer\Api\Data\CustomerInterface $customer,
-        \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
-    ): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
+        CustomerInterface $customer,
+        PaymentRequestInterface $paymentRequest
+    ): PaymentResponseInterface;
 
     /**
      * Set payment information and place order for a guest quote.
      *
-     * @param \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
-     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
+     * @param PaymentRequestInterface $paymentRequest
+     * @return PaymentResponseInterface
      */
     public function executeGuestApiV3(
-        \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
-    ): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
+        PaymentRequestInterface $paymentRequest
+    ): PaymentResponseInterface;
 }

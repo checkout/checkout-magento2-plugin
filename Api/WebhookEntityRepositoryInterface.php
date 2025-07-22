@@ -27,18 +27,18 @@ interface WebhookEntityRepositoryInterface
     /**
      * Save Webhook entity
      *
-     * @param \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface $webhookEntity
+     * @param WebhookEntityInterface $webhookEntity
      *
-     * @return \CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface
+     * @return WebhookEntityRepositoryInterface
      */
-    public function save(\CheckoutCom\Magento2\Api\Data\WebhookEntityInterface $webhookEntity): WebhookEntityRepositoryInterface;
+    public function save(WebhookEntityInterface $webhookEntity): WebhookEntityRepositoryInterface;
 
     /**
      * Get webhook by id
      *
      * @param int $entityId
      *
-     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
+     * @return WebhookEntityInterface
      */
     public function getById(int $entityId): WebhookEntityInterface;
 
@@ -54,9 +54,9 @@ interface WebhookEntityRepositoryInterface
     /**
      * Delete Webhook entity
      *
-     * @param \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface $webhookEntity
+     * @param WebhookEntityInterface $webhookEntity
      *
-     * @return \CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface
+     * @return WebhookEntityRepositoryInterface
      */
-    public function delete(\CheckoutCom\Magento2\Api\Data\WebhookEntityInterface $webhookEntity): \CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface;
+    public function delete(WebhookEntityInterface $webhookEntity): WebhookEntityRepositoryInterface;
 }
