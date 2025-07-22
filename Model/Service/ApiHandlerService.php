@@ -63,97 +63,19 @@ class ApiHandlerService
      * @var mixed
      */
     protected $checkoutApi;
-    /**
-     * @var Json
-     */
-    protected $json;
-    /**
-     * @var ScopeConfigInterface
-     */
-    protected $scopeConfig;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $productMeta field
-     *
-     * @var ProductMetadataInterface $productMeta
-     */
-    private $productMeta;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $versionHandler field
-     *
-     * @var VersionHandlerService $versionHandler
-     */
-    private $versionHandler;
 
-    /**
-     * ApiHandlerService constructor
-     *
-     * @param StoreManagerInterface $storeManager
-     * @param ProductMetadataInterface $productMeta
-     * @param Config $config
-     * @param Utilities $utilities
-     * @param Logger $logger
-     * @param OrderHandlerService $orderHandler
-     * @param QuoteHandlerService $quoteHandler
-     * @param VersionHandlerService $versionHandler
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Json $json
-     */
     public function __construct(
-        StoreManagerInterface $storeManager,
-        ProductMetadataInterface $productMeta,
-        Config $config,
-        Utilities $utilities,
-        Logger $logger,
-        OrderHandlerService $orderHandler,
-        QuoteHandlerService $quoteHandler,
-        VersionHandlerService $versionHandler,
-        ScopeConfigInterface $scopeConfig,
-        Json $json
+        private StoreManagerInterface $storeManager,
+        private ProductMetadataInterface $productMeta,
+        private Config $config,
+        private Utilities $utilities,
+        private Logger $logger,
+        private OrderHandlerService $orderHandler,
+        private QuoteHandlerService $quoteHandler,
+        private VersionHandlerService $versionHandler,
+        protected ScopeConfigInterface $scopeConfig,
+        protected Json $json
     ) {
-        $this->storeManager = $storeManager;
-        $this->productMeta = $productMeta;
-        $this->config = $config;
-        $this->utilities = $utilities;
-        $this->logger = $logger;
-        $this->orderHandler = $orderHandler;
-        $this->quoteHandler = $quoteHandler;
-        $this->versionHandler = $versionHandler;
-        $this->scopeConfig = $scopeConfig;
-        $this->json = $json;
     }
 
     /**

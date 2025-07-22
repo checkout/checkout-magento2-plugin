@@ -14,19 +14,19 @@ class ConfigService implements OptionSourceInterface
     /**
      * ABC service name
      */
-    public const SERVICE_ABC = 'ABC';
+    public const string SERVICE_ABC = 'ABC';
     /**
      * NAS service name
      */
-    public const SERVICE_NAS = 'NAS';
+    public const string SERVICE_NAS = 'NAS';
     /**
      * Service config path
      */
-    public const SERVICE_CONFIG_PATH = 'settings/checkoutcom_configuration/service';
+    public const string SERVICE_CONFIG_PATH = 'settings/checkoutcom_configuration/service';
     /**
      * Bearer key
      */
-    public const BEARER_KEY = 'Bearer ';
+    public const string BEARER_KEY = 'Bearer ';
 
     /**
      * Service config

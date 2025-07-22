@@ -61,138 +61,57 @@ class KlarnaMethod extends AbstractMethod
 {
     /**
      * CODE constant
-     *
-     * @var string CODE
      */
-    const CODE = 'checkoutcom_klarna';
+    const string CODE = 'checkoutcom_klarna';
     /**
-     * $_code field
-     *
-     * @var string $_code
+     * $code field
      */
-    protected $_code = self::CODE;
+    protected string $code = self::CODE;
     /**
-     * $_canAuthorize field
-     *
-     * @var bool $_canAuthorize
+     * $canAuthorize field
      */
-    protected $_canAuthorize = true;
+    protected bool $canAuthorize = true;
     /**
-     * $_canCapture field
-     *
-     * @var bool $_canCapture
+     * $canCapture field
      */
-    protected $_canCapture = true;
+    protected bool $canCapture = true;
     /**
-     * $_canCapturePartial field
-     *
-     * @var bool $_canCapturePartial
+     * $canCapturePartial field
      */
-    protected $_canCapturePartial = true;
+    protected bool $canCapturePartial = true;
     /**
-     * $_canVoid field
-     *
-     * @var bool $_canVoid
+     * $canVoid field
      */
-    protected $_canVoid = true;
+    protected bool $canVoid = true;
     /**
-     * $_canUseInternal field
-     *
-     * @var bool $_canUseInternal
+     * $canUseInternal field
      */
-    protected $_canUseInternal = false;
+    protected bool $canUseInternal = false;
     /**
-     * $_canUseCheckout field
-     *
-     * @var bool $_canUseCheckout
+     * $canUseCheckout field
      */
-    protected $_canUseCheckout = true;
+    protected bool $canUseCheckout = true;
     /**
-     * $_canRefund field
-     *
-     * @var bool $_canRefund
+     * $canRefund field
      */
-    protected $_canRefund = true;
+    protected bool $canRefund = true;
     /**
-     * $_canRefundInvoicePartial field
-     *
-     * @var bool $_canRefundInvoicePartial
+     * $canRefundInvoicePartial field
      */
-    protected $_canRefundInvoicePartial = true;
-    /**
-     * @var Json
-     */
-    private $json;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $ckoLogger field
-     *
-     * @var Logger $ckoLogger
-     */
-    private $ckoLogger;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $backendAuthSession field
-     *
-     * @var Session $backendAuthSession
-     */
-    private $backendAuthSession;
+    protected bool $canRefundInvoicePartial = true;
 
-    private PaymentContextRequestService $contextService;
-
-    /**
-     * GooglePayMethod constructor
-     *
-     * @param Context $context
-     * @param Registry $registry
-     * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory $customAttributeFactory
-     * @param Data $paymentData
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Logger $logger
-     * @param Config $config
-     * @param ApiHandlerService $apiHandler
-     * @param Utilities $utilities
-     * @param StoreManagerInterface $storeManager
-     * @param QuoteHandlerService $quoteHandler
-     * @param LoggerHelper $ckoLogger
-     * @param Session $backendAuthSession
-     * @param DirectoryHelper $directoryHelper
-     * @param DataObjectFactory $dataObjectFactory
-     * @param Json $json
-     * @param AbstractResource|null $resource
-     * @param AbstractDb|null $resourceCollection
-     * @param array $data
-     */
     public function __construct(
+        private Config $config,
+        private ApiHandlerService $apiHandler,
+        private Utilities $utilities,
+        private StoreManagerInterface $storeManager,
+        private QuoteHandlerService $quoteHandler,
+        private LoggerHelper $ckoLogger,
+        private Session $backendAuthSession,
+        protected DirectoryHelper $directoryHelper,
+        protected DataObjectFactory $dataObjectFactory,
+        private Json $json,
+        protected PaymentContextRequestService $contextService,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -200,46 +119,25 @@ class KlarnaMethod extends AbstractMethod
         Data $paymentData,
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
-        Config $config,
-        ApiHandlerService $apiHandler,
-        Utilities $utilities,
-        StoreManagerInterface $storeManager,
-        QuoteHandlerService $quoteHandler,
-        LoggerHelper $ckoLogger,
-        Session $backendAuthSession,
-        DirectoryHelper $directoryHelper,
-        DataObjectFactory $dataObjectFactory,
-        Json $json,
-        PaymentContextRequestService $contextService,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
             $config,
+            $directoryHelper,
+            $scopeConfig,
+            $logger,
             $context,
             $registry,
             $extensionFactory,
             $customAttributeFactory,
             $paymentData,
-            $scopeConfig,
-            $logger,
-            $directoryHelper,
             $dataObjectFactory,
             $resource,
             $resourceCollection,
             $data
         );
-
-        $this->config = $config;
-        $this->apiHandler = $apiHandler;
-        $this->utilities = $utilities;
-        $this->storeManager = $storeManager;
-        $this->quoteHandler = $quoteHandler;
-        $this->ckoLogger = $ckoLogger;
-        $this->backendAuthSession = $backendAuthSession;
-        $this->json = $json;
-        $this->contextService = $contextService;
     }
 
     /**
@@ -277,7 +175,7 @@ class KlarnaMethod extends AbstractMethod
         $request->customer = $api->createCustomer($quote);
         $request->payment_type = PaymentType::$regular;
         $request->shipping = $api->createShippingAddress($quote);
-        $request->metadata['methodId'] = $this->_code;
+        $request->metadata['methodId'] = $this->code;
         $request->metadata['quoteData'] = $this->json->serialize($this->quoteHandler->getQuoteRequestData($quote));
         $request->metadata = array_merge(
             $request->metadata,
@@ -483,7 +381,7 @@ class KlarnaMethod extends AbstractMethod
     public function isAvailable(?CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code) && !$this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->code) && !$this->backendAuthSession->isLoggedIn();
         }
 
         return false;

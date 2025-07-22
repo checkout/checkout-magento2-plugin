@@ -28,11 +28,11 @@ use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 class Collection extends AbstractCollection
 {
     /**
-     * $_idFieldName field
+     * $idFieldName field
      *
-     * @var string $_idFieldName
+     * @var string $idFieldName
      */
-    protected $_idFieldName = 'id';
+    protected string $idFieldName = 'id';
 
     /**
      * Define the resource model

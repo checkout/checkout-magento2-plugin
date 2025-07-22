@@ -24,9 +24,8 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Entity\WebhookEntity;
 use CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory;
-use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity\Collection;
+use DateTime;
 use Exception;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -37,98 +36,22 @@ use Magento\Sales\Api\Data\OrderInterface;
  */
 class WebhookHandlerService
 {
-    public const WEBHOOK_PAYMENT_TYPES = ['payment_approved', 'payment_capture_pending', 'payment_captured'];
+    /**
+     * WEBHOOK_PAYMENT_TYPES constant
+     */
+    public const array WEBHOOK_PAYMENT_TYPES = ['payment_approved', 'payment_capture_pending', 'payment_captured'];
 
-    /**
-     * @var Json
-     */
-    private $json;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $orderStatusHandler field
-     *
-     * @var OrderStatusHandlerService $orderStatusHandler
-     */
-    private $orderStatusHandler;
-    /**
-     * $transactionHandler field
-     *
-     * @var TransactionHandlerService $transactionHandler
-     */
-    private $transactionHandler;
-    /**
-     * $webhookEntityFactory field
-     *
-     * @var WebhookEntityFactory $webhookEntityFactory
-     */
-    private $webhookEntityFactory;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $collection field
-     *
-     * @var Collection $collection
-     */
-    private $collection;
-    /**
-     * $webhookEntityRepository field
-     *
-     * @var WebhookEntityRepositoryInterface $webhookEntityRepository
-     */
-    private $webhookEntityRepository;
-
-    /**
-     * @var ResourceConnection $resourceConnection
-     */
-    private $resourceConnection;
-
-    /**
-     * WebhookHandlerService constructor
-     *
-     * @param OrderHandlerService $orderHandler
-     * @param OrderStatusHandlerService $orderStatusHandler
-     * @param TransactionHandlerService $transactionHandler
-     * @param WebhookEntityFactory $webhookEntityFactory
-     * @param Config $config
-     * @param Logger $logger
-     * @param WebhookEntityRepositoryInterface $webhookEntityRepository
-     * @param Json $json
-     */
     public function __construct(
-        OrderHandlerService $orderHandler,
-        OrderStatusHandlerService $orderStatusHandler,
-        TransactionHandlerService $transactionHandler,
-        WebhookEntityFactory $webhookEntityFactory,
-        Config $config,
-        Logger $logger,
-        WebhookEntityRepositoryInterface $webhookEntityRepository,
-        Json $json,
-        ResourceConnection $resourceConnection
+        private OrderHandlerService $orderHandler,
+        private OrderStatusHandlerService $orderStatusHandler,
+        private TransactionHandlerService $transactionHandler,
+        private WebhookEntityFactory $webhookEntityFactory,
+        private Config $config,
+        private Logger $logger,
+        private WebhookEntityRepositoryInterface $webhookEntityRepository,
+        private Json $json,
+        private ResourceConnection $resourceConnection
     ) {
-        $this->orderHandler = $orderHandler;
-        $this->orderStatusHandler = $orderStatusHandler;
-        $this->transactionHandler = $transactionHandler;
-        $this->webhookEntityFactory = $webhookEntityFactory;
-        $this->config = $config;
-        $this->logger = $logger;
-        $this->webhookEntityRepository = $webhookEntityRepository;
-        $this->json = $json;
-        $this->resourceConnection = $resourceConnection;
     }
 
     /**
@@ -167,83 +90,27 @@ class WebhookHandlerService
     }
 
     /**
-     * Process all webhooks for an order
-     *
-     * @param OrderInterface $order
-     *
-     * @return void
-     * @throws Exception
+     * @throws LocalizedException
      */
-    public function processAllWebhooks(OrderInterface $order): void
+    public function checkAuth(OrderInterface $order, array $payload): void
     {
-        // Get the webhook entities
         $webhooks = $this->loadWebhookEntities([
             'order_id' => $order->getId(),
         ]);
 
-        $this->webhooksToProcess(
-            $order,
-            $webhooks
-        );
+        if ($payload['type'] !== 'payment_captured') {
+            return;
+        }
 
-        $this->setProcessedTime($webhooks);
-    }
-
-    /**
-     * Description processWithSave function
-     *
-     * @param OrderInterface $order
-     * @param array $payload
-     *
-     * @return void
-     * @throws LocalizedException
-     * @throws Exception
-     */
-    public function processWithSave(OrderInterface $order, array $payload): void
-    {
-        $this->saveWebhookEntity($payload, $order);
-
-        $webhook = $this->loadWebhookEntities([
-            'order_id' => $order->getId(),
-            'action_id' => $payload['data']['action_id'],
-        ]);
-
-        $this->webhooksToProcess(
-            $order,
-            $webhook
-        );
-
-        $this->setProcessedTime($webhook);
-    }
-
-    /**
-     * Generate transactions and set order status from webhooks
-     *
-     * @param OrderInterface $order
-     * @param array[] $webhooks
-     *
-     * @return void
-     * @throws Exception
-     */
-    public function webhooksToProcess(OrderInterface $order, array $webhooks = []): void
-    {
-        if (!empty($webhooks)) {
-            foreach ($webhooks as $webhook) {
-                if (!$webhook['processed']) {
-                    $this->orderStatusHandler->setOrderStatus(
-                        $order,
-                        $webhook
-                    );
-
-                    $this->transactionHandler->handleTransaction(
-                        $order,
-                        $webhook
-                    );
+        foreach ($webhooks as $webhook) {
+            if ($webhook['event_type'] === 'payment_approved' || $webhook['event_type'] === 'payment_capture_pending') {
+                if ($webhook['processed']) {
+                    return;
                 }
-
-                $this->logger->additional($this->orderHandler->getOrderDetails($order), 'webhook');
             }
         }
+
+        throw new LocalizedException(__('Captured event sent before approved event for order %1', $order->getEntityId()));
     }
 
     /**
@@ -299,6 +166,33 @@ class WebhookHandlerService
     }
 
     /**
+     * Description processWithSave function
+     *
+     * @param OrderInterface $order
+     * @param array $payload
+     *
+     * @return void
+     * @throws LocalizedException
+     * @throws Exception
+     */
+    public function processWithSave(OrderInterface $order, array $payload): void
+    {
+        $this->saveWebhookEntity($payload, $order);
+
+        $webhook = $this->loadWebhookEntities([
+            'order_id' => $order->getId(),
+            'action_id' => $payload['data']['action_id'],
+        ]);
+
+        $this->webhooksToProcess(
+            $order,
+            $webhook
+        );
+
+        $this->setProcessedTime($webhook);
+    }
+
+    /**
      * Save the incoming webhook
      *
      * @param array $payload
@@ -332,6 +226,36 @@ class WebhookHandlerService
     }
 
     /**
+     * Generate transactions and set order status from webhooks
+     *
+     * @param OrderInterface $order
+     * @param array[] $webhooks
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function webhooksToProcess(OrderInterface $order, array $webhooks = []): void
+    {
+        if (!empty($webhooks)) {
+            foreach ($webhooks as $webhook) {
+                if (!$webhook['processed']) {
+                    $this->orderStatusHandler->setOrderStatus(
+                        $order,
+                        $webhook
+                    );
+
+                    $this->transactionHandler->handleTransaction(
+                        $order,
+                        $webhook
+                    );
+                }
+
+                $this->logger->additional($this->orderHandler->getOrderDetails($order), 'webhook');
+            }
+        }
+    }
+
+    /**
      * Description setProcessedTime function
      *
      * @param array[] $webhooks
@@ -354,27 +278,26 @@ class WebhookHandlerService
     }
 
     /**
-     * @throws LocalizedException
+     * Process all webhooks for an order
+     *
+     * @param OrderInterface $order
+     *
+     * @return void
+     * @throws Exception
      */
-    public function checkAuth(OrderInterface $order, array $payload): void
+    public function processAllWebhooks(OrderInterface $order): void
     {
+        // Get the webhook entities
         $webhooks = $this->loadWebhookEntities([
             'order_id' => $order->getId(),
         ]);
 
-        if ($payload['type'] !== 'payment_captured') {
-            return;
-        }
+        $this->webhooksToProcess(
+            $order,
+            $webhooks
+        );
 
-        foreach ($webhooks as $webhook) {
-            if ($webhook['event_type'] === 'payment_approved' || $webhook['event_type'] === 'payment_capture_pending') {
-                if ($webhook['processed']) {
-                    return;
-                }
-            }
-        }
-
-        throw new LocalizedException(__('Captured event sent before approved event for order %1', $order->getEntityId()));
+        $this->setProcessedTime($webhooks);
     }
 
     /**
@@ -386,7 +309,7 @@ class WebhookHandlerService
     {
         try {
             //Keep one hour to avoid duplicata
-            $limitDate = (new \DateTime())->modify($dayIntervalFlag ? '-1 day' : '-1 hour')->format('Y-m-d H:i:s');
+            $limitDate = (new DateTime())->modify($dayIntervalFlag ? '-1 day' : '-1 hour')->format('Y-m-d H:i:s');
         } catch (Exception $exception) {
             $this->logger->write($exception->getMessage());
 
@@ -396,6 +319,13 @@ class WebhookHandlerService
         $this->cleanPayment($limitDate);
 
         $this->cleanNonPayment($dayIntervalFlag, $limitDate);
+    }
+
+    protected function cleanPayment(string $limitDate): void
+    {
+        $orderIdsToClean = $this->getOrderIdsToClean($limitDate);
+
+        $this->deleteWebhooksByField(['order_id' => ['in' => $orderIdsToClean], 'processed' => '1']);
     }
 
     protected function getOrderIdsToClean(string $limitDate): array
@@ -413,11 +343,14 @@ class WebhookHandlerService
         return array_column($eventsToDelete, 'order_id');
     }
 
-    protected function cleanPayment(string $limitDate): void
+    protected function deleteWebhooksByField(array $fields): void
     {
-        $orderIdsToClean = $this->getOrderIdsToClean($limitDate);
+        $webhooks = $this->loadWebhookEntities($fields, true);
 
-        $this->deleteWebhooksByField(['order_id' => ['in' => $orderIdsToClean], 'processed' => '1']);
+        /** @var WebhookEntity $webhook */
+        foreach ($webhooks as $webhook) {
+            $this->webhookEntityRepository->delete($webhook);
+        }
     }
 
     protected function cleanNonPayment(bool $checkDate, string $limitDate): void
@@ -432,16 +365,6 @@ class WebhookHandlerService
         }
 
         $this->deleteWebhooksByField($fields);
-    }
-
-    protected function deleteWebhooksByField(array $fields): void
-    {
-        $webhooks = $this->loadWebhookEntities($fields, true);
-
-        /** @var WebhookEntity $webhook */
-        foreach ($webhooks as $webhook) {
-            $this->webhookEntityRepository->delete($webhook);
-        }
     }
 }
 

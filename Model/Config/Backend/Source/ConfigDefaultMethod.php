@@ -27,22 +27,9 @@ use Magento\Framework\Data\OptionSourceInterface;
  */
 class ConfigDefaultMethod implements OptionSourceInterface
 {
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-
-    /**
-     * ConfigDefaultMethod constructor
-     *
-     * @param Config $config
-     */
     public function __construct(
-        Config $config
+        private Config $config
     ) {
-        $this->config = $config;
     }
 
     /**
@@ -55,7 +42,7 @@ class ConfigDefaultMethod implements OptionSourceInterface
         // Prepare the default array
         $options = [
             'value' => '',
-            'label' => __('None')
+            'label' => __('None'),
         ];
 
         // Get the available payment methods
@@ -65,7 +52,7 @@ class ConfigDefaultMethod implements OptionSourceInterface
         foreach ($methods as $id => $data) {
             $options[] = [
                 'value' => $id,
-                'label' => __($data['title'])
+                'label' => __($data['title']),
             ];
         }
 

@@ -32,47 +32,18 @@ use Magento\Sales\Model\Service\InvoiceService;
  */
 class InvoiceHandlerService
 {
-    /**
-     * $invoiceService field
-     *
-     * @var InvoiceService $invoiceService
-     */
-    private $invoiceService;
-    /**
-     * $invoiceRepository field
-     *
-     * @var InvoiceRepositoryInterface $invoiceRepository
-     */
-    private $invoiceRepository;
-    /**
-     * $invoiceModel field
-     *
-     * @var Invoice $invoiceModel
-     */
-    private $invoiceModel;
-
-    /**
-     * InvoiceHandlerService constructor
-     *
-     * @param InvoiceService             $invoiceService
-     * @param InvoiceRepositoryInterface $invoiceRepository
-     * @param Invoice                    $invoiceModel
-     */
     public function __construct(
-        InvoiceService $invoiceService,
-        InvoiceRepositoryInterface $invoiceRepository,
-        Invoice $invoiceModel
+        private InvoiceService $invoiceService,
+        private InvoiceRepositoryInterface $invoiceRepository,
+        private Invoice $invoiceModel
     ) {
-        $this->invoiceService    = $invoiceService;
-        $this->invoiceRepository = $invoiceRepository;
-        $this->invoiceModel      = $invoiceModel;
     }
 
     /**
      * Create an invoice
      *
      * @param TransactionInterface $transaction
-     * @param float                $amount
+     * @param float $amount
      *
      * @return void
      * @throws LocalizedException
@@ -116,7 +87,7 @@ class InvoiceHandlerService
     /**
      * Set the invoice state
      *
-     * @param InvoiceInterface     $invoice
+     * @param InvoiceInterface $invoice
      * @param TransactionInterface $transaction
      *
      * @return InvoiceInterface

@@ -19,9 +19,9 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Model\Entity;
 
 use CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
+use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity as WebhookEntityResourceModel;
 use Magento\Framework\DataObject\IdentityInterface;
 use Magento\Framework\Model\AbstractModel;
-use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity as WebhookEntityResourceModel;
 
 /**
  * Class WebhookEntity
@@ -30,10 +30,9 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
 {
     /**
      * Page cache tag
-     *
-     * @var string CACHE_TAG
      */
-    const CACHE_TAG = 'webhook_entity';
+    const string CACHE_TAG = 'webhook_entity';
+
     /**
      * Initialize resource model
      *

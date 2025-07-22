@@ -38,115 +38,16 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class CustomerData implements SectionSourceInterface
 {
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $instantPurchase field
-     *
-     * @var InstantPurchaseInterface $instantPurchase
-     */
-    private $instantPurchase;
-    /**
-     * $customerSession field
-     *
-     * @var Session $customerSession
-     */
-    private $customerSession;
-    /**
-     * $customerAddressesFormatter field
-     *
-     * @var CustomerAddressesFormatter $customerAddressesFormatter
-     */
-    private $customerAddressesFormatter;
-    /**
-     * $shippingMethodFormatter field
-     *
-     * @var ShippingMethodFormatter $shippingMethodFormatter
-     */
-    private $shippingMethodFormatter;
-    /**
-     * $vaultHandler field
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    private $vaultHandler;
-    /**
-     * $availabilityChecker field
-     *
-     * @var AvailabilityChecker $availabilityChecker
-     */
-    private $availabilityChecker;
-    /**
-     * $paymentTokenFormatter field
-     *
-     * @var PaymentTokenFormatter $paymentTokenFormatter
-     */
-    private $paymentTokenFormatter;
-    /**
-     * $paymentToken field
-     *
-     * @var array|mixed $paymentToken
-     */
-    private $paymentToken;
-    /**
-     * $instantPurchaseOption field
-     *
-     * @var InstantPurchaseOption $instantPurchaseOption
-     */
-    private $instantPurchaseOption;
-    /**
-     * $shippingAddress field
-     *
-     * @var Address $shippingAddress
-     */
-    private $shippingAddress;
-    /**
-     * $billingAddress field
-     *
-     * @var Address $billingAddress
-     */
-    private $billingAddress;
-    /**
-     * $shippingMethod field
-     *
-     * @var ShippingMethodInterface $shippingMethod
-     */
-    private $shippingMethod;
-
-    /**
-     * CustomerData constructor
-     *
-     * @param StoreManagerInterface      $storeManager
-     * @param InstantPurchaseInterface   $instantPurchase
-     * @param Session                    $customerSession
-     * @param TokenFormatter             $paymentTokenFormatter
-     * @param CustomerAddressesFormatter $customerAddressesFormatter
-     * @param ShippingMethodFormatter    $shippingMethodFormatter
-     * @param VaultHandlerService        $vaultHandler
-     * @param AvailabilityChecker        $availabilityChecker
-     */
     public function __construct(
-        StoreManagerInterface $storeManager,
-        InstantPurchaseInterface $instantPurchase,
-        Session $customerSession,
-        TokenFormatter $paymentTokenFormatter,
-        CustomerAddressesFormatter $customerAddressesFormatter,
-        ShippingMethodFormatter $shippingMethodFormatter,
-        VaultHandlerService $vaultHandler,
-        AvailabilityChecker $availabilityChecker
+        private StoreManagerInterface $storeManager,
+        private InstantPurchaseInterface $instantPurchase,
+        private Session $customerSession,
+        private TokenFormatter $paymentTokenFormatter,
+        private CustomerAddressesFormatter $customerAddressesFormatter,
+        private ShippingMethodFormatter $shippingMethodFormatter,
+        private VaultHandlerService $vaultHandler,
+        private AvailabilityChecker $availabilityChecker
     ) {
-        $this->storeManager               = $storeManager;
-        $this->instantPurchase            = $instantPurchase;
-        $this->customerSession            = $customerSession;
-        $this->customerAddressesFormatter = $customerAddressesFormatter;
-        $this->shippingMethodFormatter    = $shippingMethodFormatter;
-        $this->vaultHandler               = $vaultHandler;
-        $this->availabilityChecker        = $availabilityChecker;
-        $this->paymentTokenFormatter      = $paymentTokenFormatter;
     }
 
     /**

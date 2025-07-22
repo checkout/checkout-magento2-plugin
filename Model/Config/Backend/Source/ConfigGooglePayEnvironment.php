@@ -28,16 +28,12 @@ class ConfigGooglePayEnvironment implements OptionSourceInterface
 {
     /**
      * ENVIRONMENT_TEST constant
-     *
-     * @var string ENVIRONMENT_TEST
      */
-    const ENVIRONMENT_TEST = 'TEST';
+    const string ENVIRONMENT_TEST = 'TEST';
     /**
      * ENVIRONMENT_PRODUCTION constant
-     *
-     * @var string ENVIRONMENT_PRODUCTION
      */
-    const ENVIRONMENT_PRODUCTION = 'PRODUCTION';
+    const string ENVIRONMENT_PRODUCTION = 'PRODUCTION';
 
     /**
      * Possible environment types

@@ -62,153 +62,66 @@ class CardPaymentMethod extends AbstractMethod
 {
     /**
      * CODE constant
-     *
-     * @var string CODE
      */
-    const CODE = 'checkoutcom_card_payment';
-
-    const PREFERRED_SCHEMES = ['VISA','MASTERCARD','CARTES_BANCAIRES'];
+    const string CODE = 'checkoutcom_card_payment';
 
     /**
-     * $_code field
-     *
-     * @var string $_code
+     * PREFERRED_SCHEMES constant
      */
-    protected $_code = self::CODE;
-    /**
-     * $_canAuthorize field
-     *
-     * @var bool $_canAuthorize
-     */
-    protected $_canAuthorize = true;
-    /**
-     * $_canCapture field
-     *
-     * @var bool $_canCapture
-     */
-    protected $_canCapture = true;
-    /**
-     * $_canCapturePartial field
-     *
-     * @var bool $_canCapturePartial
-     */
-    protected $_canCapturePartial = true;
-    /**
-     * $_canVoid field
-     *
-     * @var bool $_canVoid
-     */
-    protected $_canVoid = true;
-    /**
-     * $_canUseInternal field
-     *
-     * @var bool $_canUseInternal
-     */
-    protected $_canUseInternal = false;
-    /**
-     * $_canUseCheckout field
-     *
-     * @var bool $_canUseCheckout
-     */
-    protected $_canUseCheckout = true;
-    /**
-     * $_canRefund field
-     *
-     * @var bool $_canRefund
-     */
-    protected $_canRefund = true;
-    /**
-     * $_canRefundInvoicePartial field
-     *
-     * @var bool $_canRefundInvoicePartial
-     */
-    protected $_canRefundInvoicePartial = true;
-    /**
-     * @var Json
-     */
-    protected $json;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $cardHandler field
-     *
-     * @var CardHandlerService $cardHandler
-     */
-    private $cardHandler;
-    /**
-     * $ckoLogger field
-     *
-     * @var Logger $ckoLogger
-     */
-    private $ckoLogger;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $customerSession field
-     *
-     * @var Session $customerSession
-     */
-    private $customerSession;
-    /**
-     * $backendAuthSession field
-     *
-     * @var Session $backendAuthSession
-     */
-    private $backendAuthSession;
+    const array PREFERRED_SCHEMES = ['VISA', 'MASTERCARD', 'CARTES_BANCAIRES'];
 
     /**
-     * CardPaymentMethod constructor
+     * $code field
      *
-     * @param Context $context
-     * @param Registry $registry
-     * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory $customAttributeFactory
-     * @param Data $paymentData
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Logger $logger
-     * @param Session $backendAuthSession
-     * @param CustomerModelSession $customerSession
-     * @param Config $config
-     * @param ApiHandlerService $apiHandler
-     * @param Utilities $utilities
-     * @param StoreManagerInterface $storeManager
-     * @param QuoteHandlerService $quoteHandler
-     * @param CardHandlerService $cardHandler
-     * @param LoggerHelper $ckoLogger
-     * @param DirectoryHelper $directoryHelper
-     * @param DataObjectFactory $dataObjectFactory
-     * @param Json $json
-     * @param AbstractResource|null $resource
-     * @param AbstractDb|null $resourceCollection
-     * @param array $data
+     * @var string $code
      */
+    protected string $code = self::CODE;
+    /**
+     * $canAuthorize field
+     *
+     * @var bool $canAuthorize
+     */
+    protected bool $canAuthorize = true;
+    /**
+     * $canCapture field
+     */
+    protected bool $canCapture = true;
+    /**
+     * $canCapturePartial field
+     */
+    protected bool $canCapturePartial = true;
+    /**
+     * $canVoid field
+     */
+    protected bool $canVoid = true;
+    /**
+     * $canUseInternal field
+     */
+    protected bool $canUseInternal = false;
+    /**
+     * $canUseCheckout field
+     */
+    protected bool $canUseCheckout = true;
+    /**
+     * $canRefund field
+     */
+    protected bool $canRefund = true;
+    /**
+     * $canRefundInvoicePartial field
+     */
+    protected bool $canRefundInvoicePartial = true;
+
     public function __construct(
+        private Session $backendAuthSession,
+        private CustomerModelSession $customerSession,
+        private Config $config,
+        private ApiHandlerService $apiHandler,
+        private Utilities $utilities,
+        private StoreManagerInterface $storeManager,
+        private QuoteHandlerService $quoteHandler,
+        private CardHandlerService $cardHandler,
+        private LoggerHelper $ckoLogger,
+        protected Json $json,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -216,48 +129,27 @@ class CardPaymentMethod extends AbstractMethod
         Data $paymentData,
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
-        Session $backendAuthSession,
-        CustomerModelSession $customerSession,
-        Config $config,
-        ApiHandlerService $apiHandler,
-        Utilities $utilities,
-        StoreManagerInterface $storeManager,
-        QuoteHandlerService $quoteHandler,
-        CardHandlerService $cardHandler,
-        LoggerHelper $ckoLogger,
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
-        Json $json,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
             $config,
+            $directoryHelper,
+            $scopeConfig,
+            $logger,
             $context,
             $registry,
             $extensionFactory,
             $customAttributeFactory,
             $paymentData,
-            $scopeConfig,
-            $logger,
-            $directoryHelper,
             $dataObjectFactory,
             $resource,
             $resourceCollection,
             $data
         );
-
-        $this->backendAuthSession = $backendAuthSession;
-        $this->customerSession = $customerSession;
-        $this->config = $config;
-        $this->apiHandler = $apiHandler;
-        $this->utilities = $utilities;
-        $this->storeManager = $storeManager;
-        $this->quoteHandler = $quoteHandler;
-        $this->cardHandler = $cardHandler;
-        $this->ckoLogger = $ckoLogger;
-        $this->json = $json;
     }
 
     /**
@@ -319,10 +211,10 @@ class CardPaymentMethod extends AbstractMethod
         $request->processing_channel_id = $this->config->getValue('channel_id');
 
         // Prepare the metadata array
-        $request->metadata['methodId'] = $this->_code;
+        $request->metadata['methodId'] = $this->code;
 
         // Prepare the capture setting
-        $madaEnabled = $this->config->getValue('mada_enabled', $this->_code);
+        $madaEnabled = $this->config->getValue('mada_enabled', $this->code);
 
         if (isset($data['cardBin']) && $this->cardHandler->isMadaBin($data['cardBin']) && $madaEnabled) {
             $request->metadata['udf1'] = 'MADA';
@@ -335,7 +227,7 @@ class CardPaymentMethod extends AbstractMethod
         }
 
         // Prepare the save card setting
-        $saveCardEnabled = $this->config->getValue('save_card_option', $this->_code);
+        $saveCardEnabled = $this->config->getValue('save_card_option', $this->code);
 
         // Set the request parameters
         $request->amount = $this->quoteHandler->amountToGateway(
@@ -347,8 +239,8 @@ class CardPaymentMethod extends AbstractMethod
         $request->failure_url = $this->getFailureUrl($data, $isApiOrder);
 
         $theeDsRequest = new ThreeDsRequest();
-        $theeDsRequest->enabled = $this->config->needs3ds($this->_code);
-        $theeDsRequest->attempt_n3d = (bool)$this->config->getValue('attempt_n3d', $this->_code);
+        $theeDsRequest->enabled = $this->config->needs3ds($this->code);
+        $theeDsRequest->attempt_n3d = (bool)$this->config->getValue('attempt_n3d', $this->code);
 
         $request->three_ds = $theeDsRequest;
         $request->description = __('Payment request from %1', $this->config->getStoreName())->render();
@@ -360,7 +252,7 @@ class CardPaymentMethod extends AbstractMethod
         }
 
         // Preferred scheme
-        if (isset($data['preferredScheme']) && in_array((string) strtoupper($data['preferredScheme']), self::PREFERRED_SCHEMES)) {
+        if (isset($data['preferredScheme']) && in_array((string)strtoupper($data['preferredScheme']), self::PREFERRED_SCHEMES)) {
             $request->processing = ['preferred_scheme' => strtolower($data['preferredScheme'])];
         }
 
@@ -619,7 +511,7 @@ class CardPaymentMethod extends AbstractMethod
     public function isAvailable(?CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code) && !$this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->code) && !$this->backendAuthSession->isLoggedIn();
         }
 
         return false;

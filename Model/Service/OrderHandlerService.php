@@ -45,126 +45,20 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class OrderHandlerService
 {
-    /**
-     * @var SortOrderBuilderFactory
-     */
-    private $sortOrderBuilderFactory;
-    /**
-     * $checkoutSession field
-     *
-     * @var Session $checkoutSession
-     */
-    private $checkoutSession;
-    /**
-     * $quoteManagement field
-     *
-     * @var QuoteManagement $quoteManagement
-     */
-    private $quoteManagement;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
-    /**
-     * $searchBuilder field
-     *
-     * @var SearchCriteriaBuilder $searchBuilder
-     */
-    private $searchBuilder;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $methodId field
-     *
-     * @var  $methodId
-     */
-    protected $methodId;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-    /**
-     * $transactionHandler field
-     *
-     * @var TransactionHandlerService $transactionHandler
-     */
-    private $transactionHandler;
-
-    /**
-     * $orderManagement field
-     *
-     * @var OrderManagementInterface $orderManagement
-     */
-    private $orderManagement;
-
-    /**
-     * $registry field
-     *
-     * @var Registry $registry
-     */
-    private $registry;
-
-    /**
-     * OrderHandlerService constructor
-     *
-     * @param Session $checkoutSession
-     * @param QuoteManagement $quoteManagement
-     * @param OrderRepositoryInterface $orderRepository
-     * @param SearchCriteriaBuilder $searchBuilder
-     * @param Config $config
-     * @param QuoteHandlerService $quoteHandler
-     * @param StoreManagerInterface $storeManager
-     * @param Logger $logger
-     * @param TransactionHandlerService $transactionHandler
-     * @param SortOrderBuilderFactory $sortOrderBuilderFactory
-     * @param OrderManagementInterface $orderManagement
-     */
     public function __construct(
-        Session $checkoutSession,
-        QuoteManagement $quoteManagement,
-        OrderRepositoryInterface $orderRepository,
-        SearchCriteriaBuilder $searchBuilder,
-        Config $config,
-        QuoteHandlerService $quoteHandler,
-        StoreManagerInterface $storeManager,
-        Logger $logger,
-        TransactionHandlerService $transactionHandler,
-        SortOrderBuilderFactory $sortOrderBuilderFactory,
-        OrderManagementInterface $orderManagement,
-        Registry $registry
+        private Session $checkoutSession,
+        private QuoteManagement $quoteManagement,
+        private OrderRepositoryInterface $orderRepository,
+        private SearchCriteriaBuilder $searchBuilder,
+        private Config $config,
+        private QuoteHandlerService $quoteHandler,
+        private StoreManagerInterface $storeManager,
+        private Logger $logger,
+        private TransactionHandlerService $transactionHandler,
+        private SortOrderBuilderFactory $sortOrderBuilderFactory,
+        private OrderManagementInterface $orderManagement,
+        private Registry $registry
     ) {
-        $this->checkoutSession = $checkoutSession;
-        $this->quoteManagement = $quoteManagement;
-        $this->orderRepository = $orderRepository;
-        $this->searchBuilder = $searchBuilder;
-        $this->config = $config;
-        $this->quoteHandler = $quoteHandler;
-        $this->storeManager = $storeManager;
-        $this->logger = $logger;
-        $this->transactionHandler = $transactionHandler;
-        $this->sortOrderBuilderFactory = $sortOrderBuilderFactory;
-        $this->orderManagement = $orderManagement;
-        $this->registry = $registry;
     }
 
     /**
@@ -269,11 +163,11 @@ class OrderHandlerService
      * @param float $amount
      * @param OrderInterface $order
      *
-     * @return float|int
+     * @return float
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function amountToGateway(float $amount, OrderInterface $order)
+    public function amountToGateway(float $amount, OrderInterface $order): float
     {
         // Get the order currency
         $currency = $this->getOrderCurrency($order);
@@ -373,7 +267,7 @@ class OrderHandlerService
      *
      * @return false|OrderStatusHistory
      */
-    public function getStatusHistoryByEntity(string $entity, OrderInterface $order)
+    public function getStatusHistoryByEntity(string $entity, OrderInterface $order): false | OrderStatusHistory
     {
         foreach ($order->getStatusHistoryCollection() as $status) {
             if ($status->getEntityName() === $entity) {

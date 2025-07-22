@@ -61,132 +61,64 @@ class ApplePayMethod extends AbstractMethod
 {
     /**
      * CODE constant
-     *
-     * @var string CODE
      */
-    const CODE = 'checkoutcom_apple_pay';
+    const string CODE = 'checkoutcom_apple_pay';
     /**
-     * $_code field
+     * $code field
      *
-     * @var string $_code
+     * @var string $code
      */
-    protected $_code = self::CODE;
+    protected string $code = self::CODE;
     /**
-     * $_canAuthorize field
+     * $canAuthorize field
      *
-     * @var bool $_canAuthorize
+     * @var bool $canAuthorize
      */
-    protected $_canAuthorize = true;
+    protected bool $canAuthorize = true;
     /**
-     * $_canCapture field
-     *
-     * @var bool $_canCapture
+     * $canCapture field
      */
-    protected $_canCapture = true;
+    protected bool $canCapture = true;
     /**
-     * $_canCapturePartial field
-     *
-     * @var bool $_canCapturePartial
+     * $canCapturePartial field
      */
-    protected $_canCapturePartial = true;
+    protected bool $canCapturePartial = true;
     /**
-     * $_canVoid field
-     *
-     * @var bool $_canVoid
+     * $canVoid field
      */
-    protected $_canVoid = true;
+    protected bool $canVoid = true;
     /**
-     * $_canUseInternal field
-     *
-     * @var bool $_canUseInternal
+     * $canUseInternal field
      */
-    protected $_canUseInternal = false;
+    protected bool $canUseInternal = false;
     /**
-     * $_canUseCheckout field
+     * $canUseCheckout field
      *
-     * @var bool $_canUseCheckout
+     * @var bool $canUseCheckout
      */
-    protected $_canUseCheckout = true;
+    protected bool $canUseCheckout = true;
     /**
-     * $_canRefund field
+     * $canRefund field
      *
-     * @var bool $_canRefund
+     * @var bool $canRefund
      */
-    protected $_canRefund = true;
+    protected bool $canRefund = true;
     /**
-     * $_canRefundInvoicePartial field
+     * $canRefundInvoicePartial field
      *
-     * @var bool $_canRefundInvoicePartial
+     * @var bool $canRefundInvoicePartial
      */
-    protected $_canRefundInvoicePartial = true;
-    protected Json $json;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $ckoLogger field
-     *
-     * @var Logger $ckoLogger
-     */
-    private $ckoLogger;
-    /**
-     * $backendAuthSession field
-     *
-     * @var Session $backendAuthSession
-     */
-    private $backendAuthSession;
+    protected bool $canRefundInvoicePartial = true;
 
-    /**
-     * ApplePayMethod constructor
-     *
-     * @param Context $context
-     * @param Registry $registry
-     * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory $customAttributeFactory
-     * @param Data $paymentData
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Logger $logger
-     * @param Session $backendAuthSession
-     * @param Config $config
-     * @param ApiHandlerService $apiHandler
-     * @param Utilities $utilities
-     * @param StoreManagerInterface $storeManager
-     * @param QuoteHandlerService $quoteHandler
-     * @param MagentoLoggerHelper $ckoLogger
-     * @param DirectoryHelper $directoryHelper
-     * @param DataObjectFactory $dataObjectFactory
-     * @param AbstractResource|null $resource
-     * @param AbstractDb|null $resourceCollection
-     * @param array $data
-     */
     public function __construct(
+        private Session $backendAuthSession,
+        private Config $config,
+        private ApiHandlerService $apiHandler,
+        private Utilities $utilities,
+        private StoreManagerInterface $storeManager,
+        private QuoteHandlerService $quoteHandler,
+        private MagentoLoggerHelper $ckoLogger,
+        private Json $json,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -194,44 +126,27 @@ class ApplePayMethod extends AbstractMethod
         Data $paymentData,
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
-        Session $backendAuthSession,
-        Config $config,
-        ApiHandlerService $apiHandler,
-        Utilities $utilities,
-        StoreManagerInterface $storeManager,
-        QuoteHandlerService $quoteHandler,
-        MagentoLoggerHelper $ckoLogger,
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
-        Json $json,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
             $config,
+            $directoryHelper,
+            $scopeConfig,
+            $logger,
             $context,
             $registry,
             $extensionFactory,
             $customAttributeFactory,
             $paymentData,
-            $scopeConfig,
-            $logger,
-            $directoryHelper,
             $dataObjectFactory,
             $resource,
             $resourceCollection,
             $data
         );
-
-        $this->backendAuthSession = $backendAuthSession;
-        $this->config = $config;
-        $this->apiHandler = $apiHandler;
-        $this->utilities = $utilities;
-        $this->storeManager = $storeManager;
-        $this->quoteHandler = $quoteHandler;
-        $this->ckoLogger = $ckoLogger;
-        $this->json = $json;
     }
 
     /**
@@ -307,7 +222,7 @@ class ApplePayMethod extends AbstractMethod
         $request->processing_channel_id = $this->config->getValue('channel_id');
 
         // Prepare the metadata array
-        $request->metadata['methodId'] = $this->_code;
+        $request->metadata['methodId'] = $this->code;
 
         // Prepare the metadata array
         $request->metadata = array_merge(
@@ -545,10 +460,10 @@ class ApplePayMethod extends AbstractMethod
     public function isAvailable(?CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code) && $this->config->getValue(
-                'enabled_on_checkout',
-                $this->_code
-            ) && !$this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->code) && $this->config->getValue(
+                    'enabled_on_checkout',
+                    $this->code
+                ) && !$this->backendAuthSession->isLoggedIn();
         }
 
         return false;

@@ -43,17 +43,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class PaymentContextRequestService
 {
-    protected StoreManagerInterface $storeManager;
-    protected ApiHandlerService $apiHandlerService;
-    protected Session $checkoutSession;
-    protected Config $checkoutConfigProvider;
-    protected UrlInterface $urlBuilder;
-    protected MagentoLoggerHelper $ckoLogger;
-    protected Utilities $utilities;
-    protected AddressInterfaceFactory $addressInterfaceFactory;
-    protected CartRepositoryInterface $cartRepository;
-    protected RegionCollectionFactory $regionCollectionFactory;
-    protected ShopperHandlerService $shopperHandlerService;
     /**
      * Should we set the shipping fils as an item line (if no it's used on "processing" request part)
      */
@@ -80,30 +69,19 @@ class PaymentContextRequestService
     protected ?string $authorizeType = null;
 
     public function __construct(
-        StoreManagerInterface $storeManager,
-        ApiHandlerService $apiHandler,
-        Session $checkoutSession,
-        Config $checkoutConfigProvider,
-        UrlInterface $urlBuilder,
-        ApiHandlerService $apiHandlerService,
-        MagentoLoggerHelper $ckoLogger,
-        Utilities $utilities,
-        AddressInterfaceFactory $addressInterfaceFactory,
-        RegionCollectionFactory $regionCollectionFactory,
-        CartRepositoryInterface $cartRepository,
-        ShopperHandlerService $shopperHandlerService
+        protected StoreManagerInterface $storeManager,
+        protected ApiHandlerService $apiHandler,
+        protected Session $checkoutSession,
+        protected Config $checkoutConfigProvider,
+        protected UrlInterface $urlBuilder,
+        protected ApiHandlerService $apiHandlerService,
+        protected MagentoLoggerHelper $ckoLogger,
+        protected Utilities $utilities,
+        protected AddressInterfaceFactory $addressInterfaceFactory,
+        protected RegionCollectionFactory $regionCollectionFactory,
+        protected CartRepositoryInterface $cartRepository,
+        protected ShopperHandlerService $shopperHandlerService
     ) {
-        $this->storeManager = $storeManager;
-        $this->apiHandlerService = $apiHandler;
-        $this->checkoutConfigProvider = $checkoutConfigProvider;
-        $this->checkoutSession = $checkoutSession;
-        $this->urlBuilder = $urlBuilder;
-        $this->ckoLogger = $ckoLogger;
-        $this->utilities = $utilities;
-        $this->addressInterfaceFactory = $addressInterfaceFactory;
-        $this->cartRepository = $cartRepository;
-        $this->regionCollectionFactory = $regionCollectionFactory;
-        $this->shopperHandlerService = $shopperHandlerService;
     }
 
     public function makePaymentContextRequests(

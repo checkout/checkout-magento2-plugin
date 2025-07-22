@@ -28,21 +28,13 @@ use Magento\Framework\Data\OptionSourceInterface;
 class ConfigAlternativePayments implements OptionSourceInterface
 {
     /**
-     * $configLoader field
-     *
-     * @var Loader $configLoader
-     */
-    private $configLoader;
-
-    /**
      * ConfigAlternativePayments constructor
      *
      * @param Loader $configLoader
      */
     public function __construct(
-        Loader $configLoader
+        private Loader $configLoader
     ) {
-        $this->configLoader = $configLoader;
     }
 
     /**

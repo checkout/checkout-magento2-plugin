@@ -23,9 +23,9 @@ use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
-use Checkout\Payments\Request\Source\RequestIdSource;
 use Checkout\Payments\Previous\Source\RequestIdSource as PreviousRequestIdSource;
 use Checkout\Payments\Request\PaymentRequest;
+use Checkout\Payments\Request\Source\RequestIdSource;
 use Checkout\Payments\ThreeDsRequest;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
@@ -64,141 +64,44 @@ class VaultMethod extends AbstractMethod
      *
      * @var string CODE
      */
-    const CODE = 'checkoutcom_vault';
+    const string CODE = 'checkoutcom_vault';
     /**
-     * $_code field
-     *
-     * @var string $_code
+     * $code field
      */
-    protected $_code = self::CODE;
+    protected string $code = self::CODE;
     /**
-     * $_canAuthorize field
-     *
-     * @var bool $_canAuthorize
+     * $canAuthorize field
      */
-    protected $_canAuthorize = true;
+    protected bool $canAuthorize = true;
     /**
-     * $_canCapture field
-     *
-     * @var bool $_canCapture
+     * $canCapture field
      */
-    protected $_canCapture = true;
+    protected bool $canCapture = true;
     /**
-     * $_canCapturePartial field
-     *
-     * @var bool $_canCapturePartial
+     * $canCapturePartial field
      */
-    protected $_canCapturePartial = true;
+    protected bool $canCapturePartial = true;
     /**
-     * $_canVoid field
-     *
-     * @var bool $_canVoid
+     * $canVoid field
      */
-    protected $_canVoid = true;
+    protected bool $canVoid = true;
     /**
-     * $_canUseInternal field
-     *
-     * @var bool $_canUseInternal
+     * $canUseInternal field
      */
-    protected $_canUseInternal = true;
+    protected bool $canUseInternal = true;
     /**
-     * $_canUseCheckout field
-     *
-     * @var bool $_canUseCheckout
+     * $canUseCheckout field
      */
-    protected $_canUseCheckout = true;
+    protected bool $canUseCheckout = true;
     /**
-     * $_canRefund field
-     *
-     * @var bool $_canRefund
+     * $canRefund field
      */
-    protected $_canRefund = true;
+    protected bool $canRefund = true;
     /**
-     * $_canRefundInvoicePartial field
-     *
-     * @var bool $_canRefundInvoicePartial
+     * $canRefundInvoicePartial field
      */
-    protected $_canRefundInvoicePartial = true;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $vaultHandler field
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    private $vaultHandler;
-    /**
-     * $cardHandler field
-     *
-     * @var CardHandlerService $cardHandler
-     */
-    private $cardHandler;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $ckoLogger field
-     *
-     * @var Logger $ckoLogger
-     */
-    private $ckoLogger;
-    /**
-     * $backendAuthSession field
-     *
-     * @var Session $backendAuthSession
-     */
-    private $backendAuthSession;
+    protected bool $canRefundInvoicePartial = true;
 
-    /**
-     * VaultMethod constructor
-     *
-     * @param Context $context
-     * @param Registry $registry
-     * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory $customAttributeFactory
-     * @param Data $paymentData
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Logger $logger
-     * @param Session $backendAuthSession
-     * @param Config $config
-     * @param ApiHandlerService $apiHandler
-     * @param Utilities $utilities
-     * @param StoreManagerInterface $storeManager
-     * @param VaultHandlerService $vaultHandler
-     * @param CardHandlerService $cardHandler
-     * @param QuoteHandlerService $quoteHandler
-     * @param LoggerHelper $ckoLogger
-     * @param DirectoryHelper $directoryHelper
-     * @param DataObjectFactory $dataObjectFactory
-     * @param AbstractResource|null $resource
-     * @param AbstractDb|null $resourceCollection
-     * @param array $data
-     */
     public function __construct(
         Context $context,
         Registry $registry,
@@ -207,46 +110,36 @@ class VaultMethod extends AbstractMethod
         Data $paymentData,
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
-        Session $backendAuthSession,
-        Config $config,
-        ApiHandlerService $apiHandler,
-        Utilities $utilities,
-        StoreManagerInterface $storeManager,
-        VaultHandlerService $vaultHandler,
-        CardHandlerService $cardHandler,
-        QuoteHandlerService $quoteHandler,
-        LoggerHelper $ckoLogger,
-        DirectoryHelper $directoryHelper,
-        DataObjectFactory $dataObjectFactory,
+        private Session $backendAuthSession,
+        private Config $config,
+        private ApiHandlerService $apiHandler,
+        private Utilities $utilities,
+        private StoreManagerInterface $storeManager,
+        private VaultHandlerService $vaultHandler,
+        private CardHandlerService $cardHandler,
+        private QuoteHandlerService $quoteHandler,
+        private LoggerHelper $ckoLogger,
+        protected DirectoryHelper $directoryHelper,
+        protected DataObjectFactory $dataObjectFactory,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
             $config,
+            $directoryHelper,
+            $scopeConfig,
+            $logger,
             $context,
             $registry,
             $extensionFactory,
             $customAttributeFactory,
             $paymentData,
-            $scopeConfig,
-            $logger,
-            $directoryHelper,
             $dataObjectFactory,
             $resource,
             $resourceCollection,
             $data
         );
-
-        $this->backendAuthSession = $backendAuthSession;
-        $this->config = $config;
-        $this->apiHandler = $apiHandler;
-        $this->utilities = $utilities;
-        $this->storeManager = $storeManager;
-        $this->vaultHandler = $vaultHandler;
-        $this->cardHandler = $cardHandler;
-        $this->quoteHandler = $quoteHandler;
-        $this->ckoLogger = $ckoLogger;
     }
 
     /**
@@ -303,7 +196,7 @@ class VaultMethod extends AbstractMethod
         $idSource->id = $card->getGatewayToken();
 
         // Check CVV config
-        if ($this->config->getValue('require_cvv', $this->_code)) {
+        if ($this->config->getValue('require_cvv', $this->code)) {
             if (!isset($data['cvv']) || (int)$data['cvv'] == 0) {
                 throw new LocalizedException(__('The CVV value is required.'));
             } else {
@@ -323,7 +216,7 @@ class VaultMethod extends AbstractMethod
         $request->processing_channel_id = $this->config->getValue('channel_id');
 
         // Prepare the metadata array
-        $request->metadata['methodId'] = $this->_code;
+        $request->metadata['methodId'] = $this->code;
 
         if ($isApiOrder) {
             if (isset($data['successUrl'])) {
@@ -343,7 +236,7 @@ class VaultMethod extends AbstractMethod
         }
 
         // Prepare the MADA setting
-        $madaEnabled = (bool)$this->config->getValue('mada_enabled', $this->_code);
+        $madaEnabled = (bool)$this->config->getValue('mada_enabled', $this->code);
 
         // Set the request parameters
         $request->amount = $this->quoteHandler->amountToGateway(
@@ -358,10 +251,10 @@ class VaultMethod extends AbstractMethod
         } else {
             $request->success_url = $this->config->getStoreUrl() . 'checkout_com/payment/verify';
             $request->failure_url = $this->config->getStoreUrl() . 'checkout_com/payment/fail';
-            $theeDsRequest->enabled = $this->config->needs3ds($this->_code);
+            $theeDsRequest->enabled = $this->config->needs3ds($this->code);
             $theeDsRequest->attempt_n3d = (bool)$this->config->getValue(
                 'attempt_n3d',
-                $this->_code,
+                $this->code,
                 null,
                 ScopeInterface::SCOPE_WEBSITE
             );
@@ -601,10 +494,10 @@ class VaultMethod extends AbstractMethod
     public function isAvailable(?CartInterface $quote = null): bool
     {
         return $this->isModuleActive() && $this->config->getValue(
-            'active',
-            $this->_code,
-            null,
-            ScopeInterface::SCOPE_WEBSITE
-        ) && $this->vaultHandler->userHasCards() && !$this->backendAuthSession->isLoggedIn();
+                'active',
+                $this->code,
+                null,
+                ScopeInterface::SCOPE_WEBSITE
+            ) && $this->vaultHandler->userHasCards() && !$this->backendAuthSession->isLoggedIn();
     }
 }

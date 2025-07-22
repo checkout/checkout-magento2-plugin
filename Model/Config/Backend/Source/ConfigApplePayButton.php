@@ -28,22 +28,16 @@ class ConfigApplePayButton implements OptionSourceInterface
 {
     /**
      * BUTTON_BLACK constant
-     *
-     * @var string BUTTON_BLACK
      */
-    const BUTTON_BLACK = 'black';
+    const string BUTTON_BLACK = 'black';
     /**
      * BUTTON_WHITE constant
-     *
-     * @var string BUTTON_WHITE
      */
-    const BUTTON_WHITE = 'white';
+    const string BUTTON_WHITE = 'white';
     /**
      * BUTTON_WHITE_LINE constant
-     *
-     * @var string BUTTON_WHITE_LINE
      */
-    const BUTTON_WHITE_LINE = 'white-with-line';
+    const string BUTTON_WHITE_LINE = 'white-with-line';
 
     /**
      * Possible Apple Pay button styles

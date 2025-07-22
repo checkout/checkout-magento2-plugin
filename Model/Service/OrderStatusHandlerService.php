@@ -33,94 +33,15 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class OrderStatusHandlerService
 {
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $transactionHandler field
-     *
-     * @var TransactionHandlerService $transactionHandler
-     */
-    private $transactionHandler;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $orderManagement field
-     *
-     * @var OrderManagementInterface $orderManagement
-     */
-    private $orderManagement;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
-    /**
-     * $registry field
-     *
-     * @var Registry $registry
-     */
-    private $registry;
-    /**
-     * $state field
-     *
-     * @var State $state
-     */
-    private $state;
-    /**
-     * $status field
-     *
-     * @var Status $status
-     */
-    private $status;
-    /**
-     * $order field
-     *
-     * @var Order $order
-     */
-    private $order;
-
-    /**
-     * OrderStatusHandlerService constructor
-     *
-     * @param StoreManagerInterface $storeManager
-     * @param TransactionHandlerService $transactionHandler
-     * @param Config $config
-     * @param OrderHandlerService $orderHandler
-     * @param OrderManagementInterface $orderManagement
-     * @param OrderRepositoryInterface $orderRepository
-     * @param Registry $registry
-     */
     public function __construct(
-        StoreManagerInterface $storeManager,
-        TransactionHandlerService $transactionHandler,
-        Config $config,
-        OrderHandlerService $orderHandler,
-        OrderManagementInterface $orderManagement,
-        OrderRepositoryInterface $orderRepository,
-        Registry $registry
+        private StoreManagerInterface $storeManager,
+        private TransactionHandlerService $transactionHandler,
+        private Config $config,
+        private OrderHandlerService $orderHandler,
+        private OrderManagementInterface $orderManagement,
+        private OrderRepositoryInterface $orderRepository,
+        private Registry $registry
     ) {
-        $this->storeManager = $storeManager;
-        $this->transactionHandler = $transactionHandler;
-        $this->config = $config;
-        $this->orderHandler = $orderHandler;
-        $this->orderManagement = $orderManagement;
-        $this->orderRepository = $orderRepository;
-        $this->registry = $registry;
     }
 
     /**
