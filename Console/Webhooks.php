@@ -40,37 +40,19 @@ class Webhooks extends Command
      *
      * @var string DATE
      */
-    const DATE = 'date';
+    const string DATE = 'date';
     /**
      * START_DATE constant
      *
      * @var string START_DATE
      */
-    const START_DATE = 'start-date';
+    const string START_DATE = 'start-date';
     /**
      * END_DATE constant
      *
      * @var string END_DATE
      */
-    const END_DATE = 'end-date';
-    /**
-     * $state field
-     *
-     * @var State $state
-     */
-    protected $state;
-    /**
-     * $webhookHandlerFactory field
-     *
-     * @var WebhookHandlerServiceFactory $webhookHandlerFactory
-     */
-    private $webhookHandlerFactory;
-    /**
-     * $webhookEntityRepository field
-     *
-     * @var WebhookEntityRepositoryInterface $webhookEntityRepository
-     */
-    private $webhookEntityRepository;
+    const string END_DATE = 'end-date';
     /**
      * $webhookHandler field
      *
@@ -78,22 +60,11 @@ class Webhooks extends Command
      */
     private $webhookHandler;
 
-    /**
-     * Webhook constructor
-     *
-     * @param State                            $state
-     * @param WebhookEntityRepositoryInterface $webhookEntityRepository
-     * @param WebhookHandlerServiceFactory     $webhookHandlerServiceFactory
-     */
     public function __construct(
-        State $state,
-        WebhookEntityRepositoryInterface $webhookEntityRepository,
-        WebhookHandlerServiceFactory $webhookHandlerServiceFactory
+        protected State $state,
+        private WebhookEntityRepositoryInterface $webhookEntityRepository,
+        private WebhookHandlerServiceFactory $webhookHandlerFactory,
     ) {
-        $this->state                   = $state;
-        $this->webhookEntityRepository = $webhookEntityRepository;
-        $this->webhookHandlerFactory   = $webhookHandlerServiceFactory;
-
         parent::__construct();
     }
 
@@ -102,7 +73,7 @@ class Webhooks extends Command
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $options = [
             new InputOption(
@@ -122,52 +93,31 @@ class Webhooks extends Command
     }
 
     /**
-     * Description createRequiredObjects function
-     *
-     * @return void
-     * @throws LocalizedException
-     */
-    protected function createRequiredObjects()
-    {
-        try {
-            $areaCode = $this->state->getAreaCode();
-        } catch (Exception $e) {
-            $areaCode = null;
-        }
-
-        if (!$areaCode) {
-            $this->state->setAreaCode(Area::AREA_GLOBAL);
-        }
-
-        $this->webhookHandler = $this->webhookHandlerFactory->create();
-    }
-
-    /**
      * Executes "cko:webhooks:clean" command.
      *
-     * @param InputInterface  $input
+     * @param InputInterface $input
      * @param OutputInterface $output
      *
      * @return void
      * @throws LocalizedException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $this->createRequiredObjects();
 
-        $date      = $input->getOption(self::DATE);
+        $date = $input->getOption(self::DATE);
         $startDate = $input->getOption(self::START_DATE);
-        $endDate   = $input->getOption(self::END_DATE);
+        $endDate = $input->getOption(self::END_DATE);
 
         $webhooks = $this->webhookHandler->loadWebhookEntities();
-        $deleted  = 0;
+        $deleted = 0;
 
         foreach ($webhooks as $webhook) {
-            $payload     = json_decode($webhook['event_data'], true);
+            $payload = json_decode($webhook['event_data'], true);
             $webhookDate = date('Y-m-d', strtotime($webhook['received_at']));
 
             $webhookTime = strtotime($webhook['received_at']);
-            $timeBuffer  = strtotime('-1 day');
+            $timeBuffer = strtotime('-1 day');
             if ($webhookTime > $timeBuffer) {
                 continue;
             }
@@ -206,14 +156,35 @@ class Webhooks extends Command
     }
 
     /**
+     * Description createRequiredObjects function
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    protected function createRequiredObjects(): void
+    {
+        try {
+            $areaCode = $this->state->getAreaCode();
+        } catch (Exception $e) {
+            $areaCode = null;
+        }
+
+        if (!$areaCode) {
+            $this->state->setAreaCode(Area::AREA_GLOBAL);
+        }
+
+        $this->webhookHandler = $this->webhookHandlerFactory->create();
+    }
+
+    /**
      * Output a webhook to the console.
      *
      * @param OutputInterface $output
-     * @param                 $webhook
+     * @param $webhook
      *
      * @return OutputInterface
      */
-    protected function outputWebhook(OutputInterface $output, $webhook)
+    protected function outputWebhook(OutputInterface $output, $webhook): OutputInterface
     {
         if ($output->isDebug()) {
             $output->writeln('Deleting Webhook: ');
