@@ -27,56 +27,18 @@ use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class OrderAfterVoid
  */
 class OrderAfterVoid implements ObserverInterface
 {
-    /**
-     * $backendAuthSession field
-     *
-     * @var Session $backendAuthSession
-     */
-    private $backendAuthSession;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $orderManagement field
-     *
-     * @var OrderManagementInterface $orderManagement
-     */
-    private $orderManagement;
-    /**
-     * $orderStatusHistoryRepository field
-     *
-     * @var OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
-     */
-    private $orderStatusHistoryRepository;
-
-    /**
-     * OrderAfterVoid constructor
-     *
-     * @param Session $backendAuthSession
-     * @param Config $config
-     * @param OrderManagementInterface $orderManagement
-     * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
-     */
     public function __construct(
-        Session $backendAuthSession,
-        Config $config,
-        OrderManagementInterface $orderManagement,
-        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+        private Session $backendAuthSession,
+        private Config $config,
+        private OrderManagementInterface $orderManagement,
+        private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
-        $this->backendAuthSession = $backendAuthSession;
-        $this->config = $config;
-        $this->orderManagement = $orderManagement;
-        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
@@ -84,7 +46,7 @@ class OrderAfterVoid implements ObserverInterface
      *
      * @param Observer $observer
      *
-     * @return OrderAfterVoid|void
+     * @return OrderAfterVoid|null
      * @throws LocalizedException
      */
     public function execute(Observer $observer): ?OrderAfterVoid
@@ -121,5 +83,7 @@ class OrderAfterVoid implements ObserverInterface
 
             return $this;
         }
+
+        return null;
     }
 }

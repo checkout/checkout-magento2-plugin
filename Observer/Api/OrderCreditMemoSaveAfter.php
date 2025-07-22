@@ -31,31 +31,10 @@ use Magento\Store\Model\ScopeInterface;
  */
 class OrderCreditMemoSaveAfter implements ObserverInterface
 {
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
-
-    /**
-     * OrderCreditMemoSaveAfter constructor
-     *
-     * @param Config $config
-     * @param OrderRepositoryInterface $orderRepository
-     */
     public function __construct(
-        Config $config,
-        OrderRepositoryInterface $orderRepository
+        private Config $config,
+        private OrderRepositoryInterface $orderRepository
     ) {
-        $this->config = $config;
-        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -76,11 +55,7 @@ class OrderCreditMemoSaveAfter implements ObserverInterface
         // Check if payment method is checkout.com
         if (in_array($methodId, $this->config->getMethodsList())) {
             $status = ($order->getStatus() === 'closed' || $order->getStatus() === 'complete') ? $order->getStatus() : $this->config->getValue(
-                'order_status_refunded',
-                null,
-                null,
-                ScopeInterface::SCOPE_WEBSITE
-            );
+                'order_status_refunded');
 
             // Update the order status
             $order->setStatus($status);

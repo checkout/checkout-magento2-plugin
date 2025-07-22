@@ -20,13 +20,11 @@ namespace CheckoutCom\Magento2\Observer\Backend;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use Magento\Backend\Model\Auth\Session;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
-use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 
 /**
@@ -34,40 +32,11 @@ use Magento\Sales\Model\Order\Payment;
  */
 class OrderAfterCancel implements ObserverInterface
 {
-    /**
-     * $backendAuthSession field
-     *
-     * @var Session $backendAuthSession
-     */
-    private $backendAuthSession;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $orderStatusHistoryRepository field
-     *
-     * @var OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
-     */
-    private $orderStatusHistoryRepository;
-
-    /**
-     * OrderAfterCancel constructor
-     *
-     * @param Session                               $backendAuthSession
-     * @param Config                                $config
-     * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
-     */
     public function __construct(
-        Session $backendAuthSession,
-        Config $config,
-        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+        private Session $backendAuthSession,
+        private Config $config,
+        private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
-        $this->backendAuthSession           = $backendAuthSession;
-        $this->config                       = $config;
-        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
@@ -75,20 +44,21 @@ class OrderAfterCancel implements ObserverInterface
      *
      * @param Observer $observer
      *
-     * @return $this|void
+     * @return OrderAfterCancel|null
+     * @throws CouldNotSaveException
      * @throws LocalizedException
      */
-    public function execute(Observer $observer): OrderAfterCancel
+    public function execute(Observer $observer): ?OrderAfterCancel
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             /** @var Payment $payment */
-            $payment  = $observer->getEvent()->getPayment();
-            $order    = $payment->getOrder();
+            $payment = $observer->getEvent()->getPayment();
+            $order = $payment->getOrder();
             $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
             if (in_array($methodId, $this->config->getMethodsList())) {
                 $orderComments = $order->getStatusHistories();
-                $orderComment  = array_pop($orderComments);
+                $orderComment = array_pop($orderComments);
                 $orderComment->setData('status', 'canceled');
 
                 $this->orderStatusHistoryRepository->save($orderComment);
@@ -96,5 +66,7 @@ class OrderAfterCancel implements ObserverInterface
 
             return $this;
         }
+
+        return null;
     }
 }

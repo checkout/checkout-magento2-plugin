@@ -51,101 +51,18 @@ use Magento\Backend\Model\Url as BackendUrl;
  */
 class MotoPaymentRequest implements ObserverInterface
 {
-    /**
-     * $backendAuthSession field
-     *
-     * @var Session $backendAuthSession
-     */
-    private $backendAuthSession;
-    /**
-     * $request field
-     *
-     * @var RequestInterface $request
-     */
-    private $request;
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
-    private $messageManager;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $vaultHandler field
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    private $vaultHandler;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-    /**
-     * @var BackendUrl $backendUrl
-     */
-    private $backendUrl;
-
-    /**
-     * MotoPaymentRequest constructor
-     *
-     * @param Session $backendAuthSession
-     * @param RequestInterface $request
-     * @param ManagerInterface $messageManager
-     * @param ApiHandlerService $apiHandler
-     * @param OrderHandlerService $orderHandler
-     * @param VaultHandlerService $vaultHandler
-     * @param Config $config
-     * @param Utilities $utilities
-     * @param Logger $logger
-     * @param BackendUrl $backendUrl
-     */
     public function __construct(
-        Session $backendAuthSession,
-        RequestInterface $request,
-        ManagerInterface $messageManager,
-        ApiHandlerService $apiHandler,
-        OrderHandlerService $orderHandler,
-        VaultHandlerService $vaultHandler,
-        Config $config,
-        Utilities $utilities,
-        Logger $logger,
-        BackendUrl $backendUrl
+        private Session $backendAuthSession,
+        private RequestInterface $request,
+        private ManagerInterface $messageManager,
+        private ApiHandlerService $apiHandler,
+        private OrderHandlerService $orderHandler,
+        private VaultHandlerService $vaultHandler,
+        private Config $config,
+        private Utilities $utilities,
+        private Logger $logger,
+        private BackendUrl $backendUrl
     ) {
-        $this->backendAuthSession = $backendAuthSession;
-        $this->request = $request;
-        $this->messageManager = $messageManager;
-        $this->apiHandler = $apiHandler;
-        $this->orderHandler = $orderHandler;
-        $this->vaultHandler = $vaultHandler;
-        $this->config = $config;
-        $this->utilities = $utilities;
-        $this->logger = $logger;
-        $this->backendUrl = $backendUrl;
     }
 
     /**
