@@ -35,76 +35,15 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Config
 {
-    /**
-     * $assetRepository field
-     *
-     * @var Repository $assetRepository
-     */
-    private $assetRepository;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $scopeConfig field
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    private $scopeConfig;
-    /**
-     * $request field
-     *
-     * @var RequestInterface $request
-     */
-    private $request;
-    /**
-     * $loader field
-     *
-     * @var Loader $loader
-     */
-    private $loader;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-
-    /**
-     * Config constructor
-     *
-     * @param Repository $assetRepository
-     * @param StoreManagerInterface $storeManager
-     * @param ScopeConfigInterface $scopeConfig
-     * @param RequestInterface $request
-     * @param Loader $loader
-     * @param Utilities $utilities
-     * @param Logger $logger
-     */
     public function __construct(
-        Repository $assetRepository,
-        StoreManagerInterface $storeManager,
-        ScopeConfigInterface $scopeConfig,
-        RequestInterface $request,
-        Loader $loader,
-        Utilities $utilities,
-        Logger $logger
+        private Repository $assetRepository,
+        private StoreManagerInterface $storeManager,
+        private ScopeConfigInterface $scopeConfig,
+        private RequestInterface $request,
+        private Loader $loader,
+        private Utilities $utilities,
+        private Logger $logger
     ) {
-        $this->assetRepository = $assetRepository;
-        $this->storeManager = $storeManager;
-        $this->scopeConfig = $scopeConfig;
-        $this->request = $request;
-        $this->loader = $loader;
-        $this->utilities = $utilities;
-        $this->logger = $logger;
     }
 
     /**
@@ -159,29 +98,30 @@ class Config
      * Returns a module config value
      *
      * @param string $field
-     * @param string|null $methodId
-     * @param string|int|null $storeCode
-     * @param string|null $scope
+     * @param null $methodId
+     * @param string|null $storeCode
+     * @param string $scope
      *
      * @return mixed
      */
     public function getValue(
         string $field,
-        ?string $methodId = null,
-        $storeCode = null,
+        $methodId = null,
+        ?string $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
-    ) {
+    ): mixed
+    {
         return $this->loader->getValue($field, $methodId, $storeCode, $scope);
     }
 
     /**
      * Checks if a private shared key request is valid
      *
-     * @param string|false $key
+     * @param false|string $key
      *
      * @return bool
      */
-    public function isValidPrivateSharedKey($key): bool
+    public function isValidPrivateSharedKey(false | string $key): bool
     {
         // Get the private shared key from config
         $privateSharedKey = $this->getValue('private_shared_key');
@@ -224,36 +164,6 @@ class Config
         }
 
         return [];
-    }
-
-    /**
-     * Returns payment processing value (Payment first or Order first)
-     *
-     * @return string
-     */
-    public function getPaymentProcessing(): string
-    {
-        return $this->getValue('payment_processing');
-    }
-
-    /**
-     * Check if payment processing is with order creation first.
-     *
-     * @return bool
-     */
-    public function isPaymentWithOrderFirst(): bool
-    {
-        return $this->getPaymentProcessing() === ConfigPaymentProcesing::ORDER_FIRST;
-    }
-
-    /**
-     * Check if payment processing is with payment creation first.
-     *
-     * @return bool
-     */
-    public function isPaymentWithPaymentFirst(): bool
-    {
-        return $this->getPaymentProcessing() === ConfigPaymentProcesing::PAYMENT_FIRST;
     }
 
     /**
@@ -341,6 +251,36 @@ class Config
     }
 
     /**
+     * Check if payment processing is with order creation first.
+     *
+     * @return bool
+     */
+    public function isPaymentWithOrderFirst(): bool
+    {
+        return $this->getPaymentProcessing() === ConfigPaymentProcesing::ORDER_FIRST;
+    }
+
+    /**
+     * Returns payment processing value (Payment first or Order first)
+     *
+     * @return string
+     */
+    public function getPaymentProcessing(): string
+    {
+        return $this->getValue('payment_processing');
+    }
+
+    /**
+     * Check if payment processing is with payment creation first.
+     *
+     * @return bool
+     */
+    public function isPaymentWithPaymentFirst(): bool
+    {
+        return $this->getPaymentProcessing() === ConfigPaymentProcesing::PAYMENT_FIRST;
+    }
+
+    /**
      * Determines if 3DS should be enabled for a payment request
      *
      * @param string $methodId
@@ -412,7 +352,7 @@ class Config
      *
      * @return mixed
      */
-    public function getCoreValue(string $path)
+    public function getCoreValue(string $path): mixed
     {
         return $this->scopeConfig->getValue(
             $path,
@@ -564,7 +504,7 @@ class Config
      */
     public function isAbcRefundAfterNasMigrationActive($storeCode = null): bool
     {
-        return (bool) $this->getValue('abc_refund_enable', null, $storeCode, ScopeInterface::SCOPE_STORE);
+        return (bool)$this->getValue('abc_refund_enable', null, $storeCode, ScopeInterface::SCOPE_STORE);
     }
 
     /**

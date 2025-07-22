@@ -33,89 +33,39 @@ class Loader
 {
     /**
      * CONFIGURATION_FILE_NAME constant
-     *
-     * @var string CONFIGURATION_FILE_NAME
      */
-    const CONFIGURATION_FILE_NAME = 'config.xml';
+    const string CONFIGURATION_FILE_NAME = 'config.xml';
     /**
      * APM_FILE_NAME constant
-     *
-     * @var string APM_FILE_NAME
      */
-    const APM_FILE_NAME = 'apm.xml';
+    const string APM_FILE_NAME = 'apm.xml';
     /**
      * KEY_MODULE_NAME constant
-     *
-     * @var string KEY_MODULE_NAME
      */
-    const KEY_MODULE_NAME = 'CheckoutCom_Magento2';
+    const string KEY_MODULE_NAME = 'CheckoutCom_Magento2';
     /**
      * KEY_MODULE_ID constant
-     *
-     * @var string KEY_MODULE_ID
      */
-    const KEY_MODULE_ID = 'checkoutcom_magento2';
+    const string KEY_MODULE_ID = 'checkoutcom_magento2';
     /**
      * KEY_PAYMENT constant
-     *
-     * @var string KEY_PAYMENT
      */
-    const KEY_PAYMENT = 'payment';
+    const string KEY_PAYMENT = 'payment';
     /**
      * KEY_SETTINGS constant
-     *
-     * @var string KEY_SETTINGS
      */
-    const KEY_SETTINGS = 'settings';
+    const string KEY_SETTINGS = 'settings';
     /**
      * KEY_CONFIG constant
-     *
-     * @var string KEY_CONFIG
      */
-    const KEY_CONFIG = 'checkoutcom_configuration';
-    /**
-     * $moduleDirReader field
-     *
-     * @var Dir $moduleDirReader
-     */
-    private $moduleDirReader;
-    /**
-     * $xmlParser field
-     *
-     * @var Parser $xmlParser
-     */
-    private $xmlParser;
-    /**
-     * $scopeConfig field
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    private $scopeConfig;
-    /**
-     * $encryptor field
-     *
-     * @var EncryptorInterface $encryptor
-     */
-    private $encryptor;
+    const string KEY_CONFIG = 'checkoutcom_configuration';
 
-    /**
-     * Loader constructor
-     *
-     * @param Reader $moduleDirReader
-     * @param Parser $xmlParser
-     * @param ScopeConfigInterface $scopeConfig
-     * @param EncryptorInterface $encryptor
-     */
     public function __construct(
-        Reader $moduleDirReader,
-        Parser $xmlParser,
-        ScopeConfigInterface $scopeConfig,
-        EncryptorInterface $encryptor
+        private Reader $moduleDirReader,
+        private Parser $xmlParser,
+        private ScopeConfigInterface $scopeConfig,
+        private EncryptorInterface $encryptor
     ) {
-        $this->moduleDirReader = $moduleDirReader;
-        $this->xmlParser = $xmlParser;
-        $this->scopeConfig = $scopeConfig;
-        $this->encryptor = $encryptor;
     }
 
     /**
@@ -147,6 +97,7 @@ class Loader
 
     public function getApmLabel(string $value = ''): array
     {
+        $output = [];
         /** @var array $apmXmlData */
         $apmXmlData = $this->loadApmXmlData();
 
@@ -272,7 +223,7 @@ class Loader
     public function getValue(
         string $key,
         ?string $methodId = null,
-        $storeCode = null,
+        ?string $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
     ) {
         // Prepare the path
