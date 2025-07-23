@@ -2,7 +2,7 @@
 /**
  * Checkout.com Magento 2 Magento2 Payment.
  *
- * PHP version 7
+ * PHP version 8
  *
  * @category  Checkout.com
  * @package   Magento2
@@ -44,16 +44,16 @@
         <!-- ko if: canPayWithApplePay -->
         <div class="actions-toolbar">
             <div class="primary">
-                
-                <button 
+
+                <button
                     id="ckoApplePayButton"
                     type="button"
                     data-bind="click: placeOrder, class: buttonClass, visible: disabledOnAllBrowsers"
                     class="apple-pay-button action primary checkout ap-checkout"
                     >
                 </button>
-                
-                <apple-pay-button 
+
+                <apple-pay-button
                     data-bind="attr: { buttonstyle: buttonStyle, locale: locale }, click: placeOrder, class: buttonClass, visible: enabledOnAllBrowsers"
                     buttonstyle="black"
                     type="plain"
