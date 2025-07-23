@@ -35,6 +35,7 @@ use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use Magento\Backend\Model\Auth\Session;
+use Magento\Backend\Model\Url as BackendUrl;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -44,7 +45,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
-use Magento\Backend\Model\Url as BackendUrl;
 
 /**
  * Class MotoPaymentRequest
@@ -179,7 +179,7 @@ class MotoPaymentRequest implements ObserverInterface
                             'ckoMessages',
                             [
                                 'output' => (string)__('An additional action is required'),
-                                'link'   => $response['_links']['redirect']['href'],
+                                'link' => $response['_links']['redirect']['href'],
                             ]
                         );
                     }

@@ -82,7 +82,7 @@ class Validation extends Action
     {
         // Get request parameters
         $methodId = $this->getRequest()->getParam('method_id');
-        $url      = $this->getRequest()->getParam('u');
+        $url = $this->getRequest()->getParam('u');
 
         if (substr($url, 0, 5) === 'https' && substr($url, 0, 8) !== 'https://') {
             $url = 'https://' . substr($url, 7);
@@ -132,13 +132,13 @@ class Validation extends Action
     protected function getParams(string $methodId): array
     {
         return [
-            'merchantId'                => $this->config->getValue(
+            'merchantId' => $this->config->getValue(
                 'merchant_id',
                 $methodId
             ),
-            'domainName'                => $this->getRequest()->getServer('HTTP_HOST'),
-            'displayName'               => $this->config->getStoreName(),
-            'processingCertificate'     => $this->config->getValue(
+            'domainName' => $this->getRequest()->getServer('HTTP_HOST'),
+            'displayName' => $this->config->getStoreName(),
+            'processingCertificate' => $this->config->getValue(
                 'processing_certificate',
                 $methodId
             ),
@@ -146,7 +146,7 @@ class Validation extends Action
                 'processing_certificate_password',
                 $methodId
             ),
-            'merchantCertificate'       => $this->config->getValue(
+            'merchantCertificate' => $this->config->getValue(
                 'merchant_id_certificate',
                 $methodId
             ),

@@ -21,8 +21,6 @@ namespace CheckoutCom\Magento2\Setup\Patch\Schema;
 
 use CheckoutCom\Magento2\Setup\Patch\Data\DeleteDuplicateEvents;
 use Magento\Framework\DB\Adapter\AdapterInterface;
-use Magento\Framework\DB\Ddl\Table;
-use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\SchemaPatchInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 

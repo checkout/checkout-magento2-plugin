@@ -10,15 +10,10 @@ use Magento\Checkout\Model\CompositeConfigProvider;
 
 class AddConfigDataToCart
 {
-    private Config $config;
-    private CompositeConfigProvider $compositeConfigProvider;
-
     public function __construct(
-        Config $config,
-        CompositeConfigProvider $compositeConfigProvider
+        private Config $config,
+        private CompositeConfigProvider $compositeConfigProvider
     ) {
-        $this->config = $config;
-        $this->compositeConfigProvider = $compositeConfigProvider;
     }
 
     public function afterGetSectionData(Cart $subject, array $result): array

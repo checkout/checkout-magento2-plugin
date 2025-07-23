@@ -16,6 +16,7 @@ declare(strict_types=1);
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+
 namespace CheckoutCom\Magento2\Controller\Paypal;
 
 use CheckoutCom\Magento2\Model\Methods\PaypalMethod;

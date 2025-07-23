@@ -45,6 +45,8 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class OrderHandlerService
 {
+    private ?string $methodId = null;
+
     public function __construct(
         private Session $checkoutSession,
         private QuoteManagement $quoteManagement,

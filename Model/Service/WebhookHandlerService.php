@@ -30,6 +30,8 @@ use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+use Magento\Framework\Data\Collection\AbstractDb;
 
 /**
  * Class WebhookHandlerService
@@ -40,6 +42,7 @@ class WebhookHandlerService
      * WEBHOOK_PAYMENT_TYPES constant
      */
     public const array WEBHOOK_PAYMENT_TYPES = ['payment_approved', 'payment_capture_pending', 'payment_captured'];
+    protected AbstractCollection | AbstractDb | null $collection;
 
     public function __construct(
         private OrderHandlerService $orderHandler,
@@ -67,6 +70,7 @@ class WebhookHandlerService
     public function processSingleWebhook(OrderInterface $order, array $payload): void
     {
         if (!isset($payload['data']['action_id'])) {
+
             throw new LocalizedException(
                 __(
                     'Missing action ID for webhook with payment ID %1. Payload was: %2',
@@ -79,7 +83,7 @@ class WebhookHandlerService
         }
 
         if ($this->config->getValue('webhooks_table_enabled') ||
-            (new \DateTime($order->getCreatedAt())) > (new \DateTime($this->config->getValue('verification_date')))
+            (new DateTime($order->getCreatedAt())) > (new DateTime($this->config->getValue('verification_date')))
         ) {
             $this->checkAuth($order, $payload);
         }

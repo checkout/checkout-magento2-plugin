@@ -26,19 +26,16 @@ use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
+/**
+ * Class ApplePayButton
+ */
 class ApplePayButton implements ArgumentInterface
 {
-    private Config $checkoutComConfig;
-    private $logger;
-    private StoreManagerInterface $storeManager;
     public function __construct(
-        Config $checkoutComConfig,
-        Logger $logger,
-        StoreManagerInterface $storeManager
+        private Config $checkoutComConfig,
+        private Logger $logger,
+        private StoreManagerInterface $storeManager
     ) {
-        $this->checkoutComConfig = $checkoutComConfig;
-        $this->logger = $logger;
-        $this->storeManager = $storeManager;
     }
 
     public function isApplePayEnabledForAllBrowsers(): bool
@@ -46,12 +43,12 @@ class ApplePayButton implements ArgumentInterface
         $isEnabled = false;
         try {
             $storeCode = $this->storeManager->getStore()->getCode();
-            $isEnabled = (bool) $this->checkoutComConfig->getValue('enabled_on_all_browsers', 'checkoutcom_apple_pay', $storeCode, ScopeInterface::SCOPE_STORE);
+            $isEnabled = (bool)$this->checkoutComConfig->getValue('enabled_on_all_browsers', 'checkoutcom_apple_pay', $storeCode, ScopeInterface::SCOPE_STORE);
         } catch (NoSuchEntityException $e) {
-            $isEnabled = (bool) $this->checkoutComConfig->getValue('enabled_on_all_browsers', 'checkoutcom_apple_pay');
+            $isEnabled = (bool)$this->checkoutComConfig->getValue('enabled_on_all_browsers', 'checkoutcom_apple_pay');
             $this->logger->write(sprintf("Error getting store code: %s", $e->getMessage()));
         }
-        
+
         return $isEnabled;
     }
 }

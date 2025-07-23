@@ -24,7 +24,6 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Creditmemo;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class OrderCreditMemoSaveAfter
@@ -55,7 +54,8 @@ class OrderCreditMemoSaveAfter implements ObserverInterface
         // Check if payment method is checkout.com
         if (in_array($methodId, $this->config->getMethodsList())) {
             $status = ($order->getStatus() === 'closed' || $order->getStatus() === 'complete') ? $order->getStatus() : $this->config->getValue(
-                'order_status_refunded');
+                'order_status_refunded'
+            );
 
             // Update the order status
             $order->setStatus($status);

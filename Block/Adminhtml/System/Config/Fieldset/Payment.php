@@ -64,7 +64,7 @@ class Payment extends Fieldset
      */
     public function _isPaymentEnabled(AbstractElement $element): bool
     {
-        $groupConfig   = $element->getGroup();
+        $groupConfig = $element->getGroup();
         $activityPaths = $groupConfig['activity_path'] ?? [];
 
         if (!is_array($activityPaths)) {
@@ -100,34 +100,34 @@ class Payment extends Fieldset
         $disabledClassString = $this->_isPaymentEnabled($element) ? '' : ' disabled';
         $htmlId = $element->getHtmlId();
         $html .= '<div class="button-container">' .
-            $this->versionHandler->getModuleVersion('v') . '&nbsp;&nbsp;' .
-            '<button type="button"' .
-            $disabledAttributeString .
-            ' class="button action-configure' .
-            (empty($groupConfig['checkout_com_separator']) ? '' : ' checkout-com-separator') .
-            $disabledClassString .
-            '" id="' .
-            $htmlId .
-            '-head" onclick="ckoToggleSolution.call(this, \'' .
-            $htmlId .
-            "', '" .
-            $this->getUrl(
-                'adminhtml/*/state'
-            ) . '\'); return false;"><span class="state-closed">' . __(
-                'Configure'
-            ) . '</span><span class="state-opened">' . __(
-                'Close'
-            ) . '</span></button>';
+                 $this->versionHandler->getModuleVersion('v') . '&nbsp;&nbsp;' .
+                 '<button type="button"' .
+                 $disabledAttributeString .
+                 ' class="button action-configure' .
+                 (empty($groupConfig['checkout_com_separator']) ? '' : ' checkout-com-separator') .
+                 $disabledClassString .
+                 '" id="' .
+                 $htmlId .
+                 '-head" onclick="ckoToggleSolution.call(this, \'' .
+                 $htmlId .
+                 "', '" .
+                 $this->getUrl(
+                     'adminhtml/*/state'
+                 ) . '\'); return false;"><span class="state-closed">' . __(
+                     'Configure'
+                 ) . '</span><span class="state-opened">' . __(
+                     'Close'
+                 ) . '</span></button>';
 
         if (!empty($groupConfig['more_url'])) {
             $html .= '<a class="link-more" href="' . $groupConfig['more_url'] . '" target="_blank">' . __(
-                'Learn More'
-            ) . '</a>';
+                    'Learn More'
+                ) . '</a>';
         }
         if (!empty($groupConfig['demo_url'])) {
             $html .= '<a class="link-demo" href="' . $groupConfig['demo_url'] . '" target="_blank">' . __(
-                'View Demo'
-            ) . '</a>';
+                    'View Demo'
+                ) . '</a>';
         }
 
         $html .= '</div>';

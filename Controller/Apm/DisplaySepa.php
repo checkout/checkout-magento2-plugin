@@ -19,10 +19,10 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Apm;
 
-use Checkout\CheckoutApi;
 use Checkout\CheckoutArgumentException;
 use Checkout\Sources\Previous\SepaSourceRequest;
 use Checkout\Sources\Previous\SourceData;
+use CheckoutCom\Magento2\Block\Apm\Sepa\Mandate;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -318,7 +318,7 @@ class DisplaySepa extends Action
 
         return $this->pageFactory->create()
             ->getLayout()
-            ->createBlock('CheckoutCom\Magento2\Block\Apm\Sepa\Mandate')
+            ->createBlock(Mandate::class)
             ->setTemplate('CheckoutCom_Magento2::payment/apm/sepa/mandate.phtml')
             ->setData('billingAddress', $billingAddress)
             ->setData('store', $store)

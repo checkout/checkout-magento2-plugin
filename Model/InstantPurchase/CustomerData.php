@@ -21,16 +21,13 @@ namespace CheckoutCom\Magento2\Model\InstantPurchase;
 
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use Magento\Customer\CustomerData\SectionSourceInterface;
-use Magento\Customer\Model\Address;
 use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\InstantPurchase\Model\InstantPurchaseInterface;
 use Magento\InstantPurchase\Model\InstantPurchaseOption;
 use Magento\InstantPurchase\Model\Ui\CustomerAddressesFormatter;
-use Magento\InstantPurchase\Model\Ui\PaymentTokenFormatter;
 use Magento\InstantPurchase\Model\Ui\ShippingMethodFormatter;
-use Magento\Quote\Api\Data\ShippingMethodInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -74,21 +71,21 @@ class CustomerData implements SectionSourceInterface
 
         // Build the instant purchase data
         $data += [
-            'paymentToken'    => [
+            'paymentToken' => [
                 'publicHash' => $this->paymentToken->getPublicHash(),
-                'summary'    => $this->paymentTokenFormatter->formatPaymentToken($this->paymentToken),
+                'summary' => $this->paymentTokenFormatter->formatPaymentToken($this->paymentToken),
             ],
             'shippingAddress' => [
-                'id'      => $this->shippingAddress->getId(),
+                'id' => $this->shippingAddress->getId(),
                 'summary' => $this->customerAddressesFormatter->format($this->shippingAddress),
             ],
-            'billingAddress'  => [
-                'id'      => $this->billingAddress->getId(),
+            'billingAddress' => [
+                'id' => $this->billingAddress->getId(),
                 'summary' => $this->customerAddressesFormatter->format($this->billingAddress),
             ],
-            'shippingMethod'  => [
+            'shippingMethod' => [
                 'carrier' => $this->shippingMethod->getCarrierCode(),
-                'method'  => $this->shippingMethod->getMethodCode(),
+                'method' => $this->shippingMethod->getMethodCode(),
                 'summary' => $this->shippingMethodFormatter->format($this->shippingMethod),
             ],
         ];
@@ -113,8 +110,8 @@ class CustomerData implements SectionSourceInterface
         // Get the shipping and billing data
         if ($this->instantPurchaseOption) {
             $this->shippingAddress = $this->instantPurchaseOption->getShippingAddress();
-            $this->billingAddress  = $this->instantPurchaseOption->getBillingAddress();
-            $this->shippingMethod  = $this->instantPurchaseOption->getShippingMethod();
+            $this->billingAddress = $this->instantPurchaseOption->getBillingAddress();
+            $this->shippingMethod = $this->instantPurchaseOption->getShippingMethod();
         }
     }
 

@@ -169,20 +169,7 @@ class PlaceOrder extends Action
         Address $addressManager
     ) {
         parent::__construct($context);
-
-        $this->messageManager    = $messageManager;
-        $this->storeManager      = $storeManager;
-        $this->jsonFactory       = $jsonFactory;
-        $this->quoteHandler      = $quoteHandler;
-        $this->orderHandler      = $orderHandler;
-        $this->methodHandler     = $methodHandler;
-        $this->apiHandler        = $apiHandler;
-        $this->utilities         = $utilities;
-        $this->shippingSelector  = $shippingSelector;
-        $this->orderRepository   = $orderRepository;
-        $this->cartRepository    = $cartRepository;
-        $this->addressRepository = $addressRepository;
-        $this->addressManager    = $addressManager;
+        $this->messageManager = $messageManager;
     }
 
     /**
@@ -196,7 +183,7 @@ class PlaceOrder extends Action
     public function execute(): Json
     {
         /** @var array $data */
-        $data               = $this->getRequest()->getParams();
+        $data = $this->getRequest()->getParams();
         $data['publicHash'] = $data['instant_purchase_payment_token'];
 
         // Get the store code
@@ -279,7 +266,7 @@ class PlaceOrder extends Action
      * Creates response with the operation status message.
      *
      * @param Phrase $message
-     * @param bool   $successMessage
+     * @param bool $successMessage
      *
      * @return Json
      */

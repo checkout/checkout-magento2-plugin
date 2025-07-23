@@ -32,6 +32,7 @@ interface V3Interface
      *
      * @param CustomerInterface $customer
      * @param PaymentRequestInterface $paymentRequest
+     *
      * @return PaymentResponseInterface
      */
     public function executeApiV3(
@@ -43,6 +44,7 @@ interface V3Interface
      * Set payment information and place order for a guest quote.
      *
      * @param PaymentRequestInterface $paymentRequest
+     *
      * @return PaymentResponseInterface
      */
     public function executeGuestApiV3(

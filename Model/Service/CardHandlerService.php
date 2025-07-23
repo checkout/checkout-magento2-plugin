@@ -35,11 +35,11 @@ class CardHandlerService
      * CARD_MAPPER field
      */
     const array CARD_MAPPER = [
-        'VI'  => 'Visa',
-        'MC'  => 'Mastercard',
-        'AE'  => 'American Express',
-        'DN'  => 'Diners Club International',
-        'DI'  => 'Discover',
+        'VI' => 'Visa',
+        'MC' => 'Mastercard',
+        'AE' => 'American Express',
+        'DN' => 'Diners Club International',
+        'DI' => 'Discover',
         'JCB' => 'JCB',
     ];
 
@@ -129,7 +129,7 @@ class CardHandlerService
             $output[] = [
                 'code' => $code,
                 'name' => __($value),
-                'url'  => $this->assetRepository->getUrl(
+                'url' => $this->assetRepository->getUrl(
                     'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
                 ),
             ];

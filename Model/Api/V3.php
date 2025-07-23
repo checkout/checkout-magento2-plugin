@@ -134,7 +134,7 @@ class V3 implements V3Interface
         if ($this->isValidPublicKey()) {
             if ($this->hasValidFields()) {
                 $this->result = $this->processPayment();
-                if (!$this->result['success'] &&  !$this->result['error_message']) {
+                if (!$this->result['success'] && !$this->result['error_message']) {
                     $this->result['error_message'][] = __('The order could not be created.');
                 }
             }

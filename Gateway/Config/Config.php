@@ -109,8 +109,7 @@ class Config
         $methodId = null,
         ?string $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
-    ): mixed
-    {
+    ): mixed {
         return $this->loader->getValue($field, $methodId, $storeCode, $scope);
     }
 

@@ -28,29 +28,16 @@ use Magento\Sales\Api\OrderManagementInterface;
  */
 class AfterPlaceOrder
 {
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-
-    /**
-     * AfterPlaceOrder constructor
-     *
-     * @param Config $config
-     */
     public function __construct(
-        Config $config
+        private Config $config
     ) {
-        $this->config = $config;
     }
 
     /**
      * Description afterPlace function
      *
      * @param OrderManagementInterface $subject
-     * @param OrderInterface           $order
+     * @param OrderInterface $order
      *
      * @return OrderInterface
      * @throws LocalizedException

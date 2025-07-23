@@ -15,11 +15,13 @@ declare(strict_types=1);
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+
 namespace CheckoutCom\Magento2\Controller\Paypal;
 
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
+use Exception;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\RedirectFactory;
@@ -31,7 +33,6 @@ use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\AddressInterfaceFactory;
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Quote\Model\Quote;
 
 class SaveData
 {

@@ -19,7 +19,6 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Model\ResourceModel;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
-use Magento\Framework\Model\ResourceModel\Db\Context;
 
 /**
  * Class WebhookEntity mysql resource

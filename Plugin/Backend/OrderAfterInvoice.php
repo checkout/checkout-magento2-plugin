@@ -25,29 +25,15 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface as BaseCommandInterface;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class OrderAfterInvoice
  */
 class OrderAfterInvoice
 {
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-
-    /**
-     * OrderAfterInvoice constructor
-     *
-     * @param Config $config
-     */
     public function __construct(
-        Config $config
+        private Config $config
     ) {
-        $this->config = $config;
     }
 
     /**

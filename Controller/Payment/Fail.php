@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use Checkout\CheckoutApi;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -220,17 +219,17 @@ class Fail extends Action
                     // Return to the cart
                     if (isset($response['metadata']['failureUrl'])) {
                         return $this->_redirect($response['metadata']['failureUrl']);
-                    } else {
-                        return $this->_redirect('checkout/cart', ['_secure' => true]);
                     }
-                } else {
-                    $this->messageManager->addErrorMessage(
-                        __('The card could not be saved.')
-                    );
 
-                    // Return to the saved card page
-                    return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
+                    return $this->_redirect('checkout/cart', ['_secure' => true]);
                 }
+
+                $this->messageManager->addErrorMessage(
+                    __('The card could not be saved.')
+                );
+
+                // Return to the saved card page
+                return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
             }
         } catch (Exception $e) {
             // Restore the quote

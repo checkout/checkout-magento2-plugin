@@ -96,27 +96,7 @@ class V1 extends Action
      * @var array $data
      */
     private $data;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
 
-    /**
-     * Callback constructor
-     *
-     * @param Context $context
-     * @param JsonFactory $jsonFactory
-     * @param Config $config
-     * @param StoreManagerInterface $storeManager
-     * @param QuoteHandlerService $quoteHandler
-     * @param OrderHandlerService $orderHandler
-     * @param MethodHandlerService $methodHandler
-     * @param ApiHandlerService $apiHandler
-     * @param Utilities $utilities
-     * @param OrderRepositoryInterface $orderRepository
-     */
     public function __construct(
         Context $context,
         JsonFactory $jsonFactory,

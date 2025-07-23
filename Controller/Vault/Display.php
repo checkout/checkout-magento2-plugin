@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Vault;
 
+use CheckoutCom\Magento2\Block\Vault\Form;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use Magento\Framework\App\Action\Action;
@@ -118,7 +119,7 @@ class Display extends Action
     {
         return $this->pageFactory->create()
             ->getLayout()
-            ->createBlock('CheckoutCom\Magento2\Block\Vault\Form')
+            ->createBlock(Form::class)
             ->setTemplate('CheckoutCom_Magento2::payment/vault/card.phtml')
             ->setData('card', $card)
             ->toHtml();

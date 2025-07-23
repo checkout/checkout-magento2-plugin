@@ -35,7 +35,6 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -209,20 +208,16 @@ class PlaceOrder extends Action
             $responseCode = '';
             $success = false;
             $log = true;
-
             // Try to load a quote
             $quote = $this->quoteHandler->getQuote();
 
             // Set some required properties
             $data = $this->getRequest()->getParams();
-
             if (isset($data['methodId']) && !$this->isEmptyCardToken($data)) {
                 // Process the request
                 if ($this->getRequest()->isAjax() && $quote) {
-
                     //Create order before payment
                     $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
-
                     // Process the payment
                     if ($this->orderHandler->isOrder($order)) {
                         $log = false;
@@ -239,9 +234,9 @@ class PlaceOrder extends Action
                         );
 
                         //Init values to request payment
-                        $amount = (float) $order->getGrandTotal();
-                        $currency = (string) $order->getOrderCurrencyCode();
-                        $reference = (string) $order->getIncrementId();
+                        $amount = (float)$order->getGrandTotal();
+                        $currency = (string)$order->getOrderCurrencyCode();
+                        $reference = (string)$order->getIncrementId();
 
                         // Get response and success
                         $response = $this->requestPayment($quote, $data, $amount, $currency, $reference);
@@ -256,7 +251,7 @@ class PlaceOrder extends Action
                         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
                         $isValidResponse = $api->isValidResponse($response);
-                        $responseCode = isset($response['response_code']) ? $response['response_code'] : '';
+                        $responseCode = $response['response_code'] ?? '';
 
                         if ($isValidResponse && $this->isAuthorized($responseCode)) {
                             // Add the payment info to the order

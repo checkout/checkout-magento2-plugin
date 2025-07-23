@@ -105,7 +105,7 @@ class Loader
             if ($value === $row['id']) {
                 return [$row['id'] => $row['title']];
             }
-            $output[$row['id']] =  $row['title'];
+            $output[$row['id']] = $row['title'];
         }
 
         return $output;

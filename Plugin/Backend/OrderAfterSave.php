@@ -31,56 +31,19 @@ use Magento\Sales\Api\OrderRepositoryInterface;
  */
 class OrderAfterSave
 {
-    /**
-     * $backendAuthSession field
-     *
-     * @var Session $backendAuthSession
-     */
-    private $backendAuthSession;
-    /**
-     * $webhookHandler field
-     *
-     * @var WebhookHandlerService $webhookHandler
-     */
-    private $webhookHandler;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $request field
-     *
-     * @var RequestInterface $request
-     */
-    private $request;
-
-    /**
-     * OrderAfterSave constructor
-     *
-     * @param Session               $backendAuthSession
-     * @param WebhookHandlerService $webhookHandler
-     * @param Config                $config
-     * @param RequestInterface      $request
-     */
     public function __construct(
-        Session $backendAuthSession,
-        WebhookHandlerService $webhookHandler,
-        Config $config,
-        RequestInterface $request
+        private Session $backendAuthSession,
+        private WebhookHandlerService $webhookHandler,
+        private Config $config,
+        private RequestInterface $request
     ) {
-        $this->backendAuthSession = $backendAuthSession;
-        $this->webhookHandler     = $webhookHandler;
-        $this->config             = $config;
-        $this->request            = $request;
     }
 
     /**
      * Create transactions for the order.
      *
      * @param OrderRepositoryInterface $orderRepository
-     * @param OrderInterface           $order
+     * @param OrderInterface $order
      *
      * @return OrderInterface
      * @throws Exception

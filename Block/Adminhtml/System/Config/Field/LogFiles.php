@@ -55,7 +55,7 @@ class LogFiles extends Field
      * LogFiles constructor
      *
      * @param Context $context
-     * @param array   $data
+     * @param array $data
      */
     public function __construct(
         Context $context,
@@ -73,7 +73,7 @@ class LogFiles extends Field
      */
     protected function _getElementHtml(AbstractElement $element): string
     {
-        $file     = BP . '/var/log/' . $element->getLabel();
+        $file = BP . '/var/log/' . $element->getLabel();
         $contents = '';
 
         $url = $this->getUrl('cko/logs/view', [
@@ -86,7 +86,7 @@ class LogFiles extends Field
             $file->seek(PHP_INT_MAX);
             $last_line = $file->key();
             if ($last_line) {
-                $lines    = new LimitIterator(
+                $lines = new LimitIterator(
                     $file, ($last_line - 50) > 0 ? $last_line - 50 : 0, $last_line
                 );
                 $contents = implode('', iterator_to_array($lines));
@@ -99,9 +99,9 @@ class LogFiles extends Field
         $element->setReadonly('readonly');
 
         $this->addData([
-                'element_html' => $element->getElementHtml(),
-                'button_url'   => $url,
-            ]);
+            'element_html' => $element->getElementHtml(),
+            'button_url' => $url,
+        ]);
 
         return $this->_toHtml();
     }
@@ -119,10 +119,10 @@ class LogFiles extends Field
         $button = $this->getLayout()->createBlock(
             'Magento\Backend\Block\Widget\Button'
         )->setData([
-                'id'      => 'view_more',
-                'label'   => __('View More'),
-                'onclick' => 'setLocation(\'' . $url . '\')',
-            ]);
+            'id' => 'view_more',
+            'label' => __('View More'),
+            'onclick' => 'setLocation(\'' . $url . '\')',
+        ]);
 
         return $button->toHtml();
     }

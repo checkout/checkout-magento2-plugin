@@ -45,58 +45,7 @@ class Verify extends Action
      * @var ManagerInterface $messageManager
      */
     protected $messageManager;
-    /**
-     * @var Logger
-     */
-    protected $logger;
-    /**
-     * @var Session
-     */
-    protected $session;
-    /**
-     * $transactionHandler field
-     *
-     * @var TransactionHandlerService $transactionHandler
-     */
-    private $transactionHandler;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $apiHandler field
-     *
-     * @var CheckoutApi $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $vaultHandler
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    private $vaultHandler;
 
-    /**
-     * Verify constructor
-     *
-     * @param Context $context
-     * @param ManagerInterface $messageManager
-     * @param TransactionHandlerService $transactionHandler
-     * @param StoreManagerInterface $storeManager
-     * @param ApiHandlerService $apiHandler
-     * @param OrderHandlerService $orderHandler
-     * @param VaultHandlerService $vaultHandler
-     * @param Logger $logger
-     * @param Session $session
-     */
     public function __construct(
         Context $context,
         ManagerInterface $messageManager,
@@ -109,15 +58,6 @@ class Verify extends Action
         Session $session
     ) {
         parent::__construct($context);
-
-        $this->messageManager = $messageManager;
-        $this->storeManager = $storeManager;
-        $this->apiHandler = $apiHandler;
-        $this->orderHandler = $orderHandler;
-        $this->vaultHandler = $vaultHandler;
-        $this->logger = $logger;
-        $this->session = $session;
-        $this->transactionHandler = $transactionHandler;
     }
 
     /**
@@ -170,18 +110,18 @@ class Verify extends Action
                                 )
                             ) {
                                 return $this->_redirect($response['metadata']['successUrl']);
-                            } else {
-                                return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                             }
-                        } else {
-                            // Restore the quote
-                            $this->session->restoreQuote();
 
-                            // Add and error message
-                            $this->messageManager->addErrorMessage(
-                                __('The transaction could not be processed or has been cancelled.')
-                            );
+                            return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
                         }
+
+                        // Restore the quote
+                        $this->session->restoreQuote();
+
+                        // Add and error message
+                        $this->messageManager->addErrorMessage(
+                            __('The transaction could not be processed or has been cancelled.')
+                        );
                     } else {
                         // Add an error message
                         $this->messageManager->addErrorMessage(

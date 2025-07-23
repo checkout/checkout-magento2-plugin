@@ -75,11 +75,6 @@ class SaveCard extends Action
         VaultHandlerService $vaultHandler
     ) {
         parent::__construct($context);
-
-        $this->messageManager = $messageManager;
-        $this->jsonFactory = $jsonFactory;
-        $this->urlInterface = $urlInterface;
-        $this->vaultHandler = $vaultHandler;
     }
 
     /**

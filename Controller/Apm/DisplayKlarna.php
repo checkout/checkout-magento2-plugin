@@ -21,7 +21,6 @@ namespace CheckoutCom\Magento2\Controller\Apm;
 
 use Checkout\Apm\Previous\Klarna\CreditSessionRequest;
 use Checkout\Apm\Previous\Klarna\KlarnaProduct;
-use Checkout\CheckoutApi;
 use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -35,8 +34,8 @@ use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Quote\Model\Quote\Address;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -205,7 +204,7 @@ class DisplayKlarna extends Action
             $response['quote'] = $quote->toArray();
 
             // Handle missing email for guest checkout
-            if ($response['billing']['email'] === null || empty($response['billing']['email'])) {
+            if (empty($response['billing']['email'])) {
                 $response['billing']['email'] = $this->quoteHandler->findEmail($quote);
             }
 
