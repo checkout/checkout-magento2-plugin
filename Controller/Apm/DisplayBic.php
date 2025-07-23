@@ -22,27 +22,11 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class DisplayBic implements HttpGetActionInterface
 {
-    /**
-     * @var StoreManagerInterface
-     */
-    protected $storeManager;
-    /**
-     * @var ApiHandlerService
-     */
-    protected $apiHandler;
-    /**
-     * @var JsonFactory
-     */
-    protected $jsonFactory;
-
     public function __construct(
-        StoreManagerInterface $storeManager,
-        ApiHandlerService $apiHandler,
-        JsonFactory $jsonFactory
+        protected StoreManagerInterface $storeManager,
+        protected ApiHandlerService $apiHandler,
+        protected JsonFactory $jsonFactory
     ) {
-        $this->storeManager = $storeManager;
-        $this->apiHandler = $apiHandler;
-        $this->jsonFactory = $jsonFactory;
     }
 
     /**
@@ -50,7 +34,7 @@ class DisplayBic implements HttpGetActionInterface
      * @throws CheckoutArgumentException
      * @throws CheckoutApiException
      */
-    public function execute()
+    public function execute(): Json
     {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();

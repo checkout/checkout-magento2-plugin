@@ -29,26 +29,11 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class View extends Action
 {
-    /**
-     * $resultPageFactory field
-     *
-     * @var PageFactory $resultPageFactory
-     */
-    protected $resultPageFactory;
-
-    /**
-     * View constructor
-     *
-     * @param Context     $context
-     * @param PageFactory $resultPageFactory
-     */
     public function __construct(
+        protected PageFactory $resultPageFactory,
         Context $context,
-        PageFactory $resultPageFactory
     ) {
         parent::__construct($context);
-
-        $this->resultPageFactory = $resultPageFactory;
     }
 
     /**
@@ -56,7 +41,7 @@ class View extends Action
      *
      * @return Page
      */
-    public function execute()
+    public function execute(): Page
     {
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(__('Log File Reader'));

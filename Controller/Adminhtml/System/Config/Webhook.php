@@ -24,7 +24,6 @@ use Checkout\CheckoutAuthorizationException;
 use Checkout\Webhooks\Previous\WebhookRequest;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
-use Exception;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Config\Model\ResourceModel\Config;
@@ -42,65 +41,16 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Webhook extends Action
 {
-    /**
-     * @var JsonFactory
-     */
-    private $resultJsonFactory;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $resourceConfig field
-     *
-     * @var Config $resourceConfig
-     */
-    private $resourceConfig;
-    /**
-     * $cacheTypeList field
-     *
-     * @var TypeListInterface $cacheTypeList
-     */
-    private $cacheTypeList;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-
-    /**
-     * Webhook constructor
-     *
-     * @param Context $context
-     * @param JsonFactory $resultJsonFactory
-     * @param ApiHandlerService $apiHandler
-     * @param Config $resourceConfig
-     * @param TypeListInterface $cacheTypeList
-     * @param Logger $logger
-     * @param ScopeConfigInterface $scopeConfig
-     * @param EncryptorInterface $encryptor
-     */
     public function __construct(
+        private JsonFactory $resultJsonFactory,
+        private ApiHandlerService $apiHandler,
+        private Config $resourceConfig,
+        private TypeListInterface $cacheTypeList,
+        private Logger $logger,
+        private ScopeConfigInterface $scopeConfig,
+        private EncryptorInterface $encryptor,
         Context $context,
-        JsonFactory $resultJsonFactory,
-        ApiHandlerService $apiHandler,
-        Config $resourceConfig,
-        TypeListInterface $cacheTypeList,
-        Logger $logger,
-        ScopeConfigInterface $scopeConfig,
-        EncryptorInterface $encryptor
     ) {
-        $this->resultJsonFactory = $resultJsonFactory;
-        $this->apiHandler = $apiHandler;
-        $this->resourceConfig = $resourceConfig;
-        $this->cacheTypeList = $cacheTypeList;
-        $this->logger = $logger;
-        $this->scopeConfig = $scopeConfig;
-        $this->encryptor = $encryptor;
-
         parent::__construct($context);
     }
 
@@ -109,7 +59,7 @@ class Webhook extends Action
      *
      * @return Json
      */
-    public function execute()
+    public function execute(): Json
     {
         try {
             // Prepare some parameters

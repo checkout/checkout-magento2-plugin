@@ -44,92 +44,20 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class DisplayKlarna extends Action
 {
-    /**
-     * $storeManager
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $jsonFactory
-     *
-     * @var JsonFactory $jsonFactory
-     */
-    private $jsonFactory;
-    /**
-     * $apiHandler field
-     *
-     * @var CheckoutApi $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $shopperHandler field
-     *
-     * @var ShopperHandlerService $shopperHandler
-     */
-    private $shopperHandler;
-    /**
-     * $utilities
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-    /**
-     * $billingAddress field
-     *
-     * @var Address $billingAddress
-     */
-    private $billingAddress;
-    /**
-     * Locale code.
-     *
-     * @var string $locale
-     */
-    private $locale;
+    protected ?AddressInterface $billingAddress;
+    protected string | array $locale;
 
-    /**
-     * DisplayKlarna constructor
-     *
-     * @param Context $context
-     * @param StoreManagerInterface $storeManager
-     * @param JsonFactory $jsonFactory
-     * @param ApiHandlerService $apiHandler
-     * @param QuoteHandlerService $quoteHandler
-     * @param ShopperHandlerService $shopperHandler
-     * @param Utilities $utilities
-     * @param Logger $logger
-     */
     public function __construct(
         Context $context,
-        StoreManagerInterface $storeManager,
-        JsonFactory $jsonFactory,
-        ApiHandlerService $apiHandler,
-        QuoteHandlerService $quoteHandler,
-        ShopperHandlerService $shopperHandler,
-        Utilities $utilities,
-        Logger $logger
+        private StoreManagerInterface $storeManager,
+        private JsonFactory $jsonFactory,
+        private ApiHandlerService $apiHandler,
+        private QuoteHandlerService $quoteHandler,
+        private ShopperHandlerService $shopperHandler,
+        private Utilities $utilities,
+        private Logger $logger
     ) {
         parent::__construct($context);
-
-        $this->storeManager = $storeManager;
-        $this->jsonFactory = $jsonFactory;
-        $this->apiHandler = $apiHandler;
-        $this->quoteHandler = $quoteHandler;
-        $this->shopperHandler = $shopperHandler;
-        $this->utilities = $utilities;
-        $this->logger = $logger;
     }
 
     /**

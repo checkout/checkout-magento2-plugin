@@ -32,47 +32,31 @@ use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Api\Data\PaymentInterfaceFactory;
 
+/**
+ * Class Review
+ */
 class Review implements HttpGetActionInterface
 {
     public const PAYMENT_CONTEXT_ID_PARAMETER = 'contextId';
     public const SHIPPING_METHOD_PARAMETER = 'method_code';
 
-    protected ResultFactory $resultFactory;
-    protected ManagerInterface $messageManager;
-    protected RequestInterface $request;
-    protected Session $checkoutSession;
-    protected PaymentContextRequestService $paymentContextRequestService;
-    protected RedirectFactory $redirectFactory;
-    protected UrlInterface $urlInterface;
-    protected PaymentInterfaceFactory $paymentInterfaceFactory;
-    protected PaypalMethod $paypalMethod;
-
     public function __construct(
-        ResultFactory $resultFactory,
-        ManagerInterface $messageManager,
-        RequestInterface $request,
-        Session $checkoutSession,
-        PaymentContextRequestService $paymentContextRequestService,
-        RedirectFactory $redirectFactory,
-        UrlInterface $urlInterface,
-        PaymentInterfaceFactory $paymentInterfaceFactory,
-        PaypalMethod $paypalMethod
+        protected ResultFactory $resultFactory,
+        protected ManagerInterface $messageManager,
+        protected RequestInterface $request,
+        protected Session $checkoutSession,
+        protected PaymentContextRequestService $paymentContextRequestService,
+        protected RedirectFactory $redirectFactory,
+        protected UrlInterface $urlInterface,
+        protected PaymentInterfaceFactory $paymentInterfaceFactory,
+        protected PaypalMethod $paypalMethod
     ) {
-        $this->resultFactory = $resultFactory;
-        $this->request = $request;
-        $this->messageManager = $messageManager;
-        $this->checkoutSession = $checkoutSession;
-        $this->paymentContextRequestService = $paymentContextRequestService;
-        $this->redirectFactory = $redirectFactory;
-        $this->urlInterface = $urlInterface;
-        $this->paymentInterfaceFactory = $paymentInterfaceFactory;
-        $this->paypalMethod = $paypalMethod;
     }
 
     /**
      * @return ResultInterface
      */
-    public function execute()
+    public function execute(): ResultInterface
     {
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
 

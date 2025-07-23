@@ -24,20 +24,16 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 
+/**
+ * Class GetCustomerDatas
+ */
 class GetCustomerDatas implements HttpPostActionInterface
 {
-    protected JsonFactory $resultJsonFactory;
-    protected RequestInterface $request;
-    protected QuoteHandlerService $quoteHandlerService;
-
     public function __construct(
-        JsonFactory $resultJsonFactory,
-        RequestInterface $request,
-        QuoteHandlerService $quoteHandlerService
+        protected JsonFactory $resultJsonFactory,
+        protected RequestInterface $request,
+        protected QuoteHandlerService $quoteHandlerService
     ) {
-        $this->resultJsonFactory = $resultJsonFactory;
-        $this->request = $request;
-        $this->quoteHandlerService = $quoteHandlerService;
     }
 
     /**

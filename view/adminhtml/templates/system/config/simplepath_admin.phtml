@@ -14,12 +14,18 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+
+use Magento\Framework\Escaper;
+
+/**
+ * @var Escaper $escape
+ */
 ?>
 
 <br/>
 <div>
     <div>
         <p style="text-align:center">
-            <?= $block->escapeHtml(__('Get your credentials <a href="https://www.checkout.com/">here</a>.')) ?>
+            <?= $escape->escapeHtml(__('Get your credentials <a href="https://www.checkout.com/">here</a>.')) ?>
     </div>
 </div>

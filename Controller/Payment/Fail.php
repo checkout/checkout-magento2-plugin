@@ -40,107 +40,22 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Fail extends Action
 {
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
-    protected $messageManager;
-    /**
-     * $transactionHandler field
-     *
-     * @var TransactionHandlerService $transactionHandler
-     */
-    private $transactionHandler;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $apiHandler field
-     *
-     * @var CheckoutApi $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $orderStatusHandler field
-     *
-     * @var OrderStatusHandlerService $orderStatusHandler
-     */
-    private $orderStatusHandler;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-    /**
-     * $paymentErrorHandlerService field
-     *
-     * @var PaymentErrorHandlerService $paymentErrorHandlerService
-     */
-    private $paymentErrorHandlerService;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $session field
-     *
-     * @var Session $session
-     */
-    private $session;
-
-    /**
-     * Fail constructor
-     *
-     * @param Context $context
-     * @param ManagerInterface $messageManager
-     * @param TransactionHandlerService $transactionHandler
-     * @param StoreManagerInterface $storeManager
-     * @param ApiHandlerService $apiHandler
-     * @param OrderHandlerService $orderHandler
-     * @param OrderStatusHandlerService $orderStatusHandler
-     * @param Logger $logger
-     * @param PaymentErrorHandlerService $paymentErrorHandlerService
-     * @param Config $config
-     * @param Session $session
-     */
     public function __construct(
         Context $context,
         ManagerInterface $messageManager,
-        TransactionHandlerService $transactionHandler,
-        StoreManagerInterface $storeManager,
-        ApiHandlerService $apiHandler,
-        OrderHandlerService $orderHandler,
-        OrderStatusHandlerService $orderStatusHandler,
-        Logger $logger,
-        PaymentErrorHandlerService $paymentErrorHandlerService,
-        Config $config,
-        Session $session
+        private TransactionHandlerService $transactionHandler,
+        private StoreManagerInterface $storeManager,
+        private ApiHandlerService $apiHandler,
+        private OrderHandlerService $orderHandler,
+        private OrderStatusHandlerService $orderStatusHandler,
+        private Logger $logger,
+        private PaymentErrorHandlerService $paymentErrorHandlerService,
+        private Config $config,
+        private Session $session
     ) {
         parent::__construct($context);
 
         $this->messageManager = $messageManager;
-        $this->storeManager = $storeManager;
-        $this->apiHandler = $apiHandler;
-        $this->orderHandler = $orderHandler;
-        $this->orderStatusHandler = $orderStatusHandler;
-        $this->logger = $logger;
-        $this->paymentErrorHandlerService = $paymentErrorHandlerService;
-        $this->config = $config;
-        $this->session = $session;
-        $this->transactionHandler = $transactionHandler;
     }
 
     /**

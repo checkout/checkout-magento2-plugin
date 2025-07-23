@@ -42,83 +42,21 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class V1 extends Action
 {
-    /**
-     * $jsonFactory field
-     *
-     * @var JsonFactory $jsonFactory
-     */
-    private $jsonFactory;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $methodHandler field
-     *
-     * @var MethodHandlerService $methodHandler
-     */
-    private $methodHandler;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $data field
-     *
-     * @var array $data
-     */
     private $data;
 
     public function __construct(
         Context $context,
-        JsonFactory $jsonFactory,
-        Config $config,
-        StoreManagerInterface $storeManager,
-        QuoteHandlerService $quoteHandler,
-        OrderHandlerService $orderHandler,
-        MethodHandlerService $methodHandler,
-        ApiHandlerService $apiHandler,
-        Utilities $utilities,
-        OrderRepositoryInterface $orderRepository
+        private JsonFactory $jsonFactory,
+        private Config $config,
+        private StoreManagerInterface $storeManager,
+        private QuoteHandlerService $quoteHandler,
+        private OrderHandlerService $orderHandler,
+        private MethodHandlerService $methodHandler,
+        private ApiHandlerService $apiHandler,
+        private Utilities $utilities,
+        private OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
-        $this->jsonFactory = $jsonFactory;
-        $this->config = $config;
-        $this->storeManager = $storeManager;
-        $this->quoteHandler = $quoteHandler;
-        $this->orderHandler = $orderHandler;
-        $this->methodHandler = $methodHandler;
-        $this->apiHandler = $apiHandler;
-        $this->utilities = $utilities;
-        $this->orderRepository = $orderRepository;
     }
 
     /**

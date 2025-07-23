@@ -50,132 +50,32 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
+/**
+ * Class Callback
+ */
 class Callback extends Action implements CsrfAwareActionInterface
 {
-    /**
-     * @var JsonSerializer
-     */
-    private $json;
-    /**
-     * @var Utilities
-     */
-    private $utilities;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $shopperHandler field
-     *
-     * @var ShopperHandlerService $shopperHandler
-     */
-    private $shopperHandler;
-    /**
-     * $webhookHandler field
-     *
-     * @var WebhookHandlerService $webhookHandler
-     */
-    private $webhookHandler;
-    /**
-     * $vaultHandler field
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    private $vaultHandler;
-    /**
-     * $paymentErrorHandler field
-     *
-     * @var PaymentErrorHandlerService $paymentErrorHandler
-     */
-    private $paymentErrorHandler;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface
-     */
-    private $orderRepository;
-    /**
-     * $scopeConfig field
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    private $scopeConfig;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
+    private StoreManagerInterface $storeManager;
 
-    /**
-     * Callback constructor
-     *
-     * @param Context $context
-     * @param StoreManagerInterface $storeManager
-     * @param ScopeConfigInterface $scopeConfig
-     * @param ApiHandlerService $apiHandler
-     * @param OrderHandlerService $orderHandler
-     * @param ShopperHandlerService $shopperHandler
-     * @param WebhookHandlerService $webhookHandler
-     * @param VaultHandlerService $vaultHandler
-     * @param PaymentErrorHandlerService $paymentErrorHandler
-     * @param Config $config
-     * @param OrderRepositoryInterface $orderRepository
-     * @param Logger $logger
-     * @param Utilities $utilities
-     * @param JsonSerializer $json
-     */
     public function __construct(
         Context $context,
         StoreManagerInterface $storeManager,
-        ScopeConfigInterface $scopeConfig,
-        ApiHandlerService $apiHandler,
-        OrderHandlerService $orderHandler,
-        ShopperHandlerService $shopperHandler,
-        WebhookHandlerService $webhookHandler,
-        VaultHandlerService $vaultHandler,
-        PaymentErrorHandlerService $paymentErrorHandler,
-        Config $config,
-        OrderRepositoryInterface $orderRepository,
-        Logger $logger,
-        Utilities $utilities,
-        JsonSerializer $json
+        private ScopeConfigInterface $scopeConfig,
+        private ApiHandlerService $apiHandler,
+        private OrderHandlerService $orderHandler,
+        private ShopperHandlerService $shopperHandler,
+        private WebhookHandlerService $webhookHandler,
+        private VaultHandlerService $vaultHandler,
+        private PaymentErrorHandlerService $paymentErrorHandler,
+        private Config $config,
+        private OrderRepositoryInterface $orderRepository,
+        private Logger $logger,
+        private Utilities $utilities,
+        private JsonSerializer $json
     ) {
         parent::__construct($context);
 
         $this->storeManager = $storeManager;
-        $this->scopeConfig = $scopeConfig;
-        $this->apiHandler = $apiHandler;
-        $this->orderHandler = $orderHandler;
-        $this->shopperHandler = $shopperHandler;
-        $this->webhookHandler = $webhookHandler;
-        $this->vaultHandler = $vaultHandler;
-        $this->paymentErrorHandler = $paymentErrorHandler;
-        $this->config = $config;
-        $this->orderRepository = $orderRepository;
-        $this->logger = $logger;
-        $this->utilities = $utilities;
-        $this->json = $json;
     }
 
     /**

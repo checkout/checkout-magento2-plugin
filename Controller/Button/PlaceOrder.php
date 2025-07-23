@@ -56,117 +56,21 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class PlaceOrder extends Action
 {
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
-    protected $messageManager;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $jsonFactory field
-     *
-     * @var JsonFactory $jsonFactory
-     */
-    private $jsonFactory;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $methodHandler field
-     *
-     * @var MethodHandlerService $methodHandler
-     */
-    private $methodHandler;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $shippingSelector field
-     *
-     * @var ShippingSelector $shippingSelector
-     */
-    private $shippingSelector;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
-    /**
-     * $cartRepository field
-     *
-     * @var CartRepositoryInterface $cartRepository
-     */
-    private $cartRepository;
-    /**
-     * $addressRepository field
-     *
-     * @var AddressRepositoryInterface $addressRepository
-     */
-    private $addressRepository;
-    /**
-     * $addressManager field
-     *
-     * @var Address $addressManager
-     */
-    private $addressManager;
-
-    /**
-     * PlaceOrder constructor
-     *
-     * @param Context                    $context
-     * @param ManagerInterface           $messageManager
-     * @param StoreManagerInterface      $storeManager
-     * @param JsonFactory                $jsonFactory
-     * @param QuoteHandlerService        $quoteHandler
-     * @param OrderHandlerService        $orderHandler
-     * @param MethodHandlerService       $methodHandler
-     * @param ApiHandlerService          $apiHandler
-     * @param Utilities                  $utilities
-     * @param ShippingSelector           $shippingSelector
-     * @param OrderRepositoryInterface   $orderRepository
-     * @param CartRepositoryInterface    $cartRepository
-     * @param AddressRepositoryInterface $addressRepository
-     */
     public function __construct(
         Context $context,
         ManagerInterface $messageManager,
-        StoreManagerInterface $storeManager,
-        JsonFactory $jsonFactory,
-        QuoteHandlerService $quoteHandler,
-        OrderHandlerService $orderHandler,
-        MethodHandlerService $methodHandler,
-        ApiHandlerService $apiHandler,
-        Utilities $utilities,
-        ShippingSelector $shippingSelector,
-        OrderRepositoryInterface $orderRepository,
-        CartRepositoryInterface $cartRepository,
-        AddressRepositoryInterface $addressRepository,
-        Address $addressManager
+        private StoreManagerInterface $storeManager,
+        private JsonFactory $jsonFactory,
+        private QuoteHandlerService $quoteHandler,
+        private OrderHandlerService $orderHandler,
+        private MethodHandlerService $methodHandler,
+        private ApiHandlerService $apiHandler,
+        private Utilities $utilities,
+        private ShippingSelector $shippingSelector,
+        private OrderRepositoryInterface $orderRepository,
+        private CartRepositoryInterface $cartRepository,
+        private AddressRepositoryInterface $addressRepository,
+        private Address $addressManager
     ) {
         parent::__construct($context);
         $this->messageManager = $messageManager;

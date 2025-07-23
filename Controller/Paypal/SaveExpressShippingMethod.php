@@ -18,9 +18,13 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Paypal;
 
+use Exception;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Controller\Result\Redirect;
 
+/**
+ * Class SaveExpressShippingMethod
+ */
 class SaveExpressShippingMethod extends SaveData implements HttpGetActionInterface
 {
     /**

@@ -21,7 +21,7 @@ use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
 /** @var AbstractCallbackUrl $block */
 ?>
 
-<?php echo $block->getElementHtml(); ?>
+<?= $block->getElementHtml(); ?>
 <p id="webhook-message" class="webhook-message <?= $block->getMessageClass(); ?>"><?= $block->getMessage(); ?></p>
 <script>
 require([
@@ -109,7 +109,7 @@ require([
             public_key: publicKey[0].value,
         };
 
-        new Ajax.Request('<?php echo $block->getAjaxUrl() ?>', {
+        new Ajax.Request('<?= $block->getAjaxUrl() ?>', {
             parameters: params,
             loaderArea: false,
             asynchronous: true,
@@ -134,10 +134,10 @@ require([
 });
 </script>
 <div id="webhook_auto_set" style="display: <?= ($block->getHidden() === true) ? 'none' : 'block' ?> ">
-    <?php echo $block->getButtonHtml() ?>
+    <?= $block->getButtonHtml() ?>
     <span id="webhook_span">
             <img id="webhook_spinner" style="display: none" alt="Processing Spinner" style="margin:0 5px"
-                 src="<?php echo $block->getViewFileUrl('images/process_spinner.gif') ?>"/>
+                 src="<?= $block->getViewFileUrl('images/process_spinner.gif') ?>"/>
         </span>
 </div>
 

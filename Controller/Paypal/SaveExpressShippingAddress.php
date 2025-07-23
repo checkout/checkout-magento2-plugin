@@ -18,11 +18,15 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Paypal;
 
+use Exception;
 use Magento\Customer\Api\Data\AddressInterface as CustomerAddressInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Quote\Api\Data\AddressInterface;
 
+/**
+ * Class SaveExpressShippingAddress
+ */
 class SaveExpressShippingAddress extends SaveData implements HttpPostActionInterface
 {
     /**

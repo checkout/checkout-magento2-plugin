@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use Checkout\CheckoutApi;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
@@ -49,13 +48,13 @@ class Verify extends Action
     public function __construct(
         Context $context,
         ManagerInterface $messageManager,
-        TransactionHandlerService $transactionHandler,
-        StoreManagerInterface $storeManager,
-        ApiHandlerService $apiHandler,
-        OrderHandlerService $orderHandler,
-        VaultHandlerService $vaultHandler,
-        Logger $logger,
-        Session $session
+        private TransactionHandlerService $transactionHandler,
+        private StoreManagerInterface $storeManager,
+        private ApiHandlerService $apiHandler,
+        private OrderHandlerService $orderHandler,
+        private VaultHandlerService $vaultHandler,
+        protected Logger $logger,
+        protected Session $session
     ) {
         parent::__construct($context);
     }
