@@ -5,7 +5,7 @@
  * Authorized and regulated as an electronic money institution
  * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
- * PHP version 8
+ * PHP version 7
  *
  * @category  Magento2
  * @package   Checkout.com

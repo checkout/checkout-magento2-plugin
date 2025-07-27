@@ -3,7 +3,7 @@
 /**
  * Checkout.com Magento 2 Magento2 Payment.
  *
- * PHP version 8
+ * PHP version 7
  *
  * @category  Checkout.com
  * @package   Magento2
