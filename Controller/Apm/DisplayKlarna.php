@@ -45,19 +45,34 @@ use Magento\Store\Model\StoreManagerInterface;
 class DisplayKlarna extends Action
 {
     protected ?AddressInterface $billingAddress;
-    protected string | array $locale;
+    protected $locale;
+    private StoreManagerInterface $storeManager;
+    private JsonFactory $jsonFactory;
+    private ApiHandlerService $apiHandler;
+    private QuoteHandlerService $quoteHandler;
+    private ShopperHandlerService $shopperHandler;
+    private Utilities $utilities;
+    private Logger $logger;
 
     public function __construct(
         Context $context,
-        private StoreManagerInterface $storeManager,
-        private JsonFactory $jsonFactory,
-        private ApiHandlerService $apiHandler,
-        private QuoteHandlerService $quoteHandler,
-        private ShopperHandlerService $shopperHandler,
-        private Utilities $utilities,
-        private Logger $logger
+        StoreManagerInterface $storeManager,
+        JsonFactory $jsonFactory,
+        ApiHandlerService $apiHandler,
+        QuoteHandlerService $quoteHandler,
+        ShopperHandlerService $shopperHandler,
+        Utilities $utilities,
+        Logger $logger
     ) {
         parent::__construct($context);
+
+        $this->storeManager = $storeManager;
+        $this->jsonFactory = $jsonFactory;
+        $this->apiHandler = $apiHandler;
+        $this->quoteHandler = $quoteHandler;
+        $this->shopperHandler = $shopperHandler;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
     }
 
     /**

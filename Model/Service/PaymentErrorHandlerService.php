@@ -35,7 +35,7 @@ class PaymentErrorHandlerService
     /**
      * TRANSACTION_ERROR_LABEL const
      */
-    const array TRANSACTION_ERROR_LABEL = [
+    const TRANSACTION_ERROR_LABEL = [
         'payment_declined' => 'Failed payment authorization',
         'payment_capture_declined' => 'Failed payment capture',
         'payment_void_declined' => 'Failed payment void',
@@ -46,14 +46,20 @@ class PaymentErrorHandlerService
     /**
      * TRANSACTION_SUCCESS_DIGITS const
      */
-    const string TRANSACTION_SUCCESS_DIGITS = '10';
+    const TRANSACTION_SUCCESS_DIGITS = '10';
+
+    private TransactionHandlerService $transactionHandler;
+    private OrderHandlerService $orderHandler;
+    private OrderRepositoryInterface $orderRepository;
+    private OrderPaymentRepositoryInterface $orderPaymentRepository;
+    private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository;
 
     public function __construct(
-        private TransactionHandlerService $transactionHandler,
-        private OrderHandlerService $orderHandler,
-        private OrderRepositoryInterface $orderRepository,
-        private OrderPaymentRepositoryInterface $orderPaymentRepository,
-        private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+        TransactionHandlerService $transactionHandler,
+        OrderHandlerService $orderHandler,
+        OrderRepositoryInterface $orderRepository,
+        OrderPaymentRepositoryInterface $orderPaymentRepository,
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
     }
 
@@ -112,7 +118,7 @@ class PaymentErrorHandlerService
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function prepareAmount(float | int $amount, OrderInterface $order): string
+    public function prepareAmount($amount, OrderInterface $order): string
     {
         // Prepare the amount
         $amount = $this->transactionHandler->amountFromGateway(

@@ -31,12 +31,21 @@ use Magento\Sales\Api\OrderRepositoryInterface;
  */
 class OrderAfterSave
 {
+    private Session $backendAuthSession;
+    private WebhookHandlerService $webhookHandler;
+    private Config $config;
+    private RequestInterface $request;
+
     public function __construct(
-        private Session $backendAuthSession,
-        private WebhookHandlerService $webhookHandler,
-        private Config $config,
-        private RequestInterface $request
+        Session $backendAuthSession,
+        WebhookHandlerService $webhookHandler,
+        Config $config,
+        RequestInterface $request
     ) {
+        $this->backendAuthSession = $backendAuthSession;
+        $this->webhookHandler = $webhookHandler;
+        $this->config = $config;
+        $this->request = $request;
     }
 
     /**

@@ -33,13 +33,24 @@ use Magento\Framework\Locale\Resolver;
  */
 class ShopperHandlerService
 {
+    private Config $config;
+    private ConfigLanguageFallback $languageCallbackConfig;
+    private Session $customerSession;
+    private CustomerRepositoryInterface $customerRepository;
+    private Resolver $localeResolver;
+
     public function __construct(
-        private Config $config,
-        private ConfigLanguageFallback $languageCallbackConfig,
-        private Session $customerSession,
-        private CustomerRepositoryInterface $customerRepository,
-        private Resolver $localeResolver
+        Config $config,
+        ConfigLanguageFallback $languageCallbackConfig,
+        Session $customerSession,
+        CustomerRepositoryInterface $customerRepository,
+        Resolver $localeResolver
     ) {
+        $this->config = $config;
+        $this->languageCallbackConfig = $languageCallbackConfig;
+        $this->customerSession = $customerSession;
+        $this->customerRepository = $customerRepository;
+        $this->localeResolver = $localeResolver;
     }
 
     /**

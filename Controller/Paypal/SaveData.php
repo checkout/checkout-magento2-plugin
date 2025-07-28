@@ -39,19 +39,42 @@ use Magento\Quote\Api\Data\CartInterface;
  */
 class SaveData
 {
+    protected LoggerHelper $logger;
+    protected ResultFactory $resultFactory;
+    protected ManagerInterface $messageManager;
+    protected RequestInterface $request;
+    protected Session $checkoutSession;
+    protected PaymentContextRequestService $paymentContextRequestService;
+    protected RedirectFactory $redirectFactory;
+    protected UrlInterface $urlInterface;
+    protected CartRepositoryInterface $cartRepository;
+    protected AddressInterfaceFactory $addressInterfaceFactory;
+    protected PaypalMethod $paypalMethod;
+
     public function __construct(
-        protected LoggerHelper $logger,
-        protected ResultFactory $resultFactory,
-        protected ManagerInterface $messageManager,
-        protected RequestInterface $request,
-        protected Session $checkoutSession,
-        protected PaymentContextRequestService $paymentContextRequestService,
-        protected RedirectFactory $redirectFactory,
-        protected UrlInterface $urlInterface,
-        protected CartRepositoryInterface $cartRepository,
-        protected AddressInterfaceFactory $addressInterfaceFactory,
-        protected PaypalMethod $paypalMethod
+        LoggerHelper $logger,
+        ResultFactory $resultFactory,
+        ManagerInterface $messageManager,
+        RequestInterface $request,
+        Session $checkoutSession,
+        PaymentContextRequestService $paymentContextRequestService,
+        RedirectFactory $redirectFactory,
+        UrlInterface $urlInterface,
+        CartRepositoryInterface $cartRepository,
+        AddressInterfaceFactory $addressInterfaceFactory,
+        PaypalMethod $paypalMethod
     ) {
+        $this->logger = $logger;
+        $this->resultFactory = $resultFactory;
+        $this->messageManager = $messageManager;
+        $this->request = $request;
+        $this->checkoutSession = $checkoutSession;
+        $this->paymentContextRequestService = $paymentContextRequestService;
+        $this->redirectFactory = $redirectFactory;
+        $this->urlInterface = $urlInterface;
+        $this->cartRepository = $cartRepository;
+        $this->addressInterfaceFactory = $addressInterfaceFactory;
+        $this->paypalMethod = $paypalMethod;
     }
 
     /**

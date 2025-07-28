@@ -27,8 +27,10 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
  */
 class TokenFormatter
 {
+    private VaultHandlerService $vaultHandler;
+
     public function __construct(
-        private VaultHandlerService $vaultHandler
+        VaultHandlerService $vaultHandler
     ) {
     }
 

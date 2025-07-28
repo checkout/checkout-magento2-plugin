@@ -41,17 +41,33 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Webhook extends Action
 {
+    private JsonFactory $resultJsonFactory;
+    private ApiHandlerService $apiHandler;
+    private Config $resourceConfig;
+    private TypeListInterface $cacheTypeList;
+    private Logger $logger;
+    private ScopeConfigInterface $scopeConfig;
+    private EncryptorInterface $encryptor;
+
     public function __construct(
-        private JsonFactory $resultJsonFactory,
-        private ApiHandlerService $apiHandler,
-        private Config $resourceConfig,
-        private TypeListInterface $cacheTypeList,
-        private Logger $logger,
-        private ScopeConfigInterface $scopeConfig,
-        private EncryptorInterface $encryptor,
+        JsonFactory $resultJsonFactory,
+        ApiHandlerService $apiHandler,
+        Config $resourceConfig,
+        TypeListInterface $cacheTypeList,
+        Logger $logger,
+        ScopeConfigInterface $scopeConfig,
+        EncryptorInterface $encryptor,
         Context $context,
     ) {
         parent::__construct($context);
+
+        $this->resultJsonFactory = $resultJsonFactory;
+        $this->apiHandler = $apiHandler;
+        $this->resourceConfig = $resourceConfig;
+        $this->cacheTypeList = $cacheTypeList;
+        $this->logger = $logger;
+        $this->scopeConfig = $scopeConfig;
+        $this->encryptor = $encryptor;
     }
 
     /**

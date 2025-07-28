@@ -31,11 +31,18 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class DisplayBic implements HttpGetActionInterface
 {
+    protected StoreManagerInterface $storeManager;
+    protected ApiHandlerService $apiHandler;
+    protected JsonFactory $jsonFactory;
+
     public function __construct(
-        protected StoreManagerInterface $storeManager,
-        protected ApiHandlerService $apiHandler,
-        protected JsonFactory $jsonFactory
+        StoreManagerInterface $storeManager,
+        ApiHandlerService $apiHandler,
+        JsonFactory $jsonFactory
     ) {
+        $this->storeManager = $storeManager;
+        $this->apiHandler = $apiHandler;
+        $this->jsonFactory = $jsonFactory;
     }
 
     /**

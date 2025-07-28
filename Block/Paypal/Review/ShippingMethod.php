@@ -34,15 +34,25 @@ use Magento\Quote\Model\Quote\Address\Rate as QuoteRate;
  */
 class ShippingMethod extends Template
 {
+    protected Session $checkoutSession;
+    protected RequestInterface $request;
+    protected UrlInterface $url;
+    protected PriceCurrencyInterface $priceCurrency;
+
     public function __construct(
-        protected Session $checkoutSession,
-        protected RequestInterface $request,
-        protected UrlInterface $url,
-        protected PriceCurrencyInterface $priceCurrency,
+        Session $checkoutSession,
+        RequestInterface $request,
+        UrlInterface $url,
+        PriceCurrencyInterface $priceCurrency,
         TemplateContext $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
+
+        $this->checkoutSession = $checkoutSession;
+        $this->request = $request;
+        $this->url = $url;
+        $this->priceCurrency = $priceCurrency;
     }
 
     public function getRates(): array

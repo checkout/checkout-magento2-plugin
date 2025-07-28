@@ -29,13 +29,19 @@ use Magento\Framework\View\Element\Template\Context as TemplateContext;
  */
 class Script extends Template
 {
+    private PaypalMethod $paypalMethod;
+    private Config $checkoutConfig;
+
     public function __construct(
-        private PaypalMethod $paypalMethod,
-        private Config $checkoutConfig,
+        PaypalMethod $paypalMethod,
+        Config $checkoutConfig,
         TemplateContext $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
+
+        $this->paypalMethod = $paypalMethod;
+        $this->checkoutConfig = $checkoutConfig;
     }
 
     public function getPaypalMerchantId(): string

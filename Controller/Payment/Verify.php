@@ -44,19 +44,35 @@ class Verify extends Action
      * @var ManagerInterface $messageManager
      */
     protected $messageManager;
+    private TransactionHandlerService $transactionHandler;
+    private StoreManagerInterface $storeManager;
+    private ApiHandlerService $apiHandler;
+    private OrderHandlerService $orderHandler;
+    private VaultHandlerService $vaultHandler;
+    protected Logger $logger;
+    protected Session $session;
 
     public function __construct(
         Context $context,
         ManagerInterface $messageManager,
-        private TransactionHandlerService $transactionHandler,
-        private StoreManagerInterface $storeManager,
-        private ApiHandlerService $apiHandler,
-        private OrderHandlerService $orderHandler,
-        private VaultHandlerService $vaultHandler,
-        protected Logger $logger,
-        protected Session $session
+        TransactionHandlerService $transactionHandler,
+        StoreManagerInterface $storeManager,
+        ApiHandlerService $apiHandler,
+        OrderHandlerService $orderHandler,
+        VaultHandlerService $vaultHandler,
+        Logger $logger,
+        Session $session
     ) {
         parent::__construct($context);
+
+        $this->messageManager = $messageManager;
+        $this->transactionHandler = $transactionHandler;
+        $this->storeManager = $storeManager;
+        $this->apiHandler = $apiHandler;
+        $this->orderHandler = $orderHandler;
+        $this->vaultHandler = $vaultHandler;
+        $this->logger = $logger;
+        $this->session = $session;
     }
 
     /**

@@ -32,11 +32,18 @@ use Magento\Sales\Model\Service\InvoiceService;
  */
 class InvoiceHandlerService
 {
+    private InvoiceService $invoiceService;
+    private InvoiceRepositoryInterface $invoiceRepository;
+    private Invoice $invoiceModel;
+
     public function __construct(
-        private InvoiceService $invoiceService,
-        private InvoiceRepositoryInterface $invoiceRepository,
-        private Invoice $invoiceModel
+        InvoiceService $invoiceService,
+        InvoiceRepositoryInterface $invoiceRepository,
+        Invoice $invoiceModel
     ) {
+        $this->invoiceService = $invoiceService;
+        $this->invoiceRepository = $invoiceRepository;
+        $this->invoiceModel = $invoiceModel;
     }
 
     /**

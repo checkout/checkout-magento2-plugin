@@ -26,19 +26,19 @@ interface PaymentResponseInterface
     /**
      * Constants for keys of data array.
      */
-    public const string SUCCESS = 'success';
+    public const SUCCESS = 'success';
     /**
      * ORDER_ID constant
      */
-    public const string ORDER_ID = 'order_id';
+    public const ORDER_ID = 'order_id';
     /**
      * REDIRECT_URL constant
      */
-    public const string REDIRECT_URL = 'redirect_url';
+    public const REDIRECT_URL = 'redirect_url';
     /**
      * ERROR_MESSAGE constant
      */
-    public const string ERROR_MESSAGE = 'error_message';
+    public const ERROR_MESSAGE = 'error_message';
 
     /**
      * Get the success status
@@ -66,7 +66,7 @@ interface PaymentResponseInterface
      *
      * @return string|array
      */
-    public function getErrorMessage(): array | string;
+    public function getErrorMessage();
 
     /**
      * Set the success status
@@ -102,5 +102,5 @@ interface PaymentResponseInterface
      *
      * @return PaymentResponseInterface
      */
-    public function setErrorMessage(array | string $errorMessage): PaymentResponseInterface;
+    public function setErrorMessage($errorMessage): PaymentResponseInterface;
 }

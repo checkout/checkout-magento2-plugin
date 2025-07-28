@@ -25,29 +25,29 @@ interface WebhookInterface
     /**
      * AUTHENTICATION_EXPIRED constant
      */
-    public const string AUTHENTICATION_EXPIRED = "authentication_expired";
+    public const AUTHENTICATION_EXPIRED = "authentication_expired";
     /**
      * PAYMENT_AUTHENTICATION_FAILED
      */
-    public const string PAYMENT_AUTHENTICATION_FAILED = "payment_authentication_failed";
+    public const PAYMENT_AUTHENTICATION_FAILED = "payment_authentication_failed";
     /**
      * PAYMENT_CANCELLED constant
      */
-    public const string PAYMENT_CANCELLED = "payment_cancelled";
+    public const PAYMENT_CANCELLED = "payment_cancelled";
     /**
      * PAYMENT_CAPTURE_DECLINED constant
      */
-    public const string PAYMENT_CAPTURE_DECLINED = "payment_capture_declined";
+    public const PAYMENT_CAPTURE_DECLINED = "payment_capture_declined";
     /**
      * PAYMENT_DECLINED constant
      */
-    public const string PAYMENT_DECLINED = "payment_declined";
+    public const PAYMENT_DECLINED = "payment_declined";
     /**
      * PAYMENT_EXPIRED constant
      */
-    public const string PAYMENT_EXPIRED = "payment_expired";
+    public const PAYMENT_EXPIRED = "payment_expired";
     /**
      * PAYMENT_VOIDED constant
      */
-    public const string PAYMENT_VOIDED = "payment_voided";
+    public const PAYMENT_VOIDED = "payment_voided";
 }

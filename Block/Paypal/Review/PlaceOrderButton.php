@@ -31,14 +31,22 @@ use Magento\Framework\View\Element\Template\Context as TemplateContext;
  */
 class PlaceOrderButton extends Template
 {
+    protected Session $checkoutSession;
+    protected RequestInterface $request;
+    protected PaypalMethod $paypalMethod;
+
     public function __construct(
-        protected Session $checkoutSession,
-        protected RequestInterface $request,
-        protected PaypalMethod $paypalMethod,
+        Session $checkoutSession,
+        RequestInterface $request,
+        PaypalMethod $paypalMethod,
         TemplateContext $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
+
+        $this->checkoutSession = $checkoutSession;
+        $this->request = $request;
+        $this->paypalMethod = $paypalMethod;
     }
 
     public function getEmail(): string

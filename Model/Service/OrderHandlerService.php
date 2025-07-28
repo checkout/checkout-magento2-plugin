@@ -46,21 +46,45 @@ use Magento\Store\Model\StoreManagerInterface;
 class OrderHandlerService
 {
     private ?string $methodId = null;
+    private Session $checkoutSession;
+    private QuoteManagement $quoteManagement;
+    private OrderRepositoryInterface $orderRepository;
+    private SearchCriteriaBuilder $searchBuilder;
+    private Config $config;
+    private QuoteHandlerService $quoteHandler;
+    private StoreManagerInterface $storeManager;
+    private Logger $logger;
+    private TransactionHandlerService $transactionHandler;
+    private SortOrderBuilderFactory $sortOrderBuilderFactory;
+    private OrderManagementInterface $orderManagement;
+    private Registry $registry;
 
     public function __construct(
-        private Session $checkoutSession,
-        private QuoteManagement $quoteManagement,
-        private OrderRepositoryInterface $orderRepository,
-        private SearchCriteriaBuilder $searchBuilder,
-        private Config $config,
-        private QuoteHandlerService $quoteHandler,
-        private StoreManagerInterface $storeManager,
-        private Logger $logger,
-        private TransactionHandlerService $transactionHandler,
-        private SortOrderBuilderFactory $sortOrderBuilderFactory,
-        private OrderManagementInterface $orderManagement,
-        private Registry $registry
+        Session $checkoutSession,
+        QuoteManagement $quoteManagement,
+        OrderRepositoryInterface $orderRepository,
+        SearchCriteriaBuilder $searchBuilder,
+        Config $config,
+        QuoteHandlerService $quoteHandler,
+        StoreManagerInterface $storeManager,
+        Logger $logger,
+        TransactionHandlerService $transactionHandler,
+        SortOrderBuilderFactory $sortOrderBuilderFactory,
+        OrderManagementInterface $orderManagement,
+        Registry $registry
     ) {
+        $this->checkoutSession = $checkoutSession;
+        $this->quoteManagement = $quoteManagement;
+        $this->orderRepository = $orderRepository;
+        $this->searchBuilder = $searchBuilder;
+        $this->config = $config;
+        $this->quoteHandler = $quoteHandler;
+        $this->storeManager = $storeManager;
+        $this->logger = $logger;
+        $this->transactionHandler = $transactionHandler;
+        $this->sortOrderBuilderFactory = $sortOrderBuilderFactory;
+        $this->orderManagement = $orderManagement;
+        $this->registry = $registry;
     }
 
     /**
@@ -269,7 +293,7 @@ class OrderHandlerService
      *
      * @return false|OrderStatusHistory
      */
-    public function getStatusHistoryByEntity(string $entity, OrderInterface $order): false | OrderStatusHistory
+    public function getStatusHistoryByEntity(string $entity, OrderInterface $order)
     {
         foreach ($order->getStatusHistoryCollection() as $status) {
             if ($status->getEntityName() === $entity) {

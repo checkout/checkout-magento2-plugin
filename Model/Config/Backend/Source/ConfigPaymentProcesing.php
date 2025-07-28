@@ -29,11 +29,11 @@ class ConfigPaymentProcesing implements OptionSourceInterface
     /**
      * PAYMENT_FIRST constant
      */
-    const string PAYMENT_FIRST = 'payment_first';
+    const PAYMENT_FIRST = 'payment_first';
     /**
      * ORDER_FIRST constant
      */
-    const string ORDER_FIRST = 'order_first';
+    const ORDER_FIRST = 'order_first';
 
     /**
      * Return the order status options

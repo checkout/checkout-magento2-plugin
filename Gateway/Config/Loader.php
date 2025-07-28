@@ -34,38 +34,46 @@ class Loader
     /**
      * CONFIGURATION_FILE_NAME constant
      */
-    const string CONFIGURATION_FILE_NAME = 'config.xml';
+    const CONFIGURATION_FILE_NAME = 'config.xml';
     /**
      * APM_FILE_NAME constant
      */
-    const string APM_FILE_NAME = 'apm.xml';
+    const APM_FILE_NAME = 'apm.xml';
     /**
      * KEY_MODULE_NAME constant
      */
-    const string KEY_MODULE_NAME = 'CheckoutCom_Magento2';
+    const KEY_MODULE_NAME = 'CheckoutCom_Magento2';
     /**
      * KEY_MODULE_ID constant
      */
-    const string KEY_MODULE_ID = 'checkoutcom_magento2';
+    const KEY_MODULE_ID = 'checkoutcom_magento2';
     /**
      * KEY_PAYMENT constant
      */
-    const string KEY_PAYMENT = 'payment';
+    const KEY_PAYMENT = 'payment';
     /**
      * KEY_SETTINGS constant
      */
-    const string KEY_SETTINGS = 'settings';
+    const KEY_SETTINGS = 'settings';
     /**
      * KEY_CONFIG constant
      */
-    const string KEY_CONFIG = 'checkoutcom_configuration';
+    const KEY_CONFIG = 'checkoutcom_configuration';
+    private Reader $moduleDirReader;
+    private Parser $xmlParser;
+    private ScopeConfigInterface $scopeConfig;
+    private EncryptorInterface $encryptor;
 
     public function __construct(
-        private Reader $moduleDirReader,
-        private Parser $xmlParser,
-        private ScopeConfigInterface $scopeConfig,
-        private EncryptorInterface $encryptor
+        Reader $moduleDirReader,
+        Parser $xmlParser,
+        ScopeConfigInterface $scopeConfig,
+        EncryptorInterface $encryptor
     ) {
+        $this->moduleDirReader = $moduleDirReader;
+        $this->xmlParser = $xmlParser;
+        $this->scopeConfig = $scopeConfig;
+        $this->encryptor = $encryptor;
     }
 
     /**

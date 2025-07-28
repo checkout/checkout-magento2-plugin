@@ -27,8 +27,10 @@ use Magento\Framework\Data\OptionSourceInterface;
  */
 class ConfigDefaultMethod implements OptionSourceInterface
 {
+    private Config $config;
+
     public function __construct(
-        private Config $config
+        Config $config
     ) {
     }
 

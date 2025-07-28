@@ -29,12 +29,21 @@ class ResponseHandler
     private const FILE_NAME = 'checkoutcom_magento2_gateway_{{date}}';
     private const DATE_FORMAT = 'Ymd-H:i:s';
 
+    private TimezoneInterface $timezone;
+    private InfoHandlerFactory $infoHandlerFactory;
+    private LoggerFactory $loggerFactory;
+    private DirectoryList $directoryList;
+
     public function __construct(
-        private TimezoneInterface $timezone,
-        private InfoHandlerFactory $infoHandlerFactory,
-        private LoggerFactory $loggerFactory,
-        private DirectoryList $directoryList
+        TimezoneInterface $timezone,
+        InfoHandlerFactory $infoHandlerFactory,
+        LoggerFactory $loggerFactory,
+        DirectoryList $directoryList
     ) {
+        $this->timezone = $timezone;
+        $this->infoHandlerFactory = $infoHandlerFactory;
+        $this->loggerFactory = $loggerFactory;
+        $this->directoryList = $directoryList;
     }
 
     public function log(string $message): void

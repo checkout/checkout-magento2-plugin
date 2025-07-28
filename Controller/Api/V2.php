@@ -57,24 +57,51 @@ class V2 extends Action
     protected $order;
     protected mixed $data;
     protected ApiHandlerService $api;
+    private JsonFactory $jsonFactory;
+    private Config $config;
+    private StoreManagerInterface $storeManager;
+    private QuoteHandlerService $quoteHandler;
+    private QuoteIdMaskFactory $quoteIdMaskFactory;
+    private OrderHandlerService $orderHandler;
+    private OrderStatusHandlerService $orderStatusHandler;
+    private MethodHandlerService $methodHandler;
+    private ApiHandlerService $apiHandler;
+    private PaymentErrorHandlerService $paymentErrorHandler;
+    private Utilities $utilities;
+    private OrderRepositoryInterface $orderRepository;
+    private QuoteIdMaskResource $quoteIdMaskResource;
 
     public function __construct(
         Context $context,
-        private JsonFactory $jsonFactory,
-        private Config $config,
-        private StoreManagerInterface $storeManager,
-        private QuoteHandlerService $quoteHandler,
-        private QuoteIdMaskFactory $quoteIdMaskFactory,
-        private OrderHandlerService $orderHandler,
-        private OrderStatusHandlerService $orderStatusHandler,
-        private MethodHandlerService $methodHandler,
-        private ApiHandlerService $apiHandler,
-        private PaymentErrorHandlerService $paymentErrorHandler,
-        private Utilities $utilities,
-        private OrderRepositoryInterface $orderRepository,
-        private QuoteIdMaskResource $quoteIdMaskResource
+        JsonFactory $jsonFactory,
+        Config $config,
+        StoreManagerInterface $storeManager,
+        QuoteHandlerService $quoteHandler,
+        QuoteIdMaskFactory $quoteIdMaskFactory,
+        OrderHandlerService $orderHandler,
+        OrderStatusHandlerService $orderStatusHandler,
+        MethodHandlerService $methodHandler,
+        ApiHandlerService $apiHandler,
+        PaymentErrorHandlerService $paymentErrorHandler,
+        Utilities $utilities,
+        OrderRepositoryInterface $orderRepository,
+        QuoteIdMaskResource $quoteIdMaskResource
     ) {
         parent::__construct($context);
+
+        $this->jsonFactory = $jsonFactory;
+        $this->config = $config;
+        $this->storeManager = $storeManager;
+        $this->quoteHandler = $quoteHandler;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
+        $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
+        $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
+        $this->paymentErrorHandler = $paymentErrorHandler;
+        $this->utilities = $utilities;
+        $this->orderRepository = $orderRepository;
+        $this->quoteIdMaskResource = $quoteIdMaskResource;
     }
 
     /**

@@ -29,13 +29,19 @@ use Magento\Framework\View\Element\Template\Context as TemplateContext;
  */
 class PaymentMethod extends Template
 {
+    protected Session $checkoutSession;
+    protected PaypalMethod $paypalMethod;
+
     public function __construct(
-        protected Session $checkoutSession,
-        protected PaypalMethod $paypalMethod,
+        Session $checkoutSession,
+        PaypalMethod $paypalMethod,
         TemplateContext $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
+
+        $this->checkoutSession = $checkoutSession;
+        $this->paypalMethod = $paypalMethod;
     }
 
     public function getEmail(): string

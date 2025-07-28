@@ -30,9 +30,12 @@ use Magento\Framework\Phrase;
  */
 class VersionNotification implements MessageInterface
 {
+    private VersionHandlerService $versionHandler;
+
     public function __construct(
-        private VersionHandlerService $versionHandler
+        VersionHandlerService $versionHandler
     ) {
+        $this->versionHandler = $versionHandler;
     }
 
     /**

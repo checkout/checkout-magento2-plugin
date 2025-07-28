@@ -28,12 +28,18 @@ use Psr\Log\LoggerInterface;
  */
 class Webhooks
 {
+    protected LoggerInterface $logger;
+    private WebhookHandlerService $webhookHandler;
+    private ScopeConfigInterface $scopeConfig;
 
     public function __construct(
-        protected LoggerInterface $logger,
-        private WebhookHandlerService $webhookHandler,
-        private ScopeConfigInterface $scopeConfig
+        LoggerInterface $logger,
+        WebhookHandlerService $webhookHandler,
+        ScopeConfigInterface $scopeConfig
     ) {
+        $this->logger = $logger;
+        $this->webhookHandler = $webhookHandler;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**

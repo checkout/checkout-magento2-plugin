@@ -30,10 +30,15 @@ use Magento\Sales\Model\Order\Creditmemo;
  */
 class OrderCreditMemoSaveAfter implements ObserverInterface
 {
+    private Config $config;
+    private OrderRepositoryInterface $orderRepository;
+
     public function __construct(
-        private Config $config,
-        private OrderRepositoryInterface $orderRepository
+        Config $config,
+        OrderRepositoryInterface $orderRepository
     ) {
+        $this->config = $config;
+        $this->orderRepository = $orderRepository;
     }
 
     /**

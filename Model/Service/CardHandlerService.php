@@ -34,7 +34,7 @@ class CardHandlerService
     /**
      * CARD_MAPPER field
      */
-    const array CARD_MAPPER = [
+    const CARD_MAPPER = [
         'VI' => 'Visa',
         'MC' => 'Mastercard',
         'AE' => 'American Express',
@@ -43,12 +43,21 @@ class CardHandlerService
         'JCB' => 'JCB',
     ];
 
+    private Repository $assetRepository;
+    private Reader $directoryReader;
+    private Csv $csvParser;
+    private Config $config;
+
     public function __construct(
-        private Repository $assetRepository,
-        private Reader $directoryReader,
-        private Csv $csvParser,
-        private Config $config
+        Repository $assetRepository,
+        Reader $directoryReader,
+        Csv $csvParser,
+        Config $config
     ) {
+        $this->assetRepository = $assetRepository;
+        $this->directoryReader = $directoryReader;
+        $this->csvParser = $csvParser;
+        $this->config = $config;
     }
 
     /**

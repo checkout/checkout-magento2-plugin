@@ -33,13 +33,24 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class VersionHandlerService
 {
+    private Config $config;
+    private Curl $curl;
+    private Reader $moduleDirReader;
+    private File $fileDriver;
+    private StoreManagerInterface $storeManager;
+
     public function __construct(
-        private Config $config,
-        private Curl $curl,
-        private Reader $moduleDirReader,
-        private File $fileDriver,
-        private StoreManagerInterface $storeManager
+        Config $config,
+        Curl $curl,
+        Reader $moduleDirReader,
+        File $fileDriver,
+        StoreManagerInterface $storeManager
     ) {
+        $this->config = $config;
+        $this->curl = $curl;
+        $this->moduleDirReader = $moduleDirReader;
+        $this->fileDriver = $fileDriver;
+        $this->storeManager = $storeManager;
     }
 
     /**

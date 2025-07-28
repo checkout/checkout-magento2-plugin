@@ -34,12 +34,21 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
  */
 class VaultToken
 {
+    private PaymentTokenFactoryInterface $paymentTokenFactory;
+    private EncryptorInterface $encryptor;
+    private CardHandlerService $cardHandler;
+    private JsonSerializer $json;
+
     public function __construct(
-        private PaymentTokenFactoryInterface $paymentTokenFactory,
-        private EncryptorInterface $encryptor,
-        private CardHandlerService $cardHandler,
-        private JsonSerializer $json
+        PaymentTokenFactoryInterface $paymentTokenFactory,
+        EncryptorInterface $encryptor,
+        CardHandlerService $cardHandler,
+        JsonSerializer $json
     ) {
+        $this->paymentTokenFactory = $paymentTokenFactory;
+        $this->encryptor = $encryptor;
+        $this->cardHandler = $cardHandler;
+        $this->json = $json;
     }
 
     /**

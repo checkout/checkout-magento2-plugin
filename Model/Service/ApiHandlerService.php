@@ -63,19 +63,39 @@ class ApiHandlerService
      * @var mixed
      */
     protected $checkoutApi;
+    private StoreManagerInterface $storeManager;
+    private ProductMetadataInterface $productMeta;
+    private Config $config;
+    private Utilities $utilities;
+    private Logger $logger;
+    private OrderHandlerService $orderHandler;
+    private QuoteHandlerService $quoteHandler;
+    private VersionHandlerService $versionHandler;
+    protected ScopeConfigInterface $scopeConfig;
+    protected Json $json;
 
     public function __construct(
-        private StoreManagerInterface $storeManager,
-        private ProductMetadataInterface $productMeta,
-        private Config $config,
-        private Utilities $utilities,
-        private Logger $logger,
-        private OrderHandlerService $orderHandler,
-        private QuoteHandlerService $quoteHandler,
-        private VersionHandlerService $versionHandler,
-        protected ScopeConfigInterface $scopeConfig,
-        protected Json $json
+        StoreManagerInterface $storeManager,
+        ProductMetadataInterface $productMeta,
+        Config $config,
+        Utilities $utilities,
+        Logger $logger,
+        OrderHandlerService $orderHandler,
+        QuoteHandlerService $quoteHandler,
+        VersionHandlerService $versionHandler,
+        ScopeConfigInterface $scopeConfig,
+        Json $json
     ) {
+        $this->storeManager = $storeManager;
+        $this->productMeta = $productMeta;
+        $this->config = $config;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
+        $this->orderHandler = $orderHandler;
+        $this->quoteHandler = $quoteHandler;
+        $this->versionHandler = $versionHandler;
+        $this->scopeConfig = $scopeConfig;
+        $this->json = $json;
     }
 
     /**

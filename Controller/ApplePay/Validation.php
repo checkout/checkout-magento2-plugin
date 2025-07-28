@@ -32,13 +32,21 @@ use Magento\Framework\HTTP\Client\Curl;
  */
 class Validation extends Action
 {
+    private RawFactory $rawFactory;
+    private Curl $curl;
+    private Config $config;
+
     public function __construct(
         Context $context,
-        private RawFactory $rawFactory,
-        private Curl $curl,
-        private Config $config
+        RawFactory $rawFactory,
+        Curl $curl,
+        Config $config
     ) {
         parent::__construct($context);
+
+        $this->rawFactory = $rawFactory;
+        $this->curl = $curl;
+        $this->config = $config;
     }
 
     /**

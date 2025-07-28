@@ -41,20 +41,39 @@ class WebhookHandlerService
     /**
      * WEBHOOK_PAYMENT_TYPES constant
      */
-    public const array WEBHOOK_PAYMENT_TYPES = ['payment_approved', 'payment_capture_pending', 'payment_captured'];
-    protected AbstractCollection | AbstractDb | null $collection;
+    public const WEBHOOK_PAYMENT_TYPES = ['payment_approved', 'payment_capture_pending', 'payment_captured'];
+    protected $collection;
+
+    private OrderHandlerService $orderHandler;
+    private OrderStatusHandlerService $orderStatusHandler;
+    private TransactionHandlerService $transactionHandler;
+    private WebhookEntityFactory $webhookEntityFactory;
+    private Config $config;
+    private Logger $logger;
+    private WebhookEntityRepositoryInterface $webhookEntityRepository;
+    private Json $json;
+    private ResourceConnection $resourceConnection;
 
     public function __construct(
-        private OrderHandlerService $orderHandler,
-        private OrderStatusHandlerService $orderStatusHandler,
-        private TransactionHandlerService $transactionHandler,
-        private WebhookEntityFactory $webhookEntityFactory,
-        private Config $config,
-        private Logger $logger,
-        private WebhookEntityRepositoryInterface $webhookEntityRepository,
-        private Json $json,
-        private ResourceConnection $resourceConnection
+        OrderHandlerService $orderHandler,
+        OrderStatusHandlerService $orderStatusHandler,
+        TransactionHandlerService $transactionHandler,
+        WebhookEntityFactory $webhookEntityFactory,
+        Config $config,
+        Logger $logger,
+        WebhookEntityRepositoryInterface $webhookEntityRepository,
+        Json $json,
+        ResourceConnection $resourceConnection
     ) {
+        $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
+        $this->transactionHandler = $transactionHandler;
+        $this->webhookEntityFactory = $webhookEntityFactory;
+        $this->config = $config;
+        $this->logger = $logger;
+        $this->webhookEntityRepository = $webhookEntityRepository;
+        $this->json = $json;
+        $this->resourceConnection = $resourceConnection;
     }
 
     /**

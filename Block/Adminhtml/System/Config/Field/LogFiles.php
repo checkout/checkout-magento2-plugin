@@ -34,7 +34,7 @@ class LogFiles extends Field
     /**
      * TEMPLATE constant
      */
-    const string TEMPLATE = 'system/config/logfile_admin.phtml';
+    const TEMPLATE = 'system/config/logfile_admin.phtml';
 
     /**
      * Set the template

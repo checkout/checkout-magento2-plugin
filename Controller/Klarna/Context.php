@@ -38,14 +38,27 @@ use Magento\Framework\Serialize\SerializerInterface;
  */
 class Context implements HttpPostActionInterface
 {
+    protected JsonFactory $resultJsonFactory;
+    protected PaymentContextRequestService $paymentContextRequestService;
+    protected RequestInterface $request;
+    protected QuoteHandlerService $quoteHandlerService;
+    protected SerializerInterface $serializer;
+    protected Logger $logger;
+
     public function __construct(
-        protected JsonFactory $resultJsonFactory,
-        protected PaymentContextRequestService $paymentContextRequestService,
-        protected RequestInterface $request,
-        protected QuoteHandlerService $quoteHandlerService,
-        protected SerializerInterface $serializer,
-        protected Logger $logger
+        JsonFactory $resultJsonFactory,
+        PaymentContextRequestService $paymentContextRequestService,
+        RequestInterface $request,
+        QuoteHandlerService $quoteHandlerService,
+        SerializerInterface $serializer,
+        Logger $logger
     ) {
+        $this->resultJsonFactory = $resultJsonFactory;
+        $this->paymentContextRequestService = $paymentContextRequestService;
+        $this->request = $request;
+        $this->quoteHandlerService = $quoteHandlerService;
+        $this->serializer = $serializer;
+        $this->logger = $logger;
     }
 
     /**

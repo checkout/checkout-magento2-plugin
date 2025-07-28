@@ -28,9 +28,12 @@ use Magento\Sales\Api\OrderManagementInterface;
  */
 class AfterPlaceOrder
 {
+    private Config $config;
+
     public function __construct(
-        private Config $config
+        Config $config
     ) {
+        $this->config = $config;
     }
 
     /**

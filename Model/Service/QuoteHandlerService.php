@@ -43,19 +43,42 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class QuoteHandlerService
 {
+    private Session $checkoutSession;
+    private CustomerSession $customerSession;
+    private CookieManagerInterface $cookieManager;
+    private QuoteFactory $quoteFactory;
+    private CartRepositoryInterface $cartRepository;
+    private StoreManagerInterface $storeManager;
+    private ProductRepositoryInterface $productRepository;
+    private Config $config;
+    private ShopperHandlerService $shopperHandler;
+    private Logger $logger;
+    private DataObjectFactory $dataObjectFactor;
+
     public function __construct(
-        private Session $checkoutSession,
-        private CustomerSession $customerSession,
-        private CookieManagerInterface $cookieManager,
-        private QuoteFactory $quoteFactory,
-        private CartRepositoryInterface $cartRepository,
-        private StoreManagerInterface $storeManager,
-        private ProductRepositoryInterface $productRepository,
-        private Config $config,
-        private ShopperHandlerService $shopperHandler,
-        private Logger $logger,
-        private DataObjectFactory $dataObjectFactory
+        Session $checkoutSession,
+        CustomerSession $customerSession,
+        CookieManagerInterface $cookieManager,
+        QuoteFactory $quoteFactory,
+        CartRepositoryInterface $cartRepository,
+        StoreManagerInterface $storeManager,
+        ProductRepositoryInterface $productRepository,
+        Config $config,
+        ShopperHandlerService $shopperHandler,
+        Logger $logger,
+        DataObjectFactory $dataObjectFactory
     ) {
+        $this->checkoutSession = $checkoutSession;
+        $this->customerSession = $customerSession;
+        $this->cookieManager = $cookieManager;
+        $this->quoteFactory = $quoteFactory;
+        $this->cartRepository = $cartRepository;
+        $this->storeManager = $storeManager;
+        $this->productRepository = $productRepository;
+        $this->config = $config;
+        $this->shopperHandler = $shopperHandler;
+        $this->logger = $logger;
+        $this->dataObjectFactory = $dataObjectFactory;
     }
 
     /**

@@ -63,65 +63,75 @@ class CardPaymentMethod extends AbstractMethod
     /**
      * CODE constant
      */
-    const string CODE = 'checkoutcom_card_payment';
+    const CODE = 'checkoutcom_card_payment';
 
     /**
      * PREFERRED_SCHEMES constant
      */
-    const array PREFERRED_SCHEMES = ['VISA', 'MASTERCARD', 'CARTES_BANCAIRES'];
+    const PREFERRED_SCHEMES = ['VISA', 'MASTERCARD', 'CARTES_BANCAIRES'];
 
     /**
      * $code field
      *
      * @var string $code
      */
-    protected string $code = self::CODE;
+    protected $code = self::CODE;
     /**
      * $canAuthorize field
      *
      * @var bool $canAuthorize
      */
-    protected bool $canAuthorize = true;
+    protected $canAuthorize = true;
     /**
      * $canCapture field
      */
-    protected bool $canCapture = true;
+    protected $canCapture = true;
     /**
      * $canCapturePartial field
      */
-    protected bool $canCapturePartial = true;
+    protected $canCapturePartial = true;
     /**
      * $canVoid field
      */
-    protected bool $canVoid = true;
+    protected $canVoid = true;
     /**
      * $canUseInternal field
      */
-    protected bool $canUseInternal = false;
+    protected $canUseInternal = false;
     /**
      * $canUseCheckout field
      */
-    protected bool $canUseCheckout = true;
+    protected $canUseCheckout = true;
     /**
      * $canRefund field
      */
-    protected bool $canRefund = true;
+    protected $canRefund = true;
     /**
      * $canRefundInvoicePartial field
      */
-    protected bool $canRefundInvoicePartial = true;
+    protected $canRefundInvoicePartial = true;
+    private Session $backendAuthSession;
+    private CustomerModelSession $customerSession;
+    private Config $config;
+    private ApiHandlerService $apiHandler;
+    private Utilities $utilities;
+    private StoreManagerInterface $storeManager;
+    private QuoteHandlerService $quoteHandler;
+    private CardHandlerService $cardHandler;
+    private LoggerHelper $ckoLogger;
+    protected Json $json;
 
     public function __construct(
-        private Session $backendAuthSession,
-        private CustomerModelSession $customerSession,
-        private Config $config,
-        private ApiHandlerService $apiHandler,
-        private Utilities $utilities,
-        private StoreManagerInterface $storeManager,
-        private QuoteHandlerService $quoteHandler,
-        private CardHandlerService $cardHandler,
-        private LoggerHelper $ckoLogger,
-        protected Json $json,
+        Session $backendAuthSession,
+        CustomerModelSession $customerSession,
+        Config $config,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
+        StoreManagerInterface $storeManager,
+        QuoteHandlerService $quoteHandler,
+        CardHandlerService $cardHandler,
+        LoggerHelper $ckoLogger,
+        Json $json,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -150,6 +160,16 @@ class CardPaymentMethod extends AbstractMethod
             $resourceCollection,
             $data
         );
+        $this->backendAuthSession = $backendAuthSession;
+        $this->customerSession = $customerSession;
+        $this->config = $config;
+        $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
+        $this->storeManager = $storeManager;
+        $this->quoteHandler = $quoteHandler;
+        $this->cardHandler = $cardHandler;
+        $this->ckoLogger = $ckoLogger;
+        $this->json = $json;
     }
 
     /**

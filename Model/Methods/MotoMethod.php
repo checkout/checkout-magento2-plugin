@@ -52,51 +52,55 @@ class MotoMethod extends AbstractMethod
      *
      * @var string CODE
      */
-    const string CODE = 'checkoutcom_moto';
+    const CODE = 'checkoutcom_moto';
     /**
      * $code field
      */
-    protected string $code = self::CODE;
+    protected $code = self::CODE;
     /**
      * $formBlockType
      *
      * @var string $formBlockType
      */
-    protected string $formBlockType = Moto::class;
+    protected $formBlockType = Moto::class;
     /**
      * bool $canAuthorize
      *
      * @var bool bool $canAuthorize
      */
-    protected bool $canAuthorize = true;
+    protected $canAuthorize = true;
     /**
      * $canCapture field
      */
-    protected bool $canCapture = true;
+    protected $canCapture = true;
     /**
      * $canCapturePartial field
      */
-    protected bool $canCapturePartial = true;
+    protected $canCapturePartial = true;
     /**
      * $canVoid field
      */
-    protected bool $canVoid = true;
+    protected $canVoid = true;
     /**
      * $canUseInternal field
      */
-    protected bool $canUseInternal = true;
+    protected $canUseInternal = true;
     /**
      * $canUseCheckout field
      */
-    protected bool $canUseCheckout = true;
+    protected $canUseCheckout = true;
     /**
      * $canRefund field
      */
-    protected bool $canRefund = true;
+    protected $canRefund = true;
     /**
      * $canRefundInvoicePartial field
      */
-    protected bool $canRefundInvoicePartial = true;
+    protected $canRefundInvoicePartial = true;
+
+    private Session $backendAuthSession;
+    private Config $config;
+    private ApiHandlerService $apiHandler;
 
     /**
      * MotoMethod constructor
@@ -118,9 +122,9 @@ class MotoMethod extends AbstractMethod
      * @param array $data
      */
     public function __construct(
-        private Session $backendAuthSession,
-        private Config $config,
-        private ApiHandlerService $apiHandler,
+        Session $backendAuthSession,
+        Config $config,
+        ApiHandlerService $apiHandler,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -149,6 +153,9 @@ class MotoMethod extends AbstractMethod
             $resourceCollection,
             $data
         );
+        $this->backendAuthSession = $backendAuthSession;
+        $this->config = $config;
+        $this->apiHandler = $apiHandler;
     }
 
     /**

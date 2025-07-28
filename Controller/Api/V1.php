@@ -43,20 +43,39 @@ use Magento\Store\Model\StoreManagerInterface;
 class V1 extends Action
 {
     private $data;
+    private JsonFactory $jsonFactory;
+    private Config $config;
+    private StoreManagerInterface $storeManager;
+    private QuoteHandlerService $quoteHandler;
+    private OrderHandlerService $orderHandler;
+    private MethodHandlerService $methodHandler;
+    private ApiHandlerService $apiHandler;
+    private Utilities $utilities;
+    private OrderRepositoryInterface $orderRepository;
 
     public function __construct(
         Context $context,
-        private JsonFactory $jsonFactory,
-        private Config $config,
-        private StoreManagerInterface $storeManager,
-        private QuoteHandlerService $quoteHandler,
-        private OrderHandlerService $orderHandler,
-        private MethodHandlerService $methodHandler,
-        private ApiHandlerService $apiHandler,
-        private Utilities $utilities,
-        private OrderRepositoryInterface $orderRepository
+        JsonFactory $jsonFactory,
+        Config $config,
+        StoreManagerInterface $storeManager,
+        QuoteHandlerService $quoteHandler,
+        OrderHandlerService $orderHandler,
+        MethodHandlerService $methodHandler,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
+        OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
+
+        $this->jsonFactory = $jsonFactory;
+        $this->config = $config;
+        $this->storeManager = $storeManager;
+        $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
+        $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
+        $this->orderRepository = $orderRepository;
     }
 
     /**

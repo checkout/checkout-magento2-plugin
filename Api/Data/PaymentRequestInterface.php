@@ -29,39 +29,39 @@ interface PaymentRequestInterface
     /**
      * PAYMENT_TOKEN constant
      */
-    public const string PAYMENT_TOKEN = 'payment_token';
+    public const PAYMENT_TOKEN = 'payment_token';
     /**
      * PAYMENT_METHOD constant
      */
-    public const string PAYMENT_METHOD = 'payment_method';
+    public const PAYMENT_METHOD = 'payment_method';
     /**
      * QUOTE_ID constant
      */
-    public const string QUOTE_ID = 'quote_id';
+    public const QUOTE_ID = 'quote_id';
     /**
      * CARD_BIN constant
      */
-    public const string CARD_BIN = 'card_bin';
+    public const CARD_BIN = 'card_bin';
     /**
      * CARD_CVV constant
      */
-    public const string CARD_CVV = 'card_cvv';
+    public const CARD_CVV = 'card_cvv';
     /**
      * PUBLIC_HASH constant
      */
-    public const string PUBLIC_HASH = 'public_hash';
+    public const PUBLIC_HASH = 'public_hash';
     /**
      * SAVE_CARD constant
      */
-    public const string SAVE_CARD = 'save_card';
+    public const SAVE_CARD = 'save_card';
     /**
      * SUCCESS_URL constant
      */
-    public const string SUCCESS_URL = 'success_url';
+    public const SUCCESS_URL = 'success_url';
     /**
      * FAILURE_URL constant
      */
-    public const string FAILURE_URL = 'failure_url';
+    public const FAILURE_URL = 'failure_url';
 
     /**
      * Get the payment token

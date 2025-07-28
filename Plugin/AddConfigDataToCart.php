@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Plugin;
+
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -24,10 +25,15 @@ use Magento\Checkout\Model\CompositeConfigProvider;
 
 class AddConfigDataToCart
 {
+    private Config $config;
+    private CompositeConfigProvider $compositeConfigProvider;
+
     public function __construct(
-        private Config $config,
-        private CompositeConfigProvider $compositeConfigProvider
+        Config $config,
+        CompositeConfigProvider $compositeConfigProvider
     ) {
+        $this->config = $config;
+        $this->compositeConfigProvider = $compositeConfigProvider;
     }
 
     public function afterGetSectionData(Cart $subject, array $result): array

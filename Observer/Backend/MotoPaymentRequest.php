@@ -51,18 +51,39 @@ use Magento\Store\Model\ScopeInterface;
  */
 class MotoPaymentRequest implements ObserverInterface
 {
+    private Session $backendAuthSession;
+    private RequestInterface $request;
+    private ManagerInterface $messageManager;
+    private ApiHandlerService $apiHandler;
+    private OrderHandlerService $orderHandler;
+    private VaultHandlerService $vaultHandler;
+    private Config $config;
+    private Utilities $utilities;
+    private Logger $logger;
+    private BackendUrl $backendUrl;
+
     public function __construct(
-        private Session $backendAuthSession,
-        private RequestInterface $request,
-        private ManagerInterface $messageManager,
-        private ApiHandlerService $apiHandler,
-        private OrderHandlerService $orderHandler,
-        private VaultHandlerService $vaultHandler,
-        private Config $config,
-        private Utilities $utilities,
-        private Logger $logger,
-        private BackendUrl $backendUrl
+        Session $backendAuthSession,
+        RequestInterface $request,
+        ManagerInterface $messageManager,
+        ApiHandlerService $apiHandler,
+        OrderHandlerService $orderHandler,
+        VaultHandlerService $vaultHandler,
+        Config $config,
+        Utilities $utilities,
+        Logger $logger,
+        BackendUrl $backendUrl
     ) {
+        $this->backendAuthSession = $backendAuthSession;
+        $this->request = $request;
+        $this->messageManager = $messageManager;
+        $this->apiHandler = $apiHandler;
+        $this->orderHandler = $orderHandler;
+        $this->vaultHandler = $vaultHandler;
+        $this->config = $config;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
+        $this->backendUrl = $backendUrl;
     }
 
     /**

@@ -29,35 +29,35 @@ interface WebhookEntityInterface
     /**
      * ID constant
      */
-    public const string ID = 'id';
+    public const ID = 'id';
     /**
      * EVENT_ID constant
      */
-    public const string EVENT_ID = 'event_id';
+    public const EVENT_ID = 'event_id';
     /**
      * EVENT_TYPE constant
      */
-    public const string EVENT_TYPE = 'event_type';
+    public const EVENT_TYPE = 'event_type';
     /**
      * EVENT_DATA constant
      */
-    public const string EVENT_DATA = 'event_data';
+    public const EVENT_DATA = 'event_data';
     /**
      * ORDER_ID constant
      */
-    public const string ORDER_ID = 'order_id';
+    public const ORDER_ID = 'order_id';
     /**
      * RECEIVED_AT constant
      */
-    public const string RECEIVED_AT = 'received_at';
+    public const RECEIVED_AT = 'received_at';
     /**
      * PROCESSED_AT constant
      */
-    public const string PROCESSED_AT = 'processed_at';
+    public const PROCESSED_AT = 'processed_at';
     /**
      * PROCESSED constant
      */
-    public const string PROCESSED = 'processed';
+    public const PROCESSED = 'processed';
 
     /**
      * Get the row id

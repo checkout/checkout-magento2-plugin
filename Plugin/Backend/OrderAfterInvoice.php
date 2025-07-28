@@ -31,9 +31,12 @@ use Magento\Sales\Model\Order\Payment\State\CommandInterface as BaseCommandInter
  */
 class OrderAfterInvoice
 {
+    private Config $config;
+
     public function __construct(
-        private Config $config
+        Config $config
     ) {
+        $this->config = $config;
     }
 
     /**

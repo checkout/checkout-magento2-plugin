@@ -49,17 +49,33 @@ class VaultHandlerService
      * @var string $customerEmail
      */
     protected string $customerEmail;
+    private StoreManagerInterface $storeManager;
+    private VaultToken $vaultToken;
+    private PaymentTokenRepositoryInterface $paymentTokenRepository;
+    private PaymentTokenManagementInterface $paymentTokenManagement;
+    private Session $customerSession;
+    private ApiHandlerService $apiHandler;
+    private CardHandlerService $cardHandler;
+    private Config $config;
 
     public function __construct(
-        private StoreManagerInterface $storeManager,
-        private VaultToken $vaultToken,
-        private PaymentTokenRepositoryInterface $paymentTokenRepository,
-        private PaymentTokenManagementInterface $paymentTokenManagement,
-        private Session $customerSession,
-        private ApiHandlerService $apiHandler,
-        private CardHandlerService $cardHandler,
-        private Config $config
+        StoreManagerInterface $storeManager,
+        VaultToken $vaultToken,
+        PaymentTokenRepositoryInterface $paymentTokenRepository,
+        PaymentTokenManagementInterface $paymentTokenManagement,
+        Session $customerSession,
+        ApiHandlerService $apiHandler,
+        CardHandlerService $cardHandler,
+        Config $config
     ) {
+        $this->storeManager = $storeManager;
+        $this->vaultToken = $vaultToken;
+        $this->paymentTokenRepository = $paymentTokenRepository;
+        $this->paymentTokenManagement = $paymentTokenManagement;
+        $this->customerSession = $customerSession;
+        $this->apiHandler = $apiHandler;
+        $this->cardHandler = $cardHandler;
+        $this->config = $config;
     }
 
     /**

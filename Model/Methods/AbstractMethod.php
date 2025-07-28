@@ -64,154 +64,160 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * STATUS_UNKNOWN constant
      */
-    const string STATUS_UNKNOWN = 'UNKNOWN';
+    const STATUS_UNKNOWN = 'UNKNOWN';
     /**
      * STATUS_APPROVED constant
      */
-    const string STATUS_APPROVED = 'APPROVED';
+    const STATUS_APPROVED = 'APPROVED';
     /**
      * STATUS_ERROR constant
      */
-    const string STATUS_ERROR = 'ERROR';
+    const STATUS_ERROR = 'ERROR';
     /**
      * STATUS_DECLINED constant
      */
-    const string STATUS_DECLINED = 'DECLINED';
+    const STATUS_DECLINED = 'DECLINED';
     /**
      * STATUS_VOID constant
      */
-    const string STATUS_VOID = 'VOID';
+    const STATUS_VOID = 'VOID';
     /**
      * STATUS_SUCCESS constant
      */
-    const string STATUS_SUCCESS = 'SUCCESS';
+    const STATUS_SUCCESS = 'SUCCESS';
     /**
      * $code field
      *
      * @var string $code
      */
-    protected string $code;
+    protected $code;
     /**
      * $formBlockType field
      *
      * @var string $formBlockType
      */
-    protected string $formBlockType = Form::class;
+    protected $formBlockType = Form::class;
     /**
      * $infoBlockType field
      *
      * @var string $infoBlockType
      */
-    protected string $infoBlockType = Info::class;
+    protected $infoBlockType = Info::class;
     /**
      * Payment Method feature
      *
      * @var bool $isGateway
      */
-    protected bool $isGateway = false;
+    protected $isGateway = false;
     /**
      * Payment Method feature
      *
      * @var bool $isOffline
      */
-    protected bool $isOffline = false;
+    protected $isOffline = false;
     /**
      * Payment Method feature
      *
      * @var bool $canOrder
      */
-    protected bool $canOrder = false;
+    protected $canOrder = false;
     /**
      * Payment Method feature
      *
      * @var bool $canAuthorize
      */
-    protected bool $canAuthorize = false;
+    protected $canAuthorize = false;
     /**
      * Payment Method feature
      *
      * @var bool $canCapture
      */
-    protected bool $canCapture = false;
+    protected $canCapture = false;
     /**
      * Payment Method feature
      *
      * @var bool $canCapturePartial
      */
-    protected bool $canCapturePartial = false;
+    protected $canCapturePartial = false;
     /**
      * Payment Method feature
      *
      * @var bool $canCaptureOnce
      */
-    protected bool $canCaptureOnce = false;
+    protected $canCaptureOnce = false;
     /**
      * Payment Method feature
      *
      * @var bool $canRefund
      */
-    protected bool $canRefund = false;
+    protected $canRefund = false;
     /**
      * Payment Method feature
      *
      * @var bool $canRefundInvoicePartial
      */
-    protected bool $canRefundInvoicePartial = false;
+    protected $canRefundInvoicePartial = false;
     /**
      * Payment Method feature
      *
      * @var bool $canVoid
      */
-    protected bool $canVoid = false;
+    protected $canVoid = false;
     /**
      * Payment Method feature
      *
      * @var bool $canUseInternal
      */
-    protected bool $canUseInternal = true;
+    protected $canUseInternal = true;
     /**
      * Payment Method feature
      *
      * @var bool $canUseCheckout
      */
-    protected bool $canUseCheckout = true;
+    protected $canUseCheckout = true;
     /**
      * Payment Method feature
      *
      * @var bool $isInitializeNeeded
      */
-    protected bool $isInitializeNeeded = false;
+    protected $isInitializeNeeded = false;
     /**
      * Payment Method feature
      *
      * @var bool $canFetchTransactionInfo
      */
-    protected bool $canFetchTransactionInfo = false;
+    protected $canFetchTransactionInfo = false;
     /**
      * Payment Method feature
      *
      * @var bool $canReviewPayment
      */
-    protected bool $canReviewPayment = false;
+    protected $canReviewPayment = false;
     /**
      * TODO: whether a captured transaction may be voided by this gateway
      * This may happen when amount is captured, but not settled
      *
      * @var bool $canCancelInvoice
      */
-    protected bool $canCancelInvoice = false;
+    protected $canCancelInvoice = false;
     /**
      * Fields that should be replaced in debug with '***'
      *
      * @var array $debugReplacePrivateDataKeys
      */
-    protected array $debugReplacePrivateDataKeys = [];
+    protected $debugReplacePrivateDataKeys = [];
+    protected ScopeConfigInterface $scopeConfig;
+    protected Logger $logger;
+    protected Data $paymentData;
+    protected DataObjectFactory $dataObjectFactory;
     /**
      * $data field
      *
      * @var array $data
      */
     private array $data;
+    private Config $config;
+    private DirectoryHelper $directory;
 
     /**
      * @param Config $config
@@ -230,16 +236,16 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        private Config $config,
-        private DirectoryHelper $directory,
-        protected ScopeConfigInterface $scopeConfig,
-        protected Logger $logger,
+        Config $config,
+        DirectoryHelper $directory,
+        ScopeConfigInterface $scopeConfig,
+        Logger $logger,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory $customAttributeFactory,
-        protected Data $paymentData,
-        protected DataObjectFactory $dataObjectFactory,
+        Data $paymentData,
+        DataObjectFactory $dataObjectFactory,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []
@@ -254,6 +260,11 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
             $data
         );
         $this->data = $data;
+        $this->dataObjectFactory = $dataObjectFactory;
+        $this->directory = $directory;
+        $this->scopeConfig = $scopeConfig;
+        $this->logger = $logger;
+        $this->paymentData = $paymentData;
         $this->dataObjectFactory = $dataObjectFactory;
     }
 
@@ -977,6 +988,16 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     }
 
     /**
+     * Description isModuleActive function
+     *
+     * @return bool
+     */
+    public function isModuleActive(): bool
+    {
+        return (bool)$this->scopeConfig->getValue('settings/checkoutcom_configuration/active', ScopeInterface::SCOPE_WEBSITE);
+    }
+
+    /**
      * Initializes injected data
      *
      * @param mixed[] $data
@@ -988,15 +1009,5 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         if (!empty($data['formBlockType'])) {
             $this->_formBlockType = $data['formBlockType'];
         }
-    }
-
-    /**
-     * Description isModuleActive function
-     *
-     * @return bool
-     */
-    public function isModuleActive(): bool
-    {
-        return (bool)$this->scopeConfig->getValue('settings/checkoutcom_configuration/active', ScopeInterface::SCOPE_WEBSITE);
     }
 }

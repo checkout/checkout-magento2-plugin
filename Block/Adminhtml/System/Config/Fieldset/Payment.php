@@ -30,15 +30,21 @@ use Magento\Framework\View\Helper\Js;
  */
 class Payment extends Fieldset
 {
+    private Config $backendConfig;
+    private VersionHandlerService $versionHandler;
+
     public function __construct(
-        private Config $backendConfig,
-        private VersionHandlerService $versionHandler,
+        Config $backendConfig,
+        VersionHandlerService $versionHandler,
         Context $context,
         Session $authSession,
         Js $jsHelper,
         array $data = []
     ) {
         parent::__construct($context, $authSession, $jsHelper, $data);
+
+        $this->backendConfig = $backendConfig;
+        $this->versionHandler = $versionHandler;
     }
 
     /**

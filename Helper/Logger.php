@@ -28,12 +28,21 @@ use Psr\Log\LoggerInterface;
  */
 class Logger
 {
+    private ManagerInterface $messageManager;
+    private ScopeConfigInterface $scopeConfig;
+    private LoggerInterface $logger;
+    private ResponseHandler $responseLogger;
+
     public function __construct(
-        private ManagerInterface $messageManager,
-        private ScopeConfigInterface $scopeConfig,
-        private LoggerInterface $logger,
-        private ResponseHandler $responseLogger
+        ManagerInterface $messageManager,
+        ScopeConfigInterface $scopeConfig,
+        LoggerInterface $logger,
+        ResponseHandler $responseLogger
     ) {
+        $this->messageManager = $messageManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->logger = $logger;
+        $this->responseLogger = $responseLogger;
     }
 
     /**

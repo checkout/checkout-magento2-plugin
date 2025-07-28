@@ -29,11 +29,15 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class View extends Action
 {
+    protected PageFactory $resultPageFactory;
+
     public function __construct(
-        protected PageFactory $resultPageFactory,
+        PageFactory $resultPageFactory,
         Context $context,
     ) {
         parent::__construct($context);
+
+        $this->resultPageFactory = $resultPageFactory;
     }
 
     /**

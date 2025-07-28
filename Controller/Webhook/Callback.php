@@ -56,26 +56,50 @@ use Magento\Store\Model\StoreManagerInterface;
 class Callback extends Action implements CsrfAwareActionInterface
 {
     private StoreManagerInterface $storeManager;
+    private ScopeConfigInterface $scopeConfig;
+    private ApiHandlerService $apiHandler;
+    private OrderHandlerService $orderHandler;
+    private ShopperHandlerService $shopperHandler;
+    private WebhookHandlerService $webhookHandler;
+    private VaultHandlerService $vaultHandler;
+    private PaymentErrorHandlerService $paymentErrorHandler;
+    private Config $config;
+    private OrderRepositoryInterface $orderRepository;
+    private Logger $logger;
+    private Utilities $utilities;
+    private JsonSerializer $json;
 
     public function __construct(
         Context $context,
         StoreManagerInterface $storeManager,
-        private ScopeConfigInterface $scopeConfig,
-        private ApiHandlerService $apiHandler,
-        private OrderHandlerService $orderHandler,
-        private ShopperHandlerService $shopperHandler,
-        private WebhookHandlerService $webhookHandler,
-        private VaultHandlerService $vaultHandler,
-        private PaymentErrorHandlerService $paymentErrorHandler,
-        private Config $config,
-        private OrderRepositoryInterface $orderRepository,
-        private Logger $logger,
-        private Utilities $utilities,
-        private JsonSerializer $json
+        ScopeConfigInterface $scopeConfig,
+        ApiHandlerService $apiHandler,
+        OrderHandlerService $orderHandler,
+        ShopperHandlerService $shopperHandler,
+        WebhookHandlerService $webhookHandler,
+        VaultHandlerService $vaultHandler,
+        PaymentErrorHandlerService $paymentErrorHandler,
+        Config $config,
+        OrderRepositoryInterface $orderRepository,
+        Logger $logger,
+        Utilities $utilities,
+        JsonSerializer $json
     ) {
         parent::__construct($context);
 
         $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->apiHandler = $apiHandler;
+        $this->orderHandler = $orderHandler;
+        $this->shopperHandler = $shopperHandler;
+        $this->webhookHandler = $webhookHandler;
+        $this->vaultHandler = $vaultHandler;
+        $this->paymentErrorHandler = $paymentErrorHandler;
+        $this->config = $config;
+        $this->orderRepository = $orderRepository;
+        $this->logger = $logger;
+        $this->utilities = $utilities;
+        $this->json = $json;
     }
 
     /**

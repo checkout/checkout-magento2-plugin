@@ -48,19 +48,39 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class DisplaySepa extends Action
 {
+    private PageFactory $pageFactory;
+    private JsonFactory $jsonFactory;
+    private Config $config;
+    private ApiHandlerService $apiHandler;
+    private QuoteHandlerService $quoteHandler;
+    private Information $storeInformation;
+    private StoreManagerInterface $storeManager;
+    private Logger $logger;
+    private Store $storeModel;
+
     public function __construct(
         Context $context,
-        private PageFactory $pageFactory,
-        private JsonFactory $jsonFactory,
-        private Config $config,
-        private ApiHandlerService $apiHandler,
-        private QuoteHandlerService $quoteHandler,
-        private Information $storeInformation,
-        private StoreManagerInterface $storeManager,
-        private Logger $logger,
-        private Store $storeModel
+        PageFactory $pageFactory,
+        JsonFactory $jsonFactory,
+        Config $config,
+        ApiHandlerService $apiHandler,
+        QuoteHandlerService $quoteHandler,
+        Information $storeInformation,
+        StoreManagerInterface $storeManager,
+        Logger $logger,
+        Store $storeModel
     ) {
         parent::__construct($context);
+
+        $this->pageFactory = $pageFactory;
+        $this->jsonFactory = $jsonFactory;
+        $this->config = $config;
+        $this->apiHandler = $apiHandler;
+        $this->quoteHandler = $quoteHandler;
+        $this->storeInformation = $storeInformation;
+        $this->storeManager = $storeManager;
+        $this->logger = $logger;
+        $this->storeModel = $storeModel;
     }
 
     /**

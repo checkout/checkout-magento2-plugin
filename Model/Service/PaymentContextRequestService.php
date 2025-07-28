@@ -68,20 +68,44 @@ class PaymentContextRequestService
      */
     protected ?string $authorizeType = null;
 
+    protected StoreManagerInterface $storeManager;
+    protected ApiHandlerService $apiHandler;
+    protected Session $checkoutSession;
+    protected Config $checkoutConfigProvider;
+    protected UrlInterface $urlBuilder;
+    protected ApiHandlerService $apiHandlerService;
+    protected MagentoLoggerHelper $ckoLogger;
+    protected Utilities $utilities;
+    protected AddressInterfaceFactory $addressInterfaceFactory;
+    protected RegionCollectionFactory $regionCollectionFactory;
+    protected CartRepositoryInterface $cartRepository;
+    protected ShopperHandlerService $shopperHandlerService;
+
     public function __construct(
-        protected StoreManagerInterface $storeManager,
-        protected ApiHandlerService $apiHandler,
-        protected Session $checkoutSession,
-        protected Config $checkoutConfigProvider,
-        protected UrlInterface $urlBuilder,
-        protected ApiHandlerService $apiHandlerService,
-        protected MagentoLoggerHelper $ckoLogger,
-        protected Utilities $utilities,
-        protected AddressInterfaceFactory $addressInterfaceFactory,
-        protected RegionCollectionFactory $regionCollectionFactory,
-        protected CartRepositoryInterface $cartRepository,
-        protected ShopperHandlerService $shopperHandlerService
+        StoreManagerInterface $storeManager,
+        ApiHandlerService $apiHandler,
+        Session $checkoutSession,
+        Config $checkoutConfigProvider,
+        UrlInterface $urlBuilder,
+        ApiHandlerService $apiHandlerService,
+        MagentoLoggerHelper $ckoLogger,
+        Utilities $utilities,
+        AddressInterfaceFactory $addressInterfaceFactory,
+        RegionCollectionFactory $regionCollectionFactory,
+        CartRepositoryInterface $cartRepository,
+        ShopperHandlerService $shopperHandlerService
     ) {
+        $this->storeManager = $storeManager;
+        $this->apiHandler = $apiHandler;
+        $this->checkoutSession = $checkoutSession;
+        $this->checkoutConfigProvider = $checkoutConfigProvider;
+        $this->urlBuilder = $urlBuilder;
+        $this->apiHandlerService = $apiHandlerService;
+        $this->ckoLogger = $ckoLogger;
+        $this->addressInterfaceFactory = $addressInterfaceFactory;
+        $this->regionCollectionFactory = $regionCollectionFactory;
+        $this->cartRepository = $cartRepository;
+        $this->shopperHandlerService = $shopperHandlerService;
     }
 
     public function makePaymentContextRequests(

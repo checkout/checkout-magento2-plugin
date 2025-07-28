@@ -50,12 +50,18 @@ use Magento\Quote\Model\Quote\Address as QuoteAddress;
  */
 class ShippingAddress extends CustomerAddressEdit
 {
+    protected CheckoutSession $checkoutSession;
+    protected AddressConfig $addressConfig;
+    protected CustomerInterfaceFactory $customerInterfaceFactory;
+    protected UrlInterface $url;
+    protected RequestInterface $request;
+
     public function __construct(
-        protected CheckoutSession $checkoutSession,
-        protected AddressConfig $addressConfig,
-        protected CustomerInterfaceFactory $customerInterfaceFactory,
-        protected UrlInterface $url,
-        protected RequestInterface $request,
+        CheckoutSession $checkoutSession,
+        AddressConfig $addressConfig,
+        CustomerInterfaceFactory $customerInterfaceFactory,
+        UrlInterface $url,
+        RequestInterface $request,
         Context $context,
         Data $directoryHelper,
         EncoderInterface $jsonEncoder,
@@ -88,6 +94,11 @@ class ShippingAddress extends CustomerAddressEdit
             $addressHelper
         );
         $this->_address = $this->checkoutSession->getQuote()->getShippingAddress();
+        $this->checkoutSession = $checkoutSession;
+        $this->addressConfig = $addressConfig;
+        $this->customerInterfaceFactory = $customerInterfaceFactory;
+        $this->url = $url;
+        $this->request = $request;
     }
 
     public function getCustomer(): CustomerInterface

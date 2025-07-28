@@ -35,15 +35,30 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Config
 {
+    private Repository $assetRepository;
+    private StoreManagerInterface $storeManager;
+    private ScopeConfigInterface $scopeConfig;
+    private RequestInterface $request;
+    private Loader $loader;
+    private Utilities $utilities;
+    private Logger $logger;
+
     public function __construct(
-        private Repository $assetRepository,
-        private StoreManagerInterface $storeManager,
-        private ScopeConfigInterface $scopeConfig,
-        private RequestInterface $request,
-        private Loader $loader,
-        private Utilities $utilities,
-        private Logger $logger
+        Repository $assetRepository,
+        StoreManagerInterface $storeManager,
+        ScopeConfigInterface $scopeConfig,
+        RequestInterface $request,
+        Loader $loader,
+        Utilities $utilities,
+        Logger $logger
     ) {
+        $this->assetRepository = $assetRepository;
+        $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->request = $request;
+        $this->loader = $loader;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
     }
 
     /**

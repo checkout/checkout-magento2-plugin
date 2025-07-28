@@ -32,11 +32,18 @@ use Magento\Sales\Model\Order\Payment;
  */
 class OrderAfterCancel implements ObserverInterface
 {
+    private Session $backendAuthSession;
+    private Config $config;
+    private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository;
+
     public function __construct(
-        private Session $backendAuthSession,
-        private Config $config,
-        private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+        Session $backendAuthSession,
+        Config $config,
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
+        $this->backendAuthSession = $backendAuthSession;
+        $this->config = $config;
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**

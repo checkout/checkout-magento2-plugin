@@ -40,32 +40,34 @@ class Webhooks extends Command
      *
      * @var string DATE
      */
-    const string DATE = 'date';
+    const DATE = 'date';
     /**
      * START_DATE constant
      *
      * @var string START_DATE
      */
-    const string START_DATE = 'start-date';
+    const START_DATE = 'start-date';
     /**
      * END_DATE constant
      *
      * @var string END_DATE
      */
-    const string END_DATE = 'end-date';
-    /**
-     * $webhookHandler field
-     *
-     * @var WebhookHandlerService $webhookHandler
-     */
-    private $webhookHandler;
+    const END_DATE = 'end-date';
+    protected State $state;
+    private WebhookHandlerService $webhookHandler;
+    private WebhookEntityRepositoryInterface $webhookEntityRepository;
+    private WebhookHandlerServiceFactory $webhookHandlerFactory;
 
     public function __construct(
-        protected State $state,
-        private WebhookEntityRepositoryInterface $webhookEntityRepository,
-        private WebhookHandlerServiceFactory $webhookHandlerFactory,
+        State $state,
+        WebhookEntityRepositoryInterface $webhookEntityRepository,
+        WebhookHandlerServiceFactory $webhookHandlerFactory,
     ) {
         parent::__construct();
+
+        $this->state = $state;
+        $this->webhookEntityRepository = $webhookEntityRepository;
+        $this->webhookHandlerFactory = $webhookHandlerFactory;
     }
 
     /**

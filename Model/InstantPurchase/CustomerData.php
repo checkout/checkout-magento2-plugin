@@ -35,16 +35,33 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class CustomerData implements SectionSourceInterface
 {
+    private StoreManagerInterface $storeManager;
+    private InstantPurchaseInterface $instantPurchase;
+    private Session $customerSession;
+    private TokenFormatter $paymentTokenFormatter;
+    private CustomerAddressesFormatter $customerAddressesFormatter;
+    private ShippingMethodFormatter $shippingMethodFormatter;
+    private VaultHandlerService $vaultHandler;
+    private AvailabilityChecker $availabilityChecker;
+
     public function __construct(
-        private StoreManagerInterface $storeManager,
-        private InstantPurchaseInterface $instantPurchase,
-        private Session $customerSession,
-        private TokenFormatter $paymentTokenFormatter,
-        private CustomerAddressesFormatter $customerAddressesFormatter,
-        private ShippingMethodFormatter $shippingMethodFormatter,
-        private VaultHandlerService $vaultHandler,
-        private AvailabilityChecker $availabilityChecker
+        StoreManagerInterface $storeManager,
+        InstantPurchaseInterface $instantPurchase,
+        Session $customerSession,
+        TokenFormatter $paymentTokenFormatter,
+        CustomerAddressesFormatter $customerAddressesFormatter,
+        ShippingMethodFormatter $shippingMethodFormatter,
+        VaultHandlerService $vaultHandler,
+        AvailabilityChecker $availabilityChecker
     ) {
+        $this->storeManager = $storeManager;
+        $this->instantPurchase = $instantPurchase;
+        $this->customerSession = $customerSession;
+        $this->paymentTokenFormatter = $paymentTokenFormatter;
+        $this->customerAddressesFormatter = $customerAddressesFormatter;
+        $this->shippingMethodFormatter = $shippingMethodFormatter;
+        $this->vaultHandler = $vaultHandler;
+        $this->availabilityChecker = $availabilityChecker;
     }
 
     /**

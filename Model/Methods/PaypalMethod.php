@@ -67,39 +67,51 @@ class PaypalMethod extends AbstractMethod
     /**
      * $code field
      */
-    protected string $code = self::CODE;
+    protected $code = self::CODE;
     /**
      * $canAuthorize field
      */
-    protected bool $canAuthorize = true;
+    protected $canAuthorize = true;
     /**
      * $canCapture field
      */
-    protected bool $canCapture = true;
+    protected $canCapture = true;
     /**
      * $canCapturePartial field
      */
-    protected bool $canCapturePartial = true;
+    protected $canCapturePartial = true;
     /**
      * $canVoid field
      */
-    protected bool $canVoid = true;
+    protected $canVoid = true;
     /**
      * $canUseInternal field
      */
-    protected bool $canUseInternal = false;
+    protected $canUseInternal = false;
     /**
      * $canUseCheckout field
      */
-    protected bool $canUseCheckout = true;
+    protected $canUseCheckout = true;
     /**
      * $canRefund field
      */
-    protected bool $canRefund = true;
+    protected $canRefund = true;
     /**
      * $canRefundInvoicePartial field
      */
-    protected bool $canRefundInvoicePartial = true;
+    protected $canRefundInvoicePartial = true;
+
+    private Config $config;
+    private ApiHandlerService $apiHandler;
+    private Utilities $utilities;
+    private StoreManagerInterface $storeManager;
+    private QuoteHandlerService $quoteHandler;
+    private LoggerHelper $ckoLogger;
+    private Session $backendAuthSession;
+    protected DirectoryHelper $directoryHelper;
+    protected DataObjectFactory $dataObjectFactory;
+    private Json $json;
+    protected PaymentContextRequestService $contextService;
 
     public function __construct(
         Context $context,
@@ -109,17 +121,17 @@ class PaypalMethod extends AbstractMethod
         Data $paymentData,
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
-        private Config $config,
-        private ApiHandlerService $apiHandler,
-        private Utilities $utilities,
-        private StoreManagerInterface $storeManager,
-        private QuoteHandlerService $quoteHandler,
-        private LoggerHelper $ckoLogger,
-        private Session $backendAuthSession,
-        protected DirectoryHelper $directoryHelper,
-        protected DataObjectFactory $dataObjectFactory,
-        private Json $json,
-        protected PaymentContextRequestService $contextService,
+        Config $config,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
+        StoreManagerInterface $storeManager,
+        QuoteHandlerService $quoteHandler,
+        LoggerHelper $ckoLogger,
+        Session $backendAuthSession,
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory,
+        Json $json,
+        PaymentContextRequestService $contextService,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []
@@ -139,6 +151,18 @@ class PaypalMethod extends AbstractMethod
             $resourceCollection,
             $data
         );
+
+        $this->config = $config;
+        $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
+        $this->storeManager = $storeManager;
+        $this->quoteHandler = $quoteHandler;
+        $this->ckoLogger = $ckoLogger;
+        $this->backendAuthSession = $backendAuthSession;
+        $this->directoryHelper = $directoryHelper;
+        $this->dataObjectFactory = $dataObjectFactory;
+        $this->json = $json;
+        $this->contextService = $contextService;
     }
 
     /**

@@ -38,10 +38,14 @@ use Magento\Framework\View\Element\Template\Context;
  */
 class CheckoutConfig extends Onepage
 {
+    private Cart $cart;
+    private Config $checkoutComConfig;
+    private ConfigProvider $checkoutComConfigProvider;
+
     public function __construct(
-        private Cart $cart,
-        private Config $checkoutComConfig,
-        private ConfigProvider $checkoutComConfigProvider,
+        Cart $cart,
+        Config $checkoutComConfig,
+        ConfigProvider $checkoutComConfigProvider,
         Context $context,
         FormKey $formKey,
         CompositeConfigProvider $configProvider,
@@ -59,8 +63,11 @@ class CheckoutConfig extends Onepage
             $serializer,
             $serializerInterface
         );
-        $this->serializer = $serializerInterface ?: ObjectManager::getInstance()
-            ->get(JsonHexTag::class);
+
+        $this->cart = $cart;
+        $this->checkoutComConfig = $checkoutComConfig;
+        $this->checkoutComConfigProvider = $checkoutComConfigProvider;
+        $this->serializer = $serializerInterface ?: ObjectManager::getInstance()->get(JsonHexTag::class);
     }
 
     public function getProductCount(): int

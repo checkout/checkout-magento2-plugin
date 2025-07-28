@@ -27,15 +27,25 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 
 class View extends Template
 {
+    private Utilities $utilities;
+    private Http $request;
+    private OrderRepositoryInterface $orderRepository;
+    private Loader $configLoader;
+
     public function __construct(
-        private Utilities $utilities,
-        private Http $request,
-        private OrderRepositoryInterface $orderRepository,
-        private Loader $configLoader,
+        Utilities $utilities,
+        Http $request,
+        OrderRepositoryInterface $orderRepository,
+        Loader $configLoader,
         Context $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
+
+        $this->utilities = $utilities;
+        $this->request = $request;
+        $this->orderRepository = $orderRepository;
+        $this->configLoader = $configLoader;
     }
 
     public function getCkoPaymentData(string $data): ?string

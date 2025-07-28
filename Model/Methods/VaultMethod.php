@@ -64,43 +64,55 @@ class VaultMethod extends AbstractMethod
      *
      * @var string CODE
      */
-    const string CODE = 'checkoutcom_vault';
+    const CODE = 'checkoutcom_vault';
     /**
      * $code field
      */
-    protected string $code = self::CODE;
+    protected $code = self::CODE;
     /**
      * $canAuthorize field
      */
-    protected bool $canAuthorize = true;
+    protected $canAuthorize = true;
     /**
      * $canCapture field
      */
-    protected bool $canCapture = true;
+    protected $canCapture = true;
     /**
      * $canCapturePartial field
      */
-    protected bool $canCapturePartial = true;
+    protected $canCapturePartial = true;
     /**
      * $canVoid field
      */
-    protected bool $canVoid = true;
+    protected $canVoid = true;
     /**
      * $canUseInternal field
      */
-    protected bool $canUseInternal = true;
+    protected $canUseInternal = true;
     /**
      * $canUseCheckout field
      */
-    protected bool $canUseCheckout = true;
+    protected $canUseCheckout = true;
     /**
      * $canRefund field
      */
-    protected bool $canRefund = true;
+    protected $canRefund = true;
     /**
      * $canRefundInvoicePartial field
      */
-    protected bool $canRefundInvoicePartial = true;
+    protected $canRefundInvoicePartial = true;
+
+    private Session $backendAuthSession;
+    private Config $config;
+    private ApiHandlerService $apiHandler;
+    private Utilities $utilities;
+    private StoreManagerInterface $storeManager;
+    private VaultHandlerService $vaultHandler;
+    private CardHandlerService $cardHandler;
+    private QuoteHandlerService $quoteHandler;
+    private LoggerHelper $ckoLogger;
+    protected DirectoryHelper $directoryHelper;
+    protected DataObjectFactory $dataObjectFactory;
 
     public function __construct(
         Context $context,
@@ -110,17 +122,17 @@ class VaultMethod extends AbstractMethod
         Data $paymentData,
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
-        private Session $backendAuthSession,
-        private Config $config,
-        private ApiHandlerService $apiHandler,
-        private Utilities $utilities,
-        private StoreManagerInterface $storeManager,
-        private VaultHandlerService $vaultHandler,
-        private CardHandlerService $cardHandler,
-        private QuoteHandlerService $quoteHandler,
-        private LoggerHelper $ckoLogger,
-        protected DirectoryHelper $directoryHelper,
-        protected DataObjectFactory $dataObjectFactory,
+        Session $backendAuthSession,
+        Config $config,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
+        StoreManagerInterface $storeManager,
+        VaultHandlerService $vaultHandler,
+        CardHandlerService $cardHandler,
+        QuoteHandlerService $quoteHandler,
+        LoggerHelper $ckoLogger,
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []
@@ -140,6 +152,18 @@ class VaultMethod extends AbstractMethod
             $resourceCollection,
             $data
         );
+
+        $this->backendAuthSession = $backendAuthSession;
+        $this->config = $config;
+        $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
+        $this->storeManager = $storeManager;
+        $this->vaultHandler = $vaultHandler;
+        $this->cardHandler = $cardHandler;
+        $this->quoteHandler = $quoteHandler;
+        $this->ckoLogger = $ckoLogger;
+        $this->directoryHelper = $directoryHelper;
+        $this->dataObjectFactory = $dataObjectFactory;
     }
 
     /**

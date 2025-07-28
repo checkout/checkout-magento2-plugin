@@ -27,8 +27,10 @@ use Magento\Sales\Model\ResourceModel\Order\Status\Collection;
  */
 class ConfigOrderStatus implements OptionSourceInterface
 {
+    private Collection $orderStatusCollection;
+
     public function __construct(
-        private Collection $orderStatusCollection
+        Collection $orderStatusCollection
     ) {
     }
 

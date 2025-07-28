@@ -29,23 +29,23 @@ class ConfigGooglePayNetworks implements OptionSourceInterface
     /**
      * CARD_VISA string
      */
-    const string CARD_VISA = 'VISA';
+    const CARD_VISA = 'VISA';
     /**
      * CARD_MASTERCARD string
      */
-    const string CARD_MASTERCARD = 'MASTERCARD';
+    const CARD_MASTERCARD = 'MASTERCARD';
     /**
      * CARD_AMEX string
      */
-    const string CARD_AMEX = 'AMEX';
+    const CARD_AMEX = 'AMEX';
     /**
      * CARD_JCB string
      */
-    const string CARD_JCB = 'JCB';
+    const CARD_JCB = 'JCB';
     /**
      * CARD_DISCOVER string
      */
-    const string CARD_DISCOVER = 'DISCOVER';
+    const CARD_DISCOVER = 'DISCOVER';
 
     /**
      * Possible Google Pay Cards

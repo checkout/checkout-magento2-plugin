@@ -56,24 +56,50 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class PlaceOrder extends Action
 {
+    private StoreManagerInterface $storeManager;
+    private JsonFactory $jsonFactory;
+    private QuoteHandlerService $quoteHandler;
+    private OrderHandlerService $orderHandler;
+    private MethodHandlerService $methodHandler;
+    private ApiHandlerService $apiHandler;
+    private Utilities $utilities;
+    private ShippingSelector $shippingSelector;
+    private OrderRepositoryInterface $orderRepository;
+    private CartRepositoryInterface $cartRepository;
+    private AddressRepositoryInterface $addressRepository;
+    private Address $addressManager;
+
     public function __construct(
         Context $context,
         ManagerInterface $messageManager,
-        private StoreManagerInterface $storeManager,
-        private JsonFactory $jsonFactory,
-        private QuoteHandlerService $quoteHandler,
-        private OrderHandlerService $orderHandler,
-        private MethodHandlerService $methodHandler,
-        private ApiHandlerService $apiHandler,
-        private Utilities $utilities,
-        private ShippingSelector $shippingSelector,
-        private OrderRepositoryInterface $orderRepository,
-        private CartRepositoryInterface $cartRepository,
-        private AddressRepositoryInterface $addressRepository,
-        private Address $addressManager
+        StoreManagerInterface $storeManager,
+        JsonFactory $jsonFactory,
+        QuoteHandlerService $quoteHandler,
+        OrderHandlerService $orderHandler,
+        MethodHandlerService $methodHandler,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
+        ShippingSelector $shippingSelector,
+        OrderRepositoryInterface $orderRepository,
+        CartRepositoryInterface $cartRepository,
+        AddressRepositoryInterface $addressRepository,
+        Address $addressManager
     ) {
         parent::__construct($context);
+
         $this->messageManager = $messageManager;
+        $this->storeManager = $storeManager;
+        $this->jsonFactory = $jsonFactory;
+        $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
+        $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
+        $this->shippingSelector = $shippingSelector;
+        $this->orderRepository = $orderRepository;
+        $this->cartRepository = $cartRepository;
+        $this->addressRepository = $addressRepository;
+        $this->addressManager = $addressManager;
     }
 
     /**

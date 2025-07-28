@@ -28,13 +28,21 @@ use Magento\Framework\View\Element\Template\Context;
  */
 class Form extends Template
 {
+    public CardHandlerService $cardHandler;
+    public VaultHandlerService $vaultHandler;
+    public Config $config;
+
     public function __construct(
-        public CardHandlerService $cardHandler,
-        public VaultHandlerService $vaultHandler,
-        public Config $config,
+        CardHandlerService $cardHandler,
+        VaultHandlerService $vaultHandler,
+        Config $config,
         Context $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
+
+        $this->cardHandler = $cardHandler;
+        $this->vaultHandler = $vaultHandler;
+        $this->config = $config;
     }
 }

@@ -29,11 +29,11 @@ class ConfigGooglePayButton implements OptionSourceInterface
     /**
      * BUTTON_BLACK constant
      */
-    const string BUTTON_BLACK = 'black';
+    const BUTTON_BLACK = 'black';
     /**
      * BUTTON_WHITE constant
      */
-    const string BUTTON_WHITE = 'white';
+    const BUTTON_WHITE = 'white';
 
     /**
      * Possible Google Pay button styles

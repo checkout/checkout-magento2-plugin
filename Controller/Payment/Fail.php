@@ -40,22 +40,41 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Fail extends Action
 {
+    private TransactionHandlerService $transactionHandler;
+    private StoreManagerInterface $storeManager;
+    private ApiHandlerService $apiHandler;
+    private OrderHandlerService $orderHandler;
+    private OrderStatusHandlerService $orderStatusHandler;
+    private Logger $logger;
+    private PaymentErrorHandlerService $paymentErrorHandlerService;
+    private Config $config;
+    private Session $session;
+
     public function __construct(
         Context $context,
         ManagerInterface $messageManager,
-        private TransactionHandlerService $transactionHandler,
-        private StoreManagerInterface $storeManager,
-        private ApiHandlerService $apiHandler,
-        private OrderHandlerService $orderHandler,
-        private OrderStatusHandlerService $orderStatusHandler,
-        private Logger $logger,
-        private PaymentErrorHandlerService $paymentErrorHandlerService,
-        private Config $config,
-        private Session $session
+        TransactionHandlerService $transactionHandler,
+        StoreManagerInterface $storeManager,
+        ApiHandlerService $apiHandler,
+        OrderHandlerService $orderHandler,
+        OrderStatusHandlerService $orderStatusHandler,
+        Logger $logger,
+        PaymentErrorHandlerService $paymentErrorHandlerService,
+        Config $config,
+        Session $session
     ) {
         parent::__construct($context);
 
         $this->messageManager = $messageManager;
+        $this->transactionHandler = $transactionHandler;
+        $this->storeManager = $storeManager;
+        $this->apiHandler = $apiHandler;
+        $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
+        $this->logger = $logger;
+        $this->paymentErrorHandlerService = $paymentErrorHandlerService;
+        $this->config = $config;
+        $this->session = $session;
     }
 
     /**

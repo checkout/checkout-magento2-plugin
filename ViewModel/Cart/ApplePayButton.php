@@ -31,11 +31,18 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class ApplePayButton implements ArgumentInterface
 {
+    private Config $checkoutComConfig;
+    private Logger $logger;
+    private StoreManagerInterface $storeManager;
+
     public function __construct(
-        private Config $checkoutComConfig,
-        private Logger $logger,
-        private StoreManagerInterface $storeManager
+        Config $checkoutComConfig,
+        Logger $logger,
+        StoreManagerInterface $storeManager
     ) {
+        $this->checkoutComConfig = $checkoutComConfig;
+        $this->logger = $logger;
+        $this->storeManager = $storeManager;
     }
 
     public function isApplePayEnabledForAllBrowsers(): bool

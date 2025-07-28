@@ -31,7 +31,7 @@ class WebhookEntity extends AbstractModel implements WebhookEntityInterface, Ide
     /**
      * Page cache tag
      */
-    const string CACHE_TAG = 'webhook_entity';
+    const CACHE_TAG = 'webhook_entity';
 
     /**
      * Initialize resource model

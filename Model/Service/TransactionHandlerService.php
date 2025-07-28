@@ -47,30 +47,61 @@ class TransactionHandlerService
     /**
      * TRANSACTION_MAPPER const
      */
-    const array TRANSACTION_MAPPER = [
+    const TRANSACTION_MAPPER = [
         'payment_approved' => TransactionInterface::TYPE_AUTH,
         'payment_captured' => TransactionInterface::TYPE_CAPTURE,
         'payment_refunded' => TransactionInterface::TYPE_REFUND,
         'payment_voided' => TransactionInterface::TYPE_VOID,
     ];
 
+    private OrderSender $orderSender;
+    private BuilderInterface $transactionBuilder;
+    private Repository $transactionRepository;
+    private CreditmemoFactory $creditMemoFactory;
+    private CreditmemoService $creditMemoService;
+    private FilterBuilder $filterBuilder;
+    private SearchCriteriaBuilder $searchCriteriaBuilder;
+    private Utilities $utilities;
+    private InvoiceHandlerService $invoiceHandler;
+    private Config $config;
+    private OrderManagementInterface $orderManagement;
+    private ConvertorFactory $convertorFactory;
+    private OrderPaymentRepositoryInterface $orderPaymentRepository;
+    private OrderRepositoryInterface $orderRepository;
+    private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository;
+
     public function __construct(
-        private OrderSender $orderSender,
-        private BuilderInterface $transactionBuilder,
-        private Repository $transactionRepository,
-        private CreditmemoFactory $creditMemoFactory,
-        private CreditmemoService $creditMemoService,
-        private FilterBuilder $filterBuilder,
-        private SearchCriteriaBuilder $searchCriteriaBuilder,
-        private Utilities $utilities,
-        private InvoiceHandlerService $invoiceHandler,
-        private Config $config,
-        private OrderManagementInterface $orderManagement,
-        private ConvertorFactory $convertorFactory,
-        private OrderPaymentRepositoryInterface $orderPaymentRepository,
-        private OrderRepositoryInterface $orderRepository,
-        private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+        OrderSender $orderSender,
+        BuilderInterface $transactionBuilder,
+        Repository $transactionRepository,
+        CreditmemoFactory $creditMemoFactory,
+        CreditmemoService $creditMemoService,
+        FilterBuilder $filterBuilder,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        Utilities $utilities,
+        InvoiceHandlerService $invoiceHandler,
+        Config $config,
+        OrderManagementInterface $orderManagement,
+        ConvertorFactory $convertorFactory,
+        OrderPaymentRepositoryInterface $orderPaymentRepository,
+        OrderRepositoryInterface $orderRepository,
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
+        $this->orderSender = $orderSender;
+        $this->transactionBuilder = $transactionBuilder;
+        $this->transactionRepository = $transactionRepository;
+        $this->creditMemoFactory = $creditMemoFactory;
+        $this->creditMemoService = $creditMemoService;
+        $this->filterBuilder = $filterBuilder;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->utilities = $utilities;
+        $this->invoiceHandler = $invoiceHandler;
+        $this->config = $config;
+        $this->orderManagement = $orderManagement;
+        $this->convertorFactory = $convertorFactory;
+        $this->orderPaymentRepository = $orderPaymentRepository;
+        $this->orderRepository = $orderRepository;
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
@@ -157,7 +188,7 @@ class TransactionHandlerService
      *
      * @return false|TransactionInterface
      */
-    public function hasTransaction(OrderInterface $order, ?string $transactionId = null): false | TransactionInterface
+    public function hasTransaction(OrderInterface $order, ?string $transactionId = null)
     {
         $transaction = $this->getTransactions(
             $order->getId(),

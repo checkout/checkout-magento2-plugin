@@ -29,13 +29,17 @@ use Magento\Vault\Block\AbstractCardRenderer;
  */
 class CardRenderer extends AbstractCardRenderer
 {
+    protected CardHandlerService $cardHandler;
+
     public function __construct(
-        protected CardHandlerService $cardHandler,
+        CardHandlerService $cardHandler,
         Context $context,
         CcConfigProvider $iconsProvider,
         array $data
     ) {
         parent::__construct($context, $iconsProvider, $data);
+
+        $this->cardHandler = $cardHandler;
     }
 
     /**

@@ -29,11 +29,11 @@ class ConfigApplePayCapabilities implements OptionSourceInterface
     /**
      * CAP_CRE constant
      */
-    const string CAP_CRE = 'supportsCredit';
+    const CAP_CRE = 'supportsCredit';
     /**
      * CAP_DEB constant
      */
-    const string CAP_DEB = 'supportsDebit';
+    const CAP_DEB = 'supportsDebit';
 
     /**
      * Possible Apple Pay Cards

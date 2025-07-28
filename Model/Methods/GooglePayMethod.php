@@ -63,55 +63,65 @@ class GooglePayMethod extends AbstractMethod
     /**
      * CODE constant
      */
-    const string CODE = 'checkoutcom_google_pay';
+    const CODE = 'checkoutcom_google_pay';
     /**
      * $code field
      */
-    protected string $code = self::CODE;
+    protected $code = self::CODE;
     /**
      * $canAuthorize field
      */
-    protected bool $canAuthorize = true;
+    protected $canAuthorize = true;
     /**
      * $canCapture field
      */
-    protected bool $canCapture = true;
+    protected $canCapture = true;
     /**
      * $canCapturePartial field
      */
-    protected bool $canCapturePartial = true;
+    protected $canCapturePartial = true;
     /**
      * $canVoid field
      */
-    protected bool $canVoid = true;
+    protected $canVoid = true;
     /**
      * $canUseInternal field
      */
-    protected bool $canUseInternal = false;
+    protected $canUseInternal = false;
     /**
      * $canUseCheckout field
      */
-    protected bool $canUseCheckout = true;
+    protected $canUseCheckout = true;
     /**
      * $canRefund field
      */
-    protected bool $canRefund = true;
+    protected $canRefund = true;
     /**
      * $canRefundInvoicePartial field
      */
-    protected bool $canRefundInvoicePartial = true;
+    protected $canRefundInvoicePartial = true;
+    private Config $config;
+    private ApiHandlerService $apiHandler;
+    private Utilities $utilities;
+    private StoreManagerInterface $storeManager;
+    private QuoteHandlerService $quoteHandler;
+    private LoggerHelper $ckoLogger;
+    private Session $backendAuthSession;
+    protected DirectoryHelper $directoryHelper;
+    protected DataObjectFactory $dataObjectFactory;
+    private Json $json;
 
     public function __construct(
-        private Config $config,
-        private ApiHandlerService $apiHandler,
-        private Utilities $utilities,
-        private StoreManagerInterface $storeManager,
-        private QuoteHandlerService $quoteHandler,
-        private LoggerHelper $ckoLogger,
-        private Session $backendAuthSession,
-        protected DirectoryHelper $directoryHelper,
-        protected DataObjectFactory $dataObjectFactory,
-        private Json $json,
+        Config $config,
+        ApiHandlerService $apiHandler,
+        Utilities $utilities,
+        StoreManagerInterface $storeManager,
+        QuoteHandlerService $quoteHandler,
+        LoggerHelper $ckoLogger,
+        Session $backendAuthSession,
+        DirectoryHelper $directoryHelper,
+        DataObjectFactory $dataObjectFactory,
+        Json $json,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -138,6 +148,13 @@ class GooglePayMethod extends AbstractMethod
             $resourceCollection,
             $data
         );
+        $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
+        $this->storeManager = $storeManager;
+        $this->quoteHandler = $quoteHandler;
+        $this->ckoLogger = $ckoLogger;
+        $this->storeManager = $storeManager;
+        $this->json = $json;
     }
 
     /**

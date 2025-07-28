@@ -47,25 +47,57 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class PlaceOrder extends Action
 {
+    private StoreManagerInterface $storeManager;
+    private JsonFactory $jsonFactory;
+    private ScopeConfigInterface $scopeConfig;
+    private QuoteHandlerService $quoteHandler;
+    private OrderHandlerService $orderHandler;
+    private OrderStatusHandlerService $orderStatusHandler;
+    private MethodHandlerService $methodHandler;
+    private ApiHandlerService $apiHandler;
+    private PaymentErrorHandlerService $paymentErrorHandler;
+    private Utilities $utilities;
+    private Logger $logger;
+    private Session $session;
+    private OrderRepositoryInterface $orderRepository;
+    protected JsonSerializer $json;
+    private Config $config;
+
     public function __construct(
         Context $context,
-        private StoreManagerInterface $storeManager,
-        private JsonFactory $jsonFactory,
-        private ScopeConfigInterface $scopeConfig,
-        private QuoteHandlerService $quoteHandler,
-        private OrderHandlerService $orderHandler,
-        private OrderStatusHandlerService $orderStatusHandler,
-        private MethodHandlerService $methodHandler,
-        private ApiHandlerService $apiHandler,
-        private PaymentErrorHandlerService $paymentErrorHandler,
-        private Utilities $utilities,
-        private Logger $logger,
-        private Session $session,
-        private OrderRepositoryInterface $orderRepository,
-        protected JsonSerializer $json,
-        private Config $config
+        StoreManagerInterface $storeManager,
+        JsonFactory $jsonFactory,
+        ScopeConfigInterface $scopeConfig,
+        QuoteHandlerService $quoteHandler,
+        OrderHandlerService $orderHandler,
+        OrderStatusHandlerService $orderStatusHandler,
+        MethodHandlerService $methodHandler,
+        ApiHandlerService $apiHandler,
+        PaymentErrorHandlerService $paymentErrorHandler,
+        Utilities $utilities,
+        Logger $logger,
+        Session $session,
+        OrderRepositoryInterface $orderRepository,
+        JsonSerializer $json,
+        Config $config
     ) {
         parent::__construct($context);
+
+        $this->storeManager = $storeManager;
+        $this->jsonFactory = $jsonFactory;
+        $this->scopeConfig = $scopeConfig;
+        $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
+        $this->orderStatusHandler = $orderStatusHandler;
+        $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
+        $this->paymentErrorHandler = $paymentErrorHandler;
+        $this->utilities = $utilities;
+        $this->logger = $logger;
+        $this->session = $session;
+        $this->orderRepository = $orderRepository;
+        $this->json = $json;
+        $this->config = $config;
     }
 
     /**

@@ -33,12 +33,21 @@ use Magento\Sales\Model\Order\Payment;
  */
 class OrderAfterVoid implements ObserverInterface
 {
+    private Session $backendAuthSession;
+    private Config $config;
+    private OrderManagementInterface $orderManagement;
+    private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository;
+
     public function __construct(
-        private Session $backendAuthSession,
-        private Config $config,
-        private OrderManagementInterface $orderManagement,
-        private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+        Session $backendAuthSession,
+        Config $config,
+        OrderManagementInterface $orderManagement,
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
+        $this->backendAuthSession = $backendAuthSession;
+        $this->config = $config;
+        $this->orderManagement = $orderManagement;
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**

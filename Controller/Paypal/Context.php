@@ -31,10 +31,14 @@ use Magento\Framework\Controller\Result\JsonFactory;
  */
 class Context implements HttpPostActionInterface
 {
+    protected JsonFactory $resultJsonFactory;
+    protected PaymentContextRequestService $paymentContextRequestService;
+    protected RequestInterface $request;
+
     public function __construct(
-        protected JsonFactory $resultJsonFactory,
-        protected PaymentContextRequestService $paymentContextRequestService,
-        protected RequestInterface $request
+        JsonFactory $resultJsonFactory,
+        PaymentContextRequestService $paymentContextRequestService,
+        RequestInterface $request
     ) {
     }
 

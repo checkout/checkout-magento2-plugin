@@ -93,11 +93,11 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * CODE constant
      */
-    const string CODE = 'checkoutcom_apm';
+    const CODE = 'checkoutcom_apm';
     /**
      * List of unavailable apm for NAS mode
      */
-    const array NAS_UNAVAILABLE_APM = [
+    const NAS_UNAVAILABLE_APM = [
         'alipay',
         'boleto',
         'klarna',
@@ -108,7 +108,7 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * List of unavailable apm for ABC mode
      */
-    const array ABC_UNAVAILABLE_APM = [
+    const ABC_UNAVAILABLE_APM = [
         'alipay',
         'poli',
     ];
@@ -117,72 +117,96 @@ class AlternativePaymentMethod extends AbstractMethod
      *
      * @var string $code
      */
-    protected string $code = self::CODE;
+    protected $code = self::CODE;
     /**
      * $canAuthorize field
      *
      * @var bool $canAuthorize
      */
-    protected bool $canAuthorize = true;
+    protected $canAuthorize = true;
     /**
      * $canCapture field
      */
-    protected bool $canCapture = true;
+    protected $canCapture = true;
     /**
      * $canCapturePartial field
      */
-    protected bool $canCapturePartial = true;
+    protected $canCapturePartial = true;
     /**
      * $canVoid field
      */
-    protected bool $canVoid = true;
+    protected $canVoid = true;
     /**
      * $canUseInternal field
      */
-    protected bool $canUseInternal = false;
+    protected $canUseInternal = false;
     /**
      * $canUseCheckout field
      *
      * @var bool $canUseCheckout
      */
-    protected bool $canUseCheckout = true;
+    protected $canUseCheckout = true;
     /**
      * $canRefund field
      *
      * @var bool $canRefund
      */
-    protected bool $canRefund = true;
+    protected $canRefund = true;
     /**
      * $canRefundInvoicePartial field
      *
      * @var bool $canRefundInvoicePartial
      */
-    protected bool $canRefundInvoicePartial = true;
+    protected $canRefundInvoicePartial = true;
+
+    private Session $backendAuthSession;
+    private UrlInterface $urlBuilder;
+    private ObjectManagerInterface $objectManager;
+    private InvoiceSender $invoiceSender;
+    private TransactionFactory $transactionFactory;
+    private CustomerModelSession $customerSession;
+    private CheckoutModelSession $checkoutSession;
+    private CheckoutHelperData $checkoutData;
+    private CartRepositoryInterface $quoteRepository;
+    private CartManagementInterface $quoteManagement;
+    private OrderSender $orderSender;
+    private Quote $sessionQuote;
+    private Config $config;
+    private ShopperHandlerService $shopperHandler;
+    private ApiHandlerService $apiHandler;
+    private QuoteHandlerService $quoteHandler;
+    private LoggerHelper $ckoLogger;
+    private Utilities $utilities;
+    private VersionHandlerService $versionHandler;
+    private Display $display;
+    private StoreManagerInterface $storeManager;
+    private Curl $curl;
+    private Json $json;
 
     public function __construct(
-        private Session $backendAuthSession,
-        private UrlInterface $urlBuilder,
-        private ObjectManagerInterface $objectManager,
-        private InvoiceSender $invoiceSender,
-        private TransactionFactory $transactionFactory,
-        private CustomerModelSession $customerSession,
-        private CheckoutModelSession $checkoutSession,
-        private CheckoutHelperData $checkoutData,
-        private CartRepositoryInterface $quoteRepository,
-        private CartManagementInterface $quoteManagement,
-        private OrderSender $orderSender,
-        private Quote $sessionQuote,
-        private Config $config,
-        private ShopperHandlerService $shopperHandler,
-        private ApiHandlerService $apiHandler,
-        private QuoteHandlerService $quoteHandler,
-        private LoggerHelper $ckoLogger,
-        private Utilities $utilities,
-        private VersionHandlerService $versionHandler,
-        private Display $display,
-        private StoreManagerInterface $storeManager,
-        private Curl $curl,
-        private Json $json,
+        Session $backendAuthSession,
+        UrlInterface $urlBuilder,
+        ObjectManagerInterface $objectManager,
+        InvoiceSender $invoiceSender,
+        TransactionFactory $transactionFactory,
+        CustomerModelSession $customerSession,
+        CheckoutModelSession $checkoutSession,
+        CheckoutHelperData $checkoutData,
+        CartRepositoryInterface $quoteRepository,
+        CartManagementInterface $quoteManagement,
+        OrderSender $orderSender,
+        Quote $sessionQuote,
+        Config $config,
+        ShopperHandlerService $shopperHandler,
+        ApiHandlerService $apiHandler,
+        QuoteHandlerService $quoteHandler,
+        LoggerHelper $ckoLogger,
+        Utilities $utilities,
+        VersionHandlerService $versionHandler,
+        Display $display,
+        StoreManagerInterface $storeManager,
+        Curl $curl,
+        Json $json,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -211,6 +235,29 @@ class AlternativePaymentMethod extends AbstractMethod
             $resourceCollection,
             $data
         );
+        $this->backendAuthSession = $backendAuthSession;
+        $this->urlBuilder = $urlBuilder;
+        $this->objectManager = $objectManager;
+        $this->invoiceSender = $invoiceSender;
+        $this->transactionFactory = $transactionFactory;
+        $this->customerSession = $customerSession;
+        $this->checkoutSession = $checkoutSession;
+        $this->checkoutData = $checkoutData;
+        $this->quoteRepository = $quoteRepository;
+        $this->quoteManagement = $quoteManagement;
+        $this->orderSender = $orderSender;
+        $this->sessionQuote = $sessionQuote;
+        $this->config = $config;
+        $this->shopperHandler = $shopperHandler;
+        $this->apiHandler = $apiHandler;
+        $this->quoteHandler = $quoteHandler;
+        $this->ckoLogger = $ckoLogger;
+        $this->utilities = $utilities;
+        $this->versionHandler = $versionHandler;
+        $this->display = $display;
+        $this->storeManager = $storeManager;
+        $this->curl = $curl;
+        $this->json = $json;
     }
 
     /**
@@ -476,7 +523,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function ideal(array $data): RequestIdealSource | PreviousRequestIdealSource
+    public function ideal(array $data)
     {
         if ($this->apiHandler->isPreviousMode()) {
             $source = new PreviousRequestIdealSource();
@@ -499,7 +546,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function paypal(array $data, string $reference): PreviousRequestPayPalSource | RequestPayPalSource
+    public function paypal(array $data, string $reference)
     {
         if ($this->apiHandler->isPreviousMode()) {
             $source = new PreviousRequestPayPalSource();
@@ -528,7 +575,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function sofort(array $data): PreviousRequestSofortSource | RequestSofortSource
+    public function sofort(array $data)
     {
         if ($this->apiHandler->isPreviousMode()) {
             return new PreviousRequestSofortSource();

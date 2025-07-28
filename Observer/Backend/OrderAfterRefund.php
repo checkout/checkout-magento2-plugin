@@ -28,10 +28,15 @@ use Magento\Framework\Event\ObserverInterface;
  */
 class OrderAfterRefund implements ObserverInterface
 {
+    private Session $backendAuthSession;
+    private Config $config;
+
     public function __construct(
-        private Session $backendAuthSession,
-        private Config $config
+        Session $backendAuthSession,
+        Config $config
     ) {
+        $this->backendAuthSession = $backendAuthSession;
+        $this->config = $config;
     }
 
     /**

@@ -33,15 +33,30 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class OrderStatusHandlerService
 {
+    private StoreManagerInterface $storeManager;
+    private TransactionHandlerService $transactionHandler;
+    private Config $config;
+    private OrderHandlerService $orderHandler;
+    private OrderManagementInterface $orderManagement;
+    private OrderRepositoryInterface $orderRepository;
+    private Registry $registry;
+
     public function __construct(
-        private StoreManagerInterface $storeManager,
-        private TransactionHandlerService $transactionHandler,
-        private Config $config,
-        private OrderHandlerService $orderHandler,
-        private OrderManagementInterface $orderManagement,
-        private OrderRepositoryInterface $orderRepository,
-        private Registry $registry
+        StoreManagerInterface $storeManager,
+        TransactionHandlerService $transactionHandler,
+        Config $config,
+        OrderHandlerService $orderHandler,
+        OrderManagementInterface $orderManagement,
+        OrderRepositoryInterface $orderRepository,
+        Registry $registry
     ) {
+        $this->storeManager = $storeManager;
+        $this->transactionHandler = $transactionHandler;
+        $this->config = $config;
+        $this->orderHandler = $orderHandler;
+        $this->orderManagement = $orderManagement;
+        $this->orderRepository = $orderRepository;
+        $this->registry = $registry;
     }
 
     /**

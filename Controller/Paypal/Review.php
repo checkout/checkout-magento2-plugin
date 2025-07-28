@@ -40,17 +40,36 @@ class Review implements HttpGetActionInterface
     public const PAYMENT_CONTEXT_ID_PARAMETER = 'contextId';
     public const SHIPPING_METHOD_PARAMETER = 'method_code';
 
+    protected ResultFactory $resultFactory;
+    protected ManagerInterface $messageManager;
+    protected RequestInterface $request;
+    protected Session $checkoutSession;
+    protected PaymentContextRequestService $paymentContextRequestService;
+    protected RedirectFactory $redirectFactory;
+    protected UrlInterface $urlInterface;
+    protected PaymentInterfaceFactory $paymentInterfaceFactory;
+    protected PaypalMethod $paypalMethod;
+
     public function __construct(
-        protected ResultFactory $resultFactory,
-        protected ManagerInterface $messageManager,
-        protected RequestInterface $request,
-        protected Session $checkoutSession,
-        protected PaymentContextRequestService $paymentContextRequestService,
-        protected RedirectFactory $redirectFactory,
-        protected UrlInterface $urlInterface,
-        protected PaymentInterfaceFactory $paymentInterfaceFactory,
-        protected PaypalMethod $paypalMethod
+        ResultFactory $resultFactory,
+        ManagerInterface $messageManager,
+        RequestInterface $request,
+        Session $checkoutSession,
+        PaymentContextRequestService $paymentContextRequestService,
+        RedirectFactory $redirectFactory,
+        UrlInterface $urlInterface,
+        PaymentInterfaceFactory $paymentInterfaceFactory,
+        PaypalMethod $paypalMethod
     ) {
+        $this->resultFactory = $resultFactory;
+        $this->messageManager = $messageManager;
+        $this->request = $request;
+        $this->checkoutSession = $checkoutSession;
+        $this->paymentContextRequestService = $paymentContextRequestService;
+        $this->redirectFactory = $redirectFactory;
+        $this->urlInterface = $urlInterface;
+        $this->paymentInterfaceFactory = $paymentInterfaceFactory;
+        $this->paypalMethod = $paypalMethod;
     }
 
     /**
