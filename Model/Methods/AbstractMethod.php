@@ -265,7 +265,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         $this->scopeConfig = $scopeConfig;
         $this->logger = $logger;
         $this->paymentData = $paymentData;
-        $this->dataObjectFactory = $dataObjectFactory;
+        $this->config = $config;
     }
 
     /**

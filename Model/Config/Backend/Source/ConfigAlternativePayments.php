@@ -37,6 +37,7 @@ class ConfigAlternativePayments implements OptionSourceInterface
     public function __construct(
         Loader $configLoader
     ) {
+        $this->configLoader = $configLoader;
     }
 
     /**

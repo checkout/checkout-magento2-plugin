@@ -32,6 +32,7 @@ class ConfigOrderStatus implements OptionSourceInterface
     public function __construct(
         Collection $orderStatusCollection
     ) {
+        $this->orderStatusCollection = $orderStatusCollection;
     }
 
     /**

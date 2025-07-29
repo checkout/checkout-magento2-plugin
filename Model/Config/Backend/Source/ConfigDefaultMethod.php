@@ -32,6 +32,7 @@ class ConfigDefaultMethod implements OptionSourceInterface
     public function __construct(
         Config $config
     ) {
+        $this->config = $config;
     }
 
     /**

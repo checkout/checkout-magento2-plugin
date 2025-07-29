@@ -53,7 +53,7 @@ class QuoteHandlerService
     private Config $config;
     private ShopperHandlerService $shopperHandler;
     private Logger $logger;
-    private DataObjectFactory $dataObjectFactor;
+    private DataObjectFactory $dataObjectFactory;
 
     public function __construct(
         Session $checkoutSession,

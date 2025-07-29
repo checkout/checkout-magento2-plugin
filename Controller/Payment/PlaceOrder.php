@@ -223,7 +223,7 @@ class PlaceOrder extends Action
 
             return $this->jsonFactory->create()->setData([
                 'success' => $success,
-                'message' => $message,
+                'message' => $message ?: __('An error has occurred, please select another payment method'),
                 'responseCode' => $responseCode,
                 'debugMessage' => $debugMessage,
                 'url' => $url,
