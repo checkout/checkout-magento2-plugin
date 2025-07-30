@@ -88,7 +88,6 @@ class V2 extends Action
         QuoteIdMaskResource $quoteIdMaskResource
     ) {
         parent::__construct($context);
-
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
         $this->storeManager = $storeManager;

@@ -30,24 +30,24 @@ interface V3Interface
     /**
      * Set payment information and place order for a specified cart.
      *
-     * @param CustomerInterface $customer
-     * @param PaymentRequestInterface $paymentRequest
+     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @param \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
      *
-     * @return PaymentResponseInterface
+     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
      */
     public function executeApiV3(
-        CustomerInterface $customer,
-        PaymentRequestInterface $paymentRequest
-    ): PaymentResponseInterface;
+        \Magento\Customer\Api\Data\CustomerInterface $customer,
+        \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
+    ): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
 
     /**
      * Set payment information and place order for a guest quote.
      *
-     * @param PaymentRequestInterface $paymentRequest
+     * @param \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
      *
-     * @return PaymentResponseInterface
+     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
      */
     public function executeGuestApiV3(
-        PaymentRequestInterface $paymentRequest
-    ): PaymentResponseInterface;
+        \CheckoutCom\Magento2\Api\Data\PaymentRequestInterface $paymentRequest
+    ): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
 }

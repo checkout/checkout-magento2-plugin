@@ -33,10 +33,10 @@ class Form extends Template
     public Config $config;
 
     public function __construct(
+        Context $context,
         CardHandlerService $cardHandler,
         VaultHandlerService $vaultHandler,
         Config $config,
-        Context $context,
         array $data = []
     ) {
         parent::__construct($context, $data);

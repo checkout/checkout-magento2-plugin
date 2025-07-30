@@ -124,7 +124,7 @@ class Config
         $methodId = null,
         ?string $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
-    ): mixed {
+    ) {
         return $this->loader->getValue($field, $methodId, $storeCode, $scope);
     }
 
@@ -135,7 +135,7 @@ class Config
      *
      * @return bool
      */
-    public function isValidPrivateSharedKey(false | string $key): bool
+    public function isValidPrivateSharedKey($key): bool
     {
         // Get the private shared key from config
         $privateSharedKey = $this->getValue('private_shared_key');
@@ -366,7 +366,7 @@ class Config
      *
      * @return mixed
      */
-    public function getCoreValue(string $path): mixed
+    public function getCoreValue(string $path)
     {
         return $this->scopeConfig->getValue(
             $path,

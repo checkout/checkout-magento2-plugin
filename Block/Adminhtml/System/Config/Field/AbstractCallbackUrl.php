@@ -39,6 +39,8 @@ abstract class AbstractCallbackUrl extends Field
 {
     /**
      * TEMPLATE constant
+     *
+     * @var string TEMPLATE
      */
     const TEMPLATE = 'system/config/webhook_admin.phtml';
     private ApiHandlerService $apiHandler;

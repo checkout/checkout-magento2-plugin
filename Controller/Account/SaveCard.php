@@ -45,10 +45,10 @@ class SaveCard extends Action
 
     public function __construct(
         Context $context,
+        ManagerInterface $messageManager,
         JsonFactory $jsonFactory,
         UrlInterface $urlInterface,
-        VaultHandlerService $vaultHandler,
-        ManagerInterface $messageManager,
+        VaultHandlerService $vaultHandler
     ) {
         parent::__construct($context);
 

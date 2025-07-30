@@ -33,6 +33,8 @@ class LogFiles extends Field
 {
     /**
      * TEMPLATE constant
+     *
+     * @var string TEMPLATE
      */
     const TEMPLATE = 'system/config/logfile_admin.phtml';
 

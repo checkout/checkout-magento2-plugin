@@ -30,13 +30,12 @@ class AddCard extends Template
     private Config $config;
 
     public function __construct(
-        Config $config,
         Context $context,
+        Config $config,
         array $data = []
     ) {
-        parent::__construct($context, $data);
-
         $this->config = $config;
+        parent::__construct($context, $data);
     }
 
     /**

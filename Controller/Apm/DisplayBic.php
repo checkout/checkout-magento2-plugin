@@ -23,7 +23,6 @@ use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use Magento\Framework\App\Action\HttpGetActionInterface;
-use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\ScopeInterface;
@@ -50,7 +49,7 @@ class DisplayBic implements HttpGetActionInterface
      * @throws CheckoutArgumentException
      * @throws CheckoutApiException
      */
-    public function execute(): Json
+    public function execute()
     {
         // Get the store code
         $storeCode = $this->storeManager->getStore()->getCode();

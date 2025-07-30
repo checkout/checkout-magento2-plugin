@@ -29,14 +29,20 @@ interface PaymentResponseInterface
     public const SUCCESS = 'success';
     /**
      * ORDER_ID constant
+     *
+     * @var string ORDER_ID
      */
     public const ORDER_ID = 'order_id';
     /**
      * REDIRECT_URL constant
+     *
+     * @var string REDIRECT_URL
      */
     public const REDIRECT_URL = 'redirect_url';
     /**
      * ERROR_MESSAGE constant
+     *
+     * @var string ERROR_MESSAGE
      */
     public const ERROR_MESSAGE = 'error_message';
 
@@ -73,34 +79,34 @@ interface PaymentResponseInterface
      *
      * @param bool $success
      *
-     * @return PaymentResponseInterface
+     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
      */
-    public function setSuccess(bool $success): PaymentResponseInterface;
+    public function setSuccess(bool $success): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
 
     /**
      * Set the order id
      *
      * @param int $orderId
      *
-     * @return PaymentResponseInterface
+     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
      */
-    public function setOrderId(int $orderId): PaymentResponseInterface;
+    public function setOrderId(int $orderId): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
 
     /**
      * Set the redirect url
      *
      * @param string $redirectUrl
      *
-     * @return PaymentResponseInterface
+     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
      */
-    public function setRedirectUrl(string $redirectUrl): PaymentResponseInterface;
+    public function setRedirectUrl(string $redirectUrl): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
 
     /**
      * Set the error message
      *
      * @param array|string $errorMessage
      *
-     * @return PaymentResponseInterface
+     * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
      */
-    public function setErrorMessage($errorMessage): PaymentResponseInterface;
+    public function setErrorMessage($errorMessage): \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
 }

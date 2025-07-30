@@ -27,6 +27,7 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\Resolver;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class ShopperHandlerService

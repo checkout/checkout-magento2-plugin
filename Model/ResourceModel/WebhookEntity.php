@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Model\ResourceModel;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Magento\Framework\Model\ResourceModel\Db\Context;
 
 /**
  * Class WebhookEntity mysql resource
@@ -28,6 +29,18 @@ class WebhookEntity extends AbstractDb
     /** @var array */
     protected array $idFieldName = [['field' => 'event_id', 'title' => 'event_id should be unique']];
 
+    /**
+     * WebhookEntity constructor
+     *
+     * @param Context $context
+     * @param null    $resourcePrefix
+     */
+    public function __construct(
+        Context $context,
+        $resourcePrefix = null
+    ) {
+        parent::__construct($context, $resourcePrefix);
+    }
     /**
      * Initialize resource model.
      *

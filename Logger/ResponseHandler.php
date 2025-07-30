@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Logger;
 
+use CheckoutCom\Magento2\Logger\Handler\InfoHandler;
 use CheckoutCom\Magento2\Logger\Handler\InfoHandlerFactory;
 use CheckoutCom\Magento2\Logger\Handler\LoggerFactory;
 use Magento\Framework\App\Filesystem\DirectoryList;
@@ -69,8 +70,7 @@ class ResponseHandler
 
     private function getFilePath(): string
     {
-        return DIRECTORY_SEPARATOR . $this->directoryList->getDefaultConfig()[DirectoryList::LOG]['path'] . DIRECTORY_SEPARATOR . $this->getFilename(
-            ) . self::FILE_EXTENSION;
+        return DIRECTORY_SEPARATOR . $this->directoryList->getDefaultConfig()[DirectoryList::LOG]['path'] . DIRECTORY_SEPARATOR . $this->getFilename() . self::FILE_EXTENSION;
     }
 
     private function getFilename(): string

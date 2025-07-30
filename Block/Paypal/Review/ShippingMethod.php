@@ -16,7 +16,6 @@ declare(strict_types=1);
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
-
 namespace CheckoutCom\Magento2\Block\Paypal\Review;
 
 use CheckoutCom\Magento2\Controller\Paypal\Review;
@@ -29,29 +28,25 @@ use Magento\Framework\View\Element\Template\Context as TemplateContext;
 use Magento\Quote\Model\Quote\Address as QuoteAddresss;
 use Magento\Quote\Model\Quote\Address\Rate as QuoteRate;
 
-/**
- * Class ShippingMethod
- */
 class ShippingMethod extends Template
 {
     protected Session $checkoutSession;
-    protected RequestInterface $request;
     protected UrlInterface $url;
+    protected RequestInterface $request;
     protected PriceCurrencyInterface $priceCurrency;
 
     public function __construct(
+        TemplateContext $context,
         Session $checkoutSession,
         RequestInterface $request,
         UrlInterface $url,
         PriceCurrencyInterface $priceCurrency,
-        TemplateContext $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
-
         $this->checkoutSession = $checkoutSession;
-        $this->request = $request;
         $this->url = $url;
+        $this->request = $request;
         $this->priceCurrency = $priceCurrency;
     }
 

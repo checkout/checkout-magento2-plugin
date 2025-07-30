@@ -32,13 +32,13 @@ class MethodHandlerService
     private array $instances;
 
     public function __construct(
-        OrderHandlerService $orderHandler,
-        Session $customerSession,
         array $instances,
+        OrderHandlerService $orderHandler,
+        Session $customerSession
     ) {
+        $this->instances = $instances;
         $this->orderHandler = $orderHandler;
         $this->customerSession = $customerSession;
-        $this->instances = $instances;
     }
 
     /**

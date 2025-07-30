@@ -21,6 +21,7 @@ namespace CheckoutCom\Magento2\Cron;
 
 use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 use Psr\Log\LoggerInterface;
 
 /**

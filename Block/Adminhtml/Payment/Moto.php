@@ -45,12 +45,12 @@ class Moto extends Cc
     private CardHandlerService $cardHandler;
 
     public function __construct(
+        Context $context,
+        PaymentModelConfig $paymentModelConfig,
         Quote $adminQuote,
         GatewayConfig $config,
         VaultHandlerService $vaultHandler,
-        CardHandlerService $cardHandler,
-        Context $context,
-        PaymentModelConfig $paymentModelConfig
+        CardHandlerService $cardHandler
     ) {
         parent::__construct($context, $paymentModelConfig);
 

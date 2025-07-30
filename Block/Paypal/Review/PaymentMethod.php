@@ -16,30 +16,25 @@ declare(strict_types=1);
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
-
 namespace CheckoutCom\Magento2\Block\Paypal\Review;
 
 use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\View\Element\Template;
-use Magento\Framework\View\Element\Template\Context as TemplateContext;
+use \Magento\Framework\View\Element\Template\Context as TemplateContext;
 
-/**
- * Class PaymentMethod
- */
 class PaymentMethod extends Template
 {
     protected Session $checkoutSession;
     protected PaypalMethod $paypalMethod;
 
     public function __construct(
+        TemplateContext $context,
         Session $checkoutSession,
         PaypalMethod $paypalMethod,
-        TemplateContext $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
-
         $this->checkoutSession = $checkoutSession;
         $this->paypalMethod = $paypalMethod;
     }

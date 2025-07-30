@@ -66,7 +66,6 @@ class V1 extends Action
         OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
-
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
         $this->storeManager = $storeManager;

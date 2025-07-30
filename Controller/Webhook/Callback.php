@@ -50,9 +50,6 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class Callback
- */
 class Callback extends Action implements CsrfAwareActionInterface
 {
     private StoreManagerInterface $storeManager;

@@ -15,7 +15,6 @@ declare(strict_types=1);
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
-
 namespace CheckoutCom\Magento2\Controller\Klarna;
 
 use Checkout\CheckoutApiException;
@@ -33,17 +32,14 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Phrase;
 use Magento\Framework\Serialize\SerializerInterface;
 
-/**
- * Class Context
- */
 class Context implements HttpPostActionInterface
 {
     protected JsonFactory $resultJsonFactory;
     protected PaymentContextRequestService $paymentContextRequestService;
     protected RequestInterface $request;
     protected QuoteHandlerService $quoteHandlerService;
-    protected SerializerInterface $serializer;
     protected Logger $logger;
+    protected SerializerInterface $serializer;
 
     public function __construct(
         JsonFactory $resultJsonFactory,
@@ -57,8 +53,8 @@ class Context implements HttpPostActionInterface
         $this->paymentContextRequestService = $paymentContextRequestService;
         $this->request = $request;
         $this->quoteHandlerService = $quoteHandlerService;
-        $this->serializer = $serializer;
         $this->logger = $logger;
+        $this->serializer = $serializer;
     }
 
     /**

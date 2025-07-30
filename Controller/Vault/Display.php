@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Vault;
 
-use CheckoutCom\Magento2\Block\Vault\Form;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use Magento\Framework\App\Action\Action;

@@ -16,7 +16,6 @@ declare(strict_types=1);
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
-
 namespace CheckoutCom\Magento2\Block\Paypal;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -24,22 +23,18 @@ use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context as TemplateContext;
 
-/**
- * Class Script
- */
 class Script extends Template
 {
     private PaypalMethod $paypalMethod;
     private Config $checkoutConfig;
 
     public function __construct(
+        TemplateContext $context,
         PaypalMethod $paypalMethod,
         Config $checkoutConfig,
-        TemplateContext $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
-
         $this->paypalMethod = $paypalMethod;
         $this->checkoutConfig = $checkoutConfig;
     }

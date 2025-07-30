@@ -24,9 +24,6 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 
-/**
- * Class GetCustomerDatas
- */
 class GetCustomerDatas implements HttpPostActionInterface
 {
     protected JsonFactory $resultJsonFactory;

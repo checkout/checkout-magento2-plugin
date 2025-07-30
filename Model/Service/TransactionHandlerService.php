@@ -32,6 +32,7 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Convert\Order as OrderConvertor;
 use Magento\Sales\Model\Convert\OrderFactory as ConvertorFactory;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Payment\Transaction;

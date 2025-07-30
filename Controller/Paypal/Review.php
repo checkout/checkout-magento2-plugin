@@ -62,8 +62,8 @@ class Review implements HttpGetActionInterface
         PaypalMethod $paypalMethod
     ) {
         $this->resultFactory = $resultFactory;
-        $this->messageManager = $messageManager;
         $this->request = $request;
+        $this->messageManager = $messageManager;
         $this->checkoutSession = $checkoutSession;
         $this->paymentContextRequestService = $paymentContextRequestService;
         $this->redirectFactory = $redirectFactory;

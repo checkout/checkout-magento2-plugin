@@ -15,7 +15,6 @@ declare(strict_types=1);
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
-
 namespace CheckoutCom\Magento2\Controller\Paypal;
 
 use Exception;
@@ -24,9 +23,6 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Quote\Api\Data\AddressInterface;
 
-/**
- * Class SaveExpressShippingAddress
- */
 class SaveExpressShippingAddress extends SaveData implements HttpPostActionInterface
 {
     /**

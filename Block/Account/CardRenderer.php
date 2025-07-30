@@ -32,9 +32,9 @@ class CardRenderer extends AbstractCardRenderer
     protected CardHandlerService $cardHandler;
 
     public function __construct(
-        CardHandlerService $cardHandler,
         Context $context,
         CcConfigProvider $iconsProvider,
+        CardHandlerService $cardHandler,
         array $data
     ) {
         parent::__construct($context, $iconsProvider, $data);
@@ -85,16 +85,6 @@ class CardRenderer extends AbstractCardRenderer
     }
 
     /**
-     * Returns the url to the CC icon.
-     *
-     * @return string
-     */
-    public function getIconUrl(): string
-    {
-        return $this->getIconForType($this->getCardType())['url'];
-    }
-
-    /**
      * Returns the credit card type.
      *
      * @return string
@@ -102,6 +92,16 @@ class CardRenderer extends AbstractCardRenderer
     public function getCardType(): string
     {
         return $this->getTokenDetails()['type'];
+    }
+
+    /**
+     * Returns the url to the CC icon.
+     *
+     * @return string
+     */
+    public function getIconUrl(): string
+    {
+        return $this->getIconForType($this->getCardType())['url'];
     }
 
     /**

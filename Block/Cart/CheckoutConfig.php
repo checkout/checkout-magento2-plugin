@@ -39,16 +39,17 @@ use Magento\Framework\View\Element\Template\Context;
 class CheckoutConfig extends Onepage
 {
     private Cart $cart;
-    private Config $checkoutComConfig;
     private ConfigProvider $checkoutComConfigProvider;
+    private SerializerInterface $serializer;
+    private Config $checkoutComConfig;
 
     public function __construct(
         Cart $cart,
-        Config $checkoutComConfig,
-        ConfigProvider $checkoutComConfigProvider,
         Context $context,
         FormKey $formKey,
         CompositeConfigProvider $configProvider,
+        Config $checkoutComConfig,
+        ConfigProvider $checkoutComConfigProvider,
         array $layoutProcessors = [],
         array $data = [],
         ?Json $serializer = null,
@@ -65,8 +66,8 @@ class CheckoutConfig extends Onepage
         );
 
         $this->cart = $cart;
-        $this->checkoutComConfig = $checkoutComConfig;
         $this->checkoutComConfigProvider = $checkoutComConfigProvider;
+        $this->checkoutComConfig = $checkoutComConfig;
         $this->serializer = $serializerInterface ?: ObjectManager::getInstance()->get(JsonHexTag::class);
     }
 

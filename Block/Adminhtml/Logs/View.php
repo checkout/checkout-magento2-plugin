@@ -59,7 +59,7 @@ class View extends Template
      *
      * @return false|Phrase
      */
-    public function getSizeMessage(): Phrase | false
+    public function getSizeMessage()
     {
         $file = BP . '/var/log/' . $this->_request->getParam('file');
         if (is_file($file)) {
@@ -79,7 +79,7 @@ class View extends Template
      *
      * @return mixed
      */
-    public function getFileName(): mixed
+    public function getFileName()
     {
         return $this->_request->getParam('file');
     }

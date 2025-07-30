@@ -34,17 +34,16 @@ class Payment extends Fieldset
     private VersionHandlerService $versionHandler;
 
     public function __construct(
-        Config $backendConfig,
-        VersionHandlerService $versionHandler,
         Context $context,
         Session $authSession,
         Js $jsHelper,
+        Config $backendConfig,
+        VersionHandlerService $versionHandler,
         array $data = []
     ) {
-        parent::__construct($context, $authSession, $jsHelper, $data);
-
         $this->backendConfig = $backendConfig;
         $this->versionHandler = $versionHandler;
+        parent::__construct($context, $authSession, $jsHelper, $data);
     }
 
     /**

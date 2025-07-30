@@ -33,30 +33,44 @@ class Loader
 {
     /**
      * CONFIGURATION_FILE_NAME constant
+     *
+     * @var string CONFIGURATION_FILE_NAME
      */
     const CONFIGURATION_FILE_NAME = 'config.xml';
     /**
      * APM_FILE_NAME constant
+     *
+     * @var string APM_FILE_NAME
      */
     const APM_FILE_NAME = 'apm.xml';
     /**
      * KEY_MODULE_NAME constant
+     *
+     * @var string KEY_MODULE_NAME
      */
     const KEY_MODULE_NAME = 'CheckoutCom_Magento2';
     /**
      * KEY_MODULE_ID constant
+     *
+     * @var string KEY_MODULE_ID
      */
     const KEY_MODULE_ID = 'checkoutcom_magento2';
     /**
      * KEY_PAYMENT constant
+     *
+     * @var string KEY_PAYMENT
      */
     const KEY_PAYMENT = 'payment';
     /**
      * KEY_SETTINGS constant
+     *
+     * @var string KEY_SETTINGS
      */
     const KEY_SETTINGS = 'settings';
     /**
      * KEY_CONFIG constant
+     *
+     * @var string KEY_CONFIG
      */
     const KEY_CONFIG = 'checkoutcom_configuration';
     private Reader $moduleDirReader;

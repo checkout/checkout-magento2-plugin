@@ -35,6 +35,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -158,7 +159,7 @@ class PlaceOrder extends Action
                         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
                         $isValidResponse = $api->isValidResponse($response);
-                        $responseCode = $response['response_code'] ?? '';
+                        $responseCode = isset($response['response_code']) ? $response['response_code'] : '';
 
                         if ($isValidResponse && $this->isAuthorized($responseCode)) {
                             // Add the payment info to the order

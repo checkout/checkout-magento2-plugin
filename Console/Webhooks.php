@@ -61,13 +61,13 @@ class Webhooks extends Command
     public function __construct(
         State $state,
         WebhookEntityRepositoryInterface $webhookEntityRepository,
-        WebhookHandlerServiceFactory $webhookHandlerFactory,
+        WebhookHandlerServiceFactory $webhookHandlerServiceFactory,
     ) {
-        parent::__construct();
-
         $this->state = $state;
         $this->webhookEntityRepository = $webhookEntityRepository;
-        $this->webhookHandlerFactory = $webhookHandlerFactory;
+        $this->webhookHandlerFactory = $webhookHandlerServiceFactory;
+
+        parent::__construct();
     }
 
     /**
@@ -75,7 +75,7 @@ class Webhooks extends Command
      *
      * @return void
      */
-    protected function configure(): void
+    protected function configure()
     {
         $options = [
             new InputOption(
@@ -94,6 +94,21 @@ class Webhooks extends Command
             ->setDefinition($options);
     }
 
+    protected function createRequiredObjects()
+    {
+        try {
+            $areaCode = $this->state->getAreaCode();
+        } catch (Exception $e) {
+            $areaCode = null;
+        }
+
+        if (!$areaCode) {
+            $this->state->setAreaCode(Area::AREA_GLOBAL);
+        }
+
+        $this->webhookHandler = $this->webhookHandlerFactory->create();
+    }
+
     /**
      * Executes "cko:webhooks:clean" command.
      *
@@ -103,7 +118,7 @@ class Webhooks extends Command
      * @return void
      * @throws LocalizedException
      */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->createRequiredObjects();
 
@@ -163,20 +178,6 @@ class Webhooks extends Command
      * @return void
      * @throws LocalizedException
      */
-    protected function createRequiredObjects(): void
-    {
-        try {
-            $areaCode = $this->state->getAreaCode();
-        } catch (Exception $e) {
-            $areaCode = null;
-        }
-
-        if (!$areaCode) {
-            $this->state->setAreaCode(Area::AREA_GLOBAL);
-        }
-
-        $this->webhookHandler = $this->webhookHandlerFactory->create();
-    }
 
     /**
      * Output a webhook to the console.
@@ -186,7 +187,7 @@ class Webhooks extends Command
      *
      * @return OutputInterface
      */
-    protected function outputWebhook(OutputInterface $output, $webhook): OutputInterface
+    protected function outputWebhook(OutputInterface $output, $webhook)
     {
         if ($output->isDebug()) {
             $output->writeln('Deleting Webhook: ');

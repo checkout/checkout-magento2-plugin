@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
+use Checkout\CheckoutApi;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -66,7 +67,6 @@ class Fail extends Action
         parent::__construct($context);
 
         $this->messageManager = $messageManager;
-        $this->transactionHandler = $transactionHandler;
         $this->storeManager = $storeManager;
         $this->apiHandler = $apiHandler;
         $this->orderHandler = $orderHandler;
@@ -75,6 +75,7 @@ class Fail extends Action
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
         $this->config = $config;
         $this->session = $session;
+        $this->transactionHandler = $transactionHandler;
     }
 
     /**

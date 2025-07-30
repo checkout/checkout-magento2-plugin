@@ -24,6 +24,7 @@ use Checkout\CheckoutAuthorizationException;
 use Checkout\Webhooks\Previous\WebhookRequest;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use Exception;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Config\Model\ResourceModel\Config;
@@ -50,17 +51,15 @@ class Webhook extends Action
     private EncryptorInterface $encryptor;
 
     public function __construct(
+        Context $context,
         JsonFactory $resultJsonFactory,
         ApiHandlerService $apiHandler,
         Config $resourceConfig,
         TypeListInterface $cacheTypeList,
         Logger $logger,
         ScopeConfigInterface $scopeConfig,
-        EncryptorInterface $encryptor,
-        Context $context,
+        EncryptorInterface $encryptor
     ) {
-        parent::__construct($context);
-
         $this->resultJsonFactory = $resultJsonFactory;
         $this->apiHandler = $apiHandler;
         $this->resourceConfig = $resourceConfig;
@@ -68,6 +67,8 @@ class Webhook extends Action
         $this->logger = $logger;
         $this->scopeConfig = $scopeConfig;
         $this->encryptor = $encryptor;
+
+        parent::__construct($context);
     }
 
     /**

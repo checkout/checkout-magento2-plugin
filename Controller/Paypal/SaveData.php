@@ -15,7 +15,6 @@ declare(strict_types=1);
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
-
 namespace CheckoutCom\Magento2\Controller\Paypal;
 
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
@@ -33,13 +32,10 @@ use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\AddressInterfaceFactory;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
 
-/**
- * Class SaveData
- */
 class SaveData
 {
-    protected LoggerHelper $logger;
     protected ResultFactory $resultFactory;
     protected ManagerInterface $messageManager;
     protected RequestInterface $request;
@@ -50,9 +46,10 @@ class SaveData
     protected CartRepositoryInterface $cartRepository;
     protected AddressInterfaceFactory $addressInterfaceFactory;
     protected PaypalMethod $paypalMethod;
+    protected LoggerHelper $logger;
 
     public function __construct(
-        LoggerHelper $logger,
+        LoggerHelper $loggerHelper,
         ResultFactory $resultFactory,
         ManagerInterface $messageManager,
         RequestInterface $request,
@@ -64,10 +61,9 @@ class SaveData
         AddressInterfaceFactory $addressInterfaceFactory,
         PaypalMethod $paypalMethod
     ) {
-        $this->logger = $logger;
         $this->resultFactory = $resultFactory;
-        $this->messageManager = $messageManager;
         $this->request = $request;
+        $this->messageManager = $messageManager;
         $this->checkoutSession = $checkoutSession;
         $this->paymentContextRequestService = $paymentContextRequestService;
         $this->redirectFactory = $redirectFactory;
@@ -75,6 +71,7 @@ class SaveData
         $this->cartRepository = $cartRepository;
         $this->addressInterfaceFactory = $addressInterfaceFactory;
         $this->paypalMethod = $paypalMethod;
+        $this->logger = $loggerHelper;
     }
 
     /**

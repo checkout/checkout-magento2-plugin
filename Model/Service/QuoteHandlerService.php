@@ -221,7 +221,7 @@ class QuoteHandlerService
     public function prepareGuestQuote(CartInterface $quote, ?string $email = null): CartInterface
     {
         // Retrieve the user email
-        $guestEmail = $email ?: $this->findEmail($quote);
+        $guestEmail = ($email) ? $email : $this->findEmail($quote);
 
         // Set the quote as guest
         $quote->setCustomerId(0)->setCustomerEmail($guestEmail)->setCustomerIsGuest(true)->setCustomerGroupId(
@@ -256,7 +256,7 @@ class QuoteHandlerService
 
         // Return the first available value
         foreach ($emails as $email) {
-            if (!empty($email)) {
+            if ($email && !empty($email)) {
                 return $email;
             }
         }
@@ -318,11 +318,11 @@ class QuoteHandlerService
      */
     public function getQuoteCurrency(?CartInterface $quote = null): string
     {
-        $quote = $quote ?: $this->getQuote();
+        $quote = ($quote) ? $quote : $this->getQuote();
         $quoteCurrencyCode = $quote->getQuoteCurrencyCode();
         $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
 
-        return $quoteCurrencyCode ?: $storeCurrencyCode;
+        return ($quoteCurrencyCode) ?: $storeCurrencyCode;
     }
 
     /**
