@@ -63,26 +63,38 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
 {
     /**
      * STATUS_UNKNOWN constant
+     *
+     * @var string STATUS_UNKNOWN
      */
     const STATUS_UNKNOWN = 'UNKNOWN';
     /**
      * STATUS_APPROVED constant
+     *
+     * @var string STATUS_APPROVED
      */
     const STATUS_APPROVED = 'APPROVED';
     /**
      * STATUS_ERROR constant
+     *
+     * @var string STATUS_ERROR
      */
     const STATUS_ERROR = 'ERROR';
     /**
      * STATUS_DECLINED constant
+     *
+     * @var string STATUS_DECLINED
      */
     const STATUS_DECLINED = 'DECLINED';
     /**
      * STATUS_VOID constant
+     *
+     * @var string STATUS_VOID
      */
     const STATUS_VOID = 'VOID';
     /**
      * STATUS_SUCCESS constant
+     *
+     * @var string STATUS_SUCCESS
      */
     const STATUS_SUCCESS = 'SUCCESS';
     /**

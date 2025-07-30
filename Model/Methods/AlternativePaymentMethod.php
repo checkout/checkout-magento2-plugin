@@ -92,6 +92,8 @@ class AlternativePaymentMethod extends AbstractMethod
 {
     /**
      * CODE constant
+     *
+     * @var string CODE
      */
     const CODE = 'checkoutcom_apm';
     /**
@@ -103,14 +105,14 @@ class AlternativePaymentMethod extends AbstractMethod
         'klarna',
         'poli',
         'sepa',
-        'paypal',
+        'paypal'
     ];
     /**
      * List of unavailable apm for ABC mode
      */
     const ABC_UNAVAILABLE_APM = [
         'alipay',
-        'poli',
+        'poli'
     ];
     /**
      * $code field
@@ -612,7 +614,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function eps(): RequestEpsSource | PreviousRequestEpsSource
+    public function eps()
     {
         /** @var string $purpose */
         $purpose = substr(
@@ -637,7 +639,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function fawry(): RequestFawrySource | PreviousRequestFawrySource
+    public function fawry()
     {
         $products = [];
         $quote = $this->quoteHandler->getQuote();

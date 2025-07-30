@@ -193,7 +193,7 @@ class OrderHandlerService
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function amountToGateway(float $amount, OrderInterface $order): float
+    public function amountToGateway(float $amount, OrderInterface $order)
     {
         // Get the order currency
         $currency = $this->getOrderCurrency($order);

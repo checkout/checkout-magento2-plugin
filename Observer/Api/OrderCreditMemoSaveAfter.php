@@ -59,7 +59,10 @@ class OrderCreditMemoSaveAfter implements ObserverInterface
         // Check if payment method is checkout.com
         if (in_array($methodId, $this->config->getMethodsList())) {
             $status = ($order->getStatus() === 'closed' || $order->getStatus() === 'complete') ? $order->getStatus() : $this->config->getValue(
-                'order_status_refunded'
+                'order_status_refunded',
+                null,
+                null,
+                ScopeInterface::SCOPE_WEBSITE
             );
 
             // Update the order status

@@ -61,6 +61,8 @@ class KlarnaMethod extends AbstractMethod
 {
     /**
      * CODE constant
+     *
+     * @var string CODE
      */
     const CODE = 'checkoutcom_klarna';
     /**

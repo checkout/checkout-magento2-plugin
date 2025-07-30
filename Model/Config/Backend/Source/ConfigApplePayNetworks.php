@@ -28,18 +28,26 @@ class ConfigApplePayNetworks implements OptionSourceInterface
 {
     /**
      * CARD_VISA constant
+     *
+     * @var string CARD_VISA
      */
     const CARD_VISA = 'visa';
     /**
      * CARD_MASTERCARD constant
+     *
+     * @var string CARD_MASTERCARD
      */
     const CARD_MASTERCARD = 'masterCard';
     /**
      * CARD_AMEX constant
+     *
+     * @var string CARD_AMEX
      */
     const CARD_AMEX = 'amex';
     /**
      * CARD_MADA constant
+     *
+     * @var string CARD_MADA
      */
     const CARD_MADA = 'mada';
 

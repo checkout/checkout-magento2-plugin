@@ -75,7 +75,7 @@ class Review implements HttpGetActionInterface
     /**
      * @return ResultInterface
      */
-    public function execute(): ResultInterface
+    public function execute()
     {
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
 

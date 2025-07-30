@@ -62,6 +62,8 @@ class CardPaymentMethod extends AbstractMethod
 {
     /**
      * CODE constant
+     *
+     * @var string CODE
      */
     const CODE = 'checkoutcom_card_payment';
 

@@ -353,7 +353,7 @@ class VaultHandlerService
      *
      * @return string
      */
-    public function renderTokenData(PaymentTokenInterface $paymentToken): string
+    public function renderTokenData(PaymentTokenInterface $paymentToken)
     {
         // Get the card details
         $details = json_decode($paymentToken->getTokenDetails() ?: '{}', true);

@@ -45,7 +45,7 @@ class View extends Action
      *
      * @return Page
      */
-    public function execute(): Page
+    public function execute()
     {
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(__('Log File Reader'));

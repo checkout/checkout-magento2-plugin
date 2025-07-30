@@ -61,6 +61,8 @@ class ApplePayMethod extends AbstractMethod
 {
     /**
      * CODE constant
+     *
+     * @var string CODE
      */
     const CODE = 'checkoutcom_apple_pay';
     /**

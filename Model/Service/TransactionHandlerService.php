@@ -46,6 +46,8 @@ class TransactionHandlerService
 {
     /**
      * TRANSACTION_MAPPER const
+     *
+     * @var array TRANSACTION_MAPPER
      */
     const TRANSACTION_MAPPER = [
         'payment_approved' => TransactionInterface::TYPE_AUTH,
@@ -329,7 +331,7 @@ class TransactionHandlerService
      *
      * @return string|int|null
      */
-    public function setParentTransactionId(): int | string | null
+    public function setParentTransactionId()
     {
         // Handle the void parent auth logic
         $isVoid = $this->transaction->getTxnType() === TransactionInterface::TYPE_VOID;

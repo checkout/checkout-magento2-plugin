@@ -32,6 +32,7 @@ class TokenFormatter
     public function __construct(
         VaultHandlerService $vaultHandler
     ) {
+        $this->vaultHandler = $vaultHandler;
     }
 
     /**

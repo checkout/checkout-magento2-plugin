@@ -75,7 +75,7 @@ class Webhook extends Action
      *
      * @return Json
      */
-    public function execute(): Json
+    public function execute()
     {
         try {
             // Prepare some parameters

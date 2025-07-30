@@ -305,7 +305,7 @@ class PaymentErrorHandlerService
                 "30007",
                 "30034",
                 "30037",
-                "4XXXX", // Fraud response codes
+                "4XXXX" // Fraud response codes
             ],
             __('Something went wrong, please try again later')
         );

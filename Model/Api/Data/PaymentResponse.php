@@ -62,7 +62,7 @@ class PaymentResponse extends AbstractExtensibleModel implements PaymentResponse
      *
      * @return string|array
      */
-    public function getErrorMessage(): array | string
+    public function getErrorMessage()
     {
         return $this->getData(self::ERROR_MESSAGE);
     }

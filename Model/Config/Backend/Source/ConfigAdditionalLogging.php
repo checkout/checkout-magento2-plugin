@@ -28,26 +28,39 @@ class ConfigAdditionalLogging implements OptionSourceInterface
 {
     /**
      * WEBHOOK constant
+     *
+     * @var string WEBHOOK
      */
     const WEBHOOK = 'webhook';
     /**
-     * WEBHOOK constant
+     * AUTH_KEYS constant
+     *
+     * @var string AUTH_KEYS
      */
     const AUTH_KEYS = 'auth';
     /**
      * QUOTE_OBJECT constant
+     *
+     * @var string QUOTE_OBJECT
      */
     const QUOTE_OBJECT = 'quote';
     /**
      * ORDER_OBJECT constant
+     *
+     * @var string ORDER_OBJECT
+     *
      */
     const ORDER_OBJECT = 'order';
     /**
      * PAYMENT_REQUEST constant
+     *
+     * @var string PAYMENT_REQUEST
      */
     const PAYMENT_REQUEST = 'payment';
     /**
      * ADMIN_ACTIONS constant
+     *
+     * @var string ADMIN_ACTIONS
      */
     const ADMIN_ACTIONS = 'api';
 

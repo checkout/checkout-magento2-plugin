@@ -51,7 +51,7 @@ class RefundInvoice
         OrderPaymentRepositoryInterface $orderPaymentRepository
     ) {
         $this->methodHandler = $methodHandler;
-        $this->storeManage = $storeManager;
+        $this->storeManager = $storeManager;
         $this->apiHandler = $apiHandler;
         $this->config = $config;
         $this->orderPaymentRepository = $orderPaymentRepository;

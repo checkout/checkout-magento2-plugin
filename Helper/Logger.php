@@ -52,7 +52,7 @@ class Logger
      *
      * @return void
      */
-    public function write(mixed $msg): void
+    public function write($msg): void
     {
         // Get the debug config value
         $debug = $this->scopeConfig->getValue(
@@ -80,7 +80,7 @@ class Logger
      *
      * @return void
      */
-    public function display(mixed $response): void
+    public function display($response): void
     {
         // Get the debug config value
         $debug = $this->scopeConfig->getValue(

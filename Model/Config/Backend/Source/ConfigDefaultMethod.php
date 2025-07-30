@@ -45,7 +45,7 @@ class ConfigDefaultMethod implements OptionSourceInterface
         // Prepare the default array
         $options = [
             'value' => '',
-            'label' => __('None'),
+            'label' => __('None')
         ];
 
         // Get the available payment methods
@@ -55,7 +55,7 @@ class ConfigDefaultMethod implements OptionSourceInterface
         foreach ($methods as $id => $data) {
             $options[] = [
                 'value' => $id,
-                'label' => __($data['title']),
+                'label' => __($data['title'])
             ];
         }
 

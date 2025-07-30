@@ -62,6 +62,8 @@ class GooglePayMethod extends AbstractMethod
 {
     /**
      * CODE constant
+     *
+     * @var string CODE
      */
     const CODE = 'checkoutcom_google_pay';
     /**
