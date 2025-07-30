@@ -61,6 +61,11 @@ class PaymentErrorHandlerService
         OrderPaymentRepositoryInterface $orderPaymentRepository,
         OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
+        $this->transactionHandler = $transactionHandler;
+        $this->orderHandler = $orderHandler;
+        $this->orderRepository = $orderRepository;
+        $this->orderPaymentRepository = $orderPaymentRepository;
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
