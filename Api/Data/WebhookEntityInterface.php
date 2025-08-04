@@ -115,66 +115,66 @@ interface WebhookEntityInterface
      *
      * @param $rowId
      *
-     * @return WebhookEntityInterface
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setId($rowId): WebhookEntityInterface;
+    public function setId($rowId): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 
     /**
      * Set the event id
      *
      * @param string $eventId
      *
-     * @return WebhookEntityInterface
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setEventId(string $eventId): WebhookEntityInterface;
+    public function setEventId(string $eventId): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 
     /**
      * Set the event type
      *
      * @param string $eventType
      *
-     * @return WebhookEntityInterface
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setEventType(string $eventType): WebhookEntityInterface;
+    public function setEventType(string $eventType): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 
     /**
      * Set the event data
      *
      * @param string $eventData
      *
-     * @return WebhookEntityInterface
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setEventData(string $eventData): WebhookEntityInterface;
+    public function setEventData(string $eventData): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 
     /**
      * Set the order id
      *
      * @param int $orderId
      *
-     * @return WebhookEntityInterface
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setOrderId(int $orderId): WebhookEntityInterface;
+    public function setOrderId(int $orderId): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 
     /**
      * Set datetime webhook is received
      *
-     * @return WebhookEntityInterface
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setReceivedTime(): WebhookEntityInterface;
+    public function setReceivedTime(): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 
     /**
      * Set datetime webhook is processed
      *
-     * @return WebhookEntityInterface
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setProcessedTime(): WebhookEntityInterface;
+    public function setProcessedTime(): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 
     /**
      * Set if a webhook has been processed
      *
      * @param bool $processed
      *
-     * @return WebhookEntityInterface
+     * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function setProcessed(bool $processed): WebhookEntityInterface;
+    public function setProcessed(bool $processed): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 }

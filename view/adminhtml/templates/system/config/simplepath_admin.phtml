@@ -18,7 +18,7 @@
 use Magento\Framework\Escaper;
 
 /**
- * @var Escaper $escape
+ * @var Escaper $escaper
  */
 ?>
 
@@ -26,6 +26,6 @@ use Magento\Framework\Escaper;
 <div>
     <div>
         <p style="text-align:center">
-            <?= $escape->escapeHtml(__('Get your credentials <a href="https://www.checkout.com/">here</a>.')) ?>
+            <?= $escaper->escapeHtml(__('Get your credentials <a href="https://www.checkout.com/">here</a>.')) ?>
     </div>
 </div>

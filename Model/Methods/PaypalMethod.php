@@ -159,8 +159,6 @@ class PaypalMethod extends AbstractMethod
         $this->quoteHandler = $quoteHandler;
         $this->ckoLogger = $ckoLogger;
         $this->backendAuthSession = $backendAuthSession;
-        $this->directoryHelper = $directoryHelper;
-        $this->dataObjectFactory = $dataObjectFactory;
         $this->json = $json;
         $this->contextService = $contextService;
     }

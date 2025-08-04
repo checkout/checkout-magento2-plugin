@@ -94,6 +94,12 @@ class Webhooks extends Command
             ->setDefinition($options);
     }
 
+    /**
+     * Description createRequiredObjects function
+     *
+     * @return void
+     * @throws LocalizedException
+     */
     protected function createRequiredObjects()
     {
         try {
@@ -171,13 +177,6 @@ class Webhooks extends Command
             $output->writeln("Webhook table has been cleaned.");
         }
     }
-
-    /**
-     * Description createRequiredObjects function
-     *
-     * @return void
-     * @throws LocalizedException
-     */
 
     /**
      * Output a webhook to the console.

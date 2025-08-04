@@ -30,8 +30,6 @@ use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
-use Magento\Framework\Data\Collection\AbstractDb;
 
 /**
  * Class WebhookHandlerService
@@ -89,7 +87,6 @@ class WebhookHandlerService
     public function processSingleWebhook(OrderInterface $order, array $payload): void
     {
         if (!isset($payload['data']['action_id'])) {
-
             throw new LocalizedException(
                 __(
                     'Missing action ID for webhook with payment ID %1. Payload was: %2',

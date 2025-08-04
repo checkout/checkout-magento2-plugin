@@ -20,7 +20,7 @@ use Magento\Framework\Escaper;
 
 /**
  * @var View $block
- * @var Escaper $escape
+ * @var Escaper $escaper
  */
 
 $alternativePaymentMethodName = $block->getAlternativePaymentMethodName();
@@ -36,66 +36,66 @@ $threeDsVersion = $block->getCko3dsPaymentData('version');
     <div class="order-account-information">
         <div class="field-email">
             <div class="admin__page-section-title">
-                <h2 class="title"><?= $escape->escapeHtml(__('Payment Additional Information')) ?></h2>
+                <h2 class="title"><?= $escaper->escapeHtml(__('Payment Additional Information')) ?></h2>
             </div>
             <table class="admin__table-secondary order-information-table">
                 <?php if ($alternativePaymentMethodName !== '') : ?>
                     <tr>
-                        <th><?= $escape->escapeHtml(__('Alternative payment method')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Alternative payment method')) ?></th>
                         <td><?= $alternativePaymentMethodName ?></td>
                     </tr>
                     <?php if ($alternativePaymentMethodTransactionInfo !== '') : ?>
                         <tr>
-                            <th><?= $escape->escapeHtml(__('Transaction Id')) ?></th>
+                            <th><?= $escaper->escapeHtml(__('Transaction Id')) ?></th>
                             <td><?= $alternativePaymentMethodTransactionInfo ?></td>
                         </tr>
                     <?php endif ?>
                 <?php endif ?>
                 <?php if ($block->getCkoPaymentData('product_type') && $block->getCkoPaymentData('last4')) : ?>
                     <tr>
-                        <th><?= $escape->escapeHtml(__('Card type')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Card type')) ?></th>
                         <td><?= $block->getCkoPaymentData('scheme') ?> (<?= $block->getCkoPaymentData('product_type') ?>)</td>
                     </tr>
                     <tr>
-                        <th><?= $escape->escapeHtml(__('Card 4 last numbers')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Card 4 last numbers')) ?></th>
                         <td>**** **** **** <?= $block->getCkoPaymentData('last4') ?></td>
                     </tr>
                     <tr>
-                        <th><?= $escape->escapeHtml(__('Card expiry (mm/yy)')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Card expiry (mm/yy)')) ?></th>
                         <td><?= $block->getCkoPaymentData('expiry_month') ?>/<?= $block->getCkoPaymentData('expiry_year') ?></td>
                     </tr>
                     <tr>
-                        <th><?= $escape->escapeHtml(__('Card Country')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Card Country')) ?></th>
                         <td><?= $block->getCkoPaymentData('issuer_country') ?></td>
                     </tr>
                 <?php endif ?>
                 <?php if ($issuer): ?>
                     <tr>
-                        <th><?= $escape->escapeHtml(__('Issuing Bank')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Issuing Bank')) ?></th>
                         <td><?= $issuer ?></td>
                     </tr>
                 <?php endif ?>
                 <?php if ($avsCheck): ?>
                     <tr>
-                        <th><?= $escape->escapeHtml(__('AVS Check')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('AVS Check')) ?></th>
                         <td><?= $avsCheck ?> (<?= $block->getAvsCheckDescription($avsCheck) ?>)</td>
                     </tr>
                 <?php endif ?>
                 <?php if ($cvvCheck): ?>
                     <tr>
-                        <th><?= $escape->escapeHtml(__('CVV Check')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('CVV Check')) ?></th>
                         <td><?= $cvvCheck ?> (<?= $block->getCvvCheckDescription($cvvCheck) ?>)</td>
                     </tr>
                 <?php endif ?>
                 <?php if ($threeDsCode): ?>
                     <tr>
-                        <th><?= $escape->escapeHtml(__('3DS authorization code')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('3DS authorization code')) ?></th>
                         <td><?= $threeDsCode ?> (<?= $block->get3dsDescription($threeDsCode) ?>)</td>
                     </tr>
                 <?php endif ?>
                 <?php if ($threeDsVersion): ?>
                     <tr>
-                        <th><?= $escape->escapeHtml(__('3DS version')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('3DS version')) ?></th>
                         <td><?= $threeDsVersion ?></td>
                     </tr>
                 <?php endif ?>

@@ -123,11 +123,18 @@ class VersionNotification implements MessageInterface
         $versions = $this->getModuleVersions();
         $releaseType = $this->versionHandler->getVersionType($versions['current'], $versions['latest']);
 
-        return match ($releaseType) {
-            'revision' => self::SEVERITY_MINOR,
-            'minor' => self::SEVERITY_MAJOR,
-            'major' => self::SEVERITY_CRITICAL,
-            default => self::SEVERITY_NOTICE,
-        };
+        switch ($releaseType) {
+            case 'revision':
+                return self::SEVERITY_MINOR;
+
+            case 'minor':
+                return self::SEVERITY_MAJOR;
+
+            case 'major':
+                return self::SEVERITY_CRITICAL;
+
+            default:
+                return self::SEVERITY_NOTICE;
+        }
     }
 }

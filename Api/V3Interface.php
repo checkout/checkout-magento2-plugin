@@ -18,10 +18,6 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Api;
 
-use CheckoutCom\Magento2\Api\Data\PaymentRequestInterface;
-use CheckoutCom\Magento2\Api\Data\PaymentResponseInterface;
-use Magento\Customer\Api\Data\CustomerInterface;
-
 /**
  * Interface for API v3
  */

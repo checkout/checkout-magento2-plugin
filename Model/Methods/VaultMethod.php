@@ -101,7 +101,8 @@ class VaultMethod extends AbstractMethod
      * $canRefundInvoicePartial field
      */
     protected $canRefundInvoicePartial = true;
-
+    protected DirectoryHelper $directoryHelper;
+    protected DataObjectFactory $dataObjectFactory;
     private Session $backendAuthSession;
     private Config $config;
     private ApiHandlerService $apiHandler;
@@ -111,8 +112,6 @@ class VaultMethod extends AbstractMethod
     private CardHandlerService $cardHandler;
     private QuoteHandlerService $quoteHandler;
     private LoggerHelper $ckoLogger;
-    protected DirectoryHelper $directoryHelper;
-    protected DataObjectFactory $dataObjectFactory;
 
     public function __construct(
         Context $context,
@@ -162,8 +161,6 @@ class VaultMethod extends AbstractMethod
         $this->cardHandler = $cardHandler;
         $this->quoteHandler = $quoteHandler;
         $this->ckoLogger = $ckoLogger;
-        $this->directoryHelper = $directoryHelper;
-        $this->dataObjectFactory = $dataObjectFactory;
     }
 
     /**
