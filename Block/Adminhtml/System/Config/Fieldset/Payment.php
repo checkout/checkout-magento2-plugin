@@ -30,29 +30,9 @@ use Magento\Framework\View\Helper\Js;
  */
 class Payment extends Fieldset
 {
-    /**
-     * $_backendConfig field
-     *
-     * @var Config $_backendConfig
-     */
-    private $_backendConfig;
-    /**
-     * $versionHandler field
-     *
-     * @var VersionHandlerService $versionHandler
-     */
-    private $versionHandler;
+    private Config $backendConfig;
+    private VersionHandlerService $versionHandler;
 
-    /**
-     * Payment constructor
-     *
-     * @param Context               $context
-     * @param Session               $authSession
-     * @param Js                    $jsHelper
-     * @param Config                $backendConfig
-     * @param VersionHandlerService $versionHandler
-     * @param array                 $data
-     */
     public function __construct(
         Context $context,
         Session $authSession,
@@ -61,7 +41,7 @@ class Payment extends Fieldset
         VersionHandlerService $versionHandler,
         array $data = []
     ) {
-        $this->_backendConfig = $backendConfig;
+        $this->backendConfig = $backendConfig;
         $this->versionHandler = $versionHandler;
         parent::__construct($context, $authSession, $jsHelper, $data);
     }
@@ -89,8 +69,8 @@ class Payment extends Fieldset
      */
     public function _isPaymentEnabled(AbstractElement $element): bool
     {
-        $groupConfig   = $element->getGroup();
-        $activityPaths = isset($groupConfig['activity_path']) ? $groupConfig['activity_path'] : [];
+        $groupConfig = $element->getGroup();
+        $activityPaths = $groupConfig['activity_path'] ?? [];
 
         if (!is_array($activityPaths)) {
             $activityPaths = [$activityPaths];
@@ -98,7 +78,7 @@ class Payment extends Fieldset
 
         $isPaymentEnabled = false;
         foreach ($activityPaths as $activityPath) {
-            $isPaymentEnabled = $isPaymentEnabled || (bool)(string)$this->_backendConfig->getConfigDataValue(
+            $isPaymentEnabled = $isPaymentEnabled || (bool)(string)$this->backendConfig->getConfigDataValue(
                     $activityPath
                 );
         }
@@ -125,34 +105,34 @@ class Payment extends Fieldset
         $disabledClassString = $this->_isPaymentEnabled($element) ? '' : ' disabled';
         $htmlId = $element->getHtmlId();
         $html .= '<div class="button-container">' .
-            $this->versionHandler->getModuleVersion('v') . '&nbsp;&nbsp;' .
-            '<button type="button"' .
-            $disabledAttributeString .
-            ' class="button action-configure' .
-            (empty($groupConfig['checkout_com_separator']) ? '' : ' checkout-com-separator') .
-            $disabledClassString .
-            '" id="' .
-            $htmlId .
-            '-head" onclick="ckoToggleSolution.call(this, \'' .
-            $htmlId .
-            "', '" .
-            $this->getUrl(
-                'adminhtml/*/state'
-            ) . '\'); return false;"><span class="state-closed">' . __(
-                'Configure'
-            ) . '</span><span class="state-opened">' . __(
-                'Close'
-            ) . '</span></button>';
+                 $this->versionHandler->getModuleVersion('v') . '&nbsp;&nbsp;' .
+                 '<button type="button"' .
+                 $disabledAttributeString .
+                 ' class="button action-configure' .
+                 (empty($groupConfig['checkout_com_separator']) ? '' : ' checkout-com-separator') .
+                 $disabledClassString .
+                 '" id="' .
+                 $htmlId .
+                 '-head" onclick="ckoToggleSolution.call(this, \'' .
+                 $htmlId .
+                 "', '" .
+                 $this->getUrl(
+                     'adminhtml/*/state'
+                 ) . '\'); return false;"><span class="state-closed">' . __(
+                     'Configure'
+                 ) . '</span><span class="state-opened">' . __(
+                     'Close'
+                 ) . '</span></button>';
 
         if (!empty($groupConfig['more_url'])) {
             $html .= '<a class="link-more" href="' . $groupConfig['more_url'] . '" target="_blank">' . __(
-                'Learn More'
-            ) . '</a>';
+                    'Learn More'
+                ) . '</a>';
         }
         if (!empty($groupConfig['demo_url'])) {
             $html .= '<a class="link-demo" href="' . $groupConfig['demo_url'] . '" target="_blank">' . __(
-                'View Demo'
-            ) . '</a>';
+                    'View Demo'
+                ) . '</a>';
         }
 
         $html .= '</div>';

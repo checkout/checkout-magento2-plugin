@@ -48,75 +48,16 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class DisplaySepa extends Action
 {
-    /**
-     * $pageFactory field
-     *
-     * @var PageFactory $pageFactory
-     */
-    private $pageFactory;
-    /**
-     * $jsonFactory field
-     *
-     * @var JsonFactory $jsonFactory
-     */
-    private $jsonFactory;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $apiHandler field
-     *
-     * @var CheckoutApi $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $storeInformation field
-     *
-     * @var Information $storeInformation
-     */
-    private $storeInformation;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-    /**
-     * $storeModel field
-     *
-     * @var Store $storeModel
-     */
-    private $storeModel;
+    private PageFactory $pageFactory;
+    private JsonFactory $jsonFactory;
+    private Config $config;
+    private ApiHandlerService $apiHandler;
+    private QuoteHandlerService $quoteHandler;
+    private Information $storeInformation;
+    private StoreManagerInterface $storeManager;
+    private Logger $logger;
+    private Store $storeModel;
 
-    /**
-     * DisplaySepa constructor
-     *
-     * @param Context $context
-     * @param PageFactory $pageFactory
-     * @param JsonFactory $jsonFactory
-     * @param Config $config
-     * @param ApiHandlerService $apiHandler
-     * @param QuoteHandlerService $quoteHandler
-     * @param Information $storeInformation
-     * @param StoreManagerInterface $storeManager
-     * @param Logger $logger
-     * @param Store $storeModel
-     */
     public function __construct(
         Context $context,
         PageFactory $pageFactory,

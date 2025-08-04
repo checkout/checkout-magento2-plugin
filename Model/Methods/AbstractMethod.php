@@ -98,162 +98,138 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     const STATUS_SUCCESS = 'SUCCESS';
     /**
-     * $_code field
+     * $code field
      *
-     * @var string $_code
+     * @var string $code
      */
-    protected $_code;
+    protected $code;
     /**
-     * $_formBlockType field
+     * $formBlockType field
      *
-     * @var string $_formBlockType
+     * @var string $formBlockType
      */
-    protected $_formBlockType = Form::class;
+    protected $formBlockType = Form::class;
     /**
-     * $_infoBlockType field
+     * $infoBlockType field
      *
-     * @var string $_infoBlockType
+     * @var string $infoBlockType
      */
-    protected $_infoBlockType = Info::class;
-    /**
-     * Payment Method feature
-     *
-     * @var bool $_isGateway
-     */
-    protected $_isGateway = false;
+    protected $infoBlockType = Info::class;
     /**
      * Payment Method feature
      *
-     * @var bool $_isOffline
+     * @var bool $isGateway
      */
-    protected $_isOffline = false;
+    protected $isGateway = false;
     /**
      * Payment Method feature
      *
-     * @var bool $_canOrder
+     * @var bool $isOffline
      */
-    protected $_canOrder = false;
+    protected $isOffline = false;
     /**
      * Payment Method feature
      *
-     * @var bool $_canAuthorize
+     * @var bool $canOrder
      */
-    protected $_canAuthorize = false;
+    protected $canOrder = false;
     /**
      * Payment Method feature
      *
-     * @var bool $_canCapture
+     * @var bool $canAuthorize
      */
-    protected $_canCapture = false;
+    protected $canAuthorize = false;
     /**
      * Payment Method feature
      *
-     * @var bool $_canCapturePartial
+     * @var bool $canCapture
      */
-    protected $_canCapturePartial = false;
+    protected $canCapture = false;
     /**
      * Payment Method feature
      *
-     * @var bool $_canCaptureOnce
+     * @var bool $canCapturePartial
      */
-    protected $_canCaptureOnce = false;
+    protected $canCapturePartial = false;
     /**
      * Payment Method feature
      *
-     * @var bool $_canRefund
+     * @var bool $canCaptureOnce
      */
-    protected $_canRefund = false;
+    protected $canCaptureOnce = false;
     /**
      * Payment Method feature
      *
-     * @var bool $_canRefundInvoicePartial
+     * @var bool $canRefund
      */
-    protected $_canRefundInvoicePartial = false;
+    protected $canRefund = false;
     /**
      * Payment Method feature
      *
-     * @var bool $_canVoid
+     * @var bool $canRefundInvoicePartial
      */
-    protected $_canVoid = false;
+    protected $canRefundInvoicePartial = false;
     /**
      * Payment Method feature
      *
-     * @var bool $_canUseInternal
+     * @var bool $canVoid
      */
-    protected $_canUseInternal = true;
+    protected $canVoid = false;
     /**
      * Payment Method feature
      *
-     * @var bool $_canUseCheckout
+     * @var bool $canUseInternal
      */
-    protected $_canUseCheckout = true;
+    protected $canUseInternal = true;
     /**
      * Payment Method feature
      *
-     * @var bool $_isInitializeNeeded
+     * @var bool $canUseCheckout
      */
-    protected $_isInitializeNeeded = false;
+    protected $canUseCheckout = true;
     /**
      * Payment Method feature
      *
-     * @var bool $_canFetchTransactionInfo
+     * @var bool $isInitializeNeeded
      */
-    protected $_canFetchTransactionInfo = false;
+    protected $isInitializeNeeded = false;
     /**
      * Payment Method feature
      *
-     * @var bool $_canReviewPayment
+     * @var bool $canFetchTransactionInfo
      */
-    protected $_canReviewPayment = false;
+    protected $canFetchTransactionInfo = false;
+    /**
+     * Payment Method feature
+     *
+     * @var bool $canReviewPayment
+     */
+    protected $canReviewPayment = false;
     /**
      * TODO: whether a captured transaction may be voided by this gateway
      * This may happen when amount is captured, but not settled
      *
-     * @var bool $_canCancelInvoice
+     * @var bool $canCancelInvoice
      */
-    protected $_canCancelInvoice = false;
+    protected $canCancelInvoice = false;
     /**
      * Fields that should be replaced in debug with '***'
      *
-     * @var array $_debugReplacePrivateDataKeys
+     * @var array $debugReplacePrivateDataKeys
      */
-    protected $_debugReplacePrivateDataKeys = [];
-    /**
-     * Payment data
-     *
-     * @var Data $_paymentData
-     */
-    protected $_paymentData;
-    /**
-     * Core store config
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    protected $scopeConfig;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    protected $logger;
-    /**
-     * $directory field
-     *
-     * @var DirectoryHelper $directory
-     */
-    private $directory;
+    protected $debugReplacePrivateDataKeys = [];
+    protected ScopeConfigInterface $scopeConfig;
+    protected Logger $logger;
+    protected Data $paymentData;
+    protected DataObjectFactory $dataObjectFactory;
     /**
      * $data field
      *
      * @var array $data
      */
-    private $data;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
+    private array $data;
+    private Config $config;
+    private DirectoryHelper $directory;
 
     /**
      * @param Config $config
@@ -273,17 +249,17 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function __construct(
         Config $config,
+        DirectoryHelper $directory,
+        ScopeConfigInterface $scopeConfig,
+        Logger $logger,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory $customAttributeFactory,
         Data $paymentData,
-        ScopeConfigInterface $scopeConfig,
-        Logger $logger,
-        DirectoryHelper $directory,
         DataObjectFactory $dataObjectFactory,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -295,13 +271,13 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
             $resourceCollection,
             $data
         );
-        $this->config = $config;
-        $this->_paymentData = $paymentData;
-        $this->scopeConfig = $scopeConfig;
-        $this->logger = $logger;
-        $this->directory = $directory;
         $this->data = $data;
         $this->dataObjectFactory = $dataObjectFactory;
+        $this->directory = $directory;
+        $this->scopeConfig = $scopeConfig;
+        $this->logger = $logger;
+        $this->paymentData = $paymentData;
+        $this->config = $config;
     }
 
     /**
@@ -324,7 +300,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function canCapturePartial(): bool
     {
-        return $this->_canCapturePartial;
+        return $this->canCapturePartial;
     }
 
     /**
@@ -335,7 +311,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function canCaptureOnce(): bool
     {
-        return $this->_canCaptureOnce;
+        return $this->canCaptureOnce;
     }
 
     /**
@@ -346,7 +322,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function canRefundPartialPerInvoice(): bool
     {
-        return $this->_canRefundInvoicePartial;
+        return $this->canRefundInvoicePartial;
     }
 
     /**
@@ -358,7 +334,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function canUseInternal(): bool
     {
-        return $this->_canUseInternal;
+        return $this->canUseInternal;
     }
 
     /**
@@ -368,7 +344,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function canUseCheckout(): bool
     {
-        return $this->_canUseCheckout;
+        return $this->canUseCheckout;
     }
 
     /**
@@ -390,7 +366,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function canFetchTransactionInfo(): bool
     {
-        return $this->_canFetchTransactionInfo;
+        return $this->canFetchTransactionInfo;
     }
 
     /**
@@ -416,7 +392,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function isGateway(): bool
     {
-        return $this->_isGateway;
+        return $this->isGateway;
     }
 
     /**
@@ -427,7 +403,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function isOffline(): bool
     {
-        return $this->_isOffline;
+        return $this->isOffline;
     }
 
     /**
@@ -438,7 +414,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function isInitializeNeeded(): bool
     {
-        return $this->_isInitializeNeeded;
+        return $this->isInitializeNeeded;
     }
 
     /**
@@ -462,10 +438,10 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     public function getFormBlockType(): string
     {
         if (!empty($this->data['formBlockType'])) {
-            $this->_formBlockType = $this->data['formBlockType'];
+            $this->formBlockType = $this->data['formBlockType'];
         }
 
-        return $this->_formBlockType;
+        return $this->formBlockType;
     }
 
     /**
@@ -476,7 +452,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function getInfoBlockType(): string
     {
-        return $this->_infoBlockType;
+        return $this->infoBlockType;
     }
 
     /**
@@ -603,13 +579,13 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function getCode(): string
     {
-        if (empty($this->_code)) {
+        if (empty($this->code)) {
             throw new LocalizedException(
                 __('We cannot retrieve the payment method code.')
             );
         }
 
-        return $this->_code;
+        return $this->code;
     }
 
     /**
@@ -640,7 +616,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function canOrder(): bool
     {
-        return $this->_canOrder;
+        return $this->canOrder;
     }
 
     /**
@@ -671,7 +647,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function canAuthorize(): bool
     {
-        return $this->_canAuthorize;
+        return $this->canAuthorize;
     }
 
     /**
@@ -702,7 +678,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function canCapture(): bool
     {
-        return $this->_canCapture;
+        return $this->canCapture;
     }
 
     /**
@@ -733,7 +709,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function canRefund(): bool
     {
-        return $this->_canRefund;
+        return $this->canRefund;
     }
 
     /**
@@ -778,7 +754,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function canVoid(): bool
     {
-        return $this->_canVoid;
+        return $this->canVoid;
     }
 
     /**
@@ -808,7 +784,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      */
     public function canReviewPayment(): bool
     {
-        return $this->_canReviewPayment;
+        return $this->canReviewPayment;
     }
 
     /**
@@ -875,7 +851,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @return bool
      * @throws LocalizedException
      */
-    public function isAvailable(CartInterface $quote = null): bool
+    public function isAvailable(?CartInterface $quote = null): bool
     {
         if (!$this->isActive($quote ? $quote->getStoreId() : null)) {
             return false;
@@ -968,11 +944,11 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     /**
      * Return replace keys for debug data
      *
-     * @return mixed[]
+     * @return array
      */
     public function getDebugReplacePrivateDataKeys(): array
     {
-        return (array)$this->_debugReplacePrivateDataKeys;
+        return (array)$this->debugReplacePrivateDataKeys;
     }
 
     /**
@@ -997,7 +973,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      * @return string
      * @throws NoSuchEntityException
      */
-    public function getSuccessUrl(array $data, bool $isApiOrder = null): string
+    public function getSuccessUrl(array $data, ?bool $isApiOrder = null): string
     {
         if (isset($data['successUrl']) && !$isApiOrder) {
             return $data['successUrl'];
@@ -1014,13 +990,23 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
      *
      * @return string
      */
-    public function getFailureUrl(array $data, bool $isApiOrder = null): string
+    public function getFailureUrl(array $data, ?bool $isApiOrder = null): string
     {
         if (isset($data['failureUrl']) && !$isApiOrder) {
             return $data['failureUrl'];
         }
 
         return $this->config->getStoreUrl() . 'checkout_com/payment/fail';
+    }
+
+    /**
+     * Description isModuleActive function
+     *
+     * @return bool
+     */
+    public function isModuleActive(): bool
+    {
+        return (bool)$this->scopeConfig->getValue('settings/checkoutcom_configuration/active', ScopeInterface::SCOPE_WEBSITE);
     }
 
     /**
@@ -1035,15 +1021,5 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
         if (!empty($data['formBlockType'])) {
             $this->_formBlockType = $data['formBlockType'];
         }
-    }
-
-    /**
-     * Description isModuleActive function
-     *
-     * @return bool
-     */
-    public function isModuleActive(): bool
-    {
-        return (bool)$this->scopeConfig->getValue('settings/checkoutcom_configuration/active', ScopeInterface::SCOPE_WEBSITE);
     }
 }

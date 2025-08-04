@@ -19,10 +19,9 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Setup\Patch\Data;
 
-use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity\Collection as WebhookEntityCollection;
-use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity\CollectionFactory as WebhookEntityCollectionFactory;
 use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity as WebhookEntityResourceModel;
-use Magento\Framework\Data\Collection;
+use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity\CollectionFactory as WebhookEntityCollectionFactory;
+use Exception;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
@@ -59,7 +58,7 @@ class DeleteDuplicateEvents implements DataPatchInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function apply(): self
     {
@@ -72,7 +71,6 @@ class DeleteDuplicateEvents implements DataPatchInterface
 
         $duplicateEventIds = array_column($duplicateEvents, 'event_id');
         $webhookIdsToKeep = array_column($duplicateEvents, 'id');
-
 
         $where = [
             'event_id IN (?)' => $duplicateEventIds,

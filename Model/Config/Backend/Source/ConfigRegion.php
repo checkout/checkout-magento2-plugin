@@ -21,6 +21,9 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
 
+/**
+ * Class ConfigRegion
+ */
 class ConfigRegion implements OptionSourceInterface
 {
     public const REGION_GLOBAL = 'global';

@@ -1,7 +1,26 @@
 <?php
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+
+use CheckoutCom\Magento2\Block\Adminhtml\Order\View\View;
+use Magento\Framework\Escaper;
 
 /**
- * @var $block \CheckoutCom\Magento2\Block\Adminhtml\Order\View\View
+ * @var View $block
+ * @var Escaper $escaper
  */
 
 $alternativePaymentMethodName = $block->getAlternativePaymentMethodName();
@@ -14,73 +33,73 @@ $threeDsVersion = $block->getCko3dsPaymentData('version');
 ?>
 
 <?php if ($alternativePaymentMethodName || ($block->getCkoPaymentData('product_type') && $block->getCkoPaymentData('last4'))) : ?>
-<div class="order-account-information">
-    <div class="field-email">
-        <div class="admin__page-section-title">
-            <h2 class="title"><?= $block->escapeHtml(__('Payment Additional Information')) ?></h2>
-        </div>
-        <table class="admin__table-secondary order-information-table">
-            <?php if ($alternativePaymentMethodName !== '') : ?>
-                <tr>
-                    <th><?= $block->escapeHtml(__('Alternative payment method')) ?></th>
-                    <td><?= $alternativePaymentMethodName ?></td>
-                </tr>
-                <?php if ($alternativePaymentMethodTransactionInfo !== '') : ?>
+    <div class="order-account-information">
+        <div class="field-email">
+            <div class="admin__page-section-title">
+                <h2 class="title"><?= $escaper->escapeHtml(__('Payment Additional Information')) ?></h2>
+            </div>
+            <table class="admin__table-secondary order-information-table">
+                <?php if ($alternativePaymentMethodName !== '') : ?>
                     <tr>
-                        <th><?= $block->escapeHtml(__('Transaction Id')) ?></th>
-                        <td><?= $alternativePaymentMethodTransactionInfo ?></td>
+                        <th><?= $escaper->escapeHtml(__('Alternative payment method')) ?></th>
+                        <td><?= $alternativePaymentMethodName ?></td>
+                    </tr>
+                    <?php if ($alternativePaymentMethodTransactionInfo !== '') : ?>
+                        <tr>
+                            <th><?= $escaper->escapeHtml(__('Transaction Id')) ?></th>
+                            <td><?= $alternativePaymentMethodTransactionInfo ?></td>
+                        </tr>
+                    <?php endif ?>
+                <?php endif ?>
+                <?php if ($block->getCkoPaymentData('product_type') && $block->getCkoPaymentData('last4')) : ?>
+                    <tr>
+                        <th><?= $escaper->escapeHtml(__('Card type')) ?></th>
+                        <td><?= $block->getCkoPaymentData('scheme') ?> (<?= $block->getCkoPaymentData('product_type') ?>)</td>
+                    </tr>
+                    <tr>
+                        <th><?= $escaper->escapeHtml(__('Card 4 last numbers')) ?></th>
+                        <td>**** **** **** <?= $block->getCkoPaymentData('last4') ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $escaper->escapeHtml(__('Card expiry (mm/yy)')) ?></th>
+                        <td><?= $block->getCkoPaymentData('expiry_month') ?>/<?= $block->getCkoPaymentData('expiry_year') ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $escaper->escapeHtml(__('Card Country')) ?></th>
+                        <td><?= $block->getCkoPaymentData('issuer_country') ?></td>
                     </tr>
                 <?php endif ?>
-            <?php endif ?>
-            <?php if ($block->getCkoPaymentData('product_type') && $block->getCkoPaymentData('last4')) : ?>
-            <tr>
-                <th><?= $block->escapeHtml(__('Card type')) ?></th>
-                <td><?= $block->getCkoPaymentData('scheme') ?> (<?= $block->getCkoPaymentData('product_type') ?>)</td>
-            </tr>
-            <tr>
-                <th><?= $block->escapeHtml(__('Card 4 last numbers')) ?></th>
-                <td>**** **** **** <?= $block->getCkoPaymentData('last4') ?></td>
-            </tr>
-            <tr>
-                <th><?= $block->escapeHtml(__('Card expiry (mm/yy)')) ?></th>
-                <td><?= $block->getCkoPaymentData('expiry_month') ?>/<?= $block->getCkoPaymentData('expiry_year') ?></td>
-            </tr>
-            <tr>
-                <th><?= $block->escapeHtml(__('Card Country')) ?></th>
-                <td><?= $block->getCkoPaymentData('issuer_country') ?></td>
-            </tr>
-            <?php endif ?>
-            <?php if ($issuer): ?>
-            <tr>
-                <th><?= $block->escapeHtml(__('Issuing Bank')) ?></th>
-                <td><?= $issuer ?></td>
-            </tr>
-            <?php endif ?>
-            <?php if ($avsCheck): ?>
-            <tr>
-                <th><?= $block->escapeHtml(__('AVS Check')) ?></th>
-                <td><?= $avsCheck ?> (<?= $block->getAvsCheckDescription($avsCheck) ?>)</td>
-            </tr>
-            <?php endif ?>
-            <?php if ($cvvCheck): ?>
-            <tr>
-                <th><?= $block->escapeHtml(__('CVV Check')) ?></th>
-                <td><?= $cvvCheck ?> (<?= $block->getCvvCheckDescription($cvvCheck) ?>)</td>
-            </tr>
-            <?php endif ?>
-            <?php if ($threeDsCode): ?>
-            <tr>
-                <th><?= $block->escapeHtml(__('3DS authorization code')) ?></th>
-                <td><?= $threeDsCode ?> (<?= $block->get3dsDescription($threeDsCode) ?>)</td>
-            </tr>
-            <?php endif ?>
-            <?php if ($threeDsVersion): ?>
-            <tr>
-                <th><?= $block->escapeHtml(__('3DS version')) ?></th>
-                <td><?= $threeDsVersion ?></td>
-            </tr>
-            <?php endif ?>
-        </table>
+                <?php if ($issuer): ?>
+                    <tr>
+                        <th><?= $escaper->escapeHtml(__('Issuing Bank')) ?></th>
+                        <td><?= $issuer ?></td>
+                    </tr>
+                <?php endif ?>
+                <?php if ($avsCheck): ?>
+                    <tr>
+                        <th><?= $escaper->escapeHtml(__('AVS Check')) ?></th>
+                        <td><?= $avsCheck ?> (<?= $block->getAvsCheckDescription($avsCheck) ?>)</td>
+                    </tr>
+                <?php endif ?>
+                <?php if ($cvvCheck): ?>
+                    <tr>
+                        <th><?= $escaper->escapeHtml(__('CVV Check')) ?></th>
+                        <td><?= $cvvCheck ?> (<?= $block->getCvvCheckDescription($cvvCheck) ?>)</td>
+                    </tr>
+                <?php endif ?>
+                <?php if ($threeDsCode): ?>
+                    <tr>
+                        <th><?= $escaper->escapeHtml(__('3DS authorization code')) ?></th>
+                        <td><?= $threeDsCode ?> (<?= $block->get3dsDescription($threeDsCode) ?>)</td>
+                    </tr>
+                <?php endif ?>
+                <?php if ($threeDsVersion): ?>
+                    <tr>
+                        <th><?= $escaper->escapeHtml(__('3DS version')) ?></th>
+                        <td><?= $threeDsVersion ?></td>
+                    </tr>
+                <?php endif ?>
+            </table>
+        </div>
     </div>
-</div>
 <?php endif ?>

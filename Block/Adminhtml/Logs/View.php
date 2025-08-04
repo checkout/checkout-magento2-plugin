@@ -22,7 +22,6 @@ namespace CheckoutCom\Magento2\Block\Adminhtml\Logs;
 use LimitIterator;
 use Magento\Framework\Phrase;
 use Magento\Framework\View\Element\Template;
-use Magento\Framework\View\Element\Template\Context;
 use SplFileObject;
 
 /**
@@ -30,19 +29,6 @@ use SplFileObject;
  */
 class View extends Template
 {
-    /**
-     * View constructor
-     *
-     * @param Context $context
-     * @param array   $data
-     */
-    public function __construct(
-        Context $context,
-        array $data = []
-    ) {
-        parent::__construct($context, $data);
-    }
-
     /**
      * Description getLogFile function
      *
@@ -54,11 +40,11 @@ class View extends Template
         if (is_file($file)) {
             $file = new SplFileObject($file, 'r');
             $file->seek(PHP_INT_MAX);
-            $last_line = $file->key();
-            if ($last_line) {
+            $lastLine = $file->key();
+            if ($lastLine) {
                 // Get the last 5000 lines of the log file for the preview
                 $lines = new LimitIterator(
-                    $file, ($last_line - 5000) > 0 ? $last_line - 5000 : 0, $last_line
+                    $file, ($lastLine - 5000) > 0 ? $lastLine - 5000 : 0, $lastLine
                 );
 
                 return implode('', iterator_to_array($lines));
@@ -79,8 +65,8 @@ class View extends Template
         if (is_file($file)) {
             $file = new SplFileObject($file, 'r');
             $file->seek(PHP_INT_MAX);
-            $last_line = $file->key();
-            if ($last_line > 5000) {
+            $lastLine = $file->key();
+            if ($lastLine > 5000) {
                 return __('The log file is too large to display in full. This preview displays the last 5000 lines');
             }
         }

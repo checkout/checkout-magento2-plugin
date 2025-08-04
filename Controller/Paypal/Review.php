@@ -16,6 +16,7 @@ declare(strict_types=1);
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+
 namespace CheckoutCom\Magento2\Controller\Paypal;
 
 use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
@@ -31,6 +32,9 @@ use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Api\Data\PaymentInterfaceFactory;
 
+/**
+ * Class Review
+ */
 class Review implements HttpGetActionInterface
 {
     public const PAYMENT_CONTEXT_ID_PARAMETER = 'contextId';

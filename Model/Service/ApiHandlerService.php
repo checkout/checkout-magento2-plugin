@@ -63,75 +63,17 @@ class ApiHandlerService
      * @var mixed
      */
     protected $checkoutApi;
-    /**
-     * @var Json
-     */
-    protected $json;
-    /**
-     * @var ScopeConfigInterface
-     */
-    protected $scopeConfig;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $productMeta field
-     *
-     * @var ProductMetadataInterface $productMeta
-     */
-    private $productMeta;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $versionHandler field
-     *
-     * @var VersionHandlerService $versionHandler
-     */
-    private $versionHandler;
+    private StoreManagerInterface $storeManager;
+    private ProductMetadataInterface $productMeta;
+    private Config $config;
+    private Utilities $utilities;
+    private Logger $logger;
+    private OrderHandlerService $orderHandler;
+    private QuoteHandlerService $quoteHandler;
+    private VersionHandlerService $versionHandler;
+    protected ScopeConfigInterface $scopeConfig;
+    protected Json $json;
 
-    /**
-     * ApiHandlerService constructor
-     *
-     * @param StoreManagerInterface $storeManager
-     * @param ProductMetadataInterface $productMeta
-     * @param Config $config
-     * @param Utilities $utilities
-     * @param Logger $logger
-     * @param OrderHandlerService $orderHandler
-     * @param QuoteHandlerService $quoteHandler
-     * @param VersionHandlerService $versionHandler
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Json $json
-     */
     public function __construct(
         StoreManagerInterface $storeManager,
         ProductMetadataInterface $productMeta,
@@ -170,8 +112,8 @@ class ApiHandlerService
     public function init(
         $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE,
-        string $secretKey = null,
-        string $publicKey = null
+        ?string $secretKey = null,
+        ?string $publicKey = null
     ): ApiHandlerService {
         $region = $this->config->getValue('region', null, $storeCode, $scope);
 
@@ -199,7 +141,7 @@ class ApiHandlerService
             ->environment($environment);
 
         // Do not set subdomain when global region is used
-        if ($region !== ConfigRegion::REGION_GLOBAL) { 
+        if ($region !== ConfigRegion::REGION_GLOBAL) {
             $sdkBuilder->environmentSubdomain($region);
         }
 
@@ -211,8 +153,7 @@ class ApiHandlerService
     public function initAbcForRefund(
         $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
-    ): ApiHandlerService
-    {
+    ): ApiHandlerService {
         $secretKey = $this->config->getValue('abc_refund_secret_key', null, $storeCode, $scope);
         $publicKey = $this->config->getValue('abc_refund_public_key', null, $storeCode, $scope);
 

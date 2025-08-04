@@ -71,8 +71,8 @@ class ShippingAddress extends CustomerAddressEdit
         UrlInterface $url,
         RequestInterface $request,
         array $data = [],
-        AddressMetadataInterface $addressMetadata = null,
-        Address $addressHelper = null
+        ?AddressMetadataInterface $addressMetadata = null,
+        ?Address $addressHelper = null
     ) {
         parent::__construct(
             $context,
@@ -92,18 +92,13 @@ class ShippingAddress extends CustomerAddressEdit
         );
 
         $this->addressConfig = $addressConfig;
+        $this->_address = $this->checkoutSession->getQuote()->getShippingAddress();
         $this->checkoutSession = $checkoutSession;
         $this->customerInterfaceFactory = $customerInterfaceFactory;
         $this->url = $url;
         $this->request = $request;
-
-        $this->_address = $this->checkoutSession->getQuote()->getShippingAddress();
     }
 
-    /**
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
     public function getAddress(): ?QuoteAddress
     {
         return $this->checkoutSession->getQuote()->getShippingAddress();
@@ -144,7 +139,12 @@ class ShippingAddress extends CustomerAddressEdit
         return (string)$this->getAddress()->getRegion();
     }
 
-    public function getRegionId()
+    /**
+     * Return the id of the region being edited.
+     *
+     * @return int region id
+     */
+    public function getRegionId(): int
     {
         return $this->getAddress()->getRegionId() ?? 0;
     }

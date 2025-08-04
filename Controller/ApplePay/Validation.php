@@ -32,33 +32,10 @@ use Magento\Framework\HTTP\Client\Curl;
  */
 class Validation extends Action
 {
-    /**
-     * $rawFactory field
-     *
-     * @var RawFactory $rawFactory
-     */
-    private $rawFactory;
-    /**
-     * $curl field
-     *
-     * @var Curl $curl
-     */
-    private $curl;
-    /**
-     * $config field
-     *
-     * @var Config
-     */
-    private $config;
+    private RawFactory $rawFactory;
+    private Curl $curl;
+    private Config $config;
 
-    /**
-     * Validation constructor
-     *
-     * @param Context    $context
-     * @param RawFactory $rawFactory
-     * @param Curl       $curl
-     * @param Config     $config
-     */
     public function __construct(
         Context $context,
         RawFactory $rawFactory,
@@ -68,8 +45,8 @@ class Validation extends Action
         parent::__construct($context);
 
         $this->rawFactory = $rawFactory;
-        $this->curl       = $curl;
-        $this->config     = $config;
+        $this->curl = $curl;
+        $this->config = $config;
     }
 
     /**
@@ -82,7 +59,7 @@ class Validation extends Action
     {
         // Get request parameters
         $methodId = $this->getRequest()->getParam('method_id');
-        $url      = $this->getRequest()->getParam('u');
+        $url = $this->getRequest()->getParam('u');
 
         if (substr($url, 0, 5) === 'https' && substr($url, 0, 8) !== 'https://') {
             $url = 'https://' . substr($url, 7);
@@ -132,13 +109,13 @@ class Validation extends Action
     protected function getParams(string $methodId): array
     {
         return [
-            'merchantId'                => $this->config->getValue(
+            'merchantId' => $this->config->getValue(
                 'merchant_id',
                 $methodId
             ),
-            'domainName'                => $this->getRequest()->getServer('HTTP_HOST'),
-            'displayName'               => $this->config->getStoreName(),
-            'processingCertificate'     => $this->config->getValue(
+            'domainName' => $this->getRequest()->getServer('HTTP_HOST'),
+            'displayName' => $this->config->getStoreName(),
+            'processingCertificate' => $this->config->getValue(
                 'processing_certificate',
                 $methodId
             ),
@@ -146,7 +123,7 @@ class Validation extends Action
                 'processing_certificate_password',
                 $methodId
             ),
-            'merchantCertificate'       => $this->config->getValue(
+            'merchantCertificate' => $this->config->getValue(
                 'merchant_id_certificate',
                 $methodId
             ),

@@ -20,8 +20,6 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Setup\Patch\Data;
 
 use Magento\Framework\App\Config\Storage\WriterInterface;
-use Magento\Framework\DB\Adapter\AdapterInterface;
-use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 
 class CreateVerificationDate implements DataPatchInterface

@@ -48,86 +48,16 @@ class VaultHandlerService
      *
      * @var string $customerEmail
      */
-    protected $customerEmail;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $vaultToken field
-     *
-     * @var VaultToken $vaultToken
-     */
-    private $vaultToken;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $paymentTokenRepository filed
-     *
-     * @var PaymentTokenRepositoryInterface $paymentTokenRepository
-     */
-    private $paymentTokenRepository;
-    /**
-     * $paymentTokenManagement filed
-     *
-     * @var PaymentTokenManagementInterface $paymentTokenManagement
-     */
-    private $paymentTokenManagement;
-    /**
-     * $customerSession field
-     *
-     * @var Session $customerSession
-     */
-    private $customerSession;
-    /**
-     * $cardHandler field
-     *
-     * @var CardHandlerService $cardHandler
-     */
-    private $cardHandler;
-    /**
-     * $customerId field
-     *
-     * @var int $customerId
-     */
-    private $customerId;
-    /**
-     * $cardToken field
-     *
-     * @var string $cardToken
-     */
-    private $cardToken;
-    /**
-     * $response field
-     *
-     * @var mixed $response
-     */
-    private $response = [];
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
+    protected string $customerEmail;
+    private StoreManagerInterface $storeManager;
+    private VaultToken $vaultToken;
+    private PaymentTokenRepositoryInterface $paymentTokenRepository;
+    private PaymentTokenManagementInterface $paymentTokenManagement;
+    private Session $customerSession;
+    private ApiHandlerService $apiHandler;
+    private CardHandlerService $cardHandler;
+    private Config $config;
 
-    /**
-     * VaultHandlerService constructor
-     *
-     * @param StoreManagerInterface $storeManager
-     * @param VaultToken $vaultToken
-     * @param PaymentTokenRepositoryInterface $paymentTokenRepository
-     * @param PaymentTokenManagementInterface $paymentTokenManagement
-     * @param Session $customerSession
-     * @param ApiHandlerService $apiHandler
-     * @param CardHandlerService $cardHandler
-     * @param Config $config
-     */
     public function __construct(
         StoreManagerInterface $storeManager,
         VaultToken $vaultToken,
@@ -169,7 +99,7 @@ class VaultHandlerService
      *
      * @return VaultHandlerService
      */
-    public function setCustomerEmail(string $email = null): VaultHandlerService
+    public function setCustomerEmail(?string $email = null): VaultHandlerService
     {
         $this->customerEmail = ($email) ?: $this->customerSession->getCustomer()->getEmail();
 
@@ -242,6 +172,20 @@ class VaultHandlerService
     }
 
     /**
+     * Sets a gateway response if no prior card authorization is needed
+     *
+     * @param mixed $response
+     *
+     * @return $this
+     */
+    public function setResponse($response): VaultHandlerService
+    {
+        $this->response = $response;
+
+        return $this;
+    }
+
+    /**
      * Validates the authorization response
      *
      * @return bool
@@ -293,20 +237,6 @@ class VaultHandlerService
     public function getResponse()
     {
         return $this->response;
-    }
-
-    /**
-     * Sets a gateway response if no prior card authorization is needed
-     *
-     * @param mixed $response
-     *
-     * @return $this
-     */
-    public function setResponse($response): VaultHandlerService
-    {
-        $this->response = $response;
-
-        return $this;
     }
 
     /**

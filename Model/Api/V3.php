@@ -50,146 +50,22 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class V3 implements V3Interface
 {
-    /**
-     * $paymentResponseFactory field
-     *
-     * @var PaymentResponseFactory $paymentResponseFactory
-     */
-    private $paymentResponseFactory;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $quoteIdMaskFactory field
-     *
-     * @var QuoteIdMaskFactory $quoteIdMaskFactory
-     */
-    private $quoteIdMaskFactory;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $orderStatusHandler field
-     *
-     * @var OrderStatusHandlerService $orderStatusHandler
-     */
-    private $orderStatusHandler;
-    /**
-     * $methodHandler field
-     *
-     * @var MethodHandlerService $methodHandler
-     */
-    private $methodHandler;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $paymentErrorHandler field
-     *
-     * @var PaymentErrorHandlerService $paymentErrorHandler
-     */
-    private $paymentErrorHandler;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $vaultHandler field
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    private $vaultHandler;
-    /**
-     * $request
-     *
-     * @var Http $request
-     */
-    private $request;
-    /**
-     * $data field
-     *
-     * @var PaymentRequestInterface $data
-     */
-    private $data;
-    /**
-     * $customer field
-     *
-     * @var CustomerInterface $customer
-     */
-    private $customer;
-    /**
-     * $result field
-     *
-     * @var array $result
-     */
-    private $result;
-    /**
-     * $api field
-     *
-     * @var Object $api
-     */
-    private $api;
-    /**
-     * $quote field
-     *
-     * @var Object $quote
-     */
-    private $quote;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
-    /**
-     * $quoteIdMaskResource field
-     *
-     * @var QuoteIdMaskResource $quoteIdMaskResource
-     */
-    private $quoteIdMaskResource;
+    private PaymentResponseFactory $paymentResponseFactory;
+    private Config $config;
+    private StoreManagerInterface $storeManager;
+    private QuoteHandlerService $quoteHandler;
+    private QuoteIdMaskFactory $quoteIdMaskFactory;
+    private OrderHandlerService $orderHandler;
+    private OrderStatusHandlerService $orderStatusHandler;
+    private MethodHandlerService $methodHandler;
+    private ApiHandlerService $apiHandler;
+    private PaymentErrorHandlerService $paymentErrorHandler;
+    private Utilities $utilities;
+    private VaultHandlerService $vaultHandler;
+    private Http $request;
+    private OrderRepositoryInterface $orderRepository;
+    private QuoteIdMaskResource $quoteIdMaskResource;
 
-    /**
-     * V3 constructor
-     *
-     * @param PaymentResponseFactory $paymentResponseFactory
-     * @param Config $config
-     * @param StoreManagerInterface $storeManager
-     * @param QuoteHandlerService $quoteHandler
-     * @param QuoteIdMaskFactory $quoteIdMaskFactory
-     * @param OrderHandlerService $orderHandler
-     * @param OrderStatusHandlerService $orderStatusHandler
-     * @param MethodHandlerService $methodHandler
-     * @param ApiHandlerService $apiHandler
-     * @param PaymentErrorHandlerService $paymentErrorHandler
-     * @param Utilities $utilities
-     * @param VaultHandlerService $vaultHandler
-     * @param Http $request
-     * @param OrderRepositoryInterface $orderRepository
-     * @param QuoteIdMaskResource $quoteIdMaskResource
-     */
     public function __construct(
         PaymentResponseFactory $paymentResponseFactory,
         Config $config,
@@ -289,7 +165,7 @@ class V3 implements V3Interface
         if ($this->isValidPublicKey()) {
             if ($this->hasValidFields()) {
                 $this->result = $this->processPayment();
-                if (!$this->result['success'] &&  !$this->result['error_message']) {
+                if (!$this->result['success'] && !$this->result['error_message']) {
                     $this->result['error_message'][] = __('The order could not be created.');
                 }
             }

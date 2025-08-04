@@ -26,25 +26,25 @@ interface PaymentResponseInterface
     /**
      * Constants for keys of data array.
      */
-    const SUCCESS = 'success';
+    public const SUCCESS = 'success';
     /**
      * ORDER_ID constant
      *
      * @var string ORDER_ID
      */
-    const ORDER_ID = 'order_id';
+    public const ORDER_ID = 'order_id';
     /**
      * REDIRECT_URL constant
      *
      * @var string REDIRECT_URL
      */
-    const REDIRECT_URL = 'redirect_url';
+    public const REDIRECT_URL = 'redirect_url';
     /**
      * ERROR_MESSAGE constant
      *
      * @var string ERROR_MESSAGE
      */
-    const ERROR_MESSAGE = 'error_message';
+    public const ERROR_MESSAGE = 'error_message';
 
     /**
      * Get the success status
@@ -104,7 +104,7 @@ interface PaymentResponseInterface
     /**
      * Set the error message
      *
-     * @param string|array $errorMessage
+     * @param array|string $errorMessage
      *
      * @return \CheckoutCom\Magento2\Api\Data\PaymentResponseInterface
      */

@@ -22,11 +22,14 @@ namespace CheckoutCom\Magento2\Api;
  */
 interface WebhookInterface
 {
-    const AUTHENTICATION_EXPIRED = "authentication_expired";
-    const PAYMENT_AUTHENTICATION_FAILED = "payment_authentication_failed";
-    const PAYMENT_CANCELLED = "payment_cancelled";
-    const PAYMENT_CAPTURE_DECLINED = "payment_capture_declined";
-    const PAYMENT_DECLINED = "payment_declined";
-    const PAYMENT_EXPIRED = "payment_expired";
-    const PAYMENT_VOIDED = "payment_voided";
+    /**
+     * Webhook type constant
+     */
+    public const AUTHENTICATION_EXPIRED = "authentication_expired";
+    public const PAYMENT_AUTHENTICATION_FAILED = "payment_authentication_failed";
+    public const PAYMENT_CANCELLED = "payment_cancelled";
+    public const PAYMENT_CAPTURE_DECLINED = "payment_capture_declined";
+    public const PAYMENT_DECLINED = "payment_declined";
+    public const PAYMENT_EXPIRED = "payment_expired";
+    public const PAYMENT_VOIDED = "payment_voided";
 }

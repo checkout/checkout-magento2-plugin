@@ -28,7 +28,6 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\RefundAdapter\Interceptor;
 use Magento\Sales\Model\Order\RefundAdapterInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -38,46 +37,12 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class RefundInvoice
 {
-    /**
-     * $methodHandler field
-     *
-     * @var MethodHandlerService $methodHandler
-     */
-    private $methodHandler;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $orderPaymentRepository field
-     *
-     * @var OrderPaymentRepositoryInterface $orderPaymentRepository
-     */
-    private $orderPaymentRepository;
+    private MethodHandlerService $methodHandler;
+    private StoreManagerInterface $storeManage;
+    private ApiHandlerService $apiHandler;
+    private Config $config;
+    private OrderPaymentRepositoryInterface $orderPaymentRepository;
 
-    /**
-     * RefundInvoice constructor
-     *
-     * @param MethodHandlerService $methodHandler
-     * @param StoreManagerInterface $storeManager
-     * @param ApiHandlerService $apiHandler
-     * @param Config $config
-     * @param OrderPaymentRepositoryInterface $orderPaymentRepository
-     */
     public function __construct(
         MethodHandlerService $methodHandler,
         StoreManagerInterface $storeManager,
@@ -127,7 +92,7 @@ class RefundInvoice
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
 
         // Check if payment method is checkout.com
-        if (in_array($methodId, $this->config->getMethodsList()) && $isOnline) {
+        if ($isOnline && in_array($methodId, $this->config->getMethodsList())) {
             // Get the payment and amount to refund
             $payment = $order->getPayment();
             $amount = $creditMemo->getBaseGrandTotal();

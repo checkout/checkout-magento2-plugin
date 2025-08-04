@@ -33,50 +33,21 @@ class CardHandlerService
 {
     /**
      * CARD_MAPPER field
-     *
-     * @var array CARD_MAPPER
      */
     const CARD_MAPPER = [
-        'VI'  => 'Visa',
-        'MC'  => 'Mastercard',
-        'AE'  => 'American Express',
-        'DN'  => 'Diners Club International',
-        'DI'  => 'Discover',
+        'VI' => 'Visa',
+        'MC' => 'Mastercard',
+        'AE' => 'American Express',
+        'DN' => 'Diners Club International',
+        'DI' => 'Discover',
         'JCB' => 'JCB',
     ];
-    /**
-     * $assetRepository field
-     *
-     * @var Repository $assetRepository
-     */
-    private $assetRepository;
-    /**
-     * $directoryReader field
-     *
-     * @var Reader $directoryReader
-     */
-    private $directoryReader;
-    /**
-     * $csvParser field
-     *
-     * @var Csv $csvParser
-     */
-    private $csvParser;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
 
-    /**
-     * CardHandlerService constructor
-     *
-     * @param Repository $assetRepository
-     * @param Reader     $directoryReader
-     * @param Csv        $csvParser
-     * @param Config     $config
-     */
+    private Repository $assetRepository;
+    private Reader $directoryReader;
+    private Csv $csvParser;
+    private Config $config;
+
     public function __construct(
         Repository $assetRepository,
         Reader $directoryReader,
@@ -85,8 +56,8 @@ class CardHandlerService
     ) {
         $this->assetRepository = $assetRepository;
         $this->directoryReader = $directoryReader;
-        $this->csvParser       = $csvParser;
-        $this->config          = $config;
+        $this->csvParser = $csvParser;
+        $this->config = $config;
     }
 
     /**
@@ -167,7 +138,7 @@ class CardHandlerService
             $output[] = [
                 'code' => $code,
                 'name' => __($value),
-                'url'  => $this->assetRepository->getUrl(
+                'url' => $this->assetRepository->getUrl(
                     'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
                 ),
             ];

@@ -27,39 +27,17 @@ use Magento\Customer\Model\Session;
  */
 class MethodHandlerService
 {
-    /**
-     * $instances field
-     *
-     * @var array $instances
-     */
-    private $instances;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $customerSession field
-     *
-     * @var Session $customerSession
-     */
-    private $customerSession;
+    private OrderHandlerService $orderHandler;
+    private Session $customerSession;
+    private array $instances;
 
-    /**
-     * MethodHandlerService constructor
-     *
-     * @param                     $instances
-     * @param OrderHandlerService $orderHandler
-     * @param Session             $customerSession
-     */
     public function __construct(
-        $instances,
+        array $instances,
         OrderHandlerService $orderHandler,
         Session $customerSession
     ) {
-        $this->instances       = $instances;
-        $this->orderHandler    = $orderHandler;
+        $this->instances = $instances;
+        $this->orderHandler = $orderHandler;
         $this->customerSession = $customerSession;
     }
 

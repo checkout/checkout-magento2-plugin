@@ -45,100 +45,20 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class OrderHandlerService
 {
-    /**
-     * @var SortOrderBuilderFactory
-     */
-    private $sortOrderBuilderFactory;
-    /**
-     * $checkoutSession field
-     *
-     * @var Session $checkoutSession
-     */
-    private $checkoutSession;
-    /**
-     * $quoteManagement field
-     *
-     * @var QuoteManagement $quoteManagement
-     */
-    private $quoteManagement;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
-    /**
-     * $searchBuilder field
-     *
-     * @var SearchCriteriaBuilder $searchBuilder
-     */
-    private $searchBuilder;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $methodId field
-     *
-     * @var  $methodId
-     */
-    protected $methodId;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-    /**
-     * $transactionHandler field
-     *
-     * @var TransactionHandlerService $transactionHandler
-     */
-    private $transactionHandler;
+    private ?string $methodId = null;
+    private Session $checkoutSession;
+    private QuoteManagement $quoteManagement;
+    private OrderRepositoryInterface $orderRepository;
+    private SearchCriteriaBuilder $searchBuilder;
+    private Config $config;
+    private QuoteHandlerService $quoteHandler;
+    private StoreManagerInterface $storeManager;
+    private Logger $logger;
+    private TransactionHandlerService $transactionHandler;
+    private SortOrderBuilderFactory $sortOrderBuilderFactory;
+    private OrderManagementInterface $orderManagement;
+    private Registry $registry;
 
-    /**
-     * $orderManagement field
-     *
-     * @var OrderManagementInterface $orderManagement
-     */
-    private $orderManagement;
-
-    /**
-     * $registry field
-     *
-     * @var Registry $registry
-     */
-    private $registry;
-
-    /**
-     * OrderHandlerService constructor
-     *
-     * @param Session $checkoutSession
-     * @param QuoteManagement $quoteManagement
-     * @param OrderRepositoryInterface $orderRepository
-     * @param SearchCriteriaBuilder $searchBuilder
-     * @param Config $config
-     * @param QuoteHandlerService $quoteHandler
-     * @param StoreManagerInterface $storeManager
-     * @param Logger $logger
-     * @param TransactionHandlerService $transactionHandler
-     * @param SortOrderBuilderFactory $sortOrderBuilderFactory
-     * @param OrderManagementInterface $orderManagement
-     */
     public function __construct(
         Session $checkoutSession,
         QuoteManagement $quoteManagement,
@@ -190,7 +110,7 @@ class OrderHandlerService
      * @return AbstractExtensibleModel|OrderInterface|mixed|object|null
      * @throws LocalizedException
      */
-    public function handleOrder(Quote $quote = null, bool $external = false): Order
+    public function handleOrder(?Quote $quote = null, bool $external = false): Order
     {
         if ($this->methodId) {
             // Prepare the quote
@@ -269,7 +189,7 @@ class OrderHandlerService
      * @param float $amount
      * @param OrderInterface $order
      *
-     * @return float|int
+     * @return float
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
