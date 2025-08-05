@@ -125,7 +125,7 @@ class Config
         ?string $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
     ) {
-        return $this->loader->getValue($field, $methodId, (string)$storeCode, $scope);
+        return $this->loader->getValue($field, $methodId, $storeCode, $scope);
     }
 
     /**

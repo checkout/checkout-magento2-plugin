@@ -25,6 +25,7 @@ use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
@@ -72,6 +73,9 @@ class TransactionHandlerService
     private OrderPaymentRepositoryInterface $orderPaymentRepository;
     private OrderRepositoryInterface $orderRepository;
     private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository;
+    private TransactionInterface $transaction;
+    private OrderInterface $order;
+    private ?OrderPaymentInterface $payment;
 
     public function __construct(
         OrderSender $orderSender,

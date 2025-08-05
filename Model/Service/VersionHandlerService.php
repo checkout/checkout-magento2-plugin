@@ -119,7 +119,7 @@ class VersionHandlerService
         $storeCode = $this->storeManager->getStore()->getCode();
 
         // Get Github API URL from config
-        $gitApiUrl = $this->config->getValue('github_api_url', null, $storeCode, ScopeInterface::SCOPE_STORE);
+        $gitApiUrl = $this->config->getValue('github_api_url', null, (string)$storeCode, ScopeInterface::SCOPE_STORE);
 
         // Send the request
         $this->curl->get($gitApiUrl);
