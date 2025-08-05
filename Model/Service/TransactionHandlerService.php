@@ -73,9 +73,9 @@ class TransactionHandlerService
     private OrderPaymentRepositoryInterface $orderPaymentRepository;
     private OrderRepositoryInterface $orderRepository;
     private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository;
-    private TransactionInterface $transaction;
-    private OrderInterface $order;
-    private ?OrderPaymentInterface $payment;
+    private $transaction;
+    private $order;
+    private $payment;
 
     public function __construct(
         OrderSender $orderSender,

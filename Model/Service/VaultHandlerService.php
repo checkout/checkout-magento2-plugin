@@ -57,7 +57,7 @@ class VaultHandlerService
     private ApiHandlerService $apiHandler;
     private CardHandlerService $cardHandler;
     private Config $config;
-    private string $cardToken;
+    private $cardToken;
     private $customerId;
     private $response;
 

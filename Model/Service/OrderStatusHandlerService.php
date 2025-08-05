@@ -40,9 +40,9 @@ class OrderStatusHandlerService
     private OrderManagementInterface $orderManagement;
     private OrderRepositoryInterface $orderRepository;
     private Registry $registry;
-    private ?string $state = null;
-    private ?string $status = null;
-    private ?OrderInterface $order = null;
+    private $state = null;
+    private $status = null;
+    private $order = null;
 
     public function __construct(
         StoreManagerInterface $storeManager,
