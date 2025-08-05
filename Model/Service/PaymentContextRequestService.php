@@ -106,6 +106,7 @@ class PaymentContextRequestService
         $this->regionCollectionFactory = $regionCollectionFactory;
         $this->cartRepository = $cartRepository;
         $this->shopperHandlerService = $shopperHandlerService;
+        $this->utilities = $utilities;
     }
 
     public function makePaymentContextRequests(

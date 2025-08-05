@@ -154,7 +154,7 @@ class KlarnaMethod extends AbstractMethod
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
-        $this->storeManager = $storeManager;
+        $this->backendAuthSession = $backendAuthSession;
         $this->quoteHandler = $quoteHandler;
         $this->ckoLogger = $ckoLogger;
         $this->storeManager = $storeManager;
