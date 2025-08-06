@@ -57,6 +57,9 @@ class VaultHandlerService
     private ApiHandlerService $apiHandler;
     private CardHandlerService $cardHandler;
     private Config $config;
+    private $cardToken;
+    private $customerId;
+    private $response;
 
     public function __construct(
         StoreManagerInterface $storeManager,

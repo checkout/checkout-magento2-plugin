@@ -115,14 +115,14 @@ class ApiHandlerService
         ?string $secretKey = null,
         ?string $publicKey = null
     ): ApiHandlerService {
-        $region = $this->config->getValue('region', null, $storeCode, $scope);
+        $region = $this->config->getValue('region', null, (string)$storeCode, $scope);
 
         if (!$secretKey) {
-            $secretKey = $this->config->getValue('secret_key', null, $storeCode, $scope);
+            $secretKey = $this->config->getValue('secret_key', null, (string)$storeCode, $scope);
         }
 
         if (!$publicKey) {
-            $publicKey = $this->config->getValue('public_key', null, $storeCode, $scope);
+            $publicKey = $this->config->getValue('public_key', null, (string)$storeCode, $scope);
         }
 
         $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, $scope, $storeCode);
@@ -154,8 +154,8 @@ class ApiHandlerService
         $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
     ): ApiHandlerService {
-        $secretKey = $this->config->getValue('abc_refund_secret_key', null, $storeCode, $scope);
-        $publicKey = $this->config->getValue('abc_refund_public_key', null, $storeCode, $scope);
+        $secretKey = $this->config->getValue('abc_refund_secret_key', null, (string)$storeCode, $scope);
+        $publicKey = $this->config->getValue('abc_refund_public_key', null, (string)$storeCode, $scope);
 
         $api = CheckoutSdk::builder();
         $environment = $this->config->getEnvironment((string)$storeCode, $scope);

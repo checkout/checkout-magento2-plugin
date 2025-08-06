@@ -152,11 +152,12 @@ class GooglePayMethod extends AbstractMethod
         );
         $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
-        $this->storeManager = $storeManager;
+        $this->backendAuthSession = $backendAuthSession;
         $this->quoteHandler = $quoteHandler;
         $this->ckoLogger = $ckoLogger;
         $this->storeManager = $storeManager;
         $this->json = $json;
+        $this->config = $config;
     }
 
     /**
