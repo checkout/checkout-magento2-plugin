@@ -38,6 +38,11 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class CustomerData implements SectionSourceInterface
 {
+    public $paymentToken;
+    public $shippingAddress;
+    public $billingAddress;
+    public $shippingMethod;
+    public $instantPurchaseOption;
     private StoreManagerInterface $storeManager;
     private InstantPurchaseInterface $instantPurchase;
     private Session $customerSession;

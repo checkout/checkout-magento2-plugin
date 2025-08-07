@@ -16,18 +16,22 @@
  */
 
 use CheckoutCom\Magento2\Block\Adminhtml\Logs\View;
+use Magento\Framework\Escaper;
 
-/** @var View $block */
+/**
+ * @var View $block
+ * @var Escaper $escaper
+ * */
 
 ?>
 <section class="admin__page-section">
     <div class="admin__page-section-content">
         <div class="admin__page-section-item-title">
-            <span class="title"><?= $block->getFileName(); ?></span>
-            <p><?= $block->getSizeMessage(); ?></p>
+            <span class="title"><?= $escaper->escapeHtml($block->getFileName()); ?></span>
+            <p><?= $escaper->escapeHtml($block->getSizeMessage()); ?></p>
         </div>
         <div class="admin__page-section-item-content">
-            <textarea readonly rows="25" style="width:100%"><?= $block->getLogFile(); ?></textarea>
+            <textarea readonly rows="25" style="width:100%"><?= $escaper->escapeHtml($block->getLogFile()); ?></textarea>
         </div>
     </div>
 </section>

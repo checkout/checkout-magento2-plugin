@@ -38,7 +38,7 @@ use Magento\Store\Model\StoreManagerInterface;
 class RefundInvoice
 {
     private MethodHandlerService $methodHandler;
-    private StoreManagerInterface $storeManage;
+    private StoreManagerInterface $storeManager;
     private ApiHandlerService $apiHandler;
     private Config $config;
     private OrderPaymentRepositoryInterface $orderPaymentRepository;

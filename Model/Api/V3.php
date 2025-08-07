@@ -50,6 +50,11 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class V3 implements V3Interface
 {
+    public $customer;
+    public $data;
+    public $api;
+    public $result;
+    public $quote;
     private PaymentResponseFactory $paymentResponseFactory;
     private Config $config;
     private StoreManagerInterface $storeManager;
