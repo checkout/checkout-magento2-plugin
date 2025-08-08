@@ -36,6 +36,8 @@
             <values>
                 <value id="cko-cdn" type="host">https://js.checkout.com</value>
                 <value id="klarna-cdn" type="host">*.klarnaevt.com</value>
+                <value id="klarnacdn" type="host">*.klarnacdn.net</value>
+                <value id="klarna" type="host">*.klarna.com</value>
             </values>
         </policy>
         <policy id="frame-src">

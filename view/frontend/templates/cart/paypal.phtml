@@ -13,14 +13,31 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+
+/**
+ * @var SecureHtmlRenderer $secureRenderer
+ * @var Escaper $escaper
+ */
 ?>
-<script type="text/x-magento-init">
-    {
-        "#paypal-express-button-container": {
-            "Magento_Ui/js/core/app": <?= /* @noEscape */ $block->getJsLayout() ?>
-        }
-    }
-</script>
+<?php
+$script = json_encode([
+    "#paypal-express-button-container" => [
+        "Magento_Ui/js/core/app" => /* @noEscape */ $block->getJsLayout(),
+    ],
+]);
+
+?>
+
+<?= $secureRenderer->renderTag(
+    'script',
+    ['type' => 'text/x-magento-init'],
+    $script,
+    false
+); ?>
+
 <div id="paypal-express-button-container"
      data-bind="scope: 'paypal_express_button'">
     <!-- ko template: getTemplate() --><!-- /ko -->
