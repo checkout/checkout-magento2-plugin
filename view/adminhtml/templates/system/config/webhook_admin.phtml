@@ -17,13 +17,25 @@
 
 use CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\AbstractCallbackUrl;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
 
-/** @var AbstractCallbackUrl $block */
+/**
+ * @var AbstractCallbackUrl $block
+ * @var Escaper $escaper
+ * @var SecureHtmlRenderer $secureRenderer
+ */
 ?>
 
 <?= $escaper->escapeHtml($block->getElementHtml()); ?>
 <p id="webhook-message" class="webhook-message <?= $escaper->escapeHtml($block->getMessageClass()); ?>"><?= $escaper->escapeHtml($block->getMessage()); ?></p>
-<script>
+<?php
+$scope = $block->getScope();
+$scopeId = $block->getScopeId();
+$webhookUrl = $block->getWebhookUrl();
+$ajaxUrl = $block->getAjaxUrl();
+
+$script = <<<script
 require([
     'jquery',
     'prototype',
@@ -102,14 +114,14 @@ require([
 
     jQuery('#webhook_button').click(function() {
         var params = {
-            scope: '<?= /* @noEscape */ $block->getScope(); ?>',
-            scope_id: '<?= /* @noEscape */ $block->getScopeId(); ?>',
-            webhook_url: '<?= /* @noEscape */ $block->getWebhookUrl(); ?>',
+            scope: '{$scope}',
+            scope_id: '{$scopeId}',
+            webhook_url: '{webhookUrl}',
             secret_key: secretKey[0].value,
             public_key: publicKey[0].value,
         };
 
-        new Ajax.Request('<?= /* @noEscape */ $block->getAjaxUrl() ?>', {
+        new Ajax.Request('{$ajaxUrl}', {
             parameters: params,
             loaderArea: false,
             asynchronous: true,
@@ -132,7 +144,11 @@ require([
         });
     });
 });
-</script>
+script
+
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $script, false) ?>
+
 <div id="webhook_auto_set" style="display: <?= ($block->getHidden() === true) ? 'none' : 'block' ?> ">
     <?= $block->getButtonHtml() ?>
     <span id="webhook_span">
