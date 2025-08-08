@@ -53,6 +53,7 @@ class V2 extends Action
     /**
      * @var array|mixed|mixed[]
      */
+    public $quote;
     protected mixed $result;
     protected $order;
     protected mixed $data;

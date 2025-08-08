@@ -16,8 +16,12 @@
  */
 
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
+use Magento\Framework\Escaper;
 
-/** @var Moto $block */
+/**
+ * @var Moto $block
+ * @var Escaper $escaper
+ */
 
 ?>
 <fieldset class="admin__fieldset payment-method checkoutcom_moto"
@@ -44,22 +48,22 @@ use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
                         $publicHash = $card->getPublicHash();
                         $tokenData = $block->getVaultHandler()->renderTokenData($card);
                         ?>
-                        <div id="cko-vault-card-<?= $block->escapeHtmlAttr($card->getEntityId())?>"
+                        <div id="cko-vault-card-<?= $escaper->escapeHtmlAttr($card->getEntityId())?>"
                         class="cko-vault-card">
                             <div class="vault-details">
                                 <label>
                                     <input type="radio" name="publicHash"
-                                    value="<?= $block->escapeHtmlAttr($publicHash)?>">
-                                    <img src="<?= $block->escapeHtmlAttr($iconUrl) ?>"
+                                    value="<?= $escaper->escapeHtmlAttr($publicHash)?>">
+                                    <img src="<?= $escaper->escapeHtmlAttr($iconUrl) ?>"
                                     style="display:inline-block; vertical-align:-50%">
                                 </label>
                                 <span>
-                                <?= $block->escapeHtml($tokenData)?>
+                                <?= $escaper->escapeHtml($tokenData)?>
                                 </span>
                             </div>
                             <div class="vault-cvv">
                                 <input type="text" name="cvv-unused" maxlength="4"
-                                placeholder="<?= $block->escapeHtmlAttr(__('CVV')) ?>">
+                                placeholder="<?= $escaper->escapeHtmlAttr(__('CVV')) ?>">
                             </div>
                             <div class="clr"></div>
                         </div>

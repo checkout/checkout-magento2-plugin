@@ -1019,7 +1019,7 @@ abstract class AbstractMethod extends AbstractExtensibleModel implements MethodI
     protected function initializeData(array $data = []): void
     {
         if (!empty($data['formBlockType'])) {
-            $this->_formBlockType = $data['formBlockType'];
+            $this->formBlockType = $data['formBlockType'];
         }
     }
 }
