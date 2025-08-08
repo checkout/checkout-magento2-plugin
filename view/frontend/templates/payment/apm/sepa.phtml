@@ -13,38 +13,50 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+
+/**
+ * @var Escaper $escaper
+ * @var SecureHtmlRenderer $secureRenderer
+ */
 ?>
 
-<div data-role="collapsible" id="<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" class="cko-apm <?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
+<div data-role="collapsible" id="<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>" class="cko-apm <?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>">
     <div data-role="trigger">
-        <span class="bg-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?> bg-apm"></span>
-        <span><?= $block->escapeHtml($block->getData('title'))?></span>
+        <span class="bg-<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?> bg-apm"></span>
+        <span><?= $escaper->escapeHtml($block->getData('title'))?></span>
     </div>
 </div>
-<div data-role="content" class="apm-content <?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
-    <form id="cko-apm-form-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
-        <input type="hidden" name="source" value="<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" required>
+<div data-role="content" class="apm-content <?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>">
+    <form id="cko-apm-form-<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>">
+        <input type="hidden" name="source" value="<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>" required>
         <input type="hidden" name="task" value="mandate">
 
         <div class="input-group">
             <label class="icon" for="account_iban">
                 <span class="ckojs ckojs-card"></span>
             </label>
-            <input type="text" id="account_iban" name="account_iban" placeholder="<?= $block->escapeHtmlAttr(__('Account IBAN')); ?>" class="input-control" required>
+            <input type="text" id="account_iban" name="account_iban" placeholder="<?= $escaper->escapeHtmlAttr(__('Account IBAN')); ?>" class="input-control" required>
         </div>
         <br>
         <p align="center">
-            <button type="button"><?= $block->escapeHtml(__('Continue')) ?></button>
+            <button type="button"><?= $escaper->escapeHtml(__('Continue')) ?></button>
         </p>
     </form>
 
-    <script type="text/javascript">
-        require(['jquery', 'CheckoutCom_Magento2/js/view/payment/utilities', 'Magento_Checkout/js/model/full-screen-loader', 'domReady!'], function ($, Utilities, FullScreenLoader) {
+    <?php
+    $apmId = $escaper->escapeHtml($block->getData('apm_id'));
+    $url = $escaper->escapeUrl($block->getUrl('checkout_com/apm/displaysepa'));
+
+    $script = <<<script
+require(['jquery', 'CheckoutCom_Magento2/js/view/payment/utilities', 'Magento_Checkout/js/model/full-screen-loader', 'domReady!'], function ($, Utilities, FullScreenLoader) {
 
             const METHOD_ID = 'checkoutcom_apm';
 
             // Prepare the form id
-            var sepaForm = $('#' + 'cko-apm-form-<?= $block->escapeHtml($block->getData('apm_id')) ?>');
+            var sepaForm = $('#' + 'cko-apm-form-{$apmId}}');
 
             // Form click event
             sepaForm.find('button').on('click touch', function() {
@@ -62,7 +74,7 @@
                     // Send the request
                     $.ajax({
                         type: 'POST',
-                        url: '<?= $block->escapeUrl($block->getUrl('checkout_com/apm/displaysepa'))?>',
+                        url: '{$url}',
                         data: formData,
                         success: function (data) {
                             if(data && data.hasOwnProperty('html')) {
@@ -84,5 +96,8 @@
 
             });
         });
-    </script>
+script;
+
+    ?>
+    <?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $script, false) ?>
 </div>

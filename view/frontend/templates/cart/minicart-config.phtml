@@ -18,8 +18,11 @@
 use CheckoutCom\Magento2\Block\Cart\CheckoutConfig;
 use Magento\Framework\View\Helper\SecureHtmlRenderer;
 
-/** @var CheckoutConfig $block */
-/** @var SecureHtmlRenderer $secureRenderer */
+/**
+ * @var CheckoutConfig $block
+ * @var SecureHtmlRenderer $secureRenderer
+ */
+
 if ($block->isPaypalOrApplePayEnabled()):
 ?>
 <?php $serializedCheckoutConfig = $block->getProductCount() > 0 ? $block->getSerializedCheckoutConfig() : $block->getSerializedCheckoutComConfig();

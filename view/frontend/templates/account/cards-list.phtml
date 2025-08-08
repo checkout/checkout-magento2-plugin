@@ -15,33 +15,37 @@
  */
 
 use CheckoutCom\Magento2\Block\Account\CardRenderer;
+use Magento\Framework\Escaper;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 
-/** @var CardRenderer $block */
+/**
+ * @var CardRenderer $block
+ * @var Escaper $escaper
+ */
 
 $ccNumberView = $block->getNumberLast4Digits();
 ?>
 <tr>
-    <td data-th="<?= $block->escapeHtmlAttr(__('Card Number')) ?>" class="col card-number">
-        <span><?= $block->escapeHtml(__('ending')); ?></span> <?= $block->escapeHtml($ccNumberView) ?>
+    <td data-th="<?= $escaper->escapeHtmlAttr(__('Card Number')) ?>" class="col card-number">
+        <span><?= $escaper->escapeHtml(__('ending')); ?></span> <?= $escaper->escapeHtml($ccNumberView) ?>
     </td>
-    <td data-th="<?= $block->escapeHtmlAttr(__('Expiration Date')) ?>" class="col card-expire">
-        <?= $block->escapeHtml($block->getExpDate()); ?>
+    <td data-th="<?= $escaper->escapeHtmlAttr(__('Expiration Date')) ?>" class="col card-expire">
+        <?= $escaper->escapeHtml($block->getExpDate()); ?>
     </td>
-    <td data-th="<?= $block->escapeHtmlAttr(__('Type')) ?>" class="col card-type">
-        <img src="<?= $block->escapeHtmlAttr($block->getCardHandler()->getCardIcon($block->getCardType())); ?>">
-        <span><?= $block->escapeHtml($block->getCardHandler()->getCardScheme($block->getCardType())) ?></span>
+    <td data-th="<?= $escaper->escapeHtmlAttr(__('Type')) ?>" class="col card-type">
+        <img src="<?= $escaper->escapeHtmlAttr($block->getCardHandler()->getCardIcon($block->getCardType())); ?>">
+        <span><?= $escaper->escapeHtml($block->getCardHandler()->getCardScheme($block->getCardType())) ?></span>
     </td>
-    <td data-th="<?= $block->escapeHtmlAttr(__('Actions')) ?>" class="col actions">
+    <td data-th="<?= $escaper->escapeHtmlAttr(__('Actions')) ?>" class="col actions">
         <form
             class="form"
-            action="<?= $block->escapeUrl($block->getUrl('vault/cards/deleteaction')); ?>"
+            action="<?= $escaper->escapeUrl($block->getUrl('vault/cards/deleteaction')); ?>"
             method="post"
         >
             <?= $block->getBlockHtml('formkey') ?>
             <input
-                name="<?= $block->escapeHtmlAttr(PaymentTokenInterface::PUBLIC_HASH) ?>"
-                value="<?= $block->escapeHtmlAttr($block->getToken()->getPublicHash()) ?>"
+                name="<?= $escaper->escapeHtmlAttr(PaymentTokenInterface::PUBLIC_HASH) ?>"
+                value="<?= $escaper->escapeHtmlAttr($block->getToken()->getPublicHash()) ?>"
                 type="hidden"/>
             <button type="submit"
                     class="action delete"
@@ -50,11 +54,11 @@ $ccNumberView = $block->getNumberLast4Digits();
                                         "type": "popup",
                                         "modalClass": "my-credit-cards-popup",
                                         "toggleEvent": "click",
-                                        "title": "<?= $block->escapeHtmlAttr(__('Delete')) ?>",
-                                        "content": "<?= $block->escapeHtml(__('The card ending with %1 will be deleted.', $ccNumberView)) ?>"
+                                        "title": "<?= $escaper->escapeHtmlAttr(__('Delete')) ?>",
+                                        "content": "<?= $escaper->escapeHtml(__('The card ending with %1 will be deleted.', $ccNumberView)) ?>"
                                     }
                                 }'>
-                <span><?= $block->escapeHtml(__('Delete a card')) ?></span>
+                <span><?= $escaper->escapeHtml(__('Delete a card')) ?></span>
             </button>
         </form>
     </td>

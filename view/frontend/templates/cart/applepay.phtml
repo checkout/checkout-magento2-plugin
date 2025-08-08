@@ -13,39 +13,60 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+
+/**
+ * @var SecureHtmlRenderer $secureRenderer
+ * @var Template $block
+ * @var Escaper $escaper
+ */
+
 ?>
 
 <?php
 if ($block->getViewModel()->isApplePayEnabledForAllBrowsers()):
-?>
-    <script type="text/x-magento-init">
-        {
-            "#ckoApplePayButton": {
-                "CheckoutCom_Magento2/js/view/payment/cart/checkoutcom_applepay_cart": {
-                    "type": "Cart",
-                    "configName": "enabled_on_cart",
-                    "allBrowsersSupported":true
-                }
-            }
-        }
-    </script>
+    $script = json_encode([
+        "#ckoApplePayButton" => [
+            "CheckoutCom_Magento2/js/view/payment/cart/checkoutcom_applepay_cart" => [
+                "type" => "Cart",
+                "configName" => "enabled_on_cart",
+                "allBrowsersSupported" => true,
+            ],
+        ],
+    ], JSON_UNESCAPED_SLASHES);
+
+    ?>
+    <?= $secureRenderer->renderTag(
+    'script',
+    ['type' => 'text/x-magento-init'],
+    $script,
+    false
+); ?>
+
     <script src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"></script>
     <apple-pay-button id="ckoApplePayButton" buttonstyle="black" type="plain" locale="en-US" class="apple-pay-button checkout ap-cart"></apple-pay-button>
 <?php
 else:
-?>
-    <script type="text/x-magento-init">
-        {
-            "#ckoApplePayButton": {
-                "CheckoutCom_Magento2/js/view/payment/cart/checkoutcom_applepay_cart": {
-                    "type": "Cart",
-                    "configName": "enabled_on_cart"
-                }
-            }
-        }
-    </script>
+    $script = json_encode([
+        "#ckoApplePayButton" => [
+            "CheckoutCom_Magento2/js/view/payment/cart/checkoutcom_applepay_cart" => [
+                "type" => "Cart",
+                "configName" => "enabled_on_cart",
+            ],
+        ],
+    ], JSON_UNESCAPED_SLASHES);
+    ?>
+    <?= $secureRenderer->renderTag(
+    'script',
+    ['type' => 'text/x-magento-init'],
+    $script,
+    false
+); ?>
     <div class="primary">
-        <button id="ckoApplePayButton" type="button"  style="display: none" class="apple-pay-button action primary checkout ap-cart"></button>
+        <button id="ckoApplePayButton" type="button" style="display: none" class="apple-pay-button action primary checkout ap-cart"></button>
     </div>
 <?php
 endif;
