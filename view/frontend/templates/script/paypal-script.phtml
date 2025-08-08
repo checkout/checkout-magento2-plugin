@@ -26,7 +26,7 @@ $clientId = $block->getClientId();
 $partnerId = $block->getPartnerAttributionId();
 $paypalMerchantId = $block->getPaypalMerchantId();
 if ($clientId && $partnerId && $paypalMerchantId):
-    $jsonConfig = $escaper->escapeJs($block->getWindowData());
+    $jsonConfig = $block->getWindowData();
     $scriptContent = "window.paypalCheckoutConfig = JSON.parse('{$jsonConfig}');";
     ?>
     <?= $secureRenderer->renderTag('script', [], $scriptContent, false); ?>
