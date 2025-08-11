@@ -23,6 +23,7 @@
         <policy id="font-src">
             <values>
                 <value id="cko-cdn" type="host">https://cdn.checkout.com</value>
+                <value id="apple-cdn" type="host">*.cdn-apple.com</value>
             </values>
         </policy>
         <policy id="script-src">
