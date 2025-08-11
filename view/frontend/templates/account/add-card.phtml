@@ -147,7 +147,6 @@ $script = <<<script
                 type: 'POST',
                 url: '{$saveCardUrl}',
                 data: {cardToken: cardTokenField.val()},
-                contentType: "application/json",
                 dataType: "json",
                 success: function (data) {
                     window.location.href = data.url;
