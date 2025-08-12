@@ -64,10 +64,11 @@
                     button.setAttribute("locale", window.LOCALE);
 
                     launchApplePay();
-                }
-                else {
+                } else {
                     $applePayButton.css("display", "none");
                 }
+            } else {
+                $applePayButton.css("display", "none");
             }
         }
 
