@@ -46,7 +46,6 @@ if ($block->getViewModel()->isApplePayEnabledForAllBrowsers()):
     false
 ); ?>
 
-    <script src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"></script>
     <apple-pay-button id="ckoApplePayButton" buttonstyle="black" type="plain" locale="en-US" class="apple-pay-button checkout ap-cart"></apple-pay-button>
 <?php
 else:
