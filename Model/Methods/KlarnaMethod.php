@@ -221,8 +221,19 @@ class KlarnaMethod extends AbstractMethod
 
         $this->ckoLogger->additional($this->utilities->objectToArray($request), 'payment');
 
-        // Send the charge request
-        return $api->getCheckoutApi()->getPaymentsClient()->requestPayment($request);
+        try {
+            // Send the charge request
+            return $this->requestPayment($api, $request);
+        } catch (\Exception $exception) {
+            if(strpos($exception->getMessage(), '422')) {
+                //Try again 3 seconds later
+                sleep(3);
+
+                return $this->requestPayment($api, $request);
+            }
+
+            throw $exception;
+        }
     }
 
     /**
@@ -417,5 +428,10 @@ class KlarnaMethod extends AbstractMethod
         }
 
         return true;
+    }
+
+    private function requestPayment(ApiHandlerService $api, $request): array
+    {
+        return $api->getCheckoutApi()->getPaymentsClient()->requestPayment($request);
     }
 }
