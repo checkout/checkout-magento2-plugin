@@ -48,18 +48,23 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
     </div>
 </div>
 <?php
-$chkPayPalContextId = $escaper->escapeJs($block->getContextId());
-$methodId = $escaper->escapeJs($block->getPaymentMethod());
+$data = [
+    "#checkoutcom-paypal-container" => [
+        "CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_paypal_review" => [
+            "chkPayPalContextId" => $block->getContextId(),
+            "addressForm" => ".form-address-edit",
+            "methodId" => $block->getPaymentMethod(),
+            "buttonSelector" => "#review-button"
+        ]
+    ]
+];
 
-$script = <<<script
-        "#checkoutcom-paypal-container": {
-            "CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_paypal_review": {
-                "chkPayPalContextId": "<?= $escaper->escapeJs($block->getContextId()); ?>",
-                "addressForm": ".form-address-edit",
-                "methodId": "<?= $escaper->escapeJs($block->getPaymentMethod()); ?>",
-                "buttonSelector": "#review-button"
-            }
-        }
-script
+$jsonInit = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 ?>
-<?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $script, false) ?>
+
+<?= /* @noEscape */ $secureRenderer->renderTag(
+    'script',
+    ['type' => 'text/x-magento-init'],
+    $jsonInit,
+    false
+) ?>
