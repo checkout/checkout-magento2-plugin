@@ -92,8 +92,8 @@ class ShippingAddress extends CustomerAddressEdit
         );
 
         $this->addressConfig = $addressConfig;
-        $this->_address = $this->checkoutSession->getQuote()->getShippingAddress();
         $this->checkoutSession = $checkoutSession;
+        $this->_address = $this->checkoutSession->getQuote()->getShippingAddress();
         $this->customerInterfaceFactory = $customerInterfaceFactory;
         $this->url = $url;
         $this->request = $request;
@@ -146,7 +146,7 @@ class ShippingAddress extends CustomerAddressEdit
      */
     public function getRegionId(): int
     {
-        return $this->getAddress()->getRegionId() ?? 0;
+        return (int)($this->getAddress()->getRegionId()) ?? 0;
     }
 
     public function getTitle(): Phrase

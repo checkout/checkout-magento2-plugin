@@ -152,16 +152,16 @@ class PaymentContextRequestService
         }
 
         $quote = $this->getQuote();
-        $paymentRequestsDatas = $contextDatas['payment_request'];
-        $name = $paymentRequestsDatas['customer']['name'] ? explode(' ', $paymentRequestsDatas['customer']['name'], 2) : [];
+        $paymentRequestsDatas = $contextDatas['payment_request'] ?? [];
+        $name = !empty($paymentRequestsDatas['customer']['name']) ? explode(' ', $paymentRequestsDatas['customer']['name'], 2) : [];
         $quote->setCustomerFirstname($name[0] ?? $quote->getCustomerFirstname());
         $quote->setCustomerLastname($name[1] ?? $quote->getCustomerLastname());
         $quote->setCustomerEmail($paymentRequestsDatas['customer']['email'] ?? $quote->getCustomerEmail());
 
         /** @var AddressInterface $quoteAddress */
         $quoteAddress = $this->addressInterfaceFactory->create();
-        $shippingAddressRequesDatas = $paymentRequestsDatas['shipping']['address'];
-        $shippingName = $paymentRequestsDatas['shipping']['first_name'] ? explode(' ', $paymentRequestsDatas['shipping']['first_name'], 2) : [];
+        $shippingAddressRequesDatas = $paymentRequestsDatas['shipping']['address'] ?? [];
+        $shippingName = !empty($paymentRequestsDatas['shipping']['first_name']) ? explode(' ', $paymentRequestsDatas['shipping']['first_name'], 2) : [];
         $quoteAddress->setFirstname($shippingName[0] ?? $quoteAddress->getFirstname());
         $quoteAddress->setLastname($shippingName[1] ?? $quoteAddress->getLastname());
         $quoteAddress->setCity($shippingAddressRequesDatas['city'] ?? $quoteAddress->getCity());
