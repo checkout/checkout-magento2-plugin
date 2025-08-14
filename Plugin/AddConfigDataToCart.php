@@ -38,6 +38,10 @@ class AddConfigDataToCart
 
     public function afterGetSectionData(Cart $subject, array $result): array
     {
+        if ($result['items'] === []) {
+            return $result;
+        }
+
         $configProvider = ['checkoutConfigProvider' => $this->compositeConfigProvider->getConfig()];
 
         return array_merge($this->config->getMethodsConfig(), $configProvider, $result);
