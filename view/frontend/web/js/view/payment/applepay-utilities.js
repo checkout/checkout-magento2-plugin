@@ -51,7 +51,8 @@ define(
                     m2ApiEndpoint;
                 "?form_key=" + window.checkoutConfig.formKey;
 
-                if (Customer.isLoggedIn()) {
+                const customerIsLoggedIn = window.checkoutConfig && window.checkoutConfig.isCustomerLoggedIn ? true : false;
+                if (customerIsLoggedIn) {
                     restUrl =
                         window.BASE_URL +
                         "rest/" + store + "/V1/carts/mine/" +

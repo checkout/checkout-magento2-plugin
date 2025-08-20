@@ -139,9 +139,10 @@ define(
                 var result = null;
                 var restUrl = window.BASE_URL;
                 var store = window.checkoutConfig && window.checkoutConfig.storeCode ? window.checkoutConfig.storeCode : 'default';
+                const customerIsLoggedIn = window.checkoutConfig && window.checkoutConfig.isCustomerLoggedIn ? true : false;
 
                 // Build the rest URL
-                if (Customer.isLoggedIn()) {
+                if (customerIsLoggedIn) {
                     restUrl += 'rest/';
                     restUrl += store;
                     restUrl += '/V1/';

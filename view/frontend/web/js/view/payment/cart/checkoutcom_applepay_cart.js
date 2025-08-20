@@ -20,11 +20,11 @@
     "CheckoutCom_Magento2/js/view/payment/applepay-utilities",
     "Magento_Checkout/js/model/full-screen-loader",
     "Magento_Checkout/js/model/payment/additional-validators",
-    "Magento_Checkout/js/action/redirect-on-success",
     "Magento_Customer/js/model/customer",
     "Magento_Customer/js/model/authentication-popup",
     'Magento_Checkout/js/model/quote',
     "mage/translate",
+    "mage/url"
 ], function (
     $,
     customerData,
@@ -32,11 +32,11 @@
     ApplePayUtilities,
     FullScreenLoader,
     AdditionalValidators,
-    RedirectOnSuccessAction,
     Customer,
     AuthPopup,
     Quote,
-    __
+    __,
+    url
 ) {
     return function(config, button)
     {
@@ -300,8 +300,9 @@
                                 // Handle 3DS redirection
                                 window.location.href = data.url;
                             } else {
-                                // Normal redirection
-                                RedirectOnSuccessAction.execute();
+                                // Normal redirection, not use redirect-on-success.js file because there is some issue when a user add a product to cart
+                                // and directly pay with Apple Pay without load a new page
+                                window.location.replace(url.build(window.checkoutConfig.defaultSuccessPageUrl));
                             }
                         })
                         .catch(function (error) {
