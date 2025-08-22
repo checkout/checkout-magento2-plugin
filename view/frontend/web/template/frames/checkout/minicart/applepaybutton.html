@@ -1,0 +1,47 @@
+<!--
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+-->
+
+<!-- ko if: isVisible -->
+<div class="actions">
+    <div class="primary">
+        <button
+            id="minicartApplePayButton"
+            type="button"
+            class="apple-pay-button action primary checkout ap-cart"
+            data-mage-init='{"CheckoutCom_Magento2/js/frames/view/payment/cart/checkoutcom_applepay_cart":{
+                    "type": "Minicart",
+                    "configName": "enabled_on_minicart"
+                }}'
+        >
+        </button>
+    </div>
+    <apple-pay-button
+        id="minicartCrossbrowserApplePayButton"
+        buttonstyle="black"
+        type="plain"
+        locale="en-US"
+        class="apple-pay-button checkout ap-cart"
+        data-mage-init='{"CheckoutCom_Magento2/js/frames/view/payment/cart/checkoutcom_applepay_cart":{
+            "type": "Minicart",
+            "configName": "enabled_on_minicart",
+            "allBrowsersSupported": true
+        }}'
+    >
+    </apple-pay-button>
+
+</div>
+<!-- /ko -->

@@ -135,3 +135,6 @@
     content: '\e62d';
 }
 
+.accordion .config .cko_sdk_selector + .note{
+    color: rgb(24, 106, 255);
+}
