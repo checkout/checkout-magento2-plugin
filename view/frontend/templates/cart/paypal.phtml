@@ -26,7 +26,7 @@ $script = <<<script
 script;
 ?>
 
-<?= $secureRenderer->renderTag(
+<?= /* @noEscape */ $secureRenderer->renderTag(
     'script',
     ['type' => 'text/x-magento-init'],
     $script,
