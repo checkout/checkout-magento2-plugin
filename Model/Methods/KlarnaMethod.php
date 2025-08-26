@@ -225,7 +225,7 @@ class KlarnaMethod extends AbstractMethod
             // Send the charge request
             return $this->requestPayment($api, $request);
         } catch (\Exception $exception) {
-            if(strpos($exception->getMessage(), '422')) {
+            if(str_contains($exception->getMessage(), '422')) {
                 //Try again 3 seconds later
                 sleep(3);
 
