@@ -41,9 +41,9 @@ class AddressElement
         $model->address_line1 = $address->getStreetLine(1);
         $model->address_line2 = $address->getStreetLine(2);
         $model->city = $address->getCity();
-        $model->state = $address->getCountry();
+        $model->country = $address->getCountry();
         $model->zip = $address->getPostcode();
-        $model->country= $address->getRegion();
+        $model->state = $address->getRegion();
 
         return $model;
     }
