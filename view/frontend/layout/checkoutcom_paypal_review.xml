@@ -24,9 +24,9 @@
         </referenceBlock>
         <referenceContainer name="content">
             <!-- Add checkoutConfig object -->
-            <block class="CheckoutCom\Magento2\Block\Cart\CheckoutConfig" name="checkoutcom_paypal_express_review.checkout.config" template="CheckoutCom_Magento2::cart/minicart-config.phtml"/>
+            <block class="CheckoutCom\Magento2\Block\Cart\CheckoutConfig" name="checkoutcom_paypal_express_review.checkout.config" template="CheckoutCom_Magento2::frames/cart/minicart-config.phtml"/>
 
-            <block name="checkoutcom_paypal_container" template="CheckoutCom_Magento2::payment/paypal/review.phtml">
+            <block name="checkoutcom_paypal_container" template="CheckoutCom_Magento2::frames/payment/paypal/review.phtml">
                 <block class="CheckoutCom\Magento2\Block\Paypal\Review\ShippingAddress"
                        name="checkoutcom_paypal_review_shipping_address"
                        template="Magento_Customer::address/edit.phtml"
@@ -40,23 +40,23 @@
                 </block>
                 <block class="CheckoutCom\Magento2\Block\Paypal\Review\ShippingMethod"
                        name="checkoutcom_paypal_review_shipping_method"
-                       template="CheckoutCom_Magento2::payment/paypal/review/shipping-method.phtml"/>
+                       template="CheckoutCom_Magento2::frames/payment/paypal/review/shipping-method.phtml"/>
                 <block class="CheckoutCom\Magento2\Block\Paypal\Review\PaymentMethod"
                        name="checkoutcom_paypal_review_payment_method"
-                       template="CheckoutCom_Magento2::payment/paypal/review/payment-method.phtml"/>
+                       template="CheckoutCom_Magento2::frames/payment/paypal/review/payment-method.phtml"/>
 
                 <block class="Magento\Framework\View\Element\Text\ListText" name="checkoutcom_paypal.additional.actions">
                     <block class="Magento\Checkout\Block\Cart\Coupon" name="checkoutcom_paypal.cart.coupon" as="coupon" template="Magento_Checkout::cart/coupon.phtml"/>
                 </block>
 
-                <block class="Magento\Checkout\Block\Cart\Totals" name="checkoutcom_paypal_express.review.details" as="details" after="checkoutcom_paypal.additional.actions" template="CheckoutCom_Magento2::payment/paypal/review/details.phtml">
+                <block class="Magento\Checkout\Block\Cart\Totals" name="checkoutcom_paypal_express.review.details" as="details" after="checkoutcom_paypal.additional.actions" template="CheckoutCom_Magento2::frames/payment/paypal/review/details.phtml">
                     <block class="Magento\Framework\View\Element\RendererList" name="checkout.onepage.review.item.renderers" as="renderer.list"/>
                     <block class="Magento\Checkout\Block\Cart\Totals" name="checkoutcom_paypal_express.review.details.totals" as="totals" template="Magento_Paypal::checkout/onepage/review/totals.phtml"/>
                 </block>
 
                 <block class="CheckoutCom\Magento2\Block\Paypal\Review\PlaceOrderButton"
                        name="checkoutcom_paypal_review_place_order"
-                       template="CheckoutCom_Magento2::payment/paypal/review/place-order.phtml">
+                       template="CheckoutCom_Magento2::frames/payment/paypal/review/place-order.phtml">
                     <block class="Magento\CheckoutAgreements\Block\Agreements"
                            name="checkoutcom_paypal.express.review.details.agreements"
                            as="agreements"
