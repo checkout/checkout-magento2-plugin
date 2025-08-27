@@ -21,7 +21,7 @@ namespace CheckoutCom\Magento2\Provider;
 
 use CheckoutCom\Magento2\Provider\AbstractSettingsProvider;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentAction;
-
+use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigEnvironment;
 /**
  * Class GeneralSettings
  */
@@ -46,6 +46,10 @@ class GeneralSettings extends AbstractSettingsProvider {
             self::CONFIG_ENABLE_MODULE,
             $websiteCode,
         );
+    }
+
+    public function isProductionModeEnabled(?string $websiteCode): bool {
+        return $this->getEnvironment($websiteCode) === ConfigEnvironment::ENVIRONMENT_PRODUCTION_CONFIG_VALUE;
     }
 
     public function getEnvironment(?string $websiteCode): string {
@@ -94,11 +98,11 @@ class GeneralSettings extends AbstractSettingsProvider {
         );
     }
 
-    public function isDynamicDescriptorEnabled(?string $websiteCode): ?string {
+    public function isDynamicDescriptorEnabled(?string $websiteCode): bool {
         return $this->getStoreLevelConfiguration(
             self::CONFIG_ENABLE_DYNAMIC_DESCRIPTOR,
             $websiteCode,
-        );
+        ) === "1";
     }
 
     public function getDynamicDescriptorName(?string $storeCode): ?string {

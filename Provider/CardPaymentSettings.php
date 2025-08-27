@@ -31,15 +31,15 @@ class CardPaymentSettings extends AbstractSettingsProvider {
 
     public function isThreeDSEnabled(?string $website): bool {
         return $this->getWebsiteLevelConfiguration(
-            $website,
-            self::CONFIG_THREE_DS
+            self::CONFIG_THREE_DS,
+            $website
         ) === "1";
     }
 
     public function isAttemptN3DEnabled(?string $website): bool {
         return $this->getWebsiteLevelConfiguration(
-            $website,
-            self::CONFIG_ATTEMPT_N3D
+            self::CONFIG_ATTEMPT_N3D,
+            $website
         ) === "1";
     }
 }
