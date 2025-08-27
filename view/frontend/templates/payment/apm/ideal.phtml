@@ -50,31 +50,4 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
         </div>
         <br>
     </form>
-    <?php if ($block->getData('service_previous_mode')): ?>
-        <?php
-        $url = $escaper->escapeUrl($block->getUrl('checkout_com/apm/displaybic'));
-        $script = <<<script
-        require([
-                'jquery'
-            ], function ($) {
-                $.ajax({
-                    url: '{$url}',
-                    type:'GET',
-                    success: function(response){
-                        $.each( response, function(key, value) {
-                            let bicID = value.bic;
-                            let nameValue = value.name;
-                            $('#bic').append($('<option>').val(bicID).text(nameValue));
-                        });
-                    },
-                    error: function(response){
-                        console.log(response)
-                    }
-                });
-            });
-script
-        ?>
-        <?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $script, false) ?>
-
-    <?php endif; ?>
 </div>
