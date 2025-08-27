@@ -36,6 +36,7 @@
         <policy id="connect-src">
             <values>
                 <value id="cko-cdn" type="host">https://js.checkout.com</value>
+                <value id="cko-all" type="host">https://*.checkout.com</value>
                 <value id="klarna-cdn" type="host">*.klarnaevt.com</value>
                 <value id="klarnacdn" type="host">*.klarnacdn.net</value>
                 <value id="klarna" type="host">*.klarna.com</value>
@@ -44,12 +45,14 @@
         <policy id="frame-src">
             <values>
                 <value id="cko-cdn" type="host">https://js.checkout.com</value>
+                <value id="cko-all" type="host">https://*.checkout.com</value>
                 <value id="klarna" type="host">*.klarna.com</value>
             </values>
         </policy>
         <policy id="img-src">
             <values>
                 <value id="data" type="host">data:</value>
+                <value id="cko-all" type="host">https://*.checkout.com</value>
             </values>
         </policy>
     </policies>

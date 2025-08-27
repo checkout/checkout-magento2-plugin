@@ -13,11 +13,13 @@
  * @link      https://docs.checkout.com/
  */
 
-var config = {
-    map: {
-        '*': {
-            flowjs: 'https://checkout-web-components.checkout.com/index.js',
-            framesjs: 'https://cdn.checkout.com/js/framesv2.min.js'
-        }
+define(
+    [
+        'jquery'
+    ],
+    function ($) {
+        'use strict';
+        const MODULE_ID = 'checkoutcom_magento2';
+        return window.checkoutConfig.payment[MODULE_ID];
     }
-};
+);
