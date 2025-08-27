@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Apm;
 
-use Checkout\CheckoutApi;
 use Checkout\CheckoutArgumentException;
 use Checkout\Sources\Previous\SepaSourceRequest;
 use Checkout\Sources\Previous\SourceData;

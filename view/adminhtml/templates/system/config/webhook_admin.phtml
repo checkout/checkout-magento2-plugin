@@ -65,22 +65,9 @@ require([
         document.getElementById('webhook_nas').style.display = 'block';
     }
 
-    function processABC() {
-        label[0].children[0].children[0].innerText = "<?= /* @noEscape */ __('Private Shared Key') ?>";
-        document.getElementById('webhook_nas').style.display = 'none';
-        if (checkFormFields()) {
-            document.getElementById('webhook_auto_set').style.display = 'block';
-        } else {
-            document.getElementById('webhook_auto_set').style.display = 'none';
-            document.getElementById('webhook-message').style.display = 'block';
-        }
-    }
-
     function checkService() {
         if (getService() === "<?= /* @noEscape */ ConfigService::SERVICE_NAS ?>") {
             processNAS();
-        } else if (getService() === "<?= /* @noEscape */ ConfigService::SERVICE_ABC ?>") {
-            processABC();
         }
     }
 
