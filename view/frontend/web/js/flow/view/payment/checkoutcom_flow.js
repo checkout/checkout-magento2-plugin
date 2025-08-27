@@ -1,0 +1,112 @@
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+define(
+    [
+        'jquery',
+        'ko',
+        'Magento_Checkout/js/view/payment/default',
+        'Magento_Customer/js/model/customer',
+        'flowjs'
+    ],
+    function ($, ko, Component, Customer) {
+        'use strict';
+        window.checkoutConfig.reloadOnBillingAddress = true;
+        const METHOD_ID = 'checkoutcom_flow';
+
+
+        return Component.extend(
+            {
+                defaults: {
+                    template: 'CheckoutCom_Magento2/flow/payment/' + METHOD_ID + '.html',
+                    buttonId: METHOD_ID + '_btn',
+                    formId: METHOD_ID + '_frm',
+                    formClone: null,
+                    cardToken: null,
+                    cardBin: null,
+                    saveCard: false,
+                    preferredScheme: false,
+                    supportedCards: null,
+                    redirectAfterPlaceOrder: false,
+                    allowPlaceOrder: ko.observable(false),
+                    isCoBadged: ko.observable(false),
+                    tooltipVisible: ko.observable(false),
+                },
+
+                /**
+                 * @return {exports}
+                 */
+                initialize: function () {
+                    this._super();
+                    console.log('Flow init done on front !');
+                    return this;
+                },
+
+                /**
+                 * @return {string}
+                 */
+                getCode: function () {
+                    return METHOD_ID;
+                },
+                /**
+                 * @return {bool}
+                 */
+                isLoggedIn: function () {
+                    return Customer.isLoggedIn();
+                },
+
+                initEvents: function () {
+                    var self = this;
+
+                    // Option click event
+                    $('.payment-method input[type="radio"]').on('click', function () {
+                        self.allowPlaceOrder(false);
+                    });
+                },
+
+
+            
+                /**
+                 * Gets the module images path
+                 */
+                getImagesPath: function () {
+                    return window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.images_path;
+                },
+                /**
+                 * Loads a Frames component.
+                 */
+                addFramesComponent: function (framesInstance) {
+
+                },
+
+
+                placeOrder: function () {
+                    console.log('place')
+                },
+
+                toggleTooltip: function () {
+                    this.tooltipVisible(!this.tooltipVisible());
+                },
+
+                /**
+                 * @param {object} billingAddress
+                 */
+                checkBillingAdressCustomerName: function (billingAddress) {
+                    const valid = billingAddress !== null;
+                }
+            }
+        );
+    }
+);

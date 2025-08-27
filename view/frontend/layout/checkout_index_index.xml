@@ -58,7 +58,7 @@
                                                             <!-- merge payment method renders here -->
                                                             <item name="children" xsi:type="array">
                                                                 <item name="checkoutcom_magento2" xsi:type="array">
-                                                                    <item name="component" xsi:type="string">CheckoutCom_Magento2/js/frames/view/payment/method-renderer</item>
+                                                                    <item name="component" xsi:type="string">CheckoutCom_Magento2/js/common/view/payment/method-selector</item>
                                                                     <item name="methods" xsi:type="array">
                                                                         <item name="checkoutcom_paypal" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
@@ -79,6 +79,9 @@
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="checkoutcom_vault" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>
+                                                                        <item name="checkoutcom_flow" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                     </item>
