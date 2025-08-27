@@ -43,7 +43,7 @@ class Prepare implements ActionInterface, HttpGetActionInterface
         CheckoutSession $checkoutSession
     ) {
         $this->flowPrepareService = $flowPrepareService;
-        $this->resultJsonFactory = $resultJsonFactory;
+        $this->resultJsonFactory = $resultJsonFactory;    
         $this->scopeConfig = $scopeConfig;
         $this->customerSession = $customerSession;
         $this->checkoutSession = $checkoutSession;
@@ -53,12 +53,12 @@ class Prepare implements ActionInterface, HttpGetActionInterface
     {
         $result = $this->resultJsonFactory->create();
 
+        $quote = $this->checkoutSession->getQuote();
+        $data = $this->flowPrepareService->prepare($quote, array());
+        if (empty($data['environment']) || empty($data['paymenSession']) || empty($data['publicKey'])) {
+            return $result->setStatusHeader(400);
+        }
 
-            $quote = $this->checkoutSession->getQuote();
-            $this->flowPrepareService->prepare($quote, array());
-
-            return $result->setData([
-                'content' => "Oui",
-            ]);
+        return $result->setData($data);
     }
 }
