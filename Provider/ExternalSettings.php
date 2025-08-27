@@ -51,7 +51,7 @@ class ExternalSettings extends AbstractSettingsProvider {
     }
 
     public function getStoreLocale(?string $storeCode): ?string {
-        return $this->getWebsiteLevelConfiguration(
+        return $this->getStoreLevelConfiguration(
             self::CONFIG_STORE_LOCALE,
             $storeCode,
         );

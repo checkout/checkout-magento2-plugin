@@ -35,43 +35,43 @@ class AccountSettings extends AbstractSettingsProvider {
 
     public function getRegion(?string $website): ?string {
         return $this->getWebsiteLevelConfiguration(
-            $website,
-            self::CONFIG_REGION
+            self::CONFIG_REGION,
+            $website
         );
     }
 
     public function getService(?string $website): ?string {
         return $this->getWebsiteLevelConfiguration(
-            $website,
-            self::CONFIG_SERVICE
+            self::CONFIG_SERVICE,
+            $website
         );
     }
 
     public function getSecretKey(?string $website): ?string {
         return $this->getWebsiteLevelConfiguration(
-            $website,
-            self::CONFIG_SECRET_KEY
+            self::CONFIG_SECRET_KEY,
+            $website
         );
     }
 
     public function getPublicKey(?string $website): ?string {
         return $this->getWebsiteLevelConfiguration(
-            $website,
-            self::CONFIG_PUBLIC_KEY
+            self::CONFIG_PUBLIC_KEY,
+            $website
         );
     }
 
     public function getPrivateSharedKey(?string $website): ?string {
         return $this->getWebsiteLevelConfiguration(
-            $website,
-            self::CONFIG_PRIVATE_SHARED_KEY
+            self::CONFIG_PRIVATE_SHARED_KEY,
+            $website
         );
     }
 
     public function getChannelId(?string $website): ?string {
         return $this->getWebsiteLevelConfiguration(
-            $website,
-            self::CONFIG_CHANNEL_ID
+            self::CONFIG_CHANNEL_ID,
+            $website
         );
     }
 }
