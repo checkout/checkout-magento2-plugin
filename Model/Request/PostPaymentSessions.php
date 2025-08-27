@@ -35,6 +35,8 @@ use CheckoutCom\Magento2\Provider\ExternalSettings;
 use CheckoutCom\Magento2\Provider\GeneralSettings;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Intl\DateTimeFactory;
+use CheckoutCom\Magento2\Model\Formatter\PriceFormatter;
 /**
  * Class PostPaymentSessions
  */
@@ -57,6 +59,8 @@ class PostPaymentSessions
     protected GeneralSettings $generalSettings;
 
     private StoreManagerInterface $storeManager;
+    private DateTimeFactory $dateTimeFactory;
+    protected PriceFormatter $priceFormatter;
 
     public function __construct(
         PaymentSessionsRequestFactory $modelFactory,
@@ -74,7 +78,9 @@ class PostPaymentSessions
         ExternalSettings $externalSettings,
         GeneralSettings $generalSettings,
 
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        DateTimeFactory $dateTimeFactory,
+        PriceFormatter $priceFormatter
     ) {
         $this->modelFactory = $modelFactory;
         
@@ -92,7 +98,9 @@ class PostPaymentSessions
         $this->externalSettings = $externalSettings;
         $this->generalSettings = $generalSettings;
 
+        $this->dateTimeFactory = $dateTimeFactory;
         $this->storeManager = $storeManager;
+        $this->priceFormatter = $priceFormatter;
     }
 
     public function get(CartInterface $quote, array $data): PaymentSessionsRequest {
@@ -103,25 +111,27 @@ class PostPaymentSessions
         $customer = $quote->getCustomer();
         $billingAddress = $quote->getBillingAddress();
         $shippingAddress = $quote->getShippingAddress();
+        $currency = $quote->getCurrency()->getBaseCurrencyCode();
 
-
-        $model->amount = 0;
-        $model->currency = "USD";
+        $model->amount = $this->priceFormatter->getFormattedPrice($quote->getGrandTotal(), $currency);
+        $model->currency = $currency;
         $model->billing = $this->billingElement->get($billingAddress);
         $model->success_url = $this->getSuccessUrl($data);
         $model->failure_url = $this->getFailureUrl($data);
         $model->payment_type = "Regular";
-        $model->billing_descriptor = $this->billingDescriptorElement->get();
+        if($this->generalSettings->isDynamicDescriptorEnabled($website)) {
+            $model->billing_descriptor = $this->billingDescriptorElement->get();
+        }
         $model->customer = $this->customerElement->get($customer);
         $model->shipping = $this->shippingElement->get($shippingAddress);
         $model->processing_channel_id = $this->accountSettings->getChannelId($website);
-        $model->payment_method_configuration = $this->paymentMethodConfigurationElement->get("", $customer);
+        // $model->payment_method_configuration = $this->paymentMethodConfigurationElement->get("card", $customer);
         $model->items = $this->itemsElement->get($quote);
         $model->risk = $this->riskElement->get();
         $model->display_name = $this->externalSettings->getStoreName($store);
-        $model->locale = $this->externalSettings->getStoreLocale($store);
+        // $model->locale = $this->externalSettings->getStoreLocale($store);
         $model->three_ds = $this->threeDSElement->get();
-        $model->sender = $this->senderElement->get($customer);
+        // $model->sender = $this->senderElement->get($customer);
         $model->capture = $this->generalSettings->isAuthorizeAndCapture($website);
         
         if($this->generalSettings->isAuthorizeAndCapture($website)) {
@@ -149,14 +159,21 @@ class PostPaymentSessions
         return $this->storeManager->getStore()->getBaseUrl() . 'checkout_com/payment/fail';
     }
 
-    protected function getCaptureTime(string $websiteCode): int|float
+    protected function getCaptureTime(string $websiteCode): string
     {
         $captureTime = $this->generalSettings->getCaptureTime($websiteCode);
         $captureTime *= 3600;
 
         $min = $this->generalSettings->getMinCaptureTime($websiteCode);
         
-        return $captureTime >= $min ? $captureTime : $min;
+        $timeToAdd = $captureTime >= $min ? $captureTime : $min;
+
+        $captureDate = time() + (int) $timeToAdd;
+        
+        $dateTime = $this->dateTimeFactory->create();
+        $dateTime->setTimestamp($captureDate);
+
+        return $dateTime->format("Y-m-d\TH:i:s\Z");
 
     }
 }

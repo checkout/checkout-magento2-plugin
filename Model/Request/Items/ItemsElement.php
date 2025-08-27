@@ -25,13 +25,14 @@ use CheckoutCom\Magento2\Provider\CurrenciesSettings;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\CartItemInterface;
+use CheckoutCom\Magento2\Model\Formatter\PriceFormatter;
 /**
  * Class ItemsElement
 */
 class ItemsElement
 {
     protected ProductFactory $modelFactory;
-    
+    protected PriceFormatter $priceFormatter;
     protected CurrenciesSettings $currenciesSettings;
 
     private StoreManagerInterface $storeManager;
@@ -39,11 +40,13 @@ class ItemsElement
     public function __construct(
         ProductFactory $modelFactory,
         CurrenciesSettings $currenciesSettings,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        PriceFormatter $priceFormatter
     ) {
         $this->modelFactory = $modelFactory;
         $this->currenciesSettings = $currenciesSettings;
         $this->storeManager = $storeManager;
+        $this->priceFormatter = $priceFormatter;
     }
 
     public function get(CartInterface $quote): array {
@@ -61,20 +64,11 @@ class ItemsElement
         /** @var CartItemInterface $item */
         foreach ($quote->getItems() as $item) {
             $product = $this->modelFactory->create();
-            $unitPrice = $this->getFormattedPrice(
-                round($item->getPriceInclTax() * 100) / 100,
-                $currency
-            );
 
-            $linePrice = $this->getFormattedPrice(
-                round($item->getPriceInclTax() * 100) / 100,
-                $currency
-            ) * $item->getQty(); // - discount
-
-            $discount = $this->getFormattedPrice(
-                round($item->getDiscountAmount() * 100) / 100,
-                $currency
-            );
+            $unitPrice = $this->priceFormatter->getFormattedPrice($item->getPriceInclTax(), $currency);
+            $linePrice = $this->priceFormatter->getFormattedPrice($item->getPriceInclTax(), $currency);
+            $discount = $this->priceFormatter->getFormattedPrice($item->getDiscountAmount(), $currency);
+  
 
             $product->name = $item->getName();
             $product->unit_price = $unitPrice;
@@ -87,34 +81,19 @@ class ItemsElement
         }
 
         // Shipping fee
-        // $shipping = $quote->getShippingAddress();
+        $shipping = $quote->getShippingAddress();
 
-        // if ($shipping->getShippingDescription()) {
-        //     $product = $this->modelFactory->create();
-        //     $product->name = $shipping->getShippingDescription();
-        //     $product->quantity = 1;
-        //     $product->unit_price = $shipping->getShippingInclTax() * 100;
-        //     $product->total_amount = $shipping->getShippingAmount() * 100;
+        if ($shipping->getShippingDescription()) {
+            $product = $this->modelFactory->create();
+            $product->name = $shipping->getShippingDescription();
+            $product->quantity = 1;
+            $product->unit_price = $this->priceFormatter->getFormattedPrice($shipping->getShippingInclTax(), $currency);
+            $product->total_amount = $this->priceFormatter->getFormattedPrice($shipping->getShippingAmount(), $currency);
 
-        //     $items[] = $product;
-        // }
+            $items[] = $product;
+        }
 
         return $items;
-    }
-
-    protected function getFormattedPrice($amount, $currency) {
-        $currenciesX1 = $this->currenciesSettings->getCurrenciesX1Table();
-        $currenciesX1000 = $this->currenciesSettings->getCurrenciesX1000Table();
-
-        if (in_array($currency, $currenciesX1)) {
-            return $amount;
-        }
-
-        if (in_array($currency, $currenciesX1000)) {
-            return $amount * 1000;
-        }
-            
-        return $amount * 100;
     }
 
     protected function getQuoteCurrency(CartInterface $quote): string

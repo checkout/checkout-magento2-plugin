@@ -53,12 +53,9 @@ class Prepare implements ActionInterface, HttpGetActionInterface
     {
         $result = $this->resultJsonFactory->create();
 
+        $quote = $this->checkoutSession->getQuote();
+        $data = $this->flowPrepareService->prepare($quote, array());
 
-            $quote = $this->checkoutSession->getQuote();
-            $this->flowPrepareService->prepare($quote, array());
-
-            return $result->setData([
-                'content' => "Oui",
-            ]);
+        return $result->setData($data);
     }
 }
