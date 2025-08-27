@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+declare(strict_types=1);
+
+namespace CheckoutCom\Magento2\Model\Request\BillingDescriptor;
+
+use Checkout\Payments\BillingDescriptor;
+use Checkout\Payments\BillingDescriptorFactory;
+use CheckoutCom\Magento2\Provider\GeneralSettings;
+use Magento\Store\Model\StoreManagerInterface;
+
+/**
+ * Class BillingDescriptorElement
+ */
+class BillingDescriptorElement
+{
+    protected BillingDescriptorFactory $modelFactory;
+
+    protected GeneralSettings $settings;
+    protected StoreManagerInterface $storeManager;
+
+    public function __construct(
+        BillingDescriptorFactory $modelFactory,
+        GeneralSettings $settings,
+        StoreManagerInterface $storeManager
+    ) {
+        $this->modelFactory = $modelFactory;
+        $this->settings = $settings;
+        $this->storeManager = $storeManager;
+    }
+
+    public function get(): BillingDescriptor {
+        $model = $this->modelFactory->create();
+
+        $storeCode = $this->storeManager->getStore()->getCode();
+        $websiteCode = $this->storeManager->getWebsite()->getCode();
+        $model->city = $this->settings->getDynamicDescriptorName($storeCode);
+        $model->name = $this->settings->getDynamicDescriptorCity($websiteCode);
+
+        return $model;
+    }
+}
