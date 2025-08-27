@@ -144,26 +144,6 @@ class ApiHandlerService
         return $this;
     }
 
-    public function initAbcForRefund(
-        $storeCode = null,
-        string $scope = ScopeInterface::SCOPE_WEBSITE
-    ): ApiHandlerService {
-        $secretKey = $this->config->getValue('abc_refund_secret_key', null, (string)$storeCode, $scope);
-        $publicKey = $this->config->getValue('abc_refund_public_key', null, (string)$storeCode, $scope);
-
-        $api = CheckoutSdk::builder();
-        $environment = $this->config->getEnvironment((string)$storeCode, $scope);
-
-        $this->checkoutApi = $api
-            ->previous()->staticKeys()
-            ->publicKey($publicKey)
-            ->secretKey($secretKey)
-            ->environment($environment)
-            ->build();
-
-        return $this;
-    }
-
     /**
      * Checks if a response is valid
      *

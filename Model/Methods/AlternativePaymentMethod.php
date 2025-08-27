@@ -108,13 +108,6 @@ class AlternativePaymentMethod extends AbstractMethod
         'paypal'
     ];
     /**
-     * List of unavailable apm for ABC mode
-     */
-    const ABC_UNAVAILABLE_APM = [
-        'alipay',
-        'poli'
-    ];
-    /**
      * $code field
      *
      * @var string $code
