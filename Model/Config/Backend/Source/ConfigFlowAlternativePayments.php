@@ -19,35 +19,34 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
+use CheckoutCom\Magento2\Gateway\Config\Loader;
 use Magento\Framework\Data\OptionSourceInterface;
 
 /**
- * Class ConfigEnvironment
+ * Class ConfigFlowAlternativePayments
  */
-class ConfigEnvironment implements OptionSourceInterface
+class ConfigFlowAlternativePayments implements OptionSourceInterface
 {
-    public const ENVIRONMENT_PRODUCTION_CONFIG_VALUE = "1";
-    public const ENVIRONMENT_TEST_CONFIG_VALUE = "0";
-
-    public const ENVIRONMENT_PRODUCTION_CONFIG_LABEL = "Production";
-    public const ENVIRONMENT_TEST_CONFIG_LABEL = "Test";
+    private Loader $configLoader;
 
     /**
-     * Options getter
+     * ConfigFlowAlternativePayments constructor
+     *
+     * @param Loader $configLoader
+     */
+    public function __construct(
+        Loader $configLoader
+    ) {
+        $this->configLoader = $configLoader;
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @return string[][]
      */
     public function toOptionArray(): array
     {
-        return [
-            [
-                'value' => 1,
-                'label' => __('Test')
-            ],
-            [
-                'value' => 0,
-                'label' => __('Production')
-            ]
-        ];
+        return $this->configLoader->loadApmList();
     }
 }

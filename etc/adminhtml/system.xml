@@ -294,6 +294,67 @@
                     </group>
                 </group>
 
+                <group id="checkoutcom_flow" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Flow Payments</label>
+                    <depends>
+                        <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                    </depends>
+                    <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_flow/active</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                        </depends>
+                    </field>
+
+                    <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkoutcom_flow/title</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                        </depends>
+                    </field>
+
+                    <field id="sort_order" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkoutcom_flow/sort_order</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                        </depends>
+                    </field>
+
+                    <field id="widget_design_selector" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Flow Widget Design</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFlowWidgetDesignSelector</source_model>
+                        <config_path>payment/checkoutcom_flow/widget_design_selector</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                        </depends>
+                    </field>
+
+                    <field id="predefined_widget_design" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Flow Pre-defined Designs</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFlowPredefinedDesign</source_model>
+                        <config_path>payment/checkoutcom_flow/predefined_widget_design</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                            <field id="widget_design_selector">0</field>
+                        </depends>
+                    </field>
+
+                    <field id="custom_widget_design" type="textarea" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Flow Custom Design</label>
+                        <config_path>payment/checkoutcom_flow/custom_widget_design</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                            <field id="widget_design_selector">1</field>
+                        </depends>
+                        <comment><![CDATA[As given in <a href="https://www.checkout.com/docs/payments/accept-payments/accept-a-payment-on-your-website/customize-your-flow-integration" target="_blank">Customization documentation</a>]]></comment>
+                    </field>
+                </group>
+
                 <group id="checkoutcom_card_payment" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Card Payments</label>
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -490,6 +551,15 @@
                             <field id="*/checkoutcom/module/global_settings/sdk">0</field>
                         </depends>
                         <config_path>payment/checkoutcom_apm/apm_enabled</config_path>
+                    </field>
+                    <field id="apm_flow_enabled" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Alternative Payments (Flow)</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFlowAlternativePayments</source_model>
+                        <depends>
+                            <field id="active">1</field>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_apm/apm_flow_enabled</config_path>
                     </field>
                 </group>
 
@@ -771,11 +841,11 @@
                         <label>Sort Order</label>
                         <validate>validate-number</validate>
                         <config_path>payment/checkoutcom_paypal/sort_order</config_path>
-                    </field>
-                    <depends>
-                        <field id="settings/checkoutcom_configuration/service">NAS</field>
+                        <depends>
+                            <field id="settings/checkoutcom_configuration/service">NAS</field>
                             <field id="*/checkoutcom/module/global_settings/sdk">0</field>
                         </depends>
+                    </field>
                 </group>
 
                 <group id="checkoutcom_vault" type="text" showInDefault="1" showInWebsite="1" showInStore="1">

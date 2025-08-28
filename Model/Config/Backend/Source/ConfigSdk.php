@@ -26,6 +26,13 @@ use Magento\Framework\Data\OptionSourceInterface;
  */
 class ConfigSdk implements OptionSourceInterface
 {
+
+    public const SDK_FRAMES_CONFIG_VALUE = "0";
+    public const SDK_FLOW_CONFIG_VALUE = "1";
+
+    public const SDK_FRAMES_CONFIG_LABEL = "Frames";
+    public const SDK_FLOW_CONFIG_LABEL = "Flow";
+
     /**
      * Options getter
      *
@@ -35,12 +42,12 @@ class ConfigSdk implements OptionSourceInterface
     {
         return [
             [
-                'value' => "1",
-                'label' => __('Flow')
+                'value' => self::SDK_FLOW_CONFIG_VALUE,
+                'label' => __(self::SDK_FLOW_CONFIG_LABEL)
             ],
             [
-                'value' => "0",
-                'label' => __('Frame')
+                'value' => self::SDK_FRAMES_CONFIG_VALUE,
+                'label' => __(self::SDK_FRAMES_CONFIG_LABEL)
             ]
         ];
     }

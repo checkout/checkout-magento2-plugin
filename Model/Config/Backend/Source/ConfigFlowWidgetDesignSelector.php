@@ -22,16 +22,15 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 use Magento\Framework\Data\OptionSourceInterface;
 
 /**
- * Class ConfigEnvironment
+ * Class ConfigFlowWidgetDesign
  */
-class ConfigEnvironment implements OptionSourceInterface
+class ConfigFlowWidgetDesignSelector implements OptionSourceInterface
 {
-    public const ENVIRONMENT_PRODUCTION_CONFIG_VALUE = "1";
-    public const ENVIRONMENT_TEST_CONFIG_VALUE = "0";
+    public const PREDEFINED_DESIGN_CONFIG_VALUE = "0";
+    public const CUSTOM_DESIGN_CONFIG_VALUE = "1";
 
-    public const ENVIRONMENT_PRODUCTION_CONFIG_LABEL = "Production";
-    public const ENVIRONMENT_TEST_CONFIG_LABEL = "Test";
-
+    public const PREDEFINED_DESIGN_CONFIG_LABEL = "Pre-defined design";
+    public const CUSTOM_DESIGN_CONFIG_LABEL = "Custom design";
     /**
      * Options getter
      *
@@ -41,13 +40,13 @@ class ConfigEnvironment implements OptionSourceInterface
     {
         return [
             [
-                'value' => 1,
-                'label' => __('Test')
+                'value' =>self::PREDEFINED_DESIGN_CONFIG_VALUE,
+                'label' => __(self::PREDEFINED_DESIGN_CONFIG_LABEL)
             ],
             [
-                'value' => 0,
-                'label' => __('Production')
-            ]
+                'value' => self::CUSTOM_DESIGN_CONFIG_VALUE,
+                'label' => __(self::CUSTOM_DESIGN_CONFIG_LABEL)
+            ],
         ];
     }
 }
