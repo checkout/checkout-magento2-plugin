@@ -27,10 +27,8 @@ use Exception;
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Block\Widget\Button;
 use Magento\Config\Block\System\Config\Form\Field;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class AbstractCallbackUrl
@@ -44,18 +42,15 @@ abstract class AbstractCallbackUrl extends Field
      */
     const TEMPLATE = 'system/config/webhook_admin.phtml';
     private ApiHandlerService $apiHandler;
-    private ScopeConfigInterface $scopeConfig;
 
     public function __construct(
         ApiHandlerService $apiHandler,
-        ScopeConfigInterface $scopeConfig,
         Context $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
 
         $this->apiHandler = $apiHandler;
-        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -100,32 +95,6 @@ abstract class AbstractCallbackUrl extends Field
 
         return $this;
     }
-
-    /**
-     * Overridden method for rendering a field. In this case the field must be only for read.
-     *
-     * @param AbstractElement $element
-     *
-     * @return string
-     */
-    protected function _getElementHtml(AbstractElement $element): string
-    {
-        // Get the selected scope and id
-        if (array_key_exists('website', $this->getRequest()->getParams())) {
-            $scope = ScopeInterface::SCOPE_WEBSITES;
-            $storeCode = $this->getRequest()->getParam('website', 0);
-        } else {
-            $scope = ScopeInterface::SCOPE_STORES;
-            $storeCode = $this->getRequest()->getParam('store', 0);
-            if ($storeCode == 0) {
-                $scope = 'default';
-                $storeCode = $this->getRequest()->getParam('site', 0);
-            }
-        }
-
-        return $this->_toHtml();
-    }
-
     /**
      * Returns the controller url.
      *
