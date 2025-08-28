@@ -22,9 +22,6 @@ namespace CheckoutCom\Magento2\Model\Request\Base;
 use CheckoutCom\Magento2\Model\Request\Additionnals\AccountHolder;
 use CheckoutCom\Magento2\Model\Request\Additionnals\AccountHolderFactory;
 use Magento\Customer\Api\Data\CustomerInterface;
-/**
- * Class AccountHolderElement
- */
 class AccountHolderElement
 {
     protected AccountHolderFactory $modelFactory;
@@ -35,7 +32,8 @@ class AccountHolderElement
         $this->modelFactory = $modelFactory;
     }
 
-    public function get(CustomerInterface $customer): AccountHolder {
+    public function get(CustomerInterface $customer): AccountHolder
+    {
         $model = $this->modelFactory->create();
 
         $model->type = "individual";

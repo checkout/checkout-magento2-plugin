@@ -21,6 +21,7 @@ namespace CheckoutCom\Magento2\Model\Request;
 
 use Checkout\Payments\Sessions\PaymentSessionsRequest;
 use Checkout\Payments\Sessions\PaymentSessionsRequestFactory;
+use CheckoutCom\Magento2\Model\Formatter\PriceFormatter;
 use CheckoutCom\Magento2\Model\Request\Billing\BillingElement;
 use CheckoutCom\Magento2\Model\Request\BillingDescriptor\BillingDescriptorElement;
 use CheckoutCom\Magento2\Model\Request\Customer\CustomerElement;
@@ -30,16 +31,14 @@ use CheckoutCom\Magento2\Model\Request\Risk\RiskElement;
 use CheckoutCom\Magento2\Model\Request\Sender\SenderElement;
 use CheckoutCom\Magento2\Model\Request\Shipping\ShippingElement;
 use CheckoutCom\Magento2\Model\Request\ThreeDS\ThreeDSElement;
+use CheckoutCom\Magento2\Model\Resolver\CustomerResolver;
 use CheckoutCom\Magento2\Provider\AccountSettings;
 use CheckoutCom\Magento2\Provider\ExternalSettings;
 use CheckoutCom\Magento2\Provider\GeneralSettings;
+use Magento\Framework\Intl\DateTimeFactory;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Intl\DateTimeFactory;
-use CheckoutCom\Magento2\Model\Formatter\PriceFormatter;
-/**
- * Class PostPaymentSessions
- */
+
 class PostPaymentSessions
 {
     protected PaymentSessionsRequestFactory $modelFactory;
@@ -61,6 +60,7 @@ class PostPaymentSessions
     private StoreManagerInterface $storeManager;
     private DateTimeFactory $dateTimeFactory;
     protected PriceFormatter $priceFormatter;
+    protected CustomerResolver $customerResolver;
 
     public function __construct(
         PaymentSessionsRequestFactory $modelFactory,
@@ -80,7 +80,8 @@ class PostPaymentSessions
 
         StoreManagerInterface $storeManager,
         DateTimeFactory $dateTimeFactory,
-        PriceFormatter $priceFormatter
+        PriceFormatter $priceFormatter,
+        CustomerResolver $customerResolver
     ) {
         $this->modelFactory = $modelFactory;
         
@@ -101,14 +102,22 @@ class PostPaymentSessions
         $this->dateTimeFactory = $dateTimeFactory;
         $this->storeManager = $storeManager;
         $this->priceFormatter = $priceFormatter;
+        $this->customerResolver = $customerResolver;
     }
 
     public function get(CartInterface $quote, array $data): PaymentSessionsRequest {
         $model = $this->modelFactory->create();
+        
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+            $storeCode = $this->storeManager->getStore()->getCode();
+        } catch (Exception $error) {
+            $websiteCode = null;
+            $storeCode = null;
+        }
+        
+        $customer = $this->customerResolver->resolve($quote);
 
-        $website = $this->storeManager->getWebsite()->getCode();
-        $store = $this->storeManager->getStore()->getCode();
-        $customer = $quote->getCustomer();
         $billingAddress = $quote->getBillingAddress();
         $shippingAddress = $quote->getShippingAddress();
         $currency = $quote->getCurrency()->getBaseCurrencyCode() ?? '';
@@ -119,23 +128,24 @@ class PostPaymentSessions
         $model->success_url = $this->getSuccessUrl($data);
         $model->failure_url = $this->getFailureUrl($data);
         $model->payment_type = "Regular";
-        if($this->generalSettings->isDynamicDescriptorEnabled($website)) {
+
+        if($this->generalSettings->isDynamicDescriptorEnabled($websiteCode)) {
             $model->billing_descriptor = $this->billingDescriptorElement->get();
         }
         $model->customer = $this->customerElement->get($customer);
         $model->shipping = $this->shippingElement->get($shippingAddress);
-        $model->processing_channel_id = $this->accountSettings->getChannelId($website);
-        // $model->payment_method_configuration = $this->paymentMethodConfigurationElement->get("card", $customer);
+        $model->processing_channel_id = $this->accountSettings->getChannelId($websiteCode);
+        $model->payment_method_configuration = $this->paymentMethodConfigurationElement->get($customer);
         $model->items = $this->itemsElement->get($quote);
         $model->risk = $this->riskElement->get();
-        $model->display_name = $this->externalSettings->getStoreName($store);
-        $model->locale = $this->reformatLocale($this->externalSettings->getStoreLocale($store));
+        $model->display_name = $this->externalSettings->getStoreName($storeCode);
+        $model->locale = $this->reformatLocale($this->externalSettings->getStoreLocale($storeCode));
         $model->three_ds = $this->threeDSElement->get();
-        // $model->sender = $this->senderElement->get($customer);
-        $model->capture = $this->generalSettings->isAuthorizeAndCapture($website);
+        $model->sender = $this->senderElement->get($customer);
+        $model->capture = $this->generalSettings->isAuthorizeAndCapture($websiteCode);
         
-        if($this->generalSettings->isAuthorizeAndCapture($website)) {
-            $model->capture_on = $this->getCaptureTime($website);
+        if($this->generalSettings->isAuthorizeAndCapture($websiteCode)) {
+            $model->capture_on = $this->getCaptureTime($websiteCode);
         }
         
         return $model;

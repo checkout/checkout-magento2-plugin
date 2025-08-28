@@ -19,13 +19,10 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Request\Sender;
 
-use Checkout\Payments\Sender\PaymentSender;
-use Checkout\Payments\Sender\PaymentSenderFactory;
+use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentSenderFactory;
+use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentSender;
 use Magento\Customer\Api\Data\CustomerInterface;
 
-/**
- * Class SenderElement
- */
 class SenderElement
 {
     protected PaymentSenderFactory $modelFactory;
@@ -36,12 +33,12 @@ class SenderElement
         $this->modelFactory = $modelFactory;
     }
 
-    public function get(CustomerInterface $customer): PaymentSender {
+    public function get(CustomerInterface $customer): PaymentSender
+    {
         $model = $this->modelFactory->create(["type" => "individual"]);
 
-        $model->type = "individual";
-        //$model->first_name = $customer->getFirstname();
-        //$model->last_name = $customer->getLastname();
+        $model->first_name = $customer->getFirstname();
+        $model->last_name = $customer->getLastname();
 
         return $model;
     }

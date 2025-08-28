@@ -24,9 +24,6 @@ use Checkout\Payments\BillingInformationFactory;
 use CheckoutCom\Magento2\Model\Request\Base\AddressElement;
 use Magento\Quote\Api\Data\AddressInterface;
 
-/**
- * Class BillingElement
- */
 class BillingElement
 {
     protected BillingInformationFactory $modelFactory;
@@ -41,7 +38,8 @@ class BillingElement
         $this->addressElement = $addressElement;
     }
 
-    public function get(AddressInterface $billingAddress): BillingInformation {
+    public function get(AddressInterface $billingAddress): BillingInformation
+    {
         $model = $this->modelFactory->create();
 
         $model->address = $this->addressElement->get($billingAddress);
