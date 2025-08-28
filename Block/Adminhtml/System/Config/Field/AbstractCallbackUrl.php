@@ -123,8 +123,6 @@ abstract class AbstractCallbackUrl extends Field
             }
         }
 
-        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, $scope, $storeCode);
-
         return $this->_toHtml();
     }
 
