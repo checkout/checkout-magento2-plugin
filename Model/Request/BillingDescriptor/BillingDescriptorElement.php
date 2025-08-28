@@ -22,15 +22,12 @@ namespace CheckoutCom\Magento2\Model\Request\BillingDescriptor;
 use Checkout\Payments\BillingDescriptor;
 use Checkout\Payments\BillingDescriptorFactory;
 use CheckoutCom\Magento2\Provider\GeneralSettings;
+use Exception;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class BillingDescriptorElement
- */
 class BillingDescriptorElement
 {
     protected BillingDescriptorFactory $modelFactory;
-
     protected GeneralSettings $settings;
     protected StoreManagerInterface $storeManager;
 
@@ -44,11 +41,18 @@ class BillingDescriptorElement
         $this->storeManager = $storeManager;
     }
 
-    public function get(): BillingDescriptor {
+    public function get(): BillingDescriptor
+    {
         $model = $this->modelFactory->create();
 
-        $storeCode = $this->storeManager->getStore()->getCode();
-        $websiteCode = $this->storeManager->getWebsite()->getCode();
+        try {
+            $storeCode = $this->storeManager->getStore()->getCode();
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $storeCode = null;
+            $websiteCode = null;
+        }
+        
         $model->city = $this->settings->getDynamicDescriptorName($storeCode);
         $model->name = $this->settings->getDynamicDescriptorCity($websiteCode);
 

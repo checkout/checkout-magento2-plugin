@@ -15,38 +15,35 @@
  * @link      https://docs.checkout.com/
  */
 
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Controller\Flow;
 
 use CheckoutCom\Magento2\Model\Service\FlowPrepareService;
 use Magento\Framework\App\ActionInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
-use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
-use Magento\Store\Model\ScopeInterface;
-use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Checkout\Model\Session as CheckoutSession;
 
 class Prepare implements ActionInterface, HttpGetActionInterface
 {
+    protected CheckoutSession $checkoutSession;
+    protected FlowPrepareService $flowPrepareService;
     protected JsonFactory $resultJsonFactory;
     protected ScopeConfigInterface $scopeConfig;
-    protected FlowPrepareService $flowPrepareService;
-    protected CustomerSession $customerSession;
-    protected CheckoutSession $checkoutSession;
 
     public function __construct(
+        CheckoutSession $checkoutSession,
         FlowPrepareService $flowPrepareService,
         JsonFactory $resultJsonFactory,
         ScopeConfigInterface $scopeConfig,
-        CustomerSession $customerSession,
-        CheckoutSession $checkoutSession
     ) {
+        $this->checkoutSession = $checkoutSession;
         $this->flowPrepareService = $flowPrepareService;
         $this->resultJsonFactory = $resultJsonFactory;    
         $this->scopeConfig = $scopeConfig;
-        $this->customerSession = $customerSession;
-        $this->checkoutSession = $checkoutSession;
     }
 
     public function execute(): Json
@@ -54,8 +51,14 @@ class Prepare implements ActionInterface, HttpGetActionInterface
         $result = $this->resultJsonFactory->create();
 
         $quote = $this->checkoutSession->getQuote();
+
+        if (empty($quote)) {
+            return $result->setStatusHeader(400);
+        }
+
         $data = $this->flowPrepareService->prepare($quote, array());
-        if (empty($data['environment']) || empty($data['paymenSession']) || empty($data['publicKey'])) {
+
+        if (empty($data['environment']) || empty($data['paymentSession']) || empty($data['publicKey'])) {
             return $result->setStatusHeader(400);
         }
 

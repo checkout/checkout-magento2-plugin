@@ -24,13 +24,11 @@ use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Provider\AccountSettings;
 use CheckoutCom\Magento2\Provider\GeneralSettings;
 use CheckoutCom\Magento2\Provider\FlowMethodSettings;
+use Exception;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
-use Exception;
-/**
- * Class FlowPrepareService
- */
+
 class FlowPrepareService
 {
     protected PostPaymentSessions $postPaymentSession;
@@ -67,18 +65,18 @@ class FlowPrepareService
         
         try {
             $responseAPI = $api->getCheckoutApi()->getPaymentSessionsClient()->createPaymentSessions($payload);
-        } catch (Exception) {
+        } catch (Exception $error) {
             return [
                 'error' => true
             ];
         }
 
-        $response = array(
+        $response = [
             'appearance' => $this->flowMethodConfiguration->getDesign($storeCode),
             'environment' => $this->generalConfiguration->isProductionModeEnabled(null) ? "production" : "sandbox",
-            'paymentSession' => $responseAPI['payment_session_token'],
+            'paymentSession' => isset($responseAPI['payment_session_token']) ? $responseAPI['payment_session_token'] : '',
             'publicKey' => $publicKey
-        );
+        ];
         return $response;
     }
 }

@@ -24,13 +24,9 @@ use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentConfigurationDetailsF
 use CheckoutCom\Magento2\Model\Request\Base\AccountHolderElement;
 use Magento\Customer\Api\Data\CustomerInterface;
 
-/**
- * Class PaymentConfigurationDetailsElement
- */
 class PaymentConfigurationDetailsElement
 {
     protected PaymentConfigurationDetailsFactory $modelFactory;
-
     protected AccountHolderElement $accountHolderElement;
 
     public function __construct(
@@ -41,7 +37,8 @@ class PaymentConfigurationDetailsElement
         $this->accountHolderElement = $accountHolderElement;
     }
 
-    public function get(CustomerInterface $customer): PaymentConfigurationDetails {
+    public function get(CustomerInterface $customer): PaymentConfigurationDetails
+    {
         $model = $this->modelFactory->create();
 
         $model->store_payment_details = "disabled";

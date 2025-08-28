@@ -24,9 +24,6 @@ use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentMethodConfigurationFa
 use CheckoutCom\Magento2\Model\Request\Base\PaymentConfigurationDetailsElement;
 use Magento\Customer\Api\Data\CustomerInterface;
 
-/**
- * Class PaymentMethodConfigurationElement
- */
 class PaymentMethodConfigurationElement
 {
     protected PaymentMethodConfigurationFactory $modelFactory;
@@ -40,20 +37,13 @@ class PaymentMethodConfigurationElement
         $this->paymentDetailsElement = $paymentDetailsElement;
     }
 
-    public function get(string $paymentMethod, CustomerInterface $customer): PaymentMethodConfiguration {
+    public function get(CustomerInterface $customer): PaymentMethodConfiguration 
+    {
         $model = $this->modelFactory->create();
 
-        switch ($paymentMethod) {
-            case "card":
-                $model->card = $this->paymentDetailsElement->get($customer);
-                break;
-            case "applepay":
-                $model->applepay = $this->paymentDetailsElement->get($customer);
-                break;
-            case "googlepay":
-                $model->googlepay = $this->paymentDetailsElement->get($customer);
-                break;
-        }
+        $model->card = $this->paymentDetailsElement->get($customer);
+        $model->applepay = $this->paymentDetailsElement->get($customer);
+        $model->googlepay = $this->paymentDetailsElement->get($customer);
 
         return $model;
     }
