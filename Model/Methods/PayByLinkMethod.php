@@ -21,7 +21,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
-use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
+use CheckoutCom\Magento2\Block\Adminhtml\Payment\PayByLink;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
@@ -45,26 +45,20 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Class MotoMethod
+ * Class PayByLinkMethod
  */
-class MotoMethod extends AbstractMethod
+class PayByLinkMethod extends AbstractMethod
 {
     /**
      * CODE field
      *
      * @var string CODE
      */
-    const CODE = 'checkoutcom_moto';
+    const CODE = 'checkoutcom_paybylink';
     /**
      * $code field
      */
     protected $code = self::CODE;
-    /**
-     * $formBlockType
-     *
-     * @var string $formBlockType
-     */
-    protected $formBlockType = Moto::class;
     /**
      * bool $canAuthorize
      *
@@ -103,11 +97,11 @@ class MotoMethod extends AbstractMethod
     private Session $backendAuthSession;
     private Config $config;
     private ApiHandlerService $apiHandler;
-    private FlowGeneralSettings $flowGeneralSettings;
     private StoreManagerInterface $storeManager;
+    private FlowGeneralSettings $flowGeneralSettings;
 
     /**
-     * MotoMethod constructor
+     * PayByLinkMethod constructor
      *
      * @param Context $context
      * @param Registry $registry
@@ -162,8 +156,8 @@ class MotoMethod extends AbstractMethod
         $this->backendAuthSession = $backendAuthSession;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
-        $this->flowGeneralSettings = $flowGeneralSettings;
         $this->storeManager = $storeManager;
+        $this->flowGeneralSettings = $flowGeneralSettings;
     }
 
     /**
@@ -365,7 +359,7 @@ class MotoMethod extends AbstractMethod
     public function isAvailable(?CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->code) && $this->backendAuthSession->isLoggedIn()  && $this->flowGeneralSettings->useFrames($this->storeManager->getStore($quote->getStoreId())->getWebsite()->getCode()) ;
+            return $this->config->getValue('active', $this->code) && $this->backendAuthSession->isLoggedIn() && $this->flowGeneralSettings->useFlow($this->storeManager->getStore($quote->getStoreId())->getWebsite()->getCode());
         }
 
         return false;
