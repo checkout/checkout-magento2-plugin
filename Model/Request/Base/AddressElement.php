@@ -22,9 +22,7 @@ namespace CheckoutCom\Magento2\Model\Request\Base;
 use Checkout\Common\Address;
 use Checkout\Common\AddressFactory;
 use Magento\Quote\Api\Data\AddressInterface;
-/**
- * Class AddressElement
- */
+
 class AddressElement
 {
     protected AddressFactory $modelFactory;
@@ -35,7 +33,8 @@ class AddressElement
         $this->modelFactory = $modelFactory;
     }
 
-    public function get(AddressInterface $address): Address {
+    public function get(AddressInterface $address): Address
+    {
         $model = $this->modelFactory->create();
 
         $model->address_line1 = $address->getStreetLine(1);

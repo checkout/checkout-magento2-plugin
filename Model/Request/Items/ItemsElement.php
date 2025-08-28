@@ -22,13 +22,11 @@ namespace CheckoutCom\Magento2\Model\Request\Items;
 use Checkout\Payments\Product;
 use Checkout\Payments\ProductFactory;
 use CheckoutCom\Magento2\Provider\CurrenciesSettings;
-use Magento\Store\Model\StoreManagerInterface;
+use CheckoutCom\Magento2\Model\Formatter\PriceFormatter;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\CartItemInterface;
-use CheckoutCom\Magento2\Model\Formatter\PriceFormatter;
-/**
- * Class ItemsElement
-*/
+use Magento\Quote\Model\Quote\Address;
+use Magento\Store\Model\StoreManagerInterface;
 class ItemsElement
 {
     protected ProductFactory $modelFactory;
@@ -54,53 +52,75 @@ class ItemsElement
          * @var Product[]
          */
         $items = [];
+        $quoteItems = $quote->getItems();
 
-        if(empty($quote->getItems())) {
+        if(empty($quoteItems)) {
             return [];
         }
 
         $currency = $this->getQuoteCurrency($quote);
 
         /** @var CartItemInterface $item */
-        foreach ($quote->getItems() as $item) {
-            $product = $this->modelFactory->create();
-
-            $unitPrice = $this->priceFormatter->getFormattedPrice($item->getPriceInclTax(), $currency);
-            $linePrice = $this->priceFormatter->getFormattedPrice($item->getPriceInclTax(), $currency);
-            $discount = $this->priceFormatter->getFormattedPrice($item->getDiscountAmount(), $currency);
-  
-
-            $product->name = $item->getName();
-            $product->unit_price = $unitPrice;
-            $product->quantity = $item->getQty();
-            $product->reference = $item->getSku();
-            $product->total_amount = $linePrice;
-
-            $product->discount_amount = $discount;
-            $items[] = $product;
+        foreach ($quoteItems as $item) {
+            $items[] = $this->getLineItem($item, $currency);
         }
 
         // Shipping fee
         $shipping = $quote->getShippingAddress();
 
         if ($shipping->getShippingDescription()) {
-            $product = $this->modelFactory->create();
-            $product->name = $shipping->getShippingDescription();
-            $product->quantity = 1;
-            $product->unit_price = $this->priceFormatter->getFormattedPrice($shipping->getShippingInclTax(), $currency);
-            $product->total_amount = $this->priceFormatter->getFormattedPrice($shipping->getShippingAmount(), $currency);
-
-            $items[] = $product;
+            $items[] = $this->getShippingItem($shipping, $currency);
         }
 
         return $items;
     }
 
+    protected function getLineItem(CartItemInterface $item, string $currency): Product
+    {
+        $product = $this->modelFactory->create();
+
+        $unitPrice = $this->priceFormatter->getFormattedPrice($item->getPriceInclTax(), $currency);
+        $linePrice = $this->priceFormatter->getFormattedPrice($item->getPriceInclTax(), $currency);
+        $discount = $this->priceFormatter->getFormattedPrice($item->getDiscountAmount(), $currency);
+  
+        $product->name = $item->getName();
+        $product->unit_price = $unitPrice;
+        $product->quantity = $item->getQty();
+        $product->reference = $item->getSku();
+        $product->total_amount = $linePrice;
+
+        $product->discount_amount = $discount;
+
+        return $product;
+    }
+
+    protected function getShippingItem(Address $shipping, string $currency): Product
+    {
+        $product = $this->modelFactory->create();
+
+        $product->name = $shipping->getShippingDescription();
+        $product->quantity = 1;
+        $product->unit_price = $this->priceFormatter->getFormattedPrice($shipping->getShippingInclTax(), $currency);
+        $product->total_amount = $this->priceFormatter->getFormattedPrice($shipping->getShippingAmount(), $currency);
+
+        return $product;
+    }
+
     protected function getQuoteCurrency(CartInterface $quote): string
     {
         $quoteCurrencyCode = $quote->getQuoteCurrencyCode();
-        $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
 
-        return ($quoteCurrencyCode) ?: $storeCurrencyCode;
+        if(!empty($quoteCurrencyCode)) {
+            return $quoteCurrencyCode;
+        }
+
+        try {
+            $storeCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+        } catch (\Throwable $th) {
+            $storeCurrencyCode = '';
+        }
+        
+        return $storeCurrencyCode;
+
     }
 }

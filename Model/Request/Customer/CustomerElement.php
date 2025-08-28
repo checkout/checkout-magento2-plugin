@@ -23,9 +23,6 @@ use Checkout\Payments\PaymentCustomerRequest;
 use Checkout\Payments\PaymentCustomerRequestFactory;
 use Magento\Customer\Api\Data\CustomerInterface;
 
-/**
- * Class CustomerElement
- */
 class CustomerElement
 {
     protected PaymentCustomerRequestFactory $modelFactory;
@@ -36,14 +33,12 @@ class CustomerElement
         $this->modelFactory = $modelFactory;
     }
 
-    public function get(CustomerInterface $customer): PaymentCustomerRequest {
+    public function get(CustomerInterface $customer): PaymentCustomerRequest
+    {
         $model = $this->modelFactory->create();
 
         $model->email = $customer->getEmail();
         $model->name = $customer->getFirstname() . ' ' . $customer->getLastname();;
-        // $model->id TBD
-        // $model->phone TBD
-        // $model->tax_number TBD
 
         return $model;
     }

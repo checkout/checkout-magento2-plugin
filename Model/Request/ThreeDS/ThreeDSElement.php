@@ -22,11 +22,9 @@ namespace CheckoutCom\Magento2\Model\Request\ThreeDS;
 use Checkout\Payments\ThreeDsRequest;
 use Checkout\Payments\ThreeDsRequestFactory;
 use CheckoutCom\Magento2\Provider\CardPaymentSettings;
+use Exception;
 use Magento\Store\Model\StoreManagerInterface;
-    
-/**
- * Class ThreeDSElement
- */
+
 class ThreeDSElement
 {
     protected ThreeDsRequestFactory $modelFactory;
@@ -44,11 +42,15 @@ class ThreeDSElement
         $this->storeManager = $storeManager;
     }
 
-    public function get(): ThreeDsRequest {
+    public function get(): ThreeDsRequest
+    {
         $model = $this->modelFactory->create();
 
-        $websiteCode = $this->storeManager->getWebsite()->getCode();
-
+       try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $websiteCode = null;
+        }
         $model->enabled = $this->settings->isThreeDSEnabled($websiteCode);
         $model->attempt_n3d = $this->settings->isAttemptN3DEnabled($websiteCode);
 
