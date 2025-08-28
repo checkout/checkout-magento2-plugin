@@ -111,9 +111,9 @@ class PostPaymentSessions
         $customer = $quote->getCustomer();
         $billingAddress = $quote->getBillingAddress();
         $shippingAddress = $quote->getShippingAddress();
-        $currency = $quote->getCurrency()->getBaseCurrencyCode();
+        $currency = $quote->getCurrency()->getBaseCurrencyCode() ?? '';
 
-        $model->amount = $this->priceFormatter->getFormattedPrice($quote->getGrandTotal(), $currency);
+        $model->amount = $this->priceFormatter->getFormattedPrice($quote->getGrandTotal() ?? 0, $currency);
         $model->currency = $currency;
         $model->billing = $this->billingElement->get($billingAddress);
         $model->success_url = $this->getSuccessUrl($data);
@@ -129,7 +129,7 @@ class PostPaymentSessions
         $model->items = $this->itemsElement->get($quote);
         $model->risk = $this->riskElement->get();
         $model->display_name = $this->externalSettings->getStoreName($store);
-        // $model->locale = $this->externalSettings->getStoreLocale($store);
+        $model->locale = $this->reformatLocale($this->externalSettings->getStoreLocale($store));
         $model->three_ds = $this->threeDSElement->get();
         // $model->sender = $this->senderElement->get($customer);
         $model->capture = $this->generalSettings->isAuthorizeAndCapture($website);
@@ -175,5 +175,10 @@ class PostPaymentSessions
 
         return $dateTime->format("Y-m-d\TH:i:s\Z");
 
+    }
+
+    protected function reformatLocale(string $locale): string
+    {
+        return implode("-", explode('_', $locale));
     }
 }

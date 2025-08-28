@@ -27,6 +27,7 @@ use CheckoutCom\Magento2\Provider\FlowMethodSettings;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
+use Exception;
 /**
  * Class FlowPrepareService
  */
@@ -64,7 +65,13 @@ class FlowPrepareService
 
         $payload = $this->postPaymentSession->get($quote, $data);
         
-        $responseAPI = $api->getCheckoutApi()->getPaymentSessionsClient()->createPaymentSessions($payload);
+        try {
+            $responseAPI = $api->getCheckoutApi()->getPaymentSessionsClient()->createPaymentSessions($payload);
+        } catch (Exception) {
+            return [
+                'error' => true
+            ];
+        }
 
         $response = array(
             'appearance' => $this->flowMethodConfiguration->getDesign($storeCode),
