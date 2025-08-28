@@ -297,7 +297,7 @@
                 <can_capture_partial>1</can_capture_partial>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <order_status_waiting_payment>pending_payment</order_status_waiting_payment>
-                <cancel_order_after>86400</cancel_order_after>
+                <cancel_order_link_after>86400</cancel_order_link_after>
                 <enable_order_auto_cancel>0</enable_order_auto_cancel>
             </checkoutcom_paybylink>
         </payment>

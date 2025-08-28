@@ -55,6 +55,8 @@ class PayByLinkMethod extends AbstractMethod
      * @var string CODE
      */
     const CODE = 'checkoutcom_paybylink';
+
+    const ADDITIONAL_INFORMATION_LINK_CODE = 'paybylink_link';
     /**
      * $code field
      */

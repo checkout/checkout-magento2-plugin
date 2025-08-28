@@ -995,10 +995,11 @@
                         <comment>Select the status that should be used for orders with pending payment.</comment>
                     </field>
 
-                    <field id="cancel_order_after" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="cancel_order_link_after" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Cancel payment link after</label>
                         <validate>validate-digits-range digits-range-1-5184000</validate>
-                        <config_path>payment/checkoutcom_paybylink/cancel_order_after</config_path>
+                        <config_path>payment/checkoutcom_paybylink/cancel_order_link_after</config_path>
+                        <comment>Time in seconds before payment link expire</comment>
                     </field>
 
                     <field id="enable_order_auto_cancel" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
