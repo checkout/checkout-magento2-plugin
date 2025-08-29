@@ -22,11 +22,10 @@ namespace CheckoutCom\Magento2\Provider;
 use CheckoutCom\Magento2\Gateway\Config\Loader;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFlowPredefinedDesign;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFlowWidgetDesignSelector;
-use CheckoutCom\Magento2\Provider\AbstractSettingsProvider;
-use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
-class FlowMethodSettings extends AbstractSettingsProvider {
+class FlowMethodSettings extends AbstractSettingsProvider
+{
 
     public const CONFIG_FLOW_PAYMENT_ACTIVE = 'payment/checkoutcom_flow/active';
     public const CONFIG_FLOW_PAYMENT_TITLE = 'payment/checkoutcom_flow/title';
@@ -54,19 +53,19 @@ class FlowMethodSettings extends AbstractSettingsProvider {
     private FlowGeneralSettings $flowGeneralSettings;
     private Loader $configLoader;
 
-    public function __construct (
+    public function __construct(
         FlowGeneralSettings $flowGeneralSettings,
         Loader $configLoader,
         ScopeConfigInterface $scopeConfig,
     ) {
         $this->flowGeneralSettings = $flowGeneralSettings;
-        
+
         parent::__construct(
             $scopeConfig
         );
         $this->configLoader = $configLoader;
     }
-    
+
     public function isAvailable(?string $website): bool
     {
         $isActive = $this->isActive($website);
@@ -75,7 +74,7 @@ class FlowMethodSettings extends AbstractSettingsProvider {
     }
 
     public function isActive(?string $websiteCode): ?string
-    {  
+    {
         return $this->getWebsiteLevelConfiguration(
             self::CONFIG_FLOW_PAYMENT_ACTIVE,
             $websiteCode,
@@ -100,10 +99,10 @@ class FlowMethodSettings extends AbstractSettingsProvider {
 
     public function getDesign($store): string
     {
-        return 
-            $this->getDesignSelector($store) === ConfigFlowWidgetDesignSelector::CUSTOM_DESIGN_CONFIG_VALUE ? 
-            $this->getCustomDesign($store) : 
-            $this->getPredefinedDesignValue($store);
+        return
+            $this->getDesignSelector($store) === ConfigFlowWidgetDesignSelector::CUSTOM_DESIGN_CONFIG_VALUE ?
+                $this->getCustomDesign($store) :
+                $this->getPredefinedDesignValue($store);
     }
 
     public function getDesignSelector(?string $storeCode): ?string
@@ -126,7 +125,7 @@ class FlowMethodSettings extends AbstractSettingsProvider {
     {
         $design = $this->getPredefinedDesign($store);
         return $this->getDesignValue($design);
-    } 
+    }
 
     public function getPredefinedDesign(?string $storeCode): ?string
     {
@@ -136,7 +135,8 @@ class FlowMethodSettings extends AbstractSettingsProvider {
         );
     }
 
-    protected function getDesignValue(string $designName): string {
+    protected function getDesignValue(string $designName): string
+    {
         return $this->designList[$designName] ?? '';
     }
 
