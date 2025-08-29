@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
-
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
@@ -35,9 +34,6 @@ use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
 
-/**
- * Class FlowMethod
- */
 class FlowMethod extends AbstractMethod
 {
     /**
@@ -45,7 +41,7 @@ class FlowMethod extends AbstractMethod
      *
      * @var string CODE
      */
-    const CODE = 'checkoutcom_flow';
+    public const CODE = 'checkoutcom_flow';
 
     /**
      * $code field
@@ -53,8 +49,6 @@ class FlowMethod extends AbstractMethod
      * @var string $code
      */
     protected $code = self::CODE;
-
-    
 
     public function __construct(
         Config $config,
@@ -67,7 +61,6 @@ class FlowMethod extends AbstractMethod
         Logger $logger,
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
-
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []
@@ -89,9 +82,7 @@ class FlowMethod extends AbstractMethod
         );
         
     }
-
     
-
     /**
      * Check whether method is available
      *

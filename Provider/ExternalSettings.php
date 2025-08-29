@@ -20,16 +20,14 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Provider;
 
 use CheckoutCom\Magento2\Provider\AbstractSettingsProvider;
+use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class ExternalSettings
- */
 class ExternalSettings extends AbstractSettingsProvider {
 
-    public const CONFIG_STORE_NAME = "general/store_information/name";
-    public const CONFIG_STORE_LOCALE = "general/locale/code";
+    public const CONFIG_STORE_NAME = 'general/store_information/name';
+    public const CONFIG_STORE_LOCALE = 'general/locale/code';
     
     private StoreManagerInterface $storeManager;
     
@@ -42,15 +40,22 @@ class ExternalSettings extends AbstractSettingsProvider {
         $this->storeManager = $storeManager;
     }
 
-    public function getStoreName(?string $storeCode): ?string {
+    public function getStoreName(?string $storeCode): ?string
+    {
         $storeNameFromConfiguration =  $this->getStoreLevelConfiguration(
             $storeCode,
             self::CONFIG_STORE_NAME
         );
-        return !empty($storeNameFromConfiguration) ? trim($storeNameFromConfiguration) : $this->storeManager->getStore()->getName();
+        try {
+            return !empty($storeNameFromConfiguration) ? trim($storeNameFromConfiguration) : $this->storeManager->getStore()->getName();
+        } catch (Exception $error) {
+            return null;
+        }
+     
     }
 
-    public function getStoreLocale(?string $storeCode): ?string {
+    public function getStoreLocale(?string $storeCode): ?string
+    {
         return $this->getStoreLevelConfiguration(
             self::CONFIG_STORE_LOCALE,
             $storeCode,

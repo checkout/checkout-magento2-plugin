@@ -21,16 +21,14 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
 
-/**
- * Class ConfigFlowWidgetDesign
- */
 class ConfigFlowWidgetDesignSelector implements OptionSourceInterface
 {
-    public const PREDEFINED_DESIGN_CONFIG_VALUE = "0";
-    public const CUSTOM_DESIGN_CONFIG_VALUE = "1";
+    public const PREDEFINED_DESIGN_CONFIG_VALUE = '0';
+    public const CUSTOM_DESIGN_CONFIG_VALUE = '1';
 
-    public const PREDEFINED_DESIGN_CONFIG_LABEL = "Pre-defined design";
-    public const CUSTOM_DESIGN_CONFIG_LABEL = "Custom design";
+    public const PREDEFINED_DESIGN_CONFIG_LABEL = 'Pre-defined design';
+    public const CUSTOM_DESIGN_CONFIG_LABEL = 'Custom design';
+
     /**
      * Options getter
      *

@@ -20,23 +20,21 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Provider;
 
 use CheckoutCom\Magento2\Provider\AbstractSettingsProvider;
+class CardPaymentSettings extends AbstractSettingsProvider
+{
+    public const CONFIG_THREE_DS = 'payment/checkoutcom_card_payment/three_ds';
+    public const CONFIG_ATTEMPT_N3D = 'payment/checkoutcom_card_payment/attempt_n3d';
 
-/**
- * Class CardPaymentSettings
- */
-class CardPaymentSettings extends AbstractSettingsProvider {
-
-    public const CONFIG_THREE_DS = "payment/checkoutcom_card_payment/three_ds";
-    public const CONFIG_ATTEMPT_N3D = "payment/checkoutcom_card_payment/attempt_n3d";
-
-    public function isThreeDSEnabled(?string $website): bool {
+    public function isThreeDSEnabled(?string $website): bool
+    {
         return $this->getWebsiteLevelConfiguration(
             self::CONFIG_THREE_DS,
             $website
         ) === "1";
     }
 
-    public function isAttemptN3DEnabled(?string $website): bool {
+    public function isAttemptN3DEnabled(?string $website): bool
+    {
         return $this->getWebsiteLevelConfiguration(
             self::CONFIG_ATTEMPT_N3D,
             $website
