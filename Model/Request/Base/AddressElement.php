@@ -24,9 +24,6 @@ use Checkout\Common\AddressFactory;
 use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
-/**
- * Class AddressElement
- */
 class AddressElement
 {
     protected AddressFactory $modelFactory;

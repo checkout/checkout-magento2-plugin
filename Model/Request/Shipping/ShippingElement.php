@@ -26,9 +26,6 @@ use CheckoutCom\Magento2\Model\Request\Base\PhoneElement;
 use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
-/**
- * Class ShippingElement
- */
 class ShippingElement
 {
     protected ShippingDetailsFactory $modelFactory;
