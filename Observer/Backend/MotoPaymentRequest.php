@@ -29,6 +29,7 @@ use Checkout\Tokens\CardTokenRequest;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Api\Data\PaymentResponse as PaymentResponseApi;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
@@ -181,7 +182,7 @@ class MotoPaymentRequest implements ObserverInterface
                 if (is_array($response) && $api->isValidResponse($response)) {
                     $this->utilities->setPaymentData($order, $response);
                     if (isset($response['status'])) {
-                        if ($response['status'] === 'Authorized') {
+                        if ($response['status'] === PaymentResponseApi::AUTHORIZED_SATUS_CODE) {
                             $this->messageManager->addSuccessMessage(
                                 __('The payment request was successfully processed.')
                             );

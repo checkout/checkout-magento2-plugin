@@ -26,6 +26,7 @@ use Checkout\Payments\PaymentType;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Api\Data\PaymentResponse as PaymentResponseApi;
 use CheckoutCom\Magento2\Model\Methods\PayByLinkMethod;
 use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentLinkRequest;
 use CheckoutCom\Magento2\Model\Request\Billing\BillingElement;
@@ -200,7 +201,7 @@ class PayByLinkPaymentRequest implements ObserverInterface
                     ->setStatus($this->config->getValue('order_status_waiting_payment', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE))
                     ->getPayment()->setAdditionalInformation(PayByLinkMethod::ADDITIONAL_INFORMATION_LINK_CODE, $response['_links']['redirect']['href']);
                 if (isset($response['status'])) {
-                    if ($response['status'] === 'Authorized') {
+                    if ($response['status'] === PaymentResponseApi::AUTHORIZED_SATUS_CODE) {
                         $this->messageManager->addSuccessMessage(
                             __('The payment link request was successfully processed.')
                         );

@@ -27,6 +27,8 @@ use Magento\Framework\Model\AbstractExtensibleModel;
  */
 class PaymentResponse extends AbstractExtensibleModel implements PaymentResponseInterface
 {
+    public const AUTHORIZED_SATUS_CODE = 'Authorized';
+
     /**
      * {@inheritDoc}
      *
