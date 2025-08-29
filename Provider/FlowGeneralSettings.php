@@ -22,22 +22,22 @@ namespace CheckoutCom\Magento2\Provider;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigSdk;
 use CheckoutCom\Magento2\Provider\AbstractSettingsProvider;
 
-/**
- * Class FlowGeneralSettings
- */
 class FlowGeneralSettings extends AbstractSettingsProvider {
 
-    public const CONFIG_SDK = "settings/checkoutcom_configuration/sdk";
+    public const CONFIG_SDK = 'settings/checkoutcom_configuration/sdk';
 
-    public function useFlow(?string $website): bool {
-        return $this->getSdk($website) === ConfigSdk::SDK_FLOW_CONFIG_VALUE;
+    public function useFlow(?string $websiteCode): bool
+    {
+        return $this->getSdk($websiteCode) === ConfigSdk::SDK_FLOW_CONFIG_VALUE;
     }
 
-    public function useFrames(?string $website): bool {
-        return $this->getSdk($website) === ConfigSdk::SDK_FRAMES_CONFIG_VALUE;
+    public function useFrames(?string $websiteCode): bool
+    {
+        return $this->getSdk($websiteCode) === ConfigSdk::SDK_FRAMES_CONFIG_VALUE;
     }
     
-    public function getSdk(?string $websiteCode): ?string {
+    public function getSdk(?string $websiteCode): ?string
+    {
         return $this->getWebsiteLevelConfiguration(
             self::CONFIG_SDK,
             $websiteCode,

@@ -26,7 +26,6 @@ define(
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_flow';
 
-
         return Component.extend(
             {
                 defaults: {
@@ -50,7 +49,9 @@ define(
                  */
                 initialize: function () {
                     this._super();
+                    // Todo Mount flow
                     console.log('Flow init done on front !');
+
                     return this;
                 },
 
@@ -60,6 +61,7 @@ define(
                 getCode: function () {
                     return METHOD_ID;
                 },
+
                 /**
                  * @return {bool}
                  */
@@ -68,6 +70,7 @@ define(
                 },
 
                 initEvents: function () {
+                    // todo gerer les event
                     var self = this;
 
                     // Option click event
@@ -76,27 +79,20 @@ define(
                     });
                 },
 
-
-            
                 /**
                  * Gets the module images path
                  */
                 getImagesPath: function () {
                     return window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.images_path;
                 },
-                /**
-                 * Loads a Frames component.
-                 */
-                addFramesComponent: function (framesInstance) {
-
-                },
-
 
                 placeOrder: function () {
+                    // todo
                     console.log('place')
                 },
 
                 toggleTooltip: function () {
+                    // todo à garder ?
                     this.tooltipVisible(!this.tooltipVisible());
                 },
 
@@ -104,6 +100,7 @@ define(
                  * @param {object} billingAddress
                  */
                 checkBillingAdressCustomerName: function (billingAddress) {
+                    // todo
                     const valid = billingAddress !== null;
                 }
             }
