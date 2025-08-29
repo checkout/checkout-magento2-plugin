@@ -47,6 +47,6 @@ class ConfigFlowAlternativePayments implements OptionSourceInterface
      */
     public function toOptionArray(): array
     {
-        return $this->configLoader->loadApmList();
+        return $this->configLoader->loadApmList(Loader::APM_FLOW_FILE_NAME);
     }
 }

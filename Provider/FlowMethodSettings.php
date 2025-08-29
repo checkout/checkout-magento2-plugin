@@ -142,6 +142,7 @@ class FlowMethodSettings extends AbstractSettingsProvider
         return $this->designList[$designName] ?? '';
     }
 
+    //TODO : Filter allowed methods by country and currency for a given quote
     public function getAllowedPaymentMethods(?string $storeCode): array
     {
         return array_merge($this->getSelectedApmMethods($storeCode), $this->getGlobalMethodByStatus(true, $storeCode));
@@ -158,6 +159,7 @@ class FlowMethodSettings extends AbstractSettingsProvider
         return array_merge(array_diff($methodCodes, $this->getSelectedApmMethods($storeCode)), $this->getGlobalMethodByStatus(false, $storeCode));
     }
 
+    // TODO : Adjust apm_flow.xml with doc : https://api-reference.checkout.com/#operation/CreatePaymentSession
     private function getSelectedApmMethods(?string $storeCode): array
     {
         return explode(',', (string)$this->getStoreLevelConfiguration(
