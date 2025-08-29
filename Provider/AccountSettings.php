@@ -21,54 +21,57 @@ namespace CheckoutCom\Magento2\Provider;
 
 use CheckoutCom\Magento2\Provider\AbstractSettingsProvider;
 
-/**
- * Class AccountSettings
- */
 class AccountSettings extends AbstractSettingsProvider {
 
-    public const CONFIG_REGION = "settings/checkoutcom_configuration/region";
-    public const CONFIG_SERVICE = "settings/checkoutcom_configuration/service";
-    public const CONFIG_SECRET_KEY = "settings/checkoutcom_configuration/secret_key";
-    public const CONFIG_PUBLIC_KEY = "settings/checkoutcom_configuration/public_key";
-    public const CONFIG_PRIVATE_SHARED_KEY = "settings/checkoutcom_configuration/private_shared_key";
-    public const CONFIG_CHANNEL_ID = "settings/checkoutcom_configuration/channel_id";
+    public const CONFIG_REGION = 'settings/checkoutcom_configuration/region';
+    public const CONFIG_SERVICE = 'settings/checkoutcom_configuration/service';
+    public const CONFIG_SECRET_KEY = 'settings/checkoutcom_configuration/secret_key';
+    public const CONFIG_PUBLIC_KEY = 'settings/checkoutcom_configuration/public_key';
+    public const CONFIG_PRIVATE_SHARED_KEY = 'settings/checkoutcom_configuration/private_shared_key';
+    public const CONFIG_CHANNEL_ID = 'settings/checkoutcom_configuration/channel_id';
 
-    public function getRegion(?string $website): ?string {
+    public function getRegion(?string $website): ?string
+    {
         return $this->getWebsiteLevelConfiguration(
             self::CONFIG_REGION,
             $website
         );
     }
 
-    public function getService(?string $website): ?string {
+    public function getService(?string $website): ?string
+    {
         return $this->getWebsiteLevelConfiguration(
             self::CONFIG_SERVICE,
             $website
         );
     }
 
-    public function getSecretKey(?string $website): ?string {
+    public function getSecretKey(?string $website): ?string
+    {
         return $this->getWebsiteLevelConfiguration(
             self::CONFIG_SECRET_KEY,
             $website
         );
     }
 
-    public function getPublicKey(?string $website): ?string {
+    public function getPublicKey(?string $website): ?string
+    {
         return $this->getWebsiteLevelConfiguration(
             self::CONFIG_PUBLIC_KEY,
             $website
         );
     }
 
-    public function getPrivateSharedKey(?string $website): ?string {
+    public function getPrivateSharedKey(?string $website): ?string
+    {
         return $this->getWebsiteLevelConfiguration(
             self::CONFIG_PRIVATE_SHARED_KEY,
             $website
         );
     }
 
-    public function getChannelId(?string $website): ?string {
+    public function getChannelId(?string $website): ?string
+    {
         return $this->getWebsiteLevelConfiguration(
             self::CONFIG_CHANNEL_ID,
             $website

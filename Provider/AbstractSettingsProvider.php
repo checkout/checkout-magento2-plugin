@@ -22,9 +22,6 @@ namespace CheckoutCom\Magento2\Provider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * Class AbstractSettingsProvider
- */
 class AbstractSettingsProvider {
 
     private ScopeConfigInterface $scopeConfig;

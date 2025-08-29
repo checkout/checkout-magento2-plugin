@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Checkout.com
  * Authorized and regulated as an electronic money institution
@@ -13,11 +14,14 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+
+declare(strict_types=1);
+
 namespace CheckoutCom\Magento2\Block\Flow;
 
 use CheckoutCom\Magento2\ViewModel\Flow\LoadMainScript;
 use Magento\Framework\View\Element\Template;
-use \Magento\Framework\View\Element\Template\Context as TemplateContext;
+use Magento\Framework\View\Element\Template\Context as TemplateContext;
 
 class FlowScript extends Template
 {
