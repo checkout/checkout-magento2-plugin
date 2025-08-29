@@ -17,27 +17,19 @@
 
 declare(strict_types=1);
 
-namespace CheckoutCom\Magento2\Model\Request\Risk;
+namespace CheckoutCom\Magento2\Model\Request\Additionnals;
 
-use Checkout\Payments\RiskRequest;
-use Checkout\Payments\RiskRequestFactory;
+use Checkout\Payments\Sender\PaymentSender as BasePaymentSender;
 
-class RiskElement
+class PaymentSender extends BasePaymentSender
 {
-    protected RiskRequestFactory $modelFactory;
+    /**
+     * @var string
+     */
+    public $first_name;
 
-    public function __construct(
-        RiskRequestFactory $modelFactory,
-    ) {
-        $this->modelFactory = $modelFactory;
-    }
-
-    public function get(): RiskRequest
-    {
-        $model = $this->modelFactory->create();
-
-        $model->enabled = true;
-
-        return $model;
-    }
+    /**
+     * @var string
+     */
+    public $last_name;
 }

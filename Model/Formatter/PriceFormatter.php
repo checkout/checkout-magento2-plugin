@@ -20,9 +20,7 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Model\Formatter;
 
 use CheckoutCom\Magento2\Provider\CurrenciesSettings;
-/**
- * Class PriceFormatter
-*/
+
 class PriceFormatter
 {
     protected CurrenciesSettings $currenciesSettings;
@@ -33,7 +31,8 @@ class PriceFormatter
         $this->currenciesSettings = $currenciesSettings;
     }
 
-    public function getFormattedPrice(string|int|float $amount, string $currency) {
+    public function getFormattedPrice(string|int|float $amount, string $currency) 
+    {
         $currenciesX1 = $this->currenciesSettings->getCurrenciesX1Table();
         $currenciesX1000 = $this->currenciesSettings->getCurrenciesX1000Table();
         $amount = round((float) $amount * 100) / 100;
@@ -48,5 +47,4 @@ class PriceFormatter
             
         return $amount * 100;
     }
-
 }

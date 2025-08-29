@@ -22,9 +22,6 @@ namespace CheckoutCom\Magento2\Model\Request\Base;
 use Checkout\Common\Phone;
 use Checkout\Common\PhoneFactory;
 
-/**
- * Class PhoneElement
- */
 class PhoneElement
 {
     protected PhoneFactory $modelFactory;
@@ -35,7 +32,8 @@ class PhoneElement
         $this->modelFactory = $modelFactory;
     }
 
-    public function get(string $countryCode, string $number): Phone {
+    public function get(string $countryCode, string $number): Phone
+    {
         $model = $this->modelFactory->create();
 
         $model->country_code = $countryCode;

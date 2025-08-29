@@ -25,9 +25,6 @@ use CheckoutCom\Magento2\Model\Request\Base\AddressElement;
 use CheckoutCom\Magento2\Model\Request\Base\PhoneElement;
 use Magento\Quote\Api\Data\AddressInterface;
 
-/**
- * Class ShippingElement
- */
 class ShippingElement
 {
     protected ShippingDetailsFactory $modelFactory;
@@ -45,11 +42,11 @@ class ShippingElement
         $this->phoneElement = $phoneElement;
     }
 
-    public function get(AddressInterface $shippingAddress): ShippingDetails {
+    public function get(AddressInterface $shippingAddress): ShippingDetails
+    {
         $model = $this->modelFactory->create();
 
         $model->address = $this->addressElement->get($shippingAddress);
-        // $model->phone = $this->phoneElement->get();
 
         return $model;
     }
