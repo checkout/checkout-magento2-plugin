@@ -149,7 +149,7 @@ class FlowMethodSettings extends AbstractSettingsProvider
 
     public function getDisabledPaymentMethods(?string $storeCode): array
     {
-        $apmList = $this->configLoader->loadApmList();
+        $apmList = $this->configLoader->loadApmList(Loader::APM_FLOW_FILE_NAME);
         $methodCodes = [];
         foreach ($apmList as $apm) {
             $methodCodes[] = $apm['value'];

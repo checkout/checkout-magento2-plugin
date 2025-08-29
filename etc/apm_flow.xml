@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2019 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <item>
+        <id>alipay_cn</id>
+        <title>Alipay</title>
+        <currencies>USD</currencies>
+        <countries>CN,US</countries>
+    </item>
+    <item>
+        <id>alipay_hk</id>
+        <title>Alipay</title>
+        <currencies>USD</currencies>
+        <countries>HK</countries>
+    </item>
+    <item>
+        <id>ideal</id>
+        <title>iDEAL</title>
+        <currencies>EUR</currencies>
+        <countries>NL</countries>
+    </item>
+    <item>
+        <id>paypal</id>
+        <title>PayPal</title>
+        <currencies>AUD,BRL,CAD,CNY,CZK,DKK,EUR,HKD,HUF,INR,ILS,JPY,MXN,TWD,NZD,NOK,PHP,PLN,GBP,RUB,SGD,SEK,CHF,THB,USD</currencies>
+        <countries>AF,AX,AL,DZ,AS,AD,AO,AI,AQ,AG,AR,AM,AW,AU,AT,AZ,BS,BH,BD,BB,BY,BE,BZ,BJ,BM,BT,BO,BA,BW,BV,BR,IO,VG,BN,BG,BF,BI,KH,CM,CA,CV,KY,CF,TD,CL,CN,CX,CC,CO,KM,CG,CD,CK,CR,CI,HR,CU,CY,CZ,DK,DJ,DM,DO,EC,EG,SV,GQ,ER,EE,ET,FK,FO,FJ,FI,FR,GF,PF,TF,GA,GM,GE,DE,GH,GI,GR,GL,GD,GP,GU,GT,GG,GN,GW,GY,HT,HM,HN,HK,HU,IS,IN,ID,IR,IQ,IE,IM,IL,IT,JM,JP,JE,JO,KZ,KE,KI,KW,KG,LA,LV,LB,LS,LR,LY,LI,LT,LU,MO,MK,MG,MW,MY,MV,ML,MT,MH,MQ,MR,MU,YT,MX,FM,MD,MC,MN,ME,MS,MA,MZ,MM,NA,NR,NP,NL,AN,NC,NZ,NI,NE,NG,NU,NF,MP,KP,NO,OM,PK,PW,PS,PA,PG,PY,PE,PH,PN,PL,PT,QA,RE,RO,RU,RW,WS,SM,ST,SA,SN,RS,SC,SL,SG,SK,SI,SB,SO,ZA,GS,KR,ES,LK,BL,SH,KN,LC,MF,PM,VC,SD,SR,SJ,SZ,SE,CH,SY,TW,TJ,TZ,TH,TL,TG,TK,TO,TT,TN,TR,TM,TC,TV,UG,UA,AE,GB,US,UY,UM,VI,UZ,VU,VA,VE,VN,WF,EH,YE,ZM,ZW</countries>
+    </item>
+    <item>
+        <id>sepa</id>
+        <title>Sepa</title>
+        <currencies>EUR</currencies>
+        <countries>AT,BE,CY,DE,EE,ES,FI,FR,GR,IE,IT,LT,LU,LV,MT,NL,PT,SI,SK,AD,BG,CH,CZ,DK,GB,HR,HU,IS,LI,MC,NO,PL,RO,SM,SE,VA</countries>
+    </item>
+    <item>
+        <id>sofort</id>
+        <title>Sofort</title>
+        <currencies>EUR</currencies>
+        <countries>AT,BE,DE,ES,IT,NL</countries>
+    </item>
+    <item>
+        <id>klarna</id>
+        <title>Klarna</title>
+        <currencies>EUR,DKK,GBP,NOK,SEK</currencies>
+        <countries>AT,DK,ES,FI,DE,NL,NO,SE,GB</countries>
+        <mappings>
+            <EUR>AT,ES,FI,DE,NL,DK,NO,SE</EUR>
+            <DKK>DK</DKK>
+            <GBP>GB</GBP>
+            <NOK>NO</NOK>
+            <SEK>SE</SEK>
+        </mappings>
+    </item>
+    <item>
+        <id>eps</id>
+        <title>EPS</title>
+        <currencies>EUR</currencies>
+        <countries>AT</countries>
+    </item>
+    <item>
+        <id>fawry</id>
+        <title>Fawry</title>
+        <currencies>EGP</currencies>
+        <countries>EG</countries>
+    </item>
+    <item>
+        <id>bancontact</id>
+        <title>Bancontact</title>
+        <currencies>EUR</currencies>
+        <countries>BE</countries>
+    </item>
+    <item>
+        <id>knet</id>
+        <title>KNet</title>
+        <currencies>KWD</currencies>
+        <countries>KW</countries>
+    </item>
+</config>

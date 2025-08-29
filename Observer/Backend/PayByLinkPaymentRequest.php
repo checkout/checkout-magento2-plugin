@@ -22,12 +22,12 @@ use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Common\Product as CheckoutProduct;
 use Checkout\Payments\BillingDescriptor;
-use Checkout\Payments\Links\PaymentLinkRequest;
 use Checkout\Payments\PaymentType;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Methods\PayByLinkMethod;
+use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentLinkRequest;
 use CheckoutCom\Magento2\Model\Request\Billing\BillingElement;
 use CheckoutCom\Magento2\Model\Request\Customer\CustomerElement;
 use CheckoutCom\Magento2\Model\Request\Risk\RiskElement;
@@ -157,12 +157,13 @@ class PayByLinkPaymentRequest implements ObserverInterface
             }
             $request->reference = $order->getIncrementId();
             $request->processing_channel_id = $this->accountSettings->getChannelId($websiteCode);
-            $request->expires_in = (int)$this->config->getValue('cancel_order_link_after', 'checkoutcom_paybylink', $storeCode, ScopeInterface::SCOPE_STORE);
+            $request->expires_in = (int)$this->config->getValue('cancel_order_link_after', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE);
             $request->customer = $api->createCustomer($order);
             if ($shippingAddress) {
                 $request->shipping = $this->shippingElement->get($shippingAddress);
             }
             $request->allow_payment_methods = $this->flowMethodSettings->getAllowedPaymentMethods($storeCode);
+            $request->disabled_payment_methods = $this->flowMethodSettings->getDisabledPaymentMethods($storeCode);
 
             foreach ($order->getAllVisibleItems() as $item) {
                 $unitPrice = $this->orderHandlerService->amountToGateway(
@@ -196,7 +197,9 @@ class PayByLinkPaymentRequest implements ObserverInterface
             } finally {
                 // Add the response link to the order payment data
                 if (is_array($response) && $api->isValidResponse($response)) {
-                    $order->getPayment()->setAdditionalInformation(PayByLinkMethod::ADDITIONAL_INFORMATION_LINK_CODE, $response['_links']['self']['href']);
+                    $order
+                        ->setStatus($this->config->getValue('order_status_waiting_payment', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE))
+                        ->getPayment()->setAdditionalInformation(PayByLinkMethod::ADDITIONAL_INFORMATION_LINK_CODE, $response['_links']['redirect']['href']);
                     if (isset($response['status'])) {
                         if ($response['status'] === 'Authorized') {
                             $this->messageManager->addSuccessMessage(
