@@ -53,7 +53,6 @@ class ShippingElement
         $model = $this->modelFactory->create();
 
         $model->address = $this->addressElement->get($shippingAddress);
-        // $model->phone = $this->phoneElement->get();
 
         return $model;
     }
