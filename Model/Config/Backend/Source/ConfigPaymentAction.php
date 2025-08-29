@@ -26,11 +26,11 @@ use Magento\Framework\Data\OptionSourceInterface;
  */
 class ConfigPaymentAction implements OptionSourceInterface
 {
-    public const PAYMENT_ACTION_AUTHORIZE_CONFIG_VALUE = "authorize";
-    public const PAYMENT_ACTION_CAPTURE_CONFIG_VALUE = "authorize_capture";
+    public const PAYMENT_ACTION_AUTHORIZE_CONFIG_VALUE = 'authorize';
+    public const PAYMENT_ACTION_CAPTURE_CONFIG_VALUE = 'authorize_capture';
 
-    public const PAYMENT_ACTION_AUTHORIZE_CONFIG_LABEL = "Authorize";
-    public const PAYMENT_ACTION_CAPTURE_CONFIG_LABEL = "Authorize and Capture";
+    public const PAYMENT_ACTION_AUTHORIZE_CONFIG_LABEL = 'Authorize';
+    public const PAYMENT_ACTION_CAPTURE_CONFIG_LABEL = 'Authorize and Capture';
     
     /**
      * Options getter

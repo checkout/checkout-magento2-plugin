@@ -756,7 +756,7 @@
                     </field>
                 </group>
                 <group id="checkoutcom_klarna" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Klarna (NAS)</label>
+                    <label>Klarna</label>
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_klarna/title</config_path>
@@ -782,7 +782,7 @@
                     </depends>
                 </group>
                 <group id="checkoutcom_paypal" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Paypal Payments (NAS)</label>
+                    <label>Paypal Payments</label>
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_paypal/title</config_path>

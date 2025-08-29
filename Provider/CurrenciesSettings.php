@@ -21,37 +21,38 @@ namespace CheckoutCom\Magento2\Provider;
 
 use CheckoutCom\Magento2\Provider\AbstractSettingsProvider;
 
-/**
- * Class GeneralSettings
- */
 class CurrenciesSettings extends AbstractSettingsProvider {
 
-    public const CONFIG_CURRENCIES_X1 = "settings/checkoutcom_configuration/currencies_x1";
-    public const CONFIG_CURRENCIES_X1000 = "settings/checkoutcom_configuration/currencies_x1000";
+    public const CONFIG_CURRENCIES_X1 = 'settings/checkoutcom_configuration/currencies_x1';
+    public const CONFIG_CURRENCIES_X1000 = 'settings/checkoutcom_configuration/currencies_x1000';
 
-    public function getCurrenciesX1Table(): array {
+    public function getCurrenciesX1Table(): array
+    {
         return explode(
             ',',
             $this->getCurrenciesX1() ?? []
         );
     }
 
-    public function getCurrenciesX1(): ?string {
+    public function getCurrenciesX1(): string
+    {
         return $this->getDefaultLevelConfiguration(
             self::CONFIG_CURRENCIES_X1
-        );
+        ) ?? '';
     }
 
-    public function getCurrenciesX1000Table(): array {
+    public function getCurrenciesX1000Table(): array
+    {
         return explode(
             ',',
             $this->getCurrenciesX1000() ?? []
         );
     }
 
-    public function getCurrenciesX1000(): ?string {
+    public function getCurrenciesX1000(): string
+    {
         return $this->getDefaultLevelConfiguration(
             self::CONFIG_CURRENCIES_X1000
-        );
+        ) ?? '';
     }
 }

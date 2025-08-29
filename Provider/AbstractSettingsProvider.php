@@ -22,9 +22,6 @@ namespace CheckoutCom\Magento2\Provider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * Class AbstractSettingsProvider
- */
 class AbstractSettingsProvider {
 
     private ScopeConfigInterface $scopeConfig;
@@ -35,37 +32,40 @@ class AbstractSettingsProvider {
         $this->scopeConfig = $scopeConfig;
     }
     
-    public function getWebsiteLevelConfiguration(string $path, ?string $websiteCode): ?string {
+    public function getWebsiteLevelConfiguration(string $path, ?string $websiteCode): ?string
+    {
+        $config = null;
         if (!is_null($websiteCode)) {
-            $config =  $this->scopeConfig->getValue(
+            $config = $this->scopeConfig->getValue(
                 $path,
                 ScopeInterface::SCOPE_WEBSITE,
                 $websiteCode,
             );
-            return $config;
         }
 
-        return $this->scopeConfig->getValue(
+        return $config ? $config : $this->scopeConfig->getValue(
             $path
         );
     }
 
-    public function getStoreLevelConfiguration(string $path, ?string $storeCode): ?string {
+    public function getStoreLevelConfiguration(string $path, ?string $storeCode): ?string
+    {
+        $config = null;
         if (!is_null($storeCode)) {
             $config =  $this->scopeConfig->getValue(
                 $path,
                 ScopeInterface::SCOPE_STORE,
                 $storeCode,
             );
-            return $config;
         }
 
-        return $this->scopeConfig->getValue(
+        return $config ? $config :$this->scopeConfig->getValue(
             $path
         );
     }
 
-    public function getDefaultLevelConfiguration(string $path): ?string {
+    public function getDefaultLevelConfiguration(string $path): ?string
+    {
         return $this->scopeConfig->getValue(
             $path
         );

@@ -22,18 +22,10 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 use CheckoutCom\Magento2\Gateway\Config\Loader;
 use Magento\Framework\Data\OptionSourceInterface;
 
-/**
- * Class ConfigFlowAlternativePayments
- */
 class ConfigFlowAlternativePayments implements OptionSourceInterface
 {
     private Loader $configLoader;
 
-    /**
-     * ConfigFlowAlternativePayments constructor
-     *
-     * @param Loader $configLoader
-     */
     public function __construct(
         Loader $configLoader
     ) {
