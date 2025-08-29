@@ -15,23 +15,23 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="CheckoutCom_Magento2::css/apple-pay/apple-pay.css"/>
+        <css src="CheckoutCom_Magento2::frames/css/apple-pay/apple-pay.css"/>
     </head>
     <body>
         <referenceContainer name="checkout.cart.methods">
-            <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::cart/applepay.phtml" name="apple.pay.button" after="-">
+            <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::frames/cart/applepay.phtml" name="apple.pay.button" after="-">
                 <arguments>
                     <argument name="view_model" xsi:type="object">CheckoutCom\Magento2\ViewModel\Cart\ApplePayButton</argument>
                 </arguments>
             </block>
-            <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::cart/paypal.phtml" name="paypal.button" after="apple.pay.button">
+            <block class="Magento\Framework\View\Element\Template" template="CheckoutCom_Magento2::frames/cart/paypal.phtml" name="paypal.button" after="apple.pay.button">
                 <arguments>
                     <argument name="jsLayout" xsi:type="array">
                         <item name="components" xsi:type="array">
                             <item name="paypal_express_button" xsi:type="array">
-                                <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_paypal_express</item>
+                                <item name="component" xsi:type="string">CheckoutCom_Magento2/js/frames/view/payment/method-renderer/checkoutcom_paypal_express</item>
                                 <item name="config" xsi:type="array">
-                                    <item name="template" xsi:type="string">CheckoutCom_Magento2/payment/checkoutcom_paypal_express</item>
+                                    <item name="template" xsi:type="string">CheckoutCom_Magento2/frames/payment/checkoutcom_paypal_express</item>
                                     <item name="context" xsi:type="string">express_cart</item>
                                 </item>
                             </item>

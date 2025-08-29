@@ -14,7 +14,7 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="CheckoutCom_Magento2::css/apple-pay/apple-pay.css"/>
+        <css src="CheckoutCom_Magento2:frames/css/apple-pay/apple-pay.css"/>
     </head>
     <body>
         <referenceBlock name="minicart">
@@ -26,15 +26,15 @@
                                 <item name="promotion" xsi:type="array">
                                     <item name="children" xsi:type="array">
                                         <item name="applepay" xsi:type="array">
-                                            <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/minicart/applepaybutton</item>
+                                            <item name="component" xsi:type="string">CheckoutCom_Magento2/js/frames/view/minicart/applepaybutton</item>
                                             <item name="config" xsi:type="array">
-                                                <item name="template" xsi:type="string">CheckoutCom_Magento2/checkout/minicart/applepaybutton</item>
+                                                <item name="template" xsi:type="string">CheckoutCom_Magento2/frames/checkout/minicart/applepaybutton</item>
                                             </item>
                                         </item>
                                         <item name="paypal" xsi:type="array">
-                                            <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_paypal_express</item>
+                                            <item name="component" xsi:type="string">CheckoutCom_Magento2/js/frames/view/payment/method-renderer/checkoutcom_paypal_express</item>
                                             <item name="config" xsi:type="array">
-                                                <item name="template" xsi:type="string">CheckoutCom_Magento2/payment/checkoutcom_paypal_express</item>
+                                                <item name="template" xsi:type="string">CheckoutCom_Magento2/frames/payment/checkoutcom_paypal_express</item>
                                                 <item name="context" xsi:type="string">express_minicart</item>
                                             </item>
                                         </item>
@@ -48,7 +48,7 @@
         </referenceBlock>
         <!-- Add checkoutConfig object for minicart Apple Pay or Paypal Express -->
         <referenceContainer name="minicart.addons">
-            <block class="CheckoutCom\Magento2\Block\Cart\CheckoutConfig" name="minicart.checkout.config" template="CheckoutCom_Magento2::cart/minicart-config.phtml" />
+            <block class="CheckoutCom\Magento2\Block\Cart\CheckoutConfig" name="minicart.checkout.config" template="CheckoutCom_Magento2::frames/cart/minicart-config.phtml" />
         </referenceContainer>
 
         <!-- Add Paypal Script for express button -->
@@ -56,7 +56,7 @@
             <block class="CheckoutCom\Magento2\Block\Paypal\Script"
                    ifconfig="payment/checkoutcom_paypal/active"
                    name="checkout.paypal.express.script"
-                   template="CheckoutCom_Magento2::script/paypal-script.phtml">
+                   template="CheckoutCom_Magento2::frames/script/paypal-script.phtml">
                 <arguments>
                     <argument name="mode" xsi:type="string">express</argument>
                     <argument name="script_type" xsi:type="string">mini-cart</argument>
@@ -64,7 +64,7 @@
             </block>
             <block class="Magento\Framework\View\Element\Template"
                    name="checkout.applepay.script"
-                   template="CheckoutCom_Magento2::script/applepay-script.phtml">
+                   template="CheckoutCom_Magento2::frames/script/applepay-script.phtml">
                 <arguments>
                     <argument name="mode" xsi:type="string">express</argument>
                     <argument name="script_type" xsi:type="string">mini-cart</argument>

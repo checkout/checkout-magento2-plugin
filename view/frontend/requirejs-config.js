@@ -8,10 +8,10 @@ var config = {
     }, config: {
         mixins: {
             'Magento_Checkout/js/model/checkout-data-resolver': {
-                'CheckoutCom_Magento2/js/model/checkout-data-resolver': true
+                'CheckoutCom_Magento2/js/frames/model/checkout-data-resolver': true
             },
             'Magento_Tax/js/view/checkout/summary/grand-total': {
-                'CheckoutCom_Magento2/js/model/grand-total-hide': true
+                'CheckoutCom_Magento2/js/frames/model/grand-total-hide': true
             }
         }
     }

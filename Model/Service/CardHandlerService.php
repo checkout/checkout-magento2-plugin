@@ -103,7 +103,7 @@ class CardHandlerService
     public function getCardIcon(string $code): string
     {
         return $this->assetRepository->getUrl(
-            'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+            'CheckoutCom_Magento2::images/frames/cc/' . strtolower($code) . '.svg'
         );
     }
 
@@ -139,7 +139,7 @@ class CardHandlerService
                 'code' => $code,
                 'name' => __($value),
                 'url' => $this->assetRepository->getUrl(
-                    'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+                    'CheckoutCom_Magento2::images/frames/cc/' . strtolower($code) . '.svg'
                 ),
             ];
         }

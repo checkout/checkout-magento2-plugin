@@ -22,16 +22,17 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 use Magento\Framework\Data\OptionSourceInterface;
 
 /**
- * Class ConfigPaymentAction
+ * Class ConfigSdk
  */
-class ConfigPaymentAction implements OptionSourceInterface
+class ConfigSdk implements OptionSourceInterface
 {
-    public const PAYMENT_ACTION_AUTHORIZE_CONFIG_VALUE = 'authorize';
-    public const PAYMENT_ACTION_CAPTURE_CONFIG_VALUE = 'authorize_capture';
 
-    public const PAYMENT_ACTION_AUTHORIZE_CONFIG_LABEL = 'Authorize';
-    public const PAYMENT_ACTION_CAPTURE_CONFIG_LABEL = 'Authorize and Capture';
-    
+    public const SDK_FRAMES_CONFIG_VALUE = '0';
+    public const SDK_FLOW_CONFIG_VALUE = '1';
+
+    public const SDK_FRAMES_CONFIG_LABEL = 'Frames';
+    public const SDK_FLOW_CONFIG_LABEL = 'Flow';
+
     /**
      * Options getter
      *
@@ -41,12 +42,12 @@ class ConfigPaymentAction implements OptionSourceInterface
     {
         return [
             [
-                'value' => 'authorize',
-                'label' => __('Authorize')
+                'value' => self::SDK_FLOW_CONFIG_VALUE,
+                'label' => __(self::SDK_FLOW_CONFIG_LABEL)
             ],
             [
-                'value' => 'authorize_capture',
-                'label' => __('Authorize and Capture')
+                'value' => self::SDK_FRAMES_CONFIG_VALUE,
+                'label' => __(self::SDK_FRAMES_CONFIG_LABEL)
             ]
         ];
     }

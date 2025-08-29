@@ -39,6 +39,14 @@
                             </requires>
                         </field>
 
+                        <field id="sdk" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Frontend SDK for Checkout</label>
+                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigSdk</source_model>
+                            <config_path>settings/checkoutcom_configuration/sdk</config_path>
+                            <frontend_class>cko_sdk_selector</frontend_class>
+                            <comment><![CDATA[Move to the new “<a href="https://www.checkout.com/docs/payments/accept-payments/accept-a-payment-on-your-website" target="_blank">Flow”</a> SDK to manage your payment methods with a single integration]]></comment>
+                        </field>
+
                         <field id="environment" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Environment</label>
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigEnvironment</source_model>
@@ -309,11 +317,75 @@
                     </group>
                 </group>
 
+                <group id="checkoutcom_flow" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Flow Payments</label>
+                    <depends>
+                        <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                    </depends>
+                    <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_flow/active</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                        </depends>
+                    </field>
+
+                    <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/checkoutcom_flow/title</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                        </depends>
+                    </field>
+
+                    <field id="sort_order" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort</label>
+                        <validate>validate-number</validate>
+                        <config_path>payment/checkoutcom_flow/sort_order</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                        </depends>
+                    </field>
+
+                    <field id="widget_design_selector" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Flow Widget Design</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFlowWidgetDesignSelector</source_model>
+                        <config_path>payment/checkoutcom_flow/widget_design_selector</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                        </depends>
+                    </field>
+
+                    <field id="predefined_widget_design" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Flow Pre-defined Designs</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFlowPredefinedDesign</source_model>
+                        <config_path>payment/checkoutcom_flow/predefined_widget_design</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                            <field id="widget_design_selector">0</field>
+                        </depends>
+                    </field>
+
+                    <field id="custom_widget_design" type="textarea" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Flow Custom Design</label>
+                        <config_path>payment/checkoutcom_flow/custom_widget_design</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                            <field id="widget_design_selector">1</field>
+                        </depends>
+                        <comment><![CDATA[As given in <a href="https://www.checkout.com/docs/payments/accept-payments/accept-a-payment-on-your-website/customize-your-flow-integration" target="_blank">Customization documentation</a>]]></comment>
+                    </field>
+                </group>
+
                 <group id="checkoutcom_card_payment" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Card Payments</label>
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_card_payment/title</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -334,6 +406,9 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_card_payment/display_card_icons</config_path>
                         <comment>Display the supported card icons under the payment option.</comment>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="card_icons" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -342,6 +417,7 @@
                         <config_path>payment/checkoutcom_card_payment/card_icons</config_path>
                         <depends>
                             <field id="display_card_icons">1</field>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
                         </depends>
                     </field>
 
@@ -365,6 +441,9 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_card_payment/save_card_option</config_path>
                         <comment>Display an option (checkbox) to save a new card on the payment page.</comment>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="mada_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -374,6 +453,9 @@
                         <comment>
                             Add a flag to the charge request if the payment card is MADA. Enabling the MADA feature will force auto capture and 3D Secure for all MADA payment requests.
                         </comment>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="payment_form_layout" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -383,6 +465,9 @@
                         <comment>
                             Select a layout for the payment forn dipslay.
                         </comment>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="payment_form_styles" type="textarea" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -391,6 +476,9 @@
                         <comment>
                             <![CDATA[Add CSS styles in JSON format for the payment form (See <a href="https://www.checkout.com/docs/payments/accept-payments/accept-a-payment-on-your-website/get-started#Customize_Frames" target="_blank">Frames.js</a> docs in the "style" node of javascript example for more information). Ex: {"base":{"color":"blue","fontSize":"18px"}}]]>
                         </comment>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="card_number_label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -398,6 +486,7 @@
                         <config_path>payment/checkoutcom_card_payment/card_number_label</config_path>
                         <depends>
                             <field id="payment_form_layout">multi</field>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
                         </depends>
                         <comment>
                             On multi form layout only
@@ -407,6 +496,9 @@
                     <field id="card_number_placeholder" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Card number placeholder</label>
                         <config_path>payment/checkoutcom_card_payment/card_number_placeholder</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="expiration_date_label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -414,6 +506,7 @@
                         <config_path>payment/checkoutcom_card_payment/expiration_date_label</config_path>
                         <depends>
                             <field id="payment_form_layout">multi</field>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
                         </depends>
                         <comment>
                             On multi form layout only
@@ -423,11 +516,17 @@
                     <field id="expiration_date_month_placeholder" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Expiration month placeholder</label>
                         <config_path>payment/checkoutcom_card_payment/expiration_date_month_placeholder</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="expiration_date_year_placeholder" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Expiration year placeholder</label>
                         <config_path>payment/checkoutcom_card_payment/expiration_date_year_placeholder</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="cvv_label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -435,6 +534,7 @@
                         <config_path>payment/checkoutcom_card_payment/cvv_label</config_path>
                         <depends>
                             <field id="payment_form_layout">multi</field>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
                         </depends>
                         <comment>
                             On multi form layout only
@@ -444,6 +544,9 @@
                     <field id="cvv_placeholder" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>CVV placeholder</label>
                         <config_path>payment/checkoutcom_card_payment/cvv_placeholder</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
                 </group>
 
@@ -452,6 +555,9 @@
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_apm/title</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -465,8 +571,18 @@
                         <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigAlternativePayments</source_model>
                         <depends>
                             <field id="active">1</field>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
                         </depends>
                         <config_path>payment/checkoutcom_apm/apm_enabled</config_path>
+                    </field>
+                    <field id="apm_flow_enabled" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Alternative Payments (Flow)</label>
+                        <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFlowAlternativePayments</source_model>
+                        <depends>
+                            <field id="active">1</field>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
+                        </depends>
+                        <config_path>payment/checkoutcom_apm/apm_flow_enabled</config_path>
                     </field>
                 </group>
 
@@ -475,6 +591,9 @@
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_apple_pay/title</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -548,6 +667,9 @@
                         <label>Sort Order</label>
                         <validate>validate-number</validate>
                         <config_path>payment/checkoutcom_apple_pay/sort_order</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="merchant_id" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -601,6 +723,9 @@
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_google_pay/title</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -622,6 +747,9 @@
                         <label>Sort Order</label>
                         <validate>validate-number</validate>
                         <config_path>payment/checkoutcom_google_pay/sort_order</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="environment" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -655,6 +783,9 @@
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_klarna/title</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
                     <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enable Klarna</label>
@@ -665,6 +796,9 @@
                         <label>Sort Order</label>
                         <validate>validate-number</validate>
                         <config_path>payment/checkoutcom_klarna/sort_order</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
                     <depends>
                         <field id="settings/checkoutcom_configuration/service">NAS</field>
@@ -675,6 +809,9 @@
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_paypal/title</config_path>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="active" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -727,10 +864,11 @@
                         <label>Sort Order</label>
                         <validate>validate-number</validate>
                         <config_path>payment/checkoutcom_paypal/sort_order</config_path>
+                        <depends>
+                            <field id="settings/checkoutcom_configuration/service">NAS</field>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
-                    <depends>
-                        <field id="settings/checkoutcom_configuration/service">NAS</field>
-                    </depends>
                 </group>
 
                 <group id="checkoutcom_vault" type="text" showInDefault="1" showInWebsite="1" showInStore="1">

@@ -15,8 +15,8 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="CheckoutCom_Magento2::css/main.css" />
-        <css src="CheckoutCom_Magento2::css/sepa/sepa.css"/>
+        <css src="CheckoutCom_Magento2::frames/css/main.css" />
+        <css src="CheckoutCom_Magento2::frames/css/sepa/sepa.css"/>
     </head>
     <body>
         <!-- Add Paypal payment script and remove express one-->
@@ -25,7 +25,7 @@
             <block class="CheckoutCom\Magento2\Block\Paypal\Script"
                    ifconfig="payment/checkoutcom_paypal/active"
                    name="checkout.paypal.checkout.script"
-                   template="CheckoutCom_Magento2::script/paypal-script.phtml" >
+                   template="CheckoutCom_Magento2::frames/script/paypal-script.phtml" >
                 <arguments>
                     <argument name="mode" xsi:type="string">checkout</argument>
                     <argument name="script_type" xsi:type="string">checkout</argument>
@@ -33,7 +33,7 @@
             </block>
             <block class="Magento\Framework\View\Element\Template"
                    name="checkout.applepay.script"
-                   template="CheckoutCom_Magento2::script/applepay-script.phtml">
+                   template="CheckoutCom_Magento2::frames/script/applepay-script.phtml">
                 <arguments>
                     <argument name="mode" xsi:type="string">express</argument>
                     <argument name="script_type" xsi:type="string">mini-cart</argument>
@@ -58,7 +58,7 @@
                                                             <!-- merge payment method renders here -->
                                                             <item name="children" xsi:type="array">
                                                                 <item name="checkoutcom_magento2" xsi:type="array">
-                                                                    <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/method-renderer</item>
+                                                                    <item name="component" xsi:type="string">CheckoutCom_Magento2/js/frames/view/payment/method-renderer</item>
                                                                     <item name="methods" xsi:type="array">
                                                                         <item name="checkoutcom_paypal" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
