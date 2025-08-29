@@ -28,14 +28,12 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Model\ResourceModel\Order\Collection as OrderCollection;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 
-/**
- * Class AuotoCancelPendingPayByLinkOrders
- */
 class AutoCancelPendingPayByLinkOrders
 {
     private Config $config;
@@ -75,21 +73,7 @@ class AutoCancelPendingPayByLinkOrders
                 continue;
             }
             $this->logger->info(sprintf('Checking for pay by links orders to cancel for store %s', $storeCode));
-            $expirationDelay = (int)$this->config->getValue('cancel_order_link_after', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE);
-            $minDate = $this->timezone->date()->sub(DateInterval::createFromDateString($expirationDelay . ' second'))->format(Mysql::TIMESTAMP_FORMAT);
-
-            $ordersCollection = $this->orderCollectionFactory->create()
-                ->addFieldToFilter(OrderInterface::STATUS, (string)$this->config->getValue('order_status_waiting_payment', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE))
-                ->addFieldToFilter(OrderInterface::STORE_ID, $store->getId())
-                ->addFieldToFilter(OrderInterface::CREATED_AT, ['lteq' => $minDate]);
-            $paymentTable = $ordersCollection->getResource()->getTable('sales_order_payment');
-
-            $ordersCollection->getSelect()->join(
-                ['sop' => $paymentTable],
-                'main_table.entity_id = sop.parent_id',
-                ['method']
-            )->where('sop.method = ?', PayByLinkMethod::CODE);
-
+            $ordersCollection = $this->getStoreOrderCollection($store);
             $this->logger->info(sprintf('%s pay by links orders to cancel for store %s', $ordersCollection->getTotalCount(), $storeCode));
             foreach ($ordersCollection as $order) {
                 try {
@@ -117,5 +101,22 @@ class AutoCancelPendingPayByLinkOrders
                 }
             }
         }
+    }
+
+    private function getStoreOrderCollection(StoreManagerInterface $store): OrderCollection
+    {
+        $expirationDelay = (int)$this->config->getValue('cancel_order_link_after', PayByLinkMethod::CODE, $store->getCode(), ScopeInterface::SCOPE_STORE);
+        $minDate = $this->timezone->date()->sub(DateInterval::createFromDateString($expirationDelay . ' second'))->format(Mysql::TIMESTAMP_FORMAT);
+        $ordersCollection = $this->orderCollectionFactory->create()
+            ->addFieldToFilter(OrderInterface::STATUS, (string)$this->config->getValue('order_status_waiting_payment', PayByLinkMethod::CODE, $store->getCode(), ScopeInterface::SCOPE_STORE))
+            ->addFieldToFilter(OrderInterface::STORE_ID, $store->getId())
+            ->addFieldToFilter(OrderInterface::CREATED_AT, ['lteq' => $minDate]);
+        $paymentTable = $ordersCollection->getResource()->getTable('sales_order_payment');
+
+        return $ordersCollection->getSelect()->join(
+            ['sop' => $paymentTable],
+            'main_table.entity_id = sop.parent_id',
+            ['method']
+        )->where('sop.method = ?', PayByLinkMethod::CODE);
     }
 }
