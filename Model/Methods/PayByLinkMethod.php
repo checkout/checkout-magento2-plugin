@@ -44,9 +44,6 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class PayByLinkMethod
- */
 class PayByLinkMethod extends AbstractMethod
 {
     /**
@@ -102,25 +99,6 @@ class PayByLinkMethod extends AbstractMethod
     private StoreManagerInterface $storeManager;
     private FlowGeneralSettings $flowGeneralSettings;
 
-    /**
-     * PayByLinkMethod constructor
-     *
-     * @param Context $context
-     * @param Registry $registry
-     * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory $customAttributeFactory
-     * @param Data $paymentData
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Logger $logger
-     * @param Session $backendAuthSession
-     * @param Config $config
-     * @param ApiHandlerService $apiHandler
-     * @param DirectoryHelper $directoryHelper
-     * @param DataObjectFactory $dataObjectFactory
-     * @param AbstractResource|null $resource
-     * @param AbstractDb|null $resourceCollection
-     * @param array $data
-     */
     public function __construct(
         Session $backendAuthSession,
         Config $config,
@@ -172,33 +150,33 @@ class PayByLinkMethod extends AbstractMethod
      */
     public function void(InfoInterface $payment): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
-            // Get the store code
-            $storeCode = $payment->getOrder()->getStore()->getCode();
-
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-
-            // Check the status
-            if (!$this->canVoid()) {
-                throw new LocalizedException(
-                    __('The void action is not available.')
-                );
-            }
-
-            // Process the void request
-            $response = $api->voidOrder($payment);
-            if (!$api->isValidResponse($response)) {
-                throw new LocalizedException(
-                    __('The void request could not be processed.')
-                );
-            }
-
-            // Set the transaction id from response
-            $payment->setTransactionId($response['action_id']);
+        if (!$this->backendAuthSession->isLoggedIn()) {
+            return $this;
         }
 
-        return $this;
+        // Get the store code
+        $storeCode = $payment->getOrder()->getStore()->getCode();
+
+        // Initialize the API handler
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+
+        // Check the status
+        if (!$this->canVoid()) {
+            throw new LocalizedException(
+                __('The void action is not available.')
+            );
+        }
+
+        // Process the void request
+        $response = $api->voidOrder($payment);
+        if (!$api->isValidResponse($response)) {
+            throw new LocalizedException(
+                __('The void request could not be processed.')
+            );
+        }
+
+        // Set the transaction id from response
+        $payment->setTransactionId($response['action_id']);
     }
 
     /**
@@ -211,37 +189,39 @@ class PayByLinkMethod extends AbstractMethod
      */
     public function cancel(InfoInterface $payment): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
-            $order = $payment->getOrder();
-            // Get the store code
-            $storeCode = $order->getStore()->getCode();
-
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-
-            // Check the status
-            if (!$this->canVoid()) {
-                throw new LocalizedException(
-                    __('The void action is not available.')
-                );
-            }
-
-            // Process the void request
-            $response = $api->voidOrder($payment);
-            if (!$api->isValidResponse($response)) {
-                throw new LocalizedException(
-                    __('The void request could not be processed.')
-                );
-            }
-
-            $comment = __(
-                'Canceled order online, the voided amount is %1.',
-                $order->formatPriceTxt($order->getGrandTotal())
-            );
-            $payment->setMessage($comment);
-            // Set the transaction id from response
-            $payment->setTransactionId($response['action_id']);
+        if (!$this->backendAuthSession->isLoggedIn()) {
+            return $this;
         }
+
+        $order = $payment->getOrder();
+        // Get the store code
+        $storeCode = $order->getStore()->getCode();
+
+        // Initialize the API handler
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+
+        // Check the status
+        if (!$this->canVoid()) {
+            throw new LocalizedException(
+                __('The void action is not available.')
+            );
+        }
+
+        // Process the void request
+        $response = $api->voidOrder($payment);
+        if (!$api->isValidResponse($response)) {
+            throw new LocalizedException(
+                __('The void request could not be processed.')
+            );
+        }
+
+        $comment = __(
+            'Canceled order online, the voided amount is %1.',
+            $order->formatPriceTxt($order->getGrandTotal())
+        );
+        $payment->setMessage($comment);
+        // Set the transaction id from response
+        $payment->setTransactionId($response['action_id']);
 
         return $this;
     }
@@ -258,31 +238,32 @@ class PayByLinkMethod extends AbstractMethod
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
-            // Get the store code
-            $storeCode = $payment->getOrder()->getStore()->getCode();
-
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-
-            // Check the status
-            if (!$this->canCapture()) {
-                throw new LocalizedException(
-                    __('The capture action is not available.')
-                );
-            }
-
-            // Process the capture request
-            $response = $api->captureOrder($payment, (float)$amount);
-            if (!$api->isValidResponse($response)) {
-                throw new LocalizedException(
-                    __('The capture request could not be processed.')
-                );
-            }
-
-            // Set the transaction id from response
-            $payment->setTransactionId($response['action_id']);
+        if (!$this->backendAuthSession->isLoggedIn()) {
+            return $this;
         }
+        // Get the store code
+        $storeCode = $payment->getOrder()->getStore()->getCode();
+
+        // Initialize the API handler
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+
+        // Check the status
+        if (!$this->canCapture()) {
+            throw new LocalizedException(
+                __('The capture action is not available.')
+            );
+        }
+
+        // Process the capture request
+        $response = $api->captureOrder($payment, (float)$amount);
+        if (!$api->isValidResponse($response)) {
+            throw new LocalizedException(
+                __('The capture request could not be processed.')
+            );
+        }
+
+        // Set the transaction id from response
+        $payment->setTransactionId($response['action_id']);
 
         return $this;
     }
@@ -299,40 +280,41 @@ class PayByLinkMethod extends AbstractMethod
      */
     public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
-            // Get the store code
-            $storeCode = $payment->getOrder()->getStore()->getCode();
-
-            // Initialize the API handler
-            try {
-                $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-            } catch (CheckoutArgumentException $e) {
-                throw new LocalizedException(__($e->getMessage()));
-            }
-
-            // Check the status
-            if (!$this->canRefund()) {
-                throw new LocalizedException(
-                    __('The refund action is not available.')
-                );
-            }
-
-            // Process the refund request
-            try {
-                $response = $api->refundOrder($payment, $amount);
-            } catch (CheckoutApiException $e) {
-                throw new LocalizedException(__($e->getMessage()));
-            }
-
-            if (!$api->isValidResponse($response)) {
-                throw new LocalizedException(
-                    __('The refund request could not be processed.')
-                );
-            }
-
-            // Set the transaction id from response
-            $payment->setTransactionId($response['action_id']);
+        if (!$this->backendAuthSession->isLoggedIn()) {
+            return $this;
         }
+        // Get the store code
+        $storeCode = $payment->getOrder()->getStore()->getCode();
+
+        // Initialize the API handler
+        try {
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+        } catch (CheckoutArgumentException $e) {
+            throw new LocalizedException(__($e->getMessage()));
+        }
+
+        // Check the status
+        if (!$this->canRefund()) {
+            throw new LocalizedException(
+                __('The refund action is not available.')
+            );
+        }
+
+        // Process the refund request
+        try {
+            $response = $api->refundOrder($payment, $amount);
+        } catch (CheckoutApiException $e) {
+            throw new LocalizedException(__($e->getMessage()));
+        }
+
+        if (!$api->isValidResponse($response)) {
+            throw new LocalizedException(
+                __('The refund request could not be processed.')
+            );
+        }
+
+        // Set the transaction id from response
+        $payment->setTransactionId($response['action_id']);
 
         return $this;
     }
