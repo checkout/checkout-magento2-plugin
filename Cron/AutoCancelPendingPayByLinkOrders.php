@@ -93,7 +93,9 @@ class AutoCancelPendingPayByLinkOrders
             $this->logger->info(sprintf('%s pay by links orders to cancel for store %s', $ordersCollection->getTotalCount(), $storeCode));
             foreach ($ordersCollection as $order) {
                 try {
-                    if ($order->canCancel()) {
+                    if (!$order->canCancel()) {
+ throw new LocalizedException(__('The order %s cannot be cancelled.', $order->getIncrementId()));
+                    } 
                         $cancelMsg = __('Auto cancel order %s because link is expired')->render();
                         $this->logger->info(
                             sprintf(
@@ -103,9 +105,6 @@ class AutoCancelPendingPayByLinkOrders
                         );
                         $order->addStatusHistoryComment($cancelMsg);
                         $this->orderManagement->cancel((int)$order->getId());
-                    } else {
-                        throw new LocalizedException(__('The order %s cannot be cancelled.', $order->getIncrementId()));
-                    }
                 } catch (Exception $e) {
                     $this->logger->error(
                         sprintf(
