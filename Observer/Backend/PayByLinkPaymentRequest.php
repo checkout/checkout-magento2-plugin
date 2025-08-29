@@ -196,23 +196,23 @@ class PayByLinkPaymentRequest implements ObserverInterface
             $this->logger->write($e->getMessage());
         } finally {
             // Add the response link to the order payment data
-            if (is_array($response) && $api->isValidResponse($response)) {
-                $order
-                    ->setStatus($this->config->getValue('order_status_waiting_payment', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE))
-                    ->getPayment()->setAdditionalInformation(PayByLinkMethod::ADDITIONAL_INFORMATION_LINK_CODE, $response['_links']['redirect']['href']);
-                if (isset($response['status'])) {
-                    if ($response['status'] === PaymentResponseApi::AUTHORIZED_SATUS_CODE) {
-                        $this->messageManager->addSuccessMessage(
-                            __('The payment link request was successfully processed.')
-                        );
-                    } else {
-                        $this->messageManager->addWarningMessage(__('Status: %1', $response['status']));
-                    }
-                }
-            } else {
+            if (!is_array($response) || !$api->isValidResponse((array)$response)) {
                 $this->messageManager->addErrorMessage(
                     __('The payment link request could not be processed. Please check the payment details.')
                 );
+                return;
+            }
+
+            $order->setStatus($this->config->getValue('order_status_waiting_payment', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE))
+                ->getPayment()->setAdditionalInformation(PayByLinkMethod::ADDITIONAL_INFORMATION_LINK_CODE, $response['_links']['redirect']['href']);
+            if (isset($response['status'])) {
+                if ($response['status'] === PaymentResponseApi::AUTHORIZED_SATUS_CODE) {
+                    $this->messageManager->addSuccessMessage(
+                        __('The payment link request was successfully processed.')
+                    );
+                } else {
+                    $this->messageManager->addWarningMessage(__('Status: %1', $response['status']));
+                }
             }
         }
     }
