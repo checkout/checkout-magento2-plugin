@@ -52,9 +52,6 @@ use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class PayByLinkPaymentRequest
- */
 class PayByLinkPaymentRequest implements ObserverInterface
 {
     private Session $backendAuthSession;
@@ -134,86 +131,87 @@ class PayByLinkPaymentRequest implements ObserverInterface
         $products = [];
 
         // Process the payment
-        if ($this->needsPayByLinkProcessing($methodId, $order)) {
-            // Prepare the response container
-            $response = null;
+        if (!$this->needsPayByLinkProcessing($methodId, $order)) {
+            return;
+        }
+        // Prepare the response container
+        $response = null;
 
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+        // Initialize the API handler
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
-            // Set the payment
-            $request = new PaymentLinkRequest();
-            $request->amount = $this->preparePayByLinkAmount($order);
-            $request->currency = $order->getOrderCurrencyCode();
-            $request->billing = $this->billingElement->get($order->getBillingAddress());
-            $request->payment_type = PaymentType::$regular;
-            // Billing descriptor
-            if ($this->config->needsDynamicDescriptor()) {
-                $billingDescriptor = new BillingDescriptor();
-                $billingDescriptor->name = $this->config->getValue('descriptor_name');
-                $billingDescriptor->city = $this->config->getValue('descriptor_city');
+        // Set the payment
+        $request = new PaymentLinkRequest();
+        $request->amount = $this->preparePayByLinkAmount($order);
+        $request->currency = $order->getOrderCurrencyCode();
+        $request->billing = $this->billingElement->get($order->getBillingAddress());
+        $request->payment_type = PaymentType::$regular;
+        // Billing descriptor
+        if ($this->config->needsDynamicDescriptor()) {
+            $billingDescriptor = new BillingDescriptor();
+            $billingDescriptor->name = $this->config->getValue('descriptor_name');
+            $billingDescriptor->city = $this->config->getValue('descriptor_city');
 
-                $request->billing_descriptor = $billingDescriptor;
-            }
-            $request->reference = $order->getIncrementId();
-            $request->processing_channel_id = $this->accountSettings->getChannelId($websiteCode);
-            $request->expires_in = (int)$this->config->getValue('cancel_order_link_after', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE);
-            $request->customer = $api->createCustomer($order);
-            if ($shippingAddress) {
-                $request->shipping = $this->shippingElement->get($shippingAddress);
-            }
-            $request->allow_payment_methods = $this->flowMethodSettings->getAllowedPaymentMethods($storeCode);
-            $request->disabled_payment_methods = $this->flowMethodSettings->getDisabledPaymentMethods($storeCode);
+            $request->billing_descriptor = $billingDescriptor;
+        }
+        $request->reference = $order->getIncrementId();
+        $request->processing_channel_id = $this->accountSettings->getChannelId($websiteCode);
+        $request->expires_in = (int)$this->config->getValue('cancel_order_link_after', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE);
+        $request->customer = $api->createCustomer($order);
+        if ($shippingAddress) {
+            $request->shipping = $this->shippingElement->get($shippingAddress);
+        }
+        $request->allow_payment_methods = $this->flowMethodSettings->getAllowedPaymentMethods($storeCode);
+        $request->disabled_payment_methods = $this->flowMethodSettings->getDisabledPaymentMethods($storeCode);
 
-            foreach ($order->getAllVisibleItems() as $item) {
-                $unitPrice = $this->orderHandlerService->amountToGateway(
-                    $this->utilities->formatDecimals($item->getPriceInclTax()),
-                    $order
-                );
-                $product = new CheckoutProduct();
-                $product->name = $item->getName();
-                $product->quantity = (int)$item->getQtyOrdered();
-                $product->price = $unitPrice;
-                $products[] = $product;
-            }
-            $request->products = $products;
-            $request->three_ds = $this->threeDSElement->get();
-            $request->risk = $this->riskElement->get();
-            $request->locale = implode("-", explode('_', $this->externalSettings->getStoreLocale($storeCode)));
-
-            // Prepare the metadata array
-            $request->metadata = array_merge(
-                ['methodId' => $methodId],
-                $this->apiHandler->getBaseMetadata()
+        foreach ($order->getAllVisibleItems() as $item) {
+            $unitPrice = $this->orderHandlerService->amountToGateway(
+                $this->utilities->formatDecimals($item->getPriceInclTax()),
+                $order
             );
+            $product = new CheckoutProduct();
+            $product->name = $item->getName();
+            $product->quantity = (int)$item->getQtyOrdered();
+            $product->price = $unitPrice;
+            $products[] = $product;
+        }
+        $request->products = $products;
+        $request->three_ds = $this->threeDSElement->get();
+        $request->risk = $this->riskElement->get();
+        $request->locale = implode("-", explode('_', $this->externalSettings->getStoreLocale($storeCode)));
 
-            // Send the charge request
-            try {
-                $this->logger->display($request);
-                $response = $api->getCheckoutApi()->getPaymentLinksClient()->createPaymentLink($request);
-                $this->logger->display($response);
-            } catch (CheckoutApiException $e) {
-                $this->logger->write($e->getMessage());
-            } finally {
-                // Add the response link to the order payment data
-                if (is_array($response) && $api->isValidResponse($response)) {
-                    $order
-                        ->setStatus($this->config->getValue('order_status_waiting_payment', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE))
-                        ->getPayment()->setAdditionalInformation(PayByLinkMethod::ADDITIONAL_INFORMATION_LINK_CODE, $response['_links']['redirect']['href']);
-                    if (isset($response['status'])) {
-                        if ($response['status'] === 'Authorized') {
-                            $this->messageManager->addSuccessMessage(
-                                __('The payment link request was successfully processed.')
-                            );
-                        } else {
-                            $this->messageManager->addWarningMessage(__('Status: %1', $response['status']));
-                        }
+        // Prepare the metadata array
+        $request->metadata = array_merge(
+            ['methodId' => $methodId],
+            $this->apiHandler->getBaseMetadata()
+        );
+
+        // Send the charge request
+        try {
+            $this->logger->display($request);
+            $response = $api->getCheckoutApi()->getPaymentLinksClient()->createPaymentLink($request);
+            $this->logger->display($response);
+        } catch (CheckoutApiException $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            // Add the response link to the order payment data
+            if (is_array($response) && $api->isValidResponse($response)) {
+                $order
+                    ->setStatus($this->config->getValue('order_status_waiting_payment', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE))
+                    ->getPayment()->setAdditionalInformation(PayByLinkMethod::ADDITIONAL_INFORMATION_LINK_CODE, $response['_links']['redirect']['href']);
+                if (isset($response['status'])) {
+                    if ($response['status'] === 'Authorized') {
+                        $this->messageManager->addSuccessMessage(
+                            __('The payment link request was successfully processed.')
+                        );
+                    } else {
+                        $this->messageManager->addWarningMessage(__('Status: %1', $response['status']));
                     }
-                } else {
-                    $this->messageManager->addErrorMessage(
-                        __('The payment link request could not be processed. Please check the payment details.')
-                    );
                 }
+            } else {
+                $this->messageManager->addErrorMessage(
+                    __('The payment link request could not be processed. Please check the payment details.')
+                );
             }
         }
     }
