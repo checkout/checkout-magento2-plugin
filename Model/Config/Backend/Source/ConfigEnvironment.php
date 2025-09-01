@@ -26,6 +26,12 @@ use Magento\Framework\Data\OptionSourceInterface;
  */
 class ConfigEnvironment implements OptionSourceInterface
 {
+    public const ENVIRONMENT_PRODUCTION_CONFIG_VALUE = "0";
+    public const ENVIRONMENT_TEST_CONFIG_VALUE = "1";
+
+    public const ENVIRONMENT_PRODUCTION_CONFIG_LABEL = "Production";
+    public const ENVIRONMENT_TEST_CONFIG_LABEL = "Test";
+
     /**
      * Options getter
      *
