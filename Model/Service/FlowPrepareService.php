@@ -28,6 +28,7 @@ use Exception;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
+use Psr\Log\LoggerInterface;
 
 class FlowPrepareService
 {
@@ -37,6 +38,7 @@ class FlowPrepareService
     protected AccountSettings $accountConfiguration;
     protected FlowMethodSettings $flowMethodConfiguration;
     protected GeneralSettings $generalConfiguration;
+    protected LoggerInterface $logger;
 
     public function __construct(
         ApiHandlerService $apiHandler,
@@ -44,7 +46,8 @@ class FlowPrepareService
         StoreManagerInterface $storeManager,
         AccountSettings $accountConfiguration,
         FlowMethodSettings $flowMethodConfiguration,
-        GeneralSettings $generalConfiguration
+        GeneralSettings $generalConfiguration,
+        LoggerInterface $logger
     ) {
         $this->postPaymentSession = $postPaymentSession;
         $this->storeManager = $storeManager;
@@ -52,13 +55,25 @@ class FlowPrepareService
         $this->accountConfiguration = $accountConfiguration;
         $this->flowMethodConfiguration = $flowMethodConfiguration;
         $this->generalConfiguration = $generalConfiguration;
+        $this->logger = $logger;
     }
 
     public function prepare(CartInterface $quote, array $data) {
 
-        $storeCode = $this->storeManager->getStore()->getCode();
-        $secretKey = $this->accountConfiguration->getSecretKey(null);
-        $publicKey = $this->accountConfiguration->getPublicKey(null);
+        try {
+            $storeCode = $this->storeManager->getStore()->getCode();
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $websiteCode = null;
+            $storeCode = null;
+
+            $this->logger->error(
+                sprintf("Unable to fetch store code or website code: %s", $error->getMessage()), 
+            );
+        }
+
+        $secretKey = $this->accountConfiguration->getSecretKey($websiteCode);
+        $publicKey = $this->accountConfiguration->getPublicKey($websiteCode);
         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE, $secretKey, $publicKey);
 
         $payload = $this->postPaymentSession->get($quote, $data);
@@ -66,6 +81,10 @@ class FlowPrepareService
         try {
             $responseAPI = $api->getCheckoutApi()->getPaymentSessionsClient()->createPaymentSessions($payload);
         } catch (Exception $error) {
+            $this->logger->error(
+                sprintf("Error during API call: %s", $error->getMessage()), 
+            );
+
             return [
                 'error' => true
             ];
@@ -74,7 +93,7 @@ class FlowPrepareService
         $response = [
             'appearance' => $this->flowMethodConfiguration->getDesign($storeCode),
             'environment' => $this->generalConfiguration->isProductionModeEnabled(null) ? "production" : "sandbox",
-            'paymentSession' => isset($responseAPI['payment_session_token']) ? $responseAPI['payment_session_token'] : '',
+            'paymentSession' => $responseAPI['payment_session_token'] ?? '',
             'publicKey' => $publicKey
         ];
         return $response;

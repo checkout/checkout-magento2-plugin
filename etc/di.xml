@@ -33,6 +33,31 @@
             <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
         </arguments>
     </type>
+    <type name="CheckoutCom\Magento2\Model\Request\BillingDescriptor\BillingDescriptorElement">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
+    <type name="CheckoutCom\Magento2\Model\Request\ThreeDS\ThreeDSElement">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
+    <type name="CheckoutCom\Magento2\Model\Request\PostPaymentSessions">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
+    <type name="CheckoutCom\Magento2\Model\Service\FlowPrepareService">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
+    <type name="CheckoutCom\Magento2\Provider\ExternalSettings">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
     <!-- Method handler configurations -->
     <type name="CheckoutCom\Magento2\Model\Service\MethodHandlerService">
         <arguments>
