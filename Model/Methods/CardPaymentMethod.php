@@ -22,8 +22,6 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
-use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
-use Checkout\Payments\Previous\Source\RequestTokenSource as PreviousRequestTokenSource;
 use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\Request\Source\RequestTokenSource;
 use Checkout\Payments\ThreeDsRequest;
@@ -212,21 +210,13 @@ class CardPaymentMethod extends AbstractMethod
         }
 
         // Set the token source
-        if ($this->apiHandler->isPreviousMode()) {
-            $tokenSource = new PreviousRequestTokenSource();
-        } else {
-            $tokenSource = new RequestTokenSource();
-        }
+        $tokenSource = new RequestTokenSource();
 
         $tokenSource->token = $data['cardToken'];
         $tokenSource->billing_address = $api->createBillingAddress($quote);
 
         // Set the payment
-        if ($this->apiHandler->isPreviousMode()) {
-            $request = new PreviousPaymentRequest();
-        } else {
-            $request = new PaymentRequest();
-        }
+        $request = new PaymentRequest();
 
         $request->currency = $currency;
         $request->source = $tokenSource;
@@ -347,10 +337,7 @@ class CardPaymentMethod extends AbstractMethod
             try {
                 $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
             } catch (CheckoutArgumentException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             // Check the status
@@ -485,10 +472,7 @@ class CardPaymentMethod extends AbstractMethod
             try {
                 $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
             } catch (CheckoutArgumentException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             // Check the status
@@ -502,11 +486,7 @@ class CardPaymentMethod extends AbstractMethod
             try {
                 $response = $api->refundOrder($payment, $amount);
             } catch (CheckoutApiException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
-                $response = $api->refundOrder($payment, $amount);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             if (!$api->isValidResponse($response)) {

@@ -65,22 +65,9 @@ require([
         document.getElementById('webhook_nas').style.display = 'block';
     }
 
-    function processABC() {
-        label[0].children[0].children[0].innerText = "<?= /* @noEscape */ __('Private Shared Key') ?>";
-        document.getElementById('webhook_nas').style.display = 'none';
-        if (checkFormFields()) {
-            document.getElementById('webhook_auto_set').style.display = 'block';
-        } else {
-            document.getElementById('webhook_auto_set').style.display = 'none';
-            document.getElementById('webhook-message').style.display = 'block';
-        }
-    }
-
     function checkService() {
         if (getService() === "<?= /* @noEscape */ ConfigService::SERVICE_NAS ?>") {
             processNAS();
-        } else if (getService() === "<?= /* @noEscape */ ConfigService::SERVICE_ABC ?>") {
-            processABC();
         }
     }
 
@@ -160,7 +147,7 @@ script
 <div id="webhook_nas" style="display: <?= ($block->getHidden() === true) ? 'none' : 'block' ?> ">
     <span id="webhook_span_nas">
         <br>
-        <p> <?= $escaper->escapeHtml(__('In order to set your webhook for the NAS mode, please follow these steps:')) ?></p>
+        <p> <?= $escaper->escapeHtml(__('In order to set your webhook, please follow these steps:')) ?></p>
         <br>
         <p> <?= $escaper->escapeHtml(__('1- Create your Notification in Checkout Dashboard: ')) ?> <a
                 href="https://www.checkout.com/docs/four/dashboard/notifications#Create_a_notification" target="_blank"><?= $escaper->escapeHtml(__('Notifications - Docs')) ?></a></p>

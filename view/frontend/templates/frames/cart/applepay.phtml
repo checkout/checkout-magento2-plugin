@@ -39,7 +39,7 @@ if ($block->getViewModel()->isApplePayEnabledForAllBrowsers()):
     ], JSON_UNESCAPED_SLASHES);
 
     ?>
-    <?= $secureRenderer->renderTag(
+    <?= /* @noEscape */ $secureRenderer->renderTag(
     'script',
     ['type' => 'text/x-magento-init'],
     $script,
@@ -58,7 +58,7 @@ else:
         ],
     ], JSON_UNESCAPED_SLASHES);
     ?>
-    <?= $secureRenderer->renderTag(
+    <?= /* @noEscape */ $secureRenderer->renderTag(
     'script',
     ['type' => 'text/x-magento-init'],
     $script,

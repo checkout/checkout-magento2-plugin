@@ -21,7 +21,6 @@ namespace CheckoutCom\Magento2\Controller\Apm;
 
 use Checkout\Apm\Previous\Klarna\CreditSessionRequest;
 use Checkout\Apm\Previous\Klarna\KlarnaProduct;
-use Checkout\CheckoutApi;
 use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;

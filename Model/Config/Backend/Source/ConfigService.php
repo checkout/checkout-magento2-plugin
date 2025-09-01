@@ -26,10 +26,6 @@ use Magento\Framework\Data\OptionSourceInterface;
 class ConfigService implements OptionSourceInterface
 {
     /**
-     * ABC service name
-     */
-    public const SERVICE_ABC = 'ABC';
-    /**
      * NAS service name
      */
     public const SERVICE_NAS = 'NAS';
@@ -50,10 +46,6 @@ class ConfigService implements OptionSourceInterface
     public function toOptionArray(): array
     {
         return [
-            [
-                'label' => 'ABC',
-                'value' => self::SERVICE_ABC
-            ],
             [
                 'label' => 'NAS',
                 'value' => self::SERVICE_NAS

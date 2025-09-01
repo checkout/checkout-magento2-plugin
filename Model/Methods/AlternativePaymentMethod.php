@@ -108,13 +108,6 @@ class AlternativePaymentMethod extends AbstractMethod
         'paypal'
     ];
     /**
-     * List of unavailable apm for ABC mode
-     */
-    const ABC_UNAVAILABLE_APM = [
-        'alipay',
-        'poli'
-    ];
-    /**
      * $code field
      *
      * @var string $code
@@ -351,11 +344,7 @@ class AlternativePaymentMethod extends AbstractMethod
         string $method
     ) {
         // Create payment object
-        if ($this->apiHandler->isPreviousMode()) {
-            $payment = new PreviousPaymentRequest();
-        } else {
-            $payment = new PaymentRequest();
-        }
+        $payment = new PaymentRequest();
 
         // Prepare the metadata array
         $payment->metadata['methodId'] = $methodId;
@@ -487,12 +476,8 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function alipay()
     {
-        if ($this->apiHandler->isPreviousMode()) {
-            return new RequestAlipaySource();
-        } else {
-            // don't work for NAS mode for now
-            return RequestAlipayPlusSource::requestAlipayPlusSource();
-        }
+        // don't work for NAS mode for now
+        return RequestAlipayPlusSource::requestAlipayPlusSource();
     }
 
     /**
@@ -527,12 +512,7 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function ideal(array $data)
     {
-        if ($this->apiHandler->isPreviousMode()) {
-            $source = new PreviousRequestIdealSource();
-            $source->bic = $data['bic'];
-        } else {
-            $source = new RequestIdealSource();
-        }
+        $source = new RequestIdealSource();
         $source->description = $data['description'];
         $locale = explode('_', $this->shopperHandler->getCustomerLocale('nl_NL') ?? '');
         $source->language = $locale[0];
@@ -550,14 +530,7 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function paypal(array $data, string $reference)
     {
-        if ($this->apiHandler->isPreviousMode()) {
-            $source = new PreviousRequestPayPalSource();
-            $source->invoice_number = $reference;
-
-            return $source;
-        } else {
-            return new RequestPayPalSource();
-        }
+        return new RequestPayPalSource();
     }
 
     /**
@@ -579,11 +552,7 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function sofort(array $data)
     {
-        if ($this->apiHandler->isPreviousMode()) {
-            return new PreviousRequestSofortSource();
-        } else {
-            return new RequestSofortSource();
-        }
+        return new RequestSofortSource();
     }
 
     /**
@@ -623,11 +592,7 @@ class AlternativePaymentMethod extends AbstractMethod
             27
         );
 
-        if ($this->apiHandler->isPreviousMode()) {
-            $epsSource = new PreviousRequestEpsSource();
-        } else {
-            $epsSource = new RequestEpsSource();
-        }
+        $epsSource = new RequestEpsSource();
 
         $epsSource->purpose = $purpose;
 
@@ -675,11 +640,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $phone = $billingAddress->getTelephone();
         $description = __('Payment request from %1', $this->config->getStoreName())->render();
 
-        if ($this->apiHandler->isPreviousMode()) {
-            $fawrySource = new PreviousRequestFawrySource();
-        } else {
-            $fawrySource = new RequestFawrySource();
-        }
+        $fawrySource = new RequestFawrySource();
 
         $fawrySource->customer_email = $email;
         $fawrySource->description = $description;
@@ -878,10 +839,7 @@ class AlternativePaymentMethod extends AbstractMethod
             try {
                 $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
             } catch (CheckoutArgumentException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             // Check the status
@@ -895,11 +853,7 @@ class AlternativePaymentMethod extends AbstractMethod
             try {
                 $response = $api->refundOrder($payment, $amount);
             } catch (CheckoutApiException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
-                $response = $api->refundOrder($payment, $amount);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             if (!$api->isValidResponse($response)) {
@@ -949,9 +903,7 @@ class AlternativePaymentMethod extends AbstractMethod
         if (isset($billingAddress['country_id'])) {
             foreach ($apms as $apm) {
                 if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    if ((($service === ConfigService::SERVICE_NAS) && !in_array($apm['value'], self::NAS_UNAVAILABLE_APM))
-                        || ($this->apiHandler->isPreviousMode() && !in_array($apm['value'], self::ABC_UNAVAILABLE_APM))
-                    ) {
+                    if ($service === ConfigService::SERVICE_NAS && !in_array($apm['value'], self::NAS_UNAVAILABLE_APM)) {
                         $countEnabled++;
                     }
                 }

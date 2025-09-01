@@ -292,29 +292,6 @@
                             <config_path>settings/checkoutcom_configuration/gateway_responses</config_path>
                         </field>
                     </group>
-                    <group id="abc_online_refund" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>ABC online refund after NAS migration</label>
-                        <field id="enable" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
-                            <label>Enable Feature</label>
-                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                            <config_path>settings/checkoutcom_configuration/abc_refund_enable</config_path>
-                            <requires>
-                                <field id="secret_key"/>
-                                <field id="public_key"/>
-                            </requires>
-                        </field>
-
-                        <field id="secret_key" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
-                            <label>Secret Key</label>
-                            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                            <config_path>settings/checkoutcom_configuration/abc_refund_secret_key</config_path>
-                        </field>
-
-                        <field id="public_key" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
-                            <label>Public Key</label>
-                            <config_path>settings/checkoutcom_configuration/abc_refund_public_key</config_path>
-                        </field>
-                    </group>
                 </group>
 
                 <group id="checkoutcom_flow" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -779,7 +756,7 @@
                     </field>
                 </group>
                 <group id="checkoutcom_klarna" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Klarna (NAS)</label>
+                    <label>Klarna</label>
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_klarna/title</config_path>
@@ -805,7 +782,7 @@
                     </depends>
                 </group>
                 <group id="checkoutcom_paypal" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Paypal Payments (NAS)</label>
+                    <label>Paypal Payments</label>
                     <field id="title" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/checkoutcom_paypal/title</config_path>

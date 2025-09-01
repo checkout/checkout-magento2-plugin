@@ -23,8 +23,6 @@ use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
 use Checkout\Payments\PaymentType;
-use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
-use Checkout\Payments\Previous\Source\RequestTokenSource as PreviousRequestTokenSource;
 use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\Request\Source\RequestTokenSource;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -181,11 +179,7 @@ class KlarnaMethod extends AbstractMethod
         $quote = $this->quoteHandler->getQuote();
 
         // Set the payment
-        if ($this->apiHandler->isPreviousMode()) {
-            $request = new PreviousPaymentRequest();
-        } else {
-            $request = new PaymentRequest();
-        }
+        $request = new PaymentRequest();
 
         // Set parameters
         $request->capture = $this->config->needsAutoCapture();
@@ -211,11 +205,7 @@ class KlarnaMethod extends AbstractMethod
             $request->billing_descriptor = $billingDescriptor;
         }
         // Set the token source
-        if ($this->apiHandler->isPreviousMode()) {
-            $tokenSource = new PreviousRequestTokenSource();
-        } else {
-            $tokenSource = new RequestTokenSource();
-        }
+        $tokenSource = new RequestTokenSource();
 
         $request->currency = $currency;
 
@@ -225,7 +215,7 @@ class KlarnaMethod extends AbstractMethod
             // Send the charge request
             return $this->requestPayment($api, $request);
         } catch (\Exception $exception) {
-            if(strpos($exception->getMessage(), '422')) {
+            if(str_contains($exception->getMessage(), '422')) {
                 //Try again 3 seconds later
                 sleep(3);
 
@@ -367,10 +357,7 @@ class KlarnaMethod extends AbstractMethod
             try {
                 $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
             } catch (CheckoutArgumentException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             // Check the status
@@ -384,11 +371,7 @@ class KlarnaMethod extends AbstractMethod
             try {
                 $response = $api->refundOrder($payment, $amount);
             } catch (CheckoutApiException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
-                $response = $api->refundOrder($payment, $amount);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             if (!$api->isValidResponse($response)) {

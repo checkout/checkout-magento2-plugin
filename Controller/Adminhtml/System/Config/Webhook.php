@@ -24,7 +24,6 @@ use Checkout\CheckoutAuthorizationException;
 use Checkout\Webhooks\Previous\WebhookRequest;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
-use Exception;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Config\Model\ResourceModel\Config;
