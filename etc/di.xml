@@ -38,6 +38,7 @@
         <arguments>
             <argument name="instances" xsi:type="array">
                 <item name="checkoutcom_card_payment" xsi:type="object">CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</item>
+                <item name="checkoutcom_flow" xsi:type="object">CheckoutCom\Magento2\Model\Methods\FlowMethod</item>
                 <item name="checkoutcom_apm" xsi:type="object">CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</item>
                 <item name="checkoutcom_apple_pay" xsi:type="object">CheckoutCom\Magento2\Model\Methods\ApplePayMethod</item>
                 <item name="checkoutcom_google_pay" xsi:type="object">CheckoutCom\Magento2\Model\Methods\GooglePayMethod</item>

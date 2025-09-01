@@ -13,11 +13,25 @@
  * @link      https://docs.checkout.com/
  */
 
-var config = {
-    map: {
-        '*': {
-            flowjs: 'https://checkout-web-components.checkout.com/index.js',
-            framesjs: 'https://cdn.checkout.com/js/framesv2.min.js'
+define(
+    [
+        'CheckoutCom_Magento2/js/common/provider/config-loader'
+    ],
+    function (
+        Config
+    ) {
+        return {
+            useFlow: function() {
+                return this.getSdk() === "1";
+            },
+
+            useFrames: function() {
+                return this.getSdk() === "0";
+            },
+
+            getSdk: function() {
+                return Config.checkoutcom_configuration.sdk;
+            }
         }
     }
-};
+);
