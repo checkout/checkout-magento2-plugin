@@ -182,7 +182,7 @@ class MotoPaymentRequest implements ObserverInterface
                 if (is_array($response) && $api->isValidResponse($response)) {
                     $this->utilities->setPaymentData($order, $response);
                     if (isset($response['status'])) {
-                        if ($response['status'] === PaymentResponseApi::AUTHORIZED_SATUS_CODE) {
+                        if ($response['status'] === PaymentResponseApi::AUTHORIZED_STATUS_CODE) {
                             $this->messageManager->addSuccessMessage(
                                 __('The payment request was successfully processed.')
                             );

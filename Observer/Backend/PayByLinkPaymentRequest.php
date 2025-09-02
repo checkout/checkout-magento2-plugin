@@ -29,10 +29,9 @@ use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Api\Data\PaymentResponse as PaymentResponseApi;
 use CheckoutCom\Magento2\Model\Methods\PayByLinkMethod;
 use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentLinkRequest;
+use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentLinkRequestFactory;
 use CheckoutCom\Magento2\Model\Request\Billing\BillingElement;
-use CheckoutCom\Magento2\Model\Request\Customer\CustomerElement;
 use CheckoutCom\Magento2\Model\Request\Risk\RiskElement;
-use CheckoutCom\Magento2\Model\Request\Sender\SenderElement;
 use CheckoutCom\Magento2\Model\Request\Shipping\ShippingElement;
 use CheckoutCom\Magento2\Model\Request\ThreeDS\ThreeDSElement;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -41,7 +40,6 @@ use CheckoutCom\Magento2\Provider\AccountSettings;
 use CheckoutCom\Magento2\Provider\ExternalSettings;
 use CheckoutCom\Magento2\Provider\FlowMethodSettings;
 use Magento\Backend\Model\Auth\Session;
-use Magento\Backend\Model\Url as BackendUrl;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\FileSystemException;
@@ -71,6 +69,7 @@ class PayByLinkPaymentRequest implements ObserverInterface
     private ThreeDSElement $threeDSElement;
     private RiskElement $riskElement;
     private FlowMethodSettings $flowMethodSettings;
+    private PaymentLinkRequestFactory $paymentLinkRequestFactory;
 
     public function __construct(
         Session $backendAuthSession,
@@ -84,14 +83,12 @@ class PayByLinkPaymentRequest implements ObserverInterface
         ExternalSettings $externalSettings,
         AccountSettings $accountSettings,
         StoreManagerInterface $storeManager,
-        CustomerElement $customerElement,
         ShippingElement $shippingElement,
         OrderHandlerService $orderHandlerService,
         ThreeDSElement $threeDSElement,
         RiskElement $riskElement,
-        SenderElement $senderElement,
         FlowMethodSettings $flowMethodSettings,
-        BackendUrl $backendUrl
+        PaymentLinkRequestFactory $paymentLinkRequestFactory
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->messageManager = $messageManager;
@@ -109,6 +106,7 @@ class PayByLinkPaymentRequest implements ObserverInterface
         $this->threeDSElement = $threeDSElement;
         $this->riskElement = $riskElement;
         $this->flowMethodSettings = $flowMethodSettings;
+        $this->paymentLinkRequestFactory = $paymentLinkRequestFactory;
     }
 
     /**
@@ -127,9 +125,6 @@ class PayByLinkPaymentRequest implements ObserverInterface
         $order = $observer->getEvent()->getOrder();
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
         $storeCode = $order->getStore()->getCode();
-        $websiteCode = $this->storeManager->getStore($storeCode)->getWebsite()->getCode();
-        $shippingAddress = $order->getShippingAddress();
-        $products = [];
 
         // Process the payment
         if (!$this->needsPayByLinkProcessing($methodId, $order)) {
@@ -141,8 +136,80 @@ class PayByLinkPaymentRequest implements ObserverInterface
         // Initialize the API handler
         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
-        // Set the payment
-        $request = new PaymentLinkRequest();
+        // Build request
+        $request = $this->buildRequest($order, $api);
+
+        // Send the charge request
+        try {
+            $this->logger->display($request);
+            $response = $api->getCheckoutApi()->getPaymentLinksClient()->createPaymentLink($request);
+            $this->logger->display($response);
+        } catch (CheckoutApiException $e) {
+            $this->logger->write($e->getMessage());
+        } finally {
+            // Add the response link to the order payment data
+            if (!is_array($response) || !$api->isValidResponse((array)$response)) {
+                $this->messageManager->addErrorMessage(
+                    __('The payment link request could not be processed. Please check the payment details.')
+                );
+                return;
+            }
+
+            $order->setStatus($this->config->getValue('order_status_waiting_payment', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE))
+                ->getPayment()->setAdditionalInformation(PayByLinkMethod::ADDITIONAL_INFORMATION_LINK_CODE, $response['_links']['redirect']['href']);
+            if (isset($response['status'])) {
+                if ($response['status'] === PaymentResponseApi::AUTHORIZED_STATUS_CODE) {
+                    $this->messageManager->addSuccessMessage(
+                        __('The payment link request was successfully processed.')
+                    );
+                } else {
+                    $this->messageManager->addWarningMessage(__('Status: %1', $response['status']));
+                }
+            }
+        }
+    }
+
+    /**
+     * @param string $methodId
+     * @param array $params
+     *
+     * @return bool
+     */
+    protected function needsPayByLinkProcessing(string $methodId, OrderInterface $order): bool
+    {
+        return $this->backendAuthSession->isLoggedIn() && $methodId === PayByLinkMethod::CODE && !$order->getPayment()->getAdditionalInformation(PayByLinkMethod::ADDITIONAL_INFORMATION_LINK_CODE);
+    }
+
+    /**
+     * Prepare the payment amount for the MOTO payment request
+     *
+     * @param Order $order
+     *
+     * @return float
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    protected function preparePayByLinkAmount(Order $order): float
+    {
+        // Get the payment instance
+        $amount = $order->getGrandTotal();
+
+        // Return the formatted amount
+        return $this->orderHandler->amountToGateway(
+            $this->utilities->formatDecimals($amount),
+            $order
+        );
+    }
+
+    private function buildRequest(OrderInterface $order, ApiHandlerService $api): PaymentLinkRequest
+    {
+        $methodId = $order->getPayment()->getMethodInstance()->getCode();
+        $storeCode = $order->getStore()->getCode();
+        $websiteCode = $this->storeManager->getStore($storeCode)->getWebsite()->getCode();
+        $shippingAddress = $order->getShippingAddress();
+        $products = [];
+        /** @var PaymentLinkRequest $request */
+        $request = $this->paymentLinkRequestFactory->create();
         $request->amount = $this->preparePayByLinkAmount($order);
         $request->currency = $order->getOrderCurrencyCode();
         $request->billing = $this->billingElement->get($order->getBillingAddress());
@@ -186,66 +253,6 @@ class PayByLinkPaymentRequest implements ObserverInterface
             ['methodId' => $methodId],
             $this->apiHandler->getBaseMetadata()
         );
-
-        // Send the charge request
-        try {
-            $this->logger->display($request);
-            $response = $api->getCheckoutApi()->getPaymentLinksClient()->createPaymentLink($request);
-            $this->logger->display($response);
-        } catch (CheckoutApiException $e) {
-            $this->logger->write($e->getMessage());
-        } finally {
-            // Add the response link to the order payment data
-            if (!is_array($response) || !$api->isValidResponse((array)$response)) {
-                $this->messageManager->addErrorMessage(
-                    __('The payment link request could not be processed. Please check the payment details.')
-                );
-                return;
-            }
-
-            $order->setStatus($this->config->getValue('order_status_waiting_payment', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE))
-                ->getPayment()->setAdditionalInformation(PayByLinkMethod::ADDITIONAL_INFORMATION_LINK_CODE, $response['_links']['redirect']['href']);
-            if (isset($response['status'])) {
-                if ($response['status'] === PaymentResponseApi::AUTHORIZED_SATUS_CODE) {
-                    $this->messageManager->addSuccessMessage(
-                        __('The payment link request was successfully processed.')
-                    );
-                } else {
-                    $this->messageManager->addWarningMessage(__('Status: %1', $response['status']));
-                }
-            }
-        }
-    }
-
-    /**
-     * @param string $methodId
-     * @param array $params
-     *
-     * @return bool
-     */
-    protected function needsPayByLinkProcessing(string $methodId, OrderInterface $order): bool
-    {
-        return $this->backendAuthSession->isLoggedIn() && $methodId === PayByLinkMethod::CODE && !$order->getPayment()->getAdditionalInformation(PayByLinkMethod::ADDITIONAL_INFORMATION_LINK_CODE);
-    }
-
-    /**
-     * Prepare the payment amount for the MOTO payment request
-     *
-     * @param Order $order
-     *
-     * @return float
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    protected function preparePayByLinkAmount(Order $order): float
-    {
-        // Get the payment instance
-        $amount = $order->getGrandTotal();
-
-        // Return the formatted amount
-        return $this->orderHandler->amountToGateway(
-            $this->utilities->formatDecimals($amount),
-            $order
-        );
+        return $request;
     }
 }
