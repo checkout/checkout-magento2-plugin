@@ -17,7 +17,7 @@ define([
     'jquery',
     'ko',
     'uiComponent',
-    'CheckoutCom_Magento2/js/frames/view/payment/utilities',
+    'CheckoutCom_Magento2/js/common/view/payment/utilities',
     'CheckoutCom_Magento2/js/frames/view/payment/paypal-utilities',
     'Magento_Customer/js/customer-data',
     'mage/url',

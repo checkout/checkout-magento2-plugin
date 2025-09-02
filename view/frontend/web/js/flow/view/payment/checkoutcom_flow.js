@@ -19,9 +19,11 @@ define(
         'ko',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Customer/js/model/customer',
-        'flowjs'
+        'mage/url',
+        'flowjs',
+        "CheckoutCom_Magento2/js/common/view/payment/utilities"
     ],
-    function ($, ko, Component, Customer) {
+    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_flow';
@@ -49,8 +51,8 @@ define(
                  */
                 initialize: function () {
                     this._super();
-                    // Todo Mount flow
-                    console.log('Flow init done on front !');
+
+                    this.getFlowContextData();
 
                     return this;
                 },
@@ -102,6 +104,58 @@ define(
                 checkBillingAdressCustomerName: function (billingAddress) {
                     // todo
                     const valid = billingAddress !== null;
+                },
+
+                /**
+                 * Get context data from API
+                 * @returns {Promise<void>}
+                 */
+                getFlowContextData: async function () {
+                    const response = await fetch(Url.build('checkout_com/flow/prepare'), {method: "GET"});
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        Utilities.log('Error creating payment session for flow');
+                    } else {
+                        await this.initComponent(data)
+                    }
+                },
+
+                /**
+                 * Init Flow Component with API response
+                 * @param data
+                 * @returns {Promise<void>}
+                 */
+                initComponent: async function (data) {
+                    const paymentSession = data.paymentSession;
+                    const publicKey = data.publicKey;
+
+                    let appearance  = data.appearance;
+
+                    if (appearance !== "") {
+                        appearance  = JSON.parse(data.appearance);
+                    }
+
+                    const checkout = await CheckoutWebComponents({
+                        paymentSession,
+                        publicKey,
+                        environment: data.environment,
+                        appearance
+                    });
+
+                    let flowContainer = document.getElementById('flow-container');
+
+                    if (!flowContainer) {
+                        const actions = document.getElementById('checkoutcom_flow_container').find('.payment-method-content .action-toolbar');
+
+                        flowContainer = document.createElement('div');
+                        flowContainer.id = 'flow-container-dynamic';
+                        actions.prepend(flowContainer);
+                    }
+
+                    const flowComponent = checkout.create("flow");
+
+                    flowComponent.mount(flowContainer);
                 }
             }
         );

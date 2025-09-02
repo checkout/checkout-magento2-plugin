@@ -51,7 +51,7 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
     $url = $escaper->escapeUrl($block->getUrl('checkout_com/apm/displaysepa'));
 
     $script = <<<script
-require(['jquery', 'CheckoutCom_Magento2/js/frames/view/payment/utilities', 'Magento_Checkout/js/model/full-screen-loader', 'domReady!'], function ($, Utilities, FullScreenLoader) {
+require(['jquery', 'CheckoutCom_Magento2/js/common/view/payment/utilities', 'Magento_Checkout/js/model/full-screen-loader', 'domReady!'], function ($, Utilities, FullScreenLoader) {
 
             const METHOD_ID = 'checkoutcom_apm';
 

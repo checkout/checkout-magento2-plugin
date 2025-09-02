@@ -32,6 +32,7 @@ use CheckoutCom\Magento2\Model\Request\Sender\SenderElement;
 use CheckoutCom\Magento2\Model\Request\Shipping\ShippingElement;
 use CheckoutCom\Magento2\Model\Request\ThreeDS\ThreeDSElement;
 use CheckoutCom\Magento2\Model\Resolver\CustomerResolver;
+use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Provider\AccountSettings;
 use CheckoutCom\Magento2\Provider\ExternalSettings;
 use CheckoutCom\Magento2\Provider\GeneralSettings;
@@ -61,7 +62,8 @@ class PostPaymentSessions
     protected PriceFormatter $priceFormatter;
     protected CustomerResolver $customerResolver;
     protected LoggerInterface $logger;
-    
+    protected QuoteHandlerService $quoteHandlerService;
+
     public function __construct(
         PaymentSessionsRequestFactory $modelFactory,
         BillingDescriptorElement $billingDescriptorElement,
@@ -80,10 +82,11 @@ class PostPaymentSessions
         DateTimeFactory $dateTimeFactory,
         PriceFormatter $priceFormatter,
         CustomerResolver $customerResolver,
+        QuoteHandlerService $quoteHandlerService,
         LoggerInterface $logger
     ) {
         $this->modelFactory = $modelFactory;
-        
+
         $this->billingDescriptorElement = $billingDescriptorElement;
         $this->billingElement = $billingElement;
         $this->customerElement = $customerElement;
@@ -101,11 +104,13 @@ class PostPaymentSessions
         $this->priceFormatter = $priceFormatter;
         $this->customerResolver = $customerResolver;
         $this->logger = $logger;
+        $this->quoteHandlerService = $quoteHandlerService;
     }
 
-    public function get(CartInterface $quote, array $data): PaymentSessionsRequest {
+    public function get(CartInterface $quote, array $data): PaymentSessionsRequest
+    {
         $model = $this->modelFactory->create();
-        
+
         try {
             $websiteCode = $this->storeManager->getWebsite()->getCode();
             $storeCode = $this->storeManager->getStore()->getCode();
@@ -114,10 +119,10 @@ class PostPaymentSessions
             $storeCode = null;
 
             $this->logger->error(
-                sprintf("Unable to fetch website code or store code: %s", $error->getMessage()), 
+                sprintf("Unable to fetch website code or store code: %s", $error->getMessage()),
             );
         }
-        
+
         $customer = $this->customerResolver->resolve($quote);
 
         $billingAddress = $quote->getBillingAddress();
@@ -131,7 +136,7 @@ class PostPaymentSessions
         $model->failure_url = $this->getFailureUrl($data);
         $model->payment_type = "Regular";
 
-        if($this->generalSettings->isDynamicDescriptorEnabled($websiteCode)) {
+        if ($this->generalSettings->isDynamicDescriptorEnabled($websiteCode)) {
             $model->billing_descriptor = $this->billingDescriptorElement->get();
         }
         $model->customer = $this->customerElement->get($customer);
@@ -145,11 +150,12 @@ class PostPaymentSessions
         $model->three_ds = $this->threeDSElement->get();
         $model->sender = $this->senderElement->get($customer);
         $model->capture = $this->generalSettings->isAuthorizeAndCapture($websiteCode);
-        
-        if($this->generalSettings->isAuthorizeAndCapture($websiteCode)) {
+        $model->reference = $this->quoteHandlerService->getReference($quote);
+
+        if ($this->generalSettings->isAuthorizeAndCapture($websiteCode)) {
             $model->capture_on = $this->getCaptureTime($websiteCode);
         }
-        
+
         return $model;
     }
 
@@ -163,7 +169,7 @@ class PostPaymentSessions
             return $this->storeManager->getStore()->getBaseUrl() . 'checkout_com/payment/verify';
         } catch (Exception $error) {
             $this->logger->error(
-                sprintf("Unable to fetch website code: %s", $error->getMessage()), 
+                sprintf("Unable to fetch website code: %s", $error->getMessage()),
             );
 
             return '';
@@ -175,12 +181,12 @@ class PostPaymentSessions
         if (isset($data['failureUrl'])) {
             return $data['failureUrl'];
         }
-        
+
         try {
             return $this->storeManager->getStore()->getBaseUrl() . 'checkout_com/payment/fail';
         } catch (Exception $error) {
             $this->logger->error(
-                sprintf("Unable to fetch website code: %s", $error->getMessage()), 
+                sprintf("Unable to fetch website code: %s", $error->getMessage()),
             );
 
             return '';
@@ -193,11 +199,11 @@ class PostPaymentSessions
         $captureTime *= 3600;
 
         $min = $this->generalSettings->getMinCaptureTime($websiteCode);
-        
+
         $timeToAdd = $captureTime >= $min ? $captureTime : $min;
 
-        $captureDate = time() + (int) $timeToAdd;
-        
+        $captureDate = time() + (int)$timeToAdd;
+
         $dateTime = $this->dateTimeFactory->create();
         $dateTime->setTimestamp($captureDate);
 

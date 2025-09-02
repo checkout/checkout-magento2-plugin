@@ -18,7 +18,7 @@ define(
         'jquery',
         'Magento_Checkout/js/model/quote',
         'Magento_Customer/js/model/customer',
-        "CheckoutCom_Magento2/js/frames/view/payment/utilities"
+        "CheckoutCom_Magento2/js/common/view/payment/utilities"
     ],
     function ($, Quote, Customer, Utilities) {
         'use strict';

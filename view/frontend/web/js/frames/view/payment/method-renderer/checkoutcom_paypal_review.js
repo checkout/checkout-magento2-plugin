@@ -15,7 +15,7 @@
 
 define([
     'jquery',
-    'CheckoutCom_Magento2/js/frames/view/payment/utilities',
+    'CheckoutCom_Magento2/js/common/view/payment/utilities',
 ], function ($, Utilities) {
     'use strict';
 

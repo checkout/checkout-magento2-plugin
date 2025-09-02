@@ -15,7 +15,7 @@
 
 define([
     'jquery',
-    'CheckoutCom_Magento2/js/frames/view/payment/utilities',
+    'CheckoutCom_Magento2/js/common/view/payment/utilities',
     'Magento_Checkout/js/model/step-navigator',
     'Magento_Checkout/js/action/set-payment-information'
 ], function ($, Utilities, StepNavigator, setPaymentInformationAction) {
