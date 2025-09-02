@@ -93,7 +93,7 @@ class FlowPrepareService
         $response = [
             'appearance' => $this->flowMethodConfiguration->getDesign($storeCode),
             'environment' => $this->generalConfiguration->isProductionModeEnabled(null) ? "production" : "sandbox",
-            'paymentSession' => $responseAPI['payment_session_token'] ?? '',
+            'paymentSession' => $responseAPI ?? '',
             'publicKey' => $publicKey
         ];
         return $response;
