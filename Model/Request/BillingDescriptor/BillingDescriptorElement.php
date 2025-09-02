@@ -24,21 +24,25 @@ use Checkout\Payments\BillingDescriptorFactory;
 use CheckoutCom\Magento2\Provider\GeneralSettings;
 use Exception;
 use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class BillingDescriptorElement
 {
     protected BillingDescriptorFactory $modelFactory;
     protected GeneralSettings $settings;
     protected StoreManagerInterface $storeManager;
+    protected LoggerInterface $logger;
 
     public function __construct(
         BillingDescriptorFactory $modelFactory,
         GeneralSettings $settings,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        LoggerInterface $logger
     ) {
         $this->modelFactory = $modelFactory;
         $this->settings = $settings;
         $this->storeManager = $storeManager;
+        $this->logger = $logger;
     }
 
     public function get(): BillingDescriptor
@@ -51,6 +55,10 @@ class BillingDescriptorElement
         } catch (Exception $error) {
             $storeCode = null;
             $websiteCode = null;
+
+            $this->logger->error(
+                sprintf("Unable to fetch store code or website code: %s", $error->getMessage()), 
+            );
         }
         
         $model->city = $this->settings->getDynamicDescriptorName($storeCode);
