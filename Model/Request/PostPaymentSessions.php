@@ -113,9 +113,8 @@ class PostPaymentSessions
             $websiteCode = null;
             $storeCode = null;
 
-            $this->logger->additional(
-                sprintf("Unable to fetch store code or website code: %s", $error->getMessage()), 
-                ConfigAdditionalLogging::PAYMENT_REQUEST
+            $this->logger->error(
+                sprintf("Unable to fetch website code or store code: %s", $error->getMessage()), 
             );
         }
         
