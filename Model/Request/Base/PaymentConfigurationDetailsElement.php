@@ -27,7 +27,6 @@ use Magento\Customer\Api\Data\CustomerInterface;
 class PaymentConfigurationDetailsElement
 {
     protected PaymentConfigurationDetailsFactory $modelFactory;
-
     protected AccountHolderElement $accountHolderElement;
 
     public function __construct(

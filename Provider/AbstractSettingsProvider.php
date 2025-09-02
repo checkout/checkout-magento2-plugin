@@ -43,9 +43,7 @@ class AbstractSettingsProvider {
             );
         }
 
-        return $config ? $config : $this->scopeConfig->getValue(
-            $path
-        );
+        return $config ?? $this->scopeConfig->getValue($path);
     }
 
     public function getStoreLevelConfiguration(string $path, ?string $storeCode): ?string
@@ -59,9 +57,7 @@ class AbstractSettingsProvider {
             );
         }
 
-        return $config ? $config :$this->scopeConfig->getValue(
-            $path
-        );
+        return $config ?? $this->scopeConfig->getValue($path);
     }
 
     public function getDefaultLevelConfiguration(string $path): ?string

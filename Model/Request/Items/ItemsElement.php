@@ -47,7 +47,8 @@ class ItemsElement
         $this->priceFormatter = $priceFormatter;
     }
 
-    public function get(CartInterface $quote): array {
+    public function get(CartInterface $quote): array
+    {
         /**
          * @var Product[]
          */

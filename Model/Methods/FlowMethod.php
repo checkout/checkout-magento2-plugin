@@ -61,7 +61,6 @@ class FlowMethod extends AbstractMethod
         Logger $logger,
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
-
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []

@@ -42,7 +42,6 @@ use Magento\Store\Model\StoreManagerInterface;
 class PostPaymentSessions
 {
     protected PaymentSessionsRequestFactory $modelFactory;
-
     protected BillingDescriptorElement $billingDescriptorElement;
     protected BillingElement $billingElement;
     protected CustomerElement $customerElement;
@@ -52,11 +51,9 @@ class PostPaymentSessions
     protected SenderElement $senderElement;
     protected ShippingElement $shippingElement;
     protected ThreeDSElement $threeDSElement;
-
     protected AccountSettings $accountSettings;
     protected ExternalSettings $externalSettings;
     protected GeneralSettings $generalSettings;
-
     private StoreManagerInterface $storeManager;
     private DateTimeFactory $dateTimeFactory;
     protected PriceFormatter $priceFormatter;
@@ -73,11 +70,9 @@ class PostPaymentSessions
         SenderElement $senderElement,
         ShippingElement $shippingElement,
         ThreeDSElement $threeDSElement,
-        
         AccountSettings $accountSettings,
         ExternalSettings $externalSettings,
         GeneralSettings $generalSettings,
-
         StoreManagerInterface $storeManager,
         DateTimeFactory $dateTimeFactory,
         PriceFormatter $priceFormatter,
@@ -94,11 +89,9 @@ class PostPaymentSessions
         $this->shippingElement = $shippingElement;
         $this->riskElement = $riskElement;
         $this->threeDSElement = $threeDSElement;
-
         $this->accountSettings = $accountSettings;
         $this->externalSettings = $externalSettings;
         $this->generalSettings = $generalSettings;
-
         $this->dateTimeFactory = $dateTimeFactory;
         $this->storeManager = $storeManager;
         $this->priceFormatter = $priceFormatter;
@@ -157,7 +150,11 @@ class PostPaymentSessions
             return $data['successUrl'];
         }
 
-        return $this->storeManager->getStore()->getBaseUrl() . 'checkout_com/payment/verify';
+        try {
+            return $this->storeManager->getStore()->getBaseUrl() . 'checkout_com/payment/verify';
+        } catch (Exception $error) {
+           return '';
+        }
     }
 
     protected function getFailureUrl(array $data): string
@@ -165,8 +162,11 @@ class PostPaymentSessions
         if (isset($data['failureUrl'])) {
             return $data['failureUrl'];
         }
-
-        return $this->storeManager->getStore()->getBaseUrl() . 'checkout_com/payment/fail';
+        try {
+            return $this->storeManager->getStore()->getBaseUrl() . 'checkout_com/payment/fail';
+        } catch (Exception $error) {
+           return '';
+        }
     }
 
     protected function getCaptureTime(string $websiteCode): string

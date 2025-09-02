@@ -29,7 +29,6 @@ use Magento\Sales\Api\Data\OrderAddressInterface;
 class ShippingElement
 {
     protected ShippingDetailsFactory $modelFactory;
-
     protected AddressElement $addressElement;
     protected PhoneElement $phoneElement;
 

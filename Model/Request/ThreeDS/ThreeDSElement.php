@@ -28,7 +28,6 @@ use Magento\Store\Model\StoreManagerInterface;
 class ThreeDSElement
 {
     protected ThreeDsRequestFactory $modelFactory;
-
     protected CardPaymentSettings $settings;
     private StoreManagerInterface $storeManager;
 

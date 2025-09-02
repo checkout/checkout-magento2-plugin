@@ -28,7 +28,6 @@ use Magento\Store\Model\StoreManagerInterface;
 class BillingDescriptorElement
 {
     protected BillingDescriptorFactory $modelFactory;
-
     protected GeneralSettings $settings;
     protected StoreManagerInterface $storeManager;
 

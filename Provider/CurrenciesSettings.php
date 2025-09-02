@@ -30,7 +30,7 @@ class CurrenciesSettings extends AbstractSettingsProvider {
     {
         return explode(
             ',',
-            $this->getCurrenciesX1() ?? []
+            $this->getCurrenciesX1() ?? ''
         );
     }
 
@@ -45,7 +45,7 @@ class CurrenciesSettings extends AbstractSettingsProvider {
     {
         return explode(
             ',',
-            $this->getCurrenciesX1000() ?? []
+            $this->getCurrenciesX1000() ?? ''
         );
     }
 

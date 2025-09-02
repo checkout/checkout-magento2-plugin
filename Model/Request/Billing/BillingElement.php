@@ -28,7 +28,6 @@ use Magento\Sales\Api\Data\OrderAddressInterface;
 class BillingElement
 {
     protected BillingInformationFactory $modelFactory;
-
     protected AddressElement $addressElement;
 
     public function __construct(

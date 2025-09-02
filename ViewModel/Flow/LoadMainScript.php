@@ -25,9 +25,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class LoadMainScript
- */
 class LoadMainScript implements ArgumentInterface
 {
     private FlowGeneralSettings $flowSettings;
@@ -46,12 +43,11 @@ class LoadMainScript implements ArgumentInterface
 
     public function useFlow(): bool
     {
-        $useFlow = false;
         try {
             $websiteCode = $this->storeManager->getWebsite()->getCode();
             $useFlow = $this->flowSettings->useFlow($websiteCode);
         } catch (NoSuchEntityException $e) {
-            $useFlow = $useFlow = $this->flowSettings->useFlow(null);
+            $useFlow = $this->flowSettings->useFlow(null);
             $this->logger->write(sprintf("Error getting website code: %s", $e->getMessage()));
         }
 
