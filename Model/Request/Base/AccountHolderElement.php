@@ -22,6 +22,7 @@ namespace CheckoutCom\Magento2\Model\Request\Base;
 use CheckoutCom\Magento2\Model\Request\Additionnals\AccountHolder;
 use CheckoutCom\Magento2\Model\Request\Additionnals\AccountHolderFactory;
 use Magento\Customer\Api\Data\CustomerInterface;
+
 class AccountHolderElement
 {
     protected AccountHolderFactory $modelFactory;

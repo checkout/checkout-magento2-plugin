@@ -21,7 +21,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
-use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
+use CheckoutCom\Magento2\Block\Adminhtml\Payment\PayByLink;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
@@ -44,27 +44,20 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class MotoMethod
- */
-class MotoMethod extends AbstractMethod
+class PayByLinkMethod extends AbstractMethod
 {
     /**
      * CODE field
      *
      * @var string CODE
      */
-    const CODE = 'checkoutcom_moto';
+    const CODE = 'checkoutcom_paybylink';
+
+    const ADDITIONAL_INFORMATION_LINK_CODE = 'paybylink_link';
     /**
      * $code field
      */
     protected $code = self::CODE;
-    /**
-     * $formBlockType
-     *
-     * @var string $formBlockType
-     */
-    protected $formBlockType = Moto::class;
     /**
      * bool $canAuthorize
      *
@@ -103,28 +96,9 @@ class MotoMethod extends AbstractMethod
     private Session $backendAuthSession;
     private Config $config;
     private ApiHandlerService $apiHandler;
-    private FlowGeneralSettings $flowGeneralSettings;
     private StoreManagerInterface $storeManager;
+    private FlowGeneralSettings $flowGeneralSettings;
 
-    /**
-     * MotoMethod constructor
-     *
-     * @param Context $context
-     * @param Registry $registry
-     * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory $customAttributeFactory
-     * @param Data $paymentData
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Logger $logger
-     * @param Session $backendAuthSession
-     * @param Config $config
-     * @param ApiHandlerService $apiHandler
-     * @param DirectoryHelper $directoryHelper
-     * @param DataObjectFactory $dataObjectFactory
-     * @param AbstractResource|null $resource
-     * @param AbstractDb|null $resourceCollection
-     * @param array $data
-     */
     public function __construct(
         Session $backendAuthSession,
         Config $config,
@@ -162,8 +136,8 @@ class MotoMethod extends AbstractMethod
         $this->backendAuthSession = $backendAuthSession;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
-        $this->flowGeneralSettings = $flowGeneralSettings;
         $this->storeManager = $storeManager;
+        $this->flowGeneralSettings = $flowGeneralSettings;
     }
 
     /**
@@ -176,33 +150,33 @@ class MotoMethod extends AbstractMethod
      */
     public function void(InfoInterface $payment): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
-            // Get the store code
-            $storeCode = $payment->getOrder()->getStore()->getCode();
-
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-
-            // Check the status
-            if (!$this->canVoid()) {
-                throw new LocalizedException(
-                    __('The void action is not available.')
-                );
-            }
-
-            // Process the void request
-            $response = $api->voidOrder($payment);
-            if (!$api->isValidResponse($response)) {
-                throw new LocalizedException(
-                    __('The void request could not be processed.')
-                );
-            }
-
-            // Set the transaction id from response
-            $payment->setTransactionId($response['action_id']);
+        if (!$this->backendAuthSession->isLoggedIn()) {
+            return $this;
         }
 
-        return $this;
+        // Get the store code
+        $storeCode = $payment->getOrder()->getStore()->getCode();
+
+        // Initialize the API handler
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+
+        // Check the status
+        if (!$this->canVoid()) {
+            throw new LocalizedException(
+                __('The void action is not available.')
+            );
+        }
+
+        // Process the void request
+        $response = $api->voidOrder($payment);
+        if (!$api->isValidResponse($response)) {
+            throw new LocalizedException(
+                __('The void request could not be processed.')
+            );
+        }
+
+        // Set the transaction id from response
+        $payment->setTransactionId($response['action_id']);
     }
 
     /**
@@ -215,37 +189,39 @@ class MotoMethod extends AbstractMethod
      */
     public function cancel(InfoInterface $payment): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
-            $order = $payment->getOrder();
-            // Get the store code
-            $storeCode = $order->getStore()->getCode();
-
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-
-            // Check the status
-            if (!$this->canVoid()) {
-                throw new LocalizedException(
-                    __('The void action is not available.')
-                );
-            }
-
-            // Process the void request
-            $response = $api->voidOrder($payment);
-            if (!$api->isValidResponse($response)) {
-                throw new LocalizedException(
-                    __('The void request could not be processed.')
-                );
-            }
-
-            $comment = __(
-                'Canceled order online, the voided amount is %1.',
-                $order->formatPriceTxt($order->getGrandTotal())
-            );
-            $payment->setMessage($comment);
-            // Set the transaction id from response
-            $payment->setTransactionId($response['action_id']);
+        if (!$this->backendAuthSession->isLoggedIn()) {
+            return $this;
         }
+
+        $order = $payment->getOrder();
+        // Get the store code
+        $storeCode = $order->getStore()->getCode();
+
+        // Initialize the API handler
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+
+        // Check the status
+        if (!$this->canVoid()) {
+            throw new LocalizedException(
+                __('The void action is not available.')
+            );
+        }
+
+        // Process the void request
+        $response = $api->voidOrder($payment);
+        if (!$api->isValidResponse($response)) {
+            throw new LocalizedException(
+                __('The void request could not be processed.')
+            );
+        }
+
+        $comment = __(
+            'Canceled order online, the voided amount is %1.',
+            $order->formatPriceTxt($order->getGrandTotal())
+        );
+        $payment->setMessage($comment);
+        // Set the transaction id from response
+        $payment->setTransactionId($response['action_id']);
 
         return $this;
     }
@@ -262,31 +238,32 @@ class MotoMethod extends AbstractMethod
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
-            // Get the store code
-            $storeCode = $payment->getOrder()->getStore()->getCode();
-
-            // Initialize the API handler
-            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-
-            // Check the status
-            if (!$this->canCapture()) {
-                throw new LocalizedException(
-                    __('The capture action is not available.')
-                );
-            }
-
-            // Process the capture request
-            $response = $api->captureOrder($payment, (float)$amount);
-            if (!$api->isValidResponse($response)) {
-                throw new LocalizedException(
-                    __('The capture request could not be processed.')
-                );
-            }
-
-            // Set the transaction id from response
-            $payment->setTransactionId($response['action_id']);
+        if (!$this->backendAuthSession->isLoggedIn()) {
+            return $this;
         }
+        // Get the store code
+        $storeCode = $payment->getOrder()->getStore()->getCode();
+
+        // Initialize the API handler
+        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+
+        // Check the status
+        if (!$this->canCapture()) {
+            throw new LocalizedException(
+                __('The capture action is not available.')
+            );
+        }
+
+        // Process the capture request
+        $response = $api->captureOrder($payment, (float)$amount);
+        if (!$api->isValidResponse($response)) {
+            throw new LocalizedException(
+                __('The capture request could not be processed.')
+            );
+        }
+
+        // Set the transaction id from response
+        $payment->setTransactionId($response['action_id']);
 
         return $this;
     }
@@ -303,40 +280,41 @@ class MotoMethod extends AbstractMethod
      */
     public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
-            // Get the store code
-            $storeCode = $payment->getOrder()->getStore()->getCode();
-
-            // Initialize the API handler
-            try {
-                $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-            } catch (CheckoutArgumentException $e) {
-                throw new LocalizedException(__($e->getMessage()));
-            }
-
-            // Check the status
-            if (!$this->canRefund()) {
-                throw new LocalizedException(
-                    __('The refund action is not available.')
-                );
-            }
-
-            // Process the refund request
-            try {
-                $response = $api->refundOrder($payment, $amount);
-            } catch (CheckoutApiException $e) {
-                throw new LocalizedException(__($e->getMessage()));
-            }
-
-            if (!$api->isValidResponse($response)) {
-                throw new LocalizedException(
-                    __('The refund request could not be processed.')
-                );
-            }
-
-            // Set the transaction id from response
-            $payment->setTransactionId($response['action_id']);
+        if (!$this->backendAuthSession->isLoggedIn()) {
+            return $this;
         }
+        // Get the store code
+        $storeCode = $payment->getOrder()->getStore()->getCode();
+
+        // Initialize the API handler
+        try {
+            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+        } catch (CheckoutArgumentException $e) {
+            throw new LocalizedException(__($e->getMessage()));
+        }
+
+        // Check the status
+        if (!$this->canRefund()) {
+            throw new LocalizedException(
+                __('The refund action is not available.')
+            );
+        }
+
+        // Process the refund request
+        try {
+            $response = $api->refundOrder($payment, $amount);
+        } catch (CheckoutApiException $e) {
+            throw new LocalizedException(__($e->getMessage()));
+        }
+
+        if (!$api->isValidResponse($response)) {
+            throw new LocalizedException(
+                __('The refund request could not be processed.')
+            );
+        }
+
+        // Set the transaction id from response
+        $payment->setTransactionId($response['action_id']);
 
         return $this;
     }
@@ -365,7 +343,7 @@ class MotoMethod extends AbstractMethod
     public function isAvailable(?CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->code) && $this->backendAuthSession->isLoggedIn()  && $this->flowGeneralSettings->useFrames($this->storeManager->getStore($quote->getStoreId())->getWebsite()->getCode()) ;
+            return $this->config->getValue('active', $this->code) && $this->backendAuthSession->isLoggedIn() && $this->flowGeneralSettings->useFlow($this->storeManager->getStore($quote->getStoreId())->getWebsite()->getCode());
         }
 
         return false;

@@ -24,21 +24,25 @@ use Checkout\Payments\ThreeDsRequestFactory;
 use CheckoutCom\Magento2\Provider\CardPaymentSettings;
 use Exception;
 use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class ThreeDSElement
 {
     protected ThreeDsRequestFactory $modelFactory;
     protected CardPaymentSettings $settings;
     private StoreManagerInterface $storeManager;
+    protected LoggerInterface $logger;
 
     public function __construct(
         ThreeDsRequestFactory $modelFactory,
         CardPaymentSettings $settings,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        LoggerInterface $logger
     ) {
         $this->modelFactory = $modelFactory;
         $this->settings = $settings;
         $this->storeManager = $storeManager;
+        $this->logger = $logger;
     }
 
     public function get(): ThreeDsRequest
@@ -49,7 +53,12 @@ class ThreeDSElement
             $websiteCode = $this->storeManager->getWebsite()->getCode();
         } catch (Exception $error) {
             $websiteCode = null;
+            
+            $this->logger->error(
+                sprintf("Unable to fetch website code: %s", $error->getMessage()), 
+            );
         }
+
         $model->enabled = $this->settings->isThreeDSEnabled($websiteCode);
         $model->attempt_n3d = $this->settings->isAttemptN3DEnabled($websiteCode);
 
