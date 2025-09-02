@@ -20,9 +20,10 @@ define(
         'Magento_Checkout/js/view/payment/default',
         'Magento_Customer/js/model/customer',
         'mage/url',
-        'flowjs'
+        'flowjs',
+        "CheckoutCom_Magento2/js/common/view/payment/utilities"
     ],
-    function ($, ko, Component, Customer, Url, CheckoutWebComponents) {
+    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_flow';
@@ -110,11 +111,11 @@ define(
                  * @returns {Promise<void>}
                  */
                 getFlowContextData: async function () {
-                    const response = await fetch(Url.build('checkout_com/flow/prepare'), {method: "GET"}); // Order
+                    const response = await fetch(Url.build('checkout_com/flow/prepare'), {method: "GET"});
                     const data = await response.json();
 
                     if (!response.ok) {
-                        console.error("Error creating payment session", data);
+                        Utilities.log('Error creating payment session for flow');
                     } else {
                         await this.initComponent(data)
                     }
@@ -127,8 +128,13 @@ define(
                  */
                 initComponent: async function (data) {
                     const paymentSession = data.paymentSession;
-                    const appearance = data.appearance;
                     const publicKey = data.publicKey;
+
+                    let appearance  = data.appearance;
+
+                    if (appearance !== "") {
+                        appearance  = JSON.parse(data.appearance);
+                    }
 
                     const checkout = await CheckoutWebComponents({
                         paymentSession,

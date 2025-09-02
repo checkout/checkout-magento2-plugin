@@ -16,7 +16,7 @@
 define([
         'jquery',
         'Magento_Checkout/js/view/payment/default',
-        'CheckoutCom_Magento2/js/frames/view/payment/utilities',
+        'CheckoutCom_Magento2/js/common/view/payment/utilities',
         'CheckoutCom_Magento2/js/frames/model/checkout-utilities',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/full-screen-loader',

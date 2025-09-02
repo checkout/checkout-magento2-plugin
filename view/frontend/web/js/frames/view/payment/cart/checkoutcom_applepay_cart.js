@@ -16,7 +16,7 @@
  define([
     "jquery",
     "Magento_Customer/js/customer-data",
-    "CheckoutCom_Magento2/js/frames/view/payment/utilities",
+    "CheckoutCom_Magento2/js/common/view/payment/utilities",
     "CheckoutCom_Magento2/js/frames/view/payment/applepay-utilities",
     "Magento_Checkout/js/model/full-screen-loader",
     "Magento_Checkout/js/model/payment/additional-validators",

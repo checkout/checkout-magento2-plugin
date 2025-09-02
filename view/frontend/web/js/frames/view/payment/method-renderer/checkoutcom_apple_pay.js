@@ -18,7 +18,7 @@ define(
         'jquery',
         'ko',
         'Magento_Checkout/js/view/payment/default',
-        'CheckoutCom_Magento2/js/frames/view/payment/utilities',
+        'CheckoutCom_Magento2/js/common/view/payment/utilities',
         'CheckoutCom_Magento2/js/frames/model/checkout-utilities',
         "CheckoutCom_Magento2/js/frames/view/payment/applepay-utilities",
         'Magento_Checkout/js/model/full-screen-loader',
