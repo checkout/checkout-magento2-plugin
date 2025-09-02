@@ -47,11 +47,11 @@ class FlowMethodSettings extends AbstractSettingsProvider {
         FlowGeneralSettings $flowGeneralSettings,
         ScopeConfigInterface $scopeConfig,
     ) {
-        $this->flowGeneralSettings = $flowGeneralSettings;
-        
         parent::__construct(
             $scopeConfig
         );
+        
+        $this->flowGeneralSettings = $flowGeneralSettings;
     }
     
     public function isAvailable(?string $website): bool
@@ -85,12 +85,12 @@ class FlowMethodSettings extends AbstractSettingsProvider {
         );
     }
 
-    public function getDesign($store): string
+    public function getDesign(?string $storeCode): string
     {
         return 
-            $this->getDesignSelector($store) === ConfigFlowWidgetDesignSelector::CUSTOM_DESIGN_CONFIG_VALUE ? 
-            $this->getCustomDesign($store) : 
-            $this->getPredefinedDesignValue($store);
+            $this->getDesignSelector($storeCode) === ConfigFlowWidgetDesignSelector::CUSTOM_DESIGN_CONFIG_VALUE ? 
+            $this->getCustomDesign($storeCode) : 
+            $this->getPredefinedDesignValue($storeCode);
     }
 
     public function getDesignSelector(?string $storeCode): ?string
@@ -109,9 +109,10 @@ class FlowMethodSettings extends AbstractSettingsProvider {
         ) ?? '';
     }
 
-    public function getPredefinedDesignValue(?string $store): string
+    public function getPredefinedDesignValue(?string $storeCode): string
     {
-        $design = $this->getPredefinedDesign($store);
+        $design = $this->getPredefinedDesign($storeCode);
+
         return $this->getDesignValue($design);
     } 
 
