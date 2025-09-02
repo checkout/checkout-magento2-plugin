@@ -23,7 +23,8 @@ use Checkout\Payments\ShippingDetails;
 use Checkout\Payments\ShippingDetailsFactory;
 use CheckoutCom\Magento2\Model\Request\Base\AddressElement;
 use CheckoutCom\Magento2\Model\Request\Base\PhoneElement;
-use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class ShippingElement
 {
@@ -41,7 +42,12 @@ class ShippingElement
         $this->phoneElement = $phoneElement;
     }
 
-    public function get(AddressInterface $shippingAddress): ShippingDetails
+    /**
+     * @param QuoteAddressInterface|OrderAddressInterface $shippingAddress
+     *
+     * @return ShippingDetails
+     */
+    public function get($shippingAddress): ShippingDetails
     {
         $model = $this->modelFactory->create();
 

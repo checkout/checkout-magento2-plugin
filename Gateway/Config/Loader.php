@@ -44,6 +44,12 @@ class Loader
      */
     const APM_FILE_NAME = 'apm.xml';
     /**
+     * APM_FLOW_FILE_NAME constant
+     *
+     * @var string APM_FLOW_FILE_NAME
+     */
+    const APM_FLOW_FILE_NAME = 'apm_flow.xml';
+    /**
      * KEY_MODULE_NAME constant
      *
      * @var string KEY_MODULE_NAME
@@ -92,13 +98,14 @@ class Loader
 
     /**
      * Load the list of Alternative Payments.
+     * @param string|null $fileName
      *
      * @return string[][]
      */
-    public function loadApmList(): array
+    public function loadApmList(?string $fileName = self::APM_FILE_NAME): array
     {
         /** @var array $apmXmlData */
-        $apmXmlData = $this->loadApmXmlData();
+        $apmXmlData = $this->loadApmXmlData($fileName);
 
         // Build the APM array
         /** @var array $output */
@@ -153,9 +160,9 @@ class Loader
      *
      * @return string[][]
      */
-    public function loadApmXmlData(): array
+    public function loadApmXmlData(?string $fileName = self::APM_FILE_NAME): array
     {
-        return $this->xmlParser->load($this->getFilePath(self::APM_FILE_NAME))->xmlToArray()['config']['_value']['item'];
+        return $this->xmlParser->load($this->getFilePath($fileName))->xmlToArray()['config']['_value']['item'];
     }
 
     /**

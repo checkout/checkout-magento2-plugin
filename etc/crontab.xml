@@ -19,4 +19,9 @@
             <schedule>0 * * * *</schedule>
         </job>
     </group>
+    <group id="cko_order_clean">
+        <job name="cko_paybylink_pending_order_cancel" instance="CheckoutCom\Magento2\Cron\AutoCancelPendingPayByLinkOrders" method="execute">
+            <schedule>*/5 * * * *</schedule>
+        </job>
+    </group>
 </config>

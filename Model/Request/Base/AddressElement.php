@@ -21,7 +21,8 @@ namespace CheckoutCom\Magento2\Model\Request\Base;
 
 use Checkout\Common\Address;
 use Checkout\Common\AddressFactory;
-use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class AddressElement
 {
@@ -33,14 +34,19 @@ class AddressElement
         $this->modelFactory = $modelFactory;
     }
 
-    public function get(AddressInterface $address): Address
+    /**
+     * @param QuoteAddressInterface|OrderAddressInterface $address
+     *
+     * @return Address
+     */
+    public function get($address): Address
     {
         $model = $this->modelFactory->create();
 
         $model->address_line1 = $address->getStreetLine(1);
         $model->address_line2 = $address->getStreetLine(2);
         $model->city = $address->getCity();
-        $model->country = $address->getCountry();
+        $model->country = $address->getCountryId();
         $model->zip = $address->getPostcode();
         $model->state = $address->getRegion();
 
