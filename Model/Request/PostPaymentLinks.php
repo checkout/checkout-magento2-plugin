@@ -19,9 +19,10 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Model\Request;
 
 use Checkout\Common\Product as CheckoutProduct;
+use Checkout\Common\ProductFactory as CheckoutProductFactory;
 use Checkout\Payments\BillingDescriptor;
+use Checkout\Payments\BillingDescriptorFactory;
 use Checkout\Payments\PaymentType;
-use Checkout\Payments\Sessions\PaymentSessionsRequestFactory;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -65,6 +66,8 @@ class PostPaymentLinks
     private RiskElement $riskElement;
     private FlowMethodSettings $flowMethodSettings;
     private PaymentLinkRequestFactory $paymentLinkRequestFactory;
+    private BillingDescriptorFactory $billingDescriptorFactory;
+    private CheckoutProductFactory $checkoutProductFactory;
 
     public function __construct(
         Session $backendAuthSession,
@@ -83,7 +86,9 @@ class PostPaymentLinks
         ThreeDSElement $threeDSElement,
         RiskElement $riskElement,
         FlowMethodSettings $flowMethodSettings,
-        PaymentLinkRequestFactory $paymentLinkRequestFactory
+        PaymentLinkRequestFactory $paymentLinkRequestFactory,
+        BillingDescriptorFactory $billingDescriptorFactory,
+        CheckoutProductFactory $checkoutProductFactory
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->messageManager = $messageManager;
@@ -102,9 +107,12 @@ class PostPaymentLinks
         $this->riskElement = $riskElement;
         $this->flowMethodSettings = $flowMethodSettings;
         $this->paymentLinkRequestFactory = $paymentLinkRequestFactory;
+        $this->billingDescriptorFactory = $billingDescriptorFactory;
+        $this->checkoutProductFactory = $checkoutProductFactory;
     }
 
-    public function get(OrderInterface $order, ApiHandlerService $api): PaymentLinkRequest{
+    public function get(OrderInterface $order, ApiHandlerService $api): PaymentLinkRequest
+    {
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
         $storeCode = $order->getStore()->getCode();
         $websiteCode = $this->storeManager->getStore($storeCode)->getWebsite()->getCode();
@@ -118,7 +126,8 @@ class PostPaymentLinks
         $request->payment_type = PaymentType::$regular;
         // Billing descriptor
         if ($this->config->needsDynamicDescriptor()) {
-            $billingDescriptor = new BillingDescriptor();
+            /** @var BillingDescriptor $billingDescriptor */
+            $billingDescriptor = $this->billingDescriptorFactory->create();
             $billingDescriptor->name = $this->config->getValue('descriptor_name');
             $billingDescriptor->city = $this->config->getValue('descriptor_city');
 
@@ -139,7 +148,8 @@ class PostPaymentLinks
                 $this->utilities->formatDecimals($item->getPriceInclTax()),
                 $order
             );
-            $product = new CheckoutProduct();
+            /** @var CheckoutProduct $product */
+            $product = $this->checkoutProductFactory->create();
             $product->name = $item->getName();
             $product->quantity = (int)$item->getQtyOrdered();
             $product->price = $unitPrice;
@@ -155,6 +165,7 @@ class PostPaymentLinks
             ['methodId' => $methodId],
             $this->apiHandler->getBaseMetadata()
         );
+        
         return $request;
     }
 
