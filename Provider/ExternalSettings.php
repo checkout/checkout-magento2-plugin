@@ -23,6 +23,7 @@ use CheckoutCom\Magento2\Provider\AbstractSettingsProvider;
 use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class ExternalSettings extends AbstractSettingsProvider {
 
@@ -30,14 +31,17 @@ class ExternalSettings extends AbstractSettingsProvider {
     public const CONFIG_STORE_LOCALE = 'general/locale/code';
     
     private StoreManagerInterface $storeManager;
+    protected LoggerInterface $logger;
     
     public function __construct (
         ScopeConfigInterface $scopeConfig,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        LoggerInterface $logger
     ) {
         parent::__construct($scopeConfig);
 
         $this->storeManager = $storeManager;
+        $this->logger = $logger;
     }
 
     public function getStoreName(?string $storeCode): ?string
@@ -49,9 +53,12 @@ class ExternalSettings extends AbstractSettingsProvider {
         try {
             return !empty($storeNameFromConfiguration) ? trim($storeNameFromConfiguration) : $this->storeManager->getStore()->getName();
         } catch (Exception $error) {
+            $this->logger->error(
+                sprintf("Unable to fetch store code or website code: %s", $error->getMessage()), 
+            );
+
             return null;
         }
-     
     }
 
     public function getStoreLocale(?string $storeCode): ?string
