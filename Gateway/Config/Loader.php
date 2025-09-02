@@ -118,6 +118,10 @@ class Loader
                 'currencies' => $row['currencies'],
                 'countries' => $row['countries'],
                 'mappings' => $row['mappings'] ?? '',
+                'paymentType' => $row['payment_type'] ?? '',
+                'emailMandatory' => ($row['email']['_attribute']['mandatory'] ?? '0') === '1',
+                'referenceMandatory' => ($row['reference']['_attribute']['mandatory'] ?? '0') === '1',
+                'descriptionMandatory' => ($row['description']['_attribute']['mandatory'] ?? '0') === '1',
             ];
         }
 
