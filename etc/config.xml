@@ -89,7 +89,7 @@
             <checkoutcom_flow>
                 <model>CheckoutCom\Magento2\Model\Methods\FlowMethod</model>
                 <title>Pay with Checkout.com</title>
-                <active>1</active>
+                <active>0</active>
                 <sort_order>0</sort_order>
                 <can_use_checkout>1</can_use_checkout>
                 <can_authorize>1</can_authorize>

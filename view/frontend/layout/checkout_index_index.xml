@@ -15,8 +15,8 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="CheckoutCom_Magento2::frames/css/main.css" />
-        <css src="CheckoutCom_Magento2::frames/css/sepa/sepa.css"/>
+        <css src="CheckoutCom_Magento2::css/frames/main.css" />
+        <css src="CheckoutCom_Magento2::css/frames/sepa/sepa.css"/>
     </head>
     <body>
         <!-- Add Paypal payment script and remove express one-->
