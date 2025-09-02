@@ -72,7 +72,7 @@ class AutoCancelPendingPayByLinkOrders
             ) {
                 continue;
             }
-            
+
             $this->logger->info(sprintf('Checking for pay by links orders to cancel for store %s', $storeCode));
             $ordersCollection = $this->getStoreOrderCollection($store);
             $this->logger->info(sprintf('%s pay by links orders to cancel for store %s', $ordersCollection->getTotalCount(), $storeCode));
