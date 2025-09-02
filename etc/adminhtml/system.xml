@@ -1005,7 +1005,7 @@
                     <field id="enable_order_auto_cancel" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enable order cancellation after payment link is expired</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/enable_order_auto_cancel/saved_cards_enabled</config_path>
+                        <config_path>payment/checkoutcom_paybylink/enable_order_auto_cancel</config_path>
                         <comment>Enable auto cancel orders when orders are not paid</comment>
                     </field>
                 </group>
