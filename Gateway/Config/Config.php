@@ -45,7 +45,7 @@ class Config
     private Utilities $utilities;
     private FlowGeneralSettings $flowSettings;
     private Logger $logger;
-    private LoggerInterface $nativeLogguer;
+    private LoggerInterface $nativeLogger;
 
     public function __construct(
         Repository $assetRepository,
@@ -56,7 +56,7 @@ class Config
         Utilities $utilities,
         FlowGeneralSettings $flowSettings,
         Logger $logger,
-        LoggerInterface $nativeLogguer
+        LoggerInterface $nativeLogger
     ) {
         $this->assetRepository = $assetRepository;
         $this->storeManager = $storeManager;
@@ -66,7 +66,7 @@ class Config
         $this->utilities = $utilities;
         $this->flowSettings = $flowSettings;
         $this->logger = $logger;
-        $this->nativeLogguer = $nativeLogguer;
+        $this->nativeLogger = $nativeLogger;
     }
 
     /**
@@ -499,7 +499,7 @@ class Config
         try {
             $websiteCode = $this->storeManager->getWebsite()->getCode();
         } catch (Exception $error) {
-            $this->logger->additional(
+            $this->logger->error(
                 sprintf('Unable to get website code: %s', $error->getMessage()),
                 'quote'
             );
@@ -522,7 +522,7 @@ class Config
         try {
             $websiteCode = $this->storeManager->getWebsite()->getCode();
         } catch (Exception $error) {
-            $this->nativeLogguer->error(
+            $this->nativeLogger->error(
                 sprintf('Unable to get website code: %s', $error->getMessage()),
             );
         }
