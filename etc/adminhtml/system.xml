@@ -351,7 +351,7 @@
                             <field id="*/checkoutcom/module/global_settings/sdk">1</field>
                             <field id="widget_design_selector">1</field>
                         </depends>
-                        <comment><![CDATA[As given in <a href="https://www.checkout.com/docs/payments/accept-payments/accept-a-payment-on-your-website/customize-your-flow-integration" target="_blank">Customization documentation</a>]]></comment>
+                        <comment><![CDATA[As given in <a href="https://www.checkout.com/docs/payments/accept-payments/accept-a-payment-on-your-website/customize-your-flow-integration" target="_blank">Customization documentation</a>. This should be a vild JSON like {"key":"value","key2":"value2",...}]]></comment>
                     </field>
                 </group>
 
