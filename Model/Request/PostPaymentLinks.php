@@ -30,6 +30,7 @@ use CheckoutCom\Magento2\Model\Methods\PayByLinkMethod;
 use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentLinkRequest;
 use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentLinkRequestFactory;
 use CheckoutCom\Magento2\Model\Request\Billing\BillingElement;
+use CheckoutCom\Magento2\Model\Request\PaymentMethodAvailability\EnabledDisabledElement;
 use CheckoutCom\Magento2\Model\Request\Risk\RiskElement;
 use CheckoutCom\Magento2\Model\Request\Shipping\ShippingElement;
 use CheckoutCom\Magento2\Model\Request\ThreeDS\ThreeDSElement;
@@ -65,6 +66,7 @@ class PostPaymentLinks
     private ThreeDSElement $threeDSElement;
     private RiskElement $riskElement;
     private FlowMethodSettings $flowMethodSettings;
+    private EnabledDisabledElement $enabledDisabledElement;    
     private PaymentLinkRequestFactory $paymentLinkRequestFactory;
     private BillingDescriptorFactory $billingDescriptorFactory;
     private CheckoutProductFactory $checkoutProductFactory;
@@ -88,7 +90,8 @@ class PostPaymentLinks
         FlowMethodSettings $flowMethodSettings,
         PaymentLinkRequestFactory $paymentLinkRequestFactory,
         BillingDescriptorFactory $billingDescriptorFactory,
-        CheckoutProductFactory $checkoutProductFactory
+        CheckoutProductFactory $checkoutProductFactory,
+        EnabledDisabledElement $enabledDisabledElement,
     ) {
         $this->backendAuthSession = $backendAuthSession;
         $this->messageManager = $messageManager;
@@ -109,6 +112,7 @@ class PostPaymentLinks
         $this->paymentLinkRequestFactory = $paymentLinkRequestFactory;
         $this->billingDescriptorFactory = $billingDescriptorFactory;
         $this->checkoutProductFactory = $checkoutProductFactory;
+        $this->enabledDisabledElement = $enabledDisabledElement;
     }
 
     public function get(OrderInterface $order, ApiHandlerService $api): PaymentLinkRequest
@@ -140,8 +144,6 @@ class PostPaymentLinks
         if ($shippingAddress) {
             $request->shipping = $this->shippingElement->get($shippingAddress);
         }
-        $request->allow_payment_methods = $this->flowMethodSettings->getAllowedPaymentMethods($storeCode);
-        $request->disabled_payment_methods = $this->flowMethodSettings->getDisabledPaymentMethods($storeCode);
 
         foreach ($order->getAllVisibleItems() as $item) {
             $unitPrice = $this->orderHandlerService->amountToGateway(
@@ -165,6 +167,8 @@ class PostPaymentLinks
             ['methodId' => $methodId],
             $this->apiHandler->getBaseMetadata()
         );
+
+        $this->enabledDisabledElement->append($request);
         
         return $request;
     }

@@ -26,6 +26,7 @@ use CheckoutCom\Magento2\Model\Request\Billing\BillingElement;
 use CheckoutCom\Magento2\Model\Request\BillingDescriptor\BillingDescriptorElement;
 use CheckoutCom\Magento2\Model\Request\Customer\CustomerElement;
 use CheckoutCom\Magento2\Model\Request\Items\ItemsElement;
+use CheckoutCom\Magento2\Model\Request\PaymentMethodAvailability\EnabledDisabledElement;
 use CheckoutCom\Magento2\Model\Request\PaymentMethodConfiguration\PaymentMethodConfigurationElement;
 use CheckoutCom\Magento2\Model\Request\Risk\RiskElement;
 use CheckoutCom\Magento2\Model\Request\Sender\SenderElement;
@@ -48,6 +49,7 @@ class PostPaymentSessions
     protected BillingDescriptorElement $billingDescriptorElement;
     protected BillingElement $billingElement;
     protected CustomerElement $customerElement;
+    protected EnabledDisabledElement $enabledDisabledElement;
     protected ItemsElement $itemsElement;
     protected PaymentMethodConfigurationElement $paymentMethodConfigurationElement;
     protected RiskElement $riskElement;
@@ -69,6 +71,7 @@ class PostPaymentSessions
         BillingDescriptorElement $billingDescriptorElement,
         BillingElement $billingElement,
         CustomerElement $customerElement,
+        EnabledDisabledElement $enabledDisabledElement,
         ItemsElement $itemsElement,
         PaymentMethodConfigurationElement $paymentMethodConfigurationElement,
         RiskElement $riskElement,
@@ -90,6 +93,7 @@ class PostPaymentSessions
         $this->billingDescriptorElement = $billingDescriptorElement;
         $this->billingElement = $billingElement;
         $this->customerElement = $customerElement;
+        $this->enabledDisabledElement = $enabledDisabledElement;
         $this->itemsElement = $itemsElement;
         $this->paymentMethodConfigurationElement = $paymentMethodConfigurationElement;
         $this->senderElement = $senderElement;
@@ -156,6 +160,8 @@ class PostPaymentSessions
             $model->capture_on = $this->getCaptureTime($websiteCode);
         }
 
+        $this->enabledDisabledElement->append($model);
+        
         return $model;
     }
 
