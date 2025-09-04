@@ -58,9 +58,27 @@ class EnabledDisabledElement
 
         $availablePaymentMethods = $this->getEnabled($websiteCode);
 
-        $availablePaymentMethods = $this->checkCountry($availablePaymentMethods, $allPaymentMethods, $payload);
-        $availablePaymentMethods = $this->checkCurrency($availablePaymentMethods, $allPaymentMethods, $payload);
-        $availablePaymentMethods = $this->checkPaymentType($availablePaymentMethods, $allPaymentMethods, $payload);
+        $availablePaymentMethods = $this->doCheck(
+            $payload->billing->address->country ?? '',
+            'countries', 
+            $availablePaymentMethods, 
+            $allPaymentMethods
+        );
+
+        $availablePaymentMethods = $this->doCheck(
+            $payload->currency ?? '',
+            'currency', 
+            $availablePaymentMethods, 
+            $allPaymentMethods
+        );
+
+        $availablePaymentMethods = $this->doCheck(
+            $payload->payment_type ?? '',
+            'paymentType', 
+            $availablePaymentMethods, 
+            $allPaymentMethods
+        );
+
         $availablePaymentMethods = $this->checkMandatoriesFields($availablePaymentMethods, $allPaymentMethods, $payload);
 
         $payload->enabled_payment_methods = array_values($availablePaymentMethods);
@@ -70,37 +88,7 @@ class EnabledDisabledElement
     protected function getEnabled(?string $websiteCode): array
     {
         return $this->flowPaymentMethodSettings->getEnabledPaymentMethods($websiteCode);
-    }
-
-    protected function checkCountry(array $payments, array $definition, PaymentSessionsRequest $request): array 
-    {
-        return $this->doCheck(
-            $request->billing->address->country ?? '',
-            'countries', 
-            $payments, 
-            $definition
-        );
-    }
-
-    protected function checkCurrency(array $payments, array $definition, PaymentSessionsRequest $request): array 
-    {
-        return $this->doCheck(
-            $request->currency ?? '',
-            'currency', 
-            $payments, 
-            $definition
-        );
-    }
-
-    protected function checkPaymentType(array $payments, array $definition, PaymentSessionsRequest $request): array 
-    {
-        return $this->doCheck(
-            $request->payment_type ?? '',
-            'paymentType', 
-            $payments, 
-            $definition
-        );
-    }
+    }    
 
     protected function doCheck(mixed $requestProperty, string $definitionProperty, array $payments, array $definition): array {
         return array_filter($payments, function($method) use($requestProperty, $definitionProperty, $definition){
@@ -140,6 +128,7 @@ class EnabledDisabledElement
     {
         $allMethodNames = array_keys($allPaymentMethods);
         $unusedMethods = array_diff($allMethodNames, $availablePaymentMethods);
+
         return $unusedMethods;
     }
 }

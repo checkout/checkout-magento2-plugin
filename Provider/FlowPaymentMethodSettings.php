@@ -43,7 +43,6 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
 
     private Loader $configLoader;
 
-
     public function __construct(
         Loader $configLoader,
         ScopeConfigInterface $scopeConfig,
