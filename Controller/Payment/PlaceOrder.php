@@ -28,6 +28,7 @@ use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Exception;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
@@ -63,6 +64,7 @@ class PlaceOrder extends Action
     private OrderRepositoryInterface $orderRepository;
     protected JsonSerializer $json;
     private Config $config;
+    private FlowGeneralSettings $flowGeneralConfig;
 
     public function __construct(
         Context $context,
@@ -80,7 +82,8 @@ class PlaceOrder extends Action
         Session $session,
         OrderRepositoryInterface $orderRepository,
         JsonSerializer $json,
-        Config $config
+        Config $config,
+        FlowGeneralSettings $flowGeneralConfig
     ) {
         parent::__construct($context);
 
@@ -99,6 +102,7 @@ class PlaceOrder extends Action
         $this->orderRepository = $orderRepository;
         $this->json = $json;
         $this->config = $config;
+        $this->flowGeneralConfig = $flowGeneralConfig;
     }
 
     /**
@@ -128,79 +132,85 @@ class PlaceOrder extends Action
                     $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
                     // Process the payment
                     if ($this->orderHandler->isOrder($order)) {
-                        $log = false;
-                        // Get the debug config value
-                        $debug = $this->scopeConfig->getValue(
-                            'settings/checkoutcom_configuration/debug',
-                            ScopeInterface::SCOPE_STORE
-                        );
+                        $websiteCode = $this->storeManager->getWebsite()->getCode(); 
 
-                        // Get the gateway response config value
-                        $gatewayResponses = $this->scopeConfig->getValue(
-                            'settings/checkoutcom_configuration/gateway_responses',
-                            ScopeInterface::SCOPE_STORE
-                        );
-
-                        //Init values to request payment
-                        $amount = (float)$order->getGrandTotal();
-                        $currency = (string)$order->getOrderCurrencyCode();
-                        $reference = (string)$order->getIncrementId();
-
-                        // Get response and success
-                        $response = $this->requestPayment($quote, $data, $amount, $currency, $reference);
-
-                        // Logging
-                        $this->logger->display($response);
-
-                        // Get the store code
-                        $storeCode = $this->storeManager->getStore()->getCode();
-
-                        // Process the response
-                        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-
-                        $isValidResponse = $api->isValidResponse($response);
-                        $responseCode = isset($response['response_code']) ? $response['response_code'] : '';
-
-                        if ($isValidResponse && $this->isAuthorized($responseCode)) {
-                            // Add the payment info to the order
-                            $order = $this->utilities->setPaymentData($order, $response, $data);
-
-                            // set order status to pending payment
-                            $order->setStatus(Order::STATE_PENDING_PAYMENT);
-
-                            // check for redirection
-                            if (isset($response['_links']['redirect']['href'])) {
-                                $url = $response['_links']['redirect']['href'];
-                            }
-
-                            // Save the order
-                            $this->orderRepository->save($order);
-                            // Update the response parameters
-                            $success = $isValidResponse;
+                        if ($this->flowGeneralConfig->useFlow($websiteCode)) {
+                            $success = true;
                         } else {
-                            // Payment failed
-                            if (isset($response['response_code'])) {
-                                $message = $this->paymentErrorHandler->getErrorMessage($response['response_code']);
-                                if ($debug && $gatewayResponses) {
-                                    $responseCode = $response['response_code'];
+                            $log = false;
+                            // Get the debug config value
+                            $debug = $this->scopeConfig->getValue(
+                                'settings/checkoutcom_configuration/debug',
+                                ScopeInterface::SCOPE_STORE
+                            );
+
+                            // Get the gateway response config value
+                            $gatewayResponses = $this->scopeConfig->getValue(
+                                'settings/checkoutcom_configuration/gateway_responses',
+                                ScopeInterface::SCOPE_STORE
+                            );
+
+                            //Init values to request payment
+                            $amount = (float)$order->getGrandTotal();
+                            $currency = (string)$order->getOrderCurrencyCode();
+                            $reference = (string)$order->getIncrementId();
+
+                            // Get response and success
+                            $response = $this->requestPayment($quote, $data, $amount, $currency, $reference);
+
+                            // Logging
+                            $this->logger->display($response);
+
+                            // Get the store code
+                            $storeCode = $this->storeManager->getStore()->getCode();
+
+                            // Process the response
+                            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+
+                            $isValidResponse = $api->isValidResponse($response);
+                            $responseCode = isset($response['response_code']) ? $response['response_code'] : '';
+
+                            if ($isValidResponse && $this->isAuthorized($responseCode)) {
+                                // Add the payment info to the order
+                                $order = $this->utilities->setPaymentData($order, $response, $data);
+
+                                // set order status to pending payment
+                                $order->setStatus(Order::STATE_PENDING_PAYMENT);
+
+                                // check for redirection
+                                if (isset($response['_links']['redirect']['href'])) {
+                                    $url = $response['_links']['redirect']['href'];
                                 }
+
+                                // Save the order
+                                $this->orderRepository->save($order);
+                                // Update the response parameters
+                                $success = $isValidResponse;
                             } else {
-                                $message = __('The transaction could not be processed.');
-                                if ($debug && $gatewayResponses) {
-                                    $debugMessage = $this->json->serialize($response);
+                                // Payment failed
+                                if (isset($response['response_code'])) {
+                                    $message = $this->paymentErrorHandler->getErrorMessage($response['response_code']);
+                                    if ($debug && $gatewayResponses) {
+                                        $responseCode = $response['response_code'];
+                                    }
+                                } else {
+                                    $message = __('The transaction could not be processed.');
+                                    if ($debug && $gatewayResponses) {
+                                        $debugMessage = $this->json->serialize($response);
+                                    }
                                 }
+
+                                // Restore the quote
+                                $this->session->restoreQuote();
+
+                                // Handle order on failed payment
+                                if ($this->config->isPaymentWithOrderFirst()) {
+                                    $this->orderStatusHandler->handleFailedPayment($order);
+                                }
+
+                                // Delete the order if payment is first
+                                $this->orderHandler->deleteOrder($order);
                             }
-
-                            // Restore the quote
-                            $this->session->restoreQuote();
-
-                            // Handle order on failed payment
-                            if ($this->config->isPaymentWithOrderFirst()) {
-                                $this->orderStatusHandler->handleFailedPayment($order);
-                            }
-
-                            // Delete the order if payment is first
-                            $this->orderHandler->deleteOrder($order);
                         }
                     } else {
                         // Payment failed

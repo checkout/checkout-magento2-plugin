@@ -412,7 +412,7 @@ define(
              *
              * @return {JQuery.ajax}
              */
-            placeOrder: function (payload, methodId, startLoader = true) {
+            placeOrder: function (payload, methodId, startLoader = true, has3DS = null) {
                 var self = this;
 
                 if (startLoader) {
@@ -433,9 +433,15 @@ define(
                                 self.showDebugMessage('error', data.debugMessage, methodId);
                             }
                         } else if (data.success && data.url) {
-                            // Handle 3DS redirection
+                            // Handle 3DS basic redirection
+
                             window.location.href = data.url;
                         } else {
+                            // Prevent redirection before flow 3DS
+                            if (methodId === 'checkoutcom_flow' && has3DS) {
+                                return true;
+                            }
+
                             // Normal redirection
                             RedirectOnSuccessAction.execute();
                         }
