@@ -137,16 +137,20 @@ define(
                  * @returns {Promise<void>}
                  */
                 initComponent: async function (data) {
-                    let self = this
+                    let self = this;
 
                     this.allowPlaceOrder(false);
+
                     const paymentSession = data.paymentSession;
                     const publicKey = data.publicKey;
-
                     let appearance  = data.appearance;
 
                     if (appearance !== "") {
-                        appearance  = JSON.parse(data.appearance);
+                        try {
+                            appearance = JSON.parse(data.appearance);
+                        } catch (e) {
+                            appearance = "";
+                        }
                     }
 
                     const checkout = await CheckoutWebComponents({
