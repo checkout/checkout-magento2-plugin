@@ -23,13 +23,15 @@ use Checkout\Environment;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentProcesing;
+use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
+use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
-
+use Psr\Log\LoggerInterface;
 /**
  * Class Config
  */
@@ -41,7 +43,9 @@ class Config
     private RequestInterface $request;
     private Loader $loader;
     private Utilities $utilities;
+    private FlowGeneralSettings $flowSettings;
     private Logger $logger;
+    private LoggerInterface $nativeLogger;
 
     public function __construct(
         Repository $assetRepository,
@@ -50,7 +54,9 @@ class Config
         RequestInterface $request,
         Loader $loader,
         Utilities $utilities,
-        Logger $logger
+        FlowGeneralSettings $flowSettings,
+        Logger $logger,
+        LoggerInterface $nativeLogger
     ) {
         $this->assetRepository = $assetRepository;
         $this->storeManager = $storeManager;
@@ -58,7 +64,9 @@ class Config
         $this->request = $request;
         $this->loader = $loader;
         $this->utilities = $utilities;
+        $this->flowSettings = $flowSettings;
         $this->logger = $logger;
+        $this->nativeLogger = $nativeLogger;
     }
 
     /**
@@ -486,7 +494,19 @@ class Config
      */
     public function getImagesPath(): string
     {
-        return $this->assetRepository->getUrl('CheckoutCom_Magento2::images');
+        $websiteCode = null;
+        
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $this->nativeLogger->error(
+                sprintf('Unable to get website code: %s', $error->getMessage()),
+            );
+        }
+
+        return $this->flowSettings->useFlow($websiteCode) ? 
+            $this->assetRepository->getUrl('CheckoutCom_Magento2::images/flow') : 
+            $this->assetRepository->getUrl('CheckoutCom_Magento2::images/frames');
     }
 
     /**
@@ -496,7 +516,19 @@ class Config
      */
     public function getCssPath(): string
     {
-        return $this->assetRepository->getUrl('CheckoutCom_Magento2::css');
+        $websiteCode = null;
+        
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $this->nativeLogger->error(
+                sprintf('Unable to get website code: %s', $error->getMessage()),
+            );
+        }
+
+        return $this->flowSettings->useFlow($websiteCode) ? 
+            $this->assetRepository->getUrl('CheckoutCom_Magento2::css/flow') : 
+            $this->assetRepository->getUrl('CheckoutCom_Magento2::css/frames');
     }
 
     /**
