@@ -499,9 +499,8 @@ class Config
         try {
             $websiteCode = $this->storeManager->getWebsite()->getCode();
         } catch (Exception $error) {
-            $this->logger->error(
+            $this->nativeLogger->error(
                 sprintf('Unable to get website code: %s', $error->getMessage()),
-                'quote'
             );
         }
 
