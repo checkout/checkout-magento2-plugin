@@ -30,6 +30,7 @@ use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
 use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
+use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -46,6 +47,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Framework\Webapi\Response;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -166,7 +168,7 @@ class Callback extends Action implements CsrfAwareActionInterface
                                     $this->orderRepository->save($order);
 
                                     // Handle the save card request
-                                    if ($this->cardNeedsSaving($payload)) {
+                                    if ($this->cardNeedsSaving($payload,$order)) {
                                         $this->saveCard($response, $payload);
                                     }
 
@@ -273,7 +275,7 @@ class Callback extends Action implements CsrfAwareActionInterface
      *
      * @return bool
      */
-    protected function cardNeedsSaving(array $payload): bool
+    protected function cardNeedsSaving(array $payload, OrderInterface $order): bool
     {
         if (!isset($payload['data']['metadata'])) {
             return false;
@@ -284,6 +286,7 @@ class Callback extends Action implements CsrfAwareActionInterface
         if (isset($metadata['saveCard']) || isset($metadata['save_card'])) {
             $saveCard = $metadata['saveCard'] ?? $metadata['save_card'];
         }
+        $saveCard = $saveCard || (bool)$order->getData(FlowGeneralSettings::SALES_ATTRIBUTE_SHOULD_SAVE_CARD);
         $customerId = 0;
         if (isset($metadata['customerId']) || isset($metadata['customer_id'])) {
             $customerId = $metadata['customerId'] ?? $metadata['customer_id'];

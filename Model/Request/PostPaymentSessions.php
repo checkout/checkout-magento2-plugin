@@ -33,12 +33,14 @@ use CheckoutCom\Magento2\Model\Request\Sender\SenderElement;
 use CheckoutCom\Magento2\Model\Request\Shipping\ShippingElement;
 use CheckoutCom\Magento2\Model\Request\ThreeDS\ThreeDSElement;
 use CheckoutCom\Magento2\Model\Resolver\CustomerResolver;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Provider\AccountSettings;
 use CheckoutCom\Magento2\Provider\ExternalSettings;
 use CheckoutCom\Magento2\Provider\GeneralSettings;
 use Exception;
 use Magento\Framework\Intl\DateTimeFactory;
+use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -65,6 +67,9 @@ class PostPaymentSessions
     protected CustomerResolver $customerResolver;
     protected LoggerInterface $logger;
     protected QuoteHandlerService $quoteHandlerService;
+    private ApiHandlerService $apiHandler;
+    private SerializerInterface $serializer;
+    private QuoteHandlerService $quoteHandler;
 
     public function __construct(
         PaymentSessionsRequestFactory $modelFactory,
@@ -86,6 +91,9 @@ class PostPaymentSessions
         PriceFormatter $priceFormatter,
         CustomerResolver $customerResolver,
         QuoteHandlerService $quoteHandlerService,
+        ApiHandlerService $apiHandler,
+        SerializerInterface $serializer,
+        QuoteHandlerService $quoteHandler,
         LoggerInterface $logger
     ) {
         $this->modelFactory = $modelFactory;
@@ -109,6 +117,9 @@ class PostPaymentSessions
         $this->customerResolver = $customerResolver;
         $this->logger = $logger;
         $this->quoteHandlerService = $quoteHandlerService;
+        $this->apiHandler = $apiHandler;
+        $this->serializer = $serializer;
+        $this->quoteHandler = $quoteHandler;
     }
 
     public function get(CartInterface $quote, array $data): PaymentSessionsRequest
@@ -160,8 +171,19 @@ class PostPaymentSessions
             $model->capture_on = $this->getCaptureTime($websiteCode);
         }
 
+        // Add Meta Data
+        $customerId = $quote->getCustomerId();
+        if ($customerId) {
+            $model->metadata['customerId'] = $customerId;
+        }
+        $model->metadata['quoteData'] = $this->serializer->serialize($this->quoteHandler->getQuoteRequestData($quote));
+        $model->metadata = array_merge(
+            $model->metadata,
+            $this->apiHandler->getBaseMetadata()
+        );
+
         $this->enabledDisabledElement->append($model);
-        
+
         return $model;
     }
 
