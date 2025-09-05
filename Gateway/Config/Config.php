@@ -23,6 +23,7 @@ use Checkout\Environment;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentProcesing;
+use CheckoutCom\Magento2\Model\Methods\FlowMethod;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -32,6 +33,7 @@ use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
+
 /**
  * Class Config
  */
@@ -54,8 +56,8 @@ class Config
         RequestInterface $request,
         Loader $loader,
         Utilities $utilities,
-        FlowGeneralSettings $flowSettings,
         Logger $logger,
+        FlowGeneralSettings $flowSettings,
         LoggerInterface $nativeLogger
     ) {
         $this->assetRepository = $assetRepository;
@@ -64,9 +66,9 @@ class Config
         $this->request = $request;
         $this->loader = $loader;
         $this->utilities = $utilities;
-        $this->flowSettings = $flowSettings;
         $this->logger = $logger;
         $this->nativeLogger = $nativeLogger;
+        $this->flowSettings = $flowSettings;
     }
 
     /**
@@ -259,6 +261,11 @@ class Config
                 && isset($method['active'])
                 && (int)$method['active'] === 1
             ) {
+                // Flow method can only be available if flow sdk is used
+                if (str_contains($key, FlowMethod::CODE) && !$this->flowSettings->useFlow()) {
+                    continue;
+                }
+
                 if (array_key_exists('private_shared_key', $method)) {
                     unset($method['private_shared_key']);
                 }
@@ -312,7 +319,7 @@ class Config
     public function needs3ds(string $methodId): bool
     {
         return (((bool)$this->getValue('three_ds', $methodId) === true)
-                || ((bool)$this->getValue('mada_enabled', $methodId) === true));
+            || ((bool)$this->getValue('mada_enabled', $methodId) === true));
     }
 
     /**
@@ -495,7 +502,7 @@ class Config
     public function getImagesPath(): string
     {
         $websiteCode = null;
-        
+
         try {
             $websiteCode = $this->storeManager->getWebsite()->getCode();
         } catch (Exception $error) {
@@ -504,8 +511,8 @@ class Config
             );
         }
 
-        return $this->flowSettings->useFlow($websiteCode) ? 
-            $this->assetRepository->getUrl('CheckoutCom_Magento2::images/flow') : 
+        return $this->flowSettings->useFlow($websiteCode) ?
+            $this->assetRepository->getUrl('CheckoutCom_Magento2::images/flow') :
             $this->assetRepository->getUrl('CheckoutCom_Magento2::images/frames');
     }
 
@@ -517,7 +524,7 @@ class Config
     public function getCssPath(): string
     {
         $websiteCode = null;
-        
+
         try {
             $websiteCode = $this->storeManager->getWebsite()->getCode();
         } catch (Exception $error) {
@@ -526,8 +533,8 @@ class Config
             );
         }
 
-        return $this->flowSettings->useFlow($websiteCode) ? 
-            $this->assetRepository->getUrl('CheckoutCom_Magento2::css/flow') : 
+        return $this->flowSettings->useFlow($websiteCode) ?
+            $this->assetRepository->getUrl('CheckoutCom_Magento2::css/flow') :
             $this->assetRepository->getUrl('CheckoutCom_Magento2::css/frames');
     }
 
