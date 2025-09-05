@@ -23,6 +23,8 @@ use Checkout\Environment;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentProcesing;
+use CheckoutCom\Magento2\Model\Methods\FlowMethod;
+use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -42,6 +44,7 @@ class Config
     private Loader $loader;
     private Utilities $utilities;
     private Logger $logger;
+    private FlowGeneralSettings $flowSettings;
 
     public function __construct(
         Repository $assetRepository,
@@ -50,7 +53,8 @@ class Config
         RequestInterface $request,
         Loader $loader,
         Utilities $utilities,
-        Logger $logger
+        Logger $logger,
+        FlowGeneralSettings $flowSettings
     ) {
         $this->assetRepository = $assetRepository;
         $this->storeManager = $storeManager;
@@ -59,6 +63,7 @@ class Config
         $this->loader = $loader;
         $this->utilities = $utilities;
         $this->logger = $logger;
+        $this->flowSettings = $flowSettings;
     }
 
     /**
@@ -251,6 +256,11 @@ class Config
                 && isset($method['active'])
                 && (int)$method['active'] === 1
             ) {
+                // Flow method can only be available if flow sdk is used
+                if (str_contains($key, FlowMethod::CODE) && !$this->flowSettings->useFlow()) {
+                    continue;
+                }
+
                 if (array_key_exists('private_shared_key', $method)) {
                     unset($method['private_shared_key']);
                 }
