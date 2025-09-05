@@ -413,7 +413,13 @@ define(
              * @return {JQuery.ajax}
              */
             placeOrder: function (payload, methodId, startLoader = true, has3DS = null) {
-                var self = this;
+                let self = this;
+                let orderUrl = 'payment/placeorder';
+                const isFlow = methodId === 'checkoutcom_flow';
+
+                if (isFlow) {
+                    orderUrl = 'payment/placefloworder';
+                }
 
                 if (startLoader) {
                     // Start the loader
@@ -423,7 +429,7 @@ define(
                 // Send the request
                 return $.ajax({
                     type: 'POST',
-                    url: self.getUrl('payment/placeorder'),
+                    url: self.getUrl(orderUrl),
                     data: payload,
                     success: function (data) {
                         if (!data.success) {
@@ -434,11 +440,10 @@ define(
                             }
                         } else if (data.success && data.url) {
                             // Handle 3DS basic redirection
-
                             window.location.href = data.url;
                         } else {
                             // Prevent redirection before flow 3DS
-                            if (methodId === 'checkoutcom_flow' && has3DS) {
+                            if (isFlow && has3DS) {
                                 return true;
                             }
 
