@@ -20,11 +20,12 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Provider;
 
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigSdk;
-use CheckoutCom\Magento2\Provider\AbstractSettingsProvider;
 
-class FlowGeneralSettings extends AbstractSettingsProvider {
+class FlowGeneralSettings extends AbstractSettingsProvider
+{
 
     public const CONFIG_SDK = 'settings/checkoutcom_configuration/sdk';
+    public const SALES_ATTRIBUTE_SHOULD_SAVE_CARD = 'cko_save_card';
 
     public function useFlow(?string $websiteCode): bool
     {
@@ -35,7 +36,7 @@ class FlowGeneralSettings extends AbstractSettingsProvider {
     {
         return $this->getSdk($websiteCode) === ConfigSdk::SDK_FRAMES_CONFIG_VALUE;
     }
-    
+
     public function getSdk(?string $websiteCode): ?string
     {
         return $this->getWebsiteLevelConfiguration(
