@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Provider;
 
-use CheckoutCom\Magento2\Gateway\Config\Loader;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFlowPredefinedDesign;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigFlowWidgetDesignSelector;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -33,15 +32,6 @@ class FlowMethodSettings extends AbstractSettingsProvider
     public const CONFIG_FLOW_PAYMENT_DESIGN_SELECTOR = 'payment/checkoutcom_flow/widget_design_selector';
     public const CONFIG_FLOW_PAYMENT_PREDEFINED_WIDGET_DESIGN = 'payment/checkoutcom_flow/predefined_widget_design';
     public const CONFIG_FLOW_PAYMENT_CUSTOM_WIDGET_DESIGN = 'payment/checkoutcom_flow/custom_widget_design';
-    public const CONFIG_FLOW_PAYMENT_APM_METHODS = "payment/checkoutcom_apm/apm_flow_enabled";
-
-    private const GLOBAL_METHOD_LIST = [
-        'klarna' => 'payment/checkoutcom_klarna/active',
-        'googlepay' => 'payment/checkoutcom_google_pay/active',
-        'applepay' => 'payment/checkoutcom_apple_pay/active',
-        'paypal' => 'payment/checkoutcom_paypal/active',
-        'card' => 'payment/checkoutcom_card_payment/active'
-    ];
 
     private $designList = [
         ConfigFlowPredefinedDesign::PREDEFINED_DESIGN_DEFAULT_CONFIG_VALUE => ConfigFlowPredefinedDesign::PREDEFINED_DESIGN_DEFAULT_CONTENT,
@@ -51,17 +41,14 @@ class FlowMethodSettings extends AbstractSettingsProvider
     ];
 
     private FlowGeneralSettings $flowGeneralSettings;
-    private Loader $configLoader;
 
     public function __construct(
         FlowGeneralSettings $flowGeneralSettings,
-        Loader $configLoader,
         ScopeConfigInterface $scopeConfig,
     ) {
         parent::__construct(
             $scopeConfig
         );
-        $this->configLoader = $configLoader;
         $this->flowGeneralSettings = $flowGeneralSettings;
     }
 
@@ -139,42 +126,4 @@ class FlowMethodSettings extends AbstractSettingsProvider
     {
         return $this->designList[$designName] ?? '';
     }
-
-    //TODO : Filter allowed methods by country and currency for a given quote
-    public function getAllowedPaymentMethods(?string $storeCode): array
-    {
-        return array_merge($this->getSelectedApmMethods($storeCode), $this->getGlobalMethodByStatus(true, $storeCode));
-    }
-
-    public function getDisabledPaymentMethods(?string $storeCode): array
-    {
-        $apmList = $this->configLoader->loadApmList(Loader::APM_FLOW_FILE_NAME);
-        $methodCodes = [];
-        foreach ($apmList as $apm) {
-            $methodCodes[] = $apm['value'];
-        }
-
-        return array_merge(array_diff($methodCodes, $this->getSelectedApmMethods($storeCode)), $this->getGlobalMethodByStatus(false, $storeCode));
-    }
-
-    // TODO : Adjust apm_flow.xml with doc : https://api-reference.checkout.com/#operation/CreatePaymentSession
-    private function getSelectedApmMethods(?string $storeCode): array
-    {
-        return explode(',', (string)$this->getStoreLevelConfiguration(
-            self::CONFIG_FLOW_PAYMENT_APM_METHODS,
-            $storeCode,
-        ));
-    }
-
-    private function getGlobalMethodByStatus(bool $isActive, ?string $storeCode): array
-    {
-        $mehods = [];
-        foreach (self::GLOBAL_METHOD_LIST as $code => $configPath) {
-            if ((bool)$this->getStoreLevelConfiguration($configPath, $storeCode) === $isActive) {
-                $mehods[] = $code;
-            }
-        }
-        return $mehods;
-    }
-
 }

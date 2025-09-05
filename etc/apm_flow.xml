@@ -16,15 +16,19 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <item>
         <id>alipay_cn</id>
-        <title>Alipay</title>
-        <currencies>USD</currencies>
-        <countries>CN,US</countries>
+        <title>Alipay CN</title>
+        <currencies>CNY,HKD,SGD</currencies>
+        <countries>CN</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
     </item>
     <item>
         <id>alipay_hk</id>
-        <title>Alipay</title>
-        <currencies>USD</currencies>
+        <title>Alipay HK</title>
+        <currencies>HKD,SGD</currencies>
         <countries>HK</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
     </item>
     <item>
         <id>ideal</id>
@@ -33,47 +37,16 @@
         <countries>NL</countries>
     </item>
     <item>
-        <id>paypal</id>
-        <title>PayPal</title>
-        <currencies>AUD,BRL,CAD,CNY,CZK,DKK,EUR,HKD,HUF,INR,ILS,JPY,MXN,TWD,NZD,NOK,PHP,PLN,GBP,RUB,SGD,SEK,CHF,THB,USD</currencies>
-        <countries>AF,AX,AL,DZ,AS,AD,AO,AI,AQ,AG,AR,AM,AW,AU,AT,AZ,BS,BH,BD,BB,BY,BE,BZ,BJ,BM,BT,BO,BA,BW,BV,BR,IO,VG,BN,BG,BF,BI,KH,CM,CA,CV,KY,CF,TD,CL,CN,CX,CC,CO,KM,CG,CD,CK,CR,CI,HR,CU,CY,CZ,DK,DJ,DM,DO,EC,EG,SV,GQ,ER,EE,ET,FK,FO,FJ,FI,FR,GF,PF,TF,GA,GM,GE,DE,GH,GI,GR,GL,GD,GP,GU,GT,GG,GN,GW,GY,HT,HM,HN,HK,HU,IS,IN,ID,IR,IQ,IE,IM,IL,IT,JM,JP,JE,JO,KZ,KE,KI,KW,KG,LA,LV,LB,LS,LR,LY,LI,LT,LU,MO,MK,MG,MW,MY,MV,ML,MT,MH,MQ,MR,MU,YT,MX,FM,MD,MC,MN,ME,MS,MA,MZ,MM,NA,NR,NP,NL,AN,NC,NZ,NI,NE,NG,NU,NF,MP,KP,NO,OM,PK,PW,PS,PA,PG,PY,PE,PH,PN,PL,PT,QA,RE,RO,RU,RW,WS,SM,ST,SA,SN,RS,SC,SL,SG,SK,SI,SB,SO,ZA,GS,KR,ES,LK,BL,SH,KN,LC,MF,PM,VC,SD,SR,SJ,SZ,SE,CH,SY,TW,TJ,TZ,TH,TL,TG,TK,TO,TT,TN,TR,TM,TC,TV,UG,UA,AE,GB,US,UY,UM,VI,UZ,VU,VA,VE,VN,WF,EH,YE,ZM,ZW</countries>
-    </item>
-    <item>
         <id>sepa</id>
         <title>Sepa</title>
         <currencies>EUR</currencies>
-        <countries>AT,BE,CY,DE,EE,ES,FI,FR,GR,IE,IT,LT,LU,LV,MT,NL,PT,SI,SK,AD,BG,CH,CZ,DK,GB,HR,HU,IS,LI,MC,NO,PL,RO,SM,SE,VA</countries>
-    </item>
-    <item>
-        <id>sofort</id>
-        <title>Sofort</title>
-        <currencies>EUR</currencies>
-        <countries>AT,BE,DE,ES,IT,NL</countries>
-    </item>
-    <item>
-        <id>klarna</id>
-        <title>Klarna</title>
-        <currencies>EUR,DKK,GBP,NOK,SEK</currencies>
-        <countries>AT,DK,ES,FI,DE,NL,NO,SE,GB</countries>
-        <mappings>
-            <EUR>AT,ES,FI,DE,NL,DK,NO,SE</EUR>
-            <DKK>DK</DKK>
-            <GBP>GB</GBP>
-            <NOK>NO</NOK>
-            <SEK>SE</SEK>
-        </mappings>
+        <countries>AT,BE,CY,DE,EE,ES,FI,FR,GR,IE,IT,LT,LU,LV,MT,NL,PT,SI,SK,AD,BG,HR,LI,MC,SM,VA</countries>
     </item>
     <item>
         <id>eps</id>
         <title>EPS</title>
         <currencies>EUR</currencies>
         <countries>AT</countries>
-    </item>
-    <item>
-        <id>fawry</id>
-        <title>Fawry</title>
-        <currencies>EGP</currencies>
-        <countries>EG</countries>
     </item>
     <item>
         <id>bancontact</id>
@@ -87,4 +60,103 @@
         <currencies>KWD</currencies>
         <countries>KW</countries>
     </item>
+    <item>
+        <id>tng</id>
+        <title>Touch 'n Go</title>
+        <currencies>MYR,HKD,SGD</currencies>
+        <countries>MY</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
+    </item>
+    <item>
+        <id>truemoney</id>
+        <title>TrueMoney</title>
+        <currencies>THB,HKD,SGD</currencies>
+        <countries>TH</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
+    </item>
+    <item>
+        <id>alma</id>
+        <title>Alma</title>
+        <currencies>EUR</currencies>
+        <countries>FR</countries>
+    </item>
+    <item>
+        <id>benefit</id>
+        <title>Benefit Payment Gateway</title>
+        <currencies>BHD</currencies>
+        <countries>BH</countries>
+        <reference mandatory = '1' />
+    </item>
+    <item>
+        <id>dana</id>
+        <title>Dana</title>
+        <currencies>IDR,HKD,SGD</currencies>
+        <countries>ID</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
+    </item>
+    <item>
+        <id>gcash</id>
+        <title>GCash</title>
+        <currencies>PHP,HKD,SGD</currencies>
+        <countries>PH</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
+    </item>
+    <item>
+        <id>kakaopay</id>
+        <title>Kakao Pay</title>
+        <currencies>KRW,HKD,SGD</currencies>
+        <countries>KR</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
+    </item>
+    <item>
+        <id>mbway</id>
+        <title>MB WAY</title>
+        <currencies>EUR</currencies>
+        <countries>PT</countries>
+        <reference mandatory = '1' />
+    </item>
+    <item>
+        <id>multibanco</id>
+        <title>Multibanco</title>
+        <currencies>EUR</currencies>
+        <countries>PT</countries>
+    </item>
+    <item>
+        <id>p24</id>
+        <title>Przelewy24</title>
+        <currencies>EUR,PLN</currencies>
+        <countries>PL</countries>
+    </item>
+    <item>
+        <id>qpay</id>
+        <title>QPay</title>
+        <currencies>QAR</currencies>
+        <countries>QA</countries>
+        <description mandatory = '1' />
+    </item>
+    <item>
+        <id>stcpay</id>
+        <title>stc pay</title>
+        <currencies>SAR</currencies>
+        <countries>SA</countries>
+        <reference mandatory = '1' />
+    </item>
+    <item>
+        <id>tabby</id>
+        <title>Tabby</title>
+        <currencies>AED,KWD,SAR</currencies>
+        <countries>AE,KW,SA</countries>
+        <reference mandatory = '1' />
+    </item>
+    <!-- <item>
+        <id>venmo</id>
+        <title>Venmo</title>
+        <currencies>USD</currencies>
+        <countries>US</countries>
+    </item> -->
 </config>
