@@ -36,6 +36,7 @@ define(
                 // TO DO MANAGE IS VISIBLE ONLY IF FLOW
                 // TO DO MANAGE IS VISIBLE ONLY IF FLOW CARD
                 // TO DO MANAGE CHECK UNCHECK
+                // TO DO CALL WITH 0 VALUE WHEN NO PAYMENT CARD OR NO FLOW !
                 $('body').on(
                     'click',
                     this.containerSelector + ' ' + this.checkboxSelector,
