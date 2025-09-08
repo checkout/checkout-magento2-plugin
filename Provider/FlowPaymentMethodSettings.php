@@ -26,12 +26,13 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
 {
     public const CONFIG_FLOW_PAYMENT_APM_METHODS = 'payment/checkoutcom_apm/active';
     public const CONFIG_FLOW_PAYMENT_APM_METHODS_LIST = 'payment/checkoutcom_apm/apm_flow_enabled';
+    public const CONFIG_PAYMENT_OLD_APM_METHODS_LIST = 'payment/checkoutcom_apm/apm_enabled';
     public const CONFIG_FLOW_PAYMENT_KLARNA_METHODS = 'payment/checkoutcom_klarna/active';
     public const CONFIG_FLOW_PAYMENT_GPAY_METHODS = 'payment/checkoutcom_google_pay/active';
     public const CONFIG_FLOW_PAYMENT_APPLEPAY_METHODS = 'payment/checkoutcom_apple_pay/active';
     public const CONFIG_FLOW_PAYMENT_PAYPAL_METHODS = 'payment/checkoutcom_paypal/active';
     public const CONFIG_FLOW_PAYMENT_CARD_METHODS = 'payment/checkoutcom_card_payment/active';
-
+    
     private const METHOD_CARD_NAME = 'card';
     private const METHOD_KLARNA_NAME = 'klarna';
     private const METHOD_GOOGLEPAY_NAME = 'googlepay';

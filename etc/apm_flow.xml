@@ -21,6 +21,7 @@
         <countries>CN</countries>
         <email mandatory = '1' />
         <payment_type>Regular,Recurring</payment_type>
+        <old_apm>alipay</old_apm>
     </item>
     <item>
         <id>alipay_hk</id>
@@ -29,6 +30,7 @@
         <countries>HK</countries>
         <email mandatory = '1' />
         <payment_type>Regular,Recurring</payment_type>
+        <old_apm>alipay</old_apm>
     </item>
     <item>
         <id>ideal</id>
