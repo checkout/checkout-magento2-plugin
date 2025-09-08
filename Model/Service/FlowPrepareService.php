@@ -19,6 +19,8 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Request\PostPaymentSessions;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Provider\AccountSettings;
@@ -39,6 +41,8 @@ class FlowPrepareService
     protected FlowMethodSettings $flowMethodConfiguration;
     protected GeneralSettings $generalConfiguration;
     protected LoggerInterface $logger;
+    protected Logger $ckoLogger;
+    protected Utilities $utilities;
 
     public function __construct(
         ApiHandlerService $apiHandler,
@@ -47,7 +51,9 @@ class FlowPrepareService
         AccountSettings $accountConfiguration,
         FlowMethodSettings $flowMethodConfiguration,
         GeneralSettings $generalConfiguration,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        Logger $ckoLogger,
+        Utilities $utilities
     ) {
         $this->postPaymentSession = $postPaymentSession;
         $this->storeManager = $storeManager;
@@ -56,6 +62,8 @@ class FlowPrepareService
         $this->flowMethodConfiguration = $flowMethodConfiguration;
         $this->generalConfiguration = $generalConfiguration;
         $this->logger = $logger;
+        $this->ckoLogger = $ckoLogger;
+        $this->utilities = $utilities;
     }
 
     public function prepare(CartInterface $quote, array $data) {
@@ -80,6 +88,7 @@ class FlowPrepareService
         
         try {
             $responseAPI = $api->getCheckoutApi()->getPaymentSessionsClient()->createPaymentSessions($payload);
+            $this->ckoLogger->additional($this->utilities->objectToArray($payload), 'payment');
         } catch (Exception $error) {
             $this->logger->error(
                 sprintf("Error during API call: %s", $error->getMessage()), 

@@ -23,7 +23,7 @@ use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
-use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
+use CheckoutCom\Magento2\Provider\FlowMethodSettings;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
@@ -62,7 +62,7 @@ class FlowMethod extends AbstractMethod
     private Config $config;
     private ApiHandlerService $apiHandler;
     private StoreManagerInterface $storeManager;
-    private FlowGeneralSettings $flowGeneralSettings;
+    private FlowMethodSettings $flowMethodSettings;
 
     public function __construct(
         Config $config,
@@ -78,7 +78,7 @@ class FlowMethod extends AbstractMethod
         Session $backendAuthSession,
         ApiHandlerService $apiHandler,
         StoreManagerInterface $storeManager,
-        FlowGeneralSettings $flowGeneralSettings,
+        FlowMethodSettings $flowMethodSettings,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []
@@ -103,7 +103,7 @@ class FlowMethod extends AbstractMethod
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->storeManager = $storeManager;
-        $this->flowGeneralSettings = $flowGeneralSettings;
+        $this->flowMethodSettings = $flowMethodSettings;
     }
 
     /**
@@ -273,11 +273,29 @@ class FlowMethod extends AbstractMethod
         return $this;
     }
 
+    public function sendPaymentRequest(
+        array $data,
+        float $amount,
+        string $currency,
+        string $reference = '',
+        ?CartInterface $quote = null,
+        ?bool $isApiOrder = null,
+        $customerId = null
+    ): array {
+        return [];
+    }
+
     /**
      * @throws LocalizedException
      */
     public function isAvailable(?CartInterface $quote = null): bool
     {
-        return true;
+        if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+
+            return $this->flowMethodSettings->isAvailable($websiteCode);
+        }
+        
+        return false;
     }
 }

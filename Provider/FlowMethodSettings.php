@@ -52,11 +52,11 @@ class FlowMethodSettings extends AbstractSettingsProvider
         $this->flowGeneralSettings = $flowGeneralSettings;
     }
 
-    public function isAvailable(?string $website): bool
+    public function isAvailable(?string $websiteCode): bool
     {
-        $isActive = $this->isActive($website);
+        $isActive = $this->isActive($websiteCode);
 
-        return $isActive === "1" && $this->flowGeneralSettings->useFlow($website);
+        return $isActive === "1" && $this->flowGeneralSettings->useFlow($websiteCode);
     }
 
     public function isActive(?string $websiteCode): ?string
