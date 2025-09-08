@@ -107,11 +107,6 @@ class FlowMethod extends AbstractMethod
     }
 
     /**
-     * Perform a void request
-     *
-     * @param InfoInterface $payment
-     *
-     * @return AbstractMethod
      * @throws CheckoutApiException
      * @throws CheckoutArgumentException
      * @throws LocalizedException
@@ -150,11 +145,6 @@ class FlowMethod extends AbstractMethod
     }
 
     /**
-     * Perform a void request on order cancel
-     *
-     * @param InfoInterface $payment
-     *
-     * @return AbstractMethod
      * @throws CheckoutApiException
      * @throws CheckoutArgumentException
      * @throws LocalizedException
@@ -199,12 +189,6 @@ class FlowMethod extends AbstractMethod
     }
 
     /**
-     * Perform a capture request
-     *
-     * @param InfoInterface $payment
-     * @param $amount
-     *
-     * @return AbstractMethod
      * @throws CheckoutApiException
      * @throws CheckoutArgumentException
      * @throws LocalizedException
@@ -243,12 +227,6 @@ class FlowMethod extends AbstractMethod
     }
 
     /**
-     * Perform a refund request
-     *
-     * @param InfoInterface $payment
-     * @param $amount
-     *
-     * @return AbstractMethod
      * @throws CheckoutApiException
      * @throws CheckoutArgumentException
      * @throws LocalizedException
@@ -296,11 +274,6 @@ class FlowMethod extends AbstractMethod
     }
 
     /**
-     * Check whether method is available
-     *
-     * @param CartInterface|null $quote
-     *
-     * @return bool
      * @throws LocalizedException
      */
     public function isAvailable(?CartInterface $quote = null): bool
