@@ -250,6 +250,12 @@ class Config
         /** @var array $paymentMethodsConfig */
         $paymentMethodsConfig = $this->scopeConfig->getValue(Loader::KEY_PAYMENT, ScopeInterface::SCOPE_STORE);
 
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $exception) {
+            $websiteCode = null;
+        }
+
         /**
          * Get only the active CheckoutCom methods
          *
@@ -262,7 +268,7 @@ class Config
                 && (int)$method['active'] === 1
             ) {
                 // Flow method can only be available if flow sdk is used
-                if (str_contains($key, FlowMethod::CODE) && !$this->flowSettings->useFlow($this->storeManager->getWebsite()->getCode())) {
+                if (str_contains($key, FlowMethod::CODE) && !$this->flowSettings->useFlow($websiteCode)) {
                     continue;
                 }
 
