@@ -414,12 +414,8 @@ define(
              */
             placeOrder: function (payload, methodId, startLoader = true, has3DS = null) {
                 let self = this;
-                let orderUrl = 'payment/placeorder';
                 const isFlow = methodId === 'checkoutcom_flow';
-
-                if (isFlow) {
-                    orderUrl = 'payment/placefloworder';
-                }
+                const orderUrl = isFlow ? 'payment/placefloworder' : 'payment/placeorder';
 
                 if (startLoader) {
                     // Start the loader
