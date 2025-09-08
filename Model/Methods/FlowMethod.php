@@ -106,6 +106,16 @@ class FlowMethod extends AbstractMethod
         $this->flowGeneralSettings = $flowGeneralSettings;
     }
 
+    /**
+     * Perform a void request
+     *
+     * @param InfoInterface $payment
+     *
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
+     * @throws LocalizedException
+     */
     public function void(InfoInterface $payment): AbstractMethod
     {
         if (!$this->backendAuthSession->isLoggedIn()) {
@@ -139,6 +149,16 @@ class FlowMethod extends AbstractMethod
         return $this;
     }
 
+    /**
+     * Perform a void request on order cancel
+     *
+     * @param InfoInterface $payment
+     *
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
+     * @throws LocalizedException
+     */
     public function cancel(InfoInterface $payment): AbstractMethod
     {
         if (!$this->backendAuthSession->isLoggedIn()) {
@@ -178,6 +198,18 @@ class FlowMethod extends AbstractMethod
         return $this;
     }
 
+    /**
+     * Perform a capture request
+     *
+     * @param InfoInterface $payment
+     * @param $amount
+     *
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
         if (!$this->backendAuthSession->isLoggedIn()) {
@@ -210,6 +242,18 @@ class FlowMethod extends AbstractMethod
         return $this;
     }
 
+    /**
+     * Perform a refund request
+     *
+     * @param InfoInterface $payment
+     * @param $amount
+     *
+     * @return AbstractMethod
+     * @throws CheckoutApiException
+     * @throws CheckoutArgumentException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
     public function refund(InfoInterface $payment, $amount): AbstractMethod
     {
         if (!$this->backendAuthSession->isLoggedIn()) {
