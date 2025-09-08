@@ -48,7 +48,6 @@ class MigrateApmToFlowApm implements DataPatchInterface
 
     public function apply()
     {
-
         $this->apmMigrator->migrate();
 
         $websites = $this->storeManager->getWebsites();
