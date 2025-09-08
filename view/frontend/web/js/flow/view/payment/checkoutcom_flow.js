@@ -175,10 +175,7 @@ define(
                         onError: (component, error) => {
                             Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
                             Utilities.log("Error with payment method " + component.type, error);
-                        },
-                        handleSubmit:() => {
-                            console.log('pou')
-                    }
+                        }
                     });
 
                     let flowContainer = this.getContainer();
