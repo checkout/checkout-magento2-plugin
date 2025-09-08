@@ -147,7 +147,7 @@ define(
 
                     if (appearance !== "") {
                         try {
-                            appearance = JSON.parse(data.appearance);
+                            appearance = JSON.parse(appearance);
                         } catch (e) {
                             Utilities.log(e);
                             appearance = "";
