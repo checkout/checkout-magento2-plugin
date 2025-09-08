@@ -149,6 +149,7 @@ define(
                         try {
                             appearance = JSON.parse(data.appearance);
                         } catch (e) {
+                            Utilities.log(e);
                             appearance = "";
                         }
                     }
@@ -166,18 +167,14 @@ define(
                         onChange: (component) => {
                             if (component.isValid()) {
                                 this.allowPlaceOrder(true);
-                                console.log(
-                                    `onChange() -> isValid: "${component.isValid()}" for "${
-                                        component.type
-                                    }"`,
-                                );
                             } else {
                                 this.allowPlaceOrder(false);
                             }
 
                         },
                         onError: (component, error) => {
-                            console.log("onError", error, "Component", component.type);
+                            Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
+                            Utilities.log("Error with payment method " + component.type, error);
                         },
                     });
 
