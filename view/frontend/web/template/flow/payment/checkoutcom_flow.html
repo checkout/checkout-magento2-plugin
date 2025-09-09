@@ -35,9 +35,18 @@
         <div class="message debug-message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
         <!-- Container -->
         <div id="flow-container"></div>
-        <!-- ko foreach: $parent.getRegion('before-place-order') -->
+
+        <!-- ko foreach: $parent.getRegion('flow-saved-card') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
-        <!--/ko-->
+        <!-- /ko -->
+
+        <!-- Agreements form -->
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
         <div class="actions-toolbar">
             <div class="primary">
                 <button class="action primary checkout"

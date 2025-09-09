@@ -90,12 +90,18 @@
                                                         </item>
                                                         <item name="payments-list" xsi:type="array">
                                                             <item name="children" xsi:type="array">
-                                                                <item name="before-place-order" xsi:type="array">
+                                                                <item name="flow-saved-card" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">uiComponent</item>
+                                                                    <item name="displayArea" xsi:type="string">flow-saved-card</item>
+                                                                    <item name="dataScope" xsi:type="string">flowSavedCard</item>
+                                                                    <item name="provider" xsi:type="string">checkoutProvider</item>
+                                                                    <item name="config" xsi:type="array">
+                                                                        <item name="template" xsi:type="string">Magento_Checkout/payment/before-place-order</item>
+                                                                    </item>
                                                                     <item name="children" xsi:type="array">
-                                                                        <item name="flow-saved-card" xsi:type="array">
+                                                                        <item name="saved-card" xsi:type="array">
                                                                             <item name="component" xsi:type="string">CheckoutCom_Magento2/js/flow/view/save-card</item>
                                                                             <item name="sortOrder" xsi:type="string">10</item>
-                                                                            <item name="displayArea" xsi:type="string">before-place-order</item>
                                                                             <item name="dataScope" xsi:type="string">flowSavedCard</item>
                                                                             <item name="provider" xsi:type="string">checkoutProvider</item>
                                                                         </item>

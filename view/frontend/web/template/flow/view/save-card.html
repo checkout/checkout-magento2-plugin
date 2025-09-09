@@ -1,6 +1,23 @@
-<div style="background-color: red;color:white;padding:1em">
-    Hey frontend have a look at this :<br/>
-    <em>vendor/checkoutcom/magento2/view/frontend/web/template/flow/view/saved-card.html</em>
-    <label>Should save card ?</label><br/>
-    <input type="checkbox" name="flow_save_card"/>
-</div>
+<!--
+/**
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2019 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
+ */
+-->
+
+<!-- ko if: isVisible -->
+    <div class="field choice save-card-option">
+        <input type="checkbox" name="flow_save_card" id="flow_save_card" class="checkbox"/>
+        <label class="label" for="flow_save_card">
+            <span><!-- ko i18n: 'Save this card for later use.'--><!-- /ko --></span>
+        </label>
+    </div>
+<!--/ko-->

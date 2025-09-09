@@ -51,7 +51,8 @@ define(
                         'card' : 'card_payment',
                         'googlepay' : 'google_pay',
                         'applepay' : 'apple_pay'
-                    }
+                    },
+                    currentMethod: null
                 },
 
                 /**
@@ -80,13 +81,13 @@ define(
                 },
 
                 initEvents: function () {
-                    // todo gerer les event
-                    var self = this;
-
-                    // Option click event
-                    $('.payment-method input[type="radio"]').on('click', function () {
-                        self.allowPlaceOrder(false);
-                    });
+                    // Listen for saveCard event
+                    document.querySelector('body').addEventListener(
+                        "askPaymentMethod",
+                        () => {
+                            this.sendSaveCardEvent(this.currentMethod);
+                        },
+                    );
                 },
 
                 /**
@@ -100,7 +101,6 @@ define(
                     if (Utilities.methodIsSelected(METHOD_ID)) {
                         this.flowComponent.submit();
                     }
-
                 },
 
                 toggleTooltip: function () {
@@ -164,6 +164,11 @@ define(
                                 showPayButton: false
                             }
                         },
+                        onReady: (_self) => {
+                            if (!this.currentMethod) {
+                                this.sendSaveCardEvent(_self.selectedType);
+                            }
+                        },
                         onChange: (component) => {
                             if (component.isValid()) {
                                 this.allowPlaceOrder(true);
@@ -171,6 +176,9 @@ define(
                                 this.allowPlaceOrder(false);
                             }
 
+                            if (this.currentMethod && this.currentMethod !== component.selectedType) {
+                                this.sendSaveCardEvent(component.selectedType);
+                            }
                         },
                         onError: (component, error) => {
                             Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
@@ -249,6 +257,22 @@ define(
                     let methodInformations = window.checkoutConfig.payment.checkoutcom_magento2[methodType];
 
                     return !!(methodInformations.three_ds && methodInformations.three_ds === '1');
+                },
+
+                /**
+                 * Send Event for saveCard
+                 * @param selectedType
+                 */
+                sendSaveCardEvent: function (selectedType) {
+                    this.currentMethod = selectedType;
+
+                    const cardEvent = new CustomEvent("saveCard", {
+                        detail: {
+                            method: this.currentMethod
+                        }
+                    });
+
+                    document.querySelector('body').dispatchEvent(cardEvent);
                 }
             }
         );
