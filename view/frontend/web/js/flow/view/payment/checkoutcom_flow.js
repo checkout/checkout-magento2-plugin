@@ -21,9 +21,11 @@ define(
         'Magento_Customer/js/model/customer',
         'mage/url',
         'flowjs',
-        "CheckoutCom_Magento2/js/common/view/payment/utilities"
+        "CheckoutCom_Magento2/js/common/view/payment/utilities",
+        'Magento_Checkout/js/model/payment/additional-validators',
+        'Magento_Checkout/js/model/full-screen-loader',
     ],
-    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities) {
+    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities, AdditionalValidators, FullScreenLoader) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_flow';
@@ -44,6 +46,12 @@ define(
                     allowPlaceOrder: ko.observable(false),
                     isCoBadged: ko.observable(false),
                     tooltipVisible: ko.observable(false),
+                    flowComponent: null,
+                    methodNameMap: {
+                        'card' : 'card_payment',
+                        'googlepay' : 'google_pay',
+                        'applepay' : 'apple_pay'
+                    }
                 },
 
                 /**
@@ -89,8 +97,10 @@ define(
                 },
 
                 placeOrder: function () {
-                    // todo
-                    console.log('place')
+                    if (Utilities.methodIsSelected(METHOD_ID)) {
+                        this.flowComponent.submit();
+                    }
+
                 },
 
                 toggleTooltip: function () {
@@ -127,22 +137,63 @@ define(
                  * @returns {Promise<void>}
                  */
                 initComponent: async function (data) {
+                    let self = this;
+
+                    this.allowPlaceOrder(false);
+
                     const paymentSession = data.paymentSession;
                     const publicKey = data.publicKey;
-
                     let appearance  = data.appearance;
 
                     if (appearance !== "") {
-                        appearance  = JSON.parse(data.appearance);
+                        try {
+                            appearance = JSON.parse(appearance);
+                        } catch (e) {
+                            Utilities.log(e);
+                            appearance = "";
+                        }
                     }
 
                     const checkout = await CheckoutWebComponents({
                         paymentSession,
                         publicKey,
                         environment: data.environment,
-                        appearance
+                        appearance,
+                        componentOptions: {
+                            flow: {
+                                showPayButton: false
+                            }
+                        },
+                        onChange: (component) => {
+                            if (component.isValid()) {
+                                this.allowPlaceOrder(true);
+                            } else {
+                                this.allowPlaceOrder(false);
+                            }
+
+                        },
+                        onError: (component, error) => {
+                            Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
+                            Utilities.log("Error with payment method " + component.type, error);
+                        },
                     });
 
+                    let flowContainer = this.getContainer();
+
+                    this.flowComponent = checkout.create('flow',{
+                        onSubmit: (_self) => {
+                            self.saveOrder(_self.type);
+                        }
+                    });
+
+                    this.flowComponent.mount(flowContainer);
+                },
+
+                /**
+                 * Get container from DOM
+                 * @returns {HTMLElement}
+                 */
+                getContainer: function() {
                     let flowContainer = document.getElementById('flow-container');
 
                     if (!flowContainer) {
@@ -153,9 +204,51 @@ define(
                         actions.prepend(flowContainer);
                     }
 
-                    const flowComponent = checkout.create("flow");
+                    return flowContainer;
+                },
 
-                    flowComponent.mount(flowContainer);
+                /**
+                 * Save Order after submit component
+                 * @param type
+                 */
+                saveOrder: function (type) {
+                    const data = {
+                        methodId: METHOD_ID,
+                    };
+                    const has3DS = this.get3DSInfos(type);
+
+                    // Place the order
+                    if (AdditionalValidators.validate()) {
+                        Utilities.placeOrder(
+                            data,
+                            METHOD_ID,
+                            true,
+                            has3DS,
+                            function() {
+                                Utilities.log(__('Success'));
+                            },
+                            function() {
+                                Utilities.log(__('Fail'));
+                            },
+                        );
+                        Utilities.cleanCustomerShippingAddress();
+                    }
+                },
+
+                /**
+                 * Get 3DS infos from checkoutConfig for current method
+                 * @param type
+                 * @returns {boolean}
+                 */
+                get3DSInfos: function(type) {
+                    if (this.methodNameMap[type]) {
+                        type = this.methodNameMap[type];
+                    }
+
+                    let methodType = 'checkoutcom_' + type;
+                    let methodInformations = window.checkoutConfig.payment.checkoutcom_magento2[methodType];
+
+                    return !!(methodInformations.three_ds && methodInformations.three_ds === '1');
                 }
             }
         );
