@@ -290,7 +290,7 @@ class FlowMethod extends AbstractMethod
      */
     public function isAvailable(?CartInterface $quote = null): bool
     {
-        if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
+        if (null !== $quote && $this->isModuleActive() && parent::isAvailable($quote)) {
             $websiteCode = $this->storeManager->getWebsite()->getCode();
 
             return $this->flowMethodSettings->isAvailable($websiteCode);
