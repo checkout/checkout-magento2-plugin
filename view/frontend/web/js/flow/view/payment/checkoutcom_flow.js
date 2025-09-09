@@ -214,7 +214,7 @@ define(
                 saveOrder: function (type) {
                     const data = {
                         methodId: METHOD_ID,
-                        selectedMethod: 'checkoutcom_' + type
+                        selectedMethod: type
                     };
                     const has3DS = this.get3DSInfos(type);
 
