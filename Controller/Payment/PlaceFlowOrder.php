@@ -35,6 +35,8 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class PlaceFlowOrder extends Action
 {
+    private const METHOD_PREFIX = "checkoutcom_";
+
     private StoreManagerInterface $storeManager;
     private JsonFactory $jsonFactory;
     private QuoteHandlerService $quoteHandler;
@@ -87,7 +89,7 @@ class PlaceFlowOrder extends Action
             $quote = $this->quoteHandler->getQuote();
             $data = $this->getRequest()->getParams();
 
-            if (!isset($data['methodId'])) {
+            if (!isset($data['selectedMethod'])) {
                 return $json->setData([
                     'success' => false,
                     'message' => __('Please enter valid payment details'),
@@ -107,8 +109,10 @@ class PlaceFlowOrder extends Action
                     'message' => __('No quote found'),
                 ]);
             }
-            
-            $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
+
+            $methodId = self::METHOD_PREFIX . $data['selectedMethod'];
+
+            $order = $this->orderHandler->setMethodId($methodId)->handleOrder($quote);
 
             if (!$this->orderHandler->isOrder($order)) {
                 return $json->setData([

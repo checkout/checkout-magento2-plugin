@@ -175,7 +175,7 @@ define(
                         onError: (component, error) => {
                             Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
                             Utilities.log("Error with payment method " + component.type, error);
-                        },
+                        }
                     });
 
                     let flowContainer = this.getContainer();
@@ -214,6 +214,7 @@ define(
                 saveOrder: function (type) {
                     const data = {
                         methodId: METHOD_ID,
+                        selectedMethod: type
                     };
                     const has3DS = this.get3DSInfos(type);
 
@@ -247,6 +248,10 @@ define(
 
                     let methodType = 'checkoutcom_' + type;
                     let methodInformations = window.checkoutConfig.payment.checkoutcom_magento2[methodType];
+
+                    if (!methodInformations) {
+                        return false;
+                    }
 
                     return !!(methodInformations.three_ds && methodInformations.three_ds === '1');
                 }
