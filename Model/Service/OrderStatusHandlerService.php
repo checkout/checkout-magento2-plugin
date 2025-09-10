@@ -241,7 +241,7 @@ class OrderStatusHandlerService
         if (!isset($payload->data->metadata)) {
             return;
         }
-        $methodId = $payload->data->metadata->methodId ?? $payload->data->metadata->method_id;
+        $methodId = $payload->data->metadata->methodId ?? '';
         if ($methodId === 'checkoutcom_apm') {
             $this->state = Order::STATE_PENDING_PAYMENT;
             $this->status = $this->order->getConfig()->getStateDefaultStatus($this->state);
