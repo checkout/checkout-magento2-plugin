@@ -19,15 +19,10 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
-use Checkout\CheckoutApiException;
-use Checkout\CheckoutAuthorizationException;
-use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
-use Exception;
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Block\Widget\Button;
 use Magento\Config\Block\System\Config\Form\Field;
-use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Exception\LocalizedException;
 
 /**
@@ -95,6 +90,7 @@ abstract class AbstractCallbackUrl extends Field
 
         return $this;
     }
+
     /**
      * Returns the controller url.
      *

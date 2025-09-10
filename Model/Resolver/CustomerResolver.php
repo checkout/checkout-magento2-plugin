@@ -25,7 +25,7 @@ use Magento\Quote\Api\Data\CartInterface;
 
 class CustomerResolver
 {
-    protected $customerFactory; 
+    protected $customerFactory;
 
     public function __construct(
         CustomerInterfaceFactory $customerFactory,

@@ -47,7 +47,6 @@ use CheckoutCom\Magento2\Controller\Apm\Display;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
-use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
@@ -882,7 +881,6 @@ class AlternativePaymentMethod extends AbstractMethod
     {
         $countEnabled = 0;
         $websiteId = $this->storeManager->getWebsite()->getId();
-        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, ScopeInterface::SCOPE_WEBSITE, $websiteId);
 
         /** @var string|null $apmMethods */
         $apmMethods = $this->config->getValue('apm_enabled', 'checkoutcom_apm') ?: '';
@@ -903,7 +901,7 @@ class AlternativePaymentMethod extends AbstractMethod
         if (isset($billingAddress['country_id'])) {
             foreach ($apms as $apm) {
                 if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    if ($service === ConfigService::SERVICE_NAS && !in_array($apm['value'], self::NAS_UNAVAILABLE_APM)) {
+                    if (!in_array($apm['value'], self::NAS_UNAVAILABLE_APM)) {
                         $countEnabled++;
                     }
                 }
@@ -912,9 +910,9 @@ class AlternativePaymentMethod extends AbstractMethod
 
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->code)
-                   && count($this->config->getApms()) > 0
-                   && !$this->backendAuthSession->isLoggedIn()
-                   && $countEnabled > 0;
+                && count($this->config->getApms()) > 0
+                && !$this->backendAuthSession->isLoggedIn()
+                && $countEnabled > 0;
         }
 
         return false;
