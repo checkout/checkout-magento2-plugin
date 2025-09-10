@@ -133,7 +133,6 @@ class ItemsElement
         $product->reference = $item->getSku();
         $product->unit_price = $unitPrice;
         $product->total_amount = $rowAmount;
-        $product->discount_amount = $discount;
 
         return $product;
     }

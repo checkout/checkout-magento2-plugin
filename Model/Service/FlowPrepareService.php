@@ -20,14 +20,14 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Model\Service;
 
 use CheckoutCom\Magento2\Model\Request\PostPaymentSessions;
-use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Provider\AccountSettings;
-use CheckoutCom\Magento2\Provider\GeneralSettings;
 use CheckoutCom\Magento2\Provider\FlowMethodSettings;
+use CheckoutCom\Magento2\Provider\GeneralSettings;
 use Exception;
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Serialize\SerializerInterface;
 use Psr\Log\LoggerInterface;
 
 class FlowPrepareService
@@ -39,6 +39,7 @@ class FlowPrepareService
     protected FlowMethodSettings $flowMethodConfiguration;
     protected GeneralSettings $generalConfiguration;
     protected LoggerInterface $logger;
+    protected SerializerInterface $serializer;
 
     public function __construct(
         ApiHandlerService $apiHandler,
@@ -47,6 +48,7 @@ class FlowPrepareService
         AccountSettings $accountConfiguration,
         FlowMethodSettings $flowMethodConfiguration,
         GeneralSettings $generalConfiguration,
+        SerializerInterface $serializer,
         LoggerInterface $logger
     ) {
         $this->postPaymentSession = $postPaymentSession;
@@ -56,9 +58,11 @@ class FlowPrepareService
         $this->flowMethodConfiguration = $flowMethodConfiguration;
         $this->generalConfiguration = $generalConfiguration;
         $this->logger = $logger;
+        $this->serializer = $serializer;
     }
 
-    public function prepare(CartInterface $quote, array $data) {
+    public function prepare(CartInterface $quote, array $data)
+    {
 
         try {
             $storeCode = $this->storeManager->getStore()->getCode();
@@ -68,7 +72,7 @@ class FlowPrepareService
             $storeCode = null;
 
             $this->logger->error(
-                sprintf("Unable to fetch store code or website code: %s", $error->getMessage()), 
+                sprintf("Unable to fetch store code or website code: %s", $error->getMessage()),
             );
         }
 
@@ -77,12 +81,13 @@ class FlowPrepareService
         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE, $secretKey, $publicKey);
 
         $payload = $this->postPaymentSession->get($quote, $data);
-        
+
         try {
+            $this->logger->debug(sprintf('Requesting Flow Payment session with: %s ', $this->serializer->serialize($payload)));
             $responseAPI = $api->getCheckoutApi()->getPaymentSessionsClient()->createPaymentSessions($payload);
         } catch (Exception $error) {
             $this->logger->error(
-                sprintf("Error during API call: %s", $error->getMessage()), 
+                sprintf("Error during API call: %s", $error->getMessage()),
             );
 
             return [
