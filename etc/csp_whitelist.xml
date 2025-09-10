@@ -17,26 +17,25 @@
     <policies>
         <policy id="style-src">
             <values>
-                <value id="cko-cdn" type="host">https://cdn.checkout.com</value>
+                <value id="cko-cdn" type="host">*.checkout.com</value>
             </values>
         </policy>
         <policy id="font-src">
             <values>
-                <value id="cko-cdn" type="host">https://cdn.checkout.com</value>
+                <value id="cko-all" type="host">*.checkout.com</value>
                 <value id="apple-cdn" type="host">*.cdn-apple.com</value>
             </values>
         </policy>
         <policy id="script-src">
             <values>
-                <value id="cko-cdn" type="host">https://*.checkout.com</value>
+                <value id="cko-all" type="host">*.checkout.com</value>
                 <value id="klarna-cdn" type="host">*.klarnacdn.net</value>
                 <value id="apple-cdn" type="host">*.cdn-apple.com</value>
             </values>
         </policy>
         <policy id="connect-src">
             <values>
-                <value id="cko-cdn" type="host">https://js.checkout.com</value>
-                <value id="cko-all" type="host">https://*.checkout.com</value>
+                <value id="cko-all" type="host">*.checkout.com</value>
                 <value id="klarna-cdn" type="host">*.klarnaevt.com</value>
                 <value id="klarnacdn" type="host">*.klarnacdn.net</value>
                 <value id="klarna" type="host">*.klarna.com</value>
@@ -45,15 +44,14 @@
         </policy>
         <policy id="frame-src">
             <values>
-                <value id="cko-cdn" type="host">https://js.checkout.com</value>
-                <value id="cko-all" type="host">https://*.checkout.com</value>
+                <value id="cko-all" type="host">*.checkout.com</value>
                 <value id="klarna" type="host">*.klarna.com</value>
             </values>
         </policy>
         <policy id="img-src">
             <values>
                 <value id="data" type="host">data:</value>
-                <value id="cko-all" type="host">https://*.checkout.com</value>
+                <value id="cko-all" type="host">*.checkout.com</value>
             </values>
         </policy>
     </policies>
