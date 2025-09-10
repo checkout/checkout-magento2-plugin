@@ -21,8 +21,9 @@ namespace CheckoutCom\Magento2\Model\Request\Items;
 
 use Checkout\Payments\Product;
 use Checkout\Payments\ProductFactory;
-use CheckoutCom\Magento2\Provider\CurrenciesSettings;
+use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Formatter\PriceFormatter;
+use CheckoutCom\Magento2\Provider\CurrenciesSettings;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\CartItemInterface;
 use Magento\Quote\Model\Quote\Address;
@@ -35,17 +36,20 @@ class ItemsElement
     protected CurrenciesSettings $currenciesSettings;
 
     private StoreManagerInterface $storeManager;
-    
+    private Utilities $utilities;
+
     public function __construct(
         ProductFactory $modelFactory,
         CurrenciesSettings $currenciesSettings,
         StoreManagerInterface $storeManager,
-        PriceFormatter $priceFormatter
+        PriceFormatter $priceFormatter,
+        Utilities $utilities
     ) {
         $this->modelFactory = $modelFactory;
         $this->currenciesSettings = $currenciesSettings;
         $this->storeManager = $storeManager;
         $this->priceFormatter = $priceFormatter;
+        $this->utilities = $utilities;
     }
 
     public function get(CartInterface $quote): array
@@ -56,7 +60,7 @@ class ItemsElement
         $items = [];
         $quoteItems = $quote->getItems();
 
-        if(empty($quoteItems)) {
+        if (empty($quoteItems)) {
             return [];
         }
 
@@ -64,7 +68,11 @@ class ItemsElement
 
         /** @var CartItemInterface $item */
         foreach ($quoteItems as $item) {
-            $items[] = $this->getLineItem($item, $currency);
+            $product = $this->getLineItem($item, $currency);
+            if (!$product) {
+                continue;
+            }
+            $items[] = $product;
         }
 
         // Shipping fee
@@ -74,23 +82,57 @@ class ItemsElement
             $items[] = $this->getShippingItem($shipping, $currency);
         }
 
+        $this->adjustItemsTotals($items);
+
         return $items;
     }
 
-    protected function getLineItem(CartItemInterface $item, string $currency): Product
+    /**
+     * When a product has discount, discount amount must be set at unit price level,
+     * Sometimes this division is not an int price, giving a checkout api error
+     * Adjust it by adding a "fake" item in order to have a correct api response
+     */
+    private function adjustItemsTotals(array &$items): void
+    {
+        $adjustment = 0;
+        foreach ($items as $item) {
+            if (str_contains((string)$item->unit_price, '.')) {
+                $currentTotal = $item->total_amount;
+                $item->total_amount = (int)$item->unit_price * $item->quantity;
+                $item->unit_price = (int)$item->unit_price;
+                $adjustment += $currentTotal - $item->total_amount;
+            }
+        }
+        if ($adjustment > 0) {
+            $product = $this->modelFactory->create();
+            $product->quantity = 1;
+            $product->total_amount = $adjustment;
+            $product->unit_price = $adjustment;
+            $product->name = "CheckoutCom total adjustment";
+            $product->sku = "CKO_ADJUST";
+            $items[] = $product;
+        }
+    }
+
+    protected function getLineItem(CartItemInterface $item, string $currency): ?Product
     {
         $product = $this->modelFactory->create();
 
-        $unitPrice = $this->priceFormatter->getFormattedPrice($item->getPriceInclTax(), $currency);
-        $linePrice = $this->priceFormatter->getFormattedPrice($item->getPriceInclTax(), $currency);
-        $discount = $this->priceFormatter->getFormattedPrice($item->getDiscountAmount(), $currency);
-  
+        $discount = $discountOnUnitPrice = $this->utilities->formatDecimals($item->getDiscountAmount()) * 100;
+        $rowAmount = ($this->utilities->formatDecimals($item->getRowTotalInclTax()) * 100) -
+            ($this->utilities->formatDecimals($discount));
+        $unitPrice = ($this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty()) * 100) -
+            ($this->utilities->formatDecimals($discountOnUnitPrice / $item->getQty()));
+        // Api does not accept 0 prices
+        if (!$unitPrice) {
+            return null;
+        }
+
         $product->name = $item->getName();
-        $product->unit_price = $unitPrice;
         $product->quantity = $item->getQty();
         $product->reference = $item->getSku();
-        $product->total_amount = $linePrice;
-
+        $product->unit_price = $unitPrice;
+        $product->total_amount = $rowAmount;
         $product->discount_amount = $discount;
 
         return $product;
@@ -112,7 +154,7 @@ class ItemsElement
     {
         $quoteCurrencyCode = $quote->getQuoteCurrencyCode();
 
-        if(!empty($quoteCurrencyCode)) {
+        if (!empty($quoteCurrencyCode)) {
             return $quoteCurrencyCode;
         }
 
@@ -121,7 +163,7 @@ class ItemsElement
         } catch (\Throwable $th) {
             $storeCurrencyCode = '';
         }
-        
+
         return $storeCurrencyCode;
 
     }
