@@ -711,7 +711,7 @@ class TransactionHandlerService
 
         $methodId = '';
         if (isset($payload->data->metadata)) {
-            $methodId = $payload->data->metadata->methodId ?? $payload->data->metadata->method_id;
+            $methodId = $payload->data->metadata->methodId ?? '';
         }
 
         $condition3 = $this->config->getValue('order_email') === 'authorize'

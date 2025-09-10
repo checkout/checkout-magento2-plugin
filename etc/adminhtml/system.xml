@@ -339,6 +339,7 @@
                     <field id="custom_widget_design" type="textarea" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Flow Custom Design</label>
                         <config_path>payment/checkoutcom_flow/custom_widget_design</config_path>
+                        <backend_model>CheckoutCom\Magento2\Model\Config\Backend\Validation\ValidateJson</backend_model>
                         <depends>
                             <field id="*/checkoutcom/module/global_settings/sdk">1</field>
                             <field id="widget_design_selector">1</field>

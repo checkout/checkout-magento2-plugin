@@ -19,6 +19,8 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Request\PostPaymentSessions;
 use CheckoutCom\Magento2\Provider\AccountSettings;
 use CheckoutCom\Magento2\Provider\FlowMethodSettings;
@@ -27,7 +29,6 @@ use Exception;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Serialize\SerializerInterface;
 use Psr\Log\LoggerInterface;
 
 class FlowPrepareService
@@ -39,7 +40,8 @@ class FlowPrepareService
     protected FlowMethodSettings $flowMethodConfiguration;
     protected GeneralSettings $generalConfiguration;
     protected LoggerInterface $logger;
-    protected SerializerInterface $serializer;
+    protected Logger $ckoLogger;
+    protected Utilities $utilities;
 
     public function __construct(
         ApiHandlerService $apiHandler,
@@ -48,8 +50,9 @@ class FlowPrepareService
         AccountSettings $accountConfiguration,
         FlowMethodSettings $flowMethodConfiguration,
         GeneralSettings $generalConfiguration,
-        SerializerInterface $serializer,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        Logger $ckoLogger,
+        Utilities $utilities
     ) {
         $this->postPaymentSession = $postPaymentSession;
         $this->storeManager = $storeManager;
@@ -58,12 +61,12 @@ class FlowPrepareService
         $this->flowMethodConfiguration = $flowMethodConfiguration;
         $this->generalConfiguration = $generalConfiguration;
         $this->logger = $logger;
-        $this->serializer = $serializer;
+        $this->ckoLogger = $ckoLogger;
+        $this->utilities = $utilities;
     }
 
     public function prepare(CartInterface $quote, array $data)
     {
-
         try {
             $storeCode = $this->storeManager->getStore()->getCode();
             $websiteCode = $this->storeManager->getWebsite()->getCode();
@@ -83,8 +86,8 @@ class FlowPrepareService
         $payload = $this->postPaymentSession->get($quote, $data);
 
         try {
-            $this->logger->debug(sprintf('Requesting Flow Payment session with: %s ', $this->serializer->serialize($payload)));
             $responseAPI = $api->getCheckoutApi()->getPaymentSessionsClient()->createPaymentSessions($payload);
+            $this->ckoLogger->additional($this->utilities->objectToArray($payload), 'payment');
         } catch (Exception $error) {
             $this->logger->error(
                 sprintf("Error during API call: %s", $error->getMessage()),
