@@ -24,8 +24,9 @@ define(
         "CheckoutCom_Magento2/js/common/view/payment/utilities",
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/full-screen-loader',
+        'Magento_Checkout/js/model/step-navigator'
     ],
-    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities, AdditionalValidators, FullScreenLoader) {
+    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities, AdditionalValidators, FullScreenLoader, StepNavigator) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_flow';
@@ -52,7 +53,8 @@ define(
                         'googlepay' : 'google_pay',
                         'applepay' : 'apple_pay'
                     },
-                    currentMethod: null
+                    currentMethod: null,
+                    currentCountryCode: null
                 },
 
                 /**
@@ -60,8 +62,6 @@ define(
                  */
                 initialize: function () {
                     this._super();
-
-                    this.getFlowContextData();
 
                     return this;
                 },
@@ -81,6 +81,13 @@ define(
                 },
 
                 initEvents: function () {
+                    let self = this;
+                    this.getFlowContextData();
+
+                    if (Utilities.getBillingAddress().country_id) {
+                        this.setCountryCode();
+                    }
+
                     // Listen for saveCard event
                     document.querySelector('body').addEventListener(
                         "askPaymentMethod",
@@ -88,6 +95,33 @@ define(
                             this.sendSaveCardEvent(this.currentMethod);
                         },
                     );
+
+                    // Listen for Step change
+                    StepNavigator.steps.subscribe((steps) => {
+                        if (steps[StepNavigator.getActiveItemIndex()]['code'] === 'payment' &&
+                            Utilities.getBillingAddress().country_id !== self.currentCountryCode) {
+                            self.reloadFlow();
+                        }
+                    });
+                },
+
+                /**
+                 * Set current country code
+                 */
+                setCountryCode: function () {
+                    this.currentCountryCode = Utilities.getBillingAddress().country_id;
+                },
+
+                /**
+                 * Reload Flow component if country changed
+                 */
+                reloadFlow: function () {
+                    this.setCountryCode();
+                    this.sendSaveCardEvent();
+
+                    this.flowComponent.unmount();
+
+                    this.getFlowContextData();
                 },
 
                 /**
@@ -268,7 +302,7 @@ define(
                  * Send Event for saveCard
                  * @param selectedType
                  */
-                sendSaveCardEvent: function (selectedType) {
+                sendSaveCardEvent: function (selectedType = null) {
                     this.currentMethod = selectedType;
 
                     const cardEvent = new CustomEvent("saveCard", {
