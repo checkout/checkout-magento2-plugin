@@ -59,7 +59,7 @@ class ApmMigrator
             return;
         }
 
-        $oldApmEnabled = $this->scopeConfig->getValue(
+        $oldApmEnabled = (string)$this->scopeConfig->getValue(
             FlowPaymentMethodSettings::CONFIG_PAYMENT_OLD_APM_METHODS_LIST,
             $scope,
             $scopeId
@@ -93,8 +93,8 @@ class ApmMigrator
 
         if ($scopeId !== 0) {
             $defaultValue = $this->scopeConfig->getValue(
-            FlowPaymentMethodSettings::CONFIG_PAYMENT_OLD_APM_METHODS_LIST,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT
+                FlowPaymentMethodSettings::CONFIG_PAYMENT_OLD_APM_METHODS_LIST,
+                ScopeConfigInterface::SCOPE_TYPE_DEFAULT
             );
 
             $websiteValue = $this->scopeConfig->getValue(
@@ -111,6 +111,9 @@ class ApmMigrator
 
     protected function mapWithNewValue(string $oldConfiguration): string
     {
+        if (!$oldConfiguration) {
+            return '';
+        }
         $apmList = $this->configLoader->loadApmList(Loader::APM_FLOW_FILE_NAME);
         $oldApmSelected = explode(',', $oldConfiguration);
 
