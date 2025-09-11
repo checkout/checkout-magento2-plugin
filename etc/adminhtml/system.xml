@@ -420,9 +420,6 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkoutcom_card_payment/save_card_option</config_path>
                         <comment>Display an option (checkbox) to save a new card on the payment page.</comment>
-                        <depends>
-                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
-                        </depends>
                     </field>
 
                     <field id="mada_enabled" type="select" showInDefault="1" showInWebsite="1" showInStore="0">

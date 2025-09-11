@@ -19,53 +19,123 @@ define(
         'jquery',
         "CheckoutCom_Magento2/js/common/view/payment/utilities",
         'Magento_Checkout/js/model/full-screen-loader',
-        'uiComponent'
+        'uiComponent',
+        'Magento_Checkout/js/model/quote',
+        'Magento_Customer/js/model/customer'
     ],
-    function (ko, $, Utilities, FullScreenLoader, Component) {
+    function (ko, $, Utilities, FullScreenLoader, Component, Quote, Customer) {
         'use strict';
         return Component.extend({
             defaults: {
                 template: 'CheckoutCom_Magento2/flow/view/save-card.html',
                 containerSelector: '#checkoutcom_flow_container',
                 checkboxSelector: '[name="flow_save_card"]',
-
+                isVisible: ko.observable(false),
+                relatedMethod: 'checkoutcom_card_payment',
+                isSavedCard: false,
+                checkoutConfig: window.checkoutConfig.payment.checkoutcom_magento2,
+                saveCardConfig: false
             },
             initialize: function () {
                 this._super();
+                this.saveCardConfig = this.getSaveCardConfig();
+
+                if (!!(this.saveCardConfig && this.saveCardConfig === '1') && !this.isLoggedIn()) {
+                    this.initListeners();
+                }
+
+                return this;
+            },
+            /**
+             * Get config from window object
+             * @returns {*}
+             */
+            getSaveCardConfig: function () {
+                return Utilities.getValue(this.relatedMethod, 'save_card_option');
+            },
+
+            /**
+             * @return {boolean}
+             */
+            isLoggedIn: function () {
+                return Customer.isLoggedIn();
+            },
+
+            /**
+             * Init Listeners for quote payment method's changes and saveCard Events
+             */
+            initListeners: function () {
                 let self = this;
-                // TO DO MANAGE IS VISIBLE ONLY IF FLOW
-                // TO DO MANAGE IS VISIBLE ONLY IF FLOW CARD
-                // TO DO MANAGE CHECK UNCHECK
-                // TO DO CALL WITH 0 VALUE WHEN NO PAYMENT CARD OR NO FLOW !
+
+                Quote.paymentMethod.subscribe(function (method) {
+                    self.updateComponent(method)
+                }, null, 'change');
+
+                document.querySelector('body').addEventListener(
+                    "saveCard",
+                    (e) => {
+                        this.isVisible(e.detail.method === "card");
+
+                        if (this.isSavedCard && this.isVisible() === false) {
+                            self.sendSaveCardInfo(false);
+                        }
+                    },
+                );
+
                 $('body').on(
                     'click',
                     this.containerSelector + ' ' + this.checkboxSelector,
                     function () {
-                        let savedCard = this.checked;
-                        $.ajax(
-                            {
-                                type: "POST",
-                                url: Utilities.getUrl("flow/saveCard"),
-                                data: {
-                                    save: savedCard ? 1 : 0
-                                },
-                                success: function (data) {
-                                    self.animateRender(data);
-                                    self.initEvents();
-                                    self.checkLastPaymentMethod();
-                                },
-                                error: function (request, status, error) {
-                                    Utilities.log(error);
-
-                                    // Stop the loader
-                                    FullScreenLoader.stopLoader();
-                                }
-                            }
-                        );
+                        self.sendSaveCardInfo(this.checked);
                     }
                 );
+            },
 
-                return this;
+            /**
+             * Update component info depending of payment method
+             * @param method
+             */
+            updateComponent: function (method) {
+                if (method.method !== 'checkoutcom_flow') {
+                    this.isVisible(false);
+
+                    if (this.isSavedCard) {
+                        this.isSavedCard = false;
+                        this.sendSaveCardInfo(false);
+                    }
+                } else {
+                    this.getFlowCurrentMethod();
+                }
+            },
+
+            /**
+             * Send Save card info to backend
+             * @param isChecked
+             */
+            sendSaveCardInfo: function (isChecked) {
+                this.isSavedCard = isChecked;
+
+                $.ajax(
+                        {
+                            type: "POST",
+                            url: Utilities.getUrl("flow/saveCard"),
+                            data: {
+                                save: this.isSavedCard ? 1 : 0
+                            },
+                            error: function (request, status, error) {
+                                Utilities.log(error);
+                            }
+                        }
+                    );
+            },
+
+            /**
+             * Send event to get Flow Component current method when changing to Flow payment
+             */
+            getFlowCurrentMethod: function () {
+                const askPaymentMethod = new Event("askPaymentMethod");
+
+                document.querySelector('body').dispatchEvent(askPaymentMethod);
             }
         });
     }
