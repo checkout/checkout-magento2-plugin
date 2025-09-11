@@ -149,7 +149,7 @@ class ItemsElement
         $product->quantity = 1;
         $product->unit_price = $this->priceFormatter->getFormattedPrice($shipping->getShippingInclTax(), $currency);
         $product->total_amount = $this->priceFormatter->getFormattedPrice($shipping->getShippingAmount(), $currency);
-
+        $product->reference = 'Shipping fees';
         return $product;
     }
 

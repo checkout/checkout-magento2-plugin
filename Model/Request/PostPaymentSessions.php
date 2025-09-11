@@ -21,6 +21,7 @@ namespace CheckoutCom\Magento2\Model\Request;
 
 use Checkout\Payments\Sessions\PaymentSessionsRequest;
 use Checkout\Payments\Sessions\PaymentSessionsRequestFactory;
+use CheckoutCom\Magento2\Model\Formatter\LocaleFormatter;
 use CheckoutCom\Magento2\Model\Formatter\PriceFormatter;
 use CheckoutCom\Magento2\Model\Request\Billing\BillingElement;
 use CheckoutCom\Magento2\Model\Request\BillingDescriptor\BillingDescriptorElement;
@@ -64,6 +65,7 @@ class PostPaymentSessions
     private StoreManagerInterface $storeManager;
     private DateTimeFactory $dateTimeFactory;
     protected PriceFormatter $priceFormatter;
+    protected LocaleFormatter $localeFormatter;
     protected CustomerResolver $customerResolver;
     protected LoggerInterface $logger;
     protected QuoteHandlerService $quoteHandlerService;
@@ -89,6 +91,7 @@ class PostPaymentSessions
         StoreManagerInterface $storeManager,
         DateTimeFactory $dateTimeFactory,
         PriceFormatter $priceFormatter,
+        LocaleFormatter $localeFormatter,
         CustomerResolver $customerResolver,
         QuoteHandlerService $quoteHandlerService,
         ApiHandlerService $apiHandler,
@@ -114,6 +117,7 @@ class PostPaymentSessions
         $this->dateTimeFactory = $dateTimeFactory;
         $this->storeManager = $storeManager;
         $this->priceFormatter = $priceFormatter;
+        $this->localeFormatter = $localeFormatter;
         $this->customerResolver = $customerResolver;
         $this->logger = $logger;
         $this->quoteHandlerService = $quoteHandlerService;
@@ -161,7 +165,8 @@ class PostPaymentSessions
         $model->items = $this->itemsElement->get($quote);
         $model->risk = $this->riskElement->get();
         $model->display_name = $this->externalSettings->getStoreName($storeCode);
-        $model->locale = $this->reformatLocale($this->externalSettings->getStoreLocale($storeCode));
+        $model->locale = $this->localeFormatter->getFormattedLocale($this->externalSettings->getStoreLocale($storeCode));
+        $model->description = __('Payment request')->render();
         $model->three_ds = $this->threeDSElement->get();
         $model->sender = $this->senderElement->get($customer);
         $model->capture = $this->generalSettings->isAuthorizeAndCapture($websiteCode);
@@ -237,10 +242,5 @@ class PostPaymentSessions
 
         return $dateTime->format("Y-m-d\TH:i:s\Z");
 
-    }
-
-    protected function reformatLocale(string $locale): string
-    {
-        return implode("-", explode('_', $locale));
     }
 }

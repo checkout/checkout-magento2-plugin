@@ -86,8 +86,8 @@ class FlowPrepareService
         $payload = $this->postPaymentSession->get($quote, $data);
 
         try {
-            $responseAPI = $api->getCheckoutApi()->getPaymentSessionsClient()->createPaymentSessions($payload);
             $this->ckoLogger->additional($this->utilities->objectToArray($payload), 'payment');
+            $responseAPI = $api->getCheckoutApi()->getPaymentSessionsClient()->createPaymentSessions($payload);
         } catch (Exception $error) {
             $this->logger->error(
                 sprintf("Error during API call: %s", $error->getMessage()),

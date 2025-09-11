@@ -109,7 +109,7 @@ class FlowMethodSettings extends AbstractSettingsProvider
 
     public function getPredefinedDesignValue(?string $storeCode): string
     {
-        $design = $this->getPredefinedDesign($storeCode);
+        $design = $this->getPredefinedDesign($storeCode) ?? '';
 
         return $this->getDesignValue($design);
     }
