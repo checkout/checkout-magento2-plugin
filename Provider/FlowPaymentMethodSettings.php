@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -32,7 +32,7 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
     public const CONFIG_FLOW_PAYMENT_APPLEPAY_METHODS = 'payment/checkoutcom_apple_pay/active';
     public const CONFIG_FLOW_PAYMENT_PAYPAL_METHODS = 'payment/checkoutcom_paypal/active';
     public const CONFIG_FLOW_PAYMENT_CARD_METHODS = 'payment/checkoutcom_card_payment/active';
-    
+
     private const METHOD_CARD_NAME = 'card';
     private const METHOD_KLARNA_NAME = 'klarna';
     private const METHOD_GOOGLEPAY_NAME = 'googlepay';
@@ -112,7 +112,7 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
             self::CONFIG_FLOW_PAYMENT_APM_METHODS_LIST,
             $websiteCode,
         );
-        
+
         if (empty($configuration)) {
             return [];
         }

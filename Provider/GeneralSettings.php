@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -38,7 +38,7 @@ class GeneralSettings extends AbstractSettingsProvider {
     public const CONFIG_ENABLE_WEBHOOK_TABLE = 'settings/checkoutcom_configuration/webhooks_table_enabled';
     public const CONFIG_ENABLE_WEBHOOK_TABLE_CLEAN = 'settings/checkoutcom_configuration/webhooks_table_clean_enabled';
     public const CONFIG_CLEAN_WEBHOOK_ON = 'settings/checkoutcom_configuration/webhooks_webhook_clean';
-    
+
     public function isEnabled(?string $websiteCode): string
     {
         return $this->getWebsiteLevelConfiguration(

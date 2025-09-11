@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -53,9 +53,9 @@ class ThreeDSElement
             $websiteCode = $this->storeManager->getWebsite()->getCode();
         } catch (Exception $error) {
             $websiteCode = null;
-            
+
             $this->logger->error(
-                sprintf("Unable to fetch website code: %s", $error->getMessage()), 
+                sprintf("Unable to fetch website code: %s", $error->getMessage()),
             );
         }
 

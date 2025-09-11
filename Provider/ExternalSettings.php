@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -29,10 +29,10 @@ class ExternalSettings extends AbstractSettingsProvider {
 
     public const CONFIG_STORE_NAME = 'general/store_information/name';
     public const CONFIG_STORE_LOCALE = 'general/locale/code';
-    
+
     private StoreManagerInterface $storeManager;
     protected LoggerInterface $logger;
-    
+
     public function __construct (
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
@@ -54,7 +54,7 @@ class ExternalSettings extends AbstractSettingsProvider {
             return !empty($storeNameFromConfiguration) ? trim($storeNameFromConfiguration) : $this->storeManager->getStore()->getName();
         } catch (Exception $error) {
             $this->logger->error(
-                sprintf("Unable to fetch store code or website code: %s", $error->getMessage()), 
+                sprintf("Unable to fetch store code or website code: %s", $error->getMessage()),
             );
 
             return null;
