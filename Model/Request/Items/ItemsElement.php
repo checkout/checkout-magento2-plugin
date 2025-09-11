@@ -118,6 +118,10 @@ class ItemsElement
     {
         $product = $this->modelFactory->create();
 
+        if (!$item->getQty()) {
+            return null;
+        }
+
         $discount = $discountOnUnitPrice = $this->utilities->formatDecimals($item->getDiscountAmount()) * 100;
         $rowAmount = ($this->utilities->formatDecimals($item->getRowTotalInclTax()) * 100) -
             ($this->utilities->formatDecimals($discount));
