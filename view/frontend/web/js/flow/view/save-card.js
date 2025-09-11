@@ -40,7 +40,7 @@ define(
                 this._super();
                 this.saveCardConfig = this.getSaveCardConfig();
 
-                if (!!(this.saveCardConfig && this.saveCardConfig === '1') && !this.isLoggedIn()) {
+                if (!!(this.saveCardConfig && this.saveCardConfig === '1') && this.isLoggedIn()) {
                     this.initListeners();
                 }
 
