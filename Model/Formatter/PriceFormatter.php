@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -31,7 +31,7 @@ class PriceFormatter
         $this->currenciesSettings = $currenciesSettings;
     }
 
-    public function getFormattedPrice(string|int|float $amount, string $currency) 
+    public function getFormattedPrice(string|int|float $amount, string $currency)
     {
         $currenciesX1 = $this->currenciesSettings->getCurrenciesX1Table();
         $currenciesX1000 = $this->currenciesSettings->getCurrenciesX1000Table();
@@ -44,7 +44,7 @@ class PriceFormatter
         if (in_array($currency, $currenciesX1000)) {
             return $amount * 1000;
         }
-            
+
         return $amount * 100;
     }
 }

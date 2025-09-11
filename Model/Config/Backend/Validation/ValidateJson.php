@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -33,7 +33,7 @@ class ValidateJson extends Value
         if (!empty($value) && !json_decode($value)) {
             throw new LocalizedException(__('The value must be a valid JSON string.'));
         }
-        
+
         return parent::beforeSave();
     }
 }

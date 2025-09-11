@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -31,7 +31,7 @@ class EnabledDisabledElement
     protected FlowPaymentMethodSettings $flowPaymentMethodSettings;
     protected LoggerInterface $logger;
     private StoreManagerInterface $storeManager;
-    
+
     public function __construct(
         FlowPaymentMethodSettings $flowPaymentMethodSettings,
         StoreManagerInterface $storeManager,
@@ -50,7 +50,7 @@ class EnabledDisabledElement
             $websiteCode = null;
 
             $this->logger->error(
-                sprintf("Unable to fetch website code: %s", $error->getMessage()), 
+                sprintf("Unable to fetch website code: %s", $error->getMessage()),
             );
         }
 
@@ -60,22 +60,22 @@ class EnabledDisabledElement
 
         $availablePaymentMethods = $this->doCheck(
             $payload->billing->address->country ?? '',
-            'countries', 
-            $availablePaymentMethods, 
+            'countries',
+            $availablePaymentMethods,
             $allPaymentMethods
         );
 
         $availablePaymentMethods = $this->doCheck(
             $payload->currency ?? '',
-            'currency', 
-            $availablePaymentMethods, 
+            'currency',
+            $availablePaymentMethods,
             $allPaymentMethods
         );
 
         $availablePaymentMethods = $this->doCheck(
             $payload->payment_type ?? '',
-            'paymentType', 
-            $availablePaymentMethods, 
+            'paymentType',
+            $availablePaymentMethods,
             $allPaymentMethods
         );
 
@@ -88,12 +88,12 @@ class EnabledDisabledElement
     protected function getEnabled(?string $websiteCode): array
     {
         return $this->flowPaymentMethodSettings->getEnabledPaymentMethods($websiteCode);
-    }    
+    }
 
     protected function doCheck(mixed $requestProperty, string $definitionProperty, array $payments, array $definition): array {
         return array_filter($payments, function($method) use($requestProperty, $definitionProperty, $definition){
             $valueToCheck =  $definition[$method][$definitionProperty] ?? '';
-            
+
             return empty($valueToCheck) || in_array($requestProperty, explode(',', $valueToCheck));
         });
     }
@@ -103,7 +103,7 @@ class EnabledDisabledElement
         $email = $request->customer->email ?? '';
         $description = $request->description ?? '';
         $reference = $request->reference ?? '';
-        
+
         $afterEmailCheck = $this->doControl($email, 'emailMandatory', $payments, $definition);
         $afterDefinitionCheck = $this->doControl($description, 'descriptionMandatory', $afterEmailCheck, $definition);
         $afterReferenceCheck = $this->doControl($reference, 'referenceMandatory', $afterDefinitionCheck, $definition);
@@ -119,7 +119,7 @@ class EnabledDisabledElement
 
         return array_filter($payments, function($method) use($definitionProperty, $definition){
             $isDefinitionRequired = $definition[$method][$definitionProperty] ?? false;
-            
+
             return !$isDefinitionRequired;
         });
     }
