@@ -193,12 +193,6 @@
                             <config_path>settings/checkoutcom_configuration/region</config_path>
                             <validate>required-entry</validate>
                         </field>
-                        <field id="service" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
-                            <label>Service</label>
-                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService</source_model>
-                            <config_path>settings/checkoutcom_configuration/service</config_path>
-                            <validate>required-entry</validate>
-                        </field>
                         <field id="secret_key" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Secret Key</label>
                             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
@@ -222,9 +216,6 @@
                         <field id="channel_id" type="text" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Channel id</label>
                             <config_path>settings/checkoutcom_configuration/channel_id</config_path>
-                            <depends>
-                                <field id="service">NAS</field>
-                            </depends>
                             <validate>required-entry</validate>
                             <comment>The channel id begin with pc_xxx</comment>
                         </field>
@@ -776,9 +767,6 @@
                             <field id="*/checkoutcom/module/global_settings/sdk">0</field>
                         </depends>
                     </field>
-                    <depends>
-                        <field id="settings/checkoutcom_configuration/service">NAS</field>
-                    </depends>
                 </group>
                 <group id="checkoutcom_paypal" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Paypal Payments</label>
@@ -841,7 +829,6 @@
                         <validate>validate-number</validate>
                         <config_path>payment/checkoutcom_paypal/sort_order</config_path>
                         <depends>
-                            <field id="settings/checkoutcom_configuration/service">NAS</field>
                             <field id="*/checkoutcom/module/global_settings/sdk">0</field>
                         </depends>
                     </field>

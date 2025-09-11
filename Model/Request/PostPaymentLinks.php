@@ -66,7 +66,7 @@ class PostPaymentLinks
     private ThreeDSElement $threeDSElement;
     private RiskElement $riskElement;
     private FlowMethodSettings $flowMethodSettings;
-    private EnabledDisabledElement $enabledDisabledElement;    
+    private EnabledDisabledElement $enabledDisabledElement;
     private PaymentLinkRequestFactory $paymentLinkRequestFactory;
     private BillingDescriptorFactory $billingDescriptorFactory;
     private CheckoutProductFactory $checkoutProductFactory;
@@ -169,7 +169,7 @@ class PostPaymentLinks
         );
 
         $this->enabledDisabledElement->append($request);
-        
+
         return $request;
     }
 

@@ -29,7 +29,6 @@
                 <additional_logging></additional_logging>
                 <environment>1</environment>
                 <region>global</region>
-                <service>NAS</service>
                 <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <public_key/>
                 <private_shared_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
@@ -282,7 +281,8 @@
             </checkoutcom_moto>
             <checkoutcom_paybylink>
                 <model>CheckoutCom\Magento2\Model\Methods\PayByLinkMethod</model>
-                <title>Pay by link Payments with Checkout.com</title>
+                <title>Pay by link</title>
+                <sort_order>0</sort_order>
                 <active>0</active>
                 <is_gateway>1</is_gateway>
                 <can_authorize>1</can_authorize>

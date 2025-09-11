@@ -168,7 +168,10 @@ class PaymentErrorHandlerService
         );
 
         // Save the data
-        $this->orderPaymentRepository->save($payment);
+        if ($payment) {
+            $this->orderPaymentRepository->save($payment);
+        }
+
         $this->orderRepository->save($order);
     }
 

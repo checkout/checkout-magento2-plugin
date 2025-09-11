@@ -37,7 +37,6 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigRegion;
-use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\FileSystemException;
@@ -124,7 +123,6 @@ class ApiHandlerService
             $publicKey = $this->config->getValue('public_key', null, (string)$storeCode, $scope);
         }
 
-        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, $scope, $storeCode);
         $environment = $this->config->getEnvironment((string)$storeCode, $scope);
         $api = CheckoutSdk::builder();
         $api = $api->staticKeys();

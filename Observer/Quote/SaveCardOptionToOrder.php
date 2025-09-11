@@ -1,6 +1,6 @@
 <?php
 
-namespace CheckoutCom\Magento\Observer\Quote;
+namespace CheckoutCom\Magento2\Observer\Quote;
 
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Magento\Framework\Event\Observer;

@@ -20,7 +20,6 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Controller\Apm;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
-use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
 use CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
@@ -32,7 +31,6 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Result\PageFactory;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -92,7 +90,6 @@ class Display extends Action
 
             $apms = $this->config->getApms();
             $websiteId = $this->storeManager->getWebsite()->getId();
-            $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, ScopeInterface::SCOPE_WEBSITE, $websiteId);
 
             // Load block data for each APM
             if ($this->getRequest()->getParam('country_id')) {
@@ -103,7 +100,7 @@ class Display extends Action
 
             foreach ($apms as $apm) {
                 if ($this->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    if ((($service === ConfigService::SERVICE_NAS) && !in_array($apm['value'], AlternativePaymentMethod::NAS_UNAVAILABLE_APM))) {
+                    if (!in_array($apm['value'], AlternativePaymentMethod::NAS_UNAVAILABLE_APM)) {
                         $html .= $this->loadBlock($apm['value'], $apm['label']);
                         $available[] = $apm['value'];
                     }
@@ -128,15 +125,15 @@ class Display extends Action
     public function isValidApm(array $apm, array $apmEnabled, array $billingAddress): bool
     {
         return in_array($apm['value'], $apmEnabled)
-               && strpos(
-                      $apm['countries'],
-                      $billingAddress['country_id']
-                  ) !== false
-               && strpos(
-                      $apm['currencies'],
-                      $this->quoteHandler->getQuoteCurrency()
-                  ) !== false
-               && $this->countryCurrencyMapping(
+            && strpos(
+                $apm['countries'],
+                $billingAddress['country_id']
+            ) !== false
+            && strpos(
+                $apm['currencies'],
+                $this->quoteHandler->getQuoteCurrency()
+            ) !== false
+            && $this->countryCurrencyMapping(
                 $apm,
                 $billingAddress['country_id'],
                 $this->quoteHandler->getQuoteCurrency()
@@ -156,9 +153,9 @@ class Display extends Action
     {
         if ($apm['value'] === 'klarna' || $apm['value'] === 'poli') {
             return strpos(
-                       $apm['mappings'][$currency],
-                       $billingCountry
-                   ) !== false;
+                    $apm['mappings'][$currency],
+                    $billingCountry
+                ) !== false;
         }
 
         return true;

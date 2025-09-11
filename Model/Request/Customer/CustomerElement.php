@@ -38,7 +38,7 @@ class CustomerElement
         $model = $this->modelFactory->create();
 
         $model->email = $customer->getEmail();
-        $model->name = $customer->getFirstname() . ' ' . $customer->getLastname();;
+        $model->name = $customer->getFirstname() . ' ' . $customer->getLastname();
 
         return $model;
     }
