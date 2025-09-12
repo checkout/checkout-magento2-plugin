@@ -40,7 +40,7 @@ define([
             this.cartData = CustomerData.get('cart');
             this.customer = CustomerData.get('customer');
 
-            Utilities.loadCss('paypal-express', 'paypal');
+            Utilities.loadCss('paypal-express', 'paypal',true);
             this._loadPaypalScript();
             this._dataListeners();
         },

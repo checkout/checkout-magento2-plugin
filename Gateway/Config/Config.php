@@ -544,6 +544,11 @@ class Config
             $this->assetRepository->getUrl('CheckoutCom_Magento2::css/frames');
     }
 
+    public function getCommonCssPath(): string
+    {
+        return $this->assetRepository->getUrl('CheckoutCom_Magento2::css/common');
+    }
+
     /**
      * Determines if risk rules should be enabled for a payment request
      *

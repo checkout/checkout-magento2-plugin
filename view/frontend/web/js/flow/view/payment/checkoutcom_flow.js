@@ -24,8 +24,10 @@ define(
         "CheckoutCom_Magento2/js/common/view/payment/utilities",
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/full-screen-loader',
+        'Magento_Checkout/js/model/step-navigator',
+        'Magento_Checkout/js/action/redirect-on-success'
     ],
-    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities, AdditionalValidators, FullScreenLoader) {
+    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities, AdditionalValidators, FullScreenLoader, StepNavigator, RedirectOnSuccessAction) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_flow';
@@ -52,7 +54,8 @@ define(
                         'googlepay' : 'google_pay',
                         'applepay' : 'apple_pay'
                     },
-                    currentMethod: null
+                    currentMethod: null,
+                    currentCountryCode: null
                 },
 
                 /**
@@ -60,8 +63,6 @@ define(
                  */
                 initialize: function () {
                     this._super();
-
-                    this.getFlowContextData();
 
                     return this;
                 },
@@ -81,6 +82,12 @@ define(
                 },
 
                 initEvents: function () {
+                    this.getFlowContextData();
+
+                    if (Utilities.getBillingAddress().country_id) {
+                        this.setCountryCode();
+                    }
+
                     // Listen for saveCard event
                     document.querySelector('body').addEventListener(
                         "askPaymentMethod",
@@ -88,6 +95,33 @@ define(
                             this.sendSaveCardEvent(this.currentMethod);
                         },
                     );
+
+                    // Listen for Step change
+                    StepNavigator.steps.subscribe((steps) => {
+                        if (steps[StepNavigator.getActiveItemIndex()]['code'] === 'payment' &&
+                            Utilities.getBillingAddress().country_id !== this.currentCountryCode) {
+                            this.reloadFlow();
+                        }
+                    });
+                },
+
+                /**
+                 * Set current country code
+                 */
+                setCountryCode: function () {
+                    this.currentCountryCode = Utilities.getBillingAddress().country_id;
+                },
+
+                /**
+                 * Reload Flow component if country changed
+                 */
+                reloadFlow: function () {
+                    this.setCountryCode();
+                    this.sendSaveCardEvent();
+
+                    this.flowComponent.unmount();
+
+                    this.getFlowContextData();
                 },
 
                 /**
@@ -188,10 +222,18 @@ define(
 
                     let flowContainer = this.getContainer();
 
+
                     this.flowComponent = checkout.create('flow',{
                         onSubmit: (_self) => {
                             self.saveOrder(_self.type);
-                        }
+                        },
+                        onPaymentCompleted: async (_self, paymentResponse) => {
+                            // Handle synchronous payment
+                            if  (paymentResponse.status === "Approved") {
+                                RedirectOnSuccessAction.execute();
+                            }
+                            FullScreenLoader.stopLoader();
+                        },
                     });
 
                     this.flowComponent.mount(flowContainer);
@@ -268,7 +310,7 @@ define(
                  * Send Event for saveCard
                  * @param selectedType
                  */
-                sendSaveCardEvent: function (selectedType) {
+                sendSaveCardEvent: function (selectedType = null) {
                     this.currentMethod = selectedType;
 
                     const cardEvent = new CustomEvent("saveCard", {

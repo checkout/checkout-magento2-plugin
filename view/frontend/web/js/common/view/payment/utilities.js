@@ -59,16 +59,20 @@ define(
              *
              * @return {void}
              */
-            loadCss: function (fileName, folderPath) {
+            loadCss: function (fileName, folderPath, isCommon = false) {
                 // Prepare the folder path
                 folderPath = (folderPath) ? '/' + folderPath : '';
 
                 // Get the CSS config parameters
-                var useMinCss = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.use_minified_css;
-                var ext = (useMinCss == '1') ? '.min.css' : '.css';
+                const useMinCss = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.use_minified_css;
+                const ext = (useMinCss == '1') ? '.min.css' : '.css';
 
                 // Build the payment form CSS path
-                var cssPath = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.css_path;
+                let cssPath = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.css_path;
+
+                if (isCommon) {
+                    cssPath = window.checkoutConfig.payment.checkoutcom_magento2.checkoutcom_data.css_common_path;
+                }
                 cssPath += folderPath + '/' + fileName + ext;
 
                 const css = document.createElement('link');
@@ -439,7 +443,7 @@ define(
                             window.location.href = data.url;
                         } else {
                             // Prevent redirection before flow 3DS
-                            if (isFlow && has3DS) {
+                            if (isFlow) {
                                 return true;
                             }
 
