@@ -99,7 +99,7 @@ define(
                     // Listen for Step change
                     StepNavigator.steps.subscribe((steps) => {
                         if (steps[StepNavigator.getActiveItemIndex()]['code'] === 'payment' &&
-                            Utilities.getBillingAddress().country_id !== self.currentCountryCode) {
+                            Utilities.getBillingAddress().country_id !== this.currentCountryCode) {
                             this.reloadFlow();
                         }
                     });
