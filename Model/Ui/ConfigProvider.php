@@ -104,6 +104,7 @@ class ConfigProvider implements ConfigProviderInterface
                 'cards' => $this->cardHandler->getCardIcons(),
                 'images_path' => $this->config->getImagesPath(),
                 'css_path' => $this->config->getCssPath(),
+                'css_common_path' => $this->config->getCommonCssPath(),
                 'use_minified_css' => $this->config->getCoreValue('dev/css/minify_files'),
                 'paypal_allowed_currencies' => array_filter(explode(',', $this->paypalMethod->getConfigData('specificcurrencies') ?? ''))
             ],

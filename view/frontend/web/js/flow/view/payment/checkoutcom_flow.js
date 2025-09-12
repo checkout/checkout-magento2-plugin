@@ -24,9 +24,10 @@ define(
         "CheckoutCom_Magento2/js/common/view/payment/utilities",
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/full-screen-loader',
-        'Magento_Checkout/js/model/step-navigator'
+        'Magento_Checkout/js/model/step-navigator',
+        'Magento_Checkout/js/action/redirect-on-success'
     ],
-    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities, AdditionalValidators, FullScreenLoader, StepNavigator) {
+    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities, AdditionalValidators, FullScreenLoader, StepNavigator, RedirectOnSuccessAction) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_flow';
@@ -81,7 +82,6 @@ define(
                 },
 
                 initEvents: function () {
-                    let self = this;
                     this.getFlowContextData();
 
                     if (Utilities.getBillingAddress().country_id) {
@@ -100,7 +100,7 @@ define(
                     StepNavigator.steps.subscribe((steps) => {
                         if (steps[StepNavigator.getActiveItemIndex()]['code'] === 'payment' &&
                             Utilities.getBillingAddress().country_id !== self.currentCountryCode) {
-                            self.reloadFlow();
+                            this.reloadFlow();
                         }
                     });
                 },
@@ -222,10 +222,18 @@ define(
 
                     let flowContainer = this.getContainer();
 
+
                     this.flowComponent = checkout.create('flow',{
                         onSubmit: (_self) => {
                             self.saveOrder(_self.type);
-                        }
+                        },
+                        onPaymentCompleted: async (_self, paymentResponse) => {
+                            // Handle synchronous payment
+                            if  (paymentResponse.status === "Approved") {
+                                RedirectOnSuccessAction.execute();
+                            }
+                            FullScreenLoader.stopLoader();
+                        },
                     });
 
                     this.flowComponent.mount(flowContainer);
