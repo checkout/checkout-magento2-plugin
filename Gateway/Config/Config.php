@@ -544,11 +544,6 @@ class Config
             $this->assetRepository->getUrl('CheckoutCom_Magento2::css/frames');
     }
 
-    /**
-     * Gets common CSS path
-     *
-     * @return string
-     */
     public function getCommonCssPath(): string
     {
         return $this->assetRepository->getUrl('CheckoutCom_Magento2::css/common');
