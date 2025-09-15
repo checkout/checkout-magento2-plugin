@@ -75,7 +75,7 @@ class FlowPrepareService
             $storeCode = null;
 
             $this->logger->error(
-                sprintf("Unable to fetch store code or website code: %s", $error->getMessage()),
+                sprintf('Unable to fetch store code or website code: %s', $error->getMessage())
             );
         }
 
@@ -86,11 +86,14 @@ class FlowPrepareService
         $payload = $this->postPaymentSession->get($quote, $data);
 
         try {
-            $this->ckoLogger->additional($this->utilities->objectToArray($payload), 'payment');
+            $this->ckoLogger->additional($this->utilities->objectToArray($payload, true), 'payment');
             $responseAPI = $api->getCheckoutApi()->getPaymentSessionsClient()->createPaymentSessions($payload);
         } catch (Exception $error) {
             $this->logger->error(
-                sprintf("Error during API call: %s", $error->getMessage()),
+                sprintf(
+                    'Error during API call: %s, %s',
+                    $error->getMessage(),
+                    print_r($error->error_details ?? '', true))
             );
 
             return [
