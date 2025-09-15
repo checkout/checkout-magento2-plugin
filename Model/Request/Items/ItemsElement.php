@@ -105,11 +105,11 @@ class ItemsElement
         }
         if ($adjustment > 0) {
             $product = $this->modelFactory->create();
-            $product->quantity = 1;
-            $product->total_amount = $adjustment;
-            $product->unit_price = $adjustment;
             $product->name = "CheckoutCom total adjustment";
-            $product->sku = "CKO_ADJUST";
+            $product->quantity = 1;
+            $product->reference = "CKO_ADJUST";
+            $product->unit_price = $adjustment;
+            $product->total_amount = $adjustment;
             $items[] = $product;
         }
     }
@@ -122,10 +122,10 @@ class ItemsElement
             return null;
         }
 
-        $discount = $discountOnUnitPrice = $this->utilities->formatDecimals($item->getDiscountAmount()) * 100;
-        $rowAmount = ($this->utilities->formatDecimals($item->getRowTotalInclTax()) * 100) -
+        $discount = $discountOnUnitPrice = $this->utilities->formatDecimals($item->getDiscountAmount());
+        $rowAmount = ($this->utilities->formatDecimals($item->getRowTotalInclTax())) -
             ($this->utilities->formatDecimals($discount));
-        $unitPrice = ($this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty()) * 100) -
+        $unitPrice = ($this->utilities->formatDecimals($item->getRowTotalInclTax() / $item->getQty())) -
             ($this->utilities->formatDecimals($discountOnUnitPrice / $item->getQty()));
         // Api does not accept 0 prices
         if (!$unitPrice) {
@@ -135,8 +135,8 @@ class ItemsElement
         $product->name = $item->getName();
         $product->quantity = $item->getQty();
         $product->reference = $item->getSku();
-        $product->unit_price = $unitPrice;
-        $product->total_amount = $rowAmount;
+        $product->unit_price = $this->priceFormatter->getFormattedPrice($unitPrice, $currency);
+        $product->total_amount = $this->priceFormatter->getFormattedPrice($rowAmount, $currency);;
 
         return $product;
     }

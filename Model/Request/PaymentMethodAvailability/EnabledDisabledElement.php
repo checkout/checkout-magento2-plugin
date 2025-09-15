@@ -67,7 +67,7 @@ class EnabledDisabledElement
 
         $availablePaymentMethods = $this->doCheck(
             $payload->currency ?? '',
-            'currency',
+            'currencies',
             $availablePaymentMethods,
             $allPaymentMethods
         );
