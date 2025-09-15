@@ -73,7 +73,8 @@ class Utilities
      */
     public function objectToArray($object, bool $v2 = false): array
     {
-        $dataToUnserialize = $v2? $this->jsonSerializer->serialize($object) : $this->json->serialize($object);
+        $dataToUnserialize = $v2 ? $this->jsonSerializer->serialize($object) : $this->json->serialize($object);
+
         return $this->json->unserialize($dataToUnserialize);
     }
 
