@@ -217,6 +217,7 @@ define(
                         onError: (component, error) => {
                             Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
                             Utilities.log("Error with payment method " + component.type, error);
+                            FullScreenLoader.stopLoader();
                         }
                     });
 
