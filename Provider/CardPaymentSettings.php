@@ -24,6 +24,7 @@ class CardPaymentSettings extends AbstractSettingsProvider
 {
     public const CONFIG_THREE_DS = 'payment/checkoutcom_card_payment/three_ds';
     public const CONFIG_ATTEMPT_N3D = 'payment/checkoutcom_card_payment/attempt_n3d';
+    public const CONFIG_SAVE_CARD = 'payment/checkoutcom_card_payment/save_card_option';
 
     public function isThreeDSEnabled(?string $website): bool
     {
@@ -37,6 +38,14 @@ class CardPaymentSettings extends AbstractSettingsProvider
     {
         return $this->getWebsiteLevelConfiguration(
             self::CONFIG_ATTEMPT_N3D,
+            $website
+        ) === "1";
+    }
+
+    public function isSaveCardEnabled(?string $website): bool
+    {
+        return $this->getWebsiteLevelConfiguration(
+            self::CONFIG_SAVE_CARD,
             $website
         ) === "1";
     }

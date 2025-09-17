@@ -37,11 +37,11 @@ class PaymentConfigurationDetailsElement
         $this->accountHolderElement = $accountHolderElement;
     }
 
-    public function get(CustomerInterface $customer): PaymentConfigurationDetails
+    public function get(CustomerInterface $customer, bool $saveCard = false): PaymentConfigurationDetails
     {
         $model = $this->modelFactory->create();
 
-        $model->store_payment_details = "disabled";
+        $model->store_payment_details = $saveCard ? "enabled" : "disabled";
         $model->account_holder = $this->accountHolderElement->get($customer);
 
         return $model;

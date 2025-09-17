@@ -33,6 +33,8 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
     public const CONFIG_FLOW_PAYMENT_PAYPAL_METHODS = 'payment/checkoutcom_paypal/active';
     public const CONFIG_FLOW_PAYMENT_CARD_METHODS = 'payment/checkoutcom_card_payment/active';
 
+    public const CONFIG_FLOW_APPLEPAY_ACTIVATED_ON_CHECKOUT = 'payment/checkoutcom_apple_pay/enabled_on_checkout';
+
     private const METHOD_CARD_NAME = 'card';
     private const METHOD_KLARNA_NAME = 'klarna';
     private const METHOD_GOOGLEPAY_NAME = 'googlepay';
@@ -70,12 +72,21 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
         ) === "1";
     }
 
-    public function isApplePayEnabled(?string $website): bool
+    public function isApplePayEnabled(?string $website, bool $disableLocalisationCheck = false): bool
     {
-        return $this->getWebsiteLevelConfiguration(
+        $activated = $this->getWebsiteLevelConfiguration(
             self::CONFIG_FLOW_PAYMENT_APPLEPAY_METHODS,
             $website
         ) === "1";
+
+        if ($disableLocalisationCheck) {
+            return $activated;
+        }
+
+        return $activated && $this->getWebsiteLevelConfiguration(
+            self::CONFIG_FLOW_APPLEPAY_ACTIVATED_ON_CHECKOUT,
+            $website
+        ) === "1";;
     }
 
     public function isPaypalEnabled(?string $website): bool
